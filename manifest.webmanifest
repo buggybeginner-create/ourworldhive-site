@@ -1,0 +1,10 @@
+{
+  "name": "My Diary",
+  "short_name": "My Diary",
+  "description": "A paper-style diary with notes, tasks and handwriting.",
+  "start_url": "diary-app.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#c9d0cb",
+  "theme_color": "#c9d0cb"
+}

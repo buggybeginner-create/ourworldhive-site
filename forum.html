@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Community forum | Ourworldhive</title><meta name="description" content="Ask questions and share what you know about the world in the Ourworldhive community forum."><meta name="theme-color" content="#050918"><link rel="canonical" href="https://ourworldhive.com/forum.html"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050918'/%3E%3Cpath d='M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8z' fill='none' stroke='%23ffc857' stroke-width='2.2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23eaf1ff' stroke-width='1.6'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Community forum | Ourworldhive"><meta property="og:description" content="Ask questions and share what you know about the world in the Ourworldhive community forum."><meta property="og:url" content="https://ourworldhive.com/forum.html"><meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Always-dark space theme; tokens repeated for each theme state. */
+:root{
+  --space:#060a1c; --ink:#eaf1ff; --muted:#93a4cc; --line:rgba(255,255,255,.13); --panel:rgba(255,255,255,.055);
+  --gold:#ffc857; --red:#ff8b98; --green:#6ee7a8; --blue:#7cc4ff;
+  --font-d:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif; --font-b:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --space:#060a1c; --ink:#eaf1ff; } }
+:root[data-theme="dark"]{ --space:#060a1c; --ink:#eaf1ff; }
+html{ background:var(--space); color-scheme:dark; scroll-padding-top:env(safe-area-inset-top,0px); }
+*,*::before,*::after{ box-sizing:border-box; }
+body{ margin:0; min-height:100vh; background:radial-gradient(1100px 600px at 80% -10%,#1a2461 0%,transparent 60%),radial-gradient(900px 500px at -10% 10%,#2a1a55 0%,transparent 55%),var(--space); color:var(--ink); font-family:var(--font-b); -webkit-font-smoothing:antialiased; line-height:1.5; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+button{ cursor:pointer; }
+a{ color:var(--blue); }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+.wrap{ width:min(900px,100%); margin:0 auto; padding:0 16px; }
+
+.bar{ position:sticky; top:0; z-index:20; background:rgba(6,10,28,.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
+.bar .wrap{ display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; padding-top:10px; padding-bottom:10px; }
+.home{ color:var(--muted); text-decoration:none; font-size:14px; white-space:nowrap; }
+.home:hover{ color:var(--ink); }
+.bar h1{ margin:0; font-family:var(--font-d); font-size:22px; letter-spacing:-.02em; flex:1 1 auto; }
+.userbox{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ribbon{ background:rgba(255,200,87,.12); border-bottom:1px solid rgba(255,200,87,.35); color:#ffe2a3; font-size:13px; padding:7px 0; }
+.ribbon .wrap{ padding-top:0; padding-bottom:0; }
+.hidden{ display:none !important; }
+
+.btn{ border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:8px 15px; font-weight:600; font-size:14px; transition:background .15s,border-color .15s; }
+.btn:hover{ background:rgba(255,255,255,.1); }
+.a.btn{} a.btn{ text-decoration:none; color:var(--ink); display:inline-block; }
+.btn.primary{ background:linear-gradient(135deg,#ffc857,#ff9f5a); color:#1a1030; border:0; }
+.btn.primary:hover{ filter:brightness(1.06); }
+.btn.danger{ border-color:rgba(255,139,152,.55); color:var(--red); }
+.btn.sm{ padding:5px 11px; font-size:12.5px; }
+.btn[disabled]{ opacity:.5; cursor:not-allowed; }
+.badge{ display:inline-block; padding:1px 8px; border-radius:999px; font-size:11.5px; font-weight:600; border:1px solid var(--line); color:var(--muted); vertical-align:middle; }
+.badge.admin{ color:#ffd98a; border-color:#ffd98a; } .badge.mod{ color:var(--green); border-color:var(--green); }
+.badge.pin{ color:var(--gold); border-color:var(--gold); } .badge.lock{ color:var(--red); border-color:var(--red); } .badge.op{ color:var(--blue); border-color:var(--blue); }
+.av{ flex:none; width:34px; height:34px; border-radius:50%; display:inline-grid; place-items:center; font-weight:700; font-size:15px; color:#fff; }
+.av.s{ width:26px; height:26px; font-size:12px; }
+
+main{ padding:18px 0 80px; }
+.cats{ display:flex; gap:8px; overflow-x:auto; padding:2px 0 10px; scrollbar-width:thin; }
+.chip{ flex:none; border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:7px 14px; font-size:13.5px; font-weight:500; }
+.chip[aria-pressed="true"]{ border-color:var(--gold); background:rgba(255,200,87,.14); }
+.chip small{ color:var(--muted); margin-left:4px; }
+.tools{ display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 14px; }
+.tools input{ flex:1 1 220px; padding:10px 15px; border-radius:999px; border:1px solid var(--line); background:var(--panel); }
+.card{ border:1px solid var(--line); background:var(--panel); border-radius:16px; padding:14px 16px; }
+.trow{ display:flex; gap:12px; align-items:flex-start; padding:13px 14px; border:1px solid var(--line); background:var(--panel); border-radius:14px; margin-bottom:10px; text-decoration:none; color:inherit; cursor:pointer; transition:background .15s,transform .15s; }
+.trow:hover{ background:rgba(255,255,255,.09); transform:translateY(-1px); }
+.trow .tt{ font-weight:600; font-size:16px; margin:0 0 3px; word-break:break-word; }
+.trow .meta{ color:var(--muted); font-size:13px; }
+.trow .cnt{ margin-left:auto; text-align:center; min-width:52px; color:var(--muted); font-size:12px; }
+.trow .cnt b{ display:block; color:var(--ink); font-size:18px; font-family:var(--font-d); }
+.empty{ text-align:center; color:var(--muted); padding:34px 10px; }
+.crumb{ margin:0 0 12px; font-size:14px; }
+.crumb a{ color:var(--muted); text-decoration:none; } .crumb a:hover{ color:var(--ink); }
+.th h2{ margin:4px 0 8px; font-family:var(--font-d); font-size:26px; letter-spacing:-.02em; word-break:break-word; }
+.post{ display:flex; gap:12px; margin:12px 0; }
+.post .box{ flex:1; min-width:0; border:1px solid var(--line); background:var(--panel); border-radius:14px; padding:12px 15px; }
+.post .head{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13.5px; margin-bottom:6px; }
+.post .head b{ font-size:14.5px; } .post .head span.t{ color:var(--muted); }
+.post .body{ white-space:pre-wrap; word-break:break-word; font-size:15.5px; }
+.post .acts{ margin-top:9px; display:flex; gap:8px; flex-wrap:wrap; }
+.post.pending .box{ border-style:dashed; border-color:rgba(255,200,87,.5); }
+.modbar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:6px 0 4px; padding:8px 10px; border:1px dashed rgba(110,231,168,.5); border-radius:12px; font-size:13px; color:var(--green); }
+.modbar select{ background:#101845; border:1px solid var(--line); border-radius:8px; padding:4px 8px; }
+.composer textarea,.modal textarea,.modal input,.modal select{ width:100%; padding:11px 13px; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.06); resize:vertical; }
+.modal select option{ background:#101845; }
+.composer textarea{ min-height:96px; }
+.composer .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; }
+.muted{ color:var(--muted); font-size:13px; }
+.err{ color:var(--red); font-size:13.5px; margin:8px 0 0; min-height:18px; }
+
+.modalback{ position:fixed; inset:0; background:rgba(2,4,14,.7); display:none; align-items:flex-start; justify-content:center; padding:calc(40px + env(safe-area-inset-top,0px)) 14px 20px; overflow:auto; z-index:50; }
+.modalback.open{ display:flex; }
+.modal{ width:min(520px,100%); background:#0c1234; border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+.modal.wide{ width:min(780px,100%); }
+.modal h3{ margin:0 0 6px; font-family:var(--font-d); font-size:21px; }
+.modal label{ display:block; margin:12px 0 5px; font-size:13px; color:var(--muted); }
+.modal .actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap; }
+.tabs{ display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 12px; }
+.item{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:8px 0; background:rgba(255,255,255,.04); }
+.item .q{ white-space:pre-wrap; word-break:break-word; font-size:14px; margin:4px 0 8px; color:#cfd9f7; max-height:120px; overflow:auto; }
+.item .row{ display:flex; gap:8px; flex-wrap:wrap; }
+.toasts{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:8px; z-index:80; width:min(420px,calc(100vw - 24px)); pointer-events:none; }
+.toast{ background:#16205a; border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:14px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+.toast.bad{ border-color:var(--red); }
+@media (max-width:560px){ .bar h1{ font-size:19px; } .th h2{ font-size:22px; } }
+
+:root{ --sx-space:#050918; --sx-ink:#eaf1ff; --sx-soft:#cdd8f5; --sx-muted:#93a4cc; --sx-line:rgba(255,255,255,.14); --sx-gold:#ffc857;
+  --sx-d:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif; --sx-b:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hh:calc(56px + env(safe-area-inset-top,0px)); --fh:calc(38px + env(safe-area-inset-bottom,0px)); }
+.sx-head{ position:sticky; top:0; z-index:100; height:var(--hh); padding-top:env(safe-area-inset-top,0px); background:rgba(5,9,24,.9);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--sx-line); font-family:var(--sx-b); }
+.sx-head.fixed{ position:fixed; left:0; right:0; top:0; }
+.sx-in{ max-width:1180px; height:56px; margin:0 auto; padding:0 18px; display:flex; align-items:center; gap:20px; }
+.sx-brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--sx-ink); flex:none; }
+.sx-brand span{ font-family:var(--sx-d); font-weight:700; font-size:21px; letter-spacing:-.025em; }
+.sx-head nav{ margin-left:auto; }
+.sx-nav{ display:flex; gap:2px; margin:0; padding:0; list-style:none; }
+.sx-nav a{ position:relative; display:flex; align-items:center; gap:5px; height:56px; padding:0 12px; color:var(--sx-muted); text-decoration:none; font-weight:500; font-size:15px; transition:color .15s; }
+.sx-nav a:hover{ color:var(--sx-ink); }
+.sx-nav a[aria-current="page"]{ color:var(--sx-ink); font-weight:600; }
+.sx-nav a[aria-current="page"]::after{ content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--sx-gold); }
+.sx-ext{ opacity:.7; }
+.sx-head a:focus-visible,.sx-foot a:focus-visible,.sx-burger:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; border-radius:6px; }
+.sx-burger{ display:none; margin-left:auto; width:44px; height:44px; border:0; background:transparent; border-radius:10px; position:relative; }
+.sx-burger span{ position:absolute; left:11px; right:11px; height:2px; border-radius:2px; background:var(--sx-ink); transition:transform .2s, opacity .2s; }
+.sx-burger span:nth-child(1){ top:15px; } .sx-burger span:nth-child(2){ top:21px; } .sx-burger span:nth-child(3){ top:27px; }
+.sx-head.open .sx-burger span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.sx-head.open .sx-burger span:nth-child(2){ opacity:0; }
+.sx-head.open .sx-burger span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+@media (max-width:900px){
+  .sx-burger{ display:block; }
+  .sx-head nav{ position:absolute; left:0; right:0; top:100%; margin:0; background:#050918; border-bottom:1px solid var(--sx-line); display:none; max-height:calc(100vh - var(--hh)); overflow:auto; }
+  .sx-head.open nav{ display:block; }
+  .sx-nav{ flex-direction:column; gap:0; padding:4px 18px 14px; }
+  .sx-nav li + li{ border-top:1px solid var(--sx-line); }
+  .sx-nav a{ height:50px; padding:0; font-size:17px; }
+  .sx-nav a[aria-current="page"]{ color:var(--sx-gold); }
+  .sx-nav a[aria-current="page"]::after{ display:none; }
+}
+.sx-foot{ font-family:var(--sx-b); color:var(--sx-muted); font-size:14px; }
+.sx-foot a{ color:var(--sx-soft); text-decoration:none; }
+.sx-foot a:hover{ color:var(--sx-gold); text-decoration:underline; text-underline-offset:3px; }
+.sx-foot:not(.mini){ margin-top:96px; background:#040714; border-top:1px solid var(--sx-line); }
+.sx-fin{ max-width:1180px; margin:0 auto; padding:52px 18px 0; }
+.sx-fgrid{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); gap:40px; }
+.sx-fbrand p{ margin:14px 0 0; max-width:36ch; line-height:1.6; }
+.sx-foot h2{ margin:0 0 14px; font-family:var(--sx-d); font-weight:500; font-size:17px; color:var(--sx-ink); letter-spacing:-.01em; }
+.sx-foot ul{ margin:0; padding:0; list-style:none; display:grid; gap:10px; }
+.sx-fbar{ margin-top:44px; padding:20px 0 calc(22px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--sx-line); display:flex; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; font-size:13.5px; }
+.sx-fbar p{ margin:0; }
+.sx-fbar p:first-child{ color:var(--sx-ink); }
+@media (max-width:720px){ .sx-fgrid{ grid-template-columns:1fr 1fr; gap:32px 20px; } .sx-fbrand{ grid-column:1/-1; } }
+.sx-foot.mini{ position:fixed; left:0; right:0; bottom:0; z-index:100; height:var(--fh); padding:0 16px env(safe-area-inset-bottom,0px); display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:rgba(5,9,24,.94); border-top:1px solid var(--sx-line); font-size:12.5px; white-space:nowrap; }
+.sx-foot.mini p{ margin:0; color:var(--sx-ink); overflow:hidden; text-overflow:ellipsis; }
+.sx-foot.mini nav{ display:flex; gap:14px; flex:none; }
+@media (max-width:460px){ .sx-foot.mini{ font-size:12px; padding-left:12px; padding-right:12px; } .sx-foot.mini nav{ gap:11px; } .sx-foot.mini nav a:nth-child(3){ display:none; } }
+.bar{ top:var(--hh); }
+</style>
+</head>
+<body>
+<header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a href="forum.html" aria-current="page">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Blog<svg class="sx-ext" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M4 2h6v6M10 2 3 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
+<header class="bar"><div class="wrap">
+  <a class="home" id="homeLink" href="index.html" hidden>World Explorer</a>
+  <h1>Community Forum</h1>
+  <div class="userbox" id="userbox"></div>
+</div></header>
+<div class="ribbon hidden" id="ribbon"><div class="wrap" id="ribbontxt"></div></div>
+<div class="wrap"><main id="main"><p class="empty">Loading the forum&hellip;</p></main></div>
+<div class="modalback" id="modalback"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<footer class="sx-foot"><div class="sx-fin">
+<div class="sx-fgrid">
+<div class="sx-fbrand"><a class="sx-brand" href="index.html"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a>
+<p>An interactive map of the world with a community around it. Spin the Earth, open a country, and talk about what you find.</p></div>
+<div><h2>Explore</h2><ul>
+<li><a href="index.html">World explorer</a></li><li><a href="news.html">News</a></li><li><a href="forum.html">Community forum</a></li>
+<li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li>
+<li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Our Wicked World blog</a></li></ul></div>
+<div><h2>Information</h2><ul>
+<li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li>
+<li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms and map disclaimer</a></li></ul></div>
+</div>
+<div class="sx-fbar"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p>
+<p>&#9888;&#65039; Maps are not verified and may be under legal review. <a href="terms.html#maps">Read the disclaimer</a></p></div>
+</div></footer><script src="firebase-config.js"></script><script>
+(function(){
+  var h=document.querySelector('.sx-head'), b=document.getElementById('sxburger');
+  if(h&&b){
+    function set(o){ h.classList.toggle('open',o); b.setAttribute('aria-expanded',o?'true':'false'); b.setAttribute('aria-label',o?'Close menu':'Open menu'); }
+    b.addEventListener('click',function(e){ e.stopPropagation(); set(!h.classList.contains('open')); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+    document.addEventListener('click',function(e){ if(!h.contains(e.target)) set(false); });
+    window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
+  }
+  var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
+})();
+</script>
+<script>
+(function(){
+'use strict';
+
+/* ============ SETTINGS (edit these) ============ */
+/* Paste your Firebase web app config here to make the forum real and shared, for example:
+   {apiKey:"...", authDomain:"your-project.firebaseapp.com", projectId:"your-project", appId:"..."}
+   Leave it as null to run in demo mode (data stays only in this browser). */
+var FIREBASE_CONFIG=window.OWH_FIREBASE||null;
+var SITE_HOME='index.html';
+var CATS=[
+  {id:'general',name:'General'},
+  {id:'places',name:'Places and travel'},
+  {id:'wonders',name:'Wonders and landmarks'},
+  {id:'culture',name:'History and culture'},
+  {id:'help',name:'Help and feedback'}
+];
+var LIMITS={title:[4,120],thread:[10,5000],post:[2,3000],links:2,threadGapMs:30000,postGapMs:12000};
+/* ================================================ */
+
+var $=function(s,r){ return (r||document).querySelector(s); };
+var esc=function(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); };
+function timeAgo(ms){
+  var s=Math.max(1,Math.round((Date.now()-ms)/1000)); if(s<60) return 'just now';
+  var m=Math.round(s/60); if(m<60) return m+' min ago'; var h=Math.round(m/60); if(h<24) return h+' h ago';
+  var d=Math.round(h/24); if(d<30) return d+' d ago';
+  return new Date(ms).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+}
+function hue(s){ var h=0; s=String(s||'?'); for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%360; return h; }
+function avatar(name,uid,small){ return '<span class="av'+(small?' s':'')+'" style="background:hsl('+hue(uid||name)+' 55% 42%)">'+esc(String(name||'?').trim().charAt(0).toUpperCase())+'</span>'; }
+function catName(id){ for(var i=0;i<CATS.length;i++) if(CATS[i].id===id) return CATS[i].name; return 'General'; }
+function toast(msg,bad){ var box=$('#toasts'); while(box.children.length>=3) box.removeChild(box.firstChild); var t=document.createElement('div'); t.className='toast'+(bad?' bad':''); t.textContent=msg; $('#toasts').appendChild(t); setTimeout(function(){ t.remove(); },bad?5000:3200); }
+function rid(){ return 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function loadScript(src){ return new Promise(function(res,rej){ var s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=function(){ rej(new Error(src)); }; document.head.appendChild(s); }); }
+
+/* ============ Data layer: demo (this browser only) ============ */
+function DemoAdapter(){
+  var KEY='wfForumDemo1', subs=[], authFns=[], S=load();
+  function seed(){
+    var n=Date.now(), D=86400000;
+    var s={threads:[],posts:[],pending:[],reports:[],roles:{},bans:{},config:{approval:false},user:null};
+    s.roles.demo_asha={role:'admin',name:'Asha'}; s.roles.demo_ravi={role:'mod',name:'Ravi'};
+    s.threads.push({id:'t1',cat:'general',title:'Welcome! Please read the forum rules',body:'Be kind and respectful.\nNo spam, ads or hate speech.\nStay on topic and use the right category.\nModerators may remove posts that break these rules.',uid:'demo_asha',name:'Asha',createdAt:n-5*D,pinned:true,locked:false});
+    s.threads.push({id:'t2',cat:'wonders',title:'Which wonder should get a 3D model next?',body:'We have the Taj Mahal and the Pyramids. Petra or the Statue of Liberty next? Vote with a reply.',uid:'demo_priya',name:'Priya',createdAt:n-2*D,pinned:false,locked:false});
+    s.threads.push({id:'t3',cat:'places',title:'Best time to visit Rajasthan?',body:'Planning a trip with family. Is winter really the best season? Any tips for forts and desert camps?',uid:'demo_arjun',name:'Arjun',createdAt:n-1*D,pinned:false,locked:false});
+    s.threads.push({id:'t4',cat:'culture',title:'Your favourite story from your country\u2019s history',body:'Share a short story or a place that you think more people should know about.',uid:'demo_meera',name:'Meera',createdAt:n-6*3600000,pinned:false,locked:false});
+    s.posts.push({id:'p1',tid:'t2',body:'Petra please! The rock-cut Treasury would look great in 3D.',uid:'demo_arjun',name:'Arjun',createdAt:n-1.5*D});
+    s.posts.push({id:'p2',tid:'t2',body:'Statue of Liberty gets my vote.',uid:'demo_meera',name:'Meera',createdAt:n-20*3600000});
+    s.posts.push({id:'p3',tid:'t3',body:'October to March is the comfortable season. Book desert camps early for December.',uid:'demo_priya',name:'Priya',createdAt:n-10*3600000});
+    return s;
+  }
+  function load(){ try{ var j=JSON.parse(localStorage.getItem(KEY)); if(j&&j.threads&&j.roles) return j; }catch(e){} return seed(); }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+  function list(c){
+    if(c==='roles'||c==='bans') return Object.keys(S[c]).map(function(k){ var o=Object.assign({},S[c][k]); o.id=k; return o; });
+    if(c==='config') return [Object.assign({id:'forum'},S.config)];
+    return S[c].map(function(o){ return Object.assign({},o); });
+  }
+  function emit(c){ subs.forEach(function(s){ if(s.c===c) s.h(); }); }
+  function emitAll(){ ['threads','posts','pending','reports','roles','bans','config'].forEach(emit); }
+  window.addEventListener('storage',function(e){ if(e.key===KEY){ S=load(); emitAll(); authFns.forEach(function(f){ f(S.user); }); } });
+  var map=function(c){ return (c==='roles'||c==='bans'); };
+  return {
+    mode:'demo',
+    init:function(){ return Promise.resolve(); },
+    me:function(){ return S.user; },
+    onAuth:function(fn){ authFns.push(fn); setTimeout(function(){ fn(S.user); },0); },
+    signInDemo:function(name,role){
+      var uid='demo_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+      S.user={uid:uid,name:name};
+      if(role==='member') delete S.roles[uid]; else S.roles[uid]={role:role,name:name};
+      save(); emit('roles'); authFns.forEach(function(f){ f(S.user); }); return Promise.resolve();
+    },
+    signOut:function(){ S.user=null; save(); authFns.forEach(function(f){ f(null); }); return Promise.resolve(); },
+    subscribe:function(c,fn,o){
+      o=o||{};
+      var h=function(){ var a=list(c); if(o.docId) a=a.filter(function(x){ return x.id===o.docId; }); if(o.where) a=a.filter(function(x){ return x[o.where[0]]===o.where[2]; }); fn(a); };
+      var s={c:c,h:h}; subs.push(s); setTimeout(h,0);
+      return function(){ var i=subs.indexOf(s); if(i>=0) subs.splice(i,1); };
+    },
+    add:function(c,d){ var id=rid(); S[c].push(Object.assign({id:id},d)); save(); emit(c); return Promise.resolve(id); },
+    set:function(c,id,d){
+      if(map(c)) S[c][id]=d; else if(c==='config') S.config=d;
+      else { var i=S[c].findIndex(function(x){ return x.id===id; }); var o=Object.assign({id:id},d); if(i>=0) S[c][i]=o; else S[c].push(o); }
+      save(); emit(c); return Promise.resolve();
+    },
+    update:function(c,id,p){ var o=S[c].find(function(x){ return x.id===id; }); if(o) Object.assign(o,p); save(); emit(c); return Promise.resolve(); },
+    del:function(c,id){ if(map(c)) delete S[c][id]; else S[c]=S[c].filter(function(x){ return x.id!==id; }); save(); emit(c); return Promise.resolve(); }
+  };
+}
+
+/* ============ Data layer: Firebase (real, shared) ============ */
+function FirebaseAdapter(cfg){
+  firebase.initializeApp(cfg);
+  var auth=firebase.auth(), db=firebase.firestore();
+  function cur(){ var u=auth.currentUser; return u?{uid:u.uid,name:u.displayName||String(u.email||'Member').split('@')[0]}:null; }
+  return {
+    mode:'firebase',
+    init:function(){ return Promise.resolve(); },
+    me:cur,
+    onAuth:function(fn){ auth.onAuthStateChanged(function(){ fn(cur()); }); },
+    signInGoogle:function(){ return auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); },
+    signInEmail:function(e,p){ return auth.signInWithEmailAndPassword(e,p); },
+    register:function(e,p,name){ return auth.createUserWithEmailAndPassword(e,p).then(function(c){ return c.user.updateProfile({displayName:name}); }); },
+    signOut:function(){ return auth.signOut(); },
+    subscribe:function(c,fn,o){
+      o=o||{}; var err=function(e){ console.warn('forum listener',c,e&&e.code); if(e&&e.code==='permission-denied') fn([]); };
+      if(o.docId) return db.collection(c).doc(o.docId).onSnapshot(function(s){ fn(s.exists?[Object.assign({id:s.id},s.data())]:[]); },err);
+      var q=db.collection(c); if(o.where) q=q.where(o.where[0],o.where[1],o.where[2]);
+      return q.onSnapshot(function(s){ fn(s.docs.map(function(d){ return Object.assign({id:d.id},d.data()); })); },err);
+    },
+    add:function(c,d){ return db.collection(c).add(d).then(function(r){ return r.id; }); },
+    set:function(c,id,d){ return db.collection(c).doc(id).set(d); },
+    update:function(c,id,p){ return db.collection(c).doc(id).update(p); },
+    del:function(c,id){ return db.collection(c).doc(id).delete(); }
+  };
+}
+
+/* ============ App state ============ */
+var A=null, me=null;
+var D={threads:[],posts:[],pending:[],reports:[],roles:{},bans:{},config:{approval:false}};
+var dyn=[], dynKey='', lastThreadAt=0, lastPostAt=0;
+var view={type:'',cat:'all',q:'',tid:'',tab:'reports',shown:30}, drafts={reply:{}};
+
+function roleOf(uid){ var r=D.roles[uid]; return r?r.role:'member'; }
+function isMod(){ return !!me&&(roleOf(me.uid)==='mod'||roleOf(me.uid)==='admin'); }
+function isAdmin(){ return !!me&&roleOf(me.uid)==='admin'; }
+function banned(){ return !!me&&!!D.bans[me.uid]; }
+function approvalOn(){ return !!D.config.approval; }
+function threadById(id){ for(var i=0;i<D.threads.length;i++) if(D.threads[i].id===id) return D.threads[i]; return null; }
+function postsOf(tid){ return D.posts.filter(function(p){ return p.tid===tid; }).sort(function(a,b){ return a.createdAt-b.createdAt; }); }
+function roleBadge(uid){ var r=roleOf(uid); return r==='admin'?'<span class="badge admin">Admin</span>':r==='mod'?'<span class="badge mod">Moderator</span>':''; }
+
+/* ---- subscriptions ---- */
+function sub(c,fn,o){ return A.subscribe(c,fn,o); }
+function setupStatic(){
+  sub('threads',function(a){ D.threads=a; refresh(); });
+  sub('posts',function(a){ D.posts=a; refresh(); });
+  sub('roles',function(a){ var m={}; a.forEach(function(r){ m[r.id]=r; }); D.roles=m; resub(); refresh(); });
+  sub('config',function(a){ var f=a.filter(function(x){ return x.id==='forum'; })[0]; D.config={approval:!!(f&&f.approval)}; refresh(); });
+}
+function resub(){
+  var key=(me?me.uid:'-')+'|'+(isMod()?'m':'u'); if(key===dynKey) return; dynKey=key;
+  dyn.forEach(function(u){ try{ u(); }catch(e){} }); dyn=[];
+  D.pending=[]; D.reports=[]; D.bans={};
+  if(!me){ refresh(); return; }
+  if(isMod()){
+    dyn.push(sub('pending',function(a){ D.pending=a; refresh(); }));
+    dyn.push(sub('reports',function(a){ D.reports=a; refresh(); }));
+    dyn.push(sub('bans',function(a){ var m={}; a.forEach(function(b){ m[b.id]=b; }); D.bans=m; refresh(); }));
+  } else {
+    dyn.push(sub('pending',function(a){ D.pending=a; refresh(); },{where:['uid','==',me.uid]}));
+    dyn.push(sub('bans',function(a){ var m={}; a.forEach(function(b){ m[b.id]=b; }); D.bans=m; refresh(); },{docId:me.uid}));
+  }
+}
+
+/* ============ Rendering ============ */
+var raf=0;
+function refresh(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; renderUser(); if(view.type==='list') renderList(); else if(view.type==='thread') renderThread(); else if(view.type==='mod') renderMod(); }); }
+function renderUser(){
+  var b=$('#userbox'), h='';
+  if(me){ h+=avatar(me.name,me.uid,true)+'<span><b>'+esc(me.name)+'</b> '+roleBadge(me.uid)+(banned()?' <span class="badge lock">Banned</span>':'')+'</span>';
+    if(isMod()){ var n=D.reports.length+D.pending.length; h+='<a class="btn sm" href="#/mod">Moderation'+(n?' ('+n+')':'')+'</a>'; }
+    h+='<button class="btn sm" data-act="signout">Sign out</button>'; }
+  else h='<button class="btn primary sm" data-act="signin">Sign in</button>';
+  b.innerHTML=h;
+}
+function setRibbon(){
+  var r=$('#ribbon'); if(A.mode==='demo'){ r.classList.remove('hidden'); $('#ribbontxt').textContent='Demo mode: everything you post here is saved only in your own browser. Connect Firebase (see the setup guide) to make this a real shared forum.'; } else r.classList.add('hidden');
+}
+
+function threadStats(){
+  var st={}; D.threads.forEach(function(t){ st[t.id]={n:0,last:t.createdAt,by:t.name}; });
+  D.posts.forEach(function(p){ var s=st[p.tid]; if(!s) return; s.n++; if(p.createdAt>=s.last){ s.last=p.createdAt; s.by=p.name; } });
+  return st;
+}
+function showList(cat){ view.type='list'; view.cat=cat||'all'; view.shown=30;
+  $('#main').innerHTML='<div class="cats" id="cats"></div><div class="tools"><input id="qs" type="search" placeholder="Search threads" aria-label="Search threads"><button class="btn primary" data-act="newthread">New thread</button></div><div id="tl"></div>';
+  $('#qs').value=view.q; $('#qs').addEventListener('input',function(){ view.q=this.value; view.shown=30; renderList(); });
+  renderList();
+}
+function renderList(){
+  var st=threadStats(), q=view.q.trim().toLowerCase();
+  var counts={all:D.threads.length}; CATS.forEach(function(c){ counts[c.id]=0; }); D.threads.forEach(function(t){ counts[t.cat]=(counts[t.cat]||0)+1; });
+  $('#cats').innerHTML=[{id:'all',name:'All'}].concat(CATS).map(function(c){ return '<button class="chip" data-act="cat" data-id="'+c.id+'" aria-pressed="'+(view.cat===c.id)+'">'+esc(c.name)+'<small>'+(counts[c.id]||0)+'</small></button>'; }).join('');
+  var list=D.threads.filter(function(t){ return (view.cat==='all'||t.cat===view.cat)&&(!q||(t.title+' '+t.body+' '+t.name).toLowerCase().indexOf(q)>=0); });
+  list.sort(function(a,b){ if(!!a.pinned!==!!b.pinned) return a.pinned?-1:1; return (st[b.id]?st[b.id].last:0)-(st[a.id]?st[a.id].last:0); });
+  var mine=D.pending.filter(function(p){ return p.kind==='thread'&&me&&p.uid===me.uid; });
+  var h='';
+  if(mine.length) h+='<div class="card" style="margin-bottom:10px;border-style:dashed;border-color:rgba(255,200,87,.5)"><b>Waiting for approval</b> <span class="muted">(only you can see these)</span>'+mine.map(function(p){ return '<div class="muted" style="margin-top:4px">'+esc(p.title)+'</div>'; }).join('')+'</div>';
+  if(!list.length) h+='<p class="empty">'+(D.threads.length?'No threads match.':'No threads yet. Be the first to start one!')+'</p>';
+  list.slice(0,view.shown).forEach(function(t){ var s=st[t.id]||{n:0,last:t.createdAt,by:t.name};
+    h+='<a class="trow" href="#/t/'+esc(t.id)+'">'+avatar(t.name,t.uid)+'<div style="min-width:0"><p class="tt">'+(t.pinned?'<span class="badge pin">Pinned</span> ':'')+(t.locked?'<span class="badge lock">Locked</span> ':'')+esc(t.title)+'</p><div class="meta">'+esc(catName(t.cat))+' \u2022 by '+esc(t.name)+' '+roleBadge(t.uid)+' \u2022 '+(s.n?'last reply by '+esc(s.by)+', ':'posted ')+timeAgo(s.last)+'</div></div><div class="cnt"><b>'+s.n+'</b>replies</div></a>'; });
+  if(list.length>view.shown) h+='<p style="text-align:center"><button class="btn" data-act="more">Show more</button></p>';
+  $('#tl').innerHTML=h;
+}
+
+function showThread(id){ view.type='thread'; view.tid=id; $('#main').innerHTML='<div id="th"></div><div id="ps"></div><div id="cp" class="composer"></div>'; view.cpKey=''; renderThread(); }
+function postHTML(p,idx,t,pending){
+  var own=me&&p.uid===me.uid, op=p.uid===t.uid;
+  var acts='';
+  if(!pending){
+    if(me&&!own) acts+='<button class="btn sm" data-act="report" data-kind="post" data-id="'+esc(p.id)+'">Report</button>';
+    if(own&&!banned()&&!t.locked||isMod()) acts+='<button class="btn sm" data-act="editpost" data-id="'+esc(p.id)+'">Edit</button>';
+    if(own||isMod()) acts+='<button class="btn sm danger" data-act="delpost" data-id="'+esc(p.id)+'">Delete</button>';
+    if(isMod()&&!own&&roleOf(p.uid)!=='admin') acts+='<button class="btn sm danger" data-act="ban" data-uid="'+esc(p.uid)+'" data-name="'+esc(p.name)+'">Ban author</button>';
+  } else acts='<span class="muted">Waiting for approval</span>';
+  return '<div class="post'+(pending?' pending':'')+'">'+avatar(p.name,p.uid)+'<div class="box"><div class="head"><b>'+esc(p.name)+'</b> '+roleBadge(p.uid)+(op?'<span class="badge op">Author</span>':'')+'<span class="t">'+timeAgo(p.createdAt)+(p.editedAt?' (edited)':'')+(idx?' \u2022 #'+idx:'')+'</span></div><div class="body">'+esc(p.body)+'</div><div class="acts">'+acts+'</div></div></div>';
+}
+function renderThread(){
+  var t=threadById(view.tid);
+  if(!t){ $('#th').innerHTML='<p class="crumb"><a href="#/">&larr; All threads</a></p><p class="empty">This thread was not found. It may have been removed.</p>'; $('#ps').innerHTML=''; $('#cp').innerHTML=''; return; }
+  var own=me&&t.uid===me.uid, h='<p class="crumb"><a href="#/">&larr; All threads</a> / '+esc(catName(t.cat))+'</p><div class="th"><h2>'+(t.pinned?'<span class="badge pin">Pinned</span> ':'')+(t.locked?'<span class="badge lock">Locked</span> ':'')+esc(t.title)+'</h2></div>';
+  if(isMod()){ h+='<div class="modbar"><b>Moderator tools</b><button class="btn sm" data-act="pin">'+(t.pinned?'Unpin':'Pin')+'</button><button class="btn sm" data-act="lock">'+(t.locked?'Unlock':'Lock')+'</button><label class="muted">Move to <select data-act="move">'+CATS.map(function(c){ return '<option value="'+c.id+'"'+(c.id===t.cat?' selected':'')+'>'+esc(c.name)+'</option>'; }).join('')+'</select></label><button class="btn sm danger" data-act="delthread">Delete thread</button></div>'; }
+  var opActs='';
+  if(me&&!own) opActs+='<button class="btn sm" data-act="report" data-kind="thread" data-id="'+esc(t.id)+'">Report</button>';
+  if(own&&!banned()&&!t.locked||isMod()) opActs+='<button class="btn sm" data-act="editthread">Edit</button>';
+  if(own&&!isMod()) opActs+='<button class="btn sm danger" data-act="delthread">Delete</button>';
+  if(isMod()&&!own&&roleOf(t.uid)!=='admin') opActs+='<button class="btn sm danger" data-act="ban" data-uid="'+esc(t.uid)+'" data-name="'+esc(t.name)+'">Ban author</button>';
+  $('#th').innerHTML=h+'<div class="post">'+avatar(t.name,t.uid)+'<div class="box"><div class="head"><b>'+esc(t.name)+'</b> '+roleBadge(t.uid)+'<span class="badge op">Author</span><span class="t">'+timeAgo(t.createdAt)+(t.editedAt?' (edited)':'')+'</span></div><div class="body">'+esc(t.body)+'</div><div class="acts">'+opActs+'</div></div></div>';
+  var ps=postsOf(t.id), pend=D.pending.filter(function(p){ return p.kind==='post'&&p.tid===t.id&&me&&p.uid===me.uid; });
+  $('#ps').innerHTML=ps.map(function(p,i){ return postHTML(p,i+1,t,false); }).join('')+pend.map(function(p){ return postHTML(p,0,t,true); }).join('');
+  var key=[me?me.uid:'-',t.locked,banned(),isMod(),approvalOn()].join('|');
+  if(key!==view.cpKey){ view.cpKey=key; var c=$('#cp'), d=drafts.reply[t.id]||'';
+    if(!me) c.innerHTML='<div class="card" style="text-align:center">Sign in to join the discussion.<div style="margin-top:10px"><button class="btn primary" data-act="signin">Sign in</button></div></div>';
+    else if(banned()) c.innerHTML='<div class="card muted">Your account is not allowed to post.</div>';
+    else if(t.locked&&!isMod()) c.innerHTML='<div class="card muted">This thread is locked. New replies are turned off.</div>';
+    else { c.innerHTML='<div class="card"><textarea id="rb" maxlength="'+LIMITS.post[1]+'" placeholder="Write a reply" aria-label="Write a reply"></textarea><div class="row"><span class="muted">'+(approvalOn()&&!isMod()?'New replies are checked by a moderator first.':'Be kind. Links to other sites are limited.')+'</span><button class="btn primary" data-act="reply">Post reply</button></div></div>'; var ta=$('#rb'); ta.value=d; ta.addEventListener('input',function(){ drafts.reply[t.id]=this.value; }); }
+  }
+}
+
+function renderMod(){
+  if(!isMod()){ $('#main').innerHTML='<p class="crumb"><a href="#/">&larr; All threads</a></p><p class="empty">Moderator access only.</p>'; return; }
+  var tabs=[['reports','Reports ('+D.reports.length+')'],['pending','Waiting ('+D.pending.length+')'],['banned','Banned ('+Object.keys(D.bans).length+')']];
+  if(isAdmin()) tabs.push(['team','Team'],['settings','Settings']);
+  var h='<p class="crumb"><a href="#/">&larr; All threads</a></p><h2 style="font-family:var(--font-d);margin:4px 0">Moderation</h2><div class="tabs">'+tabs.map(function(t){ return '<button class="chip" data-act="modtab" data-id="'+t[0]+'" aria-pressed="'+(view.tab===t[0])+'">'+esc(t[1])+'</button>'; }).join('')+'</div>';
+  function excerpt(s){ s=String(s||''); return esc(s.length>280?s.slice(0,280)+'\u2026':s); }
+  if(view.tab==='reports'){
+    if(!D.reports.length) h+='<p class="empty">No open reports. Nice and quiet.</p>';
+    D.reports.slice().sort(function(a,b){ return b.createdAt-a.createdAt; }).forEach(function(r){
+      var tgt=r.kind==='thread'?threadById(r.targetId):D.posts.filter(function(p){ return p.id===r.targetId; })[0];
+      h+='<div class="item"><b>'+esc(r.reason)+'</b> <span class="muted">reported by '+esc(r.name)+', '+timeAgo(r.createdAt)+'</span>'+(r.note?'<div class="muted">Note: '+esc(r.note)+'</div>':'');
+      if(tgt){ h+='<div class="q">'+esc(tgt.name)+': '+excerpt(r.kind==='thread'?tgt.title+'\n'+tgt.body:tgt.body)+'</div><div class="row"><a class="btn sm" href="#/t/'+esc(r.kind==='thread'?tgt.id:tgt.tid)+'">Open</a><button class="btn sm danger" data-act="delreported" data-id="'+esc(r.id)+'">Delete content</button>'+(roleOf(tgt.uid)==='admin'||(me&&tgt.uid===me.uid)?'':'<button class="btn sm danger" data-act="ban" data-uid="'+esc(tgt.uid)+'" data-name="'+esc(tgt.name)+'">Ban author</button>')+'<button class="btn sm" data-act="dismiss" data-id="'+esc(r.id)+'">Dismiss</button></div>'; }
+      else h+='<div class="q muted">Content already removed.</div><div class="row"><button class="btn sm" data-act="dismiss" data-id="'+esc(r.id)+'">Clear</button></div>';
+      h+='</div>'; });
+  } else if(view.tab==='pending'){
+    if(!D.pending.length) h+='<p class="empty">Nothing is waiting for approval.</p>';
+    D.pending.slice().sort(function(a,b){ return a.createdAt-b.createdAt; }).forEach(function(p){
+      h+='<div class="item"><b>'+(p.kind==='thread'?'New thread':'Reply')+'</b> <span class="muted">by '+esc(p.name)+', '+timeAgo(p.createdAt)+'</span><div class="q">'+(p.kind==='thread'?'<b>'+esc(p.title)+'</b>\n':'')+excerpt(p.body)+'</div><div class="row"><button class="btn sm primary" data-act="approve" data-id="'+esc(p.id)+'">Approve</button><button class="btn sm danger" data-act="reject" data-id="'+esc(p.id)+'">Reject</button></div></div>'; });
+  } else if(view.tab==='banned'){
+    var ids=Object.keys(D.bans); if(!ids.length) h+='<p class="empty">Nobody is banned.</p>';
+    ids.forEach(function(id){ h+='<div class="item"><b>'+esc(D.bans[id].name||id)+'</b> <span class="muted">banned '+timeAgo(D.bans[id].at||Date.now())+'</span><div class="row" style="margin-top:6px"><button class="btn sm" data-act="unban" data-uid="'+esc(id)+'">Unban</button></div></div>'; });
+  } else if(view.tab==='team'&&isAdmin()){
+    var known={}; D.threads.concat(D.posts).forEach(function(x){ if(x.uid&&!D.roles[x.uid]) known[x.uid]=x.name; });
+    h+='<div class="card"><b>Team</b>'+Object.keys(D.roles).map(function(u){ var r=D.roles[u]; return '<div class="row" style="margin-top:8px;align-items:center">'+avatar(r.name,u,true)+'<span>'+esc(r.name||u)+' '+roleBadge(u)+'</span>'+(r.role==='mod'?'<button class="btn sm" data-act="demote" data-uid="'+esc(u)+'">Remove moderator</button>':'')+'</div>'; }).join('')+'</div>';
+    var kk=Object.keys(known);
+    h+='<div class="card" style="margin-top:12px"><b>Add a moderator</b><p class="muted">Pick someone who has already posted.</p>'+(kk.length?'<div class="row"><select id="promsel" style="flex:1;min-width:160px;background:#101845;border:1px solid var(--line);border-radius:10px;padding:8px">'+kk.map(function(u){ return '<option value="'+esc(u)+'" data-name="'+esc(known[u])+'">'+esc(known[u])+'</option>'; }).join('')+'</select><button class="btn primary sm" data-act="promote">Make moderator</button></div>':'<p class="muted">No other members have posted yet.</p>')+'</div>';
+  } else if(view.tab==='settings'&&isAdmin()){
+    h+='<div class="card"><label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" id="apr" data-act="approval" '+(approvalOn()?'checked':'')+' style="margin-top:4px"><span><b>New posts need approval</b><br><span class="muted">When on, posts by members stay hidden until a moderator approves them. Moderators and admins post instantly. Recommended while the forum is new.</span></span></label></div>';
+  } else h+='<p class="empty">Nothing here.</p>';
+  $('#main').innerHTML=h;
+}
+
+/* ============ Modals ============ */
+function openModal(html,wide){ var m=$('#modal'); m.className='modal'+(wide?' wide':''); m.innerHTML=html; $('#modalback').classList.add('open'); var f=m.querySelector('input,textarea,select'); if(f) setTimeout(function(){ f.focus(); },30); }
+function closeModal(){ $('#modalback').classList.remove('open'); $('#modal').innerHTML=''; }
+$('#modalback').addEventListener('mousedown',function(e){ if(e.target===this) closeModal(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
+
+function openSignIn(){
+  if(A.mode==='demo'){
+    openModal('<h3>Sign in (demo)</h3><p class="muted">Demo mode: choose any name. Pick a role to try the moderator tools.</p><label for="dn">Display name</label><input id="dn" maxlength="24" placeholder="e.g. Neha"><label for="dr">Role</label><select id="dr"><option value="member">Member</option><option value="mod">Moderator</option><option value="admin">Admin</option></select><p class="err" id="er"></p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="demologin">Continue</button></div>');
+  } else {
+    openModal('<h3>Sign in</h3><button class="btn primary" style="width:100%;margin-top:8px" data-act="google">Continue with Google</button><p class="muted" style="text-align:center;margin:12px 0 0">or use your email</p><div class="tabs" style="justify-content:center"><button class="chip" data-act="authtab" data-id="in" aria-pressed="true">Sign in</button><button class="chip" data-act="authtab" data-id="up" aria-pressed="false">Create account</button></div><div id="nmrow" class="hidden"><label for="an">Display name</label><input id="an" maxlength="24" autocomplete="nickname"></div><label for="ae">Email</label><input id="ae" type="email" autocomplete="email"><label for="ap">Password (at least 6 characters)</label><input id="ap" type="password" autocomplete="current-password"><p class="err" id="er"></p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="emaillogin" id="emgo">Sign in</button></div>');
+  }
+}
+function openNewThread(){
+  if(!me) return openSignIn();
+  if(banned()) return toast('Your account is not allowed to post.',true);
+  openModal('<h3>New thread</h3><label for="nc">Category</label><select id="nc">'+CATS.map(function(c){ return '<option value="'+c.id+'"'+(view.cat===c.id?' selected':'')+'>'+esc(c.name)+'</option>'; }).join('')+'</select><label for="nt">Title</label><input id="nt" maxlength="'+LIMITS.title[1]+'"><label for="nb">Message</label><textarea id="nb" rows="6" maxlength="'+LIMITS.thread[1]+'"></textarea><p class="muted">'+(approvalOn()&&!isMod()?'A moderator will check your thread before it appears.':'Your thread is published straight away.')+'</p><p class="err" id="er"></p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="submitthread">Post thread</button></div>');
+}
+
+/* ============ Validation and actions ============ */
+function countLinks(s){ var m=String(s).match(/(https?:\/\/|www\.)/gi); return m?m.length:0; }
+function checkText(text,min,max,what){
+  text=String(text||'').trim();
+  if(text.length<min) return 'Please write at least '+min+' characters for the '+what+'.';
+  if(text.length>max) return 'The '+what+' is too long (maximum '+max+' characters).';
+  if(!isMod()&&countLinks(text)>LIMITS.links) return 'Please use at most '+LIMITS.links+' links.';
+  return '';
+}
+function needsApproval(){ return approvalOn()&&!isMod(); }
+function strip(o){ var c=Object.assign({},o); delete c.id; delete c.kind; return c; }
+function submitThread(){
+  var cat=$('#nc').value, title=$('#nt').value.trim(), body=$('#nb').value.trim(), er=$('#er');
+  var e=checkText(title,LIMITS.title[0],LIMITS.title[1],'title')||checkText(body,LIMITS.thread[0],LIMITS.thread[1],'message');
+  if(!e&&!isMod()&&Date.now()-lastThreadAt<LIMITS.threadGapMs) e='Please wait a few seconds before posting another thread.';
+  if(e){ er.textContent=e; return; }
+  var mm=A.me(); if(!mm){ er.textContent='Please sign in again.'; return; }
+  var doc={cat:cat,title:title,body:body,uid:mm.uid,name:mm.name,createdAt:Date.now(),pinned:false,locked:false};
+  lastThreadAt=Date.now();
+  var p=needsApproval()?A.add('pending',Object.assign({kind:'thread'},doc)):A.add('threads',doc);
+  p.then(function(id){ closeModal(); if(needsApproval()) toast('Thank you! A moderator will review your thread soon.'); else { toast('Thread posted.'); location.hash='#/t/'+id; } }).catch(fail);
+}
+function submitReply(){
+  var t=threadById(view.tid), ta=$('#rb'); if(!t||!ta) return; var body=ta.value.trim();
+  var e=checkText(body,LIMITS.post[0],LIMITS.post[1],'reply');
+  if(!e&&!isMod()&&Date.now()-lastPostAt<LIMITS.postGapMs) e='Please wait a few seconds before replying again.';
+  if(!e&&t.locked&&!isMod()) e='This thread is locked.';
+  if(e){ toast(e,true); return; }
+  var mm=A.me(); if(!mm) return openSignIn();
+  var doc={tid:t.id,body:body,uid:mm.uid,name:mm.name,createdAt:Date.now()}; lastPostAt=Date.now();
+  var p=needsApproval()?A.add('pending',Object.assign({kind:'post'},doc)):A.add('posts',doc);
+  p.then(function(){ drafts.reply[t.id]=''; ta.value=''; toast(needsApproval()?'Sent! A moderator will review your reply.':'Reply posted.'); }).catch(fail);
+}
+function fail(e){ console.warn(e); toast('Could not save. You may not have permission, or the connection failed.',true); }
+function editText(kind,id){
+  var o=kind==='thread'?threadById(id):D.posts.filter(function(p){ return p.id===id; })[0]; if(!o) return;
+  openModal('<h3>Edit '+(kind==='thread'?'thread':'reply')+'</h3>'+(kind==='thread'?'<label for="et">Title</label><input id="et" maxlength="'+LIMITS.title[1]+'">':'')+'<label for="eb">Message</label><textarea id="eb" rows="7" maxlength="'+LIMITS.thread[1]+'"></textarea><p class="err" id="er"></p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="saveedit" data-kind="'+kind+'" data-id="'+esc(id)+'">Save</button></div>');
+  $('#eb').value=o.body; if(kind==='thread') $('#et').value=o.title;
+}
+function openReport(kind,id){
+  if(!me) return openSignIn();
+  if(D.reports.some(function(r){ return r.targetId===id&&r.uid===me.uid; })) return toast('You already reported this.');
+  openModal('<h3>Report</h3><p class="muted">Tell the moderators what is wrong. Reports are private.</p><label for="rr">Reason</label><select id="rr"><option>Spam or advertising</option><option>Abuse or harassment</option><option>Hate speech</option><option>Misleading information</option><option>Off topic</option><option>Other</option></select><label for="rn">Details (optional)</label><textarea id="rn" rows="3" maxlength="300"></textarea><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="sendreport" data-kind="'+kind+'" data-id="'+esc(id)+'">Send report</button></div>');
+}
+function removeThread(id){
+  var posts=D.posts.filter(function(p){ return p.tid===id; });
+  return Promise.all(posts.map(function(p){ return A.del('posts',p.id); })).then(function(){ return A.del('threads',id); });
+}
+function confirmBox(msg,yes){ openModal('<h3>Please confirm</h3><p>'+esc(msg)+'</p><div class="actions"><button class="btn" data-act="close">Cancel</button><button class="btn danger" data-act="confirmyes">Yes, continue</button></div>'); confirmBox.yes=yes; }
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]'); if(!el||el.tagName==='SELECT'||el.tagName==='INPUT') return;
+  var act=el.dataset.act, id=el.dataset.id, t=threadById(view.tid);
+  switch(act){
+    case 'close': closeModal(); break;
+    case 'signin': openSignIn(); break;
+    case 'signout': A.signOut().then(function(){ toast('Signed out.'); }); break;
+    case 'demologin': { var n=$('#dn').value.trim(); if(n.length<2){ $('#er').textContent='Please enter a name (at least 2 letters).'; break; } A.signInDemo(n,$('#dr').value).then(function(){ closeModal(); toast('Signed in as '+n+'.'); }); break; }
+    case 'google': A.signInGoogle().then(closeModal).catch(function(er){ $('#er').textContent=(er&&er.message)||'Sign in failed.'; }); break;
+    case 'authtab': { var up=id==='up'; Array.prototype.forEach.call(document.querySelectorAll('[data-act="authtab"]'),function(b){ b.setAttribute('aria-pressed',String(b.dataset.id===id)); }); $('#nmrow').classList.toggle('hidden',!up); $('#emgo').textContent=up?'Create account':'Sign in'; $('#emgo').dataset.mode=up?'up':'in'; break; }
+    case 'emaillogin': { var em=$('#ae').value.trim(), pw=$('#ap').value, up2=el.dataset.mode==='up', nm=$('#an')?$('#an').value.trim():''; if(!em||pw.length<6){ $('#er').textContent='Enter your email and a password of at least 6 characters.'; break; } if(up2&&nm.length<2){ $('#er').textContent='Please enter a display name.'; break; }
+      (up2?A.register(em,pw,nm):A.signInEmail(em,pw)).then(function(){ closeModal(); if(up2){ me=A.me(); refresh(); } }).catch(function(er){ $('#er').textContent=(er&&er.message)||'Could not sign in.'; }); break; }
+    case 'cat': view.cat=id; view.shown=30; renderList(); break;
+    case 'more': view.shown+=30; renderList(); break;
+    case 'newthread': openNewThread(); break;
+    case 'submitthread': submitThread(); break;
+    case 'reply': submitReply(); break;
+    case 'editthread': editText('thread',view.tid); break;
+    case 'editpost': editText('post',id); break;
+    case 'saveedit': { var body=$('#eb').value.trim(), er2=checkText(body,2,LIMITS.thread[1],'message'); var ttl=el.dataset.kind==='thread'?$('#et').value.trim():''; if(!er2&&el.dataset.kind==='thread') er2=checkText(ttl,LIMITS.title[0],LIMITS.title[1],'title'); if(er2){ $('#er').textContent=er2; break; }
+      var patch=el.dataset.kind==='thread'?{title:ttl,body:body,editedAt:Date.now()}:{body:body,editedAt:Date.now()}; A.update(el.dataset.kind==='thread'?'threads':'posts',id,patch).then(function(){ closeModal(); toast('Saved.'); }).catch(fail); break; }
+    case 'delpost': confirmBox('Delete this reply?',function(){ A.del('posts',id).then(function(){ toast('Reply deleted.'); }).catch(fail); }); break;
+    case 'delthread': confirmBox('Delete this whole thread and all its replies?',function(){ var tid=view.tid; removeThread(tid).then(function(){ toast('Thread deleted.'); location.hash='#/'; }).catch(fail); }); break;
+    case 'confirmyes': { var f=confirmBox.yes; closeModal(); if(f) f(); break; }
+    case 'report': openReport(el.dataset.kind,id); break;
+    case 'sendreport': { var th=el.dataset.kind==='thread'?threadById(id):null, po=el.dataset.kind==='post'?D.posts.filter(function(p){ return p.id===id; })[0]:null; var mm=A.me(); if(!mm) break;
+      A.add('reports',{kind:el.dataset.kind,targetId:id,tid:th?th.id:(po?po.tid:''),reason:$('#rr').value,note:$('#rn').value.trim(),uid:mm.uid,name:mm.name,createdAt:Date.now()}).then(function(){ closeModal(); toast('Thanks. The moderators will take a look.'); }).catch(fail); break; }
+    case 'pin': if(t) A.update('threads',t.id,{pinned:!t.pinned}).catch(fail); break;
+    case 'lock': if(t) A.update('threads',t.id,{locked:!t.locked}).catch(fail); break;
+    case 'ban': { var u=el.dataset.uid, nm2=el.dataset.name; confirmBox('Ban '+nm2+'? They will not be able to post or reply.',function(){ A.set('bans',u,{name:nm2,by:me.uid,at:Date.now()}).then(function(){ toast(nm2+' is banned.'); }).catch(fail); }); break; }
+    case 'unban': A.del('bans',el.dataset.uid).then(function(){ toast('Unbanned.'); }).catch(fail); break;
+    case 'modtab': view.tab=id; renderMod(); break;
+    case 'dismiss': A.del('reports',id).catch(fail); break;
+    case 'delreported': { var r=D.reports.filter(function(x){ return x.id===id; })[0]; if(!r) break; confirmBox('Delete the reported content?',function(){ var p=r.kind==='thread'?removeThread(r.targetId):A.del('posts',r.targetId); p.then(function(){ return A.del('reports',r.id); }).then(function(){ toast('Content deleted.'); }).catch(fail); }); break; }
+    case 'approve': { var pd=D.pending.filter(function(x){ return x.id===id; })[0]; if(!pd) break; A.set(pd.kind==='thread'?'threads':'posts',pd.id,strip(pd)).then(function(){ return A.del('pending',pd.id); }).then(function(){ toast('Approved and published.'); }).catch(fail); break; }
+    case 'reject': A.del('pending',id).then(function(){ toast('Rejected.'); }).catch(fail); break;
+    case 'promote': { var sel=$('#promsel'); if(!sel) break; var op=sel.options[sel.selectedIndex]; A.set('roles',sel.value,{role:'mod',name:op.dataset.name}).then(function(){ toast('Moderator added.'); }).catch(fail); break; }
+    case 'demote': A.del('roles',el.dataset.uid).then(function(){ toast('Moderator removed.'); }).catch(fail); break;
+  }
+});
+document.addEventListener('change',function(e){
+  var el=e.target; if(!el.dataset||!el.dataset.act) return;
+  if(el.dataset.act==='move'){ var t=threadById(view.tid); if(t) A.update('threads',t.id,{cat:el.value}).catch(fail); }
+  if(el.dataset.act==='approval') A.set('config','forum',{approval:el.checked}).then(function(){ toast(el.checked?'Approval is now required for new posts.':'Approval turned off.'); }).catch(fail);
+});
+
+/* ============ Router and start ============ */
+function route(){
+  var h=location.hash||'#/', m;
+  if(h.indexOf('#/t/')===0) showThread(decodeURIComponent(h.slice(4)));
+  else if(h==='#/mod'){ view.type='mod'; renderMod(); }
+  else showList(view.cat);
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',route);
+$('#homeLink').addEventListener('click',function(e){ if(A&&A.mode==='demo'){ e.preventDefault(); toast('On your live site this link goes back to the home page.'); } });
+
+async function start(){
+  $('#homeLink').setAttribute('href',SITE_HOME);
+  var mode='demo';
+  if(FIREBASE_CONFIG){
+    try{
+      var base='https://www.gstatic.com/firebasejs/10.12.2/';
+      await loadScript(base+'firebase-app-compat.js'); await loadScript(base+'firebase-auth-compat.js'); await loadScript(base+'firebase-firestore-compat.js');
+      A=FirebaseAdapter(FIREBASE_CONFIG); mode='firebase';
+    }catch(e){ console.error(e); A=null; toast('Could not reach Firebase. Showing the demo instead.',true); }
+  }
+  if(!A) A=DemoAdapter();
+  await A.init(); setRibbon();
+  A.onAuth(function(u){ me=u; resub(); refresh(); renderUser(); });
+  setupStatic(); route(); renderUser();
+}
+start();
+})();
+</script>
+</body>
+</html>

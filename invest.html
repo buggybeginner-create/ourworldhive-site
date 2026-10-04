@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Invest Lab: learn investing with pretend money | Ourworldhive</title><meta name="description" content="Replay what a mutual fund did in the past, build a paper portfolio with virtual money and try SIP and goal calculators. Educational only, no tips or advice."><meta name="theme-color" content="#050918"><link rel="canonical" href="https://ourworldhive.com/invest.html"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050918'/%3E%3Cpath d='M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8z' fill='none' stroke='%23ffc857' stroke-width='2.2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23eaf1ff' stroke-width='1.6'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Invest Lab: learn investing with pretend money | Ourworldhive"><meta property="og:description" content="Replay what a mutual fund did in the past, build a paper portfolio with virtual money and try SIP and goal calculators. Educational only, no tips or advice."><meta property="og:url" content="https://ourworldhive.com/invest.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://ourworldhive.com/og-image.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{ --sx-space:#050918; --sx-ink:#eaf1ff; --sx-soft:#cdd8f5; --sx-muted:#93a4cc; --sx-line:rgba(255,255,255,.14); --sx-gold:#ffc857;
+  --sx-d:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif; --sx-b:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hh:calc(56px + env(safe-area-inset-top,0px)); --fh:calc(38px + env(safe-area-inset-bottom,0px)); }
+.sx-head{ position:sticky; top:0; z-index:100; height:var(--hh); padding-top:env(safe-area-inset-top,0px); background:rgba(5,9,24,.9);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--sx-line); font-family:var(--sx-b); }
+.sx-head.fixed{ position:fixed; left:0; right:0; top:0; }
+.sx-in{ max-width:1180px; height:56px; margin:0 auto; padding:0 18px; display:flex; align-items:center; gap:20px; }
+.sx-brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--sx-ink); flex:none; }
+.sx-brand span{ font-family:var(--sx-d); font-weight:700; font-size:21px; letter-spacing:-.025em; }
+.sx-head nav{ margin-left:auto; }
+.sx-nav{ display:flex; gap:2px; margin:0; padding:0; list-style:none; }
+.sx-nav a{ position:relative; display:flex; align-items:center; gap:5px; height:56px; padding:0 12px; color:var(--sx-muted); text-decoration:none; font-weight:500; font-size:15px; transition:color .15s; }
+.sx-nav a:hover{ color:var(--sx-ink); }
+.sx-nav a[aria-current="page"]{ color:var(--sx-ink); font-weight:600; }
+.sx-nav a[aria-current="page"]::after{ content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--sx-gold); }
+.sx-ext{ opacity:.7; }
+.sx-drum{ display:block; position:relative; width:5.9em; height:1.5em; overflow:hidden; text-align:left; -webkit-mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); }
+.sx-drum i{ display:block; height:1.5em; line-height:1.5em; font-style:normal; will-change:transform; animation:sxdrum 8s infinite; animation-timing-function:cubic-bezier(.65,0,.25,1); }
+@keyframes sxdrum{ 0%,22%{ transform:translateY(0); } 28%,47%{ transform:translateY(-100%); } 53%,72%{ transform:translateY(-200%); } 78%,100%{ transform:translateY(-300%); } }
+.sx-roll{ font-weight:600; } .sx-roll .sx-drum{ color:var(--sx-gold); }
+@media (prefers-reduced-motion:reduce){ .sx-drum i{ animation:none; } .sx-drum i:not(:nth-child(2)){ display:none; } .sx-drum{ -webkit-mask-image:none; mask-image:none; height:1.5em; } }
+.sx-head a:focus-visible,.sx-foot a:focus-visible,.sx-burger:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; border-radius:6px; }
+.sx-burger{ display:none; margin-left:auto; width:44px; height:44px; border:0; background:transparent; border-radius:10px; position:relative; }
+.sx-burger span{ position:absolute; left:11px; right:11px; height:2px; border-radius:2px; background:var(--sx-ink); transition:transform .2s, opacity .2s; }
+.sx-burger span:nth-child(1){ top:15px; } .sx-burger span:nth-child(2){ top:21px; } .sx-burger span:nth-child(3){ top:27px; }
+.sx-head.open .sx-burger span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.sx-head.open .sx-burger span:nth-child(2){ opacity:0; }
+.sx-head.open .sx-burger span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+@media (max-width:1120px){
+  .sx-burger{ display:block; }
+  .sx-head nav{ position:absolute; left:0; right:0; top:100%; margin:0; background:#050918; border-bottom:1px solid var(--sx-line); display:none; max-height:calc(100vh - var(--hh)); overflow:auto; }
+  .sx-head.open nav{ display:block; }
+  .sx-nav{ flex-direction:column; gap:0; padding:4px 18px 14px; }
+  .sx-nav li + li{ border-top:1px solid var(--sx-line); }
+  .sx-nav a{ height:50px; padding:0; font-size:17px; }
+  .sx-nav a[aria-current="page"]{ color:var(--sx-gold); }
+  .sx-nav a[aria-current="page"]::after{ display:none; }
+}
+.sx-foot{ font-family:var(--sx-b); color:var(--sx-muted); font-size:14px; }
+.sx-foot a{ color:var(--sx-soft); text-decoration:none; }
+.sx-foot a:hover{ color:var(--sx-gold); text-decoration:underline; text-underline-offset:3px; }
+.sx-foot:not(.mini){ margin-top:96px; background:#040714; border-top:1px solid var(--sx-line); }
+.sx-fin{ max-width:1180px; margin:0 auto; padding:52px 18px 0; }
+.sx-fgrid{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); gap:40px; }
+.sx-fbrand p{ margin:14px 0 0; max-width:36ch; line-height:1.6; }
+.sx-foot h2{ margin:0 0 14px; font-family:var(--sx-d); font-weight:500; font-size:17px; color:var(--sx-ink); letter-spacing:-.01em; }
+.sx-foot ul{ margin:0; padding:0; list-style:none; display:grid; gap:10px; }
+.sx-fbar{ margin-top:44px; padding:20px 0 calc(22px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--sx-line); display:flex; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; font-size:13.5px; }
+.sx-fbar p{ margin:0; }
+.sx-fbar p:first-child{ color:var(--sx-ink); }
+@media (max-width:720px){ .sx-fgrid{ grid-template-columns:1fr 1fr; gap:32px 20px; } .sx-fbrand{ grid-column:1/-1; } }
+.sx-foot.mini{ position:fixed; left:0; right:0; bottom:0; z-index:100; height:var(--fh); padding:0 16px env(safe-area-inset-bottom,0px); display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:rgba(5,9,24,.94); border-top:1px solid var(--sx-line); font-size:12.5px; white-space:nowrap; }
+.sx-foot.mini p{ margin:0; color:var(--sx-ink); overflow:hidden; text-overflow:ellipsis; }
+.sx-foot.mini nav{ display:flex; gap:14px; flex:none; }
+@media (max-width:460px){ .sx-foot.mini{ font-size:12px; padding-left:12px; padding-right:12px; } .sx-foot.mini nav{ gap:11px; } .sx-foot.mini nav a:nth-child(3){ display:none; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ background:var(--sx-space); color-scheme:dark; }
+body{ margin:0; min-height:100vh; display:flex; flex-direction:column; color:var(--sx-ink); font-family:var(--sx-b); -webkit-font-smoothing:antialiased; font-size:17px; line-height:1.6;
+  background:radial-gradient(1000px 560px at 85% -8%,#1a2461 0%,transparent 62%),radial-gradient(800px 460px at -8% 8%,#2a1a55 0%,transparent 58%),var(--sx-space); }
+main{ flex:1 0 auto; }
+a{ color:#7cc4ff; }
+h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
+.btn{ display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 24px; border-radius:999px; font-weight:600; font-size:16px; text-decoration:none; border:1px solid var(--sx-line); color:var(--sx-ink); background:rgba(255,255,255,.06); transition:background .15s, filter .15s; }
+.btn:hover{ background:rgba(255,255,255,.12); }
+.btn.gold{ border:0; color:#1a1030; background:linear-gradient(135deg,#ffc857,#ff9f5a); }
+.btn.gold:hover{ filter:brightness(1.07); }
+.btn:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:3px; }
+.wrap{ max-width:1180px; margin:0 auto; padding:0 18px; }
+
+/* home hero */
+.hero{ display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:32px; align-items:center; padding:clamp(40px,8vw,96px) 0 clamp(24px,5vw,56px); }
+.hero h1{ font-size:clamp(42px,6.6vw,88px); font-weight:700; line-height:.98; letter-spacing:-.04em; max-width:12ch; }
+.hero p{ margin:24px 0 0; max-width:50ch; font-size:clamp(17px,1.7vw,20px); color:var(--sx-soft); line-height:1.6; }
+.hero .cta{ margin-top:32px; display:flex; flex-wrap:wrap; gap:12px; }
+.orb{ width:100%; max-width:480px; justify-self:center; display:block; }
+a.orblink{ display:block; border-radius:50%; }
+a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
+@media (max-width:820px){ .hero{ grid-template-columns:1fr; } .orb{ max-width:340px; } .hero h1{ max-width:14ch; } }
+
+/* index rows */
+.sec{ padding:clamp(40px,7vw,80px) 0 0; }
+.sec > h2{ font-size:clamp(28px,3.6vw,44px); font-weight:700; }
+.sec > .lede{ margin:12px 0 0; max-width:56ch; color:var(--sx-muted); }
+.rows{ margin-top:32px; border-bottom:1px solid var(--sx-line); }
+.row{ display:grid; grid-template-columns:minmax(150px,.7fr) minmax(0,1.6fr) 124px; gap:8px 28px; align-items:center; padding:26px 6px; border-top:1px solid var(--sx-line); text-decoration:none; color:var(--sx-ink); transition:background .2s; }
+.row:hover{ background:rgba(255,255,255,.04); }
+.row:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; }
+.row h3{ font-size:clamp(26px,3.2vw,38px); font-weight:700; transition:color .2s; }
+.row:hover h3{ color:var(--sx-gold); }
+.row p{ margin:0; color:var(--sx-soft); font-size:16.5px; max-width:58ch; }
+.tag{ justify-self:end; padding:5px 13px; border-radius:999px; font-size:13.5px; font-weight:600; border:1px solid var(--sx-gold); color:var(--sx-gold); white-space:nowrap; }
+.tag.soon{ border-color:var(--sx-line); color:var(--sx-muted); }
+@media (max-width:700px){ .row{ grid-template-columns:minmax(0,1fr) auto; padding:22px 2px; } .row p{ grid-column:1/-1; grid-row:2; } }
+
+/* globe abilities */
+.abil{ margin:32px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:0 56px; }
+.abil div{ padding:20px 0; border-top:1px solid var(--sx-line); }
+.abil dt{ font-family:var(--sx-d); font-weight:700; font-size:21px; letter-spacing:-.015em; }
+.abil dd{ margin:6px 0 0; color:var(--sx-soft); font-size:16.5px; max-width:52ch; }
+@media (max-width:760px){ .abil{ grid-template-columns:1fr; } }
+.closer{ margin-top:clamp(40px,6vw,72px); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px 32px; padding:32px 0 0; border-top:1px solid var(--sx-line); }
+.closer h2{ font-size:clamp(26px,3.4vw,40px); max-width:20ch; }
+
+/* text pages */
+.page{ max-width:760px; margin:0 auto; padding:clamp(40px,7vw,80px) 18px 0; }
+.page h1{ font-size:clamp(38px,5.6vw,64px); font-weight:700; line-height:1.02; letter-spacing:-.035em; }
+.page .lede{ margin:18px 0 0; font-size:clamp(18px,2vw,21px); color:var(--sx-soft); line-height:1.55; }
+.page h2{ margin:44px 0 10px; font-size:26px; font-weight:700; }
+.page p,.page li{ color:var(--sx-soft); line-height:1.72; }
+.page p{ margin:0 0 14px; }
+.page ul{ padding-left:22px; margin:0 0 14px; }
+.page li{ margin-bottom:6px; }
+.page .upd{ color:var(--sx-muted); font-size:14.5px; margin-top:14px; }
+.page .cta{ margin-top:30px; display:flex; flex-wrap:wrap; gap:12px; }
+.page :target{ scroll-margin-top:84px; }
+
+.rb{ max-width:760px; margin:0 auto; }
+.rb h2{ font-size:clamp(26px,3.4vw,34px); font-weight:700; margin:34px 0 10px; line-height:1.15; }
+.rb h3{ font-size:clamp(21px,2.6vw,26px); font-weight:700; margin:26px 0 8px; line-height:1.2; }
+.rb p{ margin:0 0 16px; color:var(--sx-soft); line-height:1.75; font-size:17.5px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.rb figure{ margin:24px 0; } .rb figure img{ display:block; width:100%; height:auto; border-radius:14px; background:#0c1230; min-height:120px; }
+.rb figcaption{ margin-top:8px; color:var(--sx-muted); font-size:14.5px; text-align:center; }
+.rb .rgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; margin:24px 0; }
+.rb .rgrid img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px; background:#0c1230; display:block; }
+.rb blockquote{ margin:26px 0; padding:6px 0 6px 18px; border-left:4px solid var(--sx-gold); color:var(--sx-ink); font-family:var(--sx-d); font-size:clamp(20px,2.4vw,25px); line-height:1.4; }
+.rb blockquote cite{ display:block; margin-top:8px; font-family:var(--sx-b); font-size:15px; color:var(--sx-muted); font-style:normal; }
+.rb hr{ border:0; border-top:1px solid var(--sx-line); margin:30px 0; }
+.rb .rbtn{ margin:20px 0; } .rb .rbtn a{ display:inline-flex; align-items:center; min-height:50px; padding:0 28px; border-radius:999px; font-weight:700; font-size:17px; text-decoration:none; border:1px solid var(--sx-line); color:var(--sx-ink); background:rgba(255,255,255,.07); }
+.rb .rbtn a.pri{ border:0; color:#1a1030; background:linear-gradient(135deg,#ffc857,#ff9f5a); }
+.rb .rlink{ margin:0 0 14px; font-size:18px; } .rb .rlink a{ color:#7cc4ff; }
+.rb .ryt{ position:relative; margin:24px 0; padding-top:56.25%; border-radius:14px; overflow:hidden; background:#000; } .rb .ryt iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.cardgrid{ margin:28px 0 0; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.pc{ display:flex; flex-direction:column; border:1px solid var(--sx-line); border-radius:18px; overflow:hidden; background:rgba(255,255,255,.04); text-decoration:none; color:var(--sx-ink); transition:border-color .15s; }
+.pc:hover{ border-color:var(--sx-gold); } .pc:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:2px; }
+.pc .ph{ aspect-ratio:16/9; background:linear-gradient(135deg,#16204f,#2a1a55); display:block; width:100%; object-fit:cover; }
+.pc .tb{ padding:16px 18px 20px; } .pc b{ display:block; font-family:var(--sx-d); font-size:21px; line-height:1.22; font-weight:700; letter-spacing:-.015em; }
+.pc p{ margin:8px 0 0; color:var(--sx-soft); font-size:15.5px; line-height:1.55; } .pc small{ display:block; margin-top:10px; color:var(--sx-muted); font-size:13.5px; }
+.empty2{ margin:28px 0 0; padding:22px; border:1px dashed var(--sx-line); border-radius:16px; color:var(--sx-muted); }
+
+.cw{ max-width:1080px; margin:0 auto; padding:clamp(36px,6vw,72px) 18px 0; }
+.cw h1{ font-size:clamp(38px,5.6vw,64px); font-weight:700; line-height:1.02; letter-spacing:-.035em; }
+.cw .lede{ margin:14px 0 0; max-width:58ch; color:var(--sx-soft); font-size:clamp(17px,1.9vw,20px); }
+.cw .alsol{ margin:18px 0 0; font-size:15.5px; color:var(--sx-muted); }
+.pg{ max-width:760px; margin:0 auto; padding:clamp(36px,6vw,72px) 18px 0; }
+.pg h1{ font-size:clamp(34px,5vw,56px); font-weight:700; line-height:1.05; letter-spacing:-.03em; }
+.pg .meta{ margin:12px 0 26px; color:var(--sx-muted); font-size:15px; min-height:20px; }
+
+.iv{ max-width:1020px; margin:0 auto; padding:clamp(30px,5vw,60px) 16px 0; }
+.iv h1{ font-size:clamp(36px,5.4vw,60px); font-weight:700; line-height:1.03; letter-spacing:-.035em; }
+.iv .lede{ margin:12px 0 0; max-width:62ch; color:var(--sx-soft); font-size:clamp(16.5px,1.8vw,19px); }
+.rule{ margin:20px 0 0; padding:14px 16px; border:1px solid #ffb02e; border-radius:14px; background:rgba(255,176,46,.09); color:#ffe2a8; font-size:14.5px; line-height:1.6; }
+.rule b{ color:#ffc857; }
+.iv .tabs{ display:flex; gap:6px; margin:24px 0 0; flex-wrap:wrap; } .iv .tabs button{ padding:11px 18px; border-radius:999px; border:1px solid var(--sx-line); background:none; color:var(--sx-muted); font:inherit; font-weight:600; font-size:15.5px; cursor:pointer; }
+.iv .tabs button[aria-selected="true"]{ color:#1a1030; border-color:transparent; background:linear-gradient(135deg,#ffc857,#ff9f5a); }
+.iv button:focus-visible,.iv input:focus-visible,.iv select:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:2px; }
+.card2{ margin:16px 0 0; padding:18px; border:1px solid var(--sx-line); border-radius:18px; background:rgba(255,255,255,.045); }
+.card2 h2{ font-size:22px; font-weight:700; margin:0 0 6px; } .card2 h3{ font-size:17px; margin:0 0 8px; } .card2 p{ margin:6px 0; color:var(--sx-soft); line-height:1.6; font-size:15.5px; }
+.fl{ display:block; margin:0 0 12px; font-size:14px; color:var(--sx-muted); } .fl input,.fl select{ display:block; width:100%; margin-top:5px; padding:12px 14px; border-radius:12px; border:1px solid var(--sx-line); background:rgba(255,255,255,.06); color:var(--sx-ink); font:inherit; font-size:16px; }
+.g2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0 14px; }
+.ib{ min-height:46px; padding:0 20px; border-radius:999px; border:1px solid var(--sx-line); background:rgba(255,255,255,.07); color:var(--sx-ink); font:inherit; font-weight:700; font-size:15.5px; cursor:pointer; } .ib.gold{ border:0; color:#1a1030; background:linear-gradient(135deg,#ffc857,#ff9f5a); } .ib:disabled{ opacity:.5; }
+.chipz{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; } .chipz button{ padding:7px 14px; border-radius:999px; border:1px solid var(--sx-line); background:rgba(255,255,255,.05); color:var(--sx-soft); font:inherit; font-size:14px; cursor:pointer; } .chipz button:hover{ border-color:var(--sx-gold); color:var(--sx-gold); }
+.fres{ margin:10px 0 0; border:1px solid var(--sx-line); border-radius:14px; overflow:hidden; max-height:300px; overflow-y:auto; } .fres button{ display:block; width:100%; text-align:left; padding:11px 14px; border:0; border-bottom:1px solid var(--sx-line); background:none; color:var(--sx-ink); font:inherit; font-size:14.5px; cursor:pointer; } .fres button:hover{ background:rgba(255,200,87,.12); } .fres button:last-child{ border-bottom:0; }
+.sel{ margin:12px 0 0; padding:12px 14px; border-radius:14px; background:rgba(255,200,87,.1); border:1px solid var(--sx-gold); } .sel b{ display:block; font-size:16px; } .sel span{ color:var(--sx-muted); font-size:13.5px; }
+.kp{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:12px 0 0; } .kp div{ padding:12px 14px; border-radius:14px; background:rgba(255,255,255,.06); border:1px solid var(--sx-line); } .kp b{ display:block; font:700 22px var(--sx-d); letter-spacing:-.01em; } .kp span{ font-size:13px; color:var(--sx-muted); } .pos{ color:#7de2a8; } .neg{ color:#ff9aa6; }
+.tw2{ margin:12px 0 0; overflow-x:auto; border:1px solid var(--sx-line); border-radius:14px; } .tw2 table{ border-collapse:collapse; width:100%; min-width:520px; font-size:14.5px; } .tw2 th,.tw2 td{ padding:10px 12px; border-bottom:1px solid var(--sx-line); text-align:right; white-space:nowrap; } .tw2 th:first-child,.tw2 td:first-child{ text-align:left; white-space:normal; } .tw2 th{ background:rgba(255,255,255,.06); color:var(--sx-muted); font-weight:600; font-size:13px; } .tw2 tr:last-child td{ border-bottom:0; }
+canvas.chart{ width:100%; height:260px; display:block; margin-top:12px; border-radius:12px; background:rgba(255,255,255,.03); }
+.msg{ margin:12px 0 0; min-height:22px; color:var(--sx-soft); font-size:14.5px; } .msg.err{ color:#ff9aa6; }
+.lrn details{ margin:10px 0 0; border:1px solid var(--sx-line); border-radius:14px; background:rgba(255,255,255,.04); } .lrn summary{ cursor:pointer; padding:14px 16px; font-weight:700; font-size:16px; } .lrn details p,.lrn details ul{ margin:0; padding:0 16px 14px; color:var(--sx-soft); line-height:1.65; font-size:15.5px; } .lrn details ul{ padding-left:34px; } .lrn a{ color:#7cc4ff; }
+.rng{ width:100%; accent-color:#ffc857; height:34px; }
+.sm{ font-size:13px; color:var(--sx-muted); line-height:1.55; }
+</style></head>
+<body><header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header><main id="main">
+<div class="iv">
+<h1>Invest Lab</h1>
+<p class="lede">Learn long-term investing by practising with pretend money. Replay what a fund did in the past, build a paper portfolio and try simple calculators. No tips, no advice, no real money.</p>
+<div class="rule"><b>Please read.</b> This is an educational tool. Ourworldhive and its owner are <b>not</b> SEBI-registered investment advisers or research analysts. We do not give buy, sell or hold advice, tips or target prices. All money here is virtual. Mutual fund investments are subject to market risks, read all scheme related documents carefully. Past performance may or may not be sustained in the future. Prices shown are at least 90 days old, as SEBI's January 2025 circular asks of investor education content. Not a substitute for a SEBI-registered adviser.</div>
+<div class="tabs" role="tablist" aria-label="Invest Lab sections"><button role="tab" id="t1" aria-selected="true">Time machine</button><button role="tab" id="t2" aria-selected="false">Paper portfolio</button><button role="tab" id="t3" aria-selected="false">Calculators</button><button role="tab" id="t4" aria-selected="false">Learn</button></div>
+
+<section class="card2" id="fundBox" aria-labelledby="fh"><h2 id="fh">1. Pick a mutual fund to study</h2>
+ <p class="sm">Search by name. We do not recommend any fund. The list is simply every scheme reported by AMFI. Data comes from AMFI via MFapi.in.</p>
+ <label class="fl">Search a fund<input id="fq" type="search" autocomplete="off" placeholder="for example Nifty 50 index, flexi cap, liquid, gold"></label>
+ <div class="chipz" id="fchips"></div><div class="fres" id="fres" hidden></div>
+ <div id="fsel" class="sel" hidden></div><p class="msg" id="fmsg" role="status"></p><div id="fstats"></div></section>
+
+<section id="p1" role="tabpanel" aria-labelledby="t1"><div class="card2"><h2>2. Replay the past</h2><p class="sm">If you had invested in this fund long ago, what would it be worth now? Pick how you would have invested and the start date. The end date is always 90 days before today.</p>
+ <div class="g2"><label class="fl">How<select id="bMode"><option value="sip">Monthly SIP</option><option value="lump">One-time lumpsum</option></select></label><label class="fl">Amount in rupees<input id="bAmt" type="number" min="500" step="500" value="10000" inputmode="numeric"></label><label class="fl">Start date<input id="bStart" type="date"></label></div>
+ <button class="ib gold" id="bGo" type="button">Replay</button><p class="msg" id="bMsg" role="status"></p><div id="bOut"></div></div></section>
+
+<section id="p2" role="tabpanel" aria-labelledby="t2" hidden><div class="card2"><h2>Your paper portfolio</h2><p class="sm">You start with virtual \u20B910,00,000. Buy a fund on a past date, then slide time forward to watch how your pretend money would have behaved. Saved on this device only.</p>
+ <div class="g2"><label class="fl">Amount in rupees<input id="pAmt" type="number" min="1000" step="1000" value="100000" inputmode="numeric"></label><label class="fl">Buy on (past date)<input id="pDate" type="date"></label></div>
+ <button class="ib gold" id="pAdd" type="button">Buy with virtual money</button> <button class="ib" id="pReset" type="button">Start again</button><p class="msg" id="pMsg" role="status"></p>
+ <label class="fl" style="margin-top:14px">Move through time: <b id="pAsof"></b><input class="rng" id="pSlide" type="range" min="0" max="100" value="100"></label><div id="pOut"></div></div></section>
+
+<section id="p3" role="tabpanel" aria-labelledby="t3" hidden><div class="card2"><h2>Monthly SIP calculator</h2><p class="sm">The return you type is only an assumption, not a forecast or a promise.</p>
+ <div class="g2"><label class="fl">Monthly amount<input id="sP" type="number" value="10000" min="100" inputmode="numeric"></label><label class="fl">Assumed return per year (%)<input id="sR" type="number" value="10" min="0" max="30" step="0.5" inputmode="decimal"></label><label class="fl">Years<input id="sY" type="number" value="15" min="1" max="50" inputmode="numeric"></label></div><div id="sOut"></div></div>
+ <div class="card2"><h2>Goal planner</h2><p class="sm">How much per month could a goal need, after prices rise?</p>
+ <div class="g2"><label class="fl">Goal in today's money<input id="gG" type="number" value="5000000" min="1000" inputmode="numeric"></label><label class="fl">Years to the goal<input id="gY" type="number" value="12" min="1" max="50" inputmode="numeric"></label><label class="fl">Assumed return (%)<input id="gR" type="number" value="10" min="0" max="30" step="0.5" inputmode="decimal"></label><label class="fl">Assumed inflation (%)<input id="gI" type="number" value="6" min="0" max="20" step="0.5" inputmode="decimal"></label></div><div id="gOut"></div></div></section>
+
+<section id="p4" role="tabpanel" aria-labelledby="t4" class="lrn" hidden>
+ <div class="card2"><h2>Learn the basics</h2><p class="sm">Plain-language ideas for new investors. This is general education, not advice for your situation.</p>
+ <details open><summary>What are a mutual fund, NAV and SIP?</summary><p>A mutual fund pools money from many people and invests it in shares, bonds or other assets. NAV (net asset value) is the price of one unit of the fund, updated every day. A SIP (systematic investment plan) means putting a fixed amount in on a fixed date each month, so you buy more units when the price is low and fewer when it is high.</p></details>
+ <details><summary>Index fund, active fund, direct and regular plans</summary><p>An index fund copies a market index such as the Nifty 50. An active fund tries to beat an index and usually charges more. A direct plan has no distributor commission, so its yearly cost (expense ratio) is lower than the regular plan of the same fund. Lower cost matters a lot over many years.</p></details>
+ <details><summary>Risk, time and falls</summary><p>Share-based funds can fall a lot, sometimes by a third or more in a bad year, and then take years to recover. Use the "worst fall" number in the Time machine to see this for any fund. Money you will need within a few years does not usually belong in assets that can fall that much.</p></details>
+ <details><summary>Spreading risk</summary><p>Putting everything in one fund or one company is risky. Many people spread money across different kinds of assets such as shares, bonds, gold and cash. How much to put in each depends on your goals, age and comfort with falls, and is a question for a SEBI-registered adviser.</p></details>
+ <details><summary>Before you invest</summary><ul><li>Keep an emergency fund, often suggested at 3 to 6 months of expenses.</li><li>Clear costly debts such as credit-card dues first.</li><li>Check insurance cover for health and life.</li><li>Know your goal and how many years you have.</li></ul></details>
+ <details><summary>Costs and taxes</summary><p>Costs include the fund's yearly expense ratio, any exit load, and tax on gains. Tax rules change often, so check the current rules on the Income Tax Department website or ask a tax professional.</p></details>
+ <details><summary>Common mistakes</summary><ul><li>Chasing last year's best performer.</li><li>Stopping a SIP when markets fall.</li><li>Following tips on social media or messaging groups.</li><li>Ignoring costs.</li><li>Investing money you need soon.</li></ul></details>
+ <details><summary>How to check if an adviser is registered</summary><p>Anyone who gives investment advice for a fee must be registered with SEBI. Check the name and registration number on the <a href="https://www.sebi.gov.in" target="_blank" rel="noopener noreferrer">SEBI website</a> (intermediaries list) and learn more on <a href="https://investor.sebi.gov.in" target="_blank" rel="noopener noreferrer">investor.sebi.gov.in</a>. AMFI publishes mutual fund information at <a href="https://www.amfiindia.com" target="_blank" rel="noopener noreferrer">amfiindia.com</a>. Be careful of anyone who promises fixed or guaranteed returns.</p></details>
+ <details><summary>Why this page shows delayed data and gives no tips</summary><p>SEBI rules say that people who are not registered cannot give investment advice or recommendations, and that investor education should not use live or recent market prices to talk about specific securities. So Invest Lab shows history at least 90 days old, never says what to buy or sell, and uses pretend money. If you need advice, speak to a SEBI-registered investment adviser. These notes are general information, not legal advice.</p></details></div></section>
+</div>
+</main><footer class="sx-foot"><div class="sx-fin">
+<div class="sx-fgrid">
+<div class="sx-fbrand"><a class="sx-brand" href="index.html"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a>
+<p>An interactive map of the world with a community around it. Spin the Earth, open a country, and talk about what you find.</p></div>
+<div><h2>Explore</h2><ul>
+<li><a href="index.html">World explorer</a></li><li><a href="news.html">News</a></li><li><a href="compare.html">Compare</a></li><li><a href="forum.html">Community forum</a></li>
+<li><a href="ocean.html">Ocean dive</a></li><li><a href="countries.html">Countries A to Z</a></li><li><a href="invest.html">Invest Lab</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li>
+<li><a href="blog.html">Blog</a></li><li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Our Wicked World blog</a></li></ul></div>
+<div><h2>Information</h2><ul>
+<li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li>
+<li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms and map disclaimer</a></li></ul></div>
+</div>
+<div class="sx-fbar"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p>
+<p>&#9888;&#65039; Maps are not verified and may be under legal review. <a href="terms.html#maps">Read the disclaimer</a></p></div>
+</div></footer><script>
+(function(){
+  var h=document.querySelector('.sx-head'), b=document.getElementById('sxburger');
+  if(h&&b){
+    function set(o){ h.classList.toggle('open',o); b.setAttribute('aria-expanded',o?'true':'false'); b.setAttribute('aria-label',o?'Close menu':'Open menu'); }
+    b.addEventListener('click',function(e){ e.stopPropagation(); set(!h.classList.contains('open')); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+    document.addEventListener('click',function(e){ if(!h.contains(e.target)) set(false); });
+    window.addEventListener('resize',function(){ if(window.innerWidth>1120) set(false); });
+  }
+  var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
+})();
+</script><script src="firebase-config.js"></script><script src="site.js"></script><script>
+(function(){
+'use strict';
+var $=function(id){ return document.getElementById(id); };
+var esc=function(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); };
+var DAY=864e5, CUT=Date.now()-90*DAY, API='https://api.mfapi.in', MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function pad(n){ return (n<10?'0':'')+n; }
+function iso(t){ var d=new Date(t); return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); }
+function pIso(s){ var p=String(s).split('-'); return Date.UTC(+p[0],+p[1]-1,+p[2]); }
+function fd(t){ var d=new Date(t); return d.getUTCDate()+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear(); }
+function inr(n){ return (n<0?'-':'')+'\u20B9'+Math.round(Math.abs(n)).toLocaleString('en-IN'); }
+function pc(x,d){ return (x>=0?'+':'')+(x*100).toFixed(d==null?1:d)+'%'; }
+function cls(x){ return x>=0?'pos':'neg'; }
+CUT=pIso(iso(CUT));
+/* ---------- tabs ---------- */
+var T=['t1','t2','t3','t4'], P=['p1','p2','p3','p4'];
+function tab(i){ T.forEach(function(t,k){ $(t).setAttribute('aria-selected',String(k===i)); $(P[k]).hidden=k!==i; }); $('fundBox').hidden=i>1&&i!==1&&i!==0; if(i===1) renderPF(); }
+T.forEach(function(t,i){ $(t).onclick=function(){ tab(i); }; $(t).addEventListener('keydown',function(e){ var d=e.key==='ArrowRight'?1:(e.key==='ArrowLeft'?-1:0); if(d){ var n=(i+d+4)%4; tab(n); $(T[n]).focus(); } }); });
+/* ---------- fund data ---------- */
+var FUND={}, sel=null;
+function lo(s,t){ var a=0,b=s.length; while(a<b){ var m=(a+b)>>1; if(s[m][0]<t) a=m+1; else b=m; } return a; }
+function after(s,t){ var i=lo(s,t); return i<s.length?s[i]:null; }
+function before(s,t){ var i=lo(s,t+1)-1; return i>=0?s[i]:null; }
+function load(code){
+  if(FUND[code]) return Promise.resolve(FUND[code]);
+  return fetch(API+'/mf/'+code).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(j){
+    var s=(j.data||[]).map(function(x){ var p=String(x.date).split('-'); return [Date.UTC(+p[2],+p[1]-1,+p[0]),parseFloat(x.nav)]; }).filter(function(x){ return x[1]>0&&x[0]<=CUT; }).sort(function(a,b){ return a[0]-b[0]; });
+    if(s.length<30) throw new Error('short'); return FUND[code]={meta:j.meta||{},s:s}; });
+}
+function cagr(s,y){ var e=s[s.length-1], t0=e[0]-y*365.25*DAY; if(s[0][0]>t0+25*DAY) return null; var b=before(s,t0); return b?Math.pow(e[1]/b[1],1/y)-1:null; }
+function maxdd(s){ var pk=0,dd=0,pt=0,tt=0,tp=0; s.forEach(function(p){ if(p[1]>pk){ pk=p[1]; pt=p[0]; } var d=p[1]/pk-1; if(d<dd){ dd=d; tt=p[0]; tp=pt; } }); return {dd:dd,from:tp,to:tt}; }
+function calYears(s){ var last={}; s.forEach(function(p){ last[new Date(p[0]).getUTCFullYear()]=p[1]; }); var ys=Object.keys(last).map(Number).sort(); var out=[]; for(var i=1;i<ys.length;i++) out.push([ys[i],last[ys[i]]/last[ys[i-1]]-1]); return out; }
+function xirr(cf){ var t0=cf[0][0]; function f(r){ var s=0; cf.forEach(function(c){ s+=c[1]/Math.pow(1+r,(c[0]-t0)/(365*DAY)); }); return s; } var a=-0.95,b=10,fa=f(a),fb=f(b); if(!isFinite(fa)||!isFinite(fb)||fa*fb>0) return null; for(var i=0;i<200;i++){ var m=(a+b)/2, fm=f(m); if(fa*fm<=0){ b=m; fb=fm; } else { a=m; fa=fm; } } return (a+b)/2; }
+/* ---------- pick a fund ---------- */
+var CH=['Nifty 50 index','Flexi cap','Liquid','Gold','Balanced advantage','Small cap'];
+$('fchips').innerHTML=CH.map(function(c){ return '<button type="button">'+esc(c)+'</button>'; }).join('');
+$('fchips').onclick=function(e){ var b=e.target.closest('button'); if(b){ $('fq').value=b.textContent; search(b.textContent); } };
+var st=null; $('fq').addEventListener('input',function(){ clearTimeout(st); var v=this.value.trim(); st=setTimeout(function(){ search(v); },320); });
+function fmsg(t,err){ $('fmsg').textContent=t||''; $('fmsg').className='msg'+(err?' err':''); }
+function search(q){
+  if(q.length<3){ $('fres').hidden=true; return; } fmsg('Searching\u2026');
+  fetch(API+'/mf/search?q='+encodeURIComponent(q)).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(L){
+    fmsg(L.length?'':'No fund found. Try another word.'); var pref=L.filter(function(x){ return /direct/i.test(x.schemeName)&&/growth/i.test(x.schemeName); }), rest=L.filter(function(x){ return pref.indexOf(x)<0; }), A=pref.concat(rest).slice(0,15);
+    $('fres').hidden=!A.length; $('fres').innerHTML=A.map(function(x){ return '<button type="button" data-c="'+x.schemeCode+'" data-n="'+esc(x.schemeName)+'">'+esc(x.schemeName)+'</button>'; }).join('');
+  }).catch(function(){ fmsg('Could not reach the fund data service right now. Please try again in a moment.',true); });
+}
+$('fres').onclick=function(e){ var b=e.target.closest('button'); if(!b) return; $('fres').hidden=true; choose(+b.dataset.c,b.dataset.n); };
+function choose(code,name){
+  fmsg('Loading history\u2026'); $('fstats').innerHTML=''; sel=null; $('fsel').hidden=true;
+  load(code).then(function(f){
+    sel={code:code,name:name||f.meta.scheme_name,f:f}; fmsg(''); var s=f.s, first=s[0][0], last=s[s.length-1][0];
+    $('fsel').hidden=false; $('fsel').innerHTML='<b>'+esc(sel.name)+'</b><span>'+esc([f.meta.fund_house,f.meta.scheme_category].filter(Boolean).join(' \u2022 '))+'<br>History used: '+fd(first)+' to '+fd(last)+'</span>';
+    var rows=[1,3,5,10].map(function(y){ var c=cagr(s,y); return '<div><b class="'+(c==null?'':cls(c))+'">'+(c==null?'n/a':pc(c))+'</b><span>Average yearly growth, last '+y+' year'+(y>1?'s':'')+'</span></div>'; }).join(''), dd=maxdd(s), cy=calYears(s).slice(-8);
+    $('fstats').innerHTML='<div class="kp">'+rows+'<div><b class="neg">'+pc(dd.dd)+'</b><span>Worst fall from a peak ('+fd(dd.from)+' to '+fd(dd.to)+')</span></div></div>'+(cy.length?'<div class="tw2"><table><thead><tr><th>Calendar year</th>'+cy.map(function(x){ return '<th>'+x[0]+'</th>'; }).join('')+'</tr></thead><tbody><tr><td>Return</td>'+cy.map(function(x){ return '<td class="'+cls(x[1])+'">'+pc(x[1])+'</td>'; }).join('')+'</tr></tbody></table></div>':'')+'<p class="sm">Past results only. They do not predict the future. Average yearly growth is a compound rate (CAGR) taken from NAV history.</p>';
+    var mn=iso(first), mx=iso(CUT-30*DAY); ['bStart','pDate'].forEach(function(id){ $(id).min=mn; $(id).max=mx; }); if(!$('bStart').value) $('bStart').value=iso(Math.max(first,pIso(iso(CUT))-5*365*DAY)); if(!$('pDate').value) $('pDate').value=iso(Math.max(first,pIso(iso(CUT))-3*365*DAY));
+  }).catch(function(e){ fmsg(e&&e.message==='short'?'This fund does not have enough history. Please pick another.':'Could not load this fund right now. Please try again.',true); });
+}
+/* ---------- time machine ---------- */
+function addM(t,k){ var d=new Date(t); return Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+k,d.getUTCDate()); }
+function chart(cv,pts){
+  var dpr=Math.min(2,window.devicePixelRatio||1), w=cv.clientWidth||600, h=260; cv.width=w*dpr; cv.height=h*dpr; var g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,w,h);
+  var mx=Math.max.apply(null,pts.map(function(p){ return Math.max(p.v,p.i); }))*1.06||1, x0=pts[0].t, x1=pts[pts.length-1].t||x0+1, L=58,R=12,Tp=14,B=28; function X(t){ return L+(t-x0)/(x1-x0||1)*(w-L-R); } function Y(v){ return Tp+(1-v/mx)*(h-Tp-B); }
+  g.strokeStyle='rgba(255,255,255,.12)'; g.fillStyle='#93a4cc'; g.font='12px Figtree, system-ui, sans-serif'; g.textAlign='right'; g.textBaseline='middle'; for(var k=0;k<=4;k++){ var v=mx*k/4, y=Y(v); g.beginPath(); g.moveTo(L,y); g.lineTo(w-R,y); g.stroke(); g.fillText(v>=1e7?(v/1e7).toFixed(1)+' Cr':(v>=1e5?(v/1e5).toFixed(1)+' L':Math.round(v/1000)+'k'),L-6,y); }
+  g.textAlign='left'; g.fillText(fd(x0),L,h-10); g.textAlign='right'; g.fillText(fd(x1),w-R,h-10);
+  function line(key,col,wd,dash){ g.beginPath(); pts.forEach(function(p,i){ var x=X(p.t), y=Y(p[key]); i?g.lineTo(x,y):g.moveTo(x,y); }); g.setLineDash(dash||[]); g.strokeStyle=col; g.lineWidth=wd; g.stroke(); g.setLineDash([]); }
+  line('i','#7cc4ff',2,[6,5]); line('v','#ffc857',2.6);
+  g.fillStyle='#7cc4ff'; g.textAlign='left'; g.fillText('Money put in',L+8,Tp+8); g.fillStyle='#ffc857'; g.fillText('Value then',L+110,Tp+8);
+}
+$('bGo').onclick=function(){
+  var m=$('bMsg'); m.className='msg'; if(!sel){ m.textContent='Please pick a fund first (step 1).'; m.className='msg err'; return; }
+  var mode=$('bMode').value, amt=+$('bAmt').value, s0=pIso($('bStart').value||'x'), s=sel.f.s;
+  if(!(amt>=500)){ m.textContent='Please enter at least \u20B9500.'; m.className='msg err'; return; }
+  if(!isFinite(s0)||s0<s[0][0]||s0>CUT-30*DAY){ m.textContent='Pick a start date between '+fd(s[0][0])+' and '+fd(CUT-30*DAY)+'.'; m.className='msg err'; return; }
+  var buys=[], k=0; while(true){ var d=mode==='sip'?addM(s0,k):s0, n=after(s,d); if(!n||n[0]>CUT||d>CUT) break; buys.push({t:n[0],a:amt,u:amt/n[1]}); k++; if(mode==='lump') break; }
+  if(!buys.length){ m.textContent='No data for those dates. Try an earlier start.'; return; }
+  var inv=0,un=0,cf=[]; buys.forEach(function(b){ inv+=b.a; un+=b.u; cf.push([b.t,-b.a]); }); var end=before(s,CUT), val=un*end[1]; cf.push([end[0],val]); var xr=xirr(cf);
+  var pts=[], cu=0, ci=0, bi=0, steps=Math.min(160,Math.max(8,Math.round((CUT-buys[0].t)/DAY/7)));
+  for(var q=0;q<=steps;q++){ var t=buys[0].t+(CUT-buys[0].t)*q/steps; while(bi<buys.length&&buys[bi].t<=t){ cu+=buys[bi].u; ci+=buys[bi].a; bi++; } var nv=before(s,t); pts.push({t:t,i:ci,v:cu*(nv?nv[1]:0)}); }
+  var gain=val-inv, fall=(function(){ var pk=0,dd=0; pts.forEach(function(p){ if(p.v>pk) pk=p.v; if(pk>0&&p.i>0){ var d=p.v/pk-1; if(d<dd) dd=d; } }); return dd; })();
+  $('bOut').innerHTML='<div class="kp"><div><b>'+inr(inv)+'</b><span>Money put in ('+buys.length+(buys.length>1?' payments':' payment')+')</span></div><div><b>'+inr(val)+'</b><span>Pretend value on '+fd(end[0])+'</span></div><div><b class="'+cls(gain)+'">'+inr(gain)+' ('+pc(gain/inv)+')</b><span>Gain or loss</span></div><div><b class="'+(xr==null?'':cls(xr))+'">'+(xr==null?'n/a':pc(xr))+'</b><span>Yearly return on your payments (XIRR)</span></div><div><b class="neg">'+pc(fall)+'</b><span>Biggest dip of your pretend value from a high</span></div></div><canvas class="chart" id="bCv" role="img" aria-label="Chart of money put in and pretend value over time"></canvas><p class="sm">This replays the past using real NAV history of '+esc(sel.name)+'. It is not a forecast and not a recommendation. Fees, taxes and exit load are not included.</p>';
+  chart($('bCv'),pts); m.textContent='';
+};
+/* ---------- paper portfolio ---------- */
+var KEY='owh_paper_v1', PF=(function(){ try{ var j=JSON.parse(localStorage.getItem(KEY)||'null'); if(j&&Array.isArray(j.pos)) return j; }catch(e){} return {cash0:1000000,pos:[]}; })();
+function savePF(){ try{ localStorage.setItem(KEY,JSON.stringify(PF)); }catch(e){} }
+function pm(t,err){ $('pMsg').textContent=t||''; $('pMsg').className='msg'+(err?' err':''); }
+$('pAdd').onclick=function(){
+  if(!sel){ pm('Please pick a fund first (step 1).',true); return; } var amt=+$('pAmt').value, d=pIso($('pDate').value||'x'), s=sel.f.s, used=PF.pos.reduce(function(a,p){ return a+p.amt; },0);
+  if(!(amt>=1000)){ pm('Please enter at least \u20B91,000.',true); return; } if(used+amt>PF.cash0){ pm('Not enough virtual cash. You have '+inr(PF.cash0-used)+' left.',true); return; }
+  if(!isFinite(d)||d<s[0][0]||d>CUT-30*DAY){ pm('Pick a buy date between '+fd(s[0][0])+' and '+fd(CUT-30*DAY)+'.',true); return; }
+  var n=after(s,d); if(!n){ pm('No price for that date.',true); return; }
+  PF.pos.push({code:sel.code,name:sel.name,t:n[0],amt:amt,units:amt/n[1],nav:n[1]}); savePF(); pm('Bought '+(amt/n[1]).toFixed(3)+' units at '+n[1].toFixed(2)+' on '+fd(n[0])+'.'); renderPF(true);
+};
+$('pReset').onclick=function(){ if(PF.pos.length&&!confirm('Remove all pretend investments and start again?')) return; PF={cash0:1000000,pos:[]}; savePF(); pm('Fresh start with \u20B910,00,000.'); renderPF(true); };
+$('pSlide').addEventListener('input',function(){ renderPF(false); });
+function renderPF(resetSlide){
+  var o=$('pOut'); if(!PF.pos.length){ o.innerHTML='<div class="kp"><div><b>'+inr(PF.cash0)+'</b><span>Virtual cash</span></div></div><p class="sm">Nothing bought yet. Pick a fund in step 1, choose an amount and a past date, then tap the gold button.</p>'; $('pAsof').textContent=''; return; }
+  var tmin=Math.min.apply(null,PF.pos.map(function(p){ return p.t; })), sl=$('pSlide'); if(resetSlide) sl.value=100; var asof=Math.round(tmin+(CUT-tmin)*(+sl.value/100)); asof=pIso(iso(asof)); $('pAsof').textContent=fd(asof);
+  Promise.all(PF.pos.map(function(p){ return load(p.code).catch(function(){ return null; }); })).then(function(F){
+    var inv=0,val=0,rows=PF.pos.map(function(p,i){ var f=F[i], b=p.t<=asof, nv=f&&before(f.s,asof), v=b&&nv?p.units*nv[1]:0; if(b){ inv+=p.amt; val+=v; } return '<tr><td>'+esc(p.name)+'</td><td>'+fd(p.t)+'</td><td>'+inr(p.amt)+'</td><td>'+(b&&nv?inr(v):'Not bought yet')+'</td><td class="'+(b&&nv?cls(v-p.amt):'')+'">'+(b&&nv?pc(v/p.amt-1):'')+'</td><td><button type="button" class="ib" data-rm="'+i+'" style="min-height:34px;padding:0 12px;font-size:13px">Remove</button></td></tr>'; }).join('');
+    var used=PF.pos.reduce(function(a,p){ return a+p.amt; },0), gain=val-inv;
+    o.innerHTML='<div class="kp"><div><b>'+inr(inv)+'</b><span>Invested by '+fd(asof)+'</span></div><div><b>'+inr(val)+'</b><span>Pretend value on '+fd(asof)+'</span></div><div><b class="'+cls(gain)+'">'+inr(gain)+(inv?' ('+pc(gain/inv)+')':'')+'</b><span>Gain or loss</span></div><div><b>'+inr(PF.cash0-used)+'</b><span>Virtual cash left</span></div></div><div class="tw2"><table><thead><tr><th>Fund</th><th>Bought on</th><th>Amount</th><th>Value on the date above</th><th>Change</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="sm">Pretend money and past prices only. Not advice.</p>';
+  });
+}
+$('pOut').addEventListener('click',function(e){ var b=e.target.closest('[data-rm]'); if(!b) return; PF.pos.splice(+b.dataset.rm,1); savePF(); renderPF(true); });
+/* ---------- calculators ---------- */
+function sip(){
+  var P=+$('sP').value, r=+$('sR').value/100/12, n=Math.round(+$('sY').value*12); if(!(P>0)||!(n>0)){ $('sOut').innerHTML=''; return; }
+  function fv(m){ return r?P*((Math.pow(1+r,m)-1)/r)*(1+r):P*m; } var inv=P*n, tot=fv(n), rows=''; for(var y=Math.max(1,Math.round(n/12/5)); y<=n/12; y+=Math.max(1,Math.round(n/12/5))){ rows+='<tr><td>Year '+y+'</td><td>'+inr(P*y*12)+'</td><td>'+inr(fv(y*12))+'</td></tr>'; }
+  $('sOut').innerHTML='<div class="kp"><div><b>'+inr(inv)+'</b><span>Total you put in</span></div><div><b>'+inr(tot-inv)+'</b><span>Estimated gain (if the assumption held)</span></div><div><b>'+inr(tot)+'</b><span>Estimated value</span></div></div><div class="tw2"><table><thead><tr><th></th><th>You put in</th><th>Estimated value</th></tr></thead><tbody>'+rows+'<tr><td>Year '+(n/12)+'</td><td>'+inr(inv)+'</td><td>'+inr(tot)+'</td></tr></tbody></table></div>';
+}
+function goal(){
+  var G=+$('gG').value, y=+$('gY').value, r=+$('gR').value/100/12, inf=+$('gI').value/100, n=Math.round(y*12); if(!(G>0)||!(n>0)){ $('gOut').innerHTML=''; return; }
+  var Gf=G*Math.pow(1+inf,y), f=r?((Math.pow(1+r,n)-1)/r)*(1+r):n, need=Gf/f;
+  $('gOut').innerHTML='<div class="kp"><div><b>'+inr(Gf)+'</b><span>What the goal could cost in '+y+' years</span></div><div><b>'+inr(need)+'</b><span>Monthly SIP this assumption needs</span></div><div><b>'+inr(need*n)+'</b><span>Total you would put in</span></div></div><p class="sm">Assumed return and inflation are examples. Real results will differ.</p>';
+}
+['sP','sR','sY'].forEach(function(id){ $(id).addEventListener('input',sip); }); ['gG','gY','gR','gI'].forEach(function(id){ $(id).addEventListener('input',goal); });
+sip(); goal(); renderPF(true);
+window.addEventListener('resize',function(){ });
+})();
+</script></body></html>

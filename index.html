@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ourworldhive | Explore the world on a live 3D globe</title><meta name="description" content="Spin a live 3D Earth with real day and night, open any country for its profile, weather and news, and join the community."><meta name="theme-color" content="#050918"><link rel="canonical" href="https://ourworldhive.com/"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050918'/%3E%3Cpath d='M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8z' fill='none' stroke='%23ffc857' stroke-width='2.2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23eaf1ff' stroke-width='1.6'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Ourworldhive | Explore the world on a live 3D globe"><meta property="og:description" content="Spin a live 3D Earth with real day and night, open any country for its profile, weather and news, and join the community."><meta property="og:url" content="https://ourworldhive.com/"><meta name="twitter:card" content="summary">
+<title>Ourworldhive | Explore the world on a live 3D globe</title><meta name="description" content="Spin a live 3D Earth with real day and night, open any country for its profile, weather and news, and join the community."><meta name="theme-color" content="#050918"><link rel="canonical" href="https://ourworldhive.com/"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050918'/%3E%3Cpath d='M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8z' fill='none' stroke='%23ffc857' stroke-width='2.2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23eaf1ff' stroke-width='1.6'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Ourworldhive | Explore the world on a live 3D globe"><meta property="og:description" content="Spin a live 3D Earth with real day and night, open any country for its profile, weather and news, and join the community."><meta property="og:url" content="https://ourworldhive.com/"><meta property="og:image" content="https://ourworldhive.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://ourworldhive.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -133,6 +133,13 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 .plg h4{ margin:0; padding:8px 12px; font:600 12.5px var(--font-b); letter-spacing:.02em; color:var(--gold); background:rgba(255,200,87,.08); position:sticky; top:0; }
 .plrow{ display:block; width:100%; text-align:left; padding:9px 12px; border:0; border-bottom:1px solid var(--line); background:none; color:#fff; cursor:pointer; font:inherit; }
 .plrow:hover,.plrow:focus-visible{ background:rgba(255,200,87,.14); outline:none; } .plrow .pn{ display:block; font-weight:600; font-size:14.5px; } .plrow .pd{ display:block; font-size:12.5px; color:var(--muted); margin-top:1px; }
+.stsect{ border-left:3px solid var(--gold); padding-left:12px; }
+.cdet{ margin-top:10px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.03); }
+.cdet>summary{ cursor:pointer; list-style:none; padding:13px 16px; font:700 15px var(--font-b); color:#fff; display:flex; justify-content:space-between; align-items:center; }
+.cdet>summary::-webkit-details-marker{ display:none; }
+.cdet>summary::after{ content:'\25BE'; color:var(--gold); transition:transform .2s; } .cdet[open]>summary::after{ transform:rotate(180deg); }
+.cdet>summary:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:16px; }
+.cdet .sect{ padding:0 14px 6px; }
 /* tools, clock, hint */
 .tools{ position:absolute; right:14px; bottom:calc(78px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:10px; }
 .tools button{ width:44px; height:44px; border-radius:50%; font-size:19px; line-height:1; display:grid; place-items:center; transition:transform .15s, background .2s; }
@@ -147,6 +154,25 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 #tip small{ display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:1px; }
 
 .seacard_x{ }
+#bwBtn{ position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:41; min-height:46px; padding:0 16px 0 12px; border-radius:0 999px 999px 0; border-left:0; color:#fff; font:700 14.5px var(--font-b); cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+#bwBtn:hover,#bwBtn[aria-expanded="true"]{ border-color:var(--gold); color:var(--gold); } #bwBtn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+#bwPanel{ position:fixed; right:0; top:var(--hh); bottom:var(--fh); width:min(390px,92vw); z-index:55; display:flex; flex-direction:column; border-radius:20px 0 0 20px; border-right:0; background:rgba(8,12,34,.96); transform:translateX(0); transition:transform .28s ease; }
+#bwPanel[hidden]{ display:flex; transform:translateX(105%); visibility:hidden; pointer-events:none; }
+.bwh{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; } .bwh b{ font:700 19px var(--font-d); }
+.bwh button{ width:38px; height:38px; border-radius:50%; border:0; background:rgba(255,255,255,.12); color:#fff; font-size:22px; cursor:pointer; }
+#bwQ{ margin:0 16px 10px; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.07); color:#fff; font-size:15px; }
+#bwT{ flex:1; overflow:auto; padding:0 10px 18px; }
+#bwT details.bwr{ margin:0 0 6px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.04); }
+#bwT details.bwr>summary{ cursor:pointer; list-style:none; padding:12px 14px; font:700 15px var(--font-b); display:flex; justify-content:space-between; } #bwT details.bwr>summary::-webkit-details-marker{ display:none; }
+#bwT details.bwr>summary small{ color:var(--muted); font-weight:500; }
+.bwc{ display:flex; align-items:center; gap:4px; border-top:1px solid var(--line); }
+.bwo{ flex:1; text-align:left; padding:10px 14px; border:0; background:none; color:#fff; font:600 14.5px var(--font-b); cursor:pointer; display:flex; gap:10px; align-items:center; min-width:0; } .bwo .fl{ font-size:20px; flex:none; } .bwo span.nm{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bwx{ flex:none; margin-right:8px; padding:6px 12px; border-radius:999px; border:1px solid var(--line); background:none; color:var(--muted); font:600 12.5px var(--font-b); cursor:pointer; }
+.bwo:hover,.bwo:focus-visible,.bwx:hover,.bwx:focus-visible,.bwsb:hover,.bwsb:focus-visible{ background:rgba(255,200,87,.14); color:var(--gold); outline:none; }
+.bwst{ padding:2px 12px 10px 38px; display:flex; flex-wrap:wrap; gap:6px; } .bwst .note{ width:100%; margin:4px 0; font-size:13px; color:var(--muted); }
+.bwsb{ padding:6px 12px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:#fff; font:500 13px var(--font-b); cursor:pointer; }
+.bwres{ padding:6px 4px; } .bwres h4{ margin:10px 6px 4px; font:600 12.5px var(--font-b); color:var(--gold); }
+@media (max-width:600px){ #bwBtn{ top:auto; bottom:calc(var(--fh) + 130px); transform:none; } }
 #seacard{ position:fixed; left:0; top:0; width:min(300px,calc(100vw - 20px)); padding:14px 16px; border-radius:18px; z-index:60; box-shadow:0 18px 50px rgba(0,0,0,.5); }
 #seacard[hidden]{ display:none; }
 #seacard h4{ margin:0 30px 4px 0; font:700 19px var(--font-d); } #seacard p{ margin:5px 0; font-size:13.5px; color:var(--muted); line-height:1.5; } #seacard b{ color:#fff; }
@@ -299,7 +325,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 .sx-foot.mini nav{ display:flex; gap:14px; flex:none; }
 @media (max-width:460px){ .sx-foot.mini{ font-size:12px; padding-left:12px; padding-right:12px; } .sx-foot.mini nav{ gap:11px; } .sx-foot.mini nav a:nth-child(3){ display:none; } }
 </style>
-</head>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Ourworldhive", "url": "https://ourworldhive.com/", "description": "Explore the world on a live 3D globe with country profiles, state maps, wildlife, ocean dives, news and a community.", "inLanguage": "en"}, {"@type": "Organization", "name": "Ourworldhive", "url": "https://ourworldhive.com/", "logo": "https://ourworldhive.com/og-image.png"}]}</script></head>
 <body>
 <header class="sx-head fixed"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
 <div id="stage">
@@ -359,9 +385,15 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
     <button class="glass" id="bTraf" aria-pressed="true" aria-label="Show planes and ships" title="Show or hide planes and ships">&#9992;</button>
   </div>
   <div class="clock glass" id="clock"></div>
-  <div class="hint glass"><span>Drag to spin</span><span>Scroll or pinch to zoom</span><span>Hold a country for a preview</span><span>Tap a country or a gold pin</span><span>Tap the sea to dive</span><span>&#9888;&#65039; Borders not verified, under legal review</span></div>
+  <div class="hint glass"><span>Drag to spin</span><span>Scroll or pinch to zoom</span><span>Hold a country for a preview</span><span>Tap a country or a gold pin</span><span>Browse list on the left edge</span><span>Tap the sea to dive</span><span>&#9888;&#65039; Borders not verified, under legal review</span></div>
   <div id="tip" class="glass" role="status"></div>
   <div id="seacard" class="glass" hidden role="dialog" aria-label="Sea information"></div>
+  <button id="bwBtn" class="glass" type="button" aria-expanded="false" aria-controls="bwPanel"><span aria-hidden="true">&#9776;</span> Browse</button>
+  <aside id="bwPanel" class="glass" hidden aria-label="Browse continents, countries and states">
+    <div class="bwh"><b>Browse the world</b><button type="button" id="bwX" aria-label="Close">&times;</button></div>
+    <input id="bwQ" type="search" autocomplete="off" placeholder="Search a country, capital or state" aria-label="Search countries and states">
+    <div id="bwT"></div>
+  </aside>
   <div id="peek" aria-hidden="true">
     <canvas id="peekc"></canvas>
     <h4></h4>
@@ -385,8 +417,10 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
     <div class="caution" id="caut" hidden></div>
     <h2 id="pname"></h2>
     <p class="sub" id="psub"></p>
+    <div class="sect stsect" id="stSect" hidden><h3 id="stH">State</h3><div class="card" id="stTop"></div></div>
     <div class="sect"><h3>Map type</h3><div class="types" id="types"></div></div>
     <div class="sect"><h3>About this map</h3><div class="card" id="typeinfo"></div></div>
+    <details class="cdet" id="cdet" open><summary id="cdsum">More about this country</summary>
     <div class="sect"><h3>Ask about this country</h3>
       <div class="askrow"><input id="askc" type="text" placeholder="e.g. What is it famous for?" aria-label="Ask about this country"><button id="askcgo">Ask</button></div>
       <div class="askout" id="askout"></div>
@@ -403,6 +437,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
     <div class="sect"><h3>States and regions</h3><div class="card" id="states"></div></div>
     <div class="sect"><h3>Current affairs</h3><div class="card" id="livenews"></div></div>
     <div class="sect"><h3>Map facts</h3><div class="card"><dl class="facts" id="facts"></dl></div></div>
+    </details>
   </aside>
 </section>
 
@@ -1656,6 +1691,54 @@ function tapSea(x,y){
 $('seacard').addEventListener('click',function(e){ if(e.target.closest('.x')) hideSea(); });
 ov.addEventListener('pointerdown',function(){ hideSea(); },true);
 
+
+/* ---------- Browse drawer ---------- */
+var bwOpen=false, bwBuilt=false;
+function bwToggle(on){
+  bwOpen=on==null?!bwOpen:on; var p=$('bwPanel'), b=$('bwBtn'); p.hidden=!bwOpen; b.setAttribute('aria-expanded',String(bwOpen));
+  if(bwOpen){ if(!bwBuilt) bwBuild(); hidePeek(); hideSea(); setTimeout(function(){ $('bwQ').focus({preventScroll:true}); },280); }
+}
+function bwBuild(){
+  bwBuilt=true; var by={}; hitList.forEach(function(c){ var d=CDATA[c.id]; if(!d) return; (by[d.rg]=by[d.rg]||[]).push(c); });
+  $('bwT').innerHTML=RG_NAMES.filter(function(r){ return r[0]!=='all'&&by[r[0]]; }).map(function(r){
+    var L=by[r[0]].sort(function(a,b){ return a.name<b.name?-1:1; });
+    return '<details class="bwr"><summary>'+esc(r[1])+'<small>'+L.length+' countries</small></summary>'+L.map(function(c){ return '<div class="bwc"><button type="button" class="bwo" data-c="'+esc(c.id)+'"><span class="fl">'+(flagEmoji(c.id)||'')+'</span><span class="nm">'+esc(c.name)+'</span></button><button type="button" class="bwx" data-x="'+esc(c.id)+'" aria-expanded="false" aria-label="Show states of '+esc(c.name)+'">States</button></div><div class="bwst" data-s="'+esc(c.id)+'" hidden></div>'; }).join('')+'</details>'; }).join('');
+}
+function bwStates(iso,box){
+  var c=byId[iso]; if(!c) return; box.hidden=false; box.innerHTML='<span class="note">Loading states\u2026</span>';
+  function show(names){ box.innerHTML=names.length?names.map(function(n){ return '<button type="button" class="bwsb" data-c="'+esc(iso)+'" data-n="'+esc(n)+'">'+esc(n)+'</button>'; }).join(''):'<span class="note">No state list for this country yet. Open the country to see its map.</span>'; }
+  if(c._st){ show(c._st.map(function(s){ return s.name; }).sort()); return; }
+  var st=STATES[iso]; if(st) show(st[1].split(', ').sort());
+  if(c._st) return;
+  loadStates(c).then(function(S){ if(box.hidden) return; show(S.map(function(s){ return s.name; }).sort()); }).catch(function(){ if(!st) box.innerHTML='<span class="note">States could not be loaded right now. Open the country and try again.</span>'; });
+}
+function bwSearch(q){
+  q=q.trim().toLowerCase(); var T=$('bwT'); if(q.length<2){ bwBuilt=false; bwBuild(); return; }
+  var cs=hitList.filter(function(c){ var d=CDATA[c.id]||{}; return c.name.toLowerCase().indexOf(q)>=0||(d.cap||'').toLowerCase().indexOf(q)>=0; }).slice(0,40);
+  var ss=stateIndex().filter(function(s){ return s.name.toLowerCase().indexOf(q)>=0&&byId[s.iso]; }).slice(0,40);
+  T.innerHTML='<div class="bwres">'+(cs.length?'<h4>Countries</h4>'+cs.map(function(c){ return '<div class="bwc"><button type="button" class="bwo" data-c="'+esc(c.id)+'"><span class="fl">'+(flagEmoji(c.id)||'')+'</span><span class="nm">'+esc(c.name)+'</span></button></div>'; }).join(''):'')+(ss.length?'<h4>States and regions</h4><div class="bwst" style="padding-left:6px">'+ss.map(function(s){ return '<button type="button" class="bwsb" data-c="'+esc(s.iso)+'" data-n="'+esc(s.name)+'">'+esc(s.name)+' <small style="opacity:.7">'+esc(byId[s.iso].name)+'</small></button>'; }).join('')+'</div>':'')+(!cs.length&&!ss.length?'<p class="note" style="padding:8px">Nothing found. Try another spelling.</p>':'')+'</div>';
+}
+$('bwBtn').onclick=function(){ bwToggle(); };
+$('bwX').onclick=function(){ bwToggle(false); };
+$('bwQ').addEventListener('input',function(){ bwSearch(this.value); });
+$('bwT').addEventListener('click',function(e){
+  var o=e.target.closest('.bwo'), x=e.target.closest('.bwx'), s=e.target.closest('.bwsb');
+  if(o){ var c=byId[o.dataset.c]; if(c){ bwToggle(false); openCountry(c); } }
+  else if(x){ var iso=x.dataset.x, box=x.parentNode.nextElementSibling, on=box.hidden; x.setAttribute('aria-expanded',String(on)); if(on) bwStates(iso,box); else box.hidden=true; }
+  else if(s){ bwToggle(false); openCountryState(s.dataset.c,s.dataset.n); }
+});
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&bwOpen) bwToggle(false); });
+
+/* ---------- open a country from the address: index.html#c=IND or #c=IN ---------- */
+function hashCountry(){
+  var m=/^#c=([A-Za-z]{2,3})(?:&s=(.+))?$/.exec(location.hash||''); if(!m) return false; var code=m[1].toUpperCase(), iso=byId[code]?code:null;
+  if(!iso) Object.keys(ISO2).forEach(function(k){ if(ISO2[k]===code&&byId[k]) iso=k; });
+  if(!iso) return false; var st=m[2]?decodeURIComponent(m[2]):'';
+  if(st) openCountryState(iso,st); else openCountry(byId[iso]); return true;
+}
+var hashTries=0, hashT=setInterval(function(){ hashTries++; if(hashTries>80){ clearInterval(hashT); return; } if(busy||!hitList.length||!byId) return; if(view!=='globe') return; clearInterval(hashT); hashCountry(); },300);
+window.addEventListener('hashchange',function(){ if(!busy) hashCountry(); });
+
 $('zin').onclick=function(){ zoom=clamp(zoom*1.25,.65,6); lastInteract=performance.now(); };
 $('zout').onclick=function(){ zoom=clamp(zoom/1.25,.65,6); lastInteract=performance.now(); };
 $('spin').onclick=function(){ auto=!auto; this.innerHTML=auto?'&#10074;&#10074;':'&#9654;'; this.setAttribute('aria-label',auto?'Pause rotation':'Start rotation'); };
@@ -2386,7 +2469,8 @@ async function loadStateWiki(c,i){
   }catch(e){ if(el()) el().innerHTML=''; }
 }
 function renderStatePanel(i){
-  var el=$('stinfo'); if(!el||!cur) return; var c=cur.c; if(i<0||!c._st||!c._st[i]){ el.innerHTML=''; return; }
+  var el=$('stTop'), sec=$('stSect'), cd=$('cdet'); if(!el||!cur) return; var c=cur.c; if(i<0||!c._st||!c._st[i]){ el.innerHTML=''; if(sec) sec.hidden=true; if(cd){ cd.open=true; $('cdsum').textContent='More about this country'; } return; }
+  if(sec){ sec.hidden=false; $('stH').textContent=c._st[i].name+' (state or region)'; } if(cd){ cd.open=false; $('cdsum').textContent='More about '+c.name+' (tap to open)'; }
   var zoomed=c._zs===i;
   el.innerHTML=stateInfo(i)+'<div class="chips" style="margin:8px 0">'+(zoomed?'<button class="chip hot" data-sz="out">\u2039 Back to whole country</button>':'<button class="chip hot" data-sz="in" data-i="'+i+'">Open state map</button>')+'</div><div id="stdet">'+stateFactsHTML(c,i)+'</div>';
   loadStateWiki(c,i);
@@ -2527,7 +2611,7 @@ function stateCard(i){
 $('stcard').addEventListener('click',function(e){
   if(e.target.closest('.x')){ $('stcard').hidden=true; return; }
   var b=e.target.closest('[data-sc]'); if(!b||!cur) return;
-  if(b.dataset.sc==='in') zoomToState(cur.sel); else if(b.dataset.sc==='out') zoomOut(); else { panelScrollTo($('stinfo')); var P=$('panel'); if(P&&window.innerWidth<=760){ P.scrollIntoView({behavior:'smooth',block:'start'}); } }
+  if(b.dataset.sc==='in') zoomToState(cur.sel); else if(b.dataset.sc==='out') zoomOut(); else { panelScrollTo($('stSect')); var P=$('panel'); if(P&&window.innerWidth<=760){ P.scrollIntoView({behavior:'smooth',block:'start'}); } }
 });
 function selectState(i){
   if(!cur||!cur.c._st) return; cur.sel=i; drawSel(); renderStatePanel(i); stateCard(i);
@@ -2548,7 +2632,7 @@ $('states').addEventListener('click',function(e){
   if(e.target.closest('[data-retry]')){ retryStates(); return; }
   var z=e.target.closest('[data-sz]'); if(z){ if(z.dataset.sz==='out') zoomOut(); else zoomToState(+z.dataset.i); return; }
   var sp=e.target.closest('[data-sp]'); if(sp){ openPlace(+sp.dataset.sp,true); return; }
-  var b=e.target.closest('.chip[data-s]'); if(b){ selectState(+b.dataset.s); panelScrollTo($('stinfo')); } });
+  var b=e.target.closest('.chip[data-s]'); if(b){ selectState(+b.dataset.s); panelScrollTo($('stSect')); } });
 document.addEventListener('click',function(e){ if(e.target&&e.target.id==='zback') zoomOut(); });
 document.addEventListener('input',function(e){ if(!e.target||e.target.id!=='plq') return; var q=e.target.value.trim().toLowerCase(); Array.prototype.forEach.call(document.querySelectorAll('#pllist .plg'),function(g){ var any=false; Array.prototype.forEach.call(g.querySelectorAll('.plrow'),function(r){ var ok=!q||r.dataset.n.indexOf(q)>=0; r.style.display=ok?'':'none'; if(ok) any=true; }); g.style.display=any?'':'none'; }); });
 $('states').addEventListener('input',function(e){ if(e.target.id!=='stq') return; var q=e.target.value.trim().toLowerCase(); Array.prototype.forEach.call($('stchips').children,function(b){ b.style.display=(!q||b.textContent.toLowerCase().indexOf(q)>=0)?'':'none'; }); });
@@ -3029,7 +3113,7 @@ $('nx').onclick=function(){ $('news').classList.remove('open'); $('bN').setAttri
 /* ---------- Open and close country ---------- */
 function showCountry(c){
   finishSwitch();
-  c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null,vz:1,vx:0,vy:0,rvz:1,rvx:0,rvy:0}; clearXf(); hoverSt=-1; zbarUpdate();
+  var _cd=$('cdet'); if(_cd){ _cd.open=true; $('cdsum').textContent='More about this country'; } var _ss=$('stSect'); if(_ss) _ss.hidden=true; c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null,vz:1,vx:0,vy:0,rvz:1,rvx:0,rvy:0}; clearXf(); hoverSt=-1; zbarUpdate();
   view='country';
   cEl.classList.add('open'); cEl.setAttribute('aria-hidden','false');
   fillPanel(c); sizeMap(); cB.style.display='none'; intro(); loadLive(c); startStates(c);

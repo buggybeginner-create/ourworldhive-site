@@ -44,6 +44,7 @@ a{ color:var(--blue); }
 .btn.sm{ padding:5px 11px; font-size:12.5px; }
 .btn[disabled]{ opacity:.5; cursor:not-allowed; }
 .badge{ display:inline-block; padding:1px 8px; border-radius:999px; font-size:11.5px; font-weight:600; border:1px solid var(--line); color:var(--muted); vertical-align:middle; }
+.medal{ display:inline-block; margin-left:4px; font-size:15px; line-height:1; vertical-align:-1px; cursor:default; }
 .badge.admin{ color:#ffd98a; border-color:#ffd98a; } .badge.mod{ color:var(--green); border-color:var(--green); }
 .badge.pin{ color:var(--gold); border-color:var(--gold); } .badge.lock{ color:var(--red); border-color:var(--red); } .badge.op{ color:var(--blue); border-color:var(--blue); }
 .av{ flex:none; width:34px; height:34px; border-radius:50%; display:inline-grid; place-items:center; font-weight:700; font-size:15px; color:#fff; }
@@ -154,7 +155,7 @@ main{ padding:18px 0 80px; }
 </style>
 </head>
 <body>
-<header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a href="forum.html" aria-current="page">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Blog<svg class="sx-ext" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M4 2h6v6M10 2 3 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
+<header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a href="compare.html">Compare</a></li><li><a href="forum.html" aria-current="page">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
 <header class="bar"><div class="wrap">
   <a class="home" id="homeLink" href="index.html" hidden>World Explorer</a>
   <h1>Community Forum</h1>
@@ -170,16 +171,16 @@ main{ padding:18px 0 80px; }
 <div class="sx-fbrand"><a class="sx-brand" href="index.html"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a>
 <p>An interactive map of the world with a community around it. Spin the Earth, open a country, and talk about what you find.</p></div>
 <div><h2>Explore</h2><ul>
-<li><a href="index.html">World explorer</a></li><li><a href="news.html">News</a></li><li><a href="forum.html">Community forum</a></li>
+<li><a href="index.html">World explorer</a></li><li><a href="news.html">News</a></li><li><a href="compare.html">Compare</a></li><li><a href="forum.html">Community forum</a></li>
 <li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li>
-<li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Our Wicked World blog</a></li></ul></div>
+<li><a href="blog.html">Blog</a></li><li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Our Wicked World blog</a></li></ul></div>
 <div><h2>Information</h2><ul>
 <li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li>
 <li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms and map disclaimer</a></li></ul></div>
 </div>
 <div class="sx-fbar"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p>
 <p>&#9888;&#65039; Maps are not verified and may be under legal review. <a href="terms.html#maps">Read the disclaimer</a></p></div>
-</div></footer><script src="firebase-config.js"></script><script>
+</div></footer><script src="firebase-config.js"></script><script src="site.js"></script><script>
 (function(){
   var h=document.querySelector('.sx-head'), b=document.getElementById('sxburger');
   if(h&&b){
@@ -243,17 +244,17 @@ function DemoAdapter(){
     s.posts.push({id:'p3',tid:'t3',body:'October to March is the comfortable season. Book desert camps early for December.',uid:'demo_priya',name:'Priya',createdAt:n-10*3600000});
     return s;
   }
-  function load(){ try{ var j=JSON.parse(localStorage.getItem(KEY)); if(j&&j.threads&&j.roles) return j; }catch(e){} return seed(); }
+  function load(){ try{ var j=JSON.parse(localStorage.getItem(KEY)); if(j&&j.threads&&j.roles){ j.medals=j.medals||{}; return j; } }catch(e){} var s0=seed(); s0.medals=s0.medals||{}; return s0; }
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
   function list(c){
-    if(c==='roles'||c==='bans') return Object.keys(S[c]).map(function(k){ var o=Object.assign({},S[c][k]); o.id=k; return o; });
+    if(c==='roles'||c==='bans'||c==='medals') return Object.keys(S[c]).map(function(k){ var o=Object.assign({},S[c][k]); o.id=k; return o; });
     if(c==='config') return [Object.assign({id:'forum'},S.config)];
     return S[c].map(function(o){ return Object.assign({},o); });
   }
   function emit(c){ subs.forEach(function(s){ if(s.c===c) s.h(); }); }
-  function emitAll(){ ['threads','posts','pending','reports','roles','bans','config'].forEach(emit); }
+  function emitAll(){ ['threads','posts','pending','reports','roles','bans','medals','config'].forEach(emit); }
   window.addEventListener('storage',function(e){ if(e.key===KEY){ S=load(); emitAll(); authFns.forEach(function(f){ f(S.user); }); } });
-  var map=function(c){ return (c==='roles'||c==='bans'); };
+  var map=function(c){ return (c==='roles'||c==='bans'||c==='medals'); };
   return {
     mode:'demo',
     init:function(){ return Promise.resolve(); },
@@ -312,7 +313,10 @@ function FirebaseAdapter(cfg){
 
 /* ============ App state ============ */
 var A=null, me=null;
-var D={threads:[],posts:[],pending:[],reports:[],roles:{},bans:{},config:{approval:false}};
+var D={threads:[],posts:[],pending:[],reports:[],roles:{},bans:{},medals:{},config:{approval:false}};
+var MEDALS=[['gold','\uD83E\uDD47','Gold'],['silver','\uD83E\uDD48','Silver'],['bronze','\uD83E\uDD49','Bronze'],['star','\u2B50','Star helper'],['champ','\uD83C\uDFC6','Champion'],['gem','\uD83D\uDC8E','Diamond'],['globe','\uD83C\uDF0D','Explorer'],['heart','\u2764\uFE0F','Kind'],['fire','\uD83D\uDD25','On fire'],['brain','\uD83E\uDDE0','Expert']];
+function medalsOf(uid){ var m=D.medals[uid]; return (m&&m.list)||[]; }
+function medalHTML(uid){ var l=medalsOf(uid); return l.map(function(k){ var d=MEDALS.filter(function(x){ return x[0]===k; })[0]; return d?'<span class="medal" title="'+esc(d[2])+'" aria-label="'+esc(d[2])+' medal">'+d[1]+'</span>':''; }).join(''); }
 var dyn=[], dynKey='', lastThreadAt=0, lastPostAt=0;
 var view={type:'',cat:'all',q:'',tid:'',tab:'reports',shown:30}, drafts={reply:{}};
 
@@ -323,7 +327,7 @@ function banned(){ return !!me&&!!D.bans[me.uid]; }
 function approvalOn(){ return !!D.config.approval; }
 function threadById(id){ for(var i=0;i<D.threads.length;i++) if(D.threads[i].id===id) return D.threads[i]; return null; }
 function postsOf(tid){ return D.posts.filter(function(p){ return p.tid===tid; }).sort(function(a,b){ return a.createdAt-b.createdAt; }); }
-function roleBadge(uid){ var r=roleOf(uid); return r==='admin'?'<span class="badge admin">Admin</span>':r==='mod'?'<span class="badge mod">Moderator</span>':''; }
+function roleBadge(uid){ var r=roleOf(uid); return (r==='admin'?'<span class="badge admin">Admin</span>':r==='mod'?'<span class="badge mod">Moderator</span>':'')+medalHTML(uid); }
 
 /* ---- subscriptions ---- */
 function sub(c,fn,o){ return A.subscribe(c,fn,o); }
@@ -331,6 +335,7 @@ function setupStatic(){
   sub('threads',function(a){ D.threads=a; refresh(); });
   sub('posts',function(a){ D.posts=a; refresh(); });
   sub('roles',function(a){ var m={}; a.forEach(function(r){ m[r.id]=r; }); D.roles=m; resub(); refresh(); });
+  sub('medals',function(a){ var m={}; a.forEach(function(r){ m[r.id]=r; }); D.medals=m; refresh(); });
   sub('config',function(a){ var f=a.filter(function(x){ return x.id==='forum'; })[0]; D.config={approval:!!(f&&f.approval)}; refresh(); });
 }
 function resub(){
@@ -447,6 +452,9 @@ function renderMod(){
   } else if(view.tab==='team'&&isAdmin()){
     var known={}; D.threads.concat(D.posts).forEach(function(x){ if(x.uid&&!D.roles[x.uid]) known[x.uid]=x.name; });
     h+='<div class="card"><b>Team</b>'+Object.keys(D.roles).map(function(u){ var r=D.roles[u]; return '<div class="row" style="margin-top:8px;align-items:center">'+avatar(r.name,u,true)+'<span>'+esc(r.name||u)+' '+roleBadge(u)+'</span>'+(r.role==='mod'?'<button class="btn sm" data-act="demote" data-uid="'+esc(u)+'">Remove moderator</button>':'')+'</div>'; }).join('')+'</div>';
+    var people={}; D.threads.concat(D.posts).forEach(function(x){ if(x.uid) people[x.uid]=x.name; }); Object.keys(D.roles).forEach(function(u){ people[u]=D.roles[u].name||people[u]||u; });
+    var pk=Object.keys(people), msel=view.medalUid&&people[view.medalUid]?view.medalUid:(pk[0]||'');
+    h+='<div class="card" style="margin-top:12px"><b>Medals</b><p class="muted">Give a medal to a member. It shows next to their name on every post.</p>'+(pk.length?'<div class="row"><select id="medsel" data-act="medpick" style="flex:1;min-width:160px;background:#101845;border:1px solid var(--line);border-radius:10px;padding:8px">'+pk.map(function(u){ return '<option value="'+esc(u)+'" data-name="'+esc(people[u])+'"'+(u===msel?' selected':'')+'>'+esc(people[u])+'</option>'; }).join('')+'</select></div><div class="row" style="margin-top:10px;gap:8px">'+MEDALS.map(function(m){ return '<label style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer"><input type="checkbox" class="medck" value="'+m[0]+'"'+(medalsOf(msel).indexOf(m[0])>=0?' checked':'')+'> '+m[1]+' '+esc(m[2])+'</label>'; }).join('')+'</div><div class="row" style="margin-top:10px"><button class="btn sm primary" data-act="savemedals">Save medals</button></div>':'<p class="empty">Nobody has posted yet.</p>')+'</div>';
     var kk=Object.keys(known);
     h+='<div class="card" style="margin-top:12px"><b>Add a moderator</b><p class="muted">Pick someone who has already posted.</p>'+(kk.length?'<div class="row"><select id="promsel" style="flex:1;min-width:160px;background:#101845;border:1px solid var(--line);border-radius:10px;padding:8px">'+kk.map(function(u){ return '<option value="'+esc(u)+'" data-name="'+esc(known[u])+'">'+esc(known[u])+'</option>'; }).join('')+'</select><button class="btn primary sm" data-act="promote">Make moderator</button></div>':'<p class="muted">No other members have posted yet.</p>')+'</div>';
   } else if(view.tab==='settings'&&isAdmin()){
@@ -561,10 +569,13 @@ document.addEventListener('click',function(e){
     case 'approve': { var pd=D.pending.filter(function(x){ return x.id===id; })[0]; if(!pd) break; A.set(pd.kind==='thread'?'threads':'posts',pd.id,strip(pd)).then(function(){ return A.del('pending',pd.id); }).then(function(){ toast('Approved and published.'); }).catch(fail); break; }
     case 'reject': A.del('pending',id).then(function(){ toast('Rejected.'); }).catch(fail); break;
     case 'promote': { var sel=$('#promsel'); if(!sel) break; var op=sel.options[sel.selectedIndex]; A.set('roles',sel.value,{role:'mod',name:op.dataset.name}).then(function(){ toast('Moderator added.'); }).catch(fail); break; }
+    case 'savemedals': { var ms=$('#medsel'); if(!ms||!ms.value) break; var chosen=[].slice.call(document.querySelectorAll('.medck')).filter(function(c){ return c.checked; }).map(function(c){ return c.value; }), nm=ms.options[ms.selectedIndex].dataset.name;
+      (chosen.length?A.set('medals',ms.value,{list:chosen,name:nm}):A.del('medals',ms.value)).then(function(){ toast('Medals saved.'); }).catch(fail); break; }
     case 'demote': A.del('roles',el.dataset.uid).then(function(){ toast('Moderator removed.'); }).catch(fail); break;
   }
 });
 document.addEventListener('change',function(e){
+  if(e.target&&e.target.id==='medsel'){ view.medalUid=e.target.value; refresh(); return; }
   var el=e.target; if(!el.dataset||!el.dataset.act) return;
   if(el.dataset.act==='move'){ var t=threadById(view.tid); if(t) A.update('threads',t.id,{cat:el.value}).catch(fail); }
   if(el.dataset.act==='approval') A.set('config','forum',{approval:el.checked}).then(function(){ toast(el.checked?'Approval is now required for new posts.':'Approval turned off.'); }).catch(fail);

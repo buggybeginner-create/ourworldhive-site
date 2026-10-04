@@ -106,7 +106,10 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 .tie b{ display:block; font-size:14.5px; }
 .tie i{ display:block; font-style:normal; color:var(--gold); font-size:12.5px; margin:1px 0 3px; }
 .tie span{ display:block; font-size:13px; line-height:1.4; color:var(--soft,#cdd8f5); }
-.mnav{ position:absolute; left:14px; bottom:calc(14px + 96px); display:grid; grid-template-columns:repeat(3,44px); grid-auto-rows:44px; gap:6px; padding:8px; border-radius:20px; z-index:4; }
+.mnav{ position:absolute; right:14px; top:14px; z-index:4; }
+.mnav button#mnReset{ min-height:38px; padding:0 16px; border-radius:999px; color:#fff; font:700 13.5px var(--font-b); cursor:pointer; }
+.mnav button#mnReset:hover{ border-color:var(--gold); }
+.mnav_old{ display:grid; grid-template-columns:repeat(3,44px); grid-auto-rows:44px; gap:6px; padding:8px; border-radius:20px; z-index:4; }
 .mnav button{ border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.1); color:#fff; font:700 17px var(--font-b); cursor:pointer; line-height:1; } .mnav button:hover{ background:rgba(255,200,87,.25); border-color:var(--gold); } .mnav button[hidden]{ display:block; visibility:hidden; }
 .mnav button:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
 @media (max-width:640px){ .mnav{ grid-template-columns:repeat(3,40px); grid-auto-rows:40px; bottom:calc(14px + 120px); padding:6px; gap:5px; } }
@@ -116,6 +119,20 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 .dbg{ margin:6px 0 0; font-size:12.5px; color:var(--muted); } .dbg p{ margin:6px 0 0; word-break:break-word; }
 .chip.hot{ border-color:var(--gold); color:var(--gold); background:rgba(255,200,87,.12); }
 .stimg{ display:block; width:100%; max-height:190px; object-fit:cover; border-radius:12px; margin:10px 0 0; background:#0c1230; }
+.stcard_x{ }
+#stcard{ position:absolute; right:14px; top:58px; width:min(330px,calc(100% - 28px)); max-height:calc(100% - 190px); overflow:auto; padding:14px 16px 14px; border-radius:18px; z-index:5; }
+#stcard[hidden]{ display:none; }
+#stcard h3{ margin:0 28px 6px 0; font:700 20px var(--font-d); line-height:1.15; }
+#stcard p{ margin:4px 0; font-size:14px; color:var(--muted); line-height:1.5; } #stcard b{ color:#fff; }
+#stcard .x{ position:absolute; top:8px; right:8px; width:34px; height:34px; border-radius:50%; border:0; background:rgba(255,255,255,.12); color:#fff; font-size:20px; cursor:pointer; }
+#stcard .row2{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+#stcard .row2 button{ min-height:38px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.1); color:#fff; font:600 13.5px var(--font-b); cursor:pointer; } #stcard .row2 button.hot{ border-color:var(--gold); color:var(--gold); }
+@media (max-width:760px){ #stcard{ top:auto; bottom:14px; right:14px; left:14px; width:auto; max-height:46%; } }
+.plhead{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.pllist{ max-height:min(52vh,460px); overflow:auto; margin-top:6px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.04); }
+.plg h4{ margin:0; padding:8px 12px; font:600 12.5px var(--font-b); letter-spacing:.02em; color:var(--gold); background:rgba(255,200,87,.08); position:sticky; top:0; }
+.plrow{ display:block; width:100%; text-align:left; padding:9px 12px; border:0; border-bottom:1px solid var(--line); background:none; color:#fff; cursor:pointer; font:inherit; }
+.plrow:hover,.plrow:focus-visible{ background:rgba(255,200,87,.14); outline:none; } .plrow .pn{ display:block; font-weight:600; font-size:14.5px; } .plrow .pd{ display:block; font-size:12.5px; color:var(--muted); margin-top:1px; }
 /* tools, clock, hint */
 .tools{ position:absolute; right:14px; bottom:calc(78px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:10px; }
 .tools button{ width:44px; height:44px; border-radius:50%; font-size:19px; line-height:1; display:grid; place-items:center; transition:transform .15s, background .2s; }
@@ -129,6 +146,12 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 #tip.show{ opacity:1; }
 #tip small{ display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:1px; }
 
+.seacard_x{ }
+#seacard{ position:fixed; left:0; top:0; width:min(300px,calc(100vw - 20px)); padding:14px 16px; border-radius:18px; z-index:60; box-shadow:0 18px 50px rgba(0,0,0,.5); }
+#seacard[hidden]{ display:none; }
+#seacard h4{ margin:0 30px 4px 0; font:700 19px var(--font-d); } #seacard p{ margin:5px 0; font-size:13.5px; color:var(--muted); line-height:1.5; } #seacard b{ color:#fff; }
+#seacard .x{ position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%; border:0; background:rgba(255,255,255,.12); color:#fff; font-size:19px; cursor:pointer; }
+#seacard a.dive{ display:inline-flex; align-items:center; gap:6px; min-height:42px; margin-top:8px; padding:0 18px; border-radius:999px; font:700 14.5px var(--font-b); text-decoration:none; color:#06203a; background:linear-gradient(135deg,#7be0ff,#3aa0ff); }
 #peek{ position:fixed; left:0; top:0; width:268px; padding:10px; border-radius:18px; background:rgba(10,16,44,.94); border:1px solid rgba(255,255,255,.2); box-shadow:0 18px 50px rgba(0,0,0,.5); pointer-events:none; opacity:0; transform:scale(.9); transform-origin:top left; transition:opacity .16s, transform .22s cubic-bezier(.2,.9,.3,1.2); z-index:15; }
 #peek.show{ opacity:1; transform:scale(1); }
 #peek canvas{ width:248px; height:150px; border-radius:11px; display:block; }
@@ -235,7 +258,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 .sx-nav a[aria-current="page"]{ color:var(--sx-ink); font-weight:600; }
 .sx-nav a[aria-current="page"]::after{ content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--sx-gold); }
 .sx-ext{ opacity:.7; }
-.sx-drum{ display:block; position:relative; width:4.9em; height:1.5em; overflow:hidden; text-align:left; -webkit-mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); }
+.sx-drum{ display:block; position:relative; width:5.9em; height:1.5em; overflow:hidden; text-align:left; -webkit-mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); }
 .sx-drum i{ display:block; height:1.5em; line-height:1.5em; font-style:normal; will-change:transform; animation:sxdrum 8s infinite; animation-timing-function:cubic-bezier(.65,0,.25,1); }
 @keyframes sxdrum{ 0%,22%{ transform:translateY(0); } 28%,47%{ transform:translateY(-100%); } 53%,72%{ transform:translateY(-200%); } 78%,100%{ transform:translateY(-300%); } }
 .sx-roll{ font-weight:600; } .sx-roll .sx-drum{ color:var(--sx-gold); }
@@ -278,7 +301,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 </style>
 </head>
 <body>
-<header class="sx-head fixed"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
+<header class="sx-head fixed"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
 <div id="stage">
   <canvas id="bg"></canvas>
   <canvas id="gl"></canvas>
@@ -336,8 +359,9 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
     <button class="glass" id="bTraf" aria-pressed="true" aria-label="Show planes and ships" title="Show or hide planes and ships">&#9992;</button>
   </div>
   <div class="clock glass" id="clock"></div>
-  <div class="hint glass"><span>Drag to spin</span><span>Scroll or pinch to zoom</span><span>Hold a country for a preview</span><span>Tap a country or a gold pin</span><span>&#9888;&#65039; Borders not verified, under legal review</span></div>
+  <div class="hint glass"><span>Drag to spin</span><span>Scroll or pinch to zoom</span><span>Hold a country for a preview</span><span>Tap a country or a gold pin</span><span>Tap the sea to dive</span><span>&#9888;&#65039; Borders not verified, under legal review</span></div>
   <div id="tip" class="glass" role="status"></div>
+  <div id="seacard" class="glass" hidden role="dialog" aria-label="Sea information"></div>
   <div id="peek" aria-hidden="true">
     <canvas id="peekc"></canvas>
     <h4></h4>
@@ -350,13 +374,10 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 <section id="country" aria-hidden="true" aria-label="Country details">
   <div class="mapwrap">
     <canvas id="cmapA"></canvas><canvas id="cmapB"></canvas><canvas id="cmapS"></canvas><div id="stip" class="glass"></div>
+    <div id="stcard" class="glass" hidden role="dialog" aria-label="State details"></div>
     <div class="mapcaut" id="mcaut" hidden></div>
     <div class="zbar glass" id="zbar" hidden></div>
-    <div class="mnav glass" id="mnav" role="group" aria-label="Move and zoom the map">
-      <button type="button" data-n="in" aria-label="Zoom in">+</button><button type="button" data-n="u" aria-label="Move map up">&#9650;</button><button type="button" data-n="out" aria-label="Zoom out">&#8722;</button>
-      <button type="button" data-n="l" aria-label="Move map left">&#9664;</button><button type="button" data-n="reset" id="mnReset" aria-label="Reset the view" hidden>&#10226;</button><button type="button" data-n="r" aria-label="Move map right">&#9654;</button>
-      <span></span><button type="button" data-n="d" aria-label="Move map down">&#9660;</button><span></span>
-    </div>
+    <div class="mnav" id="mnav"><button type="button" class="glass" data-n="reset" id="mnReset" aria-label="Reset the view" hidden>Reset view</button></div>
     <button class="backbtn glass" id="back">&larr; Back to globe</button>
     <div class="nameblock"><div class="bigflag" id="bigflag"></div><h2 class="bigname" id="bigname"></h2></div>
   </div>
@@ -1601,7 +1622,7 @@ function endPointer(e){
     var d=drag; drag=null; lastInteract=performance.now(); ov.style.cursor='grab';
     if(d.long){ hidePeek(); return; }
     if(e.type==='pointerup'&&!d.moved&&performance.now()-d.t0<520){
-      if(d.lm) openLandmark(d.lm); else if(d.country) openCountry(d.country);
+      if(d.lm) openLandmark(d.lm); else if(d.country) openCountry(d.country); else if(!d.touch||true) tapSea(d.x0,d.y0);
     }
   }
 }
@@ -1613,6 +1634,27 @@ ov.addEventListener('wheel',function(e){
   e.preventDefault(); lastInteract=performance.now(); zoom=clamp(zoom*Math.exp(-e.deltaY*.0012),.65,6);
 },{passive:false});
 ov.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+
+
+/* ---------- tap on the sea: show the sea and a button to dive into it ---------- */
+var SEABOX=[['baltic',10,30,54,66],['black',27,42,41,47.5],['north',-4,9,51,61],['red',32,44,12,28.5],['andaman',92,100,5,19],['bengal',78,95,5,22],['arabian',50,75,5,25.5],['mediterranean',-5.6,36,30,46],['southchina',105,121,0,23],['eastchina',119,131,24,33],['japan',128,142,33,52],['okhotsk',135,163,44,60],['philippine',122,140,5,30],['coral',145,160,-25,-10],['mexico',-98,-81,18,30.5],['caribbean',-88,-60,9,22]];
+function seaAt(lon,lat){
+  if(lat>=51&&lat<=66&&(lon>=162||lon<=-157)) return 'bering';
+  for(var i=0;i<SEABOX.length;i++){ var b=SEABOX[i]; if(lon>=b[1]&&lon<=b[2]&&lat>=b[3]&&lat<=b[4]) return b[0]; }
+  if(lat<-60) return 'southern'; if(lat>66) return 'arctic';
+  if(lon>=20&&lon<120&&lat<30) return 'indian'; if(lon>=-70&&lon<20) return 'atlantic'; return 'pacific';
+}
+function hideSea(){ var s=$('seacard'); if(s) s.hidden=true; }
+function tapSea(x,y){
+  var R=baseR*zoom, dx=x-W/2, dy=y-CYf(); if(dx*dx+dy*dy>R*R*0.985) return hideSea();
+  var ll=proj.invert([x,y]); if(!ll||isNaN(ll[0])||isNaN(ll[1])) return hideSea();
+  var id=seaAt(ll[0],ll[1]), S=(window.OWH_SEAS||[]).filter(function(a){ return a[0]===id; })[0], el=$('seacard'); if(!el) return;
+  if(!S){ el.innerHTML='<button class="x" type="button" aria-label="Close">&times;</button><h4>The sea</h4><p>Sea information could not be loaded. You can still open the dive page.</p><a class="dive" href="ocean.html">Dive in \u2193</a>'; }
+  else el.innerHTML='<button class="x" type="button" aria-label="Close">&times;</button><h4>'+esc(S[1])+'</h4><p>Average depth <b>'+S[2].toLocaleString()+' m</b> \u2022 deepest <b>'+S[3].toLocaleString()+' m</b></p><p>'+esc(S[6])+'</p><a class="dive" href="ocean.html#s='+id+'">Dive in \u2193</a>';
+  var w=300, h=190; el.style.transform='translate('+clamp(x+16,10,W-w-10)+'px,'+clamp(y+16,10,H-h-10)+'px)'; el.hidden=false;
+}
+$('seacard').addEventListener('click',function(e){ if(e.target.closest('.x')) hideSea(); });
+ov.addEventListener('pointerdown',function(){ hideSea(); },true);
 
 $('zin').onclick=function(){ zoom=clamp(zoom*1.25,.65,6); lastInteract=performance.now(); };
 $('zout').onclick=function(){ zoom=clamp(zoom/1.25,.65,6); lastInteract=performance.now(); };
@@ -2155,9 +2197,11 @@ function drawStates(ctx,path,pj,c,w,h,type,placed0){
   var placed=placed0||[], fs=Math.round(clamp(w/52,11,14));
   ctx.save(); ctx.font='600 '+fs+'px Figtree, system-ui, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.lineJoin='round';
   S.slice().sort(function(a,b){ return b.areaKm-a.areaKm; }).forEach(function(s){
-    if(!(path.area(s.f)>fs*fs*(Z>=0&&S.indexOf(s)===Z?0.5:7))) return;
+    var ar=path.area(s.f); if(!(ar>fs*fs*(Z>=0&&S.indexOf(s)===Z?0.5:2.6))) return;
     var p=pj(s.lab); if(!p||p[0]<10||p[0]>w-10||p[1]<10||p[1]>h-10) return;
-    var tw=ctx.measureText(s.name).width, r={x:p[0]-tw/2-2,y:p[1]-fs/2-2,w:tw+4,h:fs+4};
+    var f2=ar>fs*fs*8?fs:Math.max(9,fs-2); ctx.font='600 '+f2+'px Figtree, system-ui, sans-serif';
+    var tw=ctx.measureText(s.name).width; if(ar<tw*f2*1.1&&ar<fs*fs*8) return;
+    var r={x:p[0]-tw/2-2,y:p[1]-f2/2-2,w:tw+4,h:f2+4};
     if(rectHit(placed,r)) return; placed.push(r);
     ctx.lineWidth=3; ctx.strokeStyle='rgba(5,10,28,.82)'; ctx.strokeText(s.name,p[0],p[1]); ctx.fillStyle='#fff'; ctx.fillText(s.name,p[0],p[1]);
   });
@@ -2283,7 +2327,7 @@ function fitForState(c,i,w,h){
   return (c._sfits[key]={s:s,cen:cen,tx:w/2-s*(b[0][0]+b[1][0])/2,ty:h/2-s*(b[0][1]+b[1][1])/2});
 }
 function swapAnim(apply,ox,oy){
-  if(!cur) return; finishSwitch(); apply(); cur._pj=null; drawSel();
+  if(!cur) return; finishSwitch(); apply(); cur.vz=1; cur.vx=0; cur.vy=0; cur.rvz=1; cur.rvx=0; cur.rvy=0; clearXf(); cur._pj=null; drawSel();
   try{ drawOn(xB,cur.type); }catch(e){ console.error(e); drawOn(xA,cur.type); return; }
   var R=Math.hypot(cw,ch)+20, finished=false, anim=null;
   function done(){ if(finished) return; finished=true; pendingFinish=null; xA.setTransform(1,0,0,1,0,0); xA.clearRect(0,0,cA.width,cA.height); xA.drawImage(cB,0,0); cB.style.display='none'; if(anim){ try{ anim.cancel(); }catch(_){} } }
@@ -2294,11 +2338,11 @@ function zoomToState(i){
   var c=cur&&cur.c; if(!c||!c._st||!c._st[i]) return; tourStop();
   var q=null; try{ q=getPj()(c._st[i].lab); }catch(e){}
   swapAnim(function(){ c._zs=i; cur.sel=i; cur.vz=1; cur.vx=0; cur.vy=0; },q?q[0]:cw/2,q?q[1]:ch/2); updNav();
-  renderStatePanel(i); zbarUpdate(); ensureAnim();
+  renderStatePanel(i); zbarUpdate(); ensureAnim(); stateCard(i);
 }
 function zoomOut(){
   var c=cur&&cur.c; if(!c||!(c._zs>=0)) return; tourStop();
-  swapAnim(function(){ c._zs=-1; cur.vz=1; cur.vx=0; cur.vy=0; },cw/2,ch/2); updNav(); renderStatePanel(cur.sel); zbarUpdate(); ensureAnim();
+  swapAnim(function(){ c._zs=-1; cur.vz=1; cur.vx=0; cur.vy=0; },cw/2,ch/2); updNav(); renderStatePanel(cur.sel); zbarUpdate(); ensureAnim(); stateCard(cur.sel);
 }
 function zbarUpdate(){
   var z=$('zbar'); if(!z||!cur) return; var c=cur.c;
@@ -2409,8 +2453,18 @@ function onPlacesShown(){
 function viewReset(){ if(cur){ cur.vz=1; cur.vx=0; cur.vy=0; } updNav(); }
 function updNav(){ var r=$('mnReset'); if(r) r.hidden=!(cur&&((cur.vz&&Math.abs(cur.vz-1)>0.01)||Math.abs(cur.vx||0)>1||Math.abs(cur.vy||0)>1)); }
 var navT=null;
-function viewApply(now){ if(!cur) return; clearTimeout(navT); cur._pj=null; updNav(); if(now) doRedraw(); else navT=setTimeout(doRedraw,60); }
-function doRedraw(){ if(!cur) return; finishSwitch(); try{ drawOn(xA,cur.type); }catch(e){ console.error(e); } drawSel(); }
+function liveXf(){
+  if(!cur) return; var k=(cur.vz||1)/(cur.rvz||1), c0x=cw/2, c0y=ch/2;
+  var tx=c0x*(1-k)+(cur.vx||0)-(cur.rvx||0)*k, ty=c0y*(1-k)+(cur.vy||0)-(cur.rvy||0)*k, t='translate('+tx.toFixed(2)+'px,'+ty.toFixed(2)+'px) scale('+k.toFixed(5)+')';
+  [cA,cS].forEach(function(e){ e.style.transformOrigin='0 0'; e.style.transform=t; });
+}
+function clearXf(){ [cA,cS,cB].forEach(function(e){ e.style.transform=''; }); }
+function viewApply(now){
+  if(!cur) return; clearTimeout(navT); updNav(); liveXf(); stipHide();
+  navT=setTimeout(doRedraw, now?110:160);
+}
+function stipHide(){ var s=$('stip'); if(s) s.classList.remove('show'); }
+function doRedraw(){ if(!cur) return; finishSwitch(); cur._pj=null; try{ drawOn(xA,cur.type); }catch(e){ console.error(e); } cur.rvz=cur.vz||1; cur.rvx=cur.vx||0; cur.rvy=cur.vy||0; clearXf(); drawSel(); }
 function zoomBy(k,px,py){
   if(!cur) return; var z0=cur.vz||1, z1=clamp(z0*k,0.6,14), kk=z1/z0; if(kk===1) return;
   var cx=px==null?cw/2:px, cy=py==null?ch/2:py;
@@ -2437,8 +2491,9 @@ $('mnav').addEventListener('click',function(e){
   },true);
   function up(e){ delete ptrs[e.pointerId]; if(!pts().length){ drag=null; pinch=null; } else if(pts().length===1){ var q=pts()[0]; drag={x:q.x,y:q.y,vx:cur?(cur.vx||0):0,vy:cur?(cur.vy||0):0}; pinch=null; } }
   cS.addEventListener('pointerup',up); cS.addEventListener('pointercancel',up);
+  cS.addEventListener('dblclick',function(e){ if(!cur) return; e.preventDefault(); var r=cS.getBoundingClientRect(); zoomBy(e.shiftKey?1/1.8:1.8,e.clientX-r.left,e.clientY-r.top); });
   cS.addEventListener('click',function(e){ if(moved){ e.stopImmediatePropagation(); e.preventDefault(); moved=false; } },true);
-  cS.addEventListener('wheel',function(e){ if(!cur) return; e.preventDefault(); var r=cS.getBoundingClientRect(); zoomBy(e.deltaY<0?1.25:1/1.25,e.clientX-r.left,e.clientY-r.top); },{passive:false});
+  cS.addEventListener('wheel',function(e){ if(!cur) return; e.preventDefault(); var r=cS.getBoundingClientRect(); zoomBy(Math.exp(-clamp(e.deltaY,-120,120)*(e.ctrlKey?0.012:0.0022)),e.clientX-r.left,e.clientY-r.top); },{passive:false});
 })();
 
 var hoverSt=-1, stip=$('stip');
@@ -2459,8 +2514,23 @@ function stateInfo(i){
   var S=cur.c._st, s=S[i], rank=S.slice().sort(function(a,b){ return b.areaKm-a.areaKm; }).indexOf(s)+1, pc=cur.c.areaKm?(s.areaKm/cur.c.areaKm*100):0;
   return '<div class="stsel"><b>'+esc(s.name)+'</b><br>Area about '+fmt(s.areaKm)+' km\u00B2 \u2022 '+pc.toFixed(1)+'% of '+esc(cur.c.name)+' \u2022 #'+rank+' of '+S.length+' by size</div>';
 }
+function stateCard(i){
+  var el=$('stcard'); if(!el) return; if(!cur||i<0||!cur.c._st||!cur.c._st[i]){ el.hidden=true; return; }
+  var c=cur.c, S=c._st[i], sp=statePop(c), T=themeData(c), pl=(PLACES[c.id]||[]).filter(function(p){ return inStateObj(S,p[2],p[3])||(p[1]&&normName(p[1])===normName(S.name)); }), rank=c._st.slice().sort(function(a,b){ return b.areaKm-a.areaKm; }).indexOf(S)+1;
+  var cities=T.cities.filter(function(ct){ return inStateObj(S,ct.lon,ct.lat); }).slice(0,3);
+  el.innerHTML='<button class="x" type="button" aria-label="Close">&times;</button><h3>'+esc(S.name)+'</h3><p>Area about <b>'+fmt(S.areaKm)+' km\u00B2</b> \u2022 #'+rank+' of '+c._st.length+' by size in '+esc(c.name)+'</p>'+
+    (sp&&sp.vals[i]!=null?'<p>People: <b>'+popFmt(sp.vals[i])+'</b> ('+esc(sp.src)+')</p>':'')+(cities.length?'<p>Big cities: <b>'+cities.map(function(x){ return esc(x.name); }).join(', ')+'</b></p>':'')+
+    (pl.length?'<p>Famous for: <b>'+pl.slice(0,4).map(function(p){ return esc(p[0]); }).join(', ')+'</b></p>':'')+
+    '<div class="row2">'+(c._zs===i?'<button class="hot" data-sc="out">\u2039 Whole country</button>':'<button class="hot" data-sc="in">Open state map</button>')+'<button data-sc="more">All details</button></div>';
+  el.hidden=false;
+}
+$('stcard').addEventListener('click',function(e){
+  if(e.target.closest('.x')){ $('stcard').hidden=true; return; }
+  var b=e.target.closest('[data-sc]'); if(!b||!cur) return;
+  if(b.dataset.sc==='in') zoomToState(cur.sel); else if(b.dataset.sc==='out') zoomOut(); else { panelScrollTo($('stinfo')); var P=$('panel'); if(P&&window.innerWidth<=760){ P.scrollIntoView({behavior:'smooth',block:'start'}); } }
+});
 function selectState(i){
-  if(!cur||!cur.c._st) return; cur.sel=i; drawSel(); renderStatePanel(i);
+  if(!cur||!cur.c._st) return; cur.sel=i; drawSel(); renderStatePanel(i); stateCard(i);
 }
 function retryStates(){ var c=cur&&cur.c; if(!c) return; c._st=null; setStatesPanel(c,'loading'); loadStates(c).then(function(){ if(!cur||cur.c!==c) return; setStatesPanel(c,'ok'); redrawCurrent(); applyPendingState(c); }).catch(function(){ if(cur&&cur.c===c) setStatesPanel(c,'fail'); }); }
 function setStatesPanel(c,mode){
@@ -2480,6 +2550,7 @@ $('states').addEventListener('click',function(e){
   var sp=e.target.closest('[data-sp]'); if(sp){ openPlace(+sp.dataset.sp,true); return; }
   var b=e.target.closest('.chip[data-s]'); if(b){ selectState(+b.dataset.s); panelScrollTo($('stinfo')); } });
 document.addEventListener('click',function(e){ if(e.target&&e.target.id==='zback') zoomOut(); });
+document.addEventListener('input',function(e){ if(!e.target||e.target.id!=='plq') return; var q=e.target.value.trim().toLowerCase(); Array.prototype.forEach.call(document.querySelectorAll('#pllist .plg'),function(g){ var any=false; Array.prototype.forEach.call(g.querySelectorAll('.plrow'),function(r){ var ok=!q||r.dataset.n.indexOf(q)>=0; r.style.display=ok?'':'none'; if(ok) any=true; }); g.style.display=any?'':'none'; }); });
 $('states').addEventListener('input',function(e){ if(e.target.id!=='stq') return; var q=e.target.value.trim().toLowerCase(); Array.prototype.forEach.call($('stchips').children,function(b){ b.style.display=(!q||b.textContent.toLowerCase().indexOf(q)>=0)?'':'none'; }); });
 var pendingState=null;
 function openCountryState(iso,name){ var c=byId[iso]; if(!c) return; pendingState={iso:iso,name:name.toLowerCase(),zoom:true}; openCountry(c); }
@@ -2545,8 +2616,10 @@ function typeInfoHTML(c,t){
   }
   if(t==='places'){
     var T2=themeData(c), groups={}, order=[]; T2.places.forEach(function(p,idx){ var g=p[1]||'Famous places'; if(!groups[g]){ groups[g]=[]; order.push(g); } groups[g].push([p,idx]); });
-    return '<p>'+(T2.curated?'Famous places in '+esc(c.name)+', grouped by state or region. Tap one to zoom into its state.':'A starter list for '+esc(c.name)+' (landmarks and big cities). A fuller list for this country will come later.')+'</p>'+
-      order.map(function(g){ return '<p style="margin:10px 0 2px"><b>'+esc(g)+'</b></p><div class="chips">'+groups[g].map(function(x){ return '<button class="chip" data-p="'+x[1]+'">'+esc(x[0][0])+'</button>'; }).join('')+'</div>'; }).join('')+'<div class="chips" style="margin-top:12px"><button class="chip hot" id="tourBtn">Play state-by-state tour</button></div><div id="plinfo"></div>';
+    return '<div class="plhead"><b>'+T2.places.length+' famous places</b><button class="chip hot" id="tourBtn">Play state-by-state tour</button></div>'+
+      '<p style="margin:6px 0 8px">'+(T2.curated?'Tap a name to fly to it and open its state. The same list is on the map as 3D icons.':'A starter list for '+esc(c.name)+' (landmarks and big cities).')+'</p>'+
+      '<input id="plq" class="stfilter" type="search" autocomplete="off" placeholder="Search a place or state" aria-label="Search famous places">'+
+      '<div class="pllist" id="pllist">'+order.map(function(g){ return '<div class="plg" data-g="'+esc(g.toLowerCase())+'"><h4>'+esc(g)+'</h4>'+groups[g].map(function(x){ return '<button class="plrow" data-p="'+x[1]+'" data-n="'+esc((x[0][0]+' '+g).toLowerCase())+'"><span class="pn">'+esc(x[0][0])+'</span><span class="pd">'+esc((x[0][4]||'').slice(0,70))+'</span></button>'; }).join('')+'</div>'; }).join('')+'</div><div id="plinfo"></div>';
   }
   if(t==='farms'){
     var T3=themeData(c), used={}; T3.crops.forEach(function(q){ used[q[5]]=1; });
@@ -2956,7 +3029,7 @@ $('nx').onclick=function(){ $('news').classList.remove('open'); $('bN').setAttri
 /* ---------- Open and close country ---------- */
 function showCountry(c){
   finishSwitch();
-  c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null,vz:1,vx:0,vy:0}; hoverSt=-1; zbarUpdate();
+  c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null,vz:1,vx:0,vy:0,rvz:1,rvx:0,rvy:0}; clearXf(); hoverSt=-1; zbarUpdate();
   view='country';
   cEl.classList.add('open'); cEl.setAttribute('aria-hidden','false');
   fillPanel(c); sizeMap(); cB.style.display='none'; intro(); loadLive(c); startStates(c);
@@ -2967,7 +3040,7 @@ function openCountry(c){
   flyTo(c.cen[0],c.cen[1],2.3,1100,function(){ showCountry(c); },.78);
 }
 function closeCountry(){
-  tourStop(); if(cur) cur.c._zs=-1; finishSwitch();
+  tourStop(); var sc=$('stcard'); if(sc) sc.hidden=true; clearXf(); if(cur) cur.c._zs=-1; finishSwitch();
   cEl.classList.remove('open'); cEl.setAttribute('aria-hidden','true');
   view='globe'; busy=false; lastInteract=performance.now();
   tween={t0:performance.now(),dur:reduced?10:900,a:rot.slice(),b:rot.slice(),z0:zoom,z1:1,at:2,cb:null};
@@ -3016,7 +3089,7 @@ setTimeout(function(){ var m=/[#&?]c=([A-Za-z]{3})/.exec(location.hash||''); if(
 }
 })();
 </script>
-<footer class="sx-foot mini"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p><nav aria-label="Legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="about.html">About</a></nav></footer><script>
+<footer class="sx-foot mini"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p><nav aria-label="Legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="about.html">About</a></nav></footer><script src="ocean-data.js"></script><script>
 (function(){
   var h=document.querySelector('.sx-head'), b=document.getElementById('sxburger');
   if(h&&b){

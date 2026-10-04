@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /states-test.html
 Disallow: /studio.html
 Sitemap: https://ourworldhive.com/sitemap.xml

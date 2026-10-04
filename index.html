@@ -106,9 +106,14 @@ button:focus-visible,input:focus-visible{ outline:2px solid var(--gold); outline
 .tie b{ display:block; font-size:14.5px; }
 .tie i{ display:block; font-style:normal; color:var(--gold); font-size:12.5px; margin:1px 0 3px; }
 .tie span{ display:block; font-size:13px; line-height:1.4; color:var(--soft,#cdd8f5); }
+.mnav{ position:absolute; left:14px; bottom:calc(14px + 96px); display:grid; grid-template-columns:repeat(3,44px); grid-auto-rows:44px; gap:6px; padding:8px; border-radius:20px; z-index:4; }
+.mnav button{ border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.1); color:#fff; font:700 17px var(--font-b); cursor:pointer; line-height:1; } .mnav button:hover{ background:rgba(255,200,87,.25); border-color:var(--gold); } .mnav button[hidden]{ display:block; visibility:hidden; }
+.mnav button:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+@media (max-width:640px){ .mnav{ grid-template-columns:repeat(3,40px); grid-auto-rows:40px; bottom:calc(14px + 120px); padding:6px; gap:5px; } }
 .zbar{ position:absolute; top:calc(14px + 90px); left:14px; display:flex; align-items:center; gap:10px; padding:6px 14px 6px 6px; border-radius:999px; z-index:3; max-width:calc(100% - 28px); }
 .zbar button{ min-height:34px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.1); color:#fff; font:600 13.5px var(--font-b); cursor:pointer; white-space:nowrap; }
 .zbar b{ font:700 15px var(--font-d); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dbg{ margin:6px 0 0; font-size:12.5px; color:var(--muted); } .dbg p{ margin:6px 0 0; word-break:break-word; }
 .chip.hot{ border-color:var(--gold); color:var(--gold); background:rgba(255,200,87,.12); }
 .stimg{ display:block; width:100%; max-height:190px; object-fit:cover; border-radius:12px; margin:10px 0 0; background:#0c1230; }
 /* tools, clock, hint */
@@ -230,6 +235,11 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 .sx-nav a[aria-current="page"]{ color:var(--sx-ink); font-weight:600; }
 .sx-nav a[aria-current="page"]::after{ content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--sx-gold); }
 .sx-ext{ opacity:.7; }
+.sx-drum{ display:block; position:relative; width:4.9em; height:1.5em; overflow:hidden; text-align:left; -webkit-mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); }
+.sx-drum i{ display:block; height:1.5em; line-height:1.5em; font-style:normal; will-change:transform; animation:sxdrum 8s infinite; animation-timing-function:cubic-bezier(.65,0,.25,1); }
+@keyframes sxdrum{ 0%,22%{ transform:translateY(0); } 28%,47%{ transform:translateY(-100%); } 53%,72%{ transform:translateY(-200%); } 78%,100%{ transform:translateY(-300%); } }
+.sx-roll{ font-weight:600; } .sx-roll .sx-drum{ color:var(--sx-gold); }
+@media (prefers-reduced-motion:reduce){ .sx-drum i{ animation:none; } .sx-drum i:not(:nth-child(2)){ display:none; } .sx-drum{ -webkit-mask-image:none; mask-image:none; height:1.5em; } }
 .sx-head a:focus-visible,.sx-foot a:focus-visible,.sx-burger:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; border-radius:6px; }
 .sx-burger{ display:none; margin-left:auto; width:44px; height:44px; border:0; background:transparent; border-radius:10px; position:relative; }
 .sx-burger span{ position:absolute; left:11px; right:11px; height:2px; border-radius:2px; background:var(--sx-ink); transition:transform .2s, opacity .2s; }
@@ -237,7 +247,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 .sx-head.open .sx-burger span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
 .sx-head.open .sx-burger span:nth-child(2){ opacity:0; }
 .sx-head.open .sx-burger span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
-@media (max-width:900px){
+@media (max-width:1120px){
   .sx-burger{ display:block; }
   .sx-head nav{ position:absolute; left:0; right:0; top:100%; margin:0; background:#050918; border-bottom:1px solid var(--sx-line); display:none; max-height:calc(100vh - var(--hh)); overflow:auto; }
   .sx-head.open nav{ display:block; }
@@ -268,7 +278,7 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
 </style>
 </head>
 <body>
-<header class="sx-head fixed"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="news.html">News</a></li><li><a href="compare.html">Compare</a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
+<header class="sx-head fixed"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html" aria-current="page">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header>
 <div id="stage">
   <canvas id="bg"></canvas>
   <canvas id="gl"></canvas>
@@ -342,6 +352,11 @@ dl.facts dd{ margin:0; text-align:right; font-weight:500; }
     <canvas id="cmapA"></canvas><canvas id="cmapB"></canvas><canvas id="cmapS"></canvas><div id="stip" class="glass"></div>
     <div class="mapcaut" id="mcaut" hidden></div>
     <div class="zbar glass" id="zbar" hidden></div>
+    <div class="mnav glass" id="mnav" role="group" aria-label="Move and zoom the map">
+      <button type="button" data-n="in" aria-label="Zoom in">+</button><button type="button" data-n="u" aria-label="Move map up">&#9650;</button><button type="button" data-n="out" aria-label="Zoom out">&#8722;</button>
+      <button type="button" data-n="l" aria-label="Move map left">&#9664;</button><button type="button" data-n="reset" id="mnReset" aria-label="Reset the view" hidden>&#10226;</button><button type="button" data-n="r" aria-label="Move map right">&#9654;</button>
+      <span></span><button type="button" data-n="d" aria-label="Move map down">&#9660;</button><span></span>
+    </div>
     <button class="backbtn glass" id="back">&larr; Back to globe</button>
     <div class="nameblock"><div class="bigflag" id="bigflag"></div><h2 class="bigname" id="bigname"></h2></div>
   </div>
@@ -1786,10 +1801,16 @@ function fitFor(c,w,h){
   var f={s:s,tx:w/2-s*(b[0][0]+b[1][0])/2,ty:h/2-s*(b[0][1]+b[1][1])/2};
   c._fits[key]=f; return f;
 }
+function viewTx(c,w,h,s,tx,ty){
+  var V=(typeof cur!=='undefined'&&cur&&cur.c===c&&w===cw&&h===ch)?cur:null, z=V&&V.vz?V.vz:1, ox=V&&V.vx?V.vx:0, oy=V&&V.vy?V.vy:0;
+  return {s:s*z,tx:w/2+(tx-w/2)*z+ox,ty:h/2+(ty-h/2)*z+oy};
+}
 function mapProj(c,w,h){
-  if(c._zs>=0&&c._st&&c._st[c._zs]){ var g=fitForState(c,c._zs,w,h); return d3.geo.azimuthalEqualArea().clipAngle(100).precision(.6).rotate([-g.cen[0],-g.cen[1]]).scale(g.s).translate([g.tx,g.ty]); }
-  var f=fitFor(c,w,h);
-  return d3.geo.azimuthalEqualArea().clipAngle(100).precision(.6).rotate([-c.fitCen[0],-c.fitCen[1]]).scale(f.s).translate([f.tx,f.ty]);
+  var s,tx,ty,rot;
+  if(c._zs>=0&&c._st&&c._st[c._zs]){ var g=fitForState(c,c._zs,w,h); s=g.s; tx=g.tx; ty=g.ty; rot=g.cen; }
+  else { var f=fitFor(c,w,h); s=f.s; tx=f.tx; ty=f.ty; rot=c.fitCen; }
+  var v=viewTx(c,w,h,s,tx,ty);
+  return d3.geo.azimuthalEqualArea().clipAngle(100).precision(.6).rotate([-rot[0],-rot[1]]).scale(v.s).translate([v.tx,v.ty]);
 }
 function lists(c){
   if(c._lists) return c._lists;
@@ -2178,18 +2199,31 @@ async function loadStates(c){
     var ut=Datamap.prototype.usaTopo, uo=ut.objects.usa||ut.objects[Object.keys(ut.objects)[0]];
     feats=topojson.feature(ut,uo).features;
   } else {
-    var iso=c.id, tail='/releaseData/gbOpen/'+iso+'/ADM1/geoBoundaries-'+iso+'-ADM1_simplified.geojson', gj=null, lastErr=null;
-    /* geoBoundaries keeps its files in Git LFS, so only media.githubusercontent.com returns the real file (jsDelivr and raw return a tiny pointer) */
-    var tries=[
-      function(){ return jget('https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main'+tail,30000); },
-      async function(){ var m=await jget('https://www.geoboundaries.org/api/current/gbOpen/'+iso+'/ADM1/',15000), u=(m&&(m.simplifiedGeometryGeoJSON||m.gjDownloadURL))||(Array.isArray(m)&&m[0]&&(m[0].simplifiedGeometryGeoJSON||m[0].gjDownloadURL));
-        if(!u) throw new Error('no url'); var mm=/github\.com\/wmgeolab\/geoBoundaries\/raw\/([^/]+)\/(.+)$/.exec(u);
-        return jget(mm?('https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/'+mm[1]+'/'+mm[2]):u,30000); },
-      async function(){ var all=await jget('https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson',40000);
-        var f=(all.features||[]).filter(function(x){ return x.properties&&(x.properties.adm0_a3===iso||x.properties.ADM0_A3===iso); }); if(!f.length) throw new Error('none'); return {features:f}; }
+    var iso=c.id, tail='/releaseData/gbOpen/'+iso+'/ADM1/geoBoundaries-'+iso+'-ADM1_simplified.geojson', gj=null, errs=[];
+    /* geoBoundaries keeps its files in Git LFS. The real file is served from media.githubusercontent.com (jsDelivr and raw.githubusercontent only give a tiny pointer). */
+    var short=function(u){ return u.replace(/^https:\/\//,'').split('/')[0]; };
+    var srcs=[
+      {n:'GitHub media',f:function(){ return jget('https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main'+tail,40000); }},
+      {n:'GitHub raw link',f:function(){ return jget('https://github.com/wmgeolab/geoBoundaries/raw/main'+tail,40000); }},
+      {n:'geoBoundaries API',f:async function(){ var m=await jget('https://www.geoboundaries.org/api/current/gbOpen/'+iso+'/ADM1/',15000); if(Array.isArray(m)) m=m[0]; var u=m&&(m.simplifiedGeometryGeoJSON||m.gjDownloadURL); if(!u) throw new Error('no link in reply');
+        var mm=/github\.com\/wmgeolab\/geoBoundaries\/raw\/([^/]+)\/(.+)$/.exec(u); try{ return await jget(mm?('https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/'+mm[1]+'/'+mm[2]):u,40000); }catch(e){ return jget(u,40000); } }},
+      {n:'Natural Earth (some countries)',f:async function(){ var all=await jget('https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson',45000);
+        var f=(all.features||[]).filter(function(x){ var p=x.properties||{}; return p.adm0_a3===iso||p.ADM0_A3===iso; }); if(!f.length) throw new Error('country not in this file'); return {features:f}; }}
     ];
-    for(var ti=0;ti<tries.length&&!gj;ti++){ try{ var g=await tries[ti](); if(g&&g.features&&g.features.length) gj=g; }catch(e){ lastErr=e; } }
-    if(!gj) throw (lastErr||new Error('no state data'));
+    gj=await new Promise(function(resolve){
+      var done=false, pending=srcs.length, started={}, timers=[];
+      function fin(v){ if(done) return; done=true; timers.forEach(clearTimeout); resolve(v); }
+      function go(k){
+        if(done||k>=srcs.length||started[k]) return; started[k]=1; var s=srcs[k];
+        timers.push(setTimeout(function(){ go(k+1); },2500));   /* start the next source if this one is slow */
+        Promise.resolve().then(s.f).then(function(g){ if(g&&g.features&&g.features.length) fin(g); else throw new Error('empty file'); })
+          .catch(function(e){ errs.push(s.n+': '+((e&&e.message)||'failed')); go(k+1); })   /* start the next source straight away when this one fails */
+          .then(function(){ pending--; if(!pending&&!done) fin(null); });
+      }
+      go(0);
+    });
+    c._stErr=errs;
+    if(!gj) throw new Error(errs.join(' | ')||'no state data');
     feats=gj.features;
   }
   var st=prepStates(feats||[]); if(!st.length) throw new Error('no state shapes');
@@ -2259,12 +2293,12 @@ function swapAnim(apply,ox,oy){
 function zoomToState(i){
   var c=cur&&cur.c; if(!c||!c._st||!c._st[i]) return; tourStop();
   var q=null; try{ q=getPj()(c._st[i].lab); }catch(e){}
-  swapAnim(function(){ c._zs=i; cur.sel=i; },q?q[0]:cw/2,q?q[1]:ch/2);
+  swapAnim(function(){ c._zs=i; cur.sel=i; cur.vz=1; cur.vx=0; cur.vy=0; },q?q[0]:cw/2,q?q[1]:ch/2); updNav();
   renderStatePanel(i); zbarUpdate(); ensureAnim();
 }
 function zoomOut(){
   var c=cur&&cur.c; if(!c||!(c._zs>=0)) return; tourStop();
-  swapAnim(function(){ c._zs=-1; },cw/2,ch/2); renderStatePanel(cur.sel); zbarUpdate(); ensureAnim();
+  swapAnim(function(){ c._zs=-1; cur.vz=1; cur.vx=0; cur.vy=0; },cw/2,ch/2); updNav(); renderStatePanel(cur.sel); zbarUpdate(); ensureAnim();
 }
 function zbarUpdate(){
   var z=$('zbar'); if(!z||!cur) return; var c=cur.c;
@@ -2370,6 +2404,43 @@ function onPlacesShown(){
   if(!c._toured&&!(c._zs>=0)){ setTimeout(function(){ if(cur&&cur.c===c&&cur.type==='places'&&!(c._zs>=0)&&!cur.tour&&!c._toured&&c._lblHidden>0){ c._toured=true; placesTourStart(false); } },1400); }
 }
 
+
+/* ---------- map navigation: zoom, left, right, up, down, drag, wheel, pinch ---------- */
+function viewReset(){ if(cur){ cur.vz=1; cur.vx=0; cur.vy=0; } updNav(); }
+function updNav(){ var r=$('mnReset'); if(r) r.hidden=!(cur&&((cur.vz&&Math.abs(cur.vz-1)>0.01)||Math.abs(cur.vx||0)>1||Math.abs(cur.vy||0)>1)); }
+var navT=null;
+function viewApply(now){ if(!cur) return; clearTimeout(navT); cur._pj=null; updNav(); if(now) doRedraw(); else navT=setTimeout(doRedraw,60); }
+function doRedraw(){ if(!cur) return; finishSwitch(); try{ drawOn(xA,cur.type); }catch(e){ console.error(e); } drawSel(); }
+function zoomBy(k,px,py){
+  if(!cur) return; var z0=cur.vz||1, z1=clamp(z0*k,0.6,14), kk=z1/z0; if(kk===1) return;
+  var cx=px==null?cw/2:px, cy=py==null?ch/2:py;
+  cur.vx=(cur.vx||0)*kk+(cx-cw/2)*(1-kk); cur.vy=(cur.vy||0)*kk+(cy-ch/2)*(1-kk);
+  cur.vz=z1; viewApply(true);
+}
+function panBy(dx,dy){ if(!cur) return; cur.vx=(cur.vx||0)+dx; cur.vy=(cur.vy||0)+dy; viewApply(true); }
+$('mnav').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b||!cur) return; var a=b.dataset.n, st=Math.min(cw,ch)*0.22;
+  if(a==='in') zoomBy(1.5); else if(a==='out') zoomBy(1/1.5);
+  else if(a==='l') panBy(st,0); else if(a==='r') panBy(-st,0); else if(a==='u') panBy(0,st); else if(a==='d') panBy(0,-st);
+  else if(a==='reset'){ cur.vz=1; cur.vx=0; cur.vy=0; viewApply(true); }
+});
+(function(){
+  var ptrs={}, drag=null, pinch=null, moved=false;
+  function pts(){ return Object.keys(ptrs).map(function(k){ return ptrs[k]; }); }
+  cS.style.touchAction='none';
+  cS.addEventListener('pointerdown',function(e){ ptrs[e.pointerId]={x:e.clientX,y:e.clientY}; moved=false; try{ cS.setPointerCapture(e.pointerId); }catch(_){}
+    var p=pts(); if(p.length===1){ drag={x:e.clientX,y:e.clientY,vx:cur?(cur.vx||0):0,vy:cur?(cur.vy||0):0}; pinch=null; } else if(p.length===2){ pinch={d:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)}; drag=null; } });
+  cS.addEventListener('pointermove',function(e){
+    if(!ptrs[e.pointerId]||!cur) return; ptrs[e.pointerId]={x:e.clientX,y:e.clientY}; var p=pts();
+    if(p.length===2&&pinch){ var d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y); if(pinch.d>0&&Math.abs(d/pinch.d-1)>0.03){ var r=cS.getBoundingClientRect(); zoomBy(d/pinch.d,(p[0].x+p[1].x)/2-r.left,(p[0].y+p[1].y)/2-r.top); pinch.d=d; moved=true; } return; }
+    if(drag&&p.length===1){ var dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(!moved&&Math.hypot(dx,dy)<7) return; moved=true; cur.vx=drag.vx+dx; cur.vy=drag.vy+dy; viewApply(false); }
+  },true);
+  function up(e){ delete ptrs[e.pointerId]; if(!pts().length){ drag=null; pinch=null; } else if(pts().length===1){ var q=pts()[0]; drag={x:q.x,y:q.y,vx:cur?(cur.vx||0):0,vy:cur?(cur.vy||0):0}; pinch=null; } }
+  cS.addEventListener('pointerup',up); cS.addEventListener('pointercancel',up);
+  cS.addEventListener('click',function(e){ if(moved){ e.stopImmediatePropagation(); e.preventDefault(); moved=false; } },true);
+  cS.addEventListener('wheel',function(e){ if(!cur) return; e.preventDefault(); var r=cS.getBoundingClientRect(); zoomBy(e.deltaY<0?1.25:1/1.25,e.clientX-r.left,e.clientY-r.top); },{passive:false});
+})();
+
 var hoverSt=-1, stip=$('stip');
 function getPj(){ if(!cur._pj) cur._pj=mapProj(cur.c,cw,ch); return cur._pj; }
 function drawSel(){ drawSelBase(); if(cur){ if(cur.type==='places') drawPlaceMarkers(); if(cur.tour) drawTourLayer(); } }
@@ -2391,6 +2462,7 @@ function stateInfo(i){
 function selectState(i){
   if(!cur||!cur.c._st) return; cur.sel=i; drawSel(); renderStatePanel(i);
 }
+function retryStates(){ var c=cur&&cur.c; if(!c) return; c._st=null; setStatesPanel(c,'loading'); loadStates(c).then(function(){ if(!cur||cur.c!==c) return; setStatesPanel(c,'ok'); redrawCurrent(); applyPendingState(c); }).catch(function(){ if(cur&&cur.c===c) setStatesPanel(c,'fail'); }); }
 function setStatesPanel(c,mode){
   var st=STATES[c.id], box=$('states'), head=st?'<p>'+esc(st[0])+'</p>':'';
   if(mode==='ok'&&c._st){
@@ -2399,10 +2471,11 @@ function setStatesPanel(c,mode){
     return;
   }
   var chips=st?'<div class="statelist">'+st[1].split(', ').map(function(x){ return '<span>'+esc(x)+'</span>'; }).join('')+'</div>':'';
-  var note=mode==='loading'?'<p class="note">Loading state boundaries\u2026</p>':'<p class="note">State borders could not be loaded right now. Showing the list of names instead.</p>';
+  var note=mode==='loading'?'<p class="note">Loading state boundaries\u2026 this can take a few seconds.</p>':'<p class="note">State borders could not be loaded right now. Showing the list of names instead.</p><div class="chips" style="margin:8px 0"><button class="chip hot" data-retry="1">Try again</button></div>'+((c._stErr&&c._stErr.length)?'<details class="dbg"><summary>Why?</summary><p>'+c._stErr.map(esc).join('<br>')+'</p></details>':'');
   box.innerHTML=head+note+chips;
 }
 $('states').addEventListener('click',function(e){
+  if(e.target.closest('[data-retry]')){ retryStates(); return; }
   var z=e.target.closest('[data-sz]'); if(z){ if(z.dataset.sz==='out') zoomOut(); else zoomToState(+z.dataset.i); return; }
   var sp=e.target.closest('[data-sp]'); if(sp){ openPlace(+sp.dataset.sp,true); return; }
   var b=e.target.closest('.chip[data-s]'); if(b){ selectState(+b.dataset.s); panelScrollTo($('stinfo')); } });
@@ -2883,7 +2956,7 @@ $('nx').onclick=function(){ $('news').classList.remove('open'); $('bN').setAttri
 /* ---------- Open and close country ---------- */
 function showCountry(c){
   finishSwitch();
-  c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null}; hoverSt=-1; zbarUpdate();
+  c._zs=-1; cur={c:c,type:cur?cur.type:'political',sel:-1,_pj:null,focus:null,vz:1,vx:0,vy:0}; hoverSt=-1; zbarUpdate();
   view='country';
   cEl.classList.add('open'); cEl.setAttribute('aria-hidden','false');
   fillPanel(c); sizeMap(); cB.style.display='none'; intro(); loadLive(c); startStates(c);
@@ -2951,7 +3024,7 @@ setTimeout(function(){ var m=/[#&?]c=([A-Za-z]{3})/.exec(location.hash||''); if(
     b.addEventListener('click',function(e){ e.stopPropagation(); set(!h.classList.contains('open')); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
     document.addEventListener('click',function(e){ if(!h.contains(e.target)) set(false); });
-    window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
+    window.addEventListener('resize',function(){ if(window.innerWidth>1120) set(false); });
   }
   var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
 })();

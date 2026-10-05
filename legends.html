@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>The Legends: scientists and inventors who changed the world | Ourworldhive</title><meta name="description" content="Tap a scientist or inventor, from Pythagoras to Tim Berners-Lee, and watch a short animation of what they did and where it is used today."><meta name="theme-color" content="#050918"><link rel="canonical" href="https://ourworldhive.com/legends.html"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23050918'/%3E%3Cpath d='M16 3.5 27 9.8v12.4L16 28.5 5 22.2V9.8z' fill='none' stroke='%23ffc857' stroke-width='2.2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23eaf1ff' stroke-width='1.6'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="The Legends: scientists and inventors who changed the world | Ourworldhive"><meta property="og:description" content="Tap a scientist or inventor, from Pythagoras to Tim Berners-Lee, and watch a short animation of what they did and where it is used today."><meta property="og:url" content="https://ourworldhive.com/legends.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://ourworldhive.com/og-image.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{ --sx-space:#050918; --sx-ink:#eaf1ff; --sx-soft:#cdd8f5; --sx-muted:#93a4cc; --sx-line:rgba(255,255,255,.14); --sx-gold:#ffc857;
+  --sx-d:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif; --sx-b:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hh:calc(56px + env(safe-area-inset-top,0px)); --fh:calc(38px + env(safe-area-inset-bottom,0px)); }
+.sx-head{ position:sticky; top:0; z-index:100; height:var(--hh); padding-top:env(safe-area-inset-top,0px); background:rgba(5,9,24,.9);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--sx-line); font-family:var(--sx-b); }
+.sx-head.fixed{ position:fixed; left:0; right:0; top:0; }
+.sx-in{ max-width:1180px; height:56px; margin:0 auto; padding:0 18px; display:flex; align-items:center; gap:20px; }
+.sx-brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--sx-ink); flex:none; }
+.sx-brand span{ font-family:var(--sx-d); font-weight:700; font-size:21px; letter-spacing:-.025em; }
+.sx-head nav{ margin-left:auto; }
+.sx-nav{ display:flex; gap:2px; margin:0; padding:0; list-style:none; }
+.sx-nav a{ position:relative; display:flex; align-items:center; gap:5px; height:56px; padding:0 10px; color:var(--sx-muted); text-decoration:none; font-weight:500; font-size:15px; transition:color .15s; }
+.sx-nav a:hover{ color:var(--sx-ink); }
+.sx-nav a[aria-current="page"]{ color:var(--sx-ink); font-weight:600; }
+.sx-nav a[aria-current="page"]::after{ content:""; position:absolute; left:12px; right:12px; bottom:-1px; height:3px; border-radius:3px 3px 0 0; background:var(--sx-gold); }
+.sx-ext{ opacity:.7; }
+.sx-drum{ display:block; position:relative; width:5.9em; height:1.5em; overflow:hidden; text-align:left; -webkit-mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); mask-image:linear-gradient(transparent 0,#000 24%,#000 76%,transparent 100%); }
+.sx-drum i{ display:block; height:1.5em; line-height:1.5em; font-style:normal; will-change:transform; animation:sxdrum 8s infinite; animation-timing-function:cubic-bezier(.65,0,.25,1); }
+@keyframes sxdrum{ 0%,22%{ transform:translateY(0); } 28%,47%{ transform:translateY(-100%); } 53%,72%{ transform:translateY(-200%); } 78%,100%{ transform:translateY(-300%); } }
+.sx-roll{ font-weight:600; } .sx-roll .sx-drum{ color:var(--sx-gold); }
+@media (prefers-reduced-motion:reduce){ .sx-drum i{ animation:none; } .sx-drum i:not(:nth-child(2)){ display:none; } .sx-drum{ -webkit-mask-image:none; mask-image:none; height:1.5em; } }
+.sx-head a:focus-visible,.sx-foot a:focus-visible,.sx-burger:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; border-radius:6px; }
+.sx-burger{ display:none; margin-left:auto; width:44px; height:44px; border:0; background:transparent; border-radius:10px; position:relative; }
+.sx-burger span{ position:absolute; left:11px; right:11px; height:2px; border-radius:2px; background:var(--sx-ink); transition:transform .2s, opacity .2s; }
+.sx-burger span:nth-child(1){ top:15px; } .sx-burger span:nth-child(2){ top:21px; } .sx-burger span:nth-child(3){ top:27px; }
+.sx-head.open .sx-burger span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.sx-head.open .sx-burger span:nth-child(2){ opacity:0; }
+.sx-head.open .sx-burger span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+@media (max-width:1300px){
+  .sx-burger{ display:block; }
+  .sx-head nav{ position:absolute; left:0; right:0; top:100%; margin:0; background:#050918; border-bottom:1px solid var(--sx-line); display:none; max-height:calc(100vh - var(--hh)); overflow:auto; }
+  .sx-head.open nav{ display:block; }
+  .sx-nav{ flex-direction:column; gap:0; padding:4px 18px 14px; }
+  .sx-nav li + li{ border-top:1px solid var(--sx-line); }
+  .sx-nav a{ height:50px; padding:0; font-size:17px; }
+  .sx-nav a[aria-current="page"]{ color:var(--sx-gold); }
+  .sx-nav a[aria-current="page"]::after{ display:none; }
+}
+.sx-foot{ font-family:var(--sx-b); color:var(--sx-muted); font-size:14px; }
+.sx-foot a{ color:var(--sx-soft); text-decoration:none; }
+.sx-foot a:hover{ color:var(--sx-gold); text-decoration:underline; text-underline-offset:3px; }
+.sx-foot:not(.mini){ margin-top:96px; background:#040714; border-top:1px solid var(--sx-line); }
+.sx-fin{ max-width:1180px; margin:0 auto; padding:52px 18px 0; }
+.sx-fgrid{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr); gap:40px; }
+.sx-fbrand p{ margin:14px 0 0; max-width:36ch; line-height:1.6; }
+.sx-foot h2{ margin:0 0 14px; font-family:var(--sx-d); font-weight:500; font-size:17px; color:var(--sx-ink); letter-spacing:-.01em; }
+.sx-foot ul{ margin:0; padding:0; list-style:none; display:grid; gap:10px; }
+.sx-fbar{ margin-top:44px; padding:20px 0 calc(22px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--sx-line); display:flex; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; font-size:13.5px; }
+.sx-fbar p{ margin:0; }
+.sx-fbar p:first-child{ color:var(--sx-ink); }
+@media (max-width:720px){ .sx-fgrid{ grid-template-columns:1fr 1fr; gap:32px 20px; } .sx-fbrand{ grid-column:1/-1; } }
+.sx-foot.mini{ position:fixed; left:0; right:0; bottom:0; z-index:100; height:var(--fh); padding:0 16px env(safe-area-inset-bottom,0px); display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:rgba(5,9,24,.94); border-top:1px solid var(--sx-line); font-size:12.5px; white-space:nowrap; }
+.sx-foot.mini p{ margin:0; color:var(--sx-ink); overflow:hidden; text-overflow:ellipsis; }
+.sx-foot.mini nav{ display:flex; gap:14px; flex:none; }
+@media (max-width:460px){ .sx-foot.mini{ font-size:12px; padding-left:12px; padding-right:12px; } .sx-foot.mini nav{ gap:11px; } .sx-foot.mini nav a:nth-child(3){ display:none; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ background:var(--sx-space); color-scheme:dark; }
+body{ margin:0; min-height:100vh; display:flex; flex-direction:column; color:var(--sx-ink); font-family:var(--sx-b); -webkit-font-smoothing:antialiased; font-size:17px; line-height:1.6;
+  background:radial-gradient(1000px 560px at 85% -8%,#1a2461 0%,transparent 62%),radial-gradient(800px 460px at -8% 8%,#2a1a55 0%,transparent 58%),var(--sx-space); }
+main{ flex:1 0 auto; }
+a{ color:#7cc4ff; }
+h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
+.btn{ display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 24px; border-radius:999px; font-weight:600; font-size:16px; text-decoration:none; border:1px solid var(--sx-line); color:var(--sx-ink); background:rgba(255,255,255,.06); transition:background .15s, filter .15s; }
+.btn:hover{ background:rgba(255,255,255,.12); }
+.btn.gold{ border:0; color:#1a1030; background:linear-gradient(135deg,#ffc857,#ff9f5a); }
+.btn.gold:hover{ filter:brightness(1.07); }
+.btn:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:3px; }
+.wrap{ max-width:1180px; margin:0 auto; padding:0 18px; }
+
+/* home hero */
+.hero{ display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:32px; align-items:center; padding:clamp(40px,8vw,96px) 0 clamp(24px,5vw,56px); }
+.hero h1{ font-size:clamp(42px,6.6vw,88px); font-weight:700; line-height:.98; letter-spacing:-.04em; max-width:12ch; }
+.hero p{ margin:24px 0 0; max-width:50ch; font-size:clamp(17px,1.7vw,20px); color:var(--sx-soft); line-height:1.6; }
+.hero .cta{ margin-top:32px; display:flex; flex-wrap:wrap; gap:12px; }
+.orb{ width:100%; max-width:480px; justify-self:center; display:block; }
+a.orblink{ display:block; border-radius:50%; }
+a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
+@media (max-width:820px){ .hero{ grid-template-columns:1fr; } .orb{ max-width:340px; } .hero h1{ max-width:14ch; } }
+
+/* index rows */
+.sec{ padding:clamp(40px,7vw,80px) 0 0; }
+.sec > h2{ font-size:clamp(28px,3.6vw,44px); font-weight:700; }
+.sec > .lede{ margin:12px 0 0; max-width:56ch; color:var(--sx-muted); }
+.rows{ margin-top:32px; border-bottom:1px solid var(--sx-line); }
+.row{ display:grid; grid-template-columns:minmax(150px,.7fr) minmax(0,1.6fr) 124px; gap:8px 28px; align-items:center; padding:26px 6px; border-top:1px solid var(--sx-line); text-decoration:none; color:var(--sx-ink); transition:background .2s; }
+.row:hover{ background:rgba(255,255,255,.04); }
+.row:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:-2px; }
+.row h3{ font-size:clamp(26px,3.2vw,38px); font-weight:700; transition:color .2s; }
+.row:hover h3{ color:var(--sx-gold); }
+.row p{ margin:0; color:var(--sx-soft); font-size:16.5px; max-width:58ch; }
+.tag{ justify-self:end; padding:5px 13px; border-radius:999px; font-size:13.5px; font-weight:600; border:1px solid var(--sx-gold); color:var(--sx-gold); white-space:nowrap; }
+.tag.soon{ border-color:var(--sx-line); color:var(--sx-muted); }
+@media (max-width:700px){ .row{ grid-template-columns:minmax(0,1fr) auto; padding:22px 2px; } .row p{ grid-column:1/-1; grid-row:2; } }
+
+/* globe abilities */
+.abil{ margin:32px 0 0; display:grid; grid-template-columns:1fr 1fr; gap:0 56px; }
+.abil div{ padding:20px 0; border-top:1px solid var(--sx-line); }
+.abil dt{ font-family:var(--sx-d); font-weight:700; font-size:21px; letter-spacing:-.015em; }
+.abil dd{ margin:6px 0 0; color:var(--sx-soft); font-size:16.5px; max-width:52ch; }
+@media (max-width:760px){ .abil{ grid-template-columns:1fr; } }
+.closer{ margin-top:clamp(40px,6vw,72px); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px 32px; padding:32px 0 0; border-top:1px solid var(--sx-line); }
+.closer h2{ font-size:clamp(26px,3.4vw,40px); max-width:20ch; }
+
+/* text pages */
+.page{ max-width:760px; margin:0 auto; padding:clamp(40px,7vw,80px) 18px 0; }
+.page h1{ font-size:clamp(38px,5.6vw,64px); font-weight:700; line-height:1.02; letter-spacing:-.035em; }
+.page .lede{ margin:18px 0 0; font-size:clamp(18px,2vw,21px); color:var(--sx-soft); line-height:1.55; }
+.page h2{ margin:44px 0 10px; font-size:26px; font-weight:700; }
+.page p,.page li{ color:var(--sx-soft); line-height:1.72; }
+.page p{ margin:0 0 14px; }
+.page ul{ padding-left:22px; margin:0 0 14px; }
+.page li{ margin-bottom:6px; }
+.page .upd{ color:var(--sx-muted); font-size:14.5px; margin-top:14px; }
+.page .cta{ margin-top:30px; display:flex; flex-wrap:wrap; gap:12px; }
+.page :target{ scroll-margin-top:84px; }
+
+.rb{ max-width:760px; margin:0 auto; }
+.rb h2{ font-size:clamp(26px,3.4vw,34px); font-weight:700; margin:34px 0 10px; line-height:1.15; }
+.rb h3{ font-size:clamp(21px,2.6vw,26px); font-weight:700; margin:26px 0 8px; line-height:1.2; }
+.rb p{ margin:0 0 16px; color:var(--sx-soft); line-height:1.75; font-size:17.5px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.rb figure{ margin:24px 0; } .rb figure img{ display:block; width:100%; height:auto; border-radius:14px; background:#0c1230; min-height:120px; }
+.rb figcaption{ margin-top:8px; color:var(--sx-muted); font-size:14.5px; text-align:center; }
+.rb .rgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; margin:24px 0; }
+.rb .rgrid img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px; background:#0c1230; display:block; }
+.rb blockquote{ margin:26px 0; padding:6px 0 6px 18px; border-left:4px solid var(--sx-gold); color:var(--sx-ink); font-family:var(--sx-d); font-size:clamp(20px,2.4vw,25px); line-height:1.4; }
+.rb blockquote cite{ display:block; margin-top:8px; font-family:var(--sx-b); font-size:15px; color:var(--sx-muted); font-style:normal; }
+.rb hr{ border:0; border-top:1px solid var(--sx-line); margin:30px 0; }
+.rb .rbtn{ margin:20px 0; } .rb .rbtn a{ display:inline-flex; align-items:center; min-height:50px; padding:0 28px; border-radius:999px; font-weight:700; font-size:17px; text-decoration:none; border:1px solid var(--sx-line); color:var(--sx-ink); background:rgba(255,255,255,.07); }
+.rb .rbtn a.pri{ border:0; color:#1a1030; background:linear-gradient(135deg,#ffc857,#ff9f5a); }
+.rb .rlink{ margin:0 0 14px; font-size:18px; } .rb .rlink a{ color:#7cc4ff; }
+.rb .ryt{ position:relative; margin:24px 0; padding-top:56.25%; border-radius:14px; overflow:hidden; background:#000; } .rb .ryt iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.cardgrid{ margin:28px 0 0; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.pc{ display:flex; flex-direction:column; border:1px solid var(--sx-line); border-radius:18px; overflow:hidden; background:rgba(255,255,255,.04); text-decoration:none; color:var(--sx-ink); transition:border-color .15s; }
+.pc:hover{ border-color:var(--sx-gold); } .pc:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:2px; }
+.pc .ph{ aspect-ratio:16/9; background:linear-gradient(135deg,#16204f,#2a1a55); display:block; width:100%; object-fit:cover; }
+.pc .tb{ padding:16px 18px 20px; } .pc b{ display:block; font-family:var(--sx-d); font-size:21px; line-height:1.22; font-weight:700; letter-spacing:-.015em; }
+.pc p{ margin:8px 0 0; color:var(--sx-soft); font-size:15.5px; line-height:1.55; } .pc small{ display:block; margin-top:10px; color:var(--sx-muted); font-size:13.5px; }
+.empty2{ margin:28px 0 0; padding:22px; border:1px dashed var(--sx-line); border-radius:16px; color:var(--sx-muted); }
+
+.cw{ max-width:1080px; margin:0 auto; padding:clamp(36px,6vw,72px) 18px 0; }
+.cw h1{ font-size:clamp(38px,5.6vw,64px); font-weight:700; line-height:1.02; letter-spacing:-.035em; }
+.cw .lede{ margin:14px 0 0; max-width:58ch; color:var(--sx-soft); font-size:clamp(17px,1.9vw,20px); }
+.cw .alsol{ margin:18px 0 0; font-size:15.5px; color:var(--sx-muted); }
+.pg{ max-width:760px; margin:0 auto; padding:clamp(36px,6vw,72px) 18px 0; }
+.pg h1{ font-size:clamp(34px,5vw,56px); font-weight:700; line-height:1.05; letter-spacing:-.03em; }
+.pg .meta{ margin:12px 0 26px; color:var(--sx-muted); font-size:15px; min-height:20px; }
+
+.lgp{ max-width:920px; margin:0 auto; padding:clamp(30px,5vw,60px) 16px 0; }
+.lgp h1{ font-size:clamp(38px,5.6vw,64px); font-weight:700; line-height:1.03; letter-spacing:-.035em; }
+.lgp .lede{ margin:12px 0 0; max-width:60ch; color:var(--sx-soft); font-size:clamp(16.5px,1.8vw,19px); }
+.lgp .hide{ display:none !important; }
+.lgp .sub{ color:var(--sx-muted); font-size:14.5px; line-height:1.5; }
+.lgp .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.lgp .btn{ min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--sx-line); background:rgba(255,255,255,.07); color:var(--sx-ink); font:inherit; font-weight:700; font-size:15px; cursor:pointer; }
+.lgp .btn.sm{ min-height:40px; padding:0 14px; font-size:14px; } .lgp .btn:disabled{ opacity:.4; cursor:default; }
+.lgp .btn:hover:not(:disabled){ border-color:var(--sx-gold); } .lgp button:focus-visible,.lgp input:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:2px; }
+.lgp .lsearch{ display:block; width:100%; margin:18px 0 6px; padding:13px 16px; border-radius:999px; border:1px solid var(--sx-line); background:rgba(255,255,255,.06); color:var(--sx-ink); font:inherit; font-size:16px; }
+.lgp .fch{ display:flex; gap:8px; overflow-x:auto; padding:6px 0 10px; scrollbar-width:none; } .lgp .fch::-webkit-scrollbar{ display:none; }
+.lgp .fch button{ flex:none; border:1px solid var(--sx-line); background:rgba(255,255,255,.05); color:var(--sx-soft); border-radius:999px; padding:8px 16px; font:inherit; font-size:14.5px; cursor:pointer; } .lgp .fch button.on{ background:linear-gradient(135deg,#ffc857,#ff9f5a); color:#1a1030; border-color:transparent; font-weight:700; }
+.lgp .g2{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
+.lgp .lc{ background:rgba(255,255,255,.045); border:1px solid var(--sx-line); border-radius:18px; padding:16px 14px; text-align:left; cursor:pointer; display:block; width:100%; color:var(--sx-ink); font:inherit; transition:transform .2s,border-color .2s; }
+.lgp .lc:hover{ transform:translateY(-3px); border-color:var(--sx-gold); }
+.lgp .lc .e{ font-size:38px; line-height:1.1; display:block; } .lgp .lc b{ display:block; font-family:var(--sx-d); font-size:17px; margin-top:6px; } .lgp .lc .w{ font-size:13px; color:var(--sx-gold); font-weight:700; } .lgp .lc .h{ font-size:13.5px; color:var(--sx-muted); margin-top:4px; line-height:1.45; }
+.lgp .card{ background:rgba(255,255,255,.045); border:1px solid var(--sx-line); border-radius:16px; padding:14px; }
+.lgp .av{ font-size:44px; width:72px; height:72px; border-radius:50%; display:grid; place-items:center; background:rgba(255,200,87,.14); flex:none; }
+.lgp .num{ font-family:var(--sx-d); font-weight:700; letter-spacing:-.02em; }
+.lgp .lstage{ background:linear-gradient(180deg,#0e1226,#1c2348); border-radius:18px; overflow:hidden; box-shadow:0 8px 28px rgba(0,0,0,.4); margin:14px 0 10px; } .lgp .lstage canvas{ width:100%; height:auto; display:block; }
+.lgp .lctl{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.lgp .dots{ display:flex; gap:8px; justify-content:center; margin:12px 0; } .lgp .dots button{ width:38px; height:9px; border-radius:6px; border:0; background:rgba(255,255,255,.22); cursor:pointer; padding:0; } .lgp .dots button.on{ background:var(--sx-gold); }
+.lgp .cap{ background:rgba(255,255,255,.05); border:1px solid var(--sx-line); border-left:5px solid var(--sx-gold); border-radius:12px; padding:12px 14px; min-height:66px; font-size:16px; line-height:1.5; } .lgp .cap small{ display:block; color:var(--sx-gold); font-weight:700; margin-bottom:3px; }
+.lgp .sec{ background:rgba(255,255,255,.045); border:1px solid var(--sx-line); border-radius:16px; padding:14px 16px; margin:12px 0; } .lgp .sec h3{ margin:0 0 6px; font-size:17px; } .lgp .sec p{ margin:4px 0 0; color:var(--sx-soft); line-height:1.65; font-size:15.5px; }
+@media (prefers-reduced-motion:reduce){ .lgp .lc{ transition:none; } }
+</style></head>
+<body><header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="games.html">Games</a></li><li><a href="legends.html" aria-current="page">Legends</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header><main id="main">
+<div class="lgp">
+<h1>The Legends</h1>
+<p class="lede">The scientists and inventors who changed the world. Tap anyone to watch a short animation of what they did.</p>
+<div id="lList">
+ <input class="lsearch" id="lq" type="search" placeholder="Search a name or an invention (for example bulb, gravity)" aria-label="Search legends" autocomplete="off">
+ <div class="fch" id="lf" role="group" aria-label="Categories"></div>
+ <div class="row" style="margin:2px 0 10px"><span class="sub" id="lcount"></span><button class="btn sm" id="lsort" type="button">Oldest first</button></div>
+ <div class="g2" id="lg"></div>
+</div>
+<div id="lDet" class="hide"></div>
+<p class="sub" style="margin-top:28px">Dates and details are simplified for learning. Please check a trusted encyclopedia before quoting them.</p>
+</div>
+</main><footer class="sx-foot"><div class="sx-fin">
+<div class="sx-fgrid">
+<div class="sx-fbrand"><a class="sx-brand" href="index.html"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a>
+<p>An interactive map of the world with a community around it. Spin the Earth, open a country, and talk about what you find.</p></div>
+<div><h2>Explore</h2><ul>
+<li><a href="index.html">World explorer</a></li><li><a href="news.html">News</a></li><li><a href="compare.html">Compare</a></li><li><a href="forum.html">Community forum</a></li>
+<li><a href="games.html">Games</a></li><li><a href="legends.html">The Legends</a></li><li><a href="ocean.html">Ocean dive</a></li><li><a href="countries.html">Countries A to Z</a></li><li><a href="invest.html">Invest Lab</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="gallery.html">Gallery</a></li>
+<li><a href="blog.html">Blog</a></li><li><a href="https://ourwickedworld.blogspot.com" target="_blank" rel="noopener">Our Wicked World blog</a></li></ul></div>
+<div><h2>Information</h2><ul>
+<li><a href="about.html">About</a></li><li><a href="about.html#contact">Contact</a></li>
+<li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms and map disclaimer</a></li></ul></div>
+</div>
+<div class="sx-fbar"><p>&copy; <span class="sx-year">2026</span> DUKEKRRISH. All rights reserved.</p>
+<p>&#9888;&#65039; Maps are not verified and may be under legal review. <a href="terms.html#maps">Read the disclaimer</a></p></div>
+</div></footer><script>
+(function(){
+  var h=document.querySelector('.sx-head'), b=document.getElementById('sxburger');
+  if(h&&b){
+    function set(o){ h.classList.toggle('open',o); b.setAttribute('aria-expanded',o?'true':'false'); b.setAttribute('aria-label',o?'Close menu':'Open menu'); }
+    b.addEventListener('click',function(e){ e.stopPropagation(); set(!h.classList.contains('open')); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+    document.addEventListener('click',function(e){ if(!h.contains(e.target)) set(false); });
+    window.addEventListener('resize',function(){ if(window.innerWidth>1120) set(false); });
+  }
+  var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
+})();
+</script><script src="firebase-config.js"></script><script src="site.js"></script><script>'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ph=(p,a,b)=>clamp((p-a)/(b-a)),ez=x=>x*x*(3-2*x);
+const CI=(g,x,y,r,f,s,lw)=>{g.beginPath();g.arc(x,y,Math.max(0,r),0,6.2832);if(f){g.fillStyle=f;g.fill()}if(s){g.strokeStyle=s;g.lineWidth=lw||2;g.stroke()}};
+const LN=(g,a,b,c,d,s,lw)=>{g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.strokeStyle=s;g.lineWidth=lw||2;g.stroke()};
+const RC=(g,x,y,w,h,f,r)=>{g.fillStyle=f;g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r||0);else g.rect(x,y,w,h);g.fill()};
+const TX=(g,s,x,y,f,sz,al)=>{g.fillStyle=f||'#fff';g.font='700 '+(sz||14)+'px "Trebuchet MS",sans-serif';g.textAlign=al||'center';g.fillText(s,x,y)};
+const hsh=k=>{const s=Math.sin(k*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const fadeX=(g,p,at,w)=>{const a=1-Math.min(1,Math.abs(p-at)/w);if(a>0){g.fillStyle='rgba(14,18,38,'+a+')';g.fillRect(0,0,360,220)}};
+const lerp=(a,b,t)=>a+(b-a)*t;
+const Yab=(g,x,y,col)=>{LN(g,x,y+7,x,y,col,2);LN(g,x,y,x-4,y-5,col,2);LN(g,x,y,x+4,y-5,col,2)};
+const cube=(g,x,y,s,col)=>{g.fillStyle=col;g.fillRect(x,y,s,s);g.fillStyle='rgba(255,255,255,.3)';g.beginPath();g.moveTo(x,y);g.lineTo(x+s*.4,y-s*.4);g.lineTo(x+s*1.4,y-s*.4);g.lineTo(x+s,y);g.fill();g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.moveTo(x+s,y);g.lineTo(x+s*1.4,y-s*.4);g.lineTo(x+s*1.4,y+s*.6);g.lineTo(x+s,y+s);g.fill()};
+const sq=(g,px,py,th,n,col,k)=>{g.save();g.translate(px,py);g.rotate(th);const u=18;g.globalAlpha=.9;g.fillStyle=col;g.fillRect(0,0,n*u*k,n*u*k);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=1;if(k>.98){for(let i=0;i<=n;i++){g.beginPath();g.moveTo(i*u,0);g.lineTo(i*u,n*u);g.moveTo(0,i*u);g.lineTo(n*u,i*u);g.stroke()}}g.restore();g.globalAlpha=1};
+const SCN={
+gravity(g,p){
+ if(p<.5){RC(g,0,185,360,35,'#2f8f4e');RC(g,60,100,14,90,'#8b5a2b');CI(g,67,92,46,'#2e7d32');CI(g,38,108,28,'#388e3c');CI(g,98,108,28,'#388e3c');
+  CI(g,126,150,8,'#f2c9a0');RC(g,117,158,18,28,'#6a38ff',4);
+  const f=ph(p,.2,.42),y=78+94*f*f,wob=p<.2?Math.sin(p*80)*1.5:0;
+  CI(g,92+wob,y,8,'#e53935');LN(g,92+wob,y-8,95+wob,y-13,'#5d4037',2);
+  if(p>.26){const a=ph(p,.26,.42);LN(g,160,50,160,50+80*a,'#ffd23f',3);if(a>.95){g.fillStyle='#ffd23f';g.beginPath();g.moveTo(160,138);g.lineTo(153,126);g.lineTo(167,126);g.fill()}TX(g,'Gravity',185,95,'#ffd23f',15,'left')}}
+ else{const q=p-.5,cx=180,cy=118;
+  for(let i=0;i<30;i++)CI(g,hsh(i)*360,hsh(i+50)*200,1,'#fff');
+  const pulse=(Math.sin(p*20)+1)/2;for(let i=0;i<8;i++){const a=i*.785;g.globalAlpha=.4+.4*pulse;LN(g,cx+Math.cos(a)*52,cy+Math.sin(a)*52,cx+Math.cos(a)*38,cy+Math.sin(a)*38,'#ffd23f',2)}g.globalAlpha=1;
+  CI(g,cx,cy,30,'#2b7bd9');CI(g,cx-8,cy-6,10,'#3ba55c');CI(g,cx+10,cy+9,8,'#3ba55c');
+  g.setLineDash([4,6]);g.beginPath();g.ellipse(cx,cy,100,66,0,0,6.2832);g.strokeStyle='#ffffff66';g.lineWidth=1.5;g.stroke();g.setLineDash([]);
+  const a=q*6.2832*2.2,mx=cx+100*Math.cos(a),my=cy+66*Math.sin(a);CI(g,mx,my,7,'#dfe6ee');
+  if(q>.12){LN(g,mx,my,lerp(mx,cx,.3),lerp(my,cy,.3),'#ffd23f',3);TX(g,'Wahi gravity!',180,205,'#ffd23f',14)}}
+ fadeX(g,p,.5,.04)},
+relativity(g,p){const cx=180,cy=110,w=ez(ph(p,.05,.35));
+ const wp=(x,y)=>{const dx=x-cx,dy=y-cy,d2=dx*dx+dy*dy,s=w*Math.min(.6,3500/(d2+3000));return[x-dx*s,y-dy*s]};
+ g.strokeStyle='#5c6bc0';g.lineWidth=1;
+ for(let i=0;i<=12;i++){g.beginPath();for(let j=0;j<=24;j++){const q=wp(i*30,j*220/24);j?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}g.stroke()}
+ for(let j=0;j<=8;j++){g.beginPath();for(let i=0;i<=48;i++){const q=wp(i*7.5,j*27.5);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}g.stroke()}
+ CI(g,cx,cy,14,'#ffb300');
+ if(p>.35){const a=(p-.35)*9;CI(g,cx+Math.cos(a)*72,cy+Math.sin(a)*40,5,'#fff')}
+ if(p>.72)TX(g,'E = mc²',290,36,'#ffd23f',24)},
+telescope(g,p){
+ const s=ez(ph(p,0,.2));g.save();g.translate(-90*(1-s),0);
+ g.save();g.translate(70,170);g.rotate(-.55);RC(g,0,-12,110,24,'#c9a227',4);RC(g,70,-16,45,32,'#8d6e1e',4);RC(g,-14,-9,16,18,'#6d4c41',3);g.restore();
+ LN(g,70,170,48,208,'#795548',5);LN(g,70,170,96,208,'#795548',5);LN(g,70,170,70,208,'#795548',5);g.restore();
+ const v=ph(p,.2,.4);
+ if(v>0){g.save();g.globalAlpha=v;g.beginPath();g.arc(255,105,85,0,6.2832);g.fillStyle='#050816';g.fill();g.clip();
+  for(let i=0;i<20;i++)CI(g,170+hsh(i)*170,20+hsh(i+9)*170,.9,'#fff');
+  CI(g,255,105,22,'#e0b080');[-10,-3,5,12].forEach(i=>{const w=Math.sqrt(Math.max(0,484-i*i));LN(g,255-w,105+i,255+w,105+i,'#b5835a',3)});
+  const M=[['Io',36,35,'#ffd7a0'],['Europa',48,17,'#e8e8f0'],['Ganymede',60,8.7,'#c8b8a0'],['Callisto',72,3.7,'#9a8a7a']];
+  M.forEach((m,i)=>{const a=p*m[2]*2,x=255+m[1]*Math.cos(a),y=105+7*Math.sin(a);CI(g,x,y,3.2,m[3]);if(p>.62)TX(g,m[0],x,y-7,'#ffffffcc',9)});
+  g.restore();g.beginPath();g.arc(255,105,85,0,6.2832);g.strokeStyle='#c9a227';g.lineWidth=4;g.stroke()}},
+induct(g,p){const mp=ph(p,.2,1),mx=95+60*(.5-.5*Math.cos(mp*Math.PI*6)),v=p<.2?0:Math.sin(mp*Math.PI*6);
+ for(let i=0;i<6;i++){g.beginPath();g.ellipse(240+i*9,100,13,32,0,0,6.2832);g.strokeStyle='#ff9f43';g.lineWidth=3;g.stroke()}
+ g.beginPath();g.moveTo(240,132);g.lineTo(240,170);g.lineTo(176,170);g.strokeStyle='#ff9f43';g.lineWidth=2;g.stroke();
+ g.beginPath();g.moveTo(285,132);g.lineTo(285,200);g.lineTo(150,200);g.lineTo(150,196);g.stroke();
+ RC(g,mx,89,34,22,'#e23d3d',3);RC(g,mx+34,89,34,22,'#3a86ff',3);TX(g,'N',mx+17,105,'#fff',13);TX(g,'S',mx+51,105,'#fff',13);
+ CI(g,150,170,26,'#1a2140','#9aa8ff',2);const an=-Math.PI/2+v*.95;LN(g,150,170,150+21*Math.cos(an),170+21*Math.sin(an),'#ffd23f',3);CI(g,150,170,3,'#fff');
+ CI(g,320,40,13,'rgba(255,220,100,'+(.1+.9*Math.abs(v))+')','#ffffff88',1.5);TX(g,'current',320,70,'#9aa8ff',11)},
+ac(g,p){
+ if(p<.55){const a=p*Math.PI*2*6;
+  RC(g,28,78,22,64,'#5c6bc0',4);RC(g,180,78,22,64,'#5c6bc0',4);
+  g.save();g.translate(115,110);g.rotate(a);RC(g,-42,-9,42,18,'#e23d3d',3);RC(g,0,-9,42,18,'#3a86ff',3);g.restore();CI(g,115,110,4,'#fff');
+  CI(g,115,40,14,'rgba(255,230,120,'+(.2+.8*Math.abs(Math.sin(a)))+')','#ffffff88',1.5);
+  LN(g,218,110,350,110,'#ffffff44',1);g.beginPath();for(let x=218;x<=350;x+=3){const y=110-38*Math.sin((x-218)*.09-a);x===218?g.moveTo(x,y):g.lineTo(x,y)}g.strokeStyle='#5eead4';g.lineWidth=2.5;g.stroke();TX(g,'AC',334,60,'#5eead4',14)}
+ else{const q=p-.55;RC(g,12,118,52,52,'#37474f',4);TX(g,'⚡',38,154,'#ffd23f',26);RC(g,78,128,30,38,'#6a38ff',4);TX(g,'↑V',93,152,'#fff',12);
+  LN(g,108,146,296,146,'#ffd23f',2);[140,190,240].forEach(x=>{LN(g,x,146,x,186,'#8d6e63',4);LN(g,x-10,152,x+10,152,'#8d6e63',3)});
+  for(let i=0;i<6;i++){const x=108+((q*3+i/6)%1)*188;CI(g,x,146,3,'#fff')}
+  const lit=ph(q,.1,.4);for(let i=0;i<4;i++){const h=40+i*14;RC(g,300+i*15,186-h,13,h,'#37474f',2);for(let j=0;j<h/12-1;j++){if(hsh(i*7+j)<lit)RC(g,303+i*15,190-h+j*12+4,7,6,'#ffd23f',1)}}}
+ fadeX(g,p,.55,.03)},
+raman(g,p){const b=ph(p,0,.2);LN(g,10,110,10+130*b,110,'#ffd23f',5);
+ CI(g,180,110,34,null,'#ffffff55',1.5);
+ for(let i=0;i<7;i++){const a=hsh(i)*6.28,r=hsh(i+9)*22;CI(g,180+Math.cos(a)*r+Math.sin(p*20+i)*1.5,110+Math.sin(a)*r*.8+Math.cos(p*17+i)*1.5,5,'#5eead4')}
+ if(p>.25){const s=ph(p,.25,.5);for(let i=0;i<10;i++){const a=i/10*6.28+.3,sh=i===2||i===7,col=sh?(i===2?'#ff5d5d':'#5dff9a'):'#ffd23f',len=(sh?.7:1)*(30+s*45);LN(g,180+Math.cos(a)*34,110+Math.sin(a)*34,180+Math.cos(a)*(34+len),110+Math.sin(a)*(34+len),col,sh?3:2)}}
+ RC(g,200,160,150,52,'#141a33',6);LN(g,208,204,342,204,'#ffffff66',1);
+ const pk=(cx,h,col)=>{g.beginPath();for(let x=cx-18;x<=cx+18;x+=2){const y=204-h*Math.exp(-Math.pow((x-cx)/5,2));x===cx-18?g.moveTo(x,y):g.lineTo(x,y)}g.strokeStyle=col;g.lineWidth=2.5;g.stroke()};
+ if(p>.5)pk(275,38*ez(ph(p,.5,.65)),'#ffd23f');if(p>.7){const k=ez(ph(p,.7,.85));pk(237,13*k,'#ff5d5d');pk(313,13*k,'#5dff9a');TX(g,'Spectrum',275,176,'#9aa8ff',11)}},
+buoy(g,p){const d=ez(ph(p,0,.35)),oy=28+d*100,lvl=95;
+ LN(g,120,0,120,oy-16,'#bbbbbb',2);CI(g,120,oy,18,'#ffc83d','#b8860b',2);
+ g.fillStyle='rgba(61,160,255,.55)';g.fillRect(55,lvl,130,100);
+ LN(g,55,80,55,195,'#cfd8dc',4);LN(g,185,80,185,195,'#cfd8dc',4);LN(g,55,195,185,195,'#cfd8dc',4);
+ const sp=ph(p,.28,.6);if(sp>0&&sp<1)for(let i=0;i<5;i++){const t=clamp(sp*1.7-i*.14,0,1);if(t>0&&t<1)CI(g,185+t*62,92+t*t*68,3,'#7cc4ff')}
+ const fill=50*ez(ph(p,.32,.65));LN(g,245,140,245,200,'#cfd8dc',3);LN(g,300,140,300,200,'#cfd8dc',3);LN(g,245,200,300,200,'#cfd8dc',3);g.fillStyle='rgba(61,160,255,.7)';g.fillRect(247,198-fill,51,fill);TX(g,'Displaced',272,215,'#9aa8ff',10);
+ if(p>.52){const a=ph(p,.52,.75);for(const x of[85,155]){LN(g,x,170,x,170-38*a,'#5dff9a',4)}TX(g,'Upthrust',120,150,'#5dff9a',12)}
+ if(p>.8)TX(g,'Eureka!',290,52,'#ffd23f',24)},
+atom(g,p){const cx=140,cy=110,un=ph(p,0,.25);
+ CI(g,cx,cy,52+Math.sin(p*30)*3,'rgba(120,255,160,'+(.08+.12*un)+')');
+ for(let i=0;i<8;i++){const a=hsh(i)*6.28,r=hsh(i+3)*11,wb=(p<.25?1.6:.8)*Math.sin(p*40+i);CI(g,cx+Math.cos(a)*r+wb,cy+Math.sin(a)*r+wb,6,i%2?'#ff5d93':'#5ea8ff')}
+ if(p>.25)for(let k=0;k<12;k++){const tt=(p*3+hsh(k))%1,ang=hsh(k+20)*6.28,dd=26+tt*120,x=cx+Math.cos(ang)*dd,y=cy+Math.sin(ang)*dd*.8,ty=k%3;g.globalAlpha=1-tt;
+  if(ty===0)CI(g,x,y,4,'#ffd23f');else if(ty===1)CI(g,x,y,2.5,'#5eead4');else{g.beginPath();for(let j=0;j<8;j++){const xx=cx+Math.cos(ang)*(dd-j*3),yy=cy+Math.sin(ang)*(dd-j*3)*.8+Math.sin(j*1.8+p*50)*2;j?g.lineTo(xx,yy):g.moveTo(xx,yy)}g.strokeStyle='#fff';g.lineWidth=1.5;g.stroke()}g.globalAlpha=1}
+ if(p>.5){RC(g,262,150,84,54,'#37474f',6);CI(g,304,170,13,'#1b2338','#9aa8ff',2);LN(g,304,170,304+9*Math.cos(p*50),170+9*Math.sin(p*50),'#ffd23f',2);TX(g,'Clicks '+Math.floor(ph(p,.5,1)*48),304,197,'#9aa8ff',11)}
+ if(p>.75)TX(g,'Radium glows!',100,205,'#7dffb0',14)},
+select(g,p){RC(g,0,26,360,168,'#4e342e');for(let i=0;i<14;i++)LN(g,i*27+8,26,i*27+14,194,'#3e2723',3);
+ for(let i=0;i<28;i++){const x=22+hsh(i+1)*316,y=44+hsh(i+40)*134,dark=i%4===0||i>=18;let a=1;
+  if(!dark){const e=.28+hsh(i)*.22;a=1-ph(p,e,e+.05)}else if(i>=18){a=ph(p,.52+hsh(i)*.2,.57+hsh(i)*.2)}
+  if(a<=0)continue;g.globalAlpha=a;g.fillStyle=dark?'#2b211e':'#f5e6c8';g.beginPath();g.ellipse(x-5,y,6,4,-.3,0,6.2832);g.ellipse(x+5,y,6,4,.3,0,6.2832);g.fill();CI(g,x,y,2.4,'#000');g.globalAlpha=1}
+ if(p>.25&&p<.6){const bx_=-30+ph(p,.25,.6)*420,by=22+Math.sin(p*30)*8;LN(g,bx_-14,by-6,bx_,by,'#fff',3);LN(g,bx_+14,by-6,bx_,by,'#fff',3)}
+ TX(g,p<.5?'Light moths are easy to see':'Dark moths survive',180,212,'#ffffffcc',12)},
+dna(g,p){const x1=30+300*ph(p,0,.3),rot=p*Math.PI*4,pts=[];
+ for(let xx=30;xx<=x1;xx+=6){const th=(xx-30)*.055+rot;pts.push([xx,110+40*Math.sin(th),110-40*Math.sin(th),Math.cos(th)])}
+ const B=[['A','T','#ff5d5d','#ffd23f'],['T','A','#ffd23f','#ff5d5d'],['G','C','#5dff9a','#5ea8ff'],['C','G','#5ea8ff','#5dff9a']];
+ pts.forEach((q,i)=>{if(i%2)return;const b=B[(i/2)%4],m=(q[1]+q[2])/2;LN(g,q[0],q[1],q[0],m,b[2],3);LN(g,q[0],m,q[0],q[2],b[3],3);if(p>.55&&(i/2)%3===0)TX(g,b[0],q[0],Math.min(q[1],q[2])-8,b[2],12)});
+ pts.forEach(q=>{CI(g,q[0],q[1],4+1.5*q[3],'#5ea8ff');CI(g,q[0],q[2],4-1.5*q[3],'#ff5d93')})},
+petri(g,p){const cx=180,cy=112,R=88,gp=ph(p,0,.25),mold=ph(p,.25,.4),clr=ez(ph(p,.35,.8)),mc=[228,86];
+ CI(g,cx,cy,R+6,'#cfd8dc');CI(g,cx,cy,R,'#f3e3a2');
+ for(let i=0;i<70;i++){const a=hsh(i)*6.28,r=Math.sqrt(hsh(i+70))*(R-8),x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;if(Math.hypot(x-mc[0],y-mc[1])<clr*62)continue;CI(g,x,y,1+3.5*gp*(.6+hsh(i+5)*.4),'#e6a65d')}
+ if(clr>.05){g.save();g.beginPath();g.arc(cx,cy,R,0,6.2832);g.clip();CI(g,mc[0],mc[1],clr*62,null,'#ffffffaa',2);g.restore()}
+ if(mold>0){CI(g,mc[0],mc[1],9*mold,'#4caf50');for(let i=0;i<8;i++)CI(g,mc[0]+Math.cos(i*.8)*10*mold,mc[1]+Math.sin(i*.8)*10*mold,4*mold,'#66bb6a')}
+ if(p>.8)TX(g,'Penicillin',70,205,'#5eead4',15)},
+vacc(g,p){RC(g,6,150,150,44,'#f2c9a0',22);
+ const dy=-30*(1-ez(ph(p,0,.15)));RC(g,80,60+dy,20,50,'#cfd8dc',3);RC(g,82,80+dy,16,28,'#7be0a0',2);LN(g,90,40+dy,90,60+dy,'#90a4ae',4);RC(g,80,36+dy,20,5,'#90a4ae',2);LN(g,90,110+dy,90,150,'#eceff1',2);
+ const f=ph(p,.1,.3);if(f>0&&f<1)for(let i=0;i<5;i++){const t=clamp(f*1.4-i*.1,0,1);CI(g,lerp(90,200,t),lerp(150,110,t)-Math.sin(t*3.14)*30,3,'#7be0a0')}
+ if(p>.2){CI(g,205,110,30,'#e8f0ff','#9aa8ff',2);CI(g,209,108,11,'#7e57c2');
+  const n=Math.floor(ph(p,.25,.5)*10);for(let i=0;i<n;i++){const a=i*.63+p*3;Yab(g,205+Math.cos(a)*46,110+Math.sin(a)*46,'#5dff9a')}}
+ if(p>.5){const t=ph(p,.5,.72),vx=360-t*100,al=1-ph(p,.82,.96);g.globalAlpha=al;for(let k=0;k<2;k++){const x=vx+k*26,y=70+k*60;CI(g,x,y,9,'#ff5d5d');for(let i=0;i<8;i++){const a=i*.785;LN(g,x+Math.cos(a)*9,y+Math.sin(a)*9,x+Math.cos(a)*14,y+Math.sin(a)*14,'#ff5d5d',2)}if(p>.74)for(let i=0;i<4;i++)Yab(g,x+Math.cos(i*1.57)*17,y+Math.sin(i*1.57)*17,'#5dff9a')}g.globalAlpha=1}
+ if(p>.88)TX(g,'Immune ✔',290,200,'#5dff9a',16)},
+bulb(g,p){const on=ph(p,.3,.5),h=ph(p,.5,.75);
+ g.strokeStyle='#8d99ae';g.lineWidth=3;g.beginPath();g.rect(60,70,240,110);g.stroke();
+ RC(g,50,105,20,40,'#37474f',3);TX(g,'+',60,121,'#ffd23f',14);TX(g,'−',60,140,'#fff',14);
+ if(on>0)LN(g,150,180,205,180,'#ffd23f',4);else LN(g,150,180,195,158,'#8d99ae',4);
+ const gl=g.createRadialGradient(180,62,0,180,62,90);gl.addColorStop(0,'rgba(255,214,92,'+(.55*h)+')');gl.addColorStop(1,'rgba(255,214,92,0)');g.fillStyle=gl;g.fillRect(80,0,200,150);
+ CI(g,180,62,34,'rgba(255,255,255,.12)','#cfd8dc',2);RC(g,168,92,24,14,'#90a4ae',2);
+ const k=on*h,col='rgb('+Math.round(68+187*k)+','+Math.round(68+136*k)+','+Math.round(68+9*k)+')';g.beginPath();g.moveTo(170,92);for(let i=0;i<6;i++)g.lineTo(172+i*3.2,i%2?66:80);g.lineTo(190,92);g.strokeStyle=col;g.lineWidth=2.5;g.stroke();
+ if(p>.3){for(let i=0;i<10;i++){let u=((p*2+i/10)%1)*700,x,y;if(u<240){x=60+u;y=70}else if(u<350){x=300;y=70+u-240}else if(u<590){x=300-(u-350);y=180}else{x=60;y=180-(u-590)}CI(g,x,y,3,'#5eead4')}}
+ if(p<.3){const N=['Cotton','Paper','Metal','Carbon','Bamboo'],i=Math.min(4,Math.floor(ph(p,0,.25)*5));TX(g,N[i]+(i<4?'  ✗':'  ✓'),180,208,i<4?'#ff8a8a':'#5dff9a',15)}},
+phone(g,p){CI(g,48,95,18,'#f2c9a0');RC(g,32,115,32,45,'#6a38ff',6);
+ for(let i=0;i<3;i++){const r=((p*3+i/3)%1)*40;g.globalAlpha=(p<.5?1:.25)*(1-r/40);g.beginPath();g.arc(64,98,10+r,-.9,.9);g.strokeStyle='#5eead4';g.lineWidth=2;g.stroke()}g.globalAlpha=1;
+ RC(g,100+(p>.25&&p<.6?Math.sin(p*160)*1.5:0),82,10,34,'#cfd8dc',3);LN(g,112,100,248,100,'#ffffff44',2);
+ const fr=112+136*ph(p,.3,.65);if(p>.28){g.beginPath();for(let x=112;x<=fr;x+=2){const y=100+Math.sin(x*.28-p*60)*14*Math.min(1,(x-112)/20);x===112?g.moveTo(x,y):g.lineTo(x,y)}g.strokeStyle='#ffd23f';g.lineWidth=2.5;g.stroke()}
+ RC(g,250+(p>.65?Math.sin(p*160)*1.5:0),82,10,34,'#cfd8dc',3);
+ if(p>.65)for(let i=0;i<3;i++){const r=((p*3+i/3)%1)*36;g.globalAlpha=1-r/36;g.beginPath();g.arc(262,99,8+r,-.9,.9);g.strokeStyle='#5eead4';g.lineWidth=2;g.stroke()}g.globalAlpha=1;
+ CI(g,322,95,18,'#f2c9a0');RC(g,306,115,32,45,'#e23d7a',6)},
+steam(g,p){const a=p*Math.PI*2*5;
+ RC(g,15,115,80,60,'#8d6e63',10);RC(g,15,172,80,10,'#37474f',2);for(let i=0;i<3;i++){const fl=Math.abs(Math.sin(p*40+i*2));g.fillStyle='#ff9f43';g.beginPath();g.moveTo(26+i*20,184);g.lineTo(36+i*20,184-10-fl*10);g.lineTo(46+i*20,184);g.fill()}
+ LN(g,95,135,126,135,'#b0bec5',6);RC(g,125,115,112,40,'#78909c',4);
+ const cx=305,cy=135,r=26,pinx=cx+Math.cos(a)*r,piny=cy+Math.sin(a)*r,pxe=pinx-Math.sqrt(95*95-(piny-135)*(piny-135));
+ RC(g,pxe-14,118,14,34,'#37474f',2);LN(g,pxe,135,pinx,piny,'#cfd8dc',4);
+ CI(g,cx,cy,38,null,'#9aa8ff',5);for(let i=0;i<4;i++)LN(g,cx,cy,cx+Math.cos(a+i*1.57)*38,cy+Math.sin(a+i*1.57)*38,'#9aa8ff',2);CI(g,pinx,piny,4,'#ffd23f');
+ for(let k=0;k<5;k++){const t=(p*4+k/5)%1;CI(g,106+k*3,126-t*50,4+t*6,'rgba(255,255,255,'+(.6*(1-t))+')')}
+ if(p>.7){RC(g,150,168,76,34,'rgba(74,163,255,.35)',6);TX(g,'Condenser',188,189,'#bfe0ff',11)}},
+plane(g,p){
+ if(p<.5){const q=p/.5;g.lineWidth=2;g.setLineDash([8,10]);g.lineDashOffset=-p*500;
+  for(let i=0;i<7;i++){const y0=62+i*17,up=y0<115,k=1-Math.min(1,Math.abs(y0-110)/70);g.beginPath();for(let xx=10;xx<=350;xx+=6){const yy=y0-(up?22:-8)*k*Math.exp(-Math.pow((xx-185)/55,2));xx===10?g.moveTo(xx,yy):g.lineTo(xx,yy)}g.strokeStyle=up?'#7ee0ff':'#6aa9c9';g.stroke()}
+  g.setLineDash([]);g.fillStyle='#ffd23f';g.beginPath();g.moveTo(130,118);g.bezierCurveTo(150,92,210,92,240,115);g.bezierCurveTo(210,122,160,124,130,118);g.fill();
+  if(q>.5){const a=ph(q,.5,.9);LN(g,185,95,185,95-45*a,'#5dff9a',4);TX(g,'Lift',215,60,'#5dff9a',15,'left')}
+  TX(g,'Air is fast above, slow below',180,208,'#ffffffcc',12)}
+ else{const q=ph(p,.5,1);for(let i=0;i<4;i++){const cx_=((i*130-q*220)%520+520)%520-80;CI(g,cx_,40+i*18,16,'#ffffff22');CI(g,cx_+18,44+i*18,12,'#ffffff22')}
+  RC(g,0,190,360,30,'#c8a76a');LN(g,0,190,360,190,'#8d6e3c',2);
+  const x=50+q*250,y=172-ez(ph(q,.2,1))*80;g.save();g.translate(x,y);g.rotate(-ez(ph(q,.2,.5))*.15);
+  RC(g,-36,-12,72,5,'#ffd23f',2);RC(g,-36,4,72,5,'#ffd23f',2);LN(g,-20,-8,-20,6,'#8d6e3c',2);LN(g,20,-8,20,6,'#8d6e3c',2);RC(g,-26,-2,52,7,'#b0bec5',3);
+  g.save();g.translate(30,2);g.scale(1,Math.sin(p*80));LN(g,0,-12,0,12,'#ffffffaa',3);g.restore();g.restore();
+  if(q>.7)TX(g,'Pehli udaan: lagbhag 12 second',180,28,'#ffd23f',14)}},
+press(g,p){RC(g,50,170,260,20,'#455a64',3);const L='GUTENBERG'.split(''),rx=50+ph(p,.25,.4)*260;
+ L.forEach((c,i)=>{const s=ez(ph(p,i*.02,i*.02+.08)),y=148-(1-s)*90,inked=p>.25&&rx>56+i*28;RC(g,56+i*28,y,24,22,inked?'#1b1b1b':'#b0bec5',3);TX(g,c,68+i*28,y+16,inked?'#9aa8b0':'#263238',14)});
+ if(p>.25&&p<.45)RC(g,rx-10,140,20,10,'#6a38ff',5);
+ const pr=ph(p,.45,.55)-ph(p,.6,.7);if(p>.43&&p<.72){const py=30+88*pr;LN(g,180,0,180,py,'#8d6e63',6);RC(g,40,py,280,22,'#8d6e63',4)}
+ if(p>.7){const rise=ez(ph(p,.7,.85)),py=130-rise*95;RC(g,100,py,160,84,'#fffdf5',3);TX(g,'GUTENBERG',180,py+34,'#111',17);LN(g,116,py+50,244,py+50,'#99999966',2);LN(g,116,py+62,230,py+62,'#99999966',2)}
+ if(p>.88){RC(g,18,56,64,70,'#fffdf5',3);LN(g,26,76,74,76,'#99999988',2);LN(g,26,88,70,88,'#99999988',2);RC(g,278,56,64,70,'#fffdf5',3);LN(g,286,76,334,76,'#99999988',2);LN(g,286,88,330,88,'#99999988',2)}},
+tape(g,p){const N=12,pos=Math.min(N-1,Math.floor(p*N)),cw=28,x0=(360-N*cw)/2,init=[1,0,1,1,0,1,0,0,1,1,0,1];
+ for(let i=0;i<N;i++){const fl=i<pos,v=fl?1-init[i]:init[i];RC(g,x0+i*cw,120,cw-3,30,i===pos?'#2b3a67':'#1a2140',4);TX(g,String(v),x0+i*cw+12,141,fl?'#5eead4':'#fff',16)}
+ const hx=x0+pos*cw+12;g.fillStyle='#e23d7a';g.beginPath();g.moveTo(hx,116);g.lineTo(hx-9,98);g.lineTo(hx+9,98);g.fill();RC(g,hx-22,72,44,26,'#e23d7a',6);TX(g,'HEAD',hx,89,'#fff',11);
+ RC(g,20,176,170,32,'#1a2140',6);TX(g,'Padho → Badlo → Aage',105,197,'#9aa8ff',12);
+ if(p>.75){RC(g,262,168,70,40,'#2b3a67',4);RC(g,268,174,58,26,'#0f1120',2);TX(g,'0 1 0 1',297,192,'#5eead4',11)}},
+web(g,p){const N=12,np=[];for(let i=0;i<N;i++)np.push([40+hsh(i+1)*280,30+hsh(i+30)*140]);np[0]=[180,95];
+ const vis=Math.floor(1+ph(p,0,.5)*(N-1));
+ for(let i=1;i<vis;i++){let b=0,bd=1e9;for(let j=0;j<i;j++){const d=Math.hypot(np[i][0]-np[j][0],np[i][1]-np[j][1]);if(d<bd){bd=d;b=j}}
+  LN(g,np[i][0],np[i][1],np[b][0],np[b][1],'rgba(94,168,255,.55)',1.5);
+  if(p>.5){const t=(p*2+i*.17)%1;CI(g,np[b][0]+(np[i][0]-np[b][0])*t,np[b][1]+(np[i][1]-np[b][1])*t,2.6,'#ffd23f')}}
+ for(let i=0;i<vis;i++)CI(g,np[i][0],np[i][1],i===0?11:6,i===0?'#e23d7a':'#5eead4');
+ if(p<.3)TX(g,'info.cern.ch',180,125,'#fff',13);
+ if(p>.5){RC(g,50,184,260,24,'#1a2140',12);TX(g,'https://www.example.org/page',180,201,'#9aa8ff',12)}},
+pythag(g,p){const A=[120,145],B=[192,145],C=[120,91],tk=ez(ph(p,0,.2));
+ g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(lerp(A[0],B[0],tk),A[1]);g.lineTo(A[0],lerp(A[1],C[1],tk));g.closePath();g.fillStyle='rgba(255,255,255,.14)';g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+ const kb=ez(ph(p,.2,.35)),ka=ez(ph(p,.3,.45)),kc=ez(ph(p,.45,.6));
+ if(kb>0)sq(g,A[0],A[1],0,4,'#5ea8ff',kb);if(ka>0)sq(g,C[0],C[1],Math.PI/2,3,'#ff9f43',ka);if(kc>0)sq(g,B[0],B[1],Math.atan2(C[1]-B[1],C[0]-B[0]),5,'#3fbf7f',kc);
+ if(kb>.98)TX(g,'16',156,185,'#fff',16);if(ka>.98)TX(g,'9',93,122,'#fff',16);if(kc>.98)TX(g,'25',183,86,'#fff',18);
+ TX(g,'3, 4, 5',100,208,'#9aa8ff',11);
+ if(p>.75){TX(g,'9 + 16 = 25',290,150,'#ffd23f',20);TX(g,'a² + b² = c²',290,176,'#9aa8ff',14)}},
+earth(g,p){
+ if(p<.7){const cx=205,cy=112,rot=p*Math.PI*2*2.2;
+  CI(g,28,110,20,'#ffd23f');for(let i=0;i<5;i++)LN(g,55,82+i*14,140,82+i*14,'rgba(255,210,63,.35)',2);
+  CI(g,cx,cy,62,'#12306b');g.save();g.beginPath();g.arc(cx,cy,62,0,6.2832);g.clip();g.fillStyle='#2b7bd9';g.fillRect(cx-62,cy-62,62,124);
+  [[38,0,12],[44,1.6,9],[30,3.1,10],[46,4.4,8]].forEach(b=>{const a=b[1]-rot,x=cx+b[0]*Math.cos(a),y=cy+b[0]*Math.sin(a);CI(g,x,y,b[2],x<cx?'#3ba55c':'#1d5a33')});g.restore();
+  const pa=-rot+.5,px=cx+44*Math.cos(pa),py=cy+44*Math.sin(pa);CI(g,px,py,5,'#ff5d5d','#fff',1.5);TX(g,px<cx?'Din':'Raat',px,py-10,'#fff',12);
+  TX(g,'Sun',28,150,'#ffd23f',11);TX(g,'The Earth is spinning',270,206,'#ffffffcc',12)}
+ else{const q=p-.7,cx=110,cy=110;CI(g,cx,cy,52,null,'#5eead4',3);LN(g,cx-52,cy,cx+52,cy,'#ffd23f',2);const a=q*20;CI(g,cx+52*Math.cos(a),cy+52*Math.sin(a),4,'#fff');
+  TX(g,'Vyas = 20000',cx,cy-8,'#ffd23f',12);TX(g,'Paridhi = 62832',230,70,'#fff',14,'left');TX(g,'62832 ÷ 20000',230,110,'#fff',14,'left');if(q>.12)TX(g,'π ≈ 3.1416',230,150,'#5dff9a',22,'left')}
+ fadeX(g,p,.7,.04)},
+place(g,p){const st=p<.25?0:p<.5?1:p<.75?2:3,names=['Sau','Dahai','Ikai'];
+ for(let i=0;i<3;i++){RC(g,50+i*88,40,80,88,'#1a2140',8);TX(g,names[i],90+i*88,34,'#9aa8ff',13)}
+ const dig=['5','50','500'],si=Math.min(st,2),cur=dig[si],prev=si>0?dig[si-1]:'',q=ez(ph(p,si*.25,si*.25+.1));
+ for(let k=0;k<cur.length;k++){const col=3-cur.length+k,pc=k<prev.length?3-prev.length+k:col,xx=90+88*lerp(pc,col,q),sc=k<prev.length?1:q;TX(g,cur[k],xx,108,cur[k]==='0'?'#5eead4':'#fff',Math.round(56*Math.max(.01,sc)))}
+ if(st>=3){const R=['a + 0 = a','a − 0 = a','a × 0 = 0'];R.forEach((r,i)=>{const t=ph(p,.75+i*.06,.82+i*.06);g.globalAlpha=t;TX(g,r,180,162+i*24,'#ffd23f',17);g.globalAlpha=1})}
+ else TX(g,st===0?'Sirf 5':st===1?'0 ne jagah bhari: 50':'Do shunya: 500',180,170,'#ffffffcc',14)},
+taxi(g,p){const r1=ph(p,0,.2),r2=ph(p,.25,.45);
+ g.globalAlpha=r1;cube(g,24,92,5,'#ff9f43');TX(g,'+',54,112,'#fff',20);cube(g,70,70,40,'#5ea8ff');TX(g,'1³ + 12³',210,70,'#fff',17,'left');TX(g,'= 1 + 1728',210,92,'#9aa8ff',14,'left');g.globalAlpha=1;
+ g.globalAlpha=r2;cube(g,24,164,30,'#ff9f43');TX(g,'+',70,186,'#fff',20);cube(g,92,158,34,'#5ea8ff');TX(g,'9³ + 10³',210,160,'#fff',17,'left');TX(g,'= 729 + 1000',210,182,'#9aa8ff',14,'left');g.globalAlpha=1;
+ if(p>.5){const t=ez(ph(p,.5,.62));TX(g,'1729',280,122,'#ffd23f',Math.round(30*t)+1);CI(g,280,114,38*t,null,'rgba(255,210,63,.5)',2)}
+ if(p>.75)TX(g,'Both sums = 1729',180,212,'#5dff9a',13)},
+rocket(g,p){
+ if(p<.72){RC(g,0,190,360,30,'#37474f');RC(g,140,184,80,10,'#607d8b',2);
+  if(p<.25)TX(g,String(3-Math.floor(p/.25*3)),310,60,'#ffd23f',44);
+  const lift=ez(ph(p,.25,.7)),ry=-lift*150,sep=ph(p,.5,.72);
+  if(p>.25)for(let i=0;i<10;i++){const t=(p*3+i/10)%1;CI(g,180+(hsh(i)-.5)*70*lift,184-t*20,8+t*14,'rgba(255,255,255,'+(.4*(1-t))+')')}
+  g.save();g.translate(180,ry);
+  if(sep<=0){RC(g,-14,120,28,60,'#eceff1',4);g.fillStyle='#e23d7a';g.beginPath();g.moveTo(-14,170);g.lineTo(-26,188);g.lineTo(-14,188);g.fill();g.beginPath();g.moveTo(14,170);g.lineTo(26,188);g.lineTo(14,188);g.fill();
+   if(p>.25){g.fillStyle='#ff9f43';g.beginPath();g.moveTo(-10,182);g.lineTo(0,182+22+Math.random()*10);g.lineTo(10,182);g.fill()}}
+  else{g.save();g.translate(sep*30,sep*sep*160);g.rotate(sep*.9);RC(g,-14,120,28,60,'#eceff1',4);g.restore();if(sep>.1){g.fillStyle='#ff9f43';g.beginPath();g.moveTo(-8,120);g.lineTo(0,120+16+Math.random()*8);g.lineTo(8,120);g.fill()}}
+  RC(g,-12,80,24,40,'#cfd8dc',4);g.fillStyle='#e23d3d';g.beginPath();g.moveTo(-12,80);g.lineTo(0,52);g.lineTo(12,80);g.fill();g.restore()}
+ else{const q=ph(p,.72,1),cx=180,cy=330;for(let i=0;i<30;i++)CI(g,hsh(i)*360,hsh(i+50)*170,1,'#fff');
+  CI(g,cx,cy,170,'#2b7bd9');CI(g,cx-50,cy-162,20,'#3ba55c');CI(g,cx+60,cy-160,16,'#3ba55c');
+  g.setLineDash([4,6]);g.beginPath();g.ellipse(cx,cy,210,200,0,0,6.2832);g.strokeStyle='#ffffff66';g.lineWidth=1.5;g.stroke();g.setLineDash([]);
+  const a=-2.35+q*1.6,x=cx+210*Math.cos(a),y=cy+200*Math.sin(a);RC(g,x-14,y-2,9,4,'#5ea8ff',1);RC(g,x+5,y-2,9,4,'#5ea8ff',1);CI(g,x,y,4.5,'#ffd23f');TX(g,'Satellite in orbit',180,30,'#fff',14)}
+ fadeX(g,p,.72,.04)}
+};
+
+// ================= THE LEGENDS: DATA =================
+const LEG=[{"id":"pythagoras","n":"Pythagoras","em":"📐","w":"c. 530 BCE","y":-530,"c":"Greece 🇬🇷","r":"c. 570 to c. 495 BCE","tags":["Maths"],"h":"The famous right-triangle theorem","k":"triangle theorem a2 b2 c2 geometry","sc":"pythag","t":"In a right-angled triangle, the square of the longest side (the hypotenuse) equals the sum of the squares of the other two sides: a² + b² = c². The relationship was known earlier in Babylon and in India (Baudhayana's Sulba Sutras), and the Pythagorean school is credited with a proof.","u":"Maps and navigation, construction, and computer graphics all use it to work out the distance between two points.","f":"Builders still use a 3-4-5 triangle to make a perfect right angle (90 degrees).","st":["Take a right-angled triangle with sides 3, 4 and 5.","Build a square on each side.","The small squares hold 16 and 9 tiles, the big one holds 25.","9 + 16 = 25: the big square matches exactly!"]},{"id":"archimedes","n":"Archimedes","em":"🛁","w":"c. 250 BCE","y":-250,"c":"Syracuse (Greece) 🇬🇷","r":"c. 287 to c. 212 BCE","tags":["Science","Maths"],"h":"The law of buoyancy, \"Eureka!\"","k":"buoyancy eureka lever water crown","sc":"buoy","t":"Archimedes explained buoyancy: an object in water pushes aside as much water as its submerged part takes up, and the water pushes back up with a force equal to the weight of that displaced water. The story says the idea came to him in the bath and he shouted \"Eureka!\"","u":"Ships, submarines, hot-air balloons and hydrometers all work on this principle.","f":"About levers he is said to have claimed: \"Give me a place to stand and I will move the Earth.\"","st":["A heavy object is lowered into a tub of water.","As much water spills out as the object takes up.","The water pushes the object upward (upthrust).","Eureka! Displaced water lets us measure the volume of an object."]},{"id":"aryabhata","n":"Aryabhata","em":"🌍","w":"499 CE","y":499,"c":"India 🇮🇳","r":"476 to c. 550 CE","tags":["Maths","Science","India 🇮🇳"],"h":"The Earth spins, π ≈ 3.1416","k":"earth rotation pi aryabhatiya astronomy eclipse satellite","sc":"earth","t":"Aryabhata wrote the Aryabhatiya in 499 CE. He explained that the Earth spins on its axis (which gives day and night), that eclipses are caused by shadows, and he gave π as about 3.1416. India's first satellite was named after him.","u":"His sine table influenced trigonometry, astronomy and calendar calculations.","f":"ISRO's first satellite, \"Aryabhata\", was launched on 19 April 1975.","st":["Sunlight always lights up one half of the Earth.","The Earth spins on its axis: where there is light, it is day.","One full turn means one day and night.","The ratio of a circle's circumference to its diameter: π ≈ 3.1416."]},{"id":"brahmagupta","n":"Brahmagupta","em":"0️⃣","w":"628 CE","y":628,"c":"India 🇮🇳","r":"c. 598 to c. 668 CE","tags":["Maths","India 🇮🇳"],"h":"The rules of arithmetic with zero (0)","k":"zero shunya place value brahmasphutasiddhanta negative","sc":"place","t":"In 628 CE, in the Brahmasphutasiddhanta, Brahmagupta treated zero as a number and wrote rules for adding, subtracting and multiplying with it, and for negative numbers too. Together with place value, zero made writing big numbers far easier.","u":"Computer binary (0 and 1), algebra and calculus are all incomplete without zero.","f":"He wrote 0 ÷ 0 = 0, which we now consider wrong: dividing by zero is still undefined today.","st":["Write just \"5\": it sits in the ones place.","Zero fills the ones place: 5 moves to the tens place, so it becomes 50.","Two more zeros: 500! Zero holds each place in position.","Rules: a + 0 = a, a − 0 = a, a × 0 = 0."]},{"id":"gutenberg","n":"Johannes Gutenberg","em":"📖","w":"c. 1450","y":1450,"c":"Germany 🇩🇪","r":"c. 1400 to 1468","tags":["Inventions"],"h":"The movable-type printing press","k":"printing press book bible type","sc":"press","t":"Around 1450 Gutenberg started a printing press with metal movable type in Europe. Each letter was a separate block; blocks were set together to make a page that could be printed again and again. His Gutenberg Bible is famous.","u":"Books became cheaper and education spread. The whole business of newspapers and books stands on this idea.","f":"Movable type existed earlier in China (Bi Sheng) and Korea, but Gutenberg's press brought change to Europe.","st":["Each letter is cast as its own metal block.","The letters are arranged in a tray to form a page.","Ink is applied and the press is pushed down: print on paper.","One tray gives hundreds of copies: knowledge spreads fast."]},{"id":"galileo","n":"Galileo Galilei","em":"🔭","w":"1610","y":1610,"c":"Italy 🇮🇹","r":"1564 to 1642","tags":["Science"],"h":"Found the moons of Jupiter with a telescope","k":"telescope jupiter moons astronomy heliocentric","sc":"telescope","t":"In 1609-10 Galileo improved the telescope and turned it to the sky. He saw four moons moving around Jupiter, which showed that not everything goes around the Earth.","u":"Today's great telescopes, such as Hubble and James Webb, grew out of this idea.","f":"Galileo did not invent the telescope, it appeared earlier in the Netherlands. He improved it and used it to study the sky.","st":["Galileo built a telescope and pointed it at the sky.","He saw small bright dots near Jupiter.","Night after night their positions changed: they are moons of Jupiter!","Io, Europa, Ganymede, Callisto: the Galilean moons."]},{"id":"newton","n":"Isaac Newton","em":"🍎","w":"1687","y":1687,"c":"England 🇬🇧","r":"1643 to 1727","tags":["Science","Maths"],"h":"Gravity and the laws of motion","k":"gravity apple motion laws principia calculus force","sc":"gravity","t":"Newton explained that the force that pulls an apple down is the same force that keeps the Moon circling the Earth. In his 1687 book Principia he gave the three laws of motion and the law of universal gravitation.","u":"Rockets, satellites, bridges and buildings are all designed using Newton's laws.","f":"The story of the apple hitting his head is famous. The truth is that Newton watched an apple fall and began to think deeply.","st":["An apple breaks away from a branch.","The apple falls straight down: the Earth is pulling it.","Newton wondered: does the same force reach as far as the Moon?","Yes! The same gravity keeps the Moon in orbit."]},{"id":"watt","n":"James Watt","em":"🚂","w":"1769","y":1769,"c":"Scotland 🏴󠁧󠁢󠁳󠁣󠁴󠁿","r":"1736 to 1819","tags":["Inventions"],"h":"A better steam engine","k":"steam engine industrial revolution horsepower watt","sc":"steam","t":"James Watt added a separate condenser to the old steam engine so it could run on much less coal (patent of 1769). His engines powered factories, railways and ships, and sped up the Industrial Revolution.","u":"The power unit \"watt\" and the idea of \"horsepower\" come from him.","f":"Watt himself brought in the word horsepower to compare an engine's strength with horses.","st":["Water in the boiler boils into steam.","The steam pushes the piston.","The piston moving back and forth turns the wheel through a crank.","A separate condenser cools the steam, so less heat is wasted."]},{"id":"jenner","n":"Edward Jenner","em":"💉","w":"1796","y":1796,"c":"England 🇬🇧","r":"1749 to 1823","tags":["Medicine"],"h":"The first vaccine (smallpox)","k":"vaccine smallpox cowpox immunity","sc":"vacc","t":"In 1796 Edward Jenner noticed that people who had caught cowpox (a mild disease of cows) did not get smallpox. He gave a person material from cowpox, making the first vaccine. The word \"vaccine\" comes from the Latin \"vacca\", meaning cow.","u":"Smallpox was declared gone from the world in 1980, and vaccines were made for diseases like polio, measles and COVID.","f":"Smallpox is the first human disease to be wiped out across the whole world.","st":["A small dose of a weaker virus (cowpox) is given.","The body's white blood cells recognise it and make antibodies.","Later the real, dangerous virus arrives.","The antibodies catch it at once and destroy it: the body \"remembers\"."]},{"id":"faraday","n":"Michael Faraday","em":"🧲","w":"1831","y":1831,"c":"England 🇬🇧","r":"1791 to 1867","tags":["Science","Inventions"],"h":"Electricity from a magnet: electromagnetic induction","k":"induction magnet coil generator transformer electricity","sc":"induct","t":"In 1831 Faraday showed that when a magnet moves near a coil, electric current is produced in the wire. This is called electromagnetic induction.","u":"Power-plant generators, transformers and wireless charging all work on this principle.","f":"Faraday came from a poor family, became a bookbinder's apprentice and taught himself to become a great scientist.","st":["A meter is connected to a coil; the magnet is still: current is zero.","Move the magnet in and out...","The needle moves: current is being made in the wire!","The faster you move it, the more electricity. This is the secret of the generator."]},{"id":"darwin","n":"Charles Darwin","em":"🐢","w":"1859","y":1859,"c":"England 🇬🇧","r":"1809 to 1882","tags":["Science"],"h":"Natural selection and evolution","k":"evolution natural selection origin of species beagle finch","sc":"select","t":"In his 1859 book On the Origin of Species, Darwin set out natural selection: living things that fit their surroundings better survive longer and pass their useful traits on. This explained how species change slowly over time.","u":"Evolution is the base for understanding antibiotic resistance, new crops and medical genetics.","f":"Alfred Russel Wallace came up with a very similar idea at almost the same time.","st":["Light and dark moths sit on a tree trunk.","Birds spot the light moths easily and eat them.","The dark ones survive and have young.","After many generations most are dark: this is natural selection (for example, the peppered moth)."]},{"id":"bell","n":"Alexander Graham Bell","em":"☎️","w":"1876","y":1876,"c":"Scotland and USA","r":"1847 to 1922","tags":["Inventions"],"h":"The telephone","k":"telephone phone voice call communication","sc":"phone","t":"In 1876 Alexander Graham Bell received the patent for the telephone. Sound is turned into rising and falling electrical signals, sent along a wire, and turned back into sound at the other end.","u":"From landlines to mobile phones and video calls, everything rests on this idea of sending voice as a signal.","f":"Bell taught deaf children; both his mother and his wife could not hear.","st":["Speaking makes sound waves in the air.","The microphone's diaphragm vibrates.","The vibrations become electrical signals in the wire.","At the other end the receiver recreates the same sound."]},{"id":"edison","n":"Thomas Edison","em":"💡","w":"1879","y":1879,"c":"USA 🇺🇸","r":"1847 to 1931","tags":["Inventions"],"h":"The practical electric bulb","k":"bulb light filament phonograph patent menlo park","sc":"bulb","t":"In 1879 Thomas Edison's team made an electric bulb that could burn for a long time. Thousands of filament materials were tried, and a bulb with a carbonized bamboo filament burned for many hours. Edison holds over 1,000 US patents.","u":"From LED and modern bulbs to the phonograph for recorded sound and the start of the motion-picture camera.","f":"The bulb was not Edison's first idea: many people worked on it before. Edison made it practical and cheap.","st":["Thousands of materials were tried for the filament.","The switch is pressed: electrons rush along the wire.","The thin carbon filament heats up and glows.","In vacuum glass the filament does not burn up: light for a long time!"]},{"id":"tesla","n":"Nikola Tesla","em":"⚡","w":"1888","y":1888,"c":"Serbian-American","r":"1856 to 1943","tags":["Science","Inventions"],"h":"AC electricity and the induction motor","k":"ac alternating current motor transformer power grid tesla coil","sc":"ac","t":"Nikola Tesla made the AC (alternating current) motor and the multiphase AC power system practical. AC voltage can be raised with a transformer, so electricity can travel to far-away cities with less loss.","u":"Household AC power, the induction motor and many wireless experiments are Tesla's gifts.","f":"The unit of magnetic field, the \"tesla\", is named after him.","st":["A spinning magnet creates current in a coil.","Current flows one way, then the other: this is AC.","A transformer raises the voltage a great deal.","At high voltage electricity travels far with little loss."]},{"id":"curie","n":"Marie Curie","em":"☢️","w":"1898","y":1898,"c":"Poland and France","r":"1867 to 1934","tags":["Science","Medicine"],"h":"Radioactivity, polonium and radium","k":"radioactivity radium polonium nobel xray","sc":"atom","t":"Marie Curie gave us the word \"radioactivity\" and, with Pierre Curie, discovered polonium and radium. She was the first woman to win a Nobel Prize and is still the only person to win Nobel Prizes in two different sciences (Physics 1903, Chemistry 1911).","u":"Radioactivity is used in cancer radiation therapy, X-ray machines and medical imaging.","f":"Her notebooks are still radioactive and are kept in lead-lined boxes.","st":["The nucleus of some atoms is unstable.","It gives off particles and rays by itself.","A Geiger counter clicks to count these rays.","Radium glows a faint blue-green in the dark: a secret Curie uncovered."]},{"id":"wright","n":"Wright Brothers","em":"✈️","w":"Wilbur 1867-1912, Orville 1871-1948","y":1903,"c":"USA 🇺🇸","r":"Wilbur 1867-1912, Orville 1871-1948","tags":["Inventions"],"h":"The first powered flight","k":"airplane flight aeroplane lift wing kitty hawk","sc":"plane","t":"On 17 December 1903 Wilbur and Orville Wright made the first controlled, powered and sustained flight at Kitty Hawk. The first flight lasted about 12 seconds. They were bicycle makers, and they tested wing designs in a wind tunnel they built themselves.","u":"The control of every aeroplane today (roll, pitch and yaw) is based on their thinking.","f":"Of that day's four flights, the longest lasted about 59 seconds.","st":["The top of the wing is curved.","Air moves faster over the top, so the pressure there is lower.","This pressure difference gives the wing lift, pushing it up.","With an engine, propeller and controls, the first flight succeeds."]},{"id":"einstein","n":"Albert Einstein","em":"⚛️","w":"1905 and 1915","y":1905,"c":"Germany, Switzerland, USA","r":"1879 to 1955","tags":["Science"],"h":"Relativity and E = mc²","k":"relativity spacetime e=mc2 photoelectric nobel gravity waves","sc":"relativity","t":"In 1905 special relativity and in 1915 general relativity: Einstein showed that heavy objects bend space-time, and that is what feels like \"gravity\". His formula E = mc² says mass and energy are two forms of the same thing.","u":"The accurate timing of GPS, black-hole research and gravitational waves (detected in 2015) all connect to Einstein's theory.","f":"Einstein won his Nobel Prize not for relativity but for the photoelectric effect (1921).","st":["Think of space-time as a stretchy sheet.","A heavy object (like the Sun) bends the sheet.","A small object follows the curved path: that is gravity.","E = mc²: even a little mass equals a huge amount of energy."]},{"id":"ramanujan","n":"Srinivasa Ramanujan","em":"♾️","w":"1913","y":1913,"c":"India 🇮🇳","r":"1887 to 1920","tags":["Maths","India 🇮🇳"],"h":"The magician of mathematics, taxi number 1729","k":"maths number theory pi series 1729 hardy taxi","sc":"taxi","t":"Srinivasa Ramanujan became a mathematical genius without formal training. In 1913 he sent his results to G. H. Hardy at Cambridge, and Hardy invited him to England. He left about 3,900 results: infinite series, formulas for π, partitions and much more.","u":"His formulas are used in computer algorithms, cryptography and physics, and fast ways of calculating π are based on them.","f":"When Hardy called the taxi number 1729 \"boring\", Ramanujan replied that it is the smallest number that is the sum of two cubes in two different ways.","st":["Write 1729 as 1³ + 12³: that is 1 + 1728.","Now as 9³ + 10³: that is 729 + 1000.","Both sums give the same number: 1729!","The smallest number like this: Ramanujan's \"taxi number\"."]},{"id":"fleming","n":"Alexander Fleming","em":"🧫","w":"1928","y":1928,"c":"Scotland","r":"1881 to 1955","tags":["Medicine"],"h":"Penicillin, the first antibiotic","k":"penicillin antibiotic bacteria mold infection","sc":"petri","t":"In 1928 Alexander Fleming came back from holiday to find that bacteria were not growing around a mould (Penicillium) in a petri dish. This led to penicillin, the world's first successful antibiotic. Later Florey and Chain turned it into a medicine.","u":"Antibiotics made it possible to treat infections, pneumonia and infections after surgery.","f":"In 1945 Fleming, Florey and Chain shared the Nobel Prize.","st":["Colonies of bacteria are growing in the dish.","In one spot a green mould appears.","A clear ring forms around the mould: the bacteria are dying.","The medicine made from the mould's juice: penicillin."]},{"id":"raman","n":"C. V. Raman","em":"🌈","w":"1928","y":1928.5,"c":"India 🇮🇳","r":"1888 to 1970","tags":["Science","India 🇮🇳"],"h":"The Raman Effect, Physics Nobel 1930","k":"raman effect light scattering spectroscopy nobel","sc":"raman","t":"In 1928 C. V. Raman noticed that when light passes through a material, a small part of the scattered light changes its colour (wavelength). This is called the Raman Effect, and he won the Physics Nobel Prize for it in 1930.","u":"Raman spectroscopy is used to identify medicines, fake banknotes, diamonds and chemicals.","f":"Every year on 28 February India celebrates National Science Day, remembering the announcement of the Raman Effect.","st":["Light of one colour falls on a liquid or crystal.","Most of the light scatters in the same colour.","A small part hits molecules and changes colour.","New small peaks in the spectrum: every material has its own \"fingerprint\"."]},{"id":"turing","n":"Alan Turing","em":"💻","w":"1936","y":1936,"c":"England 🇬🇧","r":"1912 to 1954","tags":["Inventions","Maths"],"h":"The Turing machine and the idea of computing","k":"computer turing machine enigma ai algorithm","sc":"tape","t":"In 1936 Alan Turing described the \"Turing machine\": an imaginary machine that reads 0s and 1s on a tape, changes them and moves along to do any calculation. In World War II he also helped break the Enigma code at Bletchley Park.","u":"The idea of a \"programmable machine\" in every computer and smartphone comes from here; he also proposed a test for AI (the Turing Test).","f":"The Turing Test (1950) asks whether a machine can talk so well that a person cannot tell it from a human.","st":["A long tape has 0s and 1s written on it.","The head reads one cell.","By a rule, it turns a 0 into a 1 and a 1 into a 0.","Then one step forward: tiny steps add up to any calculation."]},{"id":"dna","n":"Watson, Crick and Rosalind Franklin","em":"🧬","w":"1953","y":1953,"c":"UK and USA","r":"DNA structure, 1953","tags":["Science","Medicine"],"h":"The DNA double helix","k":"dna double helix genes genetics xray photo 51 franklin watson crick","sc":"dna","t":"In 1953 James Watson and Francis Crick proposed the double-helix model of DNA (a twisted ladder). Rosalind Franklin's X-ray picture (Photo 51) gave the strongest evidence for this structure.","u":"DNA testing, finding genetic diseases, vaccine research and the Human Genome Project.","f":"The 1962 Nobel Prize went to Watson, Crick and Maurice Wilkins; Franklin had died in 1958.","st":["DNA is made of two long strands.","The two strands twist into a ladder (the double helix).","The \"steps\" in the middle are bases: A-T and G-C.","The order of these bases is our whole \"instruction book\"."]},{"id":"kalam","n":"A. P. J. Abdul Kalam","em":"🚀","w":"1980","y":1980,"c":"India 🇮🇳","r":"1931 to 2015","tags":["Inventions","Science","India 🇮🇳"],"h":"The Missile Man, SLV-III and the Rohini satellite","k":"rocket missile isro drdo satellite slv president wings of fire","sc":"rocket","t":"A. P. J. Abdul Kalam led the SLV-III project at ISRO, which put the Rohini satellite into orbit in 1980. Later he played a major part in missile programmes such as Agni and Prithvi at DRDO, and was called the \"Missile Man\". He was India's 11th President from 2002 to 2007.","u":"India became self-reliant in space and defence technology; his book \"Wings of Fire\" inspires millions of young people.","f":"As a boy in Rameswaram he sold newspapers to pay for his studies.","st":["The countdown begins: 3, 2, 1...","The first stage fires and the rocket rises.","When the fuel runs out, the first stage separates and falls away.","The satellite is released into orbit and circles the Earth."]},{"id":"berners","n":"Tim Berners-Lee","em":"🌐","w":"1989","y":1989,"c":"England 🇬🇧","r":"Born 1955","tags":["Inventions"],"h":"The World Wide Web","k":"www web internet html http url browser cern","sc":"web","t":"In 1989 at CERN, Tim Berners-Lee proposed the World Wide Web: connecting documents with links, giving them addresses (URLs) and showing them with HTTP and HTML. In 1993 CERN made the web technology free for everyone.","u":"Websites, online learning, shopping and social media are all gifts of the Web.","f":"The Web and the Internet are not the same thing: the Internet is the network, and the Web is a service that runs on it.","st":["The first website was made on a computer at CERN.","Pages linked to each other with hyperlinks.","Every page has an address: a URL.","With a browser anyone can open a page from anywhere: the World Wide Web!"]}];
+const LEGMAP={};LEG.forEach(l=>LEGMAP[l.id]=l);
+// ================= THE LEGENDS: UI =================
+const LF={q:'',f:'All',sort:'time'},CATS=['All','Science','Inventions','Maths','Medicine','India 🇮🇳'];
+function legList(){const q=LF.q.trim().toLowerCase();
+ let a=LEG.filter(l=>(LF.f==='All'||l.tags.indexOf(LF.f)>=0)&&(!q||(l.n+' '+l.h+' '+l.k+' '+l.c).toLowerCase().indexOf(q)>=0));
+ a=a.slice().sort(LF.sort==='time'?(x,y)=>x.y-y.y:(x,y)=>x.n.localeCompare(y.n));return a}
+function renderLegList(){const a=legList();
+ $('lf').innerHTML=CATS.map(c=>`<button class="${c===LF.f?'on':''}" data-f="${c}">${c}</button>`).join('');
+ $('lf').querySelectorAll('button').forEach(b=>b.onclick=()=>{LF.f=b.dataset.f;renderLegList()});
+ $('lsort').textContent=LF.sort==='time'?'Oldest first':'A to Z';
+ $('lcount').textContent=a.length+' legends';
+ $('lg').innerHTML=a.length?a.map(l=>`<button class="lc" data-id="${l.id}"><span class="e">${l.em}</span><b>${esc(l.n)}</b><span class="w">${esc(l.w)}</span><div class="h">${esc(l.h)}</div></button>`).join(''):'<div class="card sub" style="grid-column:1/-1">Nothing found. Try another word or category.</div>';
+ $('lg').querySelectorAll('.lc').forEach(b=>b.onclick=()=>openLegend(b.dataset.id))}
+$('lq').oninput=()=>{LF.q=$('lq').value;renderLegList()};
+$('lsort').onclick=()=>{LF.sort=LF.sort==='time'?'az':'time';renderLegList()};
+const LA={id:null,t:0,play:true,sp:1,raf:0,last:0,step:-1,cv:null,g:null,gr:null},DUR=16,reduceMo=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function openLegend(id){const L=LEGMAP[id],a=legList(),i=a.findIndex(x=>x.id===id);legPause();LA.id=id;
+ $('lList').classList.add('hide');$('lDet').classList.remove('hide');
+ $('lDet').innerHTML=`<button class="btn alt sm" id="lBack" style="margin-top:12px">← All legends</button>
+ <div class="row" style="margin-top:12px;justify-content:flex-start;gap:12px"><div class="av">${L.em}</div><div><div class="num" style="font-size:21px;line-height:1.15">${esc(L.n)}</div><div class="sub">${esc(L.c)}, ${esc(L.r)}</div><div class="sub"><b style="color:var(--v)">${esc(L.w)}</b>: ${esc(L.h)}</div></div></div>
+ <div class="lstage"><canvas id="lcv" aria-label="Animation about ${esc(L.n)}"></canvas></div>
+ <div class="lctl"><button class="btn alt sm" id="lPlay">⏸ Pause</button><button class="btn alt sm" id="lRe">↻ Replay</button><button class="btn alt sm" id="lSp">Speed 1x</button></div>
+ <div class="dots" id="lDots">${[0,1,2,3].map(s=>`<button data-s="${s}" aria-label="Step ${s+1}"></button>`).join('')}</div>
+ <div class="cap" id="lCap"></div>
+ <div class="sec"><h3>What did they do?</h3><p>${esc(L.t)}</p></div><div class="sec"><h3>Where it is used today</h3><p>${esc(L.u)}</p></div><div class="sec"><h3>Fun fact</h3><p>${esc(L.f)}</p></div>
+ <div class="row"><button class="btn alt" id="lPrev" ${i<=0?'disabled style="opacity:.4"':''}>← Previous</button><button class="btn alt" id="lNext" ${i<0||i>=a.length-1?'disabled style="opacity:.4"':''}>Next →</button></div>`;
+ $('lBack').onclick=closeLegend;$('lPrev').onclick=()=>{if(i>0)openLegend(a[i-1].id)};$('lNext').onclick=()=>{if(i<a.length-1)openLegend(a[i+1].id)};
+ $('lPlay').onclick=()=>{LA.play=!LA.play;$('lPlay').textContent=LA.play?'⏸ Pause':'▶ Play'};
+ $('lRe').onclick=()=>{LA.t=0;LA.play=true;$('lPlay').textContent='⏸ Pause'};
+ $('lSp').onclick=()=>{LA.sp=LA.sp===1?.5:LA.sp===.5?2:1;$('lSp').textContent='Speed '+LA.sp+'x'};
+ $('lDots').querySelectorAll('button').forEach(b=>b.onclick=()=>{LA.t=+b.dataset.s*DUR/4+.05;LA.step=-1});
+ const cv=$('lcv'),dpr=Math.min(2,window.devicePixelRatio||1);cv.width=360*dpr;cv.height=220*dpr;LA.cv=cv;LA.g=cv.getContext('2d');LA.g.setTransform(dpr,0,0,dpr,0,0);
+ LA.gr=LA.g.createLinearGradient(0,0,0,220);LA.gr.addColorStop(0,'#0e1226');LA.gr.addColorStop(1,'#1c2348');
+ LA.sp=1;LA.step=-1;LA.play=!reduceMo();LA.t=reduceMo()?DUR*.98:0;if(!LA.play)$('lPlay').textContent='▶ Play';
+ LA.last=performance.now();LA.raf=requestAnimationFrame(legTick);window.scrollTo(0,0)}
+function closeLegend(){legPause();LA.id=null;$('lDet').classList.add('hide');$('lList').classList.remove('hide');window.scrollTo(0,0)}
+function legPause(){cancelAnimationFrame(LA.raf);LA.raf=0}
+function legResume(){if(LA.id&&$('lcv')&&!LA.raf){LA.last=performance.now();LA.raf=requestAnimationFrame(legTick)}else if(!LA.id)renderLegList()}
+function setCap(L,s){$('lCap').innerHTML='<small>Step '+(s+1)+' / 4</small>'+esc(L.st[s]);$('lDots').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===s))}
+function legTick(n){const L=LEGMAP[LA.id];if(!L||!LA.cv||!document.body.contains(LA.cv)){LA.raf=0;return}
+ LA.raf=requestAnimationFrame(legTick);const dt=Math.min(.05,(n-LA.last)/1000);LA.last=n;if(LA.play)LA.t=(LA.t+dt*LA.sp)%DUR;
+ const p=LA.t/DUR,g=LA.g;g.fillStyle=LA.gr;g.fillRect(0,0,360,220);
+ try{SCN[L.sc](g,p)}catch(e){console.error(e)}
+ g.globalAlpha=1;g.setLineDash([]);RC(g,0,216,360*p,4,'#6a38ff');
+ const s=Math.min(3,Math.floor(p*4));if(s!==LA.step){LA.step=s;setCap(L,s)}}
+
+renderLegList();
+</script></body></html>

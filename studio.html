@@ -210,7 +210,7 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 </section>
 
 <section id="sApp" hidden>
-  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Marketplace</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
+  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Marketplace</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
     <div class="who"><span id="whoName"></span><button class="sb" id="sOut" type="button">Sign out</button></div></div>
 
   <div id="vP">
@@ -255,6 +255,22 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
       <label class="chk"><input type="checkbox" id="gPub" checked> Show in the Gallery</label>
       <div class="row"><button class="sb gold" id="gSave" type="button">Save animal</button><button class="sb" id="gReset" type="button">Clear form</button></div><p class="msg4" id="gFMsg" role="status"></p></div>
     <div class="box"><h2>Animals you added</h2><div id="gList"><p>None yet.</p></div></div>
+  </div>
+  <div id="vX" hidden>
+    <div class="box"><h2>Games</h2><p>Add your own game to the Games page by pasting its code. It appears in the list with single player and multiplayer rooms, and scores count for the rankings. Press <b>Insert starter code</b> to see a small working example with the five simple rules written inside it.</p>
+      <div id="xList"></div><div class="row" style="margin-top:12px"><button class="sb gold" id="xAdd" type="button">Add a game</button></div></div>
+    <div class="box" id="xForm" hidden><h2 id="xH">New game</h2>
+      <label class="fld">Game name<input id="xName" maxlength="40" placeholder="for example Tap Rush"></label>
+      <label class="fld">Icon (one emoji)<input id="xIcon" maxlength="4" placeholder="\uD83C\uDFAF"></label>
+      <label class="fld">Short description<input id="xDesc" maxlength="160"></label>
+      <label class="fld">How to play<textarea id="xHow" maxlength="400" style="min-height:70px"></textarea></label>
+      <label class="fld">Who can play it<select id="xModes"><option value="both">Single player and multiplayer</option><option value="single">Single player only</option></select></label>
+      <label class="fld">Time limit in multiplayer, in seconds (0 means the default of 75)<input id="xDur" type="number" min="0" max="300" value="0" inputmode="numeric"></label>
+      <label class="chk"><input type="checkbox" id="xPub" checked> Show this game on the website</label>
+      <label class="fld">Game code (one complete HTML page)<textarea id="xCode" spellcheck="false" style="min-height:300px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;white-space:pre"></textarea></label>
+      <div class="row"><button class="sb" id="xTpl" type="button">Insert starter code</button><button class="sb" id="xPrev" type="button">Preview</button><button class="sb gold" id="xSave" type="button">Save game</button><button class="sb" id="xCancel" type="button">Close</button></div>
+      <p class="msg4" id="xMsg" role="status"></p>
+      <div id="xPrevBox" hidden style="margin-top:12px"><div id="xPrevInfo" class="msg4"></div><iframe id="xFrame" sandbox="allow-scripts" title="Game preview" style="width:100%;max-width:420px;height:480px;border:1px solid var(--sx-line);border-radius:12px;background:#0b1030;display:block"></iframe></div></div>
   </div>
   <div id="vM" hidden>
     <div class="box"><h2>Header buttons</h2><p>These appear next to Home, News, Forum and the other tabs on every page. Use any link: a page of your site, or another website.</p>
@@ -387,9 +403,39 @@ $('uAgain').onclick=function(){ say('uMsg','Checking\u2026'); gate(); };
 $('uOut').onclick=$('sOut').onclick=function(){ auth.signOut(); };
 
 /* ---------- tabs ---------- */
-var TABS=[['tP','vP'],['tG','vG'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tB','vB']];
+var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tB','vB']];
 TABS.forEach(function(t,i){ $(t[0]).onclick=function(){ TABS.forEach(function(u,k){ $(u[0]).setAttribute('aria-selected',String(k===i)); $(u[1]).hidden=k!==i; }); }; });
-function loadAll(){ loadPosts(); loadMenu(); loadItems(); loadAnimals(); loadSettings(); loadAdmins(); }
+function loadAll(){ loadPosts(); loadMenu(); loadItems(); loadAnimals(); loadGames(); loadSettings(); loadAdmins(); }
+
+
+/* ---------- games added by code ---------- */
+var GAME_SDK="<script>(function(){var inited=false,init=null,started=false,cbI=null,cbS=null,cbE=null,seed=1;\nfunction mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}\nvar rng=mul(1);\nwindow.OWH={rand:function(){return rng()},seed:function(){return seed},mode:'single',multi:false,players:[],me:0,maxT:0,\n ready:function(f){cbI=f;if(inited)f(init)},onStart:function(f){cbS=f;if(started)f()},onEnd:function(f){cbE=f},\n score:function(n){parent.postMessage({owh:'score',score:n},'*')},over:function(n){parent.postMessage({owh:'over',score:n},'*')}};\nwindow.addEventListener('message',function(e){var d=e.data;if(!d||!d.owh)return;\n if(d.owh==='init'){seed=d.seed>>>0;rng=mul(seed);OWH.mode=d.mode;OWH.multi=!!d.multi;OWH.players=d.players||[];OWH.me=d.me||0;OWH.maxT=d.maxT||0;init=d;inited=true;cbI&&cbI(d)}\n else if(d.owh==='start'){started=true;cbS&&cbS()}else if(d.owh==='end'){cbE&&cbE()}});\n})();<\/script>\n", GAME_STARTER="<!doctype html>\n<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<style>\n html,body{margin:0;height:100%;background:#0b1030;color:#fff;font-family:system-ui,sans-serif;overflow:hidden;touch-action:manipulation}\n #hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:10px 14px;font-weight:700;font-size:18px}\n #t{position:absolute;width:64px;height:64px;border-radius:50%;background:radial-gradient(#ffd47a,#ff7a1a);box-shadow:0 0 24px #ff7a1a;border:0;display:none}\n #msg{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;text-align:center;padding:20px}\n<\/style><\/head><body>\n<div id=\"hud\"><span id=\"s\">Score 0<\/span><span id=\"l\"><\/span><\/div>\n<button id=\"t\" aria-label=\"Target\"><\/button>\n<div id=\"msg\">Get ready...<\/div>\n<script>\n// A GAME FOR OURWORLDHIVE. Rules for any game you add:\n// 1. Wait for OWH.onStart(...) before the game begins. In multiplayer everyone starts together.\n// 2. Call OWH.score(n) every time the score changes.\n// 3. When the game is over call OWH.over(finalScore).\n// 4. Use OWH.rand() instead of Math.random() for anything that affects the game. In multiplayer all players get the same numbers.\n// 5. Optional: OWH.onEnd(fn) is called when the time limit is reached. Report your final score there.\nvar score=0,time=20,running=false,t=document.getElementById('t'),msg=document.getElementById('msg');\nfunction place(){var w=innerWidth-90,h=innerHeight-170;t.style.left=(20+OWH.rand()*w)+'px';t.style.top=(80+OWH.rand()*h)+'px'}\nt.addEventListener('pointerdown',function(e){e.preventDefault();if(!running)return;score++;OWH.score(score);document.getElementById('s').textContent='Score '+score;place()});\nfunction finish(){if(!running)return;running=false;t.style.display='none';msg.style.display='grid';msg.textContent='Time up! Score '+score;OWH.over(score)}\nOWH.onStart(function(){running=true;msg.style.display='none';t.style.display='block';place();var end=Date.now()+time*1000,iv=setInterval(function(){var left=Math.max(0,Math.ceil((end-Date.now())/1000));document.getElementById('l').textContent=left+'s';if(left<=0){clearInterval(iv);finish()}},200)});\nOWH.onEnd(finish);\n<\/script><\/body><\/html>", gamesList=[], gEdit=null, gAll=false;
+function injectSdk(h){ h=String(h||''); var m=/<head[^>]*>/i.exec(h); if(m) return h.slice(0,m.index+m[0].length)+GAME_SDK+h.slice(m.index+m[0].length); return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+GAME_SDK+h; }
+function loadGames(){ db.collection('arena_games').get().then(function(q){ gamesList=q.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); renderGames(); }).catch(function(){ gamesList=[]; renderGames(); }); }
+function renderGames(){
+  $('xList').innerHTML=gamesList.length?gamesList.map(function(g){ return '<div class="blk"><div class="bh"><span>'+esc(g.icon||'')+' '+esc(g.name)+'</span><span class="sp"><button type="button" data-xe="'+esc(g.id)+'" aria-label="Edit">\u270E</button><button type="button" data-xd="'+esc(g.id)+'" aria-label="Delete">\u00D7</button></span></div><p style="margin:0;color:var(--sx-muted)">'+(g.published?'Shown on the website':'Hidden')+' \u2022 '+(g.modes==='single'?'Single player':'Single and multiplayer')+' \u2022 address: '+esc(g.id)+'</p></div>'; }).join(''):'<p>No games added yet.</p>';
+}
+function openGameForm(g){
+  gEdit=g?g.id:null; $('xForm').hidden=false; $('xH').textContent=g?'Edit game':'New game'; $('xPrevBox').hidden=true; $('xFrame').srcdoc='';
+  $('xName').value=g?g.name||'':''; $('xIcon').value=g?g.icon||'':'\uD83C\uDFAF'; $('xDesc').value=g?g.desc||'':''; $('xHow').value=g?g.how||'':''; $('xModes').value=g&&g.modes==='single'?'single':'both'; $('xDur').value=g?(g.dur||0):0; $('xPub').checked=g?!!g.published:true; $('xCode').value=g?g.html||'':'';
+  say('xMsg',''); $('xForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('xAdd').onclick=function(){ openGameForm(null); };
+$('xCancel').onclick=function(){ $('xForm').hidden=true; $('xFrame').srcdoc=''; };
+$('xTpl').onclick=function(){ if($('xCode').value.trim()&&!confirm('Replace the code in the box with the starter code?')) return; $('xCode').value=GAME_STARTER; if(!$('xName').value) $('xName').value='Tap Rush'; if(!$('xDesc').value) $('xDesc').value='Tap the glowing target as many times as you can in 20 seconds.'; if(!$('xHow').value) $('xHow').value='Tap the target every time it jumps to a new spot.'; };
+$('xPrev').onclick=function(){
+  var code=$('xCode').value; if(!code.trim()){ say('xMsg','Paste or insert some code first.','err'); return; } say('xMsg',''); $('xPrevBox').hidden=false; $('xPrevInfo').textContent='Preview running. Scores from the game show here.';
+  var fr=$('xFrame'); fr.onload=function(){ try{ fr.contentWindow.postMessage({owh:'init',seed:12345,mode:'single',multi:false,players:[],me:0,maxT:0},'*'); setTimeout(function(){ fr.contentWindow.postMessage({owh:'start'},'*'); },400); }catch(e){} }; fr.srcdoc=injectSdk(code);
+};
+window.addEventListener('message',function(e){ if(e.source!==$('xFrame').contentWindow) return; var d=e.data; if(!d||!d.owh) return; if(d.owh==='score') $('xPrevInfo').textContent='Score: '+d.score; else if(d.owh==='over') $('xPrevInfo').textContent='Game over. Final score reported: '+d.score+' (this is what the rankings will use).'; });
+$('xList').onclick=function(e){ var ed=e.target.closest('[data-xe]'), dl=e.target.closest('[data-xd]'); if(ed){ openGameForm(gamesList.filter(function(g){ return g.id===ed.dataset.xe; })[0]); } else if(dl&&confirm('Delete this game? This cannot be undone.')){ db.collection('arena_games').doc(dl.dataset.xd).delete().then(function(){ gamesList=gamesList.filter(function(g){ return g.id!==dl.dataset.xd; }); renderGames(); }).catch(function(){ alert('Could not delete right now.'); }); } };
+$('xSave').onclick=function(){
+  var name=$('xName').value.trim(), code=$('xCode').value;
+  if(name.length<2){ say('xMsg','Please give the game a name.','err'); return; } if(!code.trim()){ say('xMsg','Please paste the game code.','err'); return; } if(code.length>700000){ say('xMsg','The code is too big (limit about 700 KB).','err'); return; }
+  var id=gEdit; if(!id){ id=slugify(name).slice(0,40)||('game-'+uid()); if(id.length<2) id='game-'+uid(); var base=id,n=2; while(gamesList.some(function(g){ return g.id===id; })||['highway','stack','merge','space','runner','pingpong','tennis','cricket','tank','chess','badminton'].indexOf(id)>=0) id=(base+'-'+n++).slice(0,40); }
+  var old=gamesList.filter(function(g){ return g.id===id; })[0], doc={name:name,icon:($('xIcon').value.trim()||'\uD83C\uDFAE').slice(0,4),desc:$('xDesc').value.trim(),how:$('xHow').value.trim(),modes:$('xModes').value,dur:Math.max(0,Math.min(300,+$('xDur').value||0)),published:$('xPub').checked,html:code,updated:Date.now(),created:old&&old.created?old.created:Date.now()};
+  say('xMsg','Saving\u2026'); db.collection('arena_games').doc(id).set(doc).then(function(){ var i=gamesList.findIndex(function(g){ return g.id===id; }); var rec=Object.assign({id:id},doc); if(i>=0) gamesList[i]=rec; else gamesList.push(rec); gEdit=id; renderGames(); say('xMsg','Saved. '+(doc.published?'It is on the Games page now: games.html':'It is hidden until you tick "Show this game".'),'ok'); }).catch(function(){ say('xMsg','Could not save. Check that you are signed in as the owner and that the new Firebase rules are published.','err'); });
+};
 
 /* ---------- posts list ---------- */
 function loadPosts(){

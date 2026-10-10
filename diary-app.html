@@ -401,6 +401,24 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 .topts .dh{touch-action:none;cursor:grab}
 .topts [data-act="outdent"]{display:none}
 .task.sub .topts [data-act="outdent"]{display:inline-block}
+/* progress bar above each task + percentage left of the tick box */
+.task{position:relative}
+.pct{position:absolute;top:9px;width:32px;text-align:right;font:700 11px/1 var(--sans);color:var(--muted);pointer-events:none;letter-spacing:-.02em}
+.task.done .pct,.pct.full{color:var(--accent)}
+.pbar{position:absolute;left:40px;right:0;top:-5px;height:16px;cursor:pointer;touch-action:none;z-index:2;-webkit-tap-highlight-color:transparent}
+.pbar::before{content:"";position:absolute;left:0;right:0;top:5px;height:5px;border-radius:3px;background:var(--line)}
+.pbar i{position:absolute;left:0;top:5px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0;transition:width .18s}
+.pbar.drag i{transition:none}
+.task.haskids .pbar{pointer-events:none;cursor:default}
+.task.done .pbar i{opacity:.55}
+body.inkon .pbar{pointer-events:none}
+.parlist{max-height:50vh;overflow:auto;margin:8px 0}
+/* tick box beside a plain line of text: tap it to turn the line into a task */
+.textblk{position:relative}
+.cvt{position:absolute;left:-40px;top:5px;width:24px;height:24px;padding:0;border:2px solid var(--muted);border-radius:7px;background:transparent;opacity:0;pointer-events:none;transition:opacity .15s;z-index:2}
+.textblk.has:focus-within .cvt,.textblk.has:hover .cvt{opacity:.7;pointer-events:auto}
+.textblk.has .cvt:hover,.textblk.has .cvt:active{opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+body.inkon .cvt{pointer-events:none}
 .fmtb{min-width:42px;height:42px;padding:0 12px;border:0;border-radius:12px;background:var(--btn);font:600 15px var(--sans);box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
 .fmtb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:none}
 #fmtbar .fsel{height:42px}
@@ -499,6 +517,31 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 #owhGate .or{margin:10px 0;text-align:center;color:var(--muted);font-size:14px}
 #owhGate .err{min-height:20px;margin:2px 0 8px;color:var(--danger);font-size:14px}
 #owhGate .alt{margin-top:14px;text-align:center;font-size:14.5px;color:var(--muted)}
+
+#owhNote{margin:0 0 12px;padding:11px 14px;border-radius:14px;background:var(--accent-soft);color:var(--ink);font-size:15px;line-height:1.45;border:1px solid var(--accent)}
+#owhNote[hidden]{display:none}
+#owhCPv{position:fixed;inset:0;z-index:90;background:var(--desk);overflow:auto;padding:0 0 40px}
+#owhCPv[hidden]{display:none}
+#owhCPv .cpw{max-width:980px;margin:0 auto;padding:14px 14px 30px}
+#owhCPv .cph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+#owhCPv h2{margin:0;font:700 26px var(--serif);flex:1;color:var(--ink)}
+#owhCPv .cpt{display:flex;gap:8px;margin-bottom:12px}
+#owhCPv .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+#owhCPv .st{background:var(--paper);border-radius:14px;padding:10px 16px;box-shadow:var(--shadow)}
+#owhCPv .st b{display:block;font:700 24px var(--serif)}
+#owhCPv .st span{font-size:13px;color:var(--muted)}
+#owhCPv .tw{overflow-x:auto;background:var(--paper);border-radius:16px;box-shadow:var(--shadow)}
+#owhCPv table{width:100%;border-collapse:collapse;font-size:14.5px}
+#owhCPv th{text-align:left;font-size:12.5px;color:var(--muted);padding:10px 12px;border-bottom:2px solid var(--line);white-space:nowrap}
+#owhCPv td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--ink)}
+#owhCPv select,#owhCPv input[type=text],#owhCPv input[type=search],#owhCPv textarea{min-height:42px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:16px var(--sans);padding:0 10px}
+#owhCPv textarea{padding:8px 10px;width:100%;min-height:80px}
+#owhCPv .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700}
+#owhCPv .badge.paid{background:#dff3e6;color:#17623b}#owhCPv .badge.free{background:#e6eaf3;color:#44506b}
+#owhCPv .card{background:var(--paper);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+#owhCPv label{display:block;font-size:14px;color:var(--muted);margin:0 0 12px}
+#owhCPv label input,#owhCPv label textarea{display:block;width:100%;margin-top:5px}
+#owhCPv .msg2{color:var(--muted);font-size:14px;margin:8px 0}
 #owhGate .alt button{background:none;border:0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
 </style>
 </head>
@@ -793,6 +836,7 @@ function sanitizePage(p) {
       if (Array.isArray(b.cm)) { const cm = b.cm.map(c => c && { t: Number(c.t) || Date.now(), x: String(c.x || '').slice(0, 500) }).filter(c => c && c.x.trim()).slice(-50); if (cm.length) o.cm = cm; }
       const lvn = parseInt(b.lv, 10); if (lvn > 0) o.lv = Math.min(2, lvn);
       if (typeof b.dep === 'string' && b.dep) o.dep = b.dep.slice(0, 40);
+      { const pcn = Math.round(Number(b.pc)); if (pcn > 0 && pcn < 100 && !o.done) o.pc = pcn; }
       blocks.push(fmtFields(b, o));
     } else if (b.type === 'section') blocks.push(fmtFields(b, { id, type: 'section', text: String(b.text == null ? '' : b.text).slice(0, 120) }));
     else blocks.push(fmtFields(b, { id, type: 'text', text: String(b.text == null ? '' : b.text) }));
@@ -1142,10 +1186,11 @@ function autosize(ta) {
 const autosizeAll = () => elMap.forEach(el => { const ta = el.querySelector('textarea'); if (ta) autosize(ta); });
 
 let secOf = new Map(), selId = null;
-let parentOf = new Map(), progOf = new Map();
+let parentOf = new Map(), progOf = new Map(), kidsOf = new Map(), pctMap = new Map();
+const setSubMaps = sm => { parentOf = sm.parentOf; progOf = sm.progOf; kidsOf = sm.kidsOf; pctMap = sm.pct; };
 /* sub-task structure of a list of blocks: which task is the parent, and how many children are done */
 function subMaps(blocks) {
-  const parent = new Map(), prog = new Map(); let stack = [];
+  const parent = new Map(), prog = new Map(), kids = new Map(); let stack = [];
   blocks.forEach(b => {
     if (b.type === 'section') { stack = []; return; }
     if (b.type !== 'task') return;
@@ -1153,11 +1198,22 @@ function subMaps(blocks) {
     while (stack.length && (stack[stack.length - 1].lv || 0) >= lv) stack.pop();
     if (stack.length && lv > 0) {
       const par = stack[stack.length - 1]; parent.set(b.id, par);
+      if (!kids.has(par.id)) kids.set(par.id, []); kids.get(par.id).push(b);
       const pr = prog.get(par.id) || { d: 0, t: 0 }; pr.t++; if (b.done) pr.d++; prog.set(par.id, pr);
     }
     stack.push(b);
   });
-  return { parentOf: parent, progOf: prog };
+  const pct = new Map();
+  const pc = b => {
+    if (pct.has(b.id)) return pct.get(b.id);
+    let v; const k = kids.get(b.id);
+    if (b.done) v = 100;
+    else if (k && k.length) v = Math.round(k.reduce((a, x) => a + pc(x), 0) / k.length);
+    else v = Math.max(0, Math.min(99, Math.round(Number(b.pc) || 0)));
+    pct.set(b.id, v); return v;
+  };
+  blocks.forEach(b => { if (b.type === 'task') pc(b); });
+  return { parentOf: parent, progOf: prog, kidsOf: kids, pct };
 }
 function kidIds(id) {
   const i = cur.blocks.findIndex(b => b.id === id); if (i < 0) return [];
@@ -1204,6 +1260,7 @@ function makeBlockEl(b) {
   if (b.type === 'task') {
     el.className = 'blk task';
     el.innerHTML =
+      '<span class="pct" aria-hidden="true"></span><div class="pbar" role="slider" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
       '<div class="trow">' +
       '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
@@ -1219,7 +1276,7 @@ function makeBlockEl(b) {
       '<button class="ic" type="button" data-act="del" aria-label="Remove section heading" title="Remove heading">✕</button>';
   } else {
     el.className = 'blk textblk';
-    el.innerHTML = '<textarea class="tx" rows="1" data-x="1" aria-label="Diary text"></textarea><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button>';
+    el.innerHTML = '<button class="cvt" type="button" data-act="totask" aria-label="Make this line a task" title="Make this a task"></button><textarea class="tx" rows="1" data-x="1" aria-label="Diary text"></textarea><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button>';
   }
   return el;
 }
@@ -1227,6 +1284,7 @@ function syncBlockEl(el, b) {
   const ta = el.querySelector('textarea');
   if (ta.value !== b.text) ta.value = b.text;
   applyFmt(el, b);
+  if (b.type === 'text') el.classList.toggle('has', !!(b.text || '').trim());
   if (b.type !== 'task') return;
   const done = !!b.done, today = isoOf(new Date());
   el.classList.toggle('done', done);
@@ -1251,6 +1309,11 @@ function syncBlockEl(el, b) {
   const lv = b.lv || 0, par = parentOf.get(b.id), pg = progOf.get(b.id);
   el.style.marginLeft = lv * 26 + 'px'; el.classList.toggle('sub', lv > 0);
   el.querySelector('.prog').textContent = pg ? `${pg.d}/${pg.t}` : '';
+  { const pv = pctMap.has(b.id) ? pctMap.get(b.id) : (done ? 100 : (b.pc || 0)), pe = el.querySelector('.pct'), bar = el.querySelector('.pbar');
+    pe.textContent = pv + '%'; pe.style.left = (-38 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
+    bar.firstChild.style.width = pv + '%'; bar.setAttribute('aria-valuenow', String(pv));
+    bar.title = pg ? 'Progress follows the sub-tasks (' + pg.d + ' of ' + pg.t + ' done)' : 'Tap or drag to set how much is done';
+    el.classList.toggle('haskids', !!pg); }
   el.querySelector('.tsec').textContent = par ? '↳ ' + par.text.trim().slice(0, 20) : (secOf.get(b.id) || '');
   const dp = b.dep && findBlockById(b.dep), dc = el.querySelector('.dep');
   dc.textContent = dp && !dp.b.done && !done ? '⛓ After: ' + dp.b.text.trim().slice(0, 22) : '';
@@ -1270,10 +1333,14 @@ function renderBlocks(animate = true) {
 
   secOf = new Map(); let curSec = '';
   cur.blocks.forEach(b => { if (b.type === 'section') curSec = b.text.trim(); else if (b.type === 'task') secOf.set(b.id, curSec); });
-  { const sm = subMaps(cur.blocks); parentOf = sm.parentOf; progOf = sm.progOf; }
+  setSubMaps(subMaps(cur.blocks));
+  /* a finished sub-task stays where it is; a task goes down to Completed only when it and the task(s) it belongs to are done */
   const act = [], don = [];
-  cur.blocks.forEach(b => (b.type === 'task' && b.done ? don : act).push(b));
-  don.sort((a, b) => (a.doneAt || 0) - (b.doneAt || 0));
+  const ancDone = b => { let p = parentOf.get(b.id); while (p) { if (!p.done) return false; p = parentOf.get(p.id); } return true; };
+  const rootOf = b => { let r = b, p; while ((p = parentOf.get(r.id))) r = p; return r; };
+  cur.blocks.forEach(b => (b.type === 'task' && b.done && ancDone(b) ? don : act).push(b));
+  const ixOf = new Map(cur.blocks.map((b, i) => [b.id, i]));
+  don.sort((a, b) => ((rootOf(a).doneAt || 0) - (rootOf(b).doneAt || 0)) || (ixOf.get(a.id) - ixOf.get(b.id)));
 
   const live = new Set(cur.blocks.map(b => b.id));
   elMap.forEach((el, id) => {
@@ -1360,8 +1427,24 @@ function addSection() {
   cur.blocks.splice(insertAt(), 0, sct);
   ensureTrailing(); renderBlocks(true); commit(); focusBlock(sct.id);
 }
+/* a line of text becomes a task (same words, same style) */
+function textToTask(id) {
+  begin();
+  const b = getBlock(id); if (!b || b.type !== 'text' || !b.text.trim()) return false;
+  const old = elMap.get(id); if (old) { old.remove(); elMap.delete(id); }
+  const nl = b.text.indexOf('\n');   // only the first line becomes the task; the rest stays as text below it
+  if (nl >= 0) { const rest = b.text.slice(nl + 1); b.text = b.text.slice(0, nl); if (rest.trim()) cur.blocks.splice(cur.blocks.indexOf(b) + 1, 0, { id: uid(), type: 'text', text: rest }); }
+  b.type = 'task'; b.done = false; b.text = b.text.replace(/\s+$/, ''); b.at = Date.now();
+  ensureTrailing(); renderBlocks(true); commit(); focusBlock(id);
+  toast('Turned into a task');
+  return true;
+}
 function addTask() {
   begin(); setMode('text');
+  { /* caret at the very start of a written line: the Task button turns that line into a task */
+    const fb = getBlock(lastFocusId), fe = fb && elMap.get(fb.id), ta = fe && fe.querySelector('textarea');
+    if (fb && fb.type === 'text' && fb.text.trim() && ta && ta.selectionStart === 0 && ta.selectionEnd === 0 && textToTask(fb.id)) return;
+  }
   const t = createTask('');
   focusBlock(t.id);
 }
@@ -1401,7 +1484,8 @@ function toggleTask(id) {
   const b = getBlock(id); const row = elMap.get(id);
   if (!b || b.type !== 'task') return;
   b.done = !b.done;
-  if (b.done) b.doneAt = Date.now(); else delete b.doneAt;
+  if (b.done) b.doneAt = Date.now(); else { delete b.doneAt; if (b.pc >= 100) delete b.pc; }
+  if (!b.done) { let p = parentOf.get(id); while (p) { if (p.done) { p.done = false; delete p.doneAt; const pe = elMap.get(p.id); if (pe) syncBlockEl(pe, p); } p = parentOf.get(p.id); } }
   let kidsDone = 0, warn = '', allKids = null;
   if (b.done) {
     kidIds(id).forEach(kid => { const kb = getBlock(kid); if (kb && !kb.done) { kb.done = true; kb.doneAt = Date.now(); kidsDone++; } });
@@ -1410,7 +1494,7 @@ function toggleTask(id) {
     if (par && !par.done && pr && pr.d === pr.t) allKids = par.id;
   }
   if (row) syncBlockEl(row, b);           // instant visual: tick + strike-through
-  if (kidsDone) { const sm = subMaps(cur.blocks); parentOf = sm.parentOf; progOf = sm.progOf; kidIds(id).forEach(kid => { const e2 = elMap.get(kid), kb = getBlock(kid); if (e2 && kb) syncBlockEl(e2, kb); }); }
+  if (kidsDone) { setSubMaps(subMaps(cur.blocks)); kidIds(id).forEach(kid => { const e2 = elMap.get(kid), kb = getBlock(kid); if (e2 && kb) syncBlockEl(e2, kb); }); }
   commit();
   clearTimeout(moveTimers[id]);
   moveTimers[id] = setTimeout(() => renderBlocks(true), b.done ? 460 : 240);   // then glide to/from Completed
@@ -1431,6 +1515,74 @@ function indentTask(id, delta) {
   fixLevels(); renderBlocks(true); commit();
   toast(delta > 0 ? 'Made a sub-task' : 'Now a main task');
 }
+/* "Sub-task": choose which main task of THIS day it belongs to */
+function chooseParent(id) {
+  const b = getBlock(id); if (!b) return;
+  const group = new Set([id].concat(kidIds(id)));
+  const cands = cur.blocks.filter(x => x.type === 'task' && !(x.lv > 0) && !group.has(x.id) && !x.done && x.text.trim());
+  if (!cands.length) { toast('Add another main task on this day first, then make this its sub-task.'); return; }
+  const i0 = cur.blocks.findIndex(x => x.id === id); let above = null;
+  for (let j = i0 - 1; j >= 0; j--) { const x = cur.blocks[j]; if (x.type === 'task' && !(x.lv > 0) && !group.has(x.id)) { above = x.id; break; } }
+  openModal(`<h2>Sub-task of which task?</h2><p class="msg">Pick the main task on this page (${esc(shortDate(cur.date))}) that <b>${esc(b.text.trim() || 'this task')}</b> belongs to.</p>
+    <div class="parlist">${cands.map(c => { const n = kidIds(c.id).length; return `<button class="mi" type="button" data-par="${c.id}"><span>${c.id === above ? '⬆️' : '📌'}</span>${esc(c.text.trim().slice(0, 60))}${n ? ` · ${n} sub-task${n === 1 ? '' : 's'}` : ''}</button>`; }).join('')}</div>
+    <div class="btns"><button class="btn" type="button" data-par="x">Cancel</button></div>`);
+  $('.panel', modal).addEventListener('click', e => { const x = e.target.closest('[data-par]'); if (!x) return; closeModal(); if (x.dataset.par !== 'x') moveUnder(id, x.dataset.par); });
+}
+function moveUnder(id, targetId) {
+  begin();
+  const b = getBlock(id), t = getBlock(targetId); if (!b || !t) return;
+  const ids = [id].concat(kidIds(id)), grp = ids.map(getBlock);
+  const d = 1 - (b.lv || 0);
+  cur.blocks = cur.blocks.filter(x => !ids.includes(x.id));
+  const ti = cur.blocks.findIndex(x => x.id === targetId), end = ti + kidIds(targetId).length;
+  grp.forEach(g => { const v = clamp((g.lv || 0) + d, 0, 2); if (v) g.lv = v; else delete g.lv; });
+  cur.blocks.splice(end + 1, 0, ...grp);
+  fixLevels(); renderBlocks(true); commit();
+  toast('Now a sub-task of "' + t.text.trim().slice(0, 30) + '"');
+}
+/* progress bar: tap or drag to set the percentage of a single task */
+function setPct(id, v) {
+  const b = getBlock(id); if (!b || b.type !== 'task' || progOf.has(id)) return 0;
+  v = Math.max(0, Math.min(100, Math.round(v / 5) * 5));
+  if (v > 0) b.pc = v; else delete b.pc;
+  if (v < 100) pctMap.set(id, v); else pctMap.set(id, 100);
+  const el = elMap.get(id); if (el) syncBlockEl(el, b);
+  return v;
+}
+els.sheet.addEventListener('pointerdown', e => {
+  const bar = e.target.closest && e.target.closest('.pbar'); if (!bar) return;
+  const row = bar.closest('.task'); if (!row || row.classList.contains('haskids') || document.body.classList.contains('inkon')) return;
+  e.preventDefault(); begin();
+  const id = row.dataset.id; let last = 0;
+  const upd = ev => { const r = bar.getBoundingClientRect(); last = setPct(id, (ev.clientX - r.left) / r.width * 100); };
+  bar.classList.add('drag'); upd(e);
+  try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+  bar.onpointermove = upd;
+  const end = () => {
+    bar.onpointermove = null; bar.classList.remove('drag');
+    bar.removeEventListener('pointerup', end); bar.removeEventListener('pointercancel', end);
+    const b = getBlock(id); if (!b) return;
+    if (last >= 100) { delete b.pc; if (!b.done) toggleTask(id); else commit(); }
+    else if (b.done) { toggleTask(id); if (last) b.pc = last; else delete b.pc; setSubMaps(subMaps(cur.blocks)); renderBlocks(true); commit(); }
+    else { setSubMaps(subMaps(cur.blocks)); commit(); }
+  };
+  bar.addEventListener('pointerup', end); bar.addEventListener('pointercancel', end);
+});
+/* double tap on the page: switch the pen on */
+let lastTap = { t: 0, x: 0, y: 0 };
+els.sheet.addEventListener('pointerup', e => {
+  if (mode === 'pen' || e.button > 0) return;
+  if (e.target.closest('button,.pbar,.topts,a,select,input,.lkb,.acts')) { lastTap.t = 0; return; }
+  const now = Date.now();
+  if (now - lastTap.t < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 36) {
+    lastTap.t = 0;
+    if (e.target instanceof HTMLTextAreaElement && e.target.value.trim()) return;   // on written text a double tap still selects a word
+    tool = 'pen'; setMode('pen');
+    toast('Pen is on: write anywhere on the page. Tap Text to type again.');
+    return;
+  }
+  lastTap = { t: now, x: e.clientX, y: e.clientY };
+});
 function deleteBlock(id) {
   begin();
   const i = cur.blocks.findIndex(b => b.id === id);
@@ -1858,7 +2010,7 @@ els.sheet.addEventListener('click', e => {
   if (!btn) {
     const trow = e.target.closest('.task');
     if (!trow) return;
-    if (e.target.classList.contains('tt')) return;                           // typing / writing inside the task
+    if (e.target.classList.contains('tt') || e.target.closest('.pbar')) return;   // typing / writing inside the task, or the progress bar
     setSel(trow.dataset.id);
     return;
   }
@@ -1870,7 +2022,8 @@ els.sheet.addEventListener('click', e => {
   else if (a === 'edit') focusBlock(id, false);
   else if (a === 'up') moveTask(id, -1);
   else if (a === 'down') moveTask(id, 1);
-  else if (a === 'indent') indentTask(id, 1);
+  else if (a === 'indent') chooseParent(id);
+  else if (a === 'totask') textToTask(id);
   else if (a === 'outdent') indentTask(id, -1);
   else if (a === 'openlink') { const bb = getBlock(id), u = bb && linkOf(bb); if (u) window.open(u, '_blank', 'noopener'); }
   else if (a === 'del') deleteBlock(id);
@@ -1882,7 +2035,7 @@ els.sheet.addEventListener('input', e => {
   if (!(ta instanceof HTMLTextAreaElement)) return;
   const row = ta.closest('[data-id]'); const b = row && getBlock(row.dataset.id);
   if (!b) return;
-  b.text = ta.value; autosize(ta); onEdit();
+  b.text = ta.value; autosize(ta); if (b.type === 'text') row.classList.toggle('has', !!b.text.trim()); onEdit();
 });
 els.sheet.addEventListener('keydown', e => {
   const ta = e.target;
@@ -4177,7 +4330,7 @@ function Fire(cfg){
   firebase.initializeApp(cfg);
   var auth=firebase.auth(), db=firebase.firestore();
   try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
-  function cur(){ var u=auth.currentUser; return u?{uid:u.uid,name:u.displayName||String(u.email||'Member').split('@')[0]}:null; }
+  function cur(){ var u=auth.currentUser; return u?{uid:u.uid,name:u.displayName||String(u.email||'Member').split('@')[0],email:u.email||'',verified:!!u.emailVerified}:null; }
   return {
     mode:'firebase', db:db,
     onAuth:function(f){ auth.onAuthStateChanged(function(){ f(cur()); }); },
@@ -4188,6 +4341,78 @@ function Fire(cfg){
   };
 }
 
+
+/* ---------- owner: Control panel, subscribers (free / paid) and a few diary settings ----------
+   diary_users/{uid}   email, name, plan ('free' or 'paid'), joined, lastSeen.   config/diary   title, notice. */
+var OWNER_EMAIL='er.krushnananda@gmail.com';
+function h(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function fd(ms){ return ms?new Date(ms).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'-'; }
+function Admin(db,u){
+  var email=String(u.email||'').toLowerCase(), isOwner=email===OWNER_EMAIL&&u.verified;
+  var users=db.collection('diary_users'), me=users.doc(u.uid), cfg=db.collection('config').doc('diary');
+  /* record this person so the owner can see who uses the diary (they can never change their own plan) */
+  me.get().then(function(d){
+    if(!d.exists) return me.set({uid:u.uid,email:email,name:u.name||'',joined:Date.now(),lastSeen:Date.now(),plan:'free'});
+    return me.update({email:email,name:u.name||'',lastSeen:Date.now()});
+  }).catch(function(e){ console.warn('diary_users',e&&e.code); });
+  /* settings made by the owner, shown to everyone */
+  var title0=(document.querySelector('.sh-title')||{}).textContent||'';
+  var note=document.createElement('div'); note.id='owhNote'; note.hidden=true;
+  var nav=document.getElementById('nav'); if(nav&&nav.parentNode) nav.parentNode.insertBefore(note,nav);
+  var cur={title:'',notice:''};
+  cfg.onSnapshot(function(s){
+    cur=s.exists?s.data():{title:'',notice:''};
+    var t=document.querySelector('.sh-title'); if(t) t.textContent=cur.title||title0;
+    note.textContent=cur.notice||''; note.hidden=!cur.notice;
+  },function(){});
+  if(!isOwner||!nav) return;
+  var btn=document.createElement('button'); btn.className='btn primary'; btn.id='owhCP'; btn.type='button'; btn.textContent='🛠 Control panel';
+  nav.insertBefore(btn,nav.querySelector('.sp')||nav.firstChild);
+  var v=document.createElement('div'); v.id='owhCPv'; v.hidden=true; document.body.appendChild(v);
+  var rows=[], tab='users', q='';
+  function err(e){ return (e&&e.code==='permission-denied')?'Firestore rules are not updated yet. Paste the new rules in Firebase and try again.':((e&&e.message)||'Something went wrong.'); }
+  function load(){
+    v.querySelector('.body').innerHTML='<p class="msg2">Loading…</p>';
+    users.get().then(function(s){ rows=[]; s.forEach(function(d){ rows.push(Object.assign({id:d.id},d.data())); }); rows.sort(function(a,b){ return (b.joined||0)-(a.joined||0); }); draw(); })
+      .catch(function(e){ v.querySelector('.body').innerHTML='<p class="msg2" style="color:var(--danger)">'+h(err(e))+'</p>'; });
+  }
+  function draw(){
+    v.querySelectorAll('[data-t]').forEach(function(b){ b.setAttribute('aria-pressed',String(b.dataset.t===tab)); b.className='btn'+(b.dataset.t===tab?' primary':''); });
+    var b=v.querySelector('.body');
+    if(tab==='users'){
+      var paid=rows.filter(function(r){ return r.plan==='paid'; }).length, ql=q.toLowerCase();
+      var list=rows.filter(function(r){ return !ql||String(r.email||'').toLowerCase().indexOf(ql)>=0||String(r.name||'').toLowerCase().indexOf(ql)>=0; });
+      b.innerHTML='<div class="stats"><div class="st"><b>'+rows.length+'</b><span>Subscribed users</span></div><div class="st"><b>'+paid+'</b><span>Paid</span></div><div class="st"><b>'+(rows.length-paid)+'</b><span>Free</span></div></div>'
+        +'<div class="cph"><input type="search" id="cpq" placeholder="Search email or name" value="'+h(q)+'" style="flex:1;min-width:200px"><button class="btn" id="cpx" type="button">⬇️ Excel/CSV</button></div>'
+        +'<div class="tw"><table><thead><tr><th>Email</th><th>Name</th><th>Version</th><th>Change</th><th>Joined</th><th>Last used</th></tr></thead><tbody>'
+        +(list.length?list.map(function(r){ return '<tr><td>'+h(r.email)+'</td><td>'+h(r.name)+'</td><td><span class="badge '+(r.plan==='paid'?'paid':'free')+'">'+(r.plan==='paid'?'Paid':'Free')+'</span></td><td><select data-uid="'+h(r.id)+'"><option value="free"'+(r.plan==='paid'?'':' selected')+'>Free</option><option value="paid"'+(r.plan==='paid'?' selected':'')+'>Paid</option></select></td><td>'+fd(r.joined)+'</td><td>'+fd(r.lastSeen)+'</td></tr>'; }).join(''):'<tr><td colspan="6" class="msg2">No users yet. A person appears here the first time they sign in to the diary.</td></tr>')
+        +'</tbody></table></div><p class="msg2">People who signed in before this update appear after they open the diary once.</p>';
+      b.querySelector('#cpq').oninput=function(e){ q=e.target.value; var pos=e.target.selectionStart; draw(); var n=v.querySelector('#cpq'); n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} };
+      b.querySelector('#cpx').onclick=function(){
+        var csv='Email,Name,Version,Joined,Last used\n'+rows.map(function(r){ return [r.email,r.name,r.plan==='paid'?'Paid':'Free',r.joined?new Date(r.joined).toISOString().slice(0,10):'',r.lastSeen?new Date(r.lastSeen).toISOString().slice(0,10):''].map(function(x){ return '"'+String(x==null?'':x).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+        var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'})); a.download='diary-users.csv'; document.body.appendChild(a); a.click(); a.remove();
+      };
+      b.querySelectorAll('select[data-uid]').forEach(function(sel){ sel.onchange=function(){
+        var r=rows.filter(function(x){ return x.id===sel.dataset.uid; })[0]; sel.disabled=true;
+        users.doc(sel.dataset.uid).update({plan:sel.value,planAt:Date.now()}).then(function(){ r.plan=sel.value; draw(); }).catch(function(e){ alert(err(e)); sel.disabled=false; });
+      }; });
+    } else {
+      b.innerHTML='<div class="card"><label>Diary name (top of every page)<input type="text" id="cpTitle" maxlength="60" placeholder="'+h(title0)+'" value="'+h(cur.title||'')+'"></label>'
+        +'<label>Message for all users (shown above the diary; leave empty to hide)<textarea id="cpNote" maxlength="400">'+h(cur.notice||'')+'</textarea></label>'
+        +'<button class="btn primary" id="cpSave" type="button">Save</button> <span class="msg2" id="cpMsg"></span></div>';
+      b.querySelector('#cpSave').onclick=function(){
+        var m=b.querySelector('#cpMsg'); m.textContent='Saving…';
+        cfg.set({title:b.querySelector('#cpTitle').value.trim(),notice:b.querySelector('#cpNote').value.trim(),updated:Date.now()},{merge:true})
+          .then(function(){ m.textContent='Saved. Everyone sees it now.'; }).catch(function(e){ m.textContent=err(e); });
+      };
+    }
+  }
+  v.innerHTML='<div class="cpw"><div class="cph"><h2>🛠 Control panel</h2><button class="btn" id="cpClose" type="button">✕ Close</button></div>'
+    +'<div class="cpt"><button class="btn" data-t="users" type="button">👥 Users</button><button class="btn" data-t="set" type="button">⚙️ Diary settings</button></div><div class="body"></div></div>';
+  v.querySelectorAll('[data-t]').forEach(function(b){ b.onclick=function(){ tab=b.dataset.t; draw(); }; });
+  v.querySelector('#cpClose').onclick=function(){ v.hidden=true; document.body.style.overflow=''; };
+  btn.onclick=function(){ v.hidden=false; document.body.style.overflow='hidden'; load(); };
+}
 /* ---------- Firebase: sync of diary pages ----------
    users/{uid}/pages/{pageId}          small record: date, created, updated, h, n (parts), z (compressed)
    users/{uid}/pages/{pageId}/parts/k  the page content (blocks and handwriting) in pieces under 1 MB */
@@ -4332,9 +4557,10 @@ async function start(){
     if(!u){ if(booted){ location.reload(); return; } $('owhGate').hidden=false; return; }
     if(booted&&booted!==u.uid){ location.reload(); return; }
     if(booted) return;
-    booted=u.uid; OWH.uid=u.uid; OWH.name=u.name; $('owhGate').hidden=true;
+    booted=u.uid; OWH.uid=u.uid; OWH.name=u.name; OWH.email=u.email||''; $('owhGate').hidden=true;
     if(A.mode==='firebase') OWH.cloud=Cloud(A.db,u.uid); else badge('off','Test mode: this device only');
     window.OWH_BOOT(u.uid);
+    if(A.mode==='firebase') Admin(A.db,u);
   });
 }
 start();

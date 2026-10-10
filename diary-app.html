@@ -407,10 +407,17 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 .task.done .pct,.pct.full{color:var(--accent)}
 .pbar{position:absolute;left:40px;right:0;top:-5px;height:16px;cursor:pointer;touch-action:none;z-index:2;-webkit-tap-highlight-color:transparent}
 .pbar::before{content:"";position:absolute;left:0;right:0;top:5px;height:5px;border-radius:3px;background:var(--line)}
-.pbar i{position:absolute;left:0;top:5px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0;transition:width .18s}
+.pbar i{position:absolute;left:0;top:5px;height:5px;border-radius:3px;background:linear-gradient(90deg,#9be0b4,#1fa354);width:0;transition:width .18s}
+/* green highlight behind the text, like an Excel data bar */
+.pfw{position:absolute;left:36px;right:0;top:2px;height:30px;border-radius:7px;overflow:hidden;pointer-events:none;z-index:0}
+.pfw i{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(46,184,100,.14),rgba(46,184,100,.38));border-right:2px solid rgba(31,163,84,.55);transition:width .18s}
+.pfw.z i{border-right-width:0}
+.task .trow{z-index:1}
+.task.done .pfw i{background:rgba(46,184,100,.2)}
+.pct.full,.task.done .pct{color:#1b8a48}
 .pbar.drag i{transition:none}
 .task.haskids .pbar{pointer-events:none;cursor:default}
-.task.done .pbar i{opacity:.55}
+.task.done .pbar i{opacity:.6}
 body.inkon .pbar{pointer-events:none}
 .parlist{max-height:50vh;overflow:auto;margin:8px 0}
 /* tick box beside a plain line of text: tap it to turn the line into a task */
@@ -1260,7 +1267,7 @@ function makeBlockEl(b) {
   if (b.type === 'task') {
     el.className = 'blk task';
     el.innerHTML =
-      '<span class="pct" aria-hidden="true"></span><div class="pbar" role="slider" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
+      '<div class="pfw" aria-hidden="true"><i></i></div><span class="pct" aria-hidden="true"></span><div class="pbar" role="slider" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
       '<div class="trow">' +
       '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
@@ -1311,7 +1318,8 @@ function syncBlockEl(el, b) {
   el.querySelector('.prog').textContent = pg ? `${pg.d}/${pg.t}` : '';
   { const pv = pctMap.has(b.id) ? pctMap.get(b.id) : (done ? 100 : (b.pc || 0)), pe = el.querySelector('.pct'), bar = el.querySelector('.pbar');
     pe.textContent = pv + '%'; pe.style.left = (-38 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
-    bar.firstChild.style.width = pv + '%'; bar.setAttribute('aria-valuenow', String(pv));
+    bar.firstChild.style.width = pv + '%';
+    { const pf = el.querySelector('.pfw'); pf.firstChild.style.width = pv + '%'; pf.classList.toggle('z', pv <= 0); } bar.setAttribute('aria-valuenow', String(pv));
     bar.title = pg ? 'Progress follows the sub-tasks (' + pg.d + ' of ' + pg.t + ' done)' : 'Tap or drag to set how much is done';
     el.classList.toggle('haskids', !!pg); }
   el.querySelector('.tsec').textContent = par ? '↳ ' + par.text.trim().slice(0, 20) : (secOf.get(b.id) || '');
@@ -4327,7 +4335,7 @@ function Demo(){
 
 /* ---------- Firebase: login ---------- */
 function Fire(cfg){
-  firebase.initializeApp(cfg);
+  (firebase.apps.length?firebase.app():firebase.initializeApp(cfg));
   var auth=firebase.auth(), db=firebase.firestore();
   try{ db.enablePersistence({synchronizeTabs:true}).catch(function(){}); }catch(e){}
   function cur(){ var u=auth.currentUser; return u?{uid:u.uid,name:u.displayName||String(u.email||'Member').split('@')[0],email:u.email||'',verified:!!u.emailVerified}:null; }

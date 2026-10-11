@@ -78,3 +78,14 @@
 .mrow:hover .mmain h2 a{background-size:100% 2px}
 @media (max-width:600px){.fl{display:none}}
 @media (prefers-reduced-motion:reduce){.mk-aurora i,.mk-grad,.fl,.dev .sl.on{animation:none}.dev,.dev .sl{transition:none}}
+
+.sh-mode{position:absolute;left:10px;top:10px;z-index:6;display:flex;padding:3px;border-radius:999px;border:1px solid var(--sx-line);background:rgba(5,9,24,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sh-mode button{border:0;background:transparent;color:var(--sx-soft);font:600 13px var(--sx-b);padding:7px 12px;border-radius:999px;cursor:pointer;transition:all .25s}
+.sh-mode button[aria-pressed="true"]{background:linear-gradient(135deg,#ffc857,#ff9f5a);color:#1a1030}
+.sh-mode button:focus-visible{outline:2px solid var(--sx-gold);outline-offset:1px}
+.sh-arr{position:absolute;top:50%;z-index:6;width:42px;height:42px;margin-top:-21px;border-radius:50%;border:1px solid var(--sx-line);background:rgba(5,9,24,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--sx-ink);font-size:26px;line-height:38px;cursor:pointer;opacity:.75;transition:opacity .2s,transform .2s,background .2s}
+.sh-arr:hover{opacity:1;background:rgba(255,200,87,.2)}.sh-arr.prev{left:6px}.sh-arr.next{right:6px}.sh-arr:active{transform:scale(.92)}
+.sh-arr:focus-visible{outline:2px solid var(--sx-gold);outline-offset:2px}
+.sh-stage{cursor:grab;user-select:none;-webkit-user-select:none}.sh-stage:active{cursor:grabbing}
+.sh-stage img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+@media (max-width:900px){.sh-arr{width:36px;height:36px;margin-top:-18px;font-size:22px;line-height:32px}.sh-mode button{padding:6px 10px;font-size:12.5px}}

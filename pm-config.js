@@ -1,6 +1,2 @@
-/* PM Tracker settings. Edit this file on GitHub.
-   PM_VAPID: the Web Push key for phone alerts (Firebase console > Project settings > Cloud Messaging > Web Push certificates).
-   PM_PAY: orderUrl is the address of your payments worker (see PAYMENTS-SETUP.md). The app shows the real prices from the worker.
-   paypal: your PayPal.me link, shown to people outside India. upi: your UPI id, shown to people in India. Leave a value empty to hide it. */
-window.PM_VAPID = "";
-window.PM_PAY = { orderUrl: "", paypal: "", upi: "" };
+window.PM_VAPID = "BDNLFEsAL16jOFxPHZ5Z8VgvbYD4Vn1GuTCnPsRvrEKmTPS2KeiNcNnq3Bni6hP40eA3rifD3TUQ_vnDLKCmPb4";
+window.PM_PAY = { orderUrl:"", paypal:"", upi:"" };

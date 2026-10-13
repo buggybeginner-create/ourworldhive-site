@@ -1,0 +1,20 @@
+/* Home page motion layer: glow, orbits and hero text. Sits around the globe, never inside its engine. */
+#fxb,#fxf{position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none}
+#fxb{opacity:0;transition:opacity 1.6s ease .2s}
+#fxf{opacity:0;transition:opacity 1.6s ease .5s}
+body.hfx-on #fxb,body.hfx-on #fxf{opacity:1}
+.brand h1{background:linear-gradient(90deg,#ffffff 0%,#ffd98a 28%,#8fd0ff 55%,#ffffff 80%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 2px 14px rgba(124,196,255,.25))}
+.brand p{position:relative;height:1.5em;overflow:hidden}
+.brand p .hw{display:inline-block;transition:opacity .5s ease,transform .5s ease}
+.brand p .hw.out{opacity:0;transform:translateY(8px)}
+.brand p .hw b{color:#ffc857;font-weight:600}
+@media (prefers-reduced-motion:no-preference){
+  .brand h1{animation:hfxShine 9s ease-in-out infinite}
+  @keyframes hfxShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .brand{animation:hfxIn 1s cubic-bezier(.2,.8,.2,1) both .3s}
+  @keyframes hfxIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+  .tools{animation:hfxSide 1s cubic-bezier(.2,.8,.2,1) both .7s}
+  @keyframes hfxSide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+  .pills{animation:hfxIn 1s cubic-bezier(.2,.8,.2,1) both .55s}
+  .search{animation:hfxIn 1s cubic-bezier(.2,.8,.2,1) both .45s}
+}

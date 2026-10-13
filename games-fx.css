@@ -1,0 +1,109 @@
+/* Games page: arcade look. Pure decoration around the existing game list, rankings and game screens. */
+html.gx-js body{background:#050918}
+.gx-aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.gx-aurora i{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
+.gx-aurora i:nth-child(1){left:-18vmax;top:-22vmax;background:radial-gradient(circle,#6d28d9 0%,rgba(109,40,217,0) 62%)}
+.gx-aurora i:nth-child(2){right:-22vmax;top:8vmax;background:radial-gradient(circle,#0891b2 0%,rgba(8,145,178,0) 62%);opacity:.38}
+.gx-aurora i:nth-child(3){left:12vmax;bottom:-30vmax;background:radial-gradient(circle,#db2777 0%,rgba(219,39,119,0) 62%);opacity:.3}
+#gxp{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}
+main#main{position:relative;z-index:1}
+body.playing .gx-aurora,body.playing #gxp,body.playing .gx-orbit,body.playing .gx-stats,body.playing .gx-chips{display:none}
+
+/* hero */
+.arena{position:relative}
+.arena > h1{font-size:clamp(46px,8vw,96px);line-height:.95;letter-spacing:-.045em;font-weight:800;margin-top:10px;background:linear-gradient(100deg,#fff 0%,#ffe9a8 24%,#7ee0ff 52%,#f9a8ff 78%,#fff 100%);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 6px 28px rgba(126,224,255,.25))}
+.arena > .lede{max-width:40ch;color:#cdd8f5}
+.gx-orbit{position:absolute;right:2%;top:-10px;width:min(340px,34vw);aspect-ratio:1;pointer-events:none}
+.gx-orbit .gxo{position:absolute;inset:27%;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0,#ffe08a 18%,#ff9f5a 52%,#7c3aed 100%);box-shadow:0 0 50px rgba(255,159,90,.55),0 0 120px rgba(124,58,237,.45)}
+.gx-orbit .ring{position:absolute;inset:6%;border-radius:50%;border:1px dashed rgba(255,255,255,.28)}
+.gx-orbit .ring.r2{inset:-6%;border-color:rgba(126,224,255,.22)}
+.gx-orbit .sat{position:absolute;left:50%;top:50%;width:0;height:0}
+.gx-orbit .sat span{position:absolute;display:grid;place-items:center;width:44px;height:44px;margin:-22px;border-radius:14px;font-size:24px;background:rgba(12,18,48,.78);border:1px solid rgba(255,255,255,.22);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+@media (max-width:640px){.gx-orbit{opacity:.55;width:44vw;right:-6%;top:-14px}.arena > h1{max-width:7ch}}
+
+.gx-stats{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+.gx-stats div{display:flex;align-items:baseline;gap:7px;padding:9px 15px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.gx-stats b{font-family:var(--sx-d);font-size:24px;font-weight:800;color:#ffd96b;line-height:1}
+.gx-stats span{font-size:13px;color:#cdd8f5;font-weight:600}
+
+/* section headings */
+#hub > h2{position:relative;margin:34px 0 14px;font-size:clamp(24px,3.4vw,32px);font-weight:800;padding-left:16px}
+#hub > h2::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:5px;border-radius:5px;background:linear-gradient(#ffc857,#f472b6,#22d3ee)}
+
+/* filter chips */
+.gx-chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin:0 0 6px;scrollbar-width:none}
+.gx-chips::-webkit-scrollbar{display:none}
+.gx-chips button{flex:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#cdd8f5;font:600 14px var(--sx-b);padding:9px 16px;border-radius:99px;cursor:pointer;transition:transform .2s,background .2s,border-color .2s,color .2s;-webkit-tap-highlight-color:transparent}
+.gx-chips button:hover{transform:translateY(-2px);border-color:rgba(255,200,87,.7)}
+.gx-chips button.on{color:#1a1030;border-color:transparent;background:linear-gradient(135deg,#ffe27a,#ff9f5a);box-shadow:0 6px 18px rgba(255,159,90,.35)}
+.gx-chips button.surp{margin-left:auto;background:linear-gradient(135deg,rgba(124,58,237,.55),rgba(219,39,119,.55));color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* game grid and cards */
+#gList{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:16px}
+#gList .game{--a1:#7c3aed;--a2:#22d3ee;--rx:0deg;--ry:0deg;--mx:50%;--my:50%;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin:0;padding:18px;border-radius:20px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.28);transform:perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .18s ease-out,box-shadow .3s,border-color .3s;will-change:transform}
+#gList .game:hover{border-color:color-mix(in srgb,var(--a1) 70%,#fff 30%);box-shadow:0 18px 44px rgba(0,0,0,.4),0 0 34px color-mix(in srgb,var(--a1) 45%,transparent)}
+#gList .game::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(255,255,255,.2),transparent 60%)}
+#gList .game:hover::before{opacity:1}
+#gList .game::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 18% 0%,color-mix(in srgb,var(--a1) 38%,transparent),transparent 58%);opacity:.7}
+#gList .game .ic{position:relative;z-index:1;width:76px;height:76px;font-size:42px;border-radius:22px;box-shadow:0 10px 26px color-mix(in srgb,var(--a1) 55%,transparent),inset 0 0 0 1px rgba(255,255,255,.25)}
+#gList .game > span:last-child{position:relative;z-index:1;display:block;width:100%}
+#gList .game b{font-size:21px;font-weight:800;letter-spacing:-.02em}
+#gList .game .sub{margin-top:4px;color:#b9c6e8;font-size:14.5px;line-height:1.45}
+#gList .game .tags i{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#d4def5}
+#gList .game.gx-hide{display:none}
+#ckBan{margin-bottom:16px}
+
+/* ranking and bars */
+.abar{background:rgba(255,255,255,.07);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:rgba(255,255,255,.15)}
+#rkBox .card{background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border-color:rgba(255,255,255,.14);border-radius:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.seg button{transition:background .2s,color .2s,transform .15s}
+.seg button:active{transform:scale(.96)}
+#rkT tr{transition:background .2s}
+#rkT tr:hover td{background:rgba(255,255,255,.05)}
+#rkT tr.gx-g1 td{background:linear-gradient(90deg,rgba(255,200,87,.2),transparent)}
+#rkT tr.gx-g2 td{background:linear-gradient(90deg,rgba(203,213,225,.16),transparent)}
+#rkT tr.gx-g3 td{background:linear-gradient(90deg,rgba(217,119,6,.18),transparent)}
+
+@media (prefers-reduced-motion:no-preference){
+  .arena > h1{animation:gxShine 9s ease-in-out infinite}
+  @keyframes gxShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .gx-aurora i:nth-child(1){animation:gxA1 22s ease-in-out infinite alternate}
+  .gx-aurora i:nth-child(2){animation:gxA2 26s ease-in-out infinite alternate}
+  .gx-aurora i:nth-child(3){animation:gxA3 30s ease-in-out infinite alternate}
+  @keyframes gxA1{to{transform:translate(18vmax,12vmax) scale(1.15)}}
+  @keyframes gxA2{to{transform:translate(-20vmax,10vmax) scale(.9)}}
+  @keyframes gxA3{to{transform:translate(14vmax,-14vmax) scale(1.2)}}
+  .gx-orbit .gxo{animation:gxPulse 4s ease-in-out infinite}
+  @keyframes gxPulse{50%{transform:scale(1.07);box-shadow:0 0 70px rgba(255,159,90,.7),0 0 150px rgba(124,58,237,.55)}}
+  .gx-orbit .sat{animation:gxSpin var(--t,14s) linear infinite}
+  .gx-orbit .sat span{animation:gxSpin var(--t,14s) linear infinite reverse}
+  @keyframes gxSpin{to{transform:rotate(360deg)}}
+  .gx-orbit .ring{animation:gxSpin 60s linear infinite}
+  .gx-orbit .ring.r2{animation-direction:reverse;animation-duration:90s}
+  html.gx-js #gList .game{opacity:0;translate:0 26px;transition:opacity .6s ease,translate .6s cubic-bezier(.2,.8,.2,1),transform .18s ease-out,box-shadow .3s,border-color .3s}
+  html.gx-js #gList .game.gx-in{opacity:1;translate:0 0}
+  #gList .game .ic{animation:gxBob 3.6s ease-in-out infinite;animation-delay:var(--d,0s)}
+  @keyframes gxBob{50%{transform:translateY(-5px) rotate(-3deg)}}
+  .gx-stats div{animation:gxUp .7s cubic-bezier(.2,.8,.2,1) both}
+  .gx-stats div:nth-child(2){animation-delay:.1s}.gx-stats div:nth-child(3){animation-delay:.2s}
+  @keyframes gxUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .gx-chips button.surp{animation:gxWob 3.2s ease-in-out infinite}
+  @keyframes gxWob{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-5deg)}94%{transform:rotate(5deg)}}
+}
+@media (prefers-reduced-motion:reduce){.gx-aurora i{filter:blur(70px)}#gList .game{transform:none!important}}
+@media (hover:none){#gList .game{transform:none!important}}
+
+@media (min-width:900px){
+  .arena{max-width:1120px}
+  .arena > h1,.arena > .lede,.gx-stats,.arena > .abar{max-width:640px}
+  .arena > .abar{margin-right:auto}
+  #gList{grid-template-columns:repeat(3,1fr)}
+  #ckBan{padding:26px 28px}
+  #ckBan b{font-size:32px}
+  #ckBan .ck-txt{max-width:60%}
+  #ckBan .ck-bat{font-size:84px;right:40px;top:20px}
+  #rkBox{max-width:760px}
+}
+@media (min-width:1280px){#gList{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:640px){.gx-orbit{display:none}}
+#gList .game[data-g="cricket"]{display:none}

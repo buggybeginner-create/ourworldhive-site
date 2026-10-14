@@ -201,7 +201,7 @@ function create(host,opt){
   else if(yam&&!yam.leaving){yam.leaving=true;yam.lt=T;var sv=yam.sv;if(sv&&sv[3]!=='free'&&sv[3]!=='cine'){cam.tEl=sv[1];cam.tDist=sv[2]}}}
  /* ---------- input ---------- */
  var ptr={},drag=null,pinch=0;
- function ray(px,py){var nx=px/W*2-1,ny=1-py/H*2,t=Math.tan(cam.fov/2),ex=cam.eye,tg=cam.tg;var f=[tg[0]-ex[0],tg[1]-ex[1],tg[2]-ex[2]],l=Math.hypot(f[0],f[1],f[2]);f=[f[0]/l,f[1]/l,f[2]/l];var r=[f[2],0,-f[0]],rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];var u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
+ function ray(px,py){var nx=px/W*2-1,ny=1-py/H*2,t=Math.tan(cam.fov/2),ex=cam.eye,tg=cam.tg;var f=[tg[0]-ex[0],tg[1]-ex[1],tg[2]-ex[2]],l=Math.hypot(f[0],f[1],f[2]);f=[f[0]/l,f[1]/l,f[2]/l];var r=[-f[2],0,f[0]],rl=Math.hypot(r[0],r[2]);r=[r[0]/rl,0,r[2]/rl];var u=[r[1]*f[2]-r[2]*f[1],r[2]*f[0]-r[0]*f[2],r[0]*f[1]-r[1]*f[0]];
   var d=[f[0]+r[0]*nx*t*(W/H)+u[0]*ny*t,f[1]+r[1]*nx*t*(W/H)+u[1]*ny*t,f[2]+r[2]*nx*t*(W/H)+u[2]*ny*t];return function(py0){var s=(py0-ex[1])/d[1];return s>0?[ex[0]+d[0]*s,ex[2]+d[2]*s]:null}}
  function pickAt(cx,cy){var rc=cv.getBoundingClientRect(),R=ray(cx-rc.left,cy-rc.top),a=R(.1),b=R(.55);return[a?xzSq(a[0],a[1]):-1,b?xzSq(b[0],b[1]):-1]}
  cv.addEventListener('pointerdown',function(ev){ev.preventDefault();try{cv.setPointerCapture(ev.pointerId)}catch(_){}ptr[ev.pointerId]={x:ev.clientX,y:ev.clientY};drag={id:ev.pointerId,x:ev.clientX,y:ev.clientY,moved:0,t:performance.now()};cam.drag=true;cv.focus&&cv.focus()});
@@ -212,7 +212,7 @@ function create(host,opt){
  cv.addEventListener('wheel',function(ev){ev.preventDefault();cam.tDist=clamp(cam.tDist*(1+ev.deltaY*.0012),cam.base*.55,cam.base*1.6);cam.mode='free'},{passive:false});
  function camMode(m){cam.mode=m;fit();var a0=flip?Math.PI:0;if(m==='player'){cam.tAz=a0;cam.tEl=.9;cam.tDist=cam.base}else if(m==='top'){cam.tAz=a0;cam.tEl=1.5;cam.tDist=cam.base*1.02}else if(m==='low'){cam.tAz=a0;cam.tEl=.5;cam.tDist=cam.base*.92}else if(m==='cine'){cam.tEl=.72;cam.tDist=cam.base*.95}else if(m==='side'){cam.tAz=a0+Math.PI/2;cam.tEl=.6;cam.tDist=cam.base*.95}}
  return{canvas:cv,setBoard:function(b,drop){setBoard(b,drop)},sync:sync,move:move,marks:function(m){marks=m},setFlip:function(f){flip=!!f;resetPos();camMode(cam.mode==='free'?'player':cam.mode)},theme:function(id){theme=THEMES[id]||theme},skin:function(id){skin=SKINS[id]||skin},camera:camMode,camMode:function(){return cam.mode},
-  onTap:function(f){tapCb=f},summon:summon,hasYam:function(){return !!(yam&&!yam.leaving)},kingFall:kingFall,flash:flash,shake:function(v){shake=Math.max(shake,v)},busy:function(){return T<queueEnd||ghosts.length>0},
+  onTap:function(f){tapCb=f},pick:pickAt,summon:summon,hasYam:function(){return !!(yam&&!yam.leaving)},kingFall:kingFall,flash:flash,shake:function(v){shake=Math.max(shake,v)},busy:function(){return T<queueEnd||ghosts.length>0},
   project:function(sq,y){var xz=sqXZ(sq);return e.project([xz[0],y||1,xz[1]])},now:now,
   dispose:function(){dead=true;cancelAnimationFrame(raf);if(ro)ro.disconnect();root.removeEventListener('resize',resize);try{e.dispose()}catch(_){}cv.remove()},_cam:cam,_pcs:pcs}}
 root.Chess3D={create:create,THEMES:THEMES,SKINS:SKINS};

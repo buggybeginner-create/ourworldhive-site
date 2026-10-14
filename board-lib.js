@@ -92,18 +92,21 @@ BX.lobby=function(root,o){BX.closeFs();
  root.innerHTML='<div class="bx-lob"><div class="bx-card"><label class="bx-l">Your name</label><input id="bxN" maxlength="16" class="bx-in" value="'+BX.name()+'">'+
  '<div class="bx-tabs"><button data-t="bot" class="on">🤖 Vs Computer</button>'+(o.noLocal?'':'<button data-t="loc">👥 Pass &amp; play</button>')+'<button data-t="on">🌐 Online</button></div><div id="bxP"></div></div>'+
  '<div class="bx-card bx-note"><b>Fair play.</b> '+(o.note||'')+'</div></div>';
+ var TCS=o.timer||null,tcI=0;try{tcI=Math.min((TCS||[]).length-1,+localStorage.getItem('owh_tc')||0)}catch(e){}
  var P=$('#bxP',root),tab='bot',nB=o.maxP?Math.min(o.maxP,o.minP||2):2,lvl=1,unW=null;
  $('#bxN',root).oninput=function(){BX.name(this.value)};
  var nums=function(id,lo,hi,cur){var h='';for(var i=lo;i<=hi;i++)h+='<button data-v="'+i+'" class="'+(i===cur?'on':'')+'">'+i+'</button>';return'<div class="bx-seg" id="'+id+'">'+h+'</div>'};
  function seg(id,cb){$('#'+id,root).onclick=function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(this.children,function(x){x.classList.remove('on')});b.classList.add('on');cb(b.dataset.v)}}
- function start(sess){root.innerHTML='';o.onStart(sess)}
+ function tcHtml(){if(!TCS)return'';return'<label class="bx-l">⏱ Timer mode</label><div class="bx-seg bx-tc" id="bxT">'+TCS.map(function(t,i){return'<button data-v="'+i+'" class="'+(i===tcI?'on':'')+'">'+t.n+'</button>'}).join('')+'</div>'}
+ function tcBind(){if(TCS)seg('bxT',function(v){tcI=+v;try{localStorage.setItem('owh_tc',v)}catch(e){}})}
+ function start(sess){if(TCS&&TCS[tcI]&&TCS[tcI].m&&sess.mode!=='online')sess.tc={m:TCS[tcI].m,inc:TCS[tcI].inc||0};root.innerHTML='';o.onStart(sess)}
  function names(n,bots,human){var a=[];for(var i=0;i<n;i++){a.push({name:i===0?BX.name():(bots?o.botNames?o.botNames[i-1]:'Computer '+i:'Player '+(i+1)),bot:!!(bots&&i>0),level:lvl})}return a}
  function render(){
   if(unW){unW();unW=null}
-  if(tab==='bot'){P.innerHTML='<label class="bx-l">Difficulty</label><div class="bx-seg" id="bxL"><button data-v="0">Easy</button><button data-v="1" class="on">Medium</button><button data-v="2">Hard</button></div>'+(o.maxP>2?'<label class="bx-l">Players (you + computers)</label>'+nums('bxC',o.minP||2,o.maxP,nB):'')+'<button class="btn gold bx-go" id="bxGo">Start game</button>';
-   seg('bxL',function(v){lvl=+v});if(o.maxP>2)seg('bxC',function(v){nB=+v});
+  if(tab==='bot'){P.innerHTML='<label class="bx-l">Difficulty</label><div class="bx-seg" id="bxL"><button data-v="0">Easy</button><button data-v="1" class="on">Medium</button><button data-v="2">Hard</button></div>'+tcHtml()+(o.maxP>2?'<label class="bx-l">Players (you + computers)</label>'+nums('bxC',o.minP||2,o.maxP,nB):'')+'<button class="btn gold bx-go" id="bxGo">Start game</button>';
+   seg('bxL',function(v){lvl=+v});tcBind();if(o.maxP>2)seg('bxC',function(v){nB=+v});
    $('#bxGo',root).onclick=function(){var n=o.maxP>2?nB:2;start({mode:'bot',seats:names(n,true),me:0,seed:Math.floor(Math.random()*2147483646)+1,uids:null})}}
-  else if(tab==='loc'){P.innerHTML=(o.maxP>2?'<label class="bx-l">Players on this device</label>'+nums('bxC',o.minP||2,o.maxP,nB):'<p class="bx-p">Two players share this screen and take turns.</p>')+'<button class="btn gold bx-go" id="bxGo">Start game</button>';
+  else if(tab==='loc'){P.innerHTML=(o.maxP>2?'<label class="bx-l">Players on this device</label>'+nums('bxC',o.minP||2,o.maxP,nB):'<p class="bx-p">Two players share this screen and take turns.</p>')+tcHtml()+'<button class="btn gold bx-go" id="bxGo">Start game</button>';tcBind();
    if(o.maxP>2)seg('bxC',function(v){nB=+v});
    $('#bxGo',root).onclick=function(){var n=o.maxP>2?nB:2,a=names(n,false);a[0].name=BX.name();start({mode:'local',seats:a,me:0,seed:Math.floor(Math.random()*2147483646)+1,uids:null})}}
   else{P.innerHTML='<div id="bxOn"><p class="bx-p">Connecting…</p></div>';
@@ -144,9 +147,9 @@ BX.frame=function(root,o){
  var fs=el('<div class="bx-fs"><i class="bx-b1"></i><i class="bx-b2"></i><div class="bx-top"><div class="bx-pls" id="bxPls"></div><div class="bx-st" id="bxSt"></div><button class="bx-ib" id="bxMn" aria-label="Menu">☰</button></div><div class="bx-mid"><div class="bx-stage" id="bxStage"></div></div><div class="bx-bot"><div class="bx-em" id="bxEm"></div><button class="bx-ib" id="bxCh" aria-label="Chat">💬<b class="bx-dot" hidden></b></button></div><div class="bx-pop" id="bxPop" hidden><div class="bx-tools" id="bxTools"></div>'+(o.noMoves?'':'<div class="bx-moves" id="bxMv"></div>')+'<div class="bx-ver" id="bxVer"></div><div class="bx-ctl"><button class="btn" id="bxRs">'+(o.resignLabel||'Resign')+'</button><button class="btn" id="bxSn">🔊 Sound</button><button class="btn" id="bxLv">Leave</button></div></div><div class="bx-chat" id="bxChat" hidden><div class="bx-cl" id="bxCl"></div><form id="bxCf"><input maxlength="120" placeholder="Say something nice…" autocomplete="off"><button class="btn gold">Send</button></form></div><div class="bx-fl" id="bxFl"></div></div>');
  document.body.appendChild(fs);document.documentElement.classList.add('bx-nos');
  var Q=function(i){return fs.querySelector(i)},F={stage:Q('#bxStage'),tools:Q('#bxTools'),mv:Q('#bxMv'),fs:fs};
- var P=Q('#bxPls');if(seats.length>2)P.classList.add('many');seats.forEach(function(s,i){P.appendChild(el('<div class="bx-pl" data-i="'+i+'"><span class="av" style="background:'+(o.colors?o.colors[i]:BX.COLORS[i])+'">'+(s.bot?'🤖':esc(s.name||'?').charAt(0).toUpperCase())+'</span><span class="nm"><b>'+esc(s.name||'Player').slice(0,12)+(o.me===i&&mode==='online'?' • you':'')+'</b><small>'+(o.sub?o.sub[i]:'')+'</small></span><span class="sc"></span></div>'))});
+ var P=Q('#bxPls');if(seats.length>2)P.classList.add('many');seats.forEach(function(s,i){P.appendChild(el('<div class="bx-pl" data-i="'+i+'"><span class="av" style="background:'+(o.colors?o.colors[i]:BX.COLORS[i])+'">'+(s.bot?'🤖':esc(s.name||'?').charAt(0).toUpperCase())+'</span><span class="nm"><b>'+esc(s.name||'Player').slice(0,12)+(o.me===i&&mode==='online'?' • you':'')+'</b><small>'+(o.sub?o.sub[i]:'')+'</small></span><span class="ck" hidden></span><span class="sc"></span></div>'))});
  F.act=function(i){[].forEach.call(P.children,function(c,k){c.classList.toggle('act',k===i)})};
- F.sc=function(i,t){P.children[i].querySelector('.sc').textContent=t};F.sub=function(i,t){P.children[i].querySelector('small').innerHTML=t};
+ F.clock=function(i,t,cls){var c=P.children[i].querySelector('.ck');c.hidden=false;c.textContent=t;c.className='ck '+(cls||'')};F.sc=function(i,t){P.children[i].querySelector('.sc').textContent=t};F.sub=function(i,t){P.children[i].querySelector('small').innerHTML=t};
  F.status=function(t){Q('#bxSt').innerHTML=t};
  F.ver=function(n){Q('#bxVer').innerHTML=mode==='online'?'🔒 '+n+' moves verified (hash-chained)':''};
  F.addMove=function(t,i){if(!F.mv)return;if(i%2===0&&o.pairs)F.mv.appendChild(el('<i>'+(i/2+1)+'.</i>'));var d=document.createElement('span');d.textContent=t;F.mv.appendChild(d);F.mv.scrollTop=1e6};

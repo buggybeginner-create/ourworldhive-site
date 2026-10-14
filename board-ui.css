@@ -86,3 +86,5 @@ html.bx-nos,html.bx-nos body{overflow:hidden!important;height:100%}
 @media(max-height:560px){.bx-fs{--bs:min(96vw,calc(100dvh - 120px))}.bx-em button{font-size:18px;height:30px}}
 .bx-pop[hidden],.bx-chat[hidden],.bx-dot[hidden]{display:none!important}
 @media(max-width:600px){.bx-pls.many{max-width:none;flex:1;flex-wrap:nowrap}.bx-pls.many .nm{display:none}.bx-pls.many .bx-pl{padding:4px 8px 4px 4px}.bx-top:has(.many){flex-wrap:wrap;row-gap:2px}.bx-pls.many+.bx-st{order:3;flex-basis:100%;margin-top:-2px}.bx-pls.many+.bx-st small{display:none}}
+
+.bx-pl .ck{font:800 14px/1 ui-monospace,Menlo,monospace;padding:4px 7px;border-radius:8px;background:rgba(0,0,0,.35);color:#eaf1ff;margin-left:4px;white-space:nowrap}.bx-pl .ck.low{background:#7a1010;color:#fff;animation:bxlow .6s infinite alternate}.bx-pl .ck.on{outline:1px solid #ffc857}@keyframes bxlow{to{background:#c01818}}.bx-tc{flex-wrap:wrap}

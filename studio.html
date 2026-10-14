@@ -182,6 +182,10 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 .msg4{ margin:14px 0 0; min-height:22px; font-size:14.5px; color:var(--sx-soft); } .msg4.err{ color:#ff9aa6; } .msg4.ok{ color:#7de2a8; }
 .chk{ display:flex; align-items:center; gap:10px; margin:0 0 12px; font-size:16px; color:var(--sx-ink); } .chk input{ width:22px; height:22px; accent-color:#ffc857; }
 .modal4{ position:fixed; inset:0; z-index:300; background:rgba(3,5,15,.88); overflow:auto; padding:20px 14px 60px; } .modal4 .in{ max-width:820px; margin:0 auto; background:#080c20; border:1px solid var(--sx-line); border-radius:18px; padding:20px; }
+
+.vvk{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:14px 0; } .vvk div{ padding:14px; border-radius:14px; border:1px solid var(--sx-line,rgba(255,255,255,.14)); background:rgba(255,200,87,.07); text-align:center; } .vvk b{ display:block; font-size:30px; color:#ffc857; } .vvk span{ font-size:13px; opacity:.8; }
+.vvg{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; } .vvb{ position:relative; display:flex; justify-content:space-between; gap:8px; padding:5px 8px; margin:4px 0; border-radius:8px; font-size:14px; overflow:hidden; background:rgba(255,255,255,.04); } .vvb i{ position:absolute; left:0; top:0; bottom:0; background:rgba(255,200,87,.2); z-index:0; } .vvb span,.vvb b{ position:relative; z-index:1; }
+.vvmap canvas{ width:100%; height:auto; border-radius:14px; border:1px solid rgba(255,255,255,.14); } .vvt{ overflow:auto; max-height:360px; } .vvt table{ width:100%; border-collapse:collapse; font-size:13.5px; } .vvt th,.vvt td{ text-align:left; padding:6px 8px; border-bottom:1px solid rgba(255,255,255,.1); white-space:nowrap; }
 </style><link rel="stylesheet" href="site-fx.css"></head>
 <body><header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="games.html">Games</a></li><li><a href="legends.html">Legends</a></li><li><a href="animeway.html">Anime Way</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="electronics.html">Spark Bench</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header><main id="main">
 <div class="st">
@@ -210,7 +214,7 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 </section>
 
 <section id="sApp" hidden>
-  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Marketplace</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
+  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Marketplace</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tV" aria-selected="false">Visitors</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
     <div class="who"><span id="whoName"></span><button class="sb" id="sOut" type="button">Sign out</button></div></div>
 
   <div id="vP">
@@ -306,6 +310,15 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
       <div id="aList"></div>
       <label class="fld" style="margin-top:12px">Add an email address (Google account)<input id="aE" type="email" autocomplete="off" placeholder="name@gmail.com"></label>
       <div class="row"><button class="sb gold" id="aAdd" type="button">Add admin</button></div><p class="msg4" id="aMsg" role="status"></p></div>
+  </div>
+  <div id="vV" hidden>
+    <div class="box"><h2>Where your visitors come from</h2><p>Approximate place of each visit (country and city), the page they opened and their device. Your own visits are not counted. No IP addresses are stored.</p>
+      <div class="row"><label class="chk">Show <select id="vvRange"><option value="1">last 24 hours</option><option value="7" selected>last 7 days</option><option value="30">last 30 days</option><option value="0">all loaded</option></select></label><button class="sb" id="vvReload" type="button">Refresh</button><button class="sb red" id="vvClear" type="button">Delete all visit records</button><span id="vvMsg" class="msg4"></span></div>
+      <div class="vvk" id="vvK"></div>
+      <div class="vvg"><div><h3>Countries</h3><div id="vvC"></div></div><div><h3>Cities</h3><div id="vvT"></div></div><div><h3>Pages</h3><div id="vvP"></div></div><div><h3>Devices and sources</h3><div id="vvD"></div></div></div>
+      <h3>World map of visits</h3><div class="vvmap"><canvas id="vvMap" width="900" height="420" aria-label="Map of visit locations"></canvas></div>
+      <h3>Latest visits</h3><div class="vvt"><table><thead><tr><th>When</th><th>Place</th><th>Page</th><th>Device</th><th>From</th></tr></thead><tbody id="vvL"></tbody></table></div>
+    </div>
   </div>
   <div id="vB" hidden>
     <div class="box"><h2>Backup</h2><p>Download a copy of everything you made here (posts, reviews, gallery entries, marketplace items, settings). Keep it somewhere safe.</p>
@@ -405,9 +418,43 @@ $('uAgain').onclick=function(){ say('uMsg','Checking\u2026'); gate(); };
 $('uOut').onclick=$('sOut').onclick=function(){ auth.signOut(); };
 
 /* ---------- tabs ---------- */
-var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tB','vB']];
+var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tV','vV'],['tB','vB']];
 TABS.forEach(function(t,i){ $(t[0]).onclick=function(){ TABS.forEach(function(u,k){ $(u[0]).setAttribute('aria-selected',String(k===i)); $(u[1]).hidden=k!==i; }); }; });
 
+
+/* ---------- visitors: where they come from ---------- */
+var VV=[], vvLoaded=false;
+function vvLoad(){
+  say('vvMsg','Loading\u2026');
+  db.collection('visits').orderBy('t','desc').limit(2000).get().then(function(q){ VV=q.docs.map(function(d){ var x=d.data(); x.id=d.id; return x; }); vvLoaded=true; say('vvMsg',VV.length+' records loaded'); vvRender(); }).catch(function(e){ say('vvMsg','Could not load. Publish the Firestore rules for visits (see the chat) and try again.'); });
+}
+function vvTop(list,key,n){ var m={}; list.forEach(function(x){ var k=key(x); if(k) m[k]=(m[k]||0)+1; }); var a=Object.keys(m).map(function(k){ return [k,m[k]]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,n); var mx=a.length?a[0][1]:1; return a.length?a.map(function(r){ return '<div class="vvb"><span>'+esc(r[0])+'</span><i style="width:'+Math.max(4,Math.round(r[1]/mx*100))+'%"></i><b>'+r[1]+'</b></div>'; }).join(''):'<p class="note">No data yet.</p>'; }
+function flag(cc){ cc=String(cc||'').toUpperCase(); return /^[A-Z]{2}$/.test(cc)?String.fromCodePoint(127397+cc.charCodeAt(0),127397+cc.charCodeAt(1)):'\uD83C\uDF10'; }
+function vvRender(){
+  var days=+$('vvRange').value, cut=days?Date.now()-days*864e5:0, L=VV.filter(function(x){ return (x.t||0)>=cut; });
+  var vis={}; L.forEach(function(x){ vis[x.vid||x.id]=1; });
+  var ctry={}; L.forEach(function(x){ if(x.co) ctry[x.co]=1; });
+  $('vvK').innerHTML='<div><b>'+L.length+'</b><span>visits</span></div><div><b>'+Object.keys(vis).length+'</b><span>different visitors</span></div><div><b>'+Object.keys(ctry).length+'</b><span>countries</span></div><div><b>'+new Set(L.map(function(x){ return x.ci&&x.co?x.ci+x.co:''; }).filter(Boolean)).size+'</b><span>cities</span></div>';
+  $('vvC').innerHTML=vvTop(L,function(x){ return x.co?flag(x.cc)+' '+x.co:''; },12);
+  $('vvT').innerHTML=vvTop(L,function(x){ return x.ci?x.ci+(x.cc?', '+x.cc:''):''; },12);
+  $('vvP').innerHTML=vvTop(L,function(x){ return x.pg; },12);
+  $('vvD').innerHTML=vvTop(L,function(x){ return x.dv?'Device: '+x.dv:''; },4)+vvTop(L,function(x){ return x.rf?'From: '+x.rf:'From: direct'; },6);
+  $('vvL').innerHTML=L.slice(0,60).map(function(x){ return '<tr><td>'+esc(new Date(x.t).toLocaleString())+'</td><td>'+flag(x.cc)+' '+esc([x.ci,x.rg,x.co].filter(Boolean).join(', ')||'Unknown')+'</td><td>'+esc(x.pg||'')+'</td><td>'+esc(x.dv||'')+'</td><td>'+esc(x.rf||'direct')+'</td></tr>'; }).join('')||'<tr><td colspan="5">No visits recorded yet. They appear here after the first public visit.</td></tr>';
+  vvMap(L);
+}
+function vvMap(L){
+  var c=$('vvMap'), x=c.getContext('2d'), W=c.width, H=c.height; x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#0b1233'); g.addColorStop(1,'#050918'); x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(255,255,255,.07)'; x.lineWidth=1; for(var i=1;i<12;i++){ x.beginPath(); x.moveTo(W*i/12,0); x.lineTo(W*i/12,H); x.stroke(); } for(i=1;i<6;i++){ x.beginPath(); x.moveTo(0,H*i/6); x.lineTo(W,H*i/6); x.stroke(); }
+  x.fillStyle='rgba(255,255,255,.35)'; x.font='11px sans-serif'; x.fillText('180\u00B0W',4,H-4); x.fillText('0\u00B0',W/2-6,H-4); x.fillText('180\u00B0E',W-40,H-4);
+  var m={}; L.forEach(function(v){ if(v.la==null||v.lo==null||(!v.la&&!v.lo)) return; var k=v.la+','+v.lo; (m[k]=m[k]||{la:v.la,lo:v.lo,n:0,nm:[v.ci,v.co].filter(Boolean).join(', ')}).n++; });
+  var pts=Object.keys(m).map(function(k){ return m[k]; }), mx=pts.reduce(function(a,p){ return Math.max(a,p.n); },1);
+  pts.forEach(function(p){ var px=(p.lo+180)/360*W, py=(90-p.la)/180*H, r=5+Math.sqrt(p.n/mx)*14; var rg=x.createRadialGradient(px,py,0,px,py,r*2); rg.addColorStop(0,'rgba(255,200,87,.95)'); rg.addColorStop(.35,'rgba(255,200,87,.45)'); rg.addColorStop(1,'rgba(255,200,87,0)'); x.fillStyle=rg; x.beginPath(); x.arc(px,py,r*2,0,7); x.fill(); x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,2.2,0,7); x.fill(); });
+  var top=pts.slice().sort(function(a,b){ return b.n-a.n; }).slice(0,6); x.fillStyle='rgba(234,241,255,.85)'; x.font='12px sans-serif'; top.forEach(function(p){ x.fillText(p.nm+' ('+p.n+')',(p.lo+180)/360*W+8,(90-p.la)/180*H-8); });
+}
+$('tV').addEventListener('click',function(){ if(!vvLoaded) vvLoad(); });
+$('vvRange').onchange=vvRender; $('vvReload').onclick=vvLoad;
+$('vvClear').onclick=function(){ if(!confirm('Delete all visit records permanently?')) return; say('vvMsg','Deleting\u2026'); db.collection('visits').get().then(function(q){ var b=db.batch(); q.docs.slice(0,450).forEach(function(d){ b.delete(d.ref); }); return b.commit().then(function(){ return q.size; }); }).then(function(n){ say('vvMsg','Deleted '+Math.min(n,450)+'. '+(n>450?'Press again for more.':'')); vvLoad(); }).catch(function(){ say('vvMsg','Could not delete.'); }); };
 var HM=[['pp','Project Planner'],['pm','PM Tracker'],['ex','Expense Tracker']],HGL=[['highway','Highway Racer 3D'],['runner','Sky Runner 3D'],['stack','Stack Tower 3D'],['space','Galaxy Rush 3D'],['pingpong','Table Tennis 3D'],['badminton','Badminton 3D'],['cricket','Cricket 3D'],['tank','Tank Battle 3D'],['snake','Snake 3D'],['hop','Sky Hop 3D'],['penalty','Penalty Shootout 3D'],['hoops','Hoops 3D'],['mole','Mole Smash 3D'],['memory','Memory Match'],['merge','Merge 2048']],hid={mk:'',gm:''};
 function hasH(l,id){ return String(l||'').split(',').indexOf(id)>=0; }
 function renderHidden(){

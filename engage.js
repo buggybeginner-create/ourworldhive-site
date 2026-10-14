@@ -194,6 +194,23 @@
     }).catch(function () {});
   }
 
+
+  /* ---------- visit log: approximate place (country / city), once per browser session, no IP stored ---------- */
+  function logVisit() {
+    try { if (localStorage.getItem('owh_owner') === '1' || navigator.doNotTrack === '1' || sessionStorage.getItem('owh_vl')) return; sessionStorage.setItem('owh_vl', '1'); } catch (e) { return; }
+    var vid = ''; try { vid = localStorage.getItem('owh_vid') || ''; } catch (e) {}
+    function s(v, n) { return { stringValue: String(v == null ? '' : v).slice(0, n) }; }
+    fetch('https://ipwho.is/?fields=success,country,country_code,region,city,latitude,longitude').then(function (r) { return r.ok ? r.json() : null; }).then(function (g) {
+      if (!g || !g.success) return;
+      var ua = navigator.userAgent || '', dev = /Mobi|Android|iPhone/i.test(ua) ? 'mobile' : /iPad|Tablet/i.test(ua) ? 'tablet' : 'desktop';
+      var ref = ''; try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+      var f = { t: { integerValue: String(Date.now()) }, vid: s(vid, 40), cc: s(g.country_code, 2), co: s(g.country, 60), rg: s(g.region, 60), ci: s(g.city, 60),
+        la: { doubleValue: Math.round((+g.latitude || 0) * 10) / 10 }, lo: { doubleValue: Math.round((+g.longitude || 0) * 10) / 10 },
+        pg: s(location.pathname.replace(/^\//, '') || 'index.html', 80), rf: s(ref, 80), dv: s(dev, 10) };
+      return fetch(BASE + '/visits' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true, body: JSON.stringify({ fields: f }) });
+    }).catch(function () {});
+  }
+
   var st = document.createElement('style');
   st.textContent = '.owhe{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif}' +
     '.owhe .eb{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:inherit;font:inherit;cursor:pointer}' +
@@ -212,7 +229,7 @@
 
   window.OWHEng = { mount: scan, fill: fill, view: view, signIn: signIn, sdk: sdk, me: function () { return ME; } };
   function boot() {
-    scan(document); fill(document); siteStats();
+    scan(document); fill(document); siteStats(); setTimeout(logVisit, 1500);
     var t = 0;
     new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { scan(document); fill(document); }, 80); }).observe(document.body, { childList: true, subtree: true });
   }

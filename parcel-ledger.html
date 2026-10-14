@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Parcel Ledger | Ourworldhive</title>
 <meta name="description" content="Parcel Ledger tracks every online order from Amazon, Flipkart, Myntra, Meesho and FirstCry: spending by month or financial year, budgets, returns and damage claims, several accounts and a price check against other suppliers.">
-<meta name="theme-color" content="#0E6B5A"><link rel="canonical" href="https://ourworldhive.com/parcel-ledger.html">
+<meta name="theme-color" content="#0E6B5A"><meta name="robots" content="noindex"><link rel="manifest" href="parcel-manifest.webmanifest"><link rel="apple-touch-icon" href="parcel-apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Parcel Ledger"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="canonical" href="https://ourworldhive.com/parcel-ledger.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E6B5A'/%3E%3Cpath d='M7 12l9-5 9 5v9l-9 5-9-5z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M7 12l9 5 9-5M16 17v9' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -42,10 +42,12 @@ details.paste{margin-bottom:14px;background:var(--surface);border:1px solid var(
 @media(max-width:380px){.tiles{grid-template-columns:1fr 1fr}.tile.main{grid-column:1/-1}}
 @media(prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:0}}}
 </style></head><body>
-<div class="wrap" id="app"><header><div><a class="back" href="marketplace.html">&larr; Marketplace</a><h1>Parcel Ledger</h1></div><span class="msg" id="today"></span></header><div id="view"></div></div>
+<div id="soon" hidden style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px"><div><div style="font-size:64px">📦</div><h1 style="margin:10px 0 8px;font-size:34px">Parcel Ledger</h1><p style="font-size:18px;font-weight:600;color:var(--accent);margin:0 0 8px">Coming soon. We are launching soon.</p><p class="msg" style="max-width:34ch;margin:0 auto 18px">Track every online order, budgets, returns and refunds in one app.</p><a class="btn pri" href="marketplace.html" style="text-decoration:none;display:inline-block">Back to Marketplace</a></div></div><div class="wrap" id="app"><header><div><a class="back" href="marketplace.html">&larr; Marketplace</a><h1>Parcel Ledger</h1></div><span style="display:grid;gap:4px;justify-items:end"><span class="msg" id="today"></span><button class="btn sm" id="inst" type="button" hidden>Install app</button></span></header><div id="view"></div></div>
 <button class="fab" id="fab" type="button">+ Add order</button><div id="overlay"></div><div id="toast" class="toast" hidden></div>
 <script>
 (function(){
+var own=false;try{own=localStorage.getItem('owh_owner')==='1'}catch(e){}
+if(!own){document.getElementById('soon').hidden=false;document.getElementById('app').hidden=true;document.getElementById('fab').hidden=true;return}
 var STORES={amazon:{n:'Amazon',v:'--amz'},flipkart:{n:'Flipkart',v:'--fk'},myntra:{n:'Myntra',v:'--myn'},meesho:{n:'Meesho',v:'--mee'},firstcry:{n:'FirstCry',v:'--fc'},other:{n:'Other',v:'--oth'}};
 var TYPES=['Fashion','Electronics','Home','Baby & Kids','Beauty','Grocery','Books','Auto','Jewellery','Other'];
 var TYPEKEY={Fashion:/shirt|top|kurta|saree|jeans|trouser|dress|pyjama|shoe|sandal|jacket|tee|t-shirt|joggers|hoodie|set\b|lehenga|sneaker/i,Electronics:/phone|cover|earbud|charger|cable|laptop|watch|bluetooth|speaker|headphone|camera|power bank|remote control|back cover|usb/i,Home:/bedsheet|curtain|kitchen|bottle|lamp|mattress|towel|cooker|mop|storage|cover for|wheeler/i,'Baby & Kids':/baby|toy|diaper|chicco|kids|infant|toothpaste.*6m|firstcry/i,Beauty:/cream|lipstick|shampoo|serum|perfume|makeup|face|hair|lotion/i,Grocery:/rice|dal|oil|snack|tea|coffee|biscuit|masala/i,Books:/book|novel|guide|edition/i,Auto:/car|bike|helmet|tyre|motor|yamaha|honda|two wheeler/i,Jewellery:/bangle|bracelet|necklace|earring|jewellery|ring\b|pendant|anklet|oxidised/i};
@@ -167,6 +169,10 @@ document.addEventListener('submit',function(e){var fm=e.target;if(fm.dataset&&fm
 document.addEventListener('change',function(e){var t=e.target;if(t.id==='vm'){f.vm=t.value;f.period='';render()}else if(t.id==='period'){f.period=t.value;render()}else if(t.id==='acc'){S.account=t.value;save();render()}});
 document.getElementById('fab').onclick=function(){openOrder()};
 load();render();
-if('serviceWorker' in navigator&&0){}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('parcel-sw.js',{scope:'./parcel-ledger.html'}).catch(function(){});
+var dp=null,ib=document.getElementById('inst');window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;ib.hidden=false});
+ib.onclick=function(){if(dp){dp.prompt();dp=null;ib.hidden=true}};window.addEventListener('appinstalled',function(){ib.hidden=true;toast('Installed')});
+if(/iphone|ipad/i.test(navigator.userAgent)&&!window.navigator.standalone){ib.hidden=false;ib.onclick=function(){toast('Tap Share, then Add to Home Screen')}}
+if(window.matchMedia('(display-mode: standalone)').matches)ib.hidden=true;
 })();
 </script></body></html>

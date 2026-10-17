@@ -1,0 +1,2454 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Vansh Family Tree | Ourworldhive</title><meta name="description" content="Vansh is a free family tree maker. Add parents, brothers, sisters, husband, wife and children from a dropdown. See ages, birth order, Chacha, Mama and Bhabhi relations, photos and many tree views. Export to PDF, Excel and GEDCOM."><meta name="theme-color" content="#0E6E6A"><link rel="canonical" href="https://ourworldhive.com/family-tree.html"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230E6E6A'/%3E%3Cpath d='M16 8v8M16 16H9v5M16 16h7v5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='8' r='3' fill='white'/%3E%3Ccircle cx='9' cy='22' r='3' fill='white'/%3E%3Ccircle cx='23' cy='22' r='3' fill='white'/%3E%3C/svg%3E"><meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Vansh Family Tree"><meta property="og:description" content="Vansh is a free family tree maker. Add parents, brothers, sisters, husband, wife and children from a dropdown. See ages, birth order, Chacha, Mama and Bhabhi relations, photos and many tree views. Export to PDF, Excel and GEDCOM."><meta property="og:url" content="https://ourworldhive.com/family-tree.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a full-width working surface. Top bar with the tree name and actions, a scrolling row of view tabs, one big canvas, and a person panel that is a side panel on desktop and a bottom sheet on phones. */
+:root{
+  --bg:#EDF1F3;--panel:#FFFFFF;--ink:#12222C;--ink2:#4B5E6A;--line:#D2DBE1;--soft:#E3EAEE;
+  --accent:#0E6E6A;--accent-ink:#FFFFFF;--m:#2E6BB0;--f:#B5487A;--x:#7A5DB5;
+  --ok:#2E8B57;--warn:#A86A12;--err:#C0392B;--dead:#7C8A94;--shadow:0 6px 24px rgba(18,34,44,.14);
+  --fd:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;--fb:'Figtree','Segoe UI',system-ui,sans-serif;--fm:'DM Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1419;--panel:#141F26;--ink:#E6EEF2;--ink2:#9BB0BC;--line:#26353E;--soft:#1B2A33;
+  --accent:#4FC3BC;--accent-ink:#06211F;--m:#6EA6E8;--f:#E27FAE;--x:#A28BE0;
+  --ok:#5CC88A;--warn:#E0B054;--err:#F07463;--dead:#7F909B;--shadow:0 6px 24px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1419;--panel:#141F26;--ink:#E6EEF2;--ink2:#9BB0BC;--line:#26353E;--soft:#1B2A33;
+  --accent:#4FC3BC;--accent-ink:#06211F;--m:#6EA6E8;--f:#E27FAE;--x:#A28BE0;
+  --ok:#5CC88A;--warn:#E0B054;--err:#F07463;--dead:#7F909B;--shadow:0 6px 24px rgba(0,0,0,.5);color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--fb);padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1500px;margin:0 auto;padding-block:12px 40px}
+h1,h2,h3{font-family:var(--fd);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.muted{color:var(--ink2)}
+.mono{font-family:var(--fm)}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.brand input{font:700 20px/1.2 var(--fd);background:transparent;border:1px solid transparent;border-radius:6px;padding:2px 6px;margin-left:-6px;width:min(100%,22ch);min-width:0;color:var(--ink)}
+.brand input:hover,.brand input:focus{border-color:var(--line)}
+.brand small{display:block;color:var(--ink2);font-size:12.5px}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{min-height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--soft)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.08);background:var(--accent)}
+.btn.sm{min-height:34px;padding:0 10px;font-size:13px}
+.btn.dng{color:var(--err)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:12px;background:var(--soft);color:var(--ink)}
+.badge.err{background:var(--err);color:#fff}.badge.warn{background:var(--warn);color:#fff}.badge.ok{background:var(--ok);color:#fff}
+.bar2{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.search{position:relative;flex:1 1 240px;max-width:420px}
+.search input{width:100%;min-height:40px;border-radius:9px;border:1px solid var(--line);background:var(--panel);padding:0 12px}
+.drop{position:absolute;left:0;right:0;top:44px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);z-index:30;max-height:320px;overflow:auto}
+.drop button{display:flex;width:100%;text-align:left;gap:8px;align-items:center;padding:8px 12px;background:none;border:0;border-bottom:1px solid var(--line)}
+.drop button:hover{background:var(--soft)}
+.sampleBar{margin-top:12px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;background:var(--panel);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.sampleBar p{margin:0;font-size:14px;flex:1 1 280px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-top:12px;padding-bottom:4px;scrollbar-width:thin}
+.tab{flex:none;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-weight:600;font-size:14px;color:var(--ink2)}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:12px;align-items:start}
+@media (min-width:1000px){.stage.open{grid-template-columns:minmax(0,1fr) 400px}}
+.view{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:60vh}
+.vh{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;justify-content:space-between;margin-bottom:12px}
+.vh h2{font-size:20px}
+.vh p{margin:2px 0 0;color:var(--ink2);font-size:13.5px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink2);font-weight:600}
+.ctl select,.ctl input[type=number]{min-height:38px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:0 8px;max-width:100%}
+.chk{display:flex;gap:6px;align-items:center;font-size:13.5px;font-weight:500;color:var(--ink)}
+.pz{position:relative;border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:auto;max-height:72vh;min-height:320px;touch-action:pan-x pan-y pinch-zoom;cursor:grab}
+.pz.drag{cursor:grabbing}
+.pz svg{display:block}
+.zoom{position:sticky;left:8px;top:8px;display:inline-flex;gap:4px;z-index:3;float:left;margin:8px}
+.zoom button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;font-size:12.5px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.empty{padding:36px 16px;text-align:center;color:var(--ink2)}
+.empty h3{color:var(--ink);margin-bottom:6px;font-size:20px}
+
+/* person panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;min-width:0}
+.panel[hidden]{display:none}
+.ph{display:flex;gap:12px;align-items:center;padding:14px;border-bottom:1px solid var(--line)}
+.ph .nameBox{min-width:0;flex:1}
+.ph h2{font-size:20px;overflow-wrap:anywhere}
+.ph .x{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--panel);flex:none}
+.av{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 20px var(--fd);color:#fff;overflow:hidden;background:var(--m);border:3px solid var(--m)}
+.av.f{background:var(--f);border-color:var(--f)}.av.x{background:var(--x);border-color:var(--x)}
+.av.dead{filter:grayscale(.85);border-style:dashed}
+.av img{width:100%;height:100%;object-fit:cover}
+.pt{display:flex;gap:6px;padding:10px 14px 0}
+.pt button{flex:1;min-height:40px;border:1px solid var(--line);background:transparent;border-radius:8px;font-weight:600;font-size:13.5px;color:var(--ink2)}
+.pt button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pb{padding:14px;display:grid;gap:14px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.facts div{min-width:0}
+.facts dt{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
+.facts dd{margin:2px 0 0;font-weight:600;overflow-wrap:anywhere}
+.rel{padding:8px 10px;border-radius:8px;background:var(--soft);font-size:14px}
+.rel b{font-family:var(--fd)}
+.sec h3{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.pc{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:36px;padding:3px 10px 3px 4px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:13.5px;text-align:left}
+.pc:hover{background:var(--soft)}
+.pc .mini{width:28px;height:28px;font-size:12px;border-width:2px}
+.pc small{color:var(--ink2);display:block;line-height:1.1;font-size:11.5px}
+.pc span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--fd);color:#fff;background:var(--m);border:2px solid var(--m);overflow:hidden;flex:none}
+.mini.f{background:var(--f);border-color:var(--f)}.mini.x{background:var(--x);border-color:var(--x)}.mini.dead{filter:grayscale(.85)}
+.mini img{width:100%;height:100%;object-fit:cover}
+.row2{display:flex;flex-wrap:wrap;gap:8px}
+.issue{padding:8px 10px;border-radius:8px;border:1px solid var(--line);font-size:13.5px;display:flex;gap:8px}
+.issue.err{border-color:var(--err)}.issue.warn{border-color:var(--warn)}
+/* forms */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.form .w{grid-column:1/-1}
+.fld{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:12.5px;color:var(--ink2);font-weight:600}
+.fld input,.fld select,.fld textarea{min-height:44px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:0 10px;font-size:16px;font-weight:400;color:var(--ink);width:100%;min-width:0}
+.fld textarea{padding:8px 10px;min-height:76px;resize:vertical}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;min-height:44px;border:1px solid var(--line);background:var(--panel);border-radius:8px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sprow{display:grid;grid-template-columns:minmax(0,1fr) 110px 70px 36px;gap:6px;align-items:end}
+@media (max-width:420px){.form{grid-template-columns:minmax(0,1fr)}.sprow{grid-template-columns:minmax(0,1fr) 1fr}}
+.photoRow{display:flex;gap:10px;align-items:center}
+/* tables and lists */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--soft);font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+tbody tr{cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--panel);min-width:0}
+.card h3{font-size:16px;margin-bottom:4px}
+.big{font:700 28px var(--fd)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tile small{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
+.tile b{font:700 24px var(--fd)}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--soft)}
+.bar i{display:block}
+.ol{list-style:none;margin:0;padding:0}
+.ol ul{list-style:none;margin:0;padding-left:20px;border-left:2px solid var(--line)}
+.ol li{margin:4px 0}
+.ol .ln{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;min-height:36px;padding:2px 6px;border-radius:8px}
+.ol .ln:hover{background:var(--soft)}
+.ol button.tg{width:24px;height:24px;border:1px solid var(--line);background:var(--panel);border-radius:6px;font-size:12px;padding:0}
+.gen{margin-bottom:16px}
+.gen h3{font-size:15px;margin-bottom:6px}
+.sibgrp{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--bg)}
+.ord{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:11px;font-weight:700;margin-right:2px}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--soft);color:var(--ink2)}
+.tag.ok{color:var(--ok)}.tag.dead{color:var(--dead)}
+/* modal and toast */
+.modal{position:fixed;inset:0;background:rgba(8,16,22,.55);display:grid;place-items:end center;z-index:60;padding-top:env(safe-area-inset-top,0px)}
+.modal[hidden]{display:none}
+.mbox{background:var(--panel);width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:var(--shadow)}
+@media (min-width:700px){.modal{place-items:center}.mbox{border-radius:16px}}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.mh h2{font-size:20px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px}
+.opts .btn{justify-content:flex-start;min-height:48px;white-space:normal;text-align:left}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:80;max-width:90vw;font-size:14px;box-shadow:var(--shadow)}
+.toast[hidden]{display:none}
+textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg)}
+/* phone: person panel becomes a bottom sheet */
+@media (max-width:999px){
+  .panel{position:fixed;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;z-index:50;border-radius:16px 16px 0 0;box-shadow:var(--shadow);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .scrim{position:fixed;inset:0;background:rgba(8,16,22,.4);z-index:45}
+}
+@media (min-width:1000px){.panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}.scrim{display:none}}
+
+.ghost{position:fixed;pointer-events:none;z-index:90;padding:6px 12px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;box-shadow:var(--shadow);transform:translate(-50%,-130%)}
+.pc.dtgt.before{box-shadow:-4px 0 0 var(--accent)}.pc.dtgt.after{box-shadow:4px 0 0 var(--accent)}.pc.dragsrc{opacity:.4}
+.pc[data-drag]{cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pw{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.pcd{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);text-align:left;padding:0;display:flex;flex-direction:column;min-width:0}
+.pcd:hover{border-color:var(--accent)}
+.pcd .im{aspect-ratio:1;display:grid;place-items:center;background:var(--m);font:700 34px var(--fd);color:#fff;overflow:hidden}
+.pcd .im.f{background:var(--f)}.pcd .im.x{background:var(--x)}.pcd .im.dead{filter:grayscale(.85)}
+.pcd .im img{width:100%;height:100%;object-fit:cover}
+.pcd .tx{padding:8px 10px;font-size:13.5px;min-width:0}
+.pcd .tx b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcd .tx small{color:var(--ink2);font-size:12px}
+/* chart svg */
+.chartsvg text{font-family:var(--fb);fill:var(--ink)}
+.nd{cursor:pointer}
+.nd rect.card{fill:var(--panel);stroke:var(--m);stroke-width:2}
+.nd.f rect.card{stroke:var(--f)}.nd.x rect.card{stroke:var(--x)}
+.nd:hover rect.card{fill:var(--soft)}
+.nd circle.avc{fill:var(--m)}.nd.f circle.avc{fill:var(--f)}.nd.x circle.avc{fill:var(--x)}
+.nd text.ini{fill:#fff;font:700 15px var(--fd);text-anchor:middle}
+.nd text.t1{font:600 14px var(--fb)}
+.nd text.t2{font:400 12px var(--fb);fill:var(--ink2)}
+.nd text.t3{font:400 11px var(--fm);fill:var(--ink2)}
+.nd.dead rect.card{stroke-dasharray:5 3}
+.nd.dead circle.avc{fill:var(--dead)}
+.nd.dead text.t1{fill:var(--dead)}
+.nd.ph rect.card{stroke-dasharray:2 3;stroke:var(--dead)}
+.nd.ph text.t1{font-style:italic;fill:var(--ink2)}
+.nd.ph circle.avc{fill:var(--dead)}
+.nd.dup{opacity:.6}
+.nd.me rect.card{stroke-width:3.2}
+.nd.sel rect.card{stroke:var(--accent);stroke-width:4}
+.nd .metag rect{fill:var(--accent)}.nd .metag text{fill:var(--accent-ink);font:700 9.5px var(--fb);text-anchor:middle}
+.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 11px var(--fb);text-anchor:middle}
+.ln{fill:none;stroke:var(--ink2);stroke-width:1.6}
+.un{fill:none;stroke:var(--ink);stroke-width:2.4}
+.un.partner{stroke-dasharray:6 3}
+.un.divorced{stroke:var(--err);stroke-dasharray:2 4}
+.emp rect{fill:none;stroke:var(--line);stroke-dasharray:5 4;stroke-width:1.5}
+.emp text{fill:var(--ink2);font:500 12px var(--fb);text-anchor:middle}
+.emp{cursor:pointer}
+.emp:hover rect{stroke:var(--accent)}
+.tl-axis{stroke:var(--line);stroke-width:1}
+.tl-tick{fill:var(--ink2);font:400 11px var(--fm)}
+.tl-row{cursor:pointer}
+.tl-row:hover .tl-bg{fill:var(--soft)}
+.tl-bg{fill:transparent}
+.tl-bar.m{fill:var(--m)}.tl-bar.f{fill:var(--f)}.tl-bar.x{fill:var(--x)}
+.tl-bar.dead{opacity:.55}
+.tl-name{font:500 12.5px var(--fb)}
+.tl-now{stroke:var(--accent);stroke-dasharray:3 3}
+
+.nd image{pointer-events:none}.nd.dead image{filter:grayscale(.85)}
+.nd.dtgt.before{filter:drop-shadow(-6px 0 0 var(--accent))}.nd.dtgt.after{filter:drop-shadow(6px 0 0 var(--accent))}
+.nd.dtgt.beforeY{filter:drop-shadow(0 -6px 0 var(--accent))}.nd.dtgt.afterY{filter:drop-shadow(0 6px 0 var(--accent))}
+.nd.dragsrc{opacity:.35}
+.fseg{stroke:var(--panel);stroke-width:2;cursor:pointer}
+.fseg.m{fill:var(--m)}.fseg.f{fill:var(--f)}.fseg.x{fill:var(--x)}.fseg.e{fill:var(--soft);cursor:default}.fseg.dead{opacity:.6}
+.fseg.c{fill:var(--accent)}
+.fseg:hover{stroke:var(--ink)}
+.ftx{fill:#fff;font:600 12px var(--fb);text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+.fseg.e+.ftx{fill:var(--ink2)}
+.chartsvg{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.nd.dim{opacity:.22}
+.nd.near rect.card{stroke-width:3}
+.nd.focus rect.card{stroke:var(--accent);stroke-width:4}
+.ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <a class="btn sm" id="bBack" href="marketplace.html" hidden>&larr; Hive Apps</a>
+      <span class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12H5V16.5M12 12h7v4.5"/></svg></span>
+      <div><input id="tname" aria-label="Family tree name" maxlength="60"><small id="tsub"></small></div>
+    </div>
+    <div class="acts">
+      <button class="btn pri" id="bAdd">+ Add person</button>
+      <button class="btn" id="bCheck">Checks <span class="badge" id="chkN">0</span></button>
+      <button class="btn" id="bShare">Share</button>
+      <button class="btn" id="bExport">Export</button>
+      <button class="btn" id="bSet">Settings</button>
+    </div>
+  </header>
+  <div class="bar2">
+    <div class="search"><input id="q" type="search" placeholder="Search a name, place or job" autocomplete="off" aria-label="Search people"><div class="drop" id="qd" hidden></div></div>
+    <button class="btn sm" id="bUndo">Undo</button>
+    <button class="btn sm" id="bRedo">Redo</button>
+  </div>
+  <div id="sampleBar"></div>
+  <div class="tabs" role="tablist" id="tabs" aria-label="Views"></div>
+  <div class="stage" id="stage">
+    <section class="view" id="view" aria-live="polite"></section>
+    <aside class="panel" id="panel" hidden aria-label="Person details"></aside>
+  </div>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="modal" id="modal" hidden><div class="mbox" id="mbox" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<script>
+/* ---------- tiny .xlsx writer (no library): sheets = [{name, widths:[], rows:[[cell]]}] ; cell = value | {v, s} ; s: b bold, h header, t title, n number, p percent, w wrap ---------- */
+var CRC_T=(function(){var t=[],c,n,k;for(n=0;n<256;n++){c=n;for(k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){var c=0xFFFFFFFF;for(var i=0;i<u.length;i++)c=CRC_T[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+  var enc=new TextEncoder(),chunks=[],central=[],off=0,total=0;
+  files.forEach(function(f){
+    var n=enc.encode(f.name),d=f.data,c=crc32(d);
+    var lh=new Uint8Array(30+n.length),dv=new DataView(lh.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);dv.setUint16(8,0,true);dv.setUint16(10,0,true);dv.setUint16(12,0x21,true);
+    dv.setUint32(14,c,true);dv.setUint32(18,d.length,true);dv.setUint32(22,d.length,true);dv.setUint16(26,n.length,true);dv.setUint16(28,0,true);lh.set(n,30);
+    chunks.push(lh,d);
+    var ch=new Uint8Array(46+n.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0x21,true);
+    cv.setUint32(16,c,true);cv.setUint32(20,d.length,true);cv.setUint32(24,d.length,true);cv.setUint16(28,n.length,true);cv.setUint32(42,off,true);ch.set(n,46);
+    central.push(ch);off+=lh.length+d.length;
+  });
+  var csz=0;central.forEach(function(c){csz+=c.length});
+  var e=new Uint8Array(22),ev=new DataView(e.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);ev.setUint32(12,csz,true);ev.setUint32(16,off,true);
+  var all=chunks.concat(central,[e]);all.forEach(function(c){total+=c.length});
+  var out=new Uint8Array(total),p=0;all.forEach(function(c){out.set(c,p);p+=c.length});
+  return out;
+}
+function xEsc(s){return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function colName(i){var s='';i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
+var XS={b:1,h:2,n:3,p:4,t:5,w:6};
+function makeXlsx(sheets){
+  var enc=new TextEncoder(),files=[];
+  function add(name,str){files.push({name:name,data:enc.encode(str)})}
+  var names=sheets.map(function(s,i){
+    var n=String(s.name).replace(/[\[\]:*?\/\\]/g,' ').slice(0,31)||('Sheet'+(i+1));
+    return n;
+  });
+  add('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+    sheets.map(function(s,i){return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'}).join('')+'</Types>');
+  add('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+  add('xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+
+    names.map(function(n,i){return '<sheet name="'+xEsc(n)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'}).join('')+'</sheets></workbook>');
+  add('xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    sheets.map(function(s,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'}).join('')+
+    '<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+  add('xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+    '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="14"/><name val="Calibri"/></font></fonts>'+
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDE8DD"/><bgColor indexed="64"/></patternFill></fill></fills>'+
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'+
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+    '<cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'+
+    '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'+
+    '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'+
+    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'+
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs>'+
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+  sheets.forEach(function(s,i){
+    var x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+    if(s.widths&&s.widths.length) x+='<cols>'+s.widths.map(function(w,k){return '<col min="'+(k+1)+'" max="'+(k+1)+'" width="'+w+'" customWidth="1"/>'}).join('')+'</cols>';
+    x+='<sheetData>';
+    s.rows.forEach(function(row,r){
+      x+='<row r="'+(r+1)+'">';
+      row.forEach(function(cell,k){
+        if(cell===null||cell===undefined||cell==='') return;
+        var v=cell,st=null;
+        if(typeof cell==='object'){v=cell.v;st=cell.s}
+        if(v===null||v===undefined||v==='') return;
+        var ref=colName(k)+(r+1);
+        if(typeof v==='number'){
+          if(!isFinite(v)) return;
+          var sid=st?XS[st]:(Math.abs(v)>=1000||v===Math.round(v)?XS.n:XS.p);
+          x+='<c r="'+ref+'" s="'+sid+'"><v>'+v+'</v></c>';
+        }else{
+          x+='<c r="'+ref+'" t="inlineStr"'+(st?' s="'+XS[st]+'"':'')+'><is><t xml:space="preserve">'+xEsc(v)+'</t></is></c>';
+        }
+      });
+      x+='</row>';
+    });
+    x+='</sheetData></worksheet>';
+    add('xl/worksheets/sheet'+(i+1)+'.xml',x);
+  });
+  return zipStore(files);
+}
+
+/* ---------- tiny PDF writer (no library, A4, Helvetica, plain ASCII) ----------
+   blocks: {t:'title',x}, {t:'sub',x}, {t:'h',x}, {t:'p',x}, {t:'ul',items:[]}, {t:'kv',rows:[[k,v]]},
+           {t:'table',head:[], rows:[[]], w:[ratios], r:[col indexes right-aligned]}, {t:'gap'} */
+var HW_R=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+var HW_B=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+function pdfAscii(s){
+  return String(s).replace(/₹\s*/g,'Rs ').replace(/[–—−]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"')
+    .replace(/→/g,'->').replace(/≈/g,'~').replace(/×/g,'x').replace(/·|•/g,'-').replace(/≥/g,'>=').replace(/≤/g,'<=')
+    .replace(/…/g,'...').replace(/✓/g,'Yes').replace(/[\r\n\t]+/g,' ').replace(/[^\x20-\x7E]/g,'?');
+}
+function pdfW(s,size,bold){var t=bold?HW_B:HW_R,w=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i)-32;w+=(c>=0&&c<95?t[c]:556)}return w*size/1000}
+function pdfWrap(s,size,bold,maxW){
+  var words=pdfAscii(s).split(' '),lines=[],cur='';
+  words.forEach(function(w){
+    while(pdfW(w,size,bold)>maxW&&w.length>1){
+      var k=w.length-1;while(k>1&&pdfW(w.slice(0,k),size,bold)>maxW) k--;
+      if(cur){lines.push(cur);cur=''}
+      lines.push(w.slice(0,k));w=w.slice(k);
+    }
+    var tr=cur?cur+' '+w:w;
+    if(pdfW(tr,size,bold)<=maxW||!cur) cur=tr;else{lines.push(cur);cur=w}
+  });
+  if(cur||!lines.length) lines.push(cur);
+  return lines;
+}
+function makePdf(blocks,meta){
+  var PW=595.28,PH=841.89,MX=40,MT=44,MB=48,CW=PW-2*MX,pages=[],cur,y;
+  function newPage(){cur=[];pages.push(cur);y=PH-MT}
+  function esc(s){return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+  function text(x,yy,s,size,bold,gray){
+    cur.push('BT '+(gray!==undefined?gray+' g ':'0.08 g ')+'/'+(bold?'F2':'F1')+' '+size+' Tf '+x.toFixed(2)+' '+yy.toFixed(2)+' Td ('+esc(s)+') Tj ET');
+  }
+  function rect(x,yy,w,h,gray){cur.push(gray+' g '+x.toFixed(2)+' '+yy.toFixed(2)+' '+w.toFixed(2)+' '+h.toFixed(2)+' re f')}
+  function hline(x1,x2,yy,gray,wd){cur.push(gray+' G '+(wd||0.5)+' w '+x1.toFixed(2)+' '+yy.toFixed(2)+' m '+x2.toFixed(2)+' '+yy.toFixed(2)+' l S')}
+  function need(h){if(y-h<MB) newPage()}
+  newPage();
+  blocks.forEach(function(b){
+    if(b.t==='title'){need(34);text(MX,y-18,pdfAscii(b.x),20,true);y-=28}
+    else if(b.t==='sub'){var ls=pdfWrap(b.x,9,false,CW);ls.forEach(function(l){need(13);text(MX,y-9,l,9,false,0.4);y-=12});y-=6}
+    else if(b.t==='gap'){y-=b.h||8}
+    else if(b.t==='h'){need(40);y-=8;text(MX,y-12,pdfAscii(b.x),13,true);y-=17;hline(MX,PW-MX,y,0.1,0.8);y-=6}
+    else if(b.t==='p'){pdfWrap(b.x,9.5,false,CW).forEach(function(l){need(13);text(MX,y-9.5,l,9.5,false);y-=13});y-=4}
+    else if(b.t==='ul'){
+      b.items.forEach(function(it){
+        var ls=pdfWrap(it,9.5,false,CW-14);
+        ls.forEach(function(l,i){need(13);if(i===0) text(MX+2,y-9.5,'-',9.5,true);text(MX+14,y-9.5,l,9.5,false);y-=13});
+        y-=2;
+      });y-=4;
+    }
+    else if(b.t==='kv'||b.t==='table'){
+      var head=b.t==='kv'?null:b.head,rows=b.t==='kv'?b.rows:b.rows,nc=(head||rows[0]||[0,0]).length;
+      var w=b.w||(b.t==='kv'?[0.55,0.45]:null);
+      if(!w){w=[];for(var i=0;i<nc;i++) w.push(1/nc)}
+      var tw=0;w.forEach(function(v){tw+=v});
+      var cw=w.map(function(v){return v/tw*CW}),pad=4,fs=8.5,lh=11,right=b.r||(b.t==='kv'?[1]:[]);
+      var xs=[],xx=MX;cw.forEach(function(v){xs.push(xx);xx+=v});
+      function drawRow(cells,bold,bg){
+        var wrapped=cells.map(function(c,k){return pdfWrap(c===null||c===undefined?'':c,fs,bold,cw[k]-2*pad)});
+        var n=1;wrapped.forEach(function(l){n=Math.max(n,l.length)});
+        var h=n*lh+2*pad-2;
+        need(h);
+        if(bg!==undefined) rect(MX,y-h,CW,h,bg);
+        wrapped.forEach(function(ls,k){
+          ls.forEach(function(l,j){
+            var tx=xs[k]+pad;
+            if(right.indexOf(k)>=0) tx=xs[k]+cw[k]-pad-pdfW(l,fs,bold);
+            text(tx,y-pad-fs+1-j*lh,l,fs,bold);
+          });
+        });
+        y-=h;hline(MX,PW-MX,y,0.8,0.4);
+      }
+      if(head){need(40);drawRow(head,true,0.9)}
+      rows.forEach(function(r,ri){
+        var before=pages.length;
+        drawRow(r,false);
+        if(head&&pages.length>before){ /* new page started: header was not repeated; acceptable for short tables */ }
+      });
+      y-=8;
+    }
+  });
+  var n=pages.length;
+  pages.forEach(function(pg,i){
+    cur=pg;
+    text(MX,24,pdfAscii((meta&&meta.footer)||''),8,false,0.45);
+    var lbl='Page '+(i+1)+' of '+n;
+    text(PW-MX-pdfW(lbl,8,false),24,lbl,8,false,0.45);
+  });
+  /* assemble file */
+  var objs=[],offs=[];
+  function addObj(s){objs.push(s);return objs.length}
+  addObj('<< /Type /Catalog /Pages 2 0 R >>');
+  addObj('PAGES');
+  addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  var kids=[];
+  pages.forEach(function(pg){
+    var content=pg.join('\n');
+    var cid=addObj('<< /Length '+content.length+' >>\nstream\n'+content+'\nendstream');
+    var pid=addObj('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW+' '+PH+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+cid+' 0 R >>');
+    kids.push(pid+' 0 R');
+  });
+  objs[1]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+pages.length+' >>';
+  var out='%PDF-1.4\n';
+  objs.forEach(function(o,i){offs.push(out.length);out+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+  var xr=out.length;
+  out+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n';
+  offs.forEach(function(o){out+=('0000000000'+o).slice(-10)+' 00000 n \n'});
+  out+='trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R /Info << /Title ('+esc(pdfAscii((meta&&meta.title)||'Report'))+') >> >>\nstartxref\n'+xr+'\n%%EOF';
+  var u=new Uint8Array(out.length);
+  for(var i=0;i<out.length;i++) u[i]=out.charCodeAt(i)&255;
+  return u;
+}
+
+const CHART_CSS=".chartsvg text{font-family:var(--fb);fill:var(--ink)}\n.nd{cursor:pointer}\n.nd rect.card{fill:var(--panel);stroke:var(--m);stroke-width:2}\n.nd.f rect.card{stroke:var(--f)}.nd.x rect.card{stroke:var(--x)}\n.nd:hover rect.card{fill:var(--soft)}\n.nd circle.avc{fill:var(--m)}.nd.f circle.avc{fill:var(--f)}.nd.x circle.avc{fill:var(--x)}\n.nd text.ini{fill:#fff;font:700 15px var(--fd);text-anchor:middle}\n.nd text.t1{font:600 14px var(--fb)}\n.nd text.t2{font:400 12px var(--fb);fill:var(--ink2)}\n.nd text.t3{font:400 11px var(--fm);fill:var(--ink2)}\n.nd.dead rect.card{stroke-dasharray:5 3}\n.nd.dead circle.avc{fill:var(--dead)}\n.nd.dead text.t1{fill:var(--dead)}\n.nd.ph rect.card{stroke-dasharray:2 3;stroke:var(--dead)}\n.nd.ph text.t1{font-style:italic;fill:var(--ink2)}\n.nd.ph circle.avc{fill:var(--dead)}\n.nd.dup{opacity:.6}\n.nd.me rect.card{stroke-width:3.2}\n.nd.sel rect.card{stroke:var(--accent);stroke-width:4}\n.nd .metag rect{fill:var(--accent)}.nd .metag text{fill:var(--accent-ink);font:700 9.5px var(--fb);text-anchor:middle}\n.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 11px var(--fb);text-anchor:middle}\n.ln{fill:none;stroke:var(--ink2);stroke-width:1.6}\n.un{fill:none;stroke:var(--ink);stroke-width:2.4}\n.un.partner{stroke-dasharray:6 3}\n.un.divorced{stroke:var(--err);stroke-dasharray:2 4}\n.emp rect{fill:none;stroke:var(--line);stroke-dasharray:5 4;stroke-width:1.5}\n.emp text{fill:var(--ink2);font:500 12px var(--fb);text-anchor:middle}\n.emp{cursor:pointer}\n.emp:hover rect{stroke:var(--accent)}\n.tl-axis{stroke:var(--line);stroke-width:1}\n.tl-tick{fill:var(--ink2);font:400 11px var(--fm)}\n.tl-row{cursor:pointer}\n.tl-row:hover .tl-bg{fill:var(--soft)}\n.tl-bg{fill:transparent}\n.tl-bar.m{fill:var(--m)}.tl-bar.f{fill:var(--f)}.tl-bar.x{fill:var(--x)}\n.tl-bar.dead{opacity:.55}\n.tl-name{font:500 12.5px var(--fb)}\n.tl-now{stroke:var(--accent);stroke-dasharray:3 3}\n\n.nd image{pointer-events:none}.nd.dead image{filter:grayscale(.85)}\n.nd.dtgt.before{filter:drop-shadow(-6px 0 0 var(--accent))}.nd.dtgt.after{filter:drop-shadow(6px 0 0 var(--accent))}\n.nd.dtgt.beforeY{filter:drop-shadow(0 -6px 0 var(--accent))}.nd.dtgt.afterY{filter:drop-shadow(0 6px 0 var(--accent))}\n.nd.dragsrc{opacity:.35}\n.fseg{stroke:var(--panel);stroke-width:2;cursor:pointer}\n.fseg.m{fill:var(--m)}.fseg.f{fill:var(--f)}.fseg.x{fill:var(--x)}.fseg.e{fill:var(--soft);cursor:default}.fseg.dead{opacity:.6}\n.fseg.c{fill:var(--accent)}\n.fseg:hover{stroke:var(--ink)}\n.ftx{fill:#fff;font:600 12px var(--fb);text-anchor:middle;dominant-baseline:middle;pointer-events:none}\n.fseg.e+.ftx{fill:var(--ink2)}\n.chartsvg{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}\n.nd.dim{opacity:.22}\n.nd.near rect.card{stroke-width:3}\n.nd.focus rect.card{stroke:var(--accent);stroke-width:4}\n.ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}\n";
+/* ================= Core: data, dates, graph, checks ================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TODAY=new Date();
+const NOWY=TODAY.getFullYear();
+const uid=()=>'p'+Math.random().toString(36).slice(2,9);
+const KEY='famtree.v1';
+let T={v:1,name:'My Family',me:'',sample:false,people:[],unions:[]};
+let S={tab:'chart',rootId:'',ancId:'',ancGens:3,ancOrient:'v',lang:'both',ages:true,theme:'',pSort:'name',pDir:1,pFilter:'all',placeMode:'place',zoom:{}};
+let IDX=new Map(),G=null,RELC=null;
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ---- people ---- */
+function newPerson(o){
+  return Object.assign({id:uid(),first:'',last:'',nick:'',gender:'m',born:'',died:'',alive:true,bplace:'',place:'',job:'',phone:'',note:'',photo:'',father:'',mother:'',adopted:false,ph:false,order:0},o||{});
+}
+function reindex(){IDX=new Map(T.people.map(p=>[p.id,p]));G=null;RELC=null;KC.clear()}
+const P=id=>IDX.get(id);
+const nm=p=>p?((p.first+' '+p.last).trim()||'Unnamed'):'';
+const short=p=>p?(p.first||p.last||'Unnamed'):'';
+function initials(p){const a=(p.first||'').trim()[0]||'',b=(p.last||'').trim()[0]||'';return (a+b).toUpperCase()||'?'}
+function gcls(p){return p.gender==='f'?'f':p.gender==='x'?'x':'m'}
+function avatar(p,cls){
+  const c=cls||'av';
+  return '<span class="'+c+' '+gcls(p)+(p.alive===false?' dead':'')+'">'+(p.photo?'<img alt="" src="'+esc(p.photo)+'">':esc(initials(p)))+'</span>';
+}
+
+/* ---- dates ---- */
+function dparse(s){
+  if(!s) return null;
+  const m=String(s).trim().match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/);
+  if(!m) return null;
+  const y=+m[1],mo=m[2]?+m[2]:0,d=m[3]?+m[3]:0;
+  if(mo>12||d>31) return null;
+  return {y,mo,d};
+}
+function dnum(s){const p=dparse(s);return p?p.y+((p.mo||6.5)-1)/12+((p.d||15)-1)/372:null}
+function dfmt(s){
+  const p=dparse(s);if(!p) return '';
+  if(p.mo&&p.d) return p.d+' '+MON[p.mo-1]+' '+p.y;
+  if(p.mo) return MON[p.mo-1]+' '+p.y;
+  return String(p.y);
+}
+function yr(s){const p=dparse(s);return p?String(p.y):''}
+function ageOf(p){
+  const b=dparse(p.born);if(!b) return null;
+  let end;
+  if(p.alive===false){const d=dparse(p.died);if(!d) return null;end=d}
+  else end={y:TODAY.getFullYear(),mo:TODAY.getMonth()+1,d:TODAY.getDate()};
+  let years=end.y-b.y,approx=false,months=null;
+  if(b.mo&&end.mo){
+    const before=end.mo<b.mo||(end.mo===b.mo&&b.d&&end.d&&end.d<b.d);
+    if(before) years--;
+    months=(end.y-b.y)*12+(end.mo-b.mo)-((b.d&&end.d&&end.d<b.d)?1:0);
+  }else approx=true;
+  return {years:Math.max(0,years),months,approx};
+}
+function ageText(p){
+  const a=ageOf(p);if(!a) return '';
+  if(a.years<2&&a.months!=null&&a.months<24) return Math.max(0,a.months)+' mo';
+  return (a.approx?'~':'')+a.years+' yrs';
+}
+function lifeText(p,withAge){
+  const b=yr(p.born),d=yr(p.died),a=withAge?ageText(p):'';
+  if(p.alive===false){return (b||'?')+' – '+(d||'?')+(a?' · '+a:'')}
+  return b?('b. '+b+(a?' · '+a:'')):(a||'');
+}
+function nextBirthday(p){
+  if(p.alive===false) return null;
+  const b=dparse(p.born);if(!b||!b.mo||!b.d) return null;
+  let y=TODAY.getFullYear();
+  let d=new Date(y,b.mo-1,b.d);
+  const t0=new Date(y,TODAY.getMonth(),TODAY.getDate());
+  if(d<t0){y++;d=new Date(y,b.mo-1,b.d)}
+  return {date:d,days:Math.round((d-t0)/864e5),turning:y-b.y};
+}
+
+/* ---- graph ---- */
+function ordKey(p){return dnum(p.born)}
+function sibCmp(a,b){
+  if(a.order>0&&b.order>0&&a.order!==b.order) return a.order-b.order;
+  const x=ordKey(a),y=ordKey(b);
+  if(x!=null&&y!=null&&x!==y) return x-y;
+  if(x!=null&&y==null) return -1;
+  if(x==null&&y!=null) return 1;
+  return (a.order||0)-(b.order||0)||(a.first||'').localeCompare(b.first||'');
+}
+function graph(){
+  if(G) return G;
+  const kids=new Map(),sp=new Map();
+  T.people.forEach(p=>{kids.set(p.id,[]);sp.set(p.id,[])});
+  T.people.forEach(c=>{
+    if(c.father&&kids.has(c.father)) kids.get(c.father).push(c);
+    if(c.mother&&kids.has(c.mother)&&c.mother!==c.father) kids.get(c.mother).push(c);
+  });
+  kids.forEach(a=>a.sort(sibCmp));
+  T.unions.forEach(u=>{
+    const a=P(u.a),b=P(u.b);if(!a||!b) return;
+    sp.get(a.id).push({u,p:b});sp.get(b.id).push({u,p:a});
+  });
+  sp.forEach(a=>a.sort((x,y)=>(dnum(x.u.date)||dnum(x.u.year)||9999)-(dnum(y.u.date)||dnum(y.u.year)||9999)));
+  G={kids,sp};
+  return G;
+}
+const kidsOf=id=>(graph().kids.get(id)||[]);
+const spousesOf=id=>(graph().sp.get(id)||[]);
+function siblingsOf(id){
+  const p=P(id);if(!p) return [];
+  return T.people.filter(s=>s.id!==id&&((p.father&&s.father===p.father)||(p.mother&&s.mother===p.mother))).sort(sibCmp);
+}
+function isHalf(a,b){
+  const sf=a.father&&a.father===b.father,sm=a.mother&&a.mother===b.mother;
+  return !(sf&&sm)&&(sf||sm);
+}
+function sibGroup(id){return siblingsOf(id).concat([P(id)]).sort(sibCmp)}
+function moveSibling(id,tid,after){
+  const grp=sibGroup(id).filter(x=>x.id!==id);
+  const i=grp.findIndex(x=>x.id===tid);if(i<0) return false;
+  grp.splice(after?i+1:i,0,P(id));
+  grp.forEach((x,k)=>{x.order=k+1});
+  return true;
+}
+function resetOrder(id){sibGroup(id).forEach(x=>{x.order=0})}
+function birthOrder(p){
+  const grp=siblingsOf(p.id).concat([p]).sort(sibCmp);
+  return {n:grp.findIndex(x=>x.id===p.id)+1,of:grp.length};
+}
+function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function ancestorsOf(id){
+  const out=new Set(),st=[id];
+  while(st.length){
+    const p=P(st.pop());if(!p) continue;
+    [p.father,p.mother].forEach(a=>{if(a&&P(a)&&!out.has(a)){out.add(a);st.push(a)}});
+  }
+  return out;
+}
+function genMap(){
+  const gm=new Map();
+  const memo=new Map();
+  function g(id,stack){
+    if(memo.has(id)) return memo.get(id);
+    if(stack.has(id)) return 0;
+    stack.add(id);
+    const p=P(id);let v=0;
+    [p.father,p.mother].forEach(a=>{if(a&&P(a)) v=Math.max(v,g(a,stack)+1)});
+    stack.delete(id);memo.set(id,v);return v;
+  }
+  T.people.forEach(p=>gm.set(p.id,g(p.id,new Set())));
+  for(let it=0;it<12;it++){
+    let ch=false;
+    T.unions.forEach(u=>{
+      const a=gm.get(u.a),b=gm.get(u.b);
+      if(a==null||b==null||a===b) return;
+      const pa=P(u.a),pb=P(u.b);
+      const aHas=(pa.father&&P(pa.father))||(pa.mother&&P(pa.mother));
+      const bHas=(pb.father&&P(pb.father))||(pb.mother&&P(pb.mother));
+      if(!aHas&&bHas){gm.set(u.a,b);ch=true}
+      else if(aHas&&!bHas){gm.set(u.b,a);ch=true}
+      else{const m=Math.max(a,b);gm.set(u.a,m);gm.set(u.b,m);ch=true}
+    });
+    T.people.forEach(p=>{
+      const hasPar=(p.father&&P(p.father))||(p.mother&&P(p.mother));
+      if(!hasPar) return;
+      let v=0;[p.father,p.mother].forEach(a=>{if(a&&P(a)) v=Math.max(v,gm.get(a)+1)});
+      if(gm.get(p.id)!==v){gm.set(p.id,v);ch=true}
+    });
+    if(!ch) break;
+  }
+  return gm;
+}
+
+/* ---- undo, save ---- */
+let UNDO=[],REDO=[],saveTimer=null,dbDoc=null,dbTimer=null,dbBusy=false,dbPending=false,lastWritten='',lastLocalTs=0,hooks={};
+const snap=()=>JSON.stringify(T);
+function mut(fn,label){
+  UNDO.push(snap());if(UNDO.length>60) UNDO.shift();REDO.length=0;
+  fn();reindex();changed(typeof label==='function'?label():label);
+}
+function undo(){
+  if(!UNDO.length){toast('Nothing to undo.');return}
+  REDO.push(snap());T=JSON.parse(UNDO.pop());reindex();changed('Undone');
+}
+function redo(){
+  if(!REDO.length){toast('Nothing to redo.');return}
+  UNDO.push(snap());T=JSON.parse(REDO.pop());reindex();changed('Redone');
+}
+function changed(label){
+  scheduleSave();
+  if(hooks.render) hooks.render();
+  if(label) toast(label);
+}
+function stateObj(){return {v:1,ts:Date.now(),T:T,S:S}}
+function persist(){
+  const st=stateObj();lastLocalTs=st.ts;
+  try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}
+  scheduleDb();
+}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,300)}
+function scheduleDb(){if(!dbDoc) return;clearTimeout(dbTimer);dbTimer=setTimeout(flushDb,1500)}
+function dbJson(st){
+  let j=JSON.stringify(st);
+  if(j.length>900000){const c2=JSON.parse(j);c2.T.people.forEach(p=>{p.photo=''});j=JSON.stringify(c2)}
+  return j;
+}
+function flushDb(){
+  if(!dbDoc) return;
+  const st=stateObj(),key=JSON.stringify(st.T);
+  if(key===lastWritten) return;
+  if(dbBusy){dbPending=true;return}
+  dbBusy=true;
+  dbDoc.set({json:dbJson(st),ts:st.ts}).then(()=>{lastWritten=key}).catch(()=>{}).then(()=>{dbBusy=false;if(dbPending){dbPending=false;flushDb()}});
+}
+function cleanTree(t){
+  if(!t||!Array.isArray(t.people)) return null;
+  const o={v:1,name:String(t.name||'My Family').slice(0,80),me:t.me||'',sample:!!t.sample,people:[],unions:[]};
+  const ids=new Set();
+  t.people.slice(0,3000).forEach(p=>{
+    if(!p||typeof p!=='object') return;
+    const q=newPerson({});
+    ['id','first','last','nick','born','died','bplace','place','job','phone','note','photo','father','mother'].forEach(k=>{if(typeof p[k]==='string') q[k]=p[k].slice(0,k==='photo'?60000:k==='note'?2000:200)});
+    q.gender=['m','f','x'].includes(p.gender)?p.gender:'m';
+    q.alive=p.alive!==false;q.adopted=!!p.adopted;q.ph=!!p.ph;q.order=Number.isFinite(+p.order)?+p.order:0;
+    if(!q.id||ids.has(q.id)) q.id=uid();
+    ids.add(q.id);o.people.push(q);
+  });
+  const set=new Set(o.people.map(p=>p.id));
+  o.people.forEach(p=>{if(p.father&&!set.has(p.father)) p.father='';if(p.mother&&!set.has(p.mother)) p.mother=''});
+  (t.unions||[]).slice(0,3000).forEach(u=>{
+    if(!u||!set.has(u.a)||!set.has(u.b)||u.a===u.b) return;
+    o.unions.push({id:u.id||uid(),a:u.a,b:u.b,type:['married','partner','divorced'].includes(u.type)?u.type:'married',date:typeof u.date==='string'?u.date:'',year:typeof u.year==='string'?u.year:''});
+  });
+  if(!set.has(o.me)) o.me='';
+  return o;
+}
+function applyTree(t){
+  const c=cleanTree(t);if(!c) return false;
+  T=c;reindex();return true;
+}
+
+/* ---- relatives: add, delete ---- */
+function ensureUnion(a,b,type,date){
+  if(!a||!b||a===b) return null;
+  let u=T.unions.find(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a));
+  if(!u){u={id:uid(),a,b,type:type||'married',date:date||'',year:''};T.unions.push(u)}
+  return u;
+}
+const RELS=[
+  ['father','Father'],['mother','Mother'],['spouse','Husband or wife'],['son','Son'],['daughter','Daughter'],
+  ['brother','Brother'],['sister','Sister'],
+  ['hbrother_f','Half-brother (same father)'],['hbrother_m','Half-brother (same mother)'],
+  ['hsister_f','Half-sister (same father)'],['hsister_m','Half-sister (same mother)']
+];
+function relGender(rel,x){
+  if(rel==='father'||rel==='son'||rel.startsWith('hbrother')||rel==='brother') return 'm';
+  if(rel==='mother'||rel==='daughter'||rel==='sister'||rel.startsWith('hsister')) return 'f';
+  if(rel==='spouse') return x&&x.gender==='m'?'f':x&&x.gender==='f'?'m':'x';
+  return 'm';
+}
+function lastFor(rel,x){
+  if(!x) return '';
+  if(rel==='father') return x.last;
+  if(rel==='mother') return '';
+  if(rel==='son'||rel==='daughter') return x.gender==='f'?'':x.last;
+  if(rel==='spouse') return '';
+  const f=x.father&&P(x.father);
+  return rel.endsWith('_m')?'':(f?f.last:x.last);
+}
+function addRelative(xid,rel,data,o){
+  o=o||{};
+  const X=P(xid),n=newPerson(data);
+  n.gender=data.gender||relGender(rel,X);
+  T.people.push(n);
+  if(rel==='father'||rel==='mother'){
+    const slot=rel,other=rel==='father'?'mother':'father';
+    const tg=[X];
+    siblingsOf(X.id).forEach(s=>{if(!s[slot]&&X[other]&&s[other]===X[other]) tg.push(s)});
+    tg.forEach(t=>{t[slot]=n.id});
+    if(X[other]&&o.marry!==false) ensureUnion(n.id,X[other],'married');
+  }else if(rel==='spouse'){
+    ensureUnion(X.id,n.id,o.utype||'married',o.udate||'');
+  }else if(rel==='son'||rel==='daughter'){
+    if(X.gender==='f'){n.mother=X.id;n.father=o.with||''}
+    else{n.father=X.id;n.mother=o.with||''}
+  }else{
+    const half=rel.startsWith('h');
+    let f=X.father,m=X.mother;
+    if(!half&&!f&&!m&&o.ph!==false){
+      const fp=newPerson({first:'Father',last:'of '+short(X),gender:'m',ph:true,alive:true}),mp=newPerson({first:'Mother',last:'of '+short(X),gender:'f',ph:true,alive:true});
+      T.people.push(fp,mp);ensureUnion(fp.id,mp.id,'married');
+      X.father=fp.id;X.mother=mp.id;f=fp.id;m=mp.id;
+    }
+    if(half){
+      if(rel.endsWith('_f')){n.father=f||''}else{n.mother=m||''}
+    }else{n.father=f||'';n.mother=m||''}
+  }
+  return n;
+}
+function deletePerson(id){
+  T.people=T.people.filter(p=>p.id!==id);
+  T.people.forEach(p=>{if(p.father===id) p.father='';if(p.mother===id) p.mother=''});
+  T.unions=T.unions.filter(u=>u.a!==id&&u.b!==id);
+  if(T.me===id) T.me='';
+}
+
+/* ---- relation checks ---- */
+function runChecks(){
+  const out=[],add=(sev,ids,msg)=>out.push({sev,ids,msg});
+  let noBorn=0;
+  T.people.forEach(p=>{
+    if(p.ph) return;
+    const n=nm(p),b=dparse(p.born),d=dparse(p.died);
+    if(!b) noBorn++;
+    if(b&&dnum(p.born)>NOWY+TODAY.getMonth()/12+.01) add('err',[p.id],n+' has a birth date in the future.');
+    if(p.alive===false&&b&&d&&dnum(p.died)<dnum(p.born)) add('err',[p.id],n+' died before being born.');
+    if(p.alive!==false&&b){const a=ageOf(p);if(a&&a.years>=110) add('warn',[p.id],n+' is marked alive but would be '+a.years+' years old. Is this person still alive?')}
+    if(p.alive===false&&!d) add('info',[p.id],n+' is marked as passed away but has no death date.');
+    if(p.alive===false&&d&&dnum(p.died)>NOWY+1) add('err',[p.id],n+' has a death date in the future.');
+    const f=p.father&&P(p.father),m=p.mother&&P(p.mother);
+    if(f&&f.id===p.id||m&&m.id===p.id) add('err',[p.id],n+' is listed as their own parent.');
+    if(f&&f.gender==='f') add('warn',[p.id,f.id],nm(f)+' is set as father of '+n+' but is marked female.');
+    if(m&&m.gender==='m') add('warn',[p.id,m.id],nm(m)+' is set as mother of '+n+' but is marked male.');
+    if(f&&m&&f.id===m.id) add('err',[p.id],n+' has the same person as father and mother.');
+    [[f,'father',15,70],[m,'mother',14,50]].forEach(([q,role,lo,hi])=>{
+      if(!q||q.ph||!b||!dparse(q.born)) return;
+      const gap=dnum(p.born)-dnum(q.born);
+      if(gap<0) add('err',[p.id,q.id],nm(q)+' (the '+role+') was born after '+n+'.');
+      else if(gap<lo) add('warn',[p.id,q.id],nm(q)+' would be only '+Math.floor(gap)+' years older than their child '+n+'.');
+      else if(gap>hi) add('warn',[p.id,q.id],nm(q)+' would be '+Math.floor(gap)+' years older than their child '+n+'. Please check the dates.');
+      if(q.alive===false&&dparse(q.died)){
+        const after=dnum(p.born)-dnum(q.died);
+        if(role==='mother'&&after>0.05) add('err',[p.id,q.id],n+' was born after the death of the mother, '+nm(q)+'.');
+        if(role==='father'&&after>0.8) add('warn',[p.id,q.id],n+' was born more than a year after the death of the father, '+nm(q)+'.');
+      }
+    });
+  });
+  /* loops */
+  T.people.forEach(p=>{if(ancestorsOf(p.id).has(p.id)) add('err',[p.id],nm(p)+' is their own ancestor. A parent link is wrong.')});
+  /* unions */
+  const seen=new Set();
+  T.unions.forEach(u=>{
+    const a=P(u.a),b=P(u.b);if(!a||!b) return;
+    const k=[u.a,u.b].sort().join('|');
+    if(seen.has(k)) add('warn',[u.a,u.b],'The couple '+nm(a)+' and '+nm(b)+' is listed twice.');
+    seen.add(k);
+    const rel=(x,y)=>x.father===y.id||x.mother===y.id||y.father===x.id||y.mother===x.id||(x.father&&x.father===y.father)||(x.mother&&x.mother===y.mother);
+    if(rel(a,b)) add('warn',[a.id,b.id],nm(a)+' and '+nm(b)+' are married but are also parent and child or siblings. Please check.');
+    const my=dnum(u.date||u.year);
+    if(my!=null){
+      [a,b].forEach(q=>{
+        if(q.ph) return;
+        if(dparse(q.born)&&my-dnum(q.born)<14) add('warn',[q.id],nm(q)+' would be under 14 at the time of this marriage ('+yr(u.date||u.year)+').');
+        if(q.alive===false&&dparse(q.died)&&my-dnum(q.died)>1&&u.type!=='divorced') add('warn',[q.id],'The marriage of '+nm(a)+' and '+nm(b)+' is dated after '+nm(q)+' died.');
+      });
+    }
+  });
+  /* hand-set birth order that disagrees with dates */
+  const sp=new Set();
+  T.people.forEach(p=>{
+    if(!(p.order>0)||p.ph) return;
+    siblingsOf(p.id).forEach(s=>{
+      if(!(s.order>0)||s.ph) return;
+      const k=[p.id,s.id].sort().join('|');if(sp.has(k)) return;sp.add(k);
+      const a=dnum(p.born),b=dnum(s.born);
+      if(a!=null&&b!=null&&((p.order<s.order&&a>b+.003)||(p.order>s.order&&a<b-.003))) add('info',[p.id,s.id],'The order you set for '+nm(p)+' and '+nm(s)+' does not match their birth dates. The chart follows your order.');
+    });
+  });
+  /* duplicates */
+  const dup=new Map();
+  T.people.forEach(p=>{if(p.ph) return;const k=(nm(p).toLowerCase()+'|'+(p.born||''));if(!p.first) return;if(dup.has(k)) add('warn',[dup.get(k),p.id],'Possible duplicate: '+nm(p)+' appears twice with the same birth date.');else dup.set(k,p.id)});
+  /* parents without children age order: siblings with identical full dates */
+  /* disconnected */
+  const comp=components();
+  if(comp.length>1){
+    const main=comp[0];
+    comp.slice(1).forEach(c=>{if(c.length<=6) add('info',c,'Not linked to the main family: '+c.map(id=>short(P(id))).join(', ')+'.');else add('info',c,c.length+' people are in a separate group that is not linked to the main family.')});
+  }
+  if(noBorn) add('info',[],noBorn+' '+(noBorn===1?'person has':'people have')+' no birth date. Add dates to get ages and birth order.');
+  const w={err:0,warn:1,info:2};
+  out.sort((x,y)=>w[x.sev]-w[y.sev]);
+  return out;
+}
+function components(){
+  const seen=new Set(),out=[];
+  const nb=id=>{
+    const p=P(id),r=[];
+    if(p.father&&P(p.father)) r.push(p.father);
+    if(p.mother&&P(p.mother)) r.push(p.mother);
+    kidsOf(id).forEach(c=>r.push(c.id));
+    spousesOf(id).forEach(s=>r.push(s.p.id));
+    return r;
+  };
+  T.people.forEach(p=>{
+    if(seen.has(p.id)) return;
+    const comp=[],st=[p.id];seen.add(p.id);
+    while(st.length){const x=st.pop();comp.push(x);nb(x).forEach(y=>{if(!seen.has(y)){seen.add(y);st.push(y)}})}
+    out.push(comp);
+  });
+  return out.sort((a,b)=>b.length-a.length);
+}
+
+/* ================= Kinship: "who is who to me" ================= */
+const KC=new Map();
+function edgesOf(p){
+  const out=[];
+  if(p.father&&P(p.father)) out.push([p.father,'F',1,false]);
+  if(p.mother&&P(p.mother)) out.push([p.mother,'M',1,false]);
+  kidsOf(p.id).forEach(c=>out.push([c.id,c.gender==='m'?'S':c.gender==='f'?'D':'C',1,false]));
+  spousesOf(p.id).forEach(s=>out.push([s.p.id,s.p.gender==='m'?'H':s.p.gender==='f'?'W':'X',1.05,false]));
+  siblingsOf(p.id).forEach(s=>{
+    const older=sibCmp(s,p)<0,g=s.gender;
+    const t=older?(g==='m'?'B':g==='f'?'Z':'Q'):(g==='m'?'b':g==='f'?'z':'q');
+    out.push([s.id,t,0.9,isHalf(p,s)]);
+  });
+  return out;
+}
+function relFrom(src){
+  if(KC.has(src)) return KC.get(src);
+  const dist=new Map([[src,0]]),prev=new Map(),done=new Set();
+  const pq=[[0,src]];
+  while(pq.length){
+    pq.sort((a,b)=>a[0]-b[0]);
+    const [d,u]=pq.shift();
+    if(done.has(u)) continue;
+    done.add(u);
+    const p=P(u);if(!p) continue;
+    edgesOf(p).forEach(([v,t,w,h])=>{
+      const nd=d+w;
+      if(!dist.has(v)||nd<dist.get(v)-1e-9){dist.set(v,nd);prev.set(v,[u,t,h]);pq.push([nd,v])}
+    });
+  }
+  const res=new Map();
+  dist.forEach((_d,id)=>{
+    if(id===src){res.set(id,{path:'',half:false});return}
+    let cur=id,s='',half=false,hops=0;
+    while(cur!==src&&hops++<60){const pr=prev.get(cur);if(!pr)break;s=pr[1]+s;if(pr[2]&&s.length===1)half=true;cur=pr[0]}
+    res.set(id,{path:s,half:half&&s.length===1});
+  });
+  KC.set(src,res);
+  return res;
+}
+const WORD={F:"father",M:"mother",S:"son",D:"daughter",C:"child",H:"husband",W:"wife",X:"partner",B:"elder brother",b:"younger brother",Z:"elder sister",z:"younger sister",Q:"sibling",q:"sibling"};
+function fallbackEn(s){
+  const a=s.split('').map(c=>WORD[c]||c);
+  const last=a.pop();
+  const t=a.map(x=>x+"'s").concat([last]).join(' ');
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+const EXACT={
+  F:['Father','Papa'],M:['Mother','Mummy'],S:['Son','Beta'],D:['Daughter','Beti'],C:['Child','Bachcha'],
+  H:['Husband','Pati'],W:['Wife','Patni'],X:['Partner','Saathi'],
+  B:['Elder brother','Bhaiya'],b:['Younger brother','Chhota bhai'],Z:['Elder sister','Didi'],z:['Younger sister','Behen'],Q:['Sibling','Bhai/Behen'],q:['Sibling','Bhai/Behen'],
+  FF:['Grandfather (father\'s side)','Dada'],FM:['Grandmother (father\'s side)','Dadi'],MF:['Grandfather (mother\'s side)','Nana'],MM:['Grandmother (mother\'s side)','Nani'],
+  FB:['Father\'s elder brother','Tau'],Fb:['Father\'s younger brother','Chacha'],FZ:['Father\'s sister','Bua'],Fz:['Father\'s sister','Bua'],
+  MB:['Mother\'s brother','Mama'],Mb:['Mother\'s brother','Mama'],MZ:['Mother\'s sister','Mausi'],Mz:['Mother\'s sister','Mausi'],
+  FBW:['Wife of father\'s elder brother','Tai'],FbW:['Wife of father\'s younger brother','Chachi'],
+  FZH:['Husband of father\'s sister','Phupha'],FzH:['Husband of father\'s sister','Phupha'],
+  MBW:['Wife of mother\'s brother','Mami'],MbW:['Wife of mother\'s brother','Mami'],
+  MZH:['Husband of mother\'s sister','Mausa'],MzH:['Husband of mother\'s sister','Mausa'],
+  BW:['Brother\'s wife','Bhabhi'],bW:['Younger brother\'s wife','Bhabhi'],ZH:['Elder sister\'s husband','Jija'],zH:['Younger sister\'s husband','Behnoi'],
+  HB:['Husband\'s elder brother','Jeth'],Hb:['Husband\'s younger brother','Devar'],HZ:['Husband\'s sister','Nanad'],Hz:['Husband\'s sister','Nanad'],
+  WB:['Wife\'s brother','Saala'],Wb:['Wife\'s brother','Saala'],WZ:['Wife\'s sister','Saali'],Wz:['Wife\'s sister','Saali'],
+  HF:['Father-in-law','Sasur'],WF:['Father-in-law','Sasur'],XF:['Father-in-law','Sasur'],
+  HM:['Mother-in-law','Saas'],WM:['Mother-in-law','Saas'],XM:['Mother-in-law','Saas'],
+  SW:['Daughter-in-law','Bahu'],DH:['Son-in-law','Damad'],SX:['Child\'s partner','Bahu/Damad'],DX:['Child\'s partner','Bahu/Damad'],
+  SS:['Grandson (son\'s son)','Pota'],SD:['Granddaughter (son\'s daughter)','Poti'],DS:['Grandson (daughter\'s son)','Nata'],DD:['Granddaughter (daughter\'s daughter)','Natin'],
+  SC:['Grandchild','Pota/Poti'],DC:['Grandchild','Nata/Natin'],
+  FW:['Stepmother','Sauteli Maa'],MH:['Stepfather','Sautela Papa'],FX:['Father\'s partner','—'],MX:['Mother\'s partner','—'],
+  BS:['Nephew (brother\'s son)','Bhatija'],bS:['Nephew (brother\'s son)','Bhatija'],BD:['Niece (brother\'s daughter)','Bhatiji'],bD:['Niece (brother\'s daughter)','Bhatiji'],
+  ZS:['Nephew (sister\'s son)','Bhanja'],zS:['Nephew (sister\'s son)','Bhanja'],ZD:['Niece (sister\'s daughter)','Bhanji'],zD:['Niece (sister\'s daughter)','Bhanji'],
+  SWF:['Son\'s father-in-law','Samdhi'],SWM:['Son\'s mother-in-law','Samdhan'],DHF:['Daughter\'s father-in-law','Samdhi'],DHM:['Daughter\'s mother-in-law','Samdhan']
+};
+function termFor(path,tgt,half){
+  if(path==='') return ['Me','Main'];
+  let r=EXACT[path];
+  if(r){
+    if(half&&path.length===1&&'BbZzQq'.includes(path)){
+      const en=r[0].replace(/^(Elder|Younger) /,'');return ['Half-'+en.toLowerCase(),r[1]+' (sauteli/sautela)'];
+    }
+    return r;
+  }
+  let m;
+  if(/^[FM]+$/.test(path)&&path.length>=3){
+    const n=path.length-2,last=path[path.length-1],first=path[0];
+    const gp=last==='F'?'father':'mother';
+    const g='great-'.repeat(n);
+    return [g.charAt(0).toUpperCase()+g.slice(1)+'grand'+gp,(first==='F'?'Par':'Par')+(first==='F'?(last==='F'?'dada':'dadi'):(last==='F'?'nana':'nani'))];
+  }
+  if(/^[SDC]+$/.test(path)&&path.length>=3){
+    const n=path.length-2,g='great-'.repeat(n);
+    return [g.charAt(0).toUpperCase()+g.slice(1)+'grandchild','Pote-pote'];
+  }
+  if((m=path.match(/^F([Bb])([SD])$/))) return [m[2]==='S'?'Cousin brother (father\'s brother\'s son)':'Cousin sister (father\'s brother\'s daughter)',(m[1]==='B'?'Tayera ':'Chachera ')+(m[2]==='S'?'bhai':'behen')];
+  if((m=path.match(/^F([Zz])([SD])$/))) return [m[2]==='S'?'Cousin brother (father\'s sister\'s son)':'Cousin sister (father\'s sister\'s daughter)','Phupera '+(m[2]==='S'?'bhai':'behen')];
+  if((m=path.match(/^M([Bb])([SD])$/))) return [m[2]==='S'?'Cousin brother (mother\'s brother\'s son)':'Cousin sister (mother\'s brother\'s daughter)','Mamera '+(m[2]==='S'?'bhai':'behen')];
+  if((m=path.match(/^M([Zz])([SD])$/))) return [m[2]==='S'?'Cousin brother (mother\'s sister\'s son)':'Cousin sister (mother\'s sister\'s daughter)','Mausera '+(m[2]==='S'?'bhai':'behen')];
+  if((m=path.match(/^[BbZzQq]C$/))) return ['Nephew / niece','Bhatija/Bhanja'];
+  if((m=path.match(/^([HWX])(S|D|C)$/))) return ['Step-'+(m[2]==='S'?'son':m[2]==='D'?'daughter':'child'),'Sautela '+(m[2]==='S'?'beta':m[2]==='D'?'beti':'bachcha')];
+  return [fallbackEn(path),''];
+}
+function relLabel(id,src){
+  src=src||T.me;
+  if(!src||!P(src)||!P(id)) return '';
+  const r=relFrom(src).get(id);
+  if(!r) return '';
+  const [en,hi]=termFor(r.path,P(id),r.half);
+  if(r.path==='') return S.lang==='hi'?'Main':'Me';
+  if(S.lang==='en'||!hi||hi==='—') return en;
+  if(S.lang==='hi') return hi;
+  return en+' · '+hi;
+}
+function relShort(id,src){
+  src=src||T.me;
+  if(!src||!P(src)||!P(id)) return '';
+  const r=relFrom(src).get(id);
+  if(!r||r.path==='') return r?'Me':'';
+  const [en,hi]=termFor(r.path,P(id),r.half);
+  if(S.lang==='hi'&&hi&&hi!=='—') return hi.split(' (')[0];
+  if(S.lang==='both'&&hi&&hi!=='—') return hi.split(' (')[0];
+  return en.length>22?en.split(' (')[0]:en;
+}
+/* relation between any two people: "A is the ___ of B" (A seen from B) */
+function relBetween(aId,bId){
+  const A=P(aId),B=P(bId);
+  if(!A||!B) return null;
+  if(aId===bId) return {en:'Same person',hi:'',path:''};
+  const r=relFrom(bId).get(aId);
+  if(!r) return {en:'No family link found between them yet.',hi:'',path:null};
+  const [en,hi]=termFor(r.path,A,r.half);
+  return {en,hi,path:r.path};
+}
+
+/* ================= Views ================= */
+const CARD_W=176,CARD_H=66;
+const cut=(s,n)=>{s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s};
+function popts(sel,blank,fn){
+  const arr=T.people.filter(fn||(()=>true)).slice().sort((a,b)=>nm(a).localeCompare(nm(b)));
+  return (blank!=null?'<option value="">'+esc(blank)+'</option>':'')+arr.map(p=>'<option value="'+esc(p.id)+'"'+(p.id===sel?' selected':'')+'>'+esc(nm(p))+(p.born?' ('+esc(yr(p.born))+')':'')+'</option>').join('');
+}
+const realPeople=()=>T.people.filter(p=>!p.ph);
+function vhead(title,sub,ctl){
+  return '<div class="vh"><div><h2>'+esc(title)+'</h2>'+(sub?'<p>'+sub+'</p>':'')+'</div>'+(ctl?'<div class="ctl">'+ctl+'</div>':'')+'</div>';
+}
+function emptyView(){
+  return '<div class="empty"><h3>No one here yet</h3><p>Start with yourself. Then add parents, brothers, sisters, husband or wife and children from the dropdown. The tree builds itself.</p><button class="btn pri" id="bFirst" style="margin-top:8px">Add the first person</button></div>';
+}
+function chip(p,extra){
+  return '<button class="pc" data-sel="'+esc(p.id)+'">'+avatar(p,'mini')+'<span>'+esc(nm(p))+(extra?'<small>'+extra+'</small>':'')+'</span></button>';
+}
+function personSub(p){
+  const bits=[];
+  const l=lifeText(p,S.ages);if(l) bits.push(esc(l));
+  return bits.join(' · ');
+}
+
+/* ---- forest of family units (shared by chart, sideways chart, outline) ---- */
+let FOREST_ALL=false;
+const hasPar=q=>!!((q.father&&P(q.father))||(q.mother&&P(q.mother)));
+function buildUnit(pid,placed){
+  if(placed.has(pid)) return {id:pid,dup:true,mem:[{id:pid}],groups:[]};
+  /* a wife whose husband also has parents here is drawn in her husband's family; her own family shows her faded */
+  if(FOREST_ALL){
+    const q=P(pid);
+    if(q.gender==='f'&&hasPar(q)&&spousesOf(pid).some(s=>s.p.gender!=='f'&&hasPar(s.p))) return {id:pid,dup:true,mem:[{id:pid}],groups:[]};
+  }
+  placed.add(pid);
+  const p=P(pid),sps=[];
+  spousesOf(pid).forEach(s=>{if(!placed.has(s.p.id)){placed.add(s.p.id);sps.push(s)}});
+  let mem;
+  if(sps.length===1) mem=(p.gender==='f'&&sps[0].p.gender==='m')?[{id:sps[0].p.id,u:sps[0].u},{id:pid}]:[{id:pid},{id:sps[0].p.id,u:sps[0].u}];
+  else if(sps.length>=2) mem=[{id:sps[0].p.id,u:sps[0].u},{id:pid}].concat(sps.slice(1).map(s=>({id:s.p.id,u:s.u})));
+  else mem=[{id:pid}];
+  /* people the married-in spouses were married to before, who have no parents of their own here */
+  sps.forEach(s=>{
+    spousesOf(s.p.id).forEach(x=>{
+      if(placed.has(x.p.id)) return;
+      const hp=(x.p.father&&P(x.p.father))||(x.p.mother&&P(x.p.mother));
+      if(hp) return;
+      placed.add(x.p.id);
+      const vi=mem.findIndex(m=>m.id===s.p.id),pi0=mem.findIndex(m=>m.id===pid);
+      const e={id:x.p.id,u:x.u,via:s.p.id};
+      mem.splice(vi<pi0?vi:vi+1,0,e);
+    });
+  });
+  const pi=mem.findIndex(m=>m.id===pid);
+  mem.forEach(m=>{m.pi=m.id===pid?pi:mem.findIndex(x=>x.id===(m.via||pid))});
+  const M=new Map(mem.map((m,i)=>[m.id,i]));
+  const gmap=new Map();
+  mem.forEach(m=>kidsOf(m.id).forEach(c=>{
+    const f=M.has(c.father)?c.father:'',mo=M.has(c.mother)?c.mother:'';
+    const key=f+'|'+mo;
+    if(!gmap.has(key)) gmap.set(key,{f,m:mo,kids:new Map()});
+    gmap.get(key).kids.set(c.id,c);
+  }));
+  const groups=[...gmap.values()].map(g=>{
+    const ix=[g.f,g.m].filter(Boolean).map(id=>M.get(id)).sort((a,b)=>a-b);
+    return {ix,kids:[...g.kids.values()].sort(sibCmp),units:[]};
+  }).sort((a,b)=>a.ix[0]-b.ix[0]);
+  groups.forEach(g=>{g.units=g.kids.map(c=>buildUnit(c.id,placed))});
+  return {id:pid,mem,groups};
+}
+function buildForest(scope){
+  const placed=new Set();
+  FOREST_ALL=false;
+  if(scope&&P(scope)) return [buildUnit(scope,placed)];
+  FOREST_ALL=true;
+  const lined=new Set();
+  T.people.forEach(p=>{if(lined.has(p.id)) return;const comp=[],st=[p.id],seen=new Set([p.id]);while(st.length){const x=st.pop();comp.push(x);spousesOf(x).forEach(s=>{if(!seen.has(s.p.id)){seen.add(s.p.id);st.push(s.p.id)}})}
+    if(comp.some(id=>hasPar(P(id)))) comp.forEach(id=>{if(!hasPar(P(id))) lined.add(id)})});
+  const roots=T.people.filter(p=>!hasPar(p)&&!lined.has(p.id)).sort(sibCmp);
+  const out=[];
+  roots.forEach(r=>{if(!placed.has(r.id)) out.push(buildUnit(r.id,placed))});
+  T.people.forEach(p=>{if(!placed.has(p.id)) out.push(buildUnit(p.id,placed))});
+  return out;
+}
+
+/* ---- layout ---- */
+function layoutForest(forest,horiz){
+  const c=horiz?{nb:CARD_H,nd:CARD_W,gb:14,sg:12,gd:70}:{nb:CARD_W,nd:CARD_H,gb:22,sg:14,gd:60};
+  const nodes=[],links=[],marks=[];
+  function measure(u){
+    u.ub=u.mem.length*c.nb+(u.mem.length-1)*c.sg;
+    let total=0;
+    u.groups.forEach((g,gi)=>{
+      g.units.forEach(k=>measure(k));
+      g.gw=g.units.reduce((s,k)=>s+k.bw,0)+Math.max(0,g.units.length-1)*c.gb;
+      total+=g.gw+(gi?c.gb*1.6:0);
+    });
+    u.ct=total;
+    u.bw=u.dup?c.nb:Math.max(u.ub,total);
+  }
+  function place(u,b0,d){
+    if(u.dup){nodes.push({id:u.id,b:b0,d,dup:true});return b0+c.nb/2}
+    const center=b0+u.bw/2,left=center-u.ub/2;
+    u.mem.forEach((m,i)=>{m.b=left+i*(c.nb+c.sg);nodes.push({id:m.id,b:m.b,d})});
+    const dm=d+c.nd/2;
+    u.mem.forEach((m,i)=>{
+      if(!m.u) return;
+      const pm=u.mem[m.pi];
+      if(Math.abs(i-m.pi)===1){
+        const l=Math.min(m.b,pm.b)+c.nb,r=Math.max(m.b,pm.b);
+        marks.push({type:m.u.type,pts:[[l,dm],[r,dm]]});
+      }else{
+        const a=m.b+c.nb/2,b=pm.b+c.nb/2,top=d-9;
+        marks.push({type:m.u.type,pts:[[a,d],[a,top],[b,top],[b,d]]});
+      }
+    });
+    let start=center-u.ct/2,anchor=left+u.mem.findIndex(m=>m.id===u.id)*(c.nb+c.sg)+c.nb/2;
+    u.anchor=anchor;
+    const cd=d+c.nd+c.gd;
+    u.groups.forEach((g,gi)=>{
+      let b=start;
+      const anchors=g.units.map(k=>{const a=place(k,b,cd);b+=k.bw+c.gb;return a});
+      start+=g.gw+c.gb*1.6;
+      let ob,od;
+      if(g.ix.length===2){
+        const i0=g.ix[0],i1=g.ix[1];
+        if(i1-i0===1){ob=u.mem[i0].b+c.nb+c.sg/2;od=dm}
+        else{ob=(u.mem[i0].b+u.mem[i1].b)/2+c.nb/2;od=d+c.nd}
+      }else{ob=u.mem[g.ix[0]].b+c.nb/2;od=d+c.nd}
+      const bus=d+c.nd+c.gd/2+gi*6;
+      const lo=Math.min(ob,...anchors),hi=Math.max(ob,...anchors);
+      links.push([[ob,od],[ob,bus]]);
+      if(hi>lo) links.push([[lo,bus],[hi,bus]]);
+      anchors.forEach(a=>links.push([[a,bus],[a,cd]]));
+      g.units.forEach((k,ki)=>{k.parentGroup=g});
+    });
+    return anchor;
+  }
+  let b=0,maxD=0;
+  forest.forEach(u=>measure(u));
+  forest.forEach(u=>{place(u,b,0);b+=u.bw+c.gb*2});
+  nodes.forEach(n=>{maxD=Math.max(maxD,n.d+c.nd)});
+  return {nodes,links,marks,bw:Math.max(c.nb,b-c.gb*2),bd:maxD,c,horiz};
+}
+function layoutPedigree(id,gens,horiz){
+  const c=horiz?{nb:CARD_H,nd:CARD_W,gb:12,gd:60}:{nb:CARD_W,nd:CARD_H,gb:14,gd:54};
+  const cell=c.nb+c.gb,nodes=[],links=[];
+  const dOf=g=>horiz?g*(c.nd+c.gd):(gens-g)*(c.nd+c.gd);
+  function rec(pid,g,idx,parentCenter){
+    const span=Math.pow(2,gens-g),b=(idx+.5)*span*cell-c.gb/2-c.nb/2,d=dOf(g);
+    const p=pid&&P(pid);
+    nodes.push(p?{id:pid,b,d,gen:g}:{emp:true,child:parentCenter.id,role:parentCenter.role,b,d,gen:g});
+    if(!p) return b+c.nb/2;
+    if(g<gens){
+      const fa=rec(p.father&&P(p.father)?p.father:'',g+1,idx*2,{id:pid,role:'father'});
+      const mo=rec(p.mother&&P(p.mother)?p.mother:'',g+1,idx*2+1,{id:pid,role:'mother'});
+      const cd=horiz?d+c.nd:d,pd=dOf(g+1);
+      const bus=horiz?d+c.nd+c.gd/2:d-c.gd/2;
+      const ctr=b+c.nb/2;
+      const near=horiz?cd:d,far=horiz?pd:pd+c.nd;
+      links.push([[ctr,near],[ctr,bus]]);
+      links.push([[Math.min(fa,mo),bus],[Math.max(fa,mo),bus]]);
+      links.push([[fa,bus],[fa,far]]);links.push([[mo,bus],[mo,far]]);
+    }
+    return b+c.nb/2;
+  }
+  rec(id,0,0,null);
+  const bw=Math.pow(2,gens)*cell-c.gb;
+  return {nodes,links,marks:[],bw,bd:(gens+1)*(c.nd+c.gd)-c.gd,c,horiz};
+}
+
+/* ---- svg ---- */
+function mapPt(L,b,d,ox,oy){return L.horiz?[d+ox,b+oy]:[b+ox,d+oy]}
+function ptsPath(L,pts,ox,oy){return pts.map((q,i)=>{const m=mapPt(L,q[0],q[1],ox,oy);return (i?'L':'M')+m[0].toFixed(1)+' '+m[1].toFixed(1)}).join(' ')}
+function nodeSVG(L,n,ox,oy){
+  const m=mapPt(L,n.b,n.d,ox,oy);
+  if(n.emp){
+    return '<g class="emp" data-add="'+esc(n.child)+'" data-role="'+n.role+'" transform="translate('+m[0].toFixed(1)+' '+m[1].toFixed(1)+')"><rect width="'+CARD_W+'" height="'+CARD_H+'" rx="10"/><text x="'+CARD_W/2+'" y="'+(CARD_H/2+4)+'">+ Add '+n.role+'</text></g>';
+  }
+  const p=P(n.id);
+  const cls=['nd',gcls(p)];
+  if(p.alive===false) cls.push('dead');
+  if(T.me===p.id) cls.push('me');
+  if(S.sel===p.id) cls.push('sel');
+  if(p.ph) cls.push('ph');
+  if(n.dup) cls.push('dup');
+  let ftag='';
+  if(S.focus&&P(S.focus)){
+    const r=relFrom(S.focus).get(p.id);
+    if(p.id===S.focus){cls.push('focus');ftag='Selected'}
+    else if(r&&r.path.length<=2){cls.push('near');ftag=termFor(r.path,p,r.half)[0].replace(/ \(.*$/,'')}
+    else cls.push('dim');
+  }
+  const bo=birthOrder(p);
+  let s='<g class="'+cls.join(' ')+'" data-id="'+esc(p.id)+'" transform="translate('+m[0].toFixed(1)+' '+m[1].toFixed(1)+')">';
+  s+='<title>'+esc(nm(p))+'</title><rect class="card" width="'+CARD_W+'" height="'+CARD_H+'" rx="10"/>';
+  s+='<circle class="avc" cx="32" cy="33" r="20"/>';
+  if(p.photo&&!p.ph) s+='<image href="'+esc(p.photo)+'" x="14" y="15" width="36" height="36" preserveAspectRatio="xMidYMid slice" clip-path="url(#avclip)"/>';
+  else s+='<text class="ini" x="32" y="38.5">'+esc(initials(p))+'</text>';
+  s+='<text class="t1" x="60" y="26">'+esc(cut(p.first||p.last||'Unnamed',14))+'</text>';
+  s+='<text class="t2" x="60" y="42">'+esc(cut(p.first?p.last:'',16))+'</text>';
+  s+='<text class="t3" x="60" y="58">'+esc(cut(lifeText(p,S.ages),21))+'</text>';
+  if(bo.of>1&&!p.ph&&!n.dup) s+='<g class="ordb"><circle cx="2" cy="2" r="10"/><text x="2" y="6">'+bo.n+'</text></g>';
+  if(ftag) s+='<g class="ftag"><rect x="0" y="'+(CARD_H+3)+'" width="'+Math.min(CARD_W,ftag.length*6.4+14)+'" height="16" rx="8"/><text x="7" y="'+(CARD_H+14.5)+'">'+esc(ftag)+'</text></g>';
+  if(T.me===p.id) s+='<g class="metag"><rect x="'+(CARD_W-30)+'" y="-8" width="26" height="14" rx="7"/><text x="'+(CARD_W-17)+'" y="2">ME</text></g>';
+  return s+'</g>';
+}
+function chartSVG(L){
+  const pad=28,ox=pad,oy=pad;
+  const W=(L.horiz?L.bd:L.bw)+pad*2,H=(L.horiz?L.bw:L.bd)+pad*2;
+  let s='<defs><clipPath id="avclip"><circle cx="32" cy="33" r="18"/></clipPath></defs>';
+  L.links.forEach(l=>{s+='<path class="ln" d="'+ptsPath(L,l,ox,oy)+'"/>'});
+  L.marks.forEach(mk=>{s+='<path class="un '+mk.type+'" d="'+ptsPath(L,mk.pts,ox,oy)+'"/>'});
+  L.nodes.forEach(n=>{s+=nodeSVG(L,n,ox,oy)});
+  return {inner:s,w:Math.ceil(W),h:Math.ceil(H)};
+}
+function svgDoc(inner,w,h,z,extra){
+  return '<svg class="chartsvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+w+' '+h+'" width="'+Math.round(w*z)+'" height="'+Math.round(h*z)+'" role="img" aria-label="Family tree chart"'+(extra||'')+'>'+inner+'</svg>';
+}
+function pzHTML(key,inner,w,h){
+  let z=S.zoom[key];
+  if(!z){const avail=Math.max(280,(($('view')||{}).clientWidth||900)-40);z=Math.min(1,avail/w);z=Math.max(avail<520?.72:.35,z)}
+  S.zoom[key]=z;
+  return '<div class="pz" data-key="'+key+'" data-w="'+w+'" data-h="'+h+'"><div class="zoom"><button data-z="out" aria-label="Zoom out">−</button><button data-z="in" aria-label="Zoom in">+</button><button data-z="fit" aria-label="Fit to screen" style="width:auto;padding:0 8px;font-size:13px">Fit</button></div>'+svgDoc(inner,w,h,z)+'</div>';
+}
+function legendHTML(){
+  return '<div class="legend"><span><i style="background:var(--m)"></i>Male</span><span><i style="background:var(--f)"></i>Female</span><span><i style="background:var(--x)"></i>Other</span><span>Dashed card = passed away</span><span>Number on card = birth order among brothers and sisters</span><span>Thick line = married, dashed = partner, red dotted = divorced</span></div>';
+}
+
+/* ---- tab: overview ---- */
+function vOverview(){
+  const rp=realPeople();
+  if(!rp.length) return emptyView();
+  const alive=rp.filter(p=>p.alive!==false),dead=rp.length-alive.length;
+  const gm=genMap(),gens=Math.max(...T.people.map(p=>gm.get(p.id)||0))+1;
+  const places=new Set(rp.map(p=>(p.place||'').trim().toLowerCase()).filter(Boolean));
+  const withAge=alive.map(p=>({p,a:ageOf(p)})).filter(x=>x.a);
+  withAge.sort((x,y)=>y.a.years-x.a.years);
+  const males=rp.filter(p=>p.gender==='m').length,fem=rp.filter(p=>p.gender==='f').length,oth=rp.length-males-fem;
+  const pct=n=>Math.round(n*100/rp.length);
+  const nb=alive.map(p=>({p,n:nextBirthday(p)})).filter(x=>x.n).sort((a,b)=>a.n.days-b.n.days)[0];
+  const A=S.rfA&&P(S.rfA)?S.rfA:(T.me||rp[0].id),B=S.rfB&&P(S.rfB)?S.rfB:(rp[1]||rp[0]).id;
+  let h=vhead(T.name,'A quick picture of your whole family.');
+  h+='<div class="tiles">'+
+    '<div class="tile"><small>People</small><b>'+rp.length+'</b></div>'+
+    '<div class="tile"><small>Living</small><b>'+alive.length+'</b></div>'+
+    '<div class="tile"><small>Passed away</small><b>'+dead+'</b></div>'+
+    '<div class="tile"><small>Generations</small><b>'+gens+'</b></div>'+
+    '<div class="tile"><small>Couples</small><b>'+T.unions.length+'</b></div>'+
+    '<div class="tile"><small>Places</small><b>'+places.size+'</b></div></div>';
+  h+='<div class="grid">';
+  h+='<div class="card"><h3>Boys and girls</h3><div class="bar"><i style="width:'+pct(males)+'%;background:var(--m)"></i><i style="width:'+pct(fem)+'%;background:var(--f)"></i><i style="width:'+pct(oth)+'%;background:var(--x)"></i></div><p class="muted" style="margin:8px 0 0;font-size:13.5px">'+males+' male, '+fem+' female'+(oth?', '+oth+' other':'')+'</p></div>';
+  if(withAge.length){
+    const o=withAge[0],y=withAge[withAge.length-1];
+    h+='<div class="card"><h3>Eldest and youngest</h3><div class="chips" style="flex-direction:column;align-items:flex-start">'+chip(o.p,'Eldest living · '+esc(ageText(o.p)))+(withAge.length>1?chip(y.p,'Youngest · '+esc(ageText(y.p))):'')+'</div></div>';
+  }
+  if(nb) h+='<div class="card"><h3>Next birthday</h3>'+chip(nb.p,(nb.n.days===0?'Today! ':'in '+nb.n.days+' days · ')+'turning '+nb.n.turning)+'</div>';
+  h+='</div>';
+  h+='<div class="card" style="margin-top:12px"><h3>How are two people related?</h3><div class="ctl"><label>Person<select id="rfB">'+popts(B)+'</select></label><label>is the ___ of<select id="rfA">'+popts(A)+'</select></label></div><div class="rel" id="rfOut" style="margin-top:10px">'+relFinderText(B,A)+'</div></div>';
+  if(!T.me) h+='<p class="muted" style="margin-top:12px">Tip: open your own card and press <b>This is me</b>. Every card will then show how that person is related to you (Chacha, Mama, Bhabhi and so on).</p>';
+  return h;
+}
+function relFinderText(b,a){
+  const r=relBetween(b,a);
+  if(!r) return '';
+  if(r.path===null) return esc(r.en);
+  if(b===a) return 'That is the same person.';
+  const hi=r.hi&&r.hi!=='—'?' <span class="muted">· '+esc(r.hi)+'</span>':'';
+  return '<b>'+esc(nm(P(b)))+'</b> is <b>'+esc(nm(P(a)))+'</b>\'s <b>'+esc(r.en)+'</b>'+hi;
+}
+
+/* ---- tab: chart ---- */
+function vChart(horiz){
+  if(!T.people.length) return emptyView();
+  const key=horiz?'side':'chart';
+  const scope=S.rootId&&P(S.rootId)?S.rootId:'';
+  const forest=buildForest(scope),L=layoutForest(forest,horiz),r=chartSVG(L);
+  const ctl='<label>Show<select id="rootSel"><option value="">Whole family</option>'+popts(scope)+'</select></label>';
+  const sub=horiz?'Same family laid out left to right. Older generations are on the left. Drag a card up or down among its brothers and sisters to change the order.':'Oldest generation at the top. Brothers and sisters sit left to right in birth order. Drag a card onto a brother or sister to change who is older (on a phone, press and hold first).';
+  const fb=S.focus&&P(S.focus)?'<div class="rel" style="margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1 1 220px">Showing how everyone is connected to <b>'+esc(nm(P(S.focus)))+'</b>. Close relatives are labelled, the rest are dimmed.</span><button class="btn sm" data-act="clearFocus">Show all</button></div>':'';
+  return fb+vhead(horiz?'Sideways chart':'Family chart',sub+' Tap a card for details. Double-click (or double-tap) a card to see how everyone is connected to it.',ctl)+pzHTML(key,r.inner,r.w,r.h)+legendHTML();
+}
+/* ---- tab: ancestors ---- */
+function vAnc(){
+  if(!T.people.length) return emptyView();
+  const id=S.ancId&&P(S.ancId)?S.ancId:(T.me&&P(T.me)?T.me:T.people[0].id);
+  const horiz=S.ancOrient==='h';
+  const L=layoutPedigree(id,S.ancGens,horiz),r=chartSVG(L);
+  const ctl='<label>Person<select id="ancSel">'+popts(id)+'</select></label><label>Generations<select id="ancG">'+[2,3,4,5].map(n=>'<option value="'+n+'"'+(n===S.ancGens?' selected':'')+'>'+n+' back</option>').join('')+'</select></label><label>Direction<select id="ancO"><option value="v"'+(!horiz?' selected':'')+'>Upwards</option><option value="h"'+(horiz?' selected':'')+'>Sideways</option></select></label>';
+  return vhead('Ancestors','Parents, grandparents and further back for one person. Dashed boxes are empty: tap one to add that parent.',ctl)+pzHTML('anc'+(horiz?'h':'v')+S.ancGens,r.inner,r.w,r.h)+legendHTML();
+}
+/* ---- tab: generations ---- */
+function vGens(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const gm=genMap(),maxG=Math.max(...T.people.map(p=>gm.get(p.id)||0));
+  let h=vhead('Generations','Every generation in one list. The number is the birth order among brothers and sisters: 1 is the eldest. Drag a name onto a brother or sister to change the order.');
+  for(let g=0;g<=maxG;g++){
+    const here=T.people.filter(p=>(gm.get(p.id)||0)===g);
+    if(!here.length) continue;
+    const groups=new Map();
+    here.forEach(p=>{
+      const hp=(p.father&&P(p.father))||(p.mother&&P(p.mother));
+      const k=hp?(p.father||'')+'|'+(p.mother||''):'root';
+      if(!groups.has(k)) groups.set(k,[]);
+      groups.get(k).push(p);
+    });
+    h+='<div class="gen"><h3>Generation '+(g+1)+(g===0?' · oldest':'')+' <span class="badge">'+here.length+'</span></h3>';
+    [...groups.entries()].forEach(([k,arr])=>{
+      arr.sort(sibCmp);
+      let title='';
+      if(k!=='root'){const f=P(arr[0].father),m=P(arr[0].mother);title='Children of '+[f,m].filter(Boolean).map(nm).join(' & ')}
+      else title='Married into the family or starting point';
+      h+='<div class="sibgrp" style="flex-direction:column"><small class="muted" style="font-weight:600">'+esc(title)+'</small><div class="chips">'+arr.map(p=>{
+        const bo=birthOrder(p);
+        return '<button class="pc" data-drag="'+esc(p.id)+'" data-sel="'+esc(p.id)+'">'+(k!=='root'&&bo.of>1?'<span class="ord">'+bo.n+'</span>':'')+avatar(p,'mini')+'<span>'+esc(nm(p))+'<small>'+esc(lifeText(p,S.ages))+'</small></span></button>';
+      }).join('')+'</div></div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+/* ---- tab: outline ---- */
+S.coll={};
+function outlineUnit(u,depth){
+  const main=P(u.id);
+  let line='<div class="ln">';
+  const hasKids=u.groups.length>0&&!u.dup;
+  line+=hasKids?'<button class="tg" data-tg="'+esc(u.id)+'" aria-label="Fold">'+(S.coll[u.id]?'+':'−')+'</button>':'<span style="width:24px"></span>';
+  line+=u.mem.map((m,i)=>{
+    const p=P(m.id);
+    return (i?'<span class="muted">'+(m.u&&m.u.type==='divorced'?'divorced from':m.u&&m.u.type==='partner'?'with':'&')+'</span>':'')+chip(p,esc(lifeText(p,S.ages))+(T.me&&relShort(p.id)?' · '+esc(relShort(p.id)):''));
+  }).join('');
+  if(u.dup) line+='<span class="tag">shown above</span>';
+  line+='</div>';
+  if(!hasKids||S.coll[u.id]) return '<li>'+line+'</li>';
+  let kids='<ul>';
+  u.groups.forEach(g=>g.units.forEach(k=>{kids+=outlineUnit(k,depth+1)}));
+  kids+='</ul>';
+  return '<li>'+line+kids+'</li>';
+}
+function vOutline(){
+  if(!T.people.length) return emptyView();
+  const forest=buildForest('');
+  return vhead('Outline','A simple indented list. Use the − and + buttons to fold a branch.','<button class="btn sm" id="olAll">Fold all</button><button class="btn sm" id="olOpen">Open all</button>')+'<ul class="ol">'+forest.map(u=>outlineUnit(u,0)).join('')+'</ul>';
+}
+/* ---- tab: timeline ---- */
+function vTime(){
+  const rows=realPeople().filter(p=>dnum(p.born)!=null).sort((a,b)=>dnum(a.born)-dnum(b.born));
+  if(!rows.length) return vhead('Timeline','Who lived when.')+'<div class="empty"><p>Add birth years to see the timeline.</p></div>';
+  const minY=Math.floor(Math.min(...rows.map(p=>dnum(p.born)))/10)*10,maxY=Math.ceil(NOWY/5)*5+5;
+  const left=150,sc=Math.max(5,Math.min(9,900/(maxY-minY))),rh=24,top=28;
+  const W=left+(maxY-minY)*sc+20,H=top+rows.length*rh+10;
+  let s='';
+  for(let y=minY;y<=maxY;y+=(maxY-minY>120?20:10)){
+    const x=left+(y-minY)*sc;
+    s+='<line class="tl-axis" x1="'+x+'" x2="'+x+'" y1="'+(top-6)+'" y2="'+H+'"/><text class="tl-tick" x="'+x+'" y="16" text-anchor="middle">'+y+'</text>';
+  }
+  const nx=left+(NOWY+TODAY.getMonth()/12-minY)*sc;
+  s+='<line class="tl-now" x1="'+nx+'" x2="'+nx+'" y1="'+(top-6)+'" y2="'+H+'"/>';
+  rows.forEach((p,i)=>{
+    const y=top+i*rh,b=dnum(p.born);
+    let e=p.alive===false?(dnum(p.died)!=null?dnum(p.died):b+1):NOWY+TODAY.getMonth()/12;
+    if(e<b) e=b+.5;
+    const x1=left+(b-minY)*sc,x2=left+(e-minY)*sc;
+    s+='<g class="tl-row" data-id="'+esc(p.id)+'"><rect class="tl-bg" x="0" y="'+y+'" width="'+W+'" height="'+rh+'"/><text class="tl-name" x="'+(left-8)+'" y="'+(y+16)+'" text-anchor="end">'+esc(cut(nm(p),20))+'</text><rect class="tl-bar '+gcls(p)+(p.alive===false?' dead':'')+'" x="'+x1.toFixed(1)+'" y="'+(y+5)+'" width="'+Math.max(4,x2-x1).toFixed(1)+'" height="14" rx="5"><title>'+esc(nm(p)+' '+lifeText(p,true))+'</title></rect></g>';
+  });
+  return vhead('Timeline','Each bar is one life. Solid bars are living people, faded bars are people who have passed away.')+'<div class="pz" style="cursor:default;touch-action:auto"><svg class="chartsvg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">'+s+'</svg></div>'+'<div class="legend"><span><i style="background:var(--m)"></i>Male</span><span><i style="background:var(--f)"></i>Female</span><span><i style="background:var(--x)"></i>Other</span><span>Faded bar = passed away</span></div>';
+}
+/* ---- tab: places ---- */
+function vPlaces(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const key=S.placeMode==='bplace'?'bplace':'place';
+  const map=new Map();let none=0;
+  rp.forEach(p=>{
+    const v=(p[key]||'').trim();
+    if(!v){none++;return}
+    const k=v.toLowerCase();
+    if(!map.has(k)) map.set(k,{name:v,people:[]});
+    map.get(k).people.push(p);
+  });
+  const list=[...map.values()].sort((a,b)=>b.people.length-a.people.length||a.name.localeCompare(b.name));
+  const ctl='<label>Group by<select id="plMode"><option value="place"'+(key==='place'?' selected':'')+'>Where they live</option><option value="bplace"'+(key==='bplace'?' selected':'')+'>Where they were born</option></select></label>';
+  let h=vhead('Places','See which city or village each person belongs to.',ctl);
+  if(!list.length) return h+'<div class="empty"><p>No locations saved yet. Add a place in each person\'s Edit tab.</p></div>';
+  const mx=list[0].people.length;
+  h+='<div class="grid">'+list.map(pl=>'<div class="card"><h3>'+esc(pl.name)+' <span class="badge">'+pl.people.length+'</span></h3><div class="bar" style="margin:4px 0 8px"><i style="width:'+Math.round(pl.people.length*100/mx)+'%;background:var(--accent)"></i></div><div class="chips">'+pl.people.sort(sibCmp).map(p=>chip(p)).join('')+'</div></div>').join('')+'</div>';
+  if(none) h+='<p class="muted" style="margin-top:10px">'+none+' '+(none===1?'person has':'people have')+' no place saved.</p>';
+  return h;
+}
+/* ---- tab: people table ---- */
+function vPeople(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const f=S.pFilter;
+  let arr=rp.filter(p=>f==='all'||(f==='alive'&&p.alive!==false)||(f==='dead'&&p.alive===false)||(f==='nodate'&&!dparse(p.born)));
+  const gm=genMap();
+  const val={
+    name:p=>nm(p).toLowerCase(),born:p=>dnum(p.born)==null?9999:dnum(p.born),age:p=>{const a=ageOf(p);return a?a.years:-1},
+    gender:p=>p.gender,status:p=>p.alive===false?1:0,place:p=>(p.place||'zzz').toLowerCase(),
+    rel:p=>{const r=T.me&&relFrom(T.me).get(p.id);return r?r.path.length:99},order:p=>birthOrder(p).n,gen:p=>gm.get(p.id)||0
+  }[S.pSort]||(p=>nm(p));
+  arr=arr.slice().sort((a,b)=>{const x=val(a),y=val(b);return (x<y?-1:x>y?1:0)*S.pDir});
+  const th=(k,t)=>'<th data-sort="'+k+'">'+t+(S.pSort===k?(S.pDir>0?' ▲':' ▼'):'')+'</th>';
+  const ctl='<label>Show<select id="pFil"><option value="all"'+(f==='all'?' selected':'')+'>Everyone</option><option value="alive"'+(f==='alive'?' selected':'')+'>Living</option><option value="dead"'+(f==='dead'?' selected':'')+'>Passed away</option><option value="nodate"'+(f==='nodate'?' selected':'')+'>No birth date</option></select></label>';
+  let h=vhead('All people',arr.length+' of '+rp.length+' shown. Tap a column name to sort.',ctl);
+  h+='<div class="tw"><table><thead><tr>'+th('name','Name')+th('rel','Relation to me')+th('gender','Gender')+th('born','Born')+th('age','Age')+th('status','Status')+th('place','Lives in')+th('order','Birth order')+'</tr></thead><tbody>';
+  arr.forEach(p=>{
+    const bo=birthOrder(p);
+    h+='<tr data-sel="'+esc(p.id)+'"><td>'+avatar(p,'mini')+' '+esc(nm(p))+'</td><td>'+esc(T.me?relLabel(p.id):'-')+'</td><td>'+({m:'Male',f:'Female',x:'Other'}[p.gender])+'</td><td>'+esc(dfmt(p.born)||'-')+'</td><td>'+esc(ageText(p)||'-')+'</td><td>'+(p.alive===false?'<span class="tag dead">Passed away'+(p.died?' '+esc(yr(p.died)):'')+'</span>':'<span class="tag ok">Living</span>')+'</td><td>'+esc(p.place||'-')+'</td><td>'+(bo.of>1?bo.n+' of '+bo.of:'-')+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+/* ---- tab: birthdays ---- */
+function gcalLink(title,date,note){
+  const f=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const nx=new Date(date.getFullYear(),date.getMonth(),date.getDate()+1);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(title)+'&dates='+f(date)+'/'+f(nx)+'&recur='+encodeURIComponent('RRULE:FREQ=YEARLY')+'&details='+encodeURIComponent(note||'From my Vansh family tree');
+}
+function vDays(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const up=rp.map(p=>({p,n:nextBirthday(p)})).filter(x=>x.n).sort((a,b)=>a.n.days-b.n.days);
+  const rem=rp.filter(p=>p.alive===false).map(p=>{
+    const d=dparse(p.died);if(!d||!d.mo||!d.d) return null;
+    let y=NOWY,dt=new Date(y,d.mo-1,d.d);const t0=new Date(NOWY,TODAY.getMonth(),TODAY.getDate());
+    if(dt<t0){y++;dt=new Date(y,d.mo-1,d.d)}
+    return {p,days:Math.round((dt-t0)/864e5),yrs:y-d.y,dt};
+  }).filter(Boolean).sort((a,b)=>a.days-b.days);
+  const fmt=d=>d.getDate()+' '+MON[d.getMonth()];
+  const inTxt=n=>n===0?'<b style="color:var(--accent)">Today</b>':n===1?'Tomorrow':'in '+n+' days';
+  let h=vhead('Birthdays and remembrances','Tap + Google Calendar on a person to add a yearly reminder. The .ics file adds everyone to Apple, Outlook or any calendar app.','<button class="btn sm" id="icsBtn">Download all for calendar (.ics)</button>');
+  h+='<div class="grid"><div class="card"><h3>Coming birthdays</h3>';
+  h+=up.length?'<div style="display:grid;gap:6px;margin-top:6px">'+up.slice(0,40).map(x=>'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'+chip(x.p,'turning '+x.n.turning)+'<span class="mono" style="font-size:12.5px;text-align:right">'+fmt(x.n.date)+'<br><span class="muted">'+inTxt(x.n.days)+'</span><br><a class="tag" target="_blank" rel="noopener" href="'+esc(gcalLink(nm(x.p)+'\'s birthday (turning '+x.n.turning+')',x.n.date))+'">+ Google Calendar</a></span></div>').join('')+'</div>':'<p class="muted">No living person has a full birth date yet.</p>';
+  h+='</div><div class="card"><h3>Remembrance days</h3>';
+  h+=rem.length?'<div style="display:grid;gap:6px;margin-top:6px">'+rem.slice(0,40).map(x=>'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'+chip(x.p,x.yrs+' years since passing')+'<span class="mono" style="font-size:12.5px;text-align:right">'+fmt(x.dt)+'<br><span class="muted">'+inTxt(x.days)+'</span><br><a class="tag" target="_blank" rel="noopener" href="'+esc(gcalLink(nm(x.p)+' - remembrance day',x.dt))+'">+ Google Calendar</a></span></div>').join('')+'</div>':'<p class="muted">Add the full death date of a person who has passed away to see the day here.</p>';
+  return h+'</div></div>';
+}
+/* ---- tab: fan chart ---- */
+function fanSVG(id,gens){
+  const R0=50,RW=78,cx=(R0+gens*RW)+20,cy=R0+gens*RW+20;
+  const W=cx*2,H=cy+30;
+  let s='<defs></defs>';
+  const pt=(r,t)=>[cx+r*Math.cos(t),cy-r*Math.sin(t)];
+  const arc=(r1,r2,t0,t1)=>{const a=pt(r2,t0),b=pt(r2,t1),c=pt(r1,t1),d=pt(r1,t0);return 'M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+' A'+r2+' '+r2+' 0 0 1 '+b[0].toFixed(1)+' '+b[1].toFixed(1)+' L'+c[0].toFixed(1)+' '+c[1].toFixed(1)+' A'+r1+' '+r1+' 0 0 0 '+d[0].toFixed(1)+' '+d[1].toFixed(1)+' Z'};
+  const me=P(id);
+  s+='<g class="fseg c" data-id="'+esc(id)+'" style="cursor:pointer"><circle class="fseg c" cx="'+cx+'" cy="'+cy+'" r="'+R0+'" data-id="'+esc(id)+'"/></g><text class="ftx" x="'+cx+'" y="'+(cy-14)+'">'+esc(cut(me.first||me.last,12))+'</text><text class="ftx" x="'+cx+'" y="'+(cy+4)+'" style="font-weight:400;font-size:11px">'+esc(cut(me.first?me.last:'',14))+'</text>';
+  (function rec(pid,g,i){
+    const p=pid&&P(pid);
+    if(g>=1){
+      const n=Math.pow(2,g),t0=Math.PI-i*Math.PI/n,t1=Math.PI-(i+1)*Math.PI/n,r1=R0+(g-1)*RW,r2=R0+g*RW,tm=(t0+t1)/2,rm=(r1+r2)/2;
+      const cls=p?(gcls(p)+(p.alive===false?' dead':'')):'e';
+      s+='<path class="fseg '+cls+'" d="'+arc(r1,r2,t0,t1)+'"'+(p?' data-id="'+esc(p.id)+'"':'')+'><title>'+esc(p?nm(p):'Not added')+'</title></path>';
+      if(p){
+        const q=pt(rm,tm),deg=tm*180/Math.PI;
+        const tang=g<=2,rot=tang?90-deg:(deg<90?-deg:180-deg);
+        const arcLen=rm*(t0-t1);
+        const full=tang?arcLen>70:true;
+        const nameTxt=g>=4?(p.first||p.last):(p.first||p.last);
+        s+='<g transform="translate('+q[0].toFixed(1)+' '+q[1].toFixed(1)+') rotate('+rot.toFixed(1)+')"><text class="ftx" y="'+(tang?-5:0)+'">'+esc(cut(nameTxt,tang?13:12))+'</text>'+(tang&&p.last?'<text class="ftx" y="9" style="font-weight:400;font-size:10.5px">'+esc(cut(p.last,14))+'</text>':'')+'</g>';
+      }
+    }
+    if(g<gens){
+      rec(p&&p.father&&P(p.father)?p.father:'',g+1,i*2);
+      rec(p&&p.mother&&P(p.mother)?p.mother:'',g+1,i*2+1);
+    }
+  })(id,0,0);
+  return {inner:s,w:W,h:H};
+}
+function vFan(){
+  if(!T.people.length) return emptyView();
+  const id=S.ancId&&P(S.ancId)?S.ancId:(T.me&&P(T.me)?T.me:T.people[0].id);
+  const g=Math.min(S.ancGens+1,5);
+  const r=fanSVG(id,g);
+  const ctl='<label>Person<select id="fanSel">'+popts(id)+'</select></label><label>Generations<select id="fanG">'+[3,4,5].map(n=>'<option value="'+n+'"'+(n===g?' selected':'')+'>'+n+' back</option>').join('')+'</select></label>';
+  return vhead('Fan chart','Parents inside, grandparents next, and so on outwards. Father\'s side is on the left, mother\'s side on the right.',ctl)+pzHTML('fan'+g,r.inner,r.w,r.h)+'<div class="legend"><span><i style="background:var(--m)"></i>Male</span><span><i style="background:var(--f)"></i>Female</span><span><i style="background:var(--x)"></i>Other</span><span>Faded = passed away</span><span>Grey = not added yet</span></div>';
+}
+/* ---- tab: photo wall ---- */
+function vPhotos(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const only=S.photoOnly;
+  const arr=rp.filter(p=>!only||p.photo).sort((a,b)=>(a.photo?0:1)-(b.photo?0:1)||sibCmp(a,b));
+  const n=rp.filter(p=>p.photo).length;
+  const ctl='<label class="chk"><input type="checkbox" id="phOnly"'+(only?' checked':'')+'> Only people with a photo</label>';
+  let h=vhead('Photo wall',n+' of '+rp.length+' people have a photo. Open a person and choose Edit to add one.',ctl);
+  h+='<div class="pw">'+arr.map(p=>'<button class="pcd" data-sel="'+esc(p.id)+'"><span class="im '+gcls(p)+(p.alive===false?' dead':'')+'">'+(p.photo?'<img alt="" src="'+esc(p.photo)+'">':esc(initials(p)))+'</span><span class="tx"><b>'+esc(nm(p))+'</b><small>'+esc(lifeText(p,S.ages)||(p.photo?'':'No photo yet'))+'</small></span></button>').join('')+'</div>';
+  return h;
+}
+/* ---- tab: relatives by side ---- */
+function vKin(){
+  if(!T.me||!P(T.me)) return vhead('My relatives','Everyone grouped by how they are related to you.')+'<div class="empty"><p>Open your own card and press <b>This is me</b> first.</p></div>';
+  const r=relFrom(T.me),groups={kids:[],mate:[],sib:[],fa:[],mo:[]};
+  const cats=[['kids','Children and grandchildren'],['mate','Husband or wife, and in-laws'],['sib','Brothers, sisters and their families'],['fa','Father\'s side (Dada, Chacha, Bua...)'],['mo','Mother\'s side (Nana, Mama, Mausi...)']];
+  r.forEach((v,id)=>{
+    if(id===T.me||!v.path||P(id).ph) return;
+    const c=v.path[0];
+    const g=/[SDC]/.test(c)?'kids':/[HWX]/.test(c)?'mate':/[BbZzQq]/.test(c)?'sib':c==='F'?'fa':'mo';
+    groups[g].push({p:P(id),path:v.path});
+  });
+  let h=vhead('My relatives','Everyone grouped by how they are related to '+esc(short(P(T.me)))+'.');
+  const lines=[];
+  cats.forEach(([k,t])=>{
+    const arr=groups[k].sort((a,b)=>a.path.length-b.path.length||sibCmp(a.p,b.p));
+    if(!arr.length) return;
+    lines.push('<div class="card" style="margin-bottom:10px"><h3>'+t+' <span class="badge">'+arr.length+'</span></h3><div class="chips">'+arr.map(x=>chip(x.p,esc(relShort(x.p.id)))).join('')+'</div></div>');
+  });
+  return h+(lines.join('')||'<div class="empty"><p>Add relatives to see them here.</p></div>');
+}
+const TABS=[['over','Overview',vOverview],['chart','Family chart',()=>vChart(false)],['side','Sideways',()=>vChart(true)],['anc','Ancestors',vAnc],['fan','Fan chart',vFan],['gens','Generations',vGens],['kin','Relatives',vKin],['photos','Photos',vPhotos],['out','Outline',vOutline],['time','Timeline',vTime],['places','Places',vPlaces],['people','All people',vPeople],['days','Birthdays',vDays]];
+
+/* ================= Export, import, share ================= */
+const stamp=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const slug=()=>(T.name||'family').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'family';
+function b64enc(u8){let s='';for(let i=0;i<u8.length;i+=8192) s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s)}
+function b64dec(s){const b=atob(s.replace(/\s+/g,'')),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);return u}
+async function packTree(){
+  const t=JSON.parse(JSON.stringify(T));t.sample=false;t.people.forEach(p=>{p.photo=''});
+  const json=JSON.stringify(t);
+  if(typeof CompressionStream!=='undefined'){
+    try{
+      const cs=new CompressionStream('gzip'),w=cs.writable.getWriter();
+      w.write(new TextEncoder().encode(json));w.close();
+      return 'FT1:'+b64enc(new Uint8Array(await new Response(cs.readable).arrayBuffer()));
+    }catch(e){}
+  }
+  return 'FT0:'+b64enc(new TextEncoder().encode(json));
+}
+async function unpackCode(code){
+  code=code.trim();
+  if(code.startsWith('FT1:')){
+    const ds=new DecompressionStream('gzip'),w=ds.writable.getWriter();
+    w.write(b64dec(code.slice(4)));w.close();
+    return JSON.parse(await new Response(ds.readable).text());
+  }
+  if(code.startsWith('FT0:')) return JSON.parse(new TextDecoder().decode(b64dec(code.slice(4))));
+  throw new Error('not a share code');
+}
+function summaryText(){
+  const rp=realPeople(),alive=rp.filter(p=>p.alive!==false).length;
+  const gm=genMap(),gens=T.people.length?Math.max(...T.people.map(p=>gm.get(p.id)||0))+1:0;
+  const roots=buildForest('');
+  let t=T.name+'\n'+rp.length+' people, '+alive+' living, '+gens+' generations.\n\n';
+  const walk=(u,d)=>{
+    t+='  '.repeat(d)+'- '+u.mem.map(m=>nm(P(m.id))+(P(m.id).born?' ('+yr(P(m.id).born)+(P(m.id).alive===false?'-'+(yr(P(m.id).died)||'?'):'')+')':'')).join(' & ')+'\n';
+    if(!u.dup) u.groups.forEach(g=>g.units.forEach(k=>walk(k,d+1)));
+  };
+  roots.forEach(u=>walk(u,0));
+  return t.trim();
+}
+/* ---- GEDCOM ---- */
+const GM=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function gedDate(s){const d=dparse(s);if(!d) return '';return (d.d?d.d+' ':'')+(d.mo?GM[d.mo-1]+' ':'')+d.y}
+function parseGedDate(s){
+  s=String(s||'').toUpperCase().replace(/^(ABT|ABOUT|BEF|AFT|EST|CAL|FROM|TO)\.?\s+/,'').replace(/^BET\s+(.+?)\s+AND\s+.*$/,'$1').trim();
+  const m=s.match(/^(?:(\d{1,2})\s+)?(?:([A-Z]{3})[A-Z]*\s+)?(\d{3,4})$/);
+  if(!m) return '';
+  const y=String(m[3]).padStart(4,'0'),mo=m[2]?GM.indexOf(m[2])+1:0;
+  if(m[2]&&!mo) return y;
+  if(mo&&m[1]) return y+'-'+String(mo).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0');
+  if(mo) return y+'-'+String(mo).padStart(2,'0');
+  return y;
+}
+function toGedcom(){
+  const L=[],ix=new Map();
+  T.people.forEach((p,i)=>ix.set(p.id,'@I'+(i+1)+'@'));
+  L.push('0 HEAD','1 SOUR FamilyTreeMaker','1 GEDC','2 VERS 5.5.1','2 FORM LINEAGE-LINKED','1 CHAR UTF-8','1 FILE '+slug()+'.ged');
+  const fams=new Map();
+  const fam=(a,b)=>{const k=[a||'',b||''].join('|');if(!fams.has(k)) fams.set(k,{f:a||'',m:b||'',u:null,kids:[]});return fams.get(k)};
+  T.unions.forEach(u=>{
+    const A=P(u.a),B=P(u.b);if(!A||!B) return;
+    const [h,w]=(A.gender==='f'&&B.gender!=='f')?[B,A]:[A,B];
+    fam(h.id,w.id).u=u;
+  });
+  T.people.forEach(c=>{if(c.father||c.mother) fam(c.father,c.mother).kids.push(c.id)});
+  const famId=new Map();let n=0;
+  fams.forEach((f,k)=>famId.set(k,'@F'+(++n)+'@'));
+  T.people.forEach(p=>{
+    L.push('0 '+ix.get(p.id)+' INDI','1 NAME '+(p.first||'')+' /'+(p.last||'')+'/');
+    if(p.nick) L.push('2 NICK '+p.nick);
+    L.push('1 SEX '+(p.gender==='m'?'M':p.gender==='f'?'F':'U'));
+    if(p.born||p.bplace){L.push('1 BIRT');if(p.born) L.push('2 DATE '+gedDate(p.born));if(p.bplace) L.push('2 PLAC '+p.bplace)}
+    if(p.alive===false){L.push('1 DEAT'+(p.died?'':' Y'));if(p.died) L.push('2 DATE '+gedDate(p.died))}
+    if(p.place) L.push('1 RESI','2 PLAC '+p.place);
+    if(p.job) L.push('1 OCCU '+p.job);
+    if(p.phone) L.push('1 PHON '+p.phone);
+    if(p.note) String(p.note).split(/\r?\n/).forEach((ln,i)=>L.push((i?'2 CONT ':'1 NOTE ')+ln));
+    fams.forEach((f,k)=>{
+      if(f.kids.includes(p.id)) L.push('1 FAMC '+famId.get(k));
+    });
+    fams.forEach((f,k)=>{
+      if(f.f===p.id||f.m===p.id) L.push('1 FAMS '+famId.get(k));
+    });
+  });
+  fams.forEach((f,k)=>{
+    L.push('0 '+famId.get(k)+' FAM');
+    if(f.f) L.push('1 HUSB '+ix.get(f.f));
+    if(f.m) L.push('1 WIFE '+ix.get(f.m));
+    f.kids.forEach(c=>L.push('1 CHIL '+ix.get(c)));
+    if(f.u){
+      const dt=f.u.date||f.u.year;
+      if(f.u.type==='divorced'){L.push('1 MARR');if(dt) L.push('2 DATE '+gedDate(dt));L.push('1 DIV Y')}
+      else if(f.u.type==='married'){L.push('1 MARR');if(dt) L.push('2 DATE '+gedDate(dt))}
+    }
+  });
+  L.push('0 TRLR');
+  return L.join('\r\n')+'\r\n';
+}
+function fromGedcom(text){
+  const recs=[];let cur=null,last=null;
+  text.replace(/^\uFEFF/,'').split(/\r?\n/).forEach(raw=>{
+    const m=raw.match(/^\s*(\d+)\s+(?:(@[^@]+@)\s+)?(\w+)(?:\s(.*))?$/);
+    if(!m) return;
+    const lv=+m[1],id=m[2],tag=m[3].toUpperCase(),val=m[4]||'';
+    if(lv===0){cur={id,tag,val,kids:[]};recs.push(cur);last={0:cur};return}
+    if(!cur) return;
+    if(tag==='CONT'||tag==='CONC'){
+      const par=last[lv-1];if(par) par.val+=(tag==='CONT'?'\n':'')+val;return;
+    }
+    const node={tag,val,kids:[]};
+    const par=last[lv-1]||cur;par.kids.push(node);last[lv]=node;
+  });
+  const sub=(n,t)=>n.kids.find(k=>k.tag===t);
+  const t={v:1,name:'Imported family',me:'',people:[],unions:[]};
+  const idmap=new Map();
+  recs.filter(r=>r.tag==='INDI').forEach(r=>{
+    const p=newPerson({});idmap.set(r.id,p.id);
+    const nmn=sub(r,'NAME');
+    if(nmn){const mm=nmn.val.match(/^([^/]*)\/?([^/]*)\/?(.*)$/);p.first=(mm[1]+' '+(mm[3]||'')).trim();p.last=(mm[2]||'').trim();const nk=sub(nmn,'NICK');if(nk) p.nick=nk.val}
+    const sx=sub(r,'SEX');p.gender=sx&&sx.val[0]==='F'?'f':sx&&sx.val[0]==='M'?'m':'x';
+    const b=sub(r,'BIRT');if(b){const d=sub(b,'DATE'),pl=sub(b,'PLAC');if(d) p.born=parseGedDate(d.val);if(pl) p.bplace=pl.val}
+    const d=sub(r,'DEAT');if(d){p.alive=false;const dd=sub(d,'DATE');if(dd) p.died=parseGedDate(dd.val)}
+    const rs=sub(r,'RESI');if(rs){const pl=sub(rs,'PLAC');if(pl) p.place=pl.val}
+    const oc=sub(r,'OCCU');if(oc) p.job=oc.val;
+    const ph=sub(r,'PHON');if(ph) p.phone=ph.val;
+    const nt=sub(r,'NOTE');if(nt) p.note=nt.val.slice(0,2000);
+    t.people.push(p);
+  });
+  const byId=new Map(t.people.map(p=>[p.id,p]));
+  recs.filter(r=>r.tag==='FAM').forEach(r=>{
+    const h=sub(r,'HUSB'),w=sub(r,'WIFE');
+    const hp=h&&byId.get(idmap.get(h.val)),wp=w&&byId.get(idmap.get(w.val));
+    r.kids.filter(k=>k.tag==='CHIL').forEach(k=>{
+      const c=byId.get(idmap.get(k.val));if(!c) return;
+      if(hp) c.father=hp.id;if(wp) c.mother=wp.id;
+    });
+    if(hp&&wp){
+      const mr=sub(r,'MARR'),dv=sub(r,'DIV');
+      const dt=mr&&sub(mr,'DATE');
+      t.unions.push({id:uid(),a:hp.id,b:wp.id,type:dv?'divorced':(mr?'married':'partner'),date:dt?parseGedDate(dt.val):'',year:''});
+    }
+  });
+  if(!t.people.length) throw new Error('no people found');
+  return t;
+}
+/* ---- CSV, calendar ---- */
+function csvCell(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function toCsv(){
+  const head=['Name','First name','Last name','Gender','Born','Died','Status','Age','Birth order','Relation to me','Lives in','Born in','Occupation','Phone','Father','Mother','Spouses','Notes'];
+  const rows=T.people.filter(p=>!p.ph).map(p=>{
+    const bo=birthOrder(p);
+    return [nm(p),p.first,p.last,{m:'Male',f:'Female',x:'Other'}[p.gender],p.born,p.died,p.alive===false?'Passed away':'Living',ageText(p),bo.of>1?bo.n+' of '+bo.of:'',T.me?relLabel(p.id):'',p.place,p.bplace,p.job,p.phone,p.father&&P(p.father)?nm(P(p.father)):'',p.mother&&P(p.mother)?nm(P(p.mother)):'',spousesOf(p.id).map(s=>nm(s.p)).join('; '),p.note];
+  });
+  return '\uFEFF'+[head].concat(rows).map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';
+}
+function icsEsc(s){return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n')}
+function toIcs(){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//FamilyTreeMaker//EN','CALSCALE:GREGORIAN'];
+  const add=(p,dstr,title,kind)=>{
+    const d=dparse(dstr);if(!d||!d.mo||!d.d) return;
+    const ymd=String(d.y).padStart(4,'0')+String(d.mo).padStart(2,'0')+String(d.d).padStart(2,'0');
+    L.push('BEGIN:VEVENT','UID:'+p.id+'-'+kind+'@familytree','DTSTAMP:'+stamp().replace(/-/g,'')+'T000000Z','DTSTART;VALUE=DATE:'+ymd,'RRULE:FREQ=YEARLY','SUMMARY:'+icsEsc(title),'TRANSP:TRANSPARENT','END:VEVENT');
+  };
+  realPeople().forEach(p=>{
+    if(p.alive===false) add(p,p.died,nm(p)+' - remembrance day','r');
+    else add(p,p.born,nm(p)+'\'s birthday','b');
+  });
+  L.push('END:VCALENDAR');
+  return L.join('\r\n')+'\r\n';
+}
+/* ---- Excel and PDF ---- */
+function excelSheets(){
+  const rp=realPeople();
+  const people=[[{v:'Name',s:'h'},{v:'Relation to me',s:'h'},{v:'Gender',s:'h'},{v:'Born',s:'h'},{v:'Died',s:'h'},{v:'Status',s:'h'},{v:'Age',s:'h'},{v:'Birth order',s:'h'},{v:'Lives in',s:'h'},{v:'Born in',s:'h'},{v:'Occupation',s:'h'},{v:'Phone',s:'h'},{v:'Father',s:'h'},{v:'Mother',s:'h'},{v:'Spouses',s:'h'}]];
+  rp.forEach(p=>{
+    const a=ageOf(p),bo=birthOrder(p);
+    people.push([nm(p),T.me?relLabel(p.id):'',{m:'Male',f:'Female',x:'Other'}[p.gender],dfmt(p.born),dfmt(p.died),p.alive===false?'Passed away':'Living',a?{v:a.years,s:'n'}:'',bo.of>1?bo.n+' of '+bo.of:'',p.place,p.bplace,p.job,p.phone,p.father&&P(p.father)&&!P(p.father).ph?nm(P(p.father)):'',p.mother&&P(p.mother)&&!P(p.mother).ph?nm(P(p.mother)):'',spousesOf(p.id).map(s=>nm(s.p)).join('; ')]);
+  });
+  const couples=[[{v:'Person',s:'h'},{v:'Partner',s:'h'},{v:'Type',s:'h'},{v:'Date',s:'h'}]];
+  T.unions.forEach(u=>{const a=P(u.a),b=P(u.b);if(a&&b) couples.push([nm(a),nm(b),{married:'Married',partner:'Partner',divorced:'Divorced'}[u.type],dfmt(u.date||u.year)])});
+  const bd=[[{v:'Name',s:'h'},{v:'Birthday',s:'h'},{v:'Turning',s:'h'},{v:'Days to go',s:'h'}]];
+  rp.map(p=>({p,n:nextBirthday(p)})).filter(x=>x.n).sort((a,b)=>a.n.days-b.n.days).forEach(x=>bd.push([nm(x.p),x.n.date.getDate()+' '+MON[x.n.date.getMonth()],{v:x.n.turning,s:'n'},{v:x.n.days,s:'n'}]));
+  return [{name:'People',widths:[26,26,10,14,14,14,8,12,18,18,18,16,22,22,28],rows:people},{name:'Couples',widths:[26,26,12,14],rows:couples},{name:'Birthdays',widths:[26,14,10,12],rows:bd}];
+}
+function pdfBlocksTree(){
+  const rp=realPeople(),alive=rp.filter(p=>p.alive!==false).length,gm=genMap();
+  const gens=T.people.length?Math.max(...T.people.map(p=>gm.get(p.id)||0))+1:0;
+  const B=[{t:'title',x:T.name},{t:'sub',x:rp.length+' people - '+gens+' generations - made '+stamp()},{t:'gap'}];
+  B.push({t:'kv',rows:[['People',String(rp.length)],['Living',String(alive)],['Passed away',String(rp.length-alive)],['Couples',String(T.unions.length)]]});
+  B.push({t:'h',x:'Family members'});
+  B.push({t:'table',head:['Name','Relation to me','Born','Died','Age','Lives in'],w:[26,22,13,13,8,18],r:[4],rows:rp.slice().sort((a,b)=>(gm.get(a.id)||0)-(gm.get(b.id)||0)||sibCmp(a,b)).map(p=>[nm(p),T.me?relShort(p.id):'',dfmt(p.born),dfmt(p.died),ageText(p),p.place||''])});
+  B.push({t:'h',x:'By generation'});
+  const lines=[];
+  for(let g=0;g<=Math.max(0,...T.people.map(p=>gm.get(p.id)||0));g++){
+    const here=rp.filter(p=>(gm.get(p.id)||0)===g).sort(sibCmp);
+    if(here.length) lines.push('Generation '+(g+1)+': '+here.map(nm).join(', '));
+  }
+  B.push({t:'ul',items:lines});
+  if(T.unions.length){
+    B.push({t:'h',x:'Couples'});
+    B.push({t:'table',head:['Person','Partner','Type','Date'],w:[32,32,16,16],rows:T.unions.map(u=>[nm(P(u.a)),nm(P(u.b)),{married:'Married',partner:'Partner',divorced:'Divorced'}[u.type],dfmt(u.date||u.year)])});
+  }
+  return B;
+}
+/* ---- chart image ---- */
+const LIGHT={'--bg':'#EDF1F3','--panel':'#FFFFFF','--ink':'#12222C','--ink2':'#4B5E6A','--line':'#D2DBE1','--soft':'#E3EAEE','--accent':'#0E6E6A','--accent-ink':'#FFFFFF','--m':'#2E6BB0','--f':'#B5487A','--x':'#7A5DB5','--err':'#C0392B','--dead':'#7C8A94','--fd':'Bricolage Grotesque, Segoe UI, Arial, sans-serif','--fb':'Figtree, Segoe UI, Arial, sans-serif','--fm':'DM Mono, Menlo, monospace'};
+function currentChartSvg(){
+  let L;
+  if(S.tab==='fan'){
+    const id=S.ancId&&P(S.ancId)?S.ancId:(T.me&&P(T.me)?T.me:T.people[0].id);
+    const fr=fanSVG(id,Math.min(S.ancGens+1,5)),css2=CHART_CSS.replace(/var\((--[a-z0-9-]+)\)/g,(m,k)=>LIGHT[k]||'#000');
+    const t2='<text x="20" y="24" style="font:700 15px Bricolage Grotesque,Segoe UI,Arial,sans-serif;fill:#12222C">'+esc(T.name)+'</text>';
+    return {w:fr.w,h:fr.h,xml:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+fr.w+' '+fr.h+'" width="'+fr.w+'" height="'+fr.h+'" class="chartsvg"><style>'+css2+'</style><rect width="100%" height="100%" fill="#FFFFFF"/>'+t2+fr.inner.replace(/<title>[^<]*<\/title>/g,'')+'</svg>'};
+  }
+  if(S.tab==='anc'){const id=S.ancId&&P(S.ancId)?S.ancId:(T.me&&P(T.me)?T.me:T.people[0].id);L=layoutPedigree(id,S.ancGens,S.ancOrient==='h')}
+  else{const horiz=S.tab==='side';L=layoutForest(buildForest(S.rootId&&P(S.rootId)?S.rootId:''),horiz)}
+  const r=chartSVG(L);
+  const css=CHART_CSS.replace(/var\((--[a-z0-9-]+)\)/g,(m,k)=>LIGHT[k]||'#000');
+  const title='<text x="28" y="22" style="font:700 15px Bricolage Grotesque,Segoe UI,Arial,sans-serif;fill:#12222C">'+esc(T.name)+'</text>';
+  const W=Math.max(r.w,260),H=r.h+10;
+  return {w:W,h:H,xml:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" class="chartsvg"><style>'+css+'</style><rect width="100%" height="100%" fill="#FFFFFF"/>'+title+'<g transform="translate(0 10)">'+r.inner.replace(/<title>[^<]*<\/title>/g,'')+'</g></svg>'};
+}
+function svgToPng(c){
+  return new Promise((res,rej)=>{
+    const sc=Math.min(2,8000/Math.max(c.w,c.h));
+    const img=new Image();
+    img.onload=()=>{
+      const cv=document.createElement('canvas');cv.width=Math.round(c.w*sc);cv.height=Math.round(c.h*sc);
+      const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.drawImage(img,0,0,cv.width,cv.height);
+      cv.toBlob(b=>b?res(b):rej(new Error('png')),'image/png');
+    };
+    img.onerror=()=>rej(new Error('image'));
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(c.xml);
+  });
+}
+/* ---- saving ---- */
+function anchorSave(name,blob){
+  try{
+    const u=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Saved '+name+' to your downloads');return true;
+  }catch(e){toast('Could not save the file.');return false}
+}
+async function saveBlob(name,blob){
+  const cl=window.claude;
+  if(!cl||typeof cl.use!=='function') return anchorSave(name,blob);
+  try{
+    const dl=await cl.use('downloads');
+    if(!dl){toast('Saving files is not available in this view.');return false}
+    await dl.save({filename:name,data:blob});
+    toast('Saved '+name);return true;
+  }catch(e){
+    toast(e&&e.code==='declined'?'Save cancelled.':'Could not save the file'+(e&&e.code?' ('+e.code+')':'')+'.');
+    return false;
+  }
+}
+async function doExport(kind){
+  if(!T.people.length){toast('Add someone first.');return}
+  try{
+    const base=slug()+'-'+stamp();
+    if(kind==='json') return saveBlob(base+'.json',new Blob([JSON.stringify({app:'family-tree-maker',v:1,T:T},null,1)],{type:'application/json'}));
+    if(kind==='ged') return saveBlob(base+'.ged',new Blob([toGedcom()],{type:'text/plain'}));
+    if(kind==='csv') return saveBlob(base+'.csv',new Blob([toCsv()],{type:'text/csv'}));
+    if(kind==='ics') return saveBlob(base+'-birthdays.ics',new Blob([toIcs()],{type:'text/calendar'}));
+    if(kind==='xlsx') return saveBlob(base+'.xlsx',new Blob([makeXlsx(excelSheets())],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    if(kind==='pdf') return saveBlob(base+'.pdf',new Blob([makePdf(pdfBlocksTree(),{title:T.name,footer:T.name+' - Family Tree Maker'})],{type:'application/pdf'}));
+    if(kind==='svg'){const c=currentChartSvg();return saveBlob(base+'-chart.svg',new Blob([c.xml],{type:'image/svg+xml'}))}
+    if(kind==='png'){const c=currentChartSvg();return saveBlob(base+'-chart.png',await svgToPng(c))}
+  }catch(e){toast('Could not build the file: '+(e&&e.message||e))}
+}
+/* ---- import ---- */
+async function parseImport(text){
+  text=String(text||'').trim();
+  if(!text) throw new Error('empty');
+  if(/^FT[01]:/.test(text)) return await unpackCode(text);
+  if(text[0]==='{'){
+    const j=JSON.parse(text);
+    return j.T||j.tree||j;
+  }
+  if(/^\s*0\s+HEAD/m.test(text)) return fromGedcom(text);
+  throw new Error('unknown format');
+}
+
+/* ================= UI ================= */
+let toastT=null;
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2800)}
+const edit=(fn,label)=>mut(()=>{T.sample=false;fn()},label);
+function openModal(html){$('mbox').innerHTML=html;$('modal').hidden=false;const f=$('mbox').querySelector('[autofocus],input,select');if(f&&window.innerWidth>700) try{f.focus()}catch(e){}}
+function closeModal(){PHOTO_NEW='';$('modal').hidden=true;$('mbox').innerHTML='';AD=null}
+const mh=(t)=>'<div class="mh"><h2>'+esc(t)+'</h2><button class="btn sm" data-close>Close</button></div>';
+
+/* ---- sample ---- */
+function loadSampleTree(){
+  const mk=(id,first,last,g,born,died,place,job,f,m)=>newPerson({id,first,last,gender:g,born,died:died||'',alive:!died,place:place||'',job:job||'',father:f||'',mother:m||'',bplace:place||''});
+  const ps=[
+    mk('gov','Govind','Mishra','m','1938-04-12','2015-09-03','Varanasi','Retired teacher'),
+    mk('sav','Savitri','Mishra','f','1942-08-21','','Varanasi'),
+    mk('sur','Suresh','Mishra','m','1964-02-10','','Lucknow','Bank manager','gov','sav'),
+    mk('ram','Ramesh','Mishra','m','1967-06-18','','Varanasi','Shop owner','gov','sav'),
+    mk('kam','Kamla','Tripathi','f','1970-11-05','','Kanpur','Teacher','gov','sav'),
+    mk('mee','Meena','Mishra','f','1966-03-30','','Lucknow','Homemaker'),
+    mk('rek','Rekha','Mishra','f','1969-01-09','','Varanasi'),
+    mk('ani','Anil','Tripathi','m','1966-05-22','','Kanpur','Engineer'),
+    mk('she','Sheela','Verma','f','1968-12-14','','Delhi'),
+    mk('rah','Rahul','Mishra','m','1992-07-14','','Pune','Software engineer','sur','mee'),
+    mk('pri','Priya','Mishra','f','1995-12-02','','Delhi','Doctor','sur','mee'),
+    mk('ama','Aman','Mishra','m','1999-05-25','','Lucknow','Student','sur','mee'),
+    mk('neh','Neha','Mishra','f','1994-09-17','','Mumbai','Designer','ram','rek'),
+    mk('kar','Karan','Mishra','m','1998-03-08','','Varanasi','','ram','rek'),
+    mk('roh','Rohan','Tripathi','m','1990-08-30','','Delhi','Architect','ani','she'),
+    mk('ish','Isha','Tripathi','f','1996-10-21','','Kanpur','','ani','kam'),
+    mk('kun','Kunal','Tripathi','m','2001-04-04','','Kanpur','Student','ani','kam'),
+    mk('anj','Anjali','Mishra','f','1994-02-14','','Pune','Product manager'),
+    mk('aar','Aarav','Mishra','m','2021-11-10','','Pune','','rah','anj'),
+    mk('har','Hari','Pandey','m','1938-01-15','2019-12-20','Lucknow','Clerk'),
+    mk('lat','Lata','Pandey','f','1941-07-07','','Lucknow'),
+    mk('vij','Vijay','Pandey','m','1969-10-01','','Lucknow','Lawyer','har','lat')
+  ];
+  ps.find(p=>p.id==='mee').father='har';ps.find(p=>p.id==='mee').mother='lat';
+  const un=(a,b,type,date)=>({id:uid(),a,b,type,date,year:''});
+  return {v:1,name:'Mishra Family',me:'rah',sample:true,people:ps,unions:[
+    un('gov','sav','married','1962'),un('sur','mee','married','1990'),un('ram','rek','married','1992'),
+    un('ani','she','divorced','1988'),un('ani','kam','married','1994'),un('rah','anj','married','2019'),un('har','lat','married','1964')]};
+}
+
+/* ---- date fields ---- */
+function dateFields(id,val,label){
+  const d=dparse(val)||{y:'',mo:0,d:0};
+  return '<div class="fld w"><span>'+esc(label)+'</span><div style="display:grid;grid-template-columns:70px minmax(0,1fr) 90px;gap:6px"><input id="'+id+'_d" type="number" inputmode="numeric" min="1" max="31" placeholder="Day" value="'+(d.d||'')+'" aria-label="Day"><select id="'+id+'_m" aria-label="Month"><option value="0">Month</option>'+MON.map((m,i)=>'<option value="'+(i+1)+'"'+(d.mo===i+1?' selected':'')+'>'+m+'</option>').join('')+'</select><input id="'+id+'_y" type="number" inputmode="numeric" placeholder="Year" min="1000" max="2200" value="'+(d.y||'')+'" aria-label="Year"></div></div>';
+}
+function readDate(id){
+  const y=($(id+'_y')||{}).value,m=+(($(id+'_m')||{}).value||0),d=+(($(id+'_d')||{}).value||0);
+  if(!y||!/^\d{4}$/.test(String(y).trim())) return '';
+  let s=String(y).trim();
+  if(m){s+='-'+String(m).padStart(2,'0');if(d>=1&&d<=31) s+='-'+String(d).padStart(2,'0')}
+  return s;
+}
+const seg=(id,opts,val)=>'<div class="seg" id="'+id+'">'+opts.map(o=>'<button type="button" data-v="'+o[0]+'" aria-pressed="'+(o[0]===val)+'">'+o[1]+'</button>').join('')+'</div>';
+const segVal=id=>{const b=$(id).querySelector('[aria-pressed="true"]');return b?b.dataset.v:''};
+
+/* ---- panel ---- */
+S.sel='';S.ptab='profile';
+function selectPerson(id,tab){
+  if(!P(id)) return;
+  S.sel=id;S.ptab=tab||'profile';renderPanel();markSel();
+}
+function markSel(){
+  document.querySelectorAll('.nd.sel').forEach(n=>n.classList.remove('sel'));
+  if(S.sel) document.querySelectorAll('.nd[data-id="'+S.sel+'"]').forEach(n=>n.classList.add('sel'));
+}
+function closePanel(){S.sel='';renderPanel();markSel()}
+function renderPanel(){
+  const pn=$('panel'),st=$('stage'),sc=$('scrim');
+  const p=P(S.sel);
+  if(!p){pn.hidden=true;sc.hidden=true;st.classList.remove('open');return}
+  pn.hidden=false;sc.hidden=false;st.classList.add('open');
+  const a=ageText(p),rel=T.me&&p.id!==T.me?relLabel(p.id):'';
+  let h='<div class="ph">'+avatar(p)+'<div class="nameBox"><h2>'+esc(nm(p))+'</h2><div class="muted" style="font-size:13.5px">'+(p.alive===false?'Passed away':'Living')+(a?' · '+esc(a):'')+(p.nick?' · "'+esc(p.nick)+'"':'')+'</div></div><button class="x" data-act="closePanel" aria-label="Close details">✕</button></div>';
+  h+='<div class="pt" role="tablist"><button data-ptab="profile" aria-selected="'+(S.ptab==='profile')+'">Profile</button><button data-ptab="edit" aria-selected="'+(S.ptab==='edit')+'">Edit</button></div>';
+  h+='<div class="pb">'+(S.ptab==='edit'?panelEdit(p):panelProfile(p,rel))+'</div>';
+  pn.innerHTML=h;
+}
+function famRow(title,arr){
+  if(!arr.length) return '';
+  return '<div class="sec"><h3>'+title+'</h3><div class="chips">'+arr.join('')+'</div></div>';
+}
+function panelProfile(p,rel){
+  const bo=birthOrder(p);
+  let h='';
+  if(T.me===p.id) h+='<div class="rel">This is <b>you</b>. All relations are shown from your side.</div>';
+  else if(rel) h+='<div class="rel">Your <b>'+esc(rel)+'</b></div>';
+  else if(!T.me) h+='<div class="rel muted">Press <b>This is me</b> on your own card to see relations like Chacha, Mama or Bhabhi.</div>';
+  const f=[];
+  const row=(k,v)=>{if(v) f.push('<div><dt>'+k+'</dt><dd>'+v+'</dd></div>')};
+  row('Born',esc(dfmt(p.born)));row('Age',esc(ageText(p)));
+  if(p.alive===false) row('Died',esc(dfmt(p.died)||'Date not known'));
+  row('Birth order',bo.of>1?esc(ordinal(bo.n)+' of '+bo.of):'');
+  row('Lives in',esc(p.place));row('Born in',esc(p.bplace));row('Work',esc(p.job));row('Phone',esc(p.phone));
+  const nb=nextBirthday(p);if(nb) row('Next birthday',esc(nb.date.getDate()+' '+MON[nb.date.getMonth()]+' · '+(nb.days===0?'today':'in '+nb.days+' days')));
+  if(f.length) h+='<dl class="facts" style="margin:0">'+f.join('')+'</dl>';
+  if(p.note) h+='<div class="sec"><h3>Notes</h3><div style="white-space:pre-wrap">'+esc(p.note)+'</div></div>';
+  const fa=p.father&&P(p.father),mo=p.mother&&P(p.mother);
+  h+=famRow('Parents',[fa,mo].filter(Boolean).map(q=>chip(q,esc(q.id===p.father?'Father':'Mother')+(p.adopted?' · adoptive':''))));
+  h+=famRow('Husband / wife',spousesOf(p.id).map(s=>chip(s.p,esc({married:'Married',partner:'Partner',divorced:'Divorced'}[s.u.type])+(dfmt(s.u.date||s.u.year)?' '+esc(yr(s.u.date||s.u.year)):''))));
+  const kids=kidsOf(p.id);
+  h+=famRow('Children',kids.map(c=>{const b=birthOrder(c);return chip(c,(b.of>1?esc(ordinal(b.n))+' child':'')+(c.alive===false?' · passed away':''))}));
+  const sibs=siblingsOf(p.id);
+  h+=famRow('Brothers and sisters',sibs.map(s=>{const b=birthOrder(s);return chip(s,esc((s.gender==='m'?'Brother':s.gender==='f'?'Sister':'Sibling')+(isHalf(p,s)?' (half)':''))+(dnum(s.born)!=null&&dnum(p.born)!=null?' · '+(sibCmp(s,p)<0?'older':'younger'):''))}));
+  if(sibs.length) h+='<div class="row2"><button class="btn sm" data-act="moveOlder">◀ Make older</button><button class="btn sm" data-act="moveYounger">Make younger ▶</button>'+(p.order>0?'<button class="btn sm" data-act="resetOrder">Use birth dates</button>':'')+'</div>';
+  const iss=runChecks().filter(x=>x.ids.includes(p.id));
+  if(iss.length) h+='<div class="sec"><h3>Please check</h3>'+iss.map(i=>'<div class="issue '+i.sev+'"><span>'+esc(i.msg)+'</span></div>').join('')+'</div>';
+  if(!p.photo) h+='<div class="row2"><button class="btn sm" data-ptab="edit">Add a photo</button></div>';
+  h+='<div class="row2"><button class="btn pri" data-act="addRel">+ Add relative</button>'+(T.me===p.id?'':'<button class="btn" data-act="setMe">This is me</button>')+'</div>';
+  h+='<div class="row2"><button class="btn sm" data-act="treeFrom">Tree from here</button><button class="btn sm" data-act="ancFrom">Ancestors</button></div>';
+  return h;
+}
+let PHOTO=null;
+function panelEdit(p){
+  PHOTO=null;
+  const desc=new Set();(function walk(id){kidsOf(id).forEach(c=>{if(!desc.has(c.id)){desc.add(c.id);walk(c.id)}})})(p.id);
+  const okPar=q=>q.id!==p.id&&!desc.has(q.id);
+  let h='<div class="form">';
+  h+='<label class="fld"><span>First name</span><input id="e_first" value="'+esc(p.first)+'" autocomplete="off"></label>';
+  h+='<label class="fld"><span>Last name</span><input id="e_last" value="'+esc(p.last)+'" autocomplete="off"></label>';
+  h+='<label class="fld"><span>Pet name (optional)</span><input id="e_nick" value="'+esc(p.nick)+'"></label>';
+  h+='<div class="fld"><span>Gender</span>'+seg('e_g',[['m','Male'],['f','Female'],['x','Other']],p.gender)+'</div>';
+  h+='<div class="fld w"><span>Status</span>'+seg('e_st',[['a','Living'],['d','Passed away']],p.alive===false?'d':'a')+'</div>';
+  h+=dateFields('e_b',p.born,'Date of birth (year is enough)');
+  h+='<div id="e_dwrap" class="w" style="'+(p.alive===false?'':'display:none')+'">'+dateFields('e_d',p.died,'Date of death')+'</div>';
+  h+='<label class="fld"><span>Lives in (city or village)</span><input id="e_place" value="'+esc(p.place)+'"></label>';
+  h+='<label class="fld"><span>Born in</span><input id="e_bplace" value="'+esc(p.bplace)+'"></label>';
+  h+='<label class="fld"><span>Work</span><input id="e_job" value="'+esc(p.job)+'"></label>';
+  h+='<label class="fld"><span>Phone</span><input id="e_phone" type="tel" value="'+esc(p.phone)+'"></label>';
+  h+='<label class="fld w"><span>Notes</span><textarea id="e_note">'+esc(p.note)+'</textarea></label>';
+  h+='<div class="fld w"><span>Photo</span><div class="photoRow"><span id="e_pv">'+avatar(p)+'</span><label class="btn sm" style="cursor:pointer">Choose photo<input id="e_photo" type="file" accept="image/*" hidden></label>'+(p.photo?'<button type="button" class="btn sm" data-act="rmPhoto">Remove</button>':'')+'</div></div>';
+  h+='<label class="fld"><span>Father</span><select id="e_fa">'+popts(p.father,'Not added',q=>okPar(q)&&(q.gender!=='f'||q.id===p.father))+'</select></label>';
+  h+='<label class="fld"><span>Mother</span><select id="e_mo">'+popts(p.mother,'Not added',q=>okPar(q)&&(q.gender!=='m'||q.id===p.mother))+'</select></label>';
+  h+='<label class="chk w"><input type="checkbox" id="e_ad"'+(p.adopted?' checked':'')+'> Adopted child</label>';
+  h+='</div>';
+  const sp=spousesOf(p.id);
+  h+='<div class="sec"><h3>Husband / wife</h3>';
+  sp.forEach(s=>{
+    h+='<div class="sprow" data-u="'+esc(s.u.id)+'" style="margin-bottom:8px"><div class="fld"><span>'+esc(nm(s.p))+'</span><select class="u_type">'+[['married','Married'],['partner','Partner'],['divorced','Divorced']].map(o=>'<option value="'+o[0]+'"'+(s.u.type===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div><div class="fld"><span>Year</span><input class="u_date" inputmode="numeric" placeholder="e.g. 2015" value="'+esc(s.u.date||s.u.year)+'"></div><div></div><button type="button" class="btn sm dng" data-act="rmUnion" data-u="'+esc(s.u.id)+'" aria-label="Remove">✕</button></div>';
+  });
+  h+='<div class="row2"><label class="fld" style="flex:1 1 180px"><span>Link an existing person</span><select id="e_link">'+popts('','Choose person',q=>q.id!==p.id&&!sp.some(s=>s.p.id===q.id))+'</select></label><button type="button" class="btn sm" data-act="linkSp" style="align-self:end">Link</button></div></div>';
+  h+='<div class="row2"><button class="btn pri" data-act="saveEdit">Save changes</button><button class="btn" data-ptab="profile">Cancel</button><button class="btn dng" data-act="delAsk" style="margin-left:auto">Delete person</button></div><div id="delBox"></div>';
+  return h;
+}
+function readEdit(p){
+  const alive=segVal('e_st')==='a';
+  return {first:$('e_first').value.trim(),last:$('e_last').value.trim(),nick:$('e_nick').value.trim(),gender:segVal('e_g')||p.gender,alive,born:readDate('e_b'),died:alive?'':readDate('e_d'),place:$('e_place').value.trim(),bplace:$('e_bplace').value.trim(),job:$('e_job').value.trim(),phone:$('e_phone').value.trim(),note:$('e_note').value,father:$('e_fa').value,mother:$('e_mo').value,adopted:$('e_ad').checked};
+}
+function saveEdit(){
+  const p=P(S.sel);if(!p) return;
+  const d=readEdit(p);
+  if(!d.first&&!d.last){toast('Please type a name.');return}
+  const ups=[...document.querySelectorAll('#panel .sprow[data-u]')].map(r=>({id:r.dataset.u,type:r.querySelector('.u_type').value,date:r.querySelector('.u_date').value.trim()}));
+  edit(()=>{
+    const q=P(p.id);Object.assign(q,d);q.ph=false;
+    if(PHOTO!==null) q.photo=PHOTO;
+    ups.forEach(u=>{const x=T.unions.find(z=>z.id===u.id);if(x){x.type=u.type;x.date=/^\d{4}(-\d{2}){0,2}$/.test(u.date)?u.date:'';x.year=''}});
+  },'Saved');
+  S.ptab='profile';renderPanel();
+}
+function resizePhoto(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const n=160,cv=document.createElement('canvas');cv.width=cv.height=n;
+        const s=Math.min(img.width,img.height),sx=(img.width-s)/2,sy=(img.height-s)/2;
+        cv.getContext('2d').drawImage(img,sx,sy,s,s,0,0,n,n);
+        res(cv.toDataURL('image/jpeg',.74));
+      };
+      img.onerror=()=>rej(new Error('bad image'));img.src=fr.result;
+    };
+    fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(file);
+  });
+}
+
+/* ---- add relative ---- */
+let AD=null,PHOTO_NEW='';
+function relOptions(x){
+  const fa=x.father&&P(x.father),mo=x.mother&&P(x.mother);
+  const n=short(x);
+  const parOpt=(slot,label,q)=>({v:slot,t:label+(q&&!q.ph?' (already added)':q&&q.ph?' (fills the empty slot)':''),dis:!!(q&&!q.ph)});
+  return [
+    ['Parents',[parOpt('father',n+'\'s father',fa),parOpt('mother',n+'\'s mother',mo)]],
+    ['Husband or wife',[{v:'spouse',t:n+'\'s husband, wife or partner'}]],
+    ['Children',[{v:'son',t:n+'\'s son'},{v:'daughter',t:n+'\'s daughter'}]],
+    ['Brothers and sisters',[{v:'brother',t:n+'\'s brother'},{v:'sister',t:n+'\'s sister'}]],
+    ['Half brothers and sisters',[
+      {v:'hbrother_f',t:'Half-brother, same father',dis:!x.father},{v:'hsister_f',t:'Half-sister, same father',dis:!x.father},
+      {v:'hbrother_m',t:'Half-brother, same mother',dis:!x.mother},{v:'hsister_m',t:'Half-sister, same mother',dis:!x.mother}]]
+  ];
+}
+function openAdd(xid,rel,keep){
+  const x=P(xid);if(!x) return;
+  AD={x:xid,rel:rel||'son',keep:keep||{}};if(!keep) PHOTO_NEW='';
+  const groups=relOptions(x);
+  const flat=groups.flatMap(g=>g[1]);
+  if(!flat.find(o=>o.v===AD.rel&&!o.dis)) AD.rel=(flat.find(o=>!o.dis)||flat[0]).v;
+  drawAdd();
+}
+function drawAdd(){
+  const x=P(AD.x),rel=AD.rel,k=AD.keep||{};
+  const groups=relOptions(x);
+  let h=mh('Add a relative of '+nm(x));
+  h+='<label class="fld" style="margin-bottom:10px"><span>Who are you adding?</span><select id="a_rel" autofocus>'+groups.map(g=>'<optgroup label="'+esc(g[0])+'">'+g[1].map(o=>'<option value="'+o.v+'"'+(o.v===rel?' selected':'')+(o.dis?' disabled':'')+'>'+esc(o.t)+'</option>').join('')+'</optgroup>').join('')+'</select></label>';
+  const gender=k.gender||relGender(rel,x);
+  h+='<div class="form">';
+  h+='<label class="fld"><span>First name</span><input id="a_first" value="'+esc(k.first||'')+'" autocomplete="off"></label>';
+  h+='<label class="fld"><span>Last name</span><input id="a_last" value="'+esc(k.last!=null?k.last:lastFor(rel,x))+'" autocomplete="off"></label>';
+  h+='<div class="fld"><span>Gender</span>'+seg('a_g',[['m','Male'],['f','Female'],['x','Other']],gender)+'</div>';
+  h+='<div class="fld"><span>Status</span>'+seg('a_st',[['a','Living'],['d','Passed away']],k.alive===false?'d':'a')+'</div>';
+  h+=dateFields('a_b',k.born||'','Date of birth (year is enough)');
+  h+='<div id="a_dwrap" class="w" style="'+(k.alive===false?'':'display:none')+'">'+dateFields('a_d',k.died||'','Date of death')+'</div>';
+  h+='<label class="fld w"><span>Lives in (city or village)</span><input id="a_place" value="'+esc(k.place||'')+'"></label>';
+  h+='<div class="fld w"><span>Photo (optional)</span><div class="photoRow"><span id="a_pv">'+(PHOTO_NEW?'<span class="av"><img alt="" src="'+PHOTO_NEW+'"></span>':'')+'</span><label class="btn sm" style="cursor:pointer">Choose photo<input id="a_photo" type="file" accept="image/*" hidden></label></div></div>';
+  if(rel==='son'||rel==='daughter'){
+    const sp=spousesOf(x.id);
+    const def=k.with!=null?k.with:(sp.length===1?sp[0].p.id:'');
+    h+='<label class="fld w"><span>Other parent</span><select id="a_with"><option value="">Not known / not added</option>'+sp.map(s=>'<option value="'+esc(s.p.id)+'"'+(s.p.id===def?' selected':'')+'>'+esc(nm(s.p))+'</option>').join('')+'</select></label>';
+  }
+  if(rel==='spouse'){
+    h+='<label class="fld"><span>Relationship</span><select id="a_ut"><option value="married">Married</option><option value="partner">Partner</option><option value="divorced">Divorced</option></select></label><label class="fld"><span>Marriage year</span><input id="a_ud" inputmode="numeric" placeholder="e.g. 2015"></label>';
+  }
+  h+='</div><div id="a_warn" style="margin-top:10px;display:grid;gap:6px"></div>';
+  h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="addSave">Save</button><button class="btn" data-act="addMore">Save and add another</button></div>';
+  openModal(h);
+  checkAdd();
+}
+function readAdd(){
+  const alive=segVal('a_st')==='a';
+  return {first:$('a_first').value.trim(),last:$('a_last').value.trim(),gender:segVal('a_g'),alive,born:readDate('a_b'),died:alive?'':readDate('a_d'),place:$('a_place').value.trim(),bplace:''};
+}
+function applyAdd(d){
+  const x=P(AD.x),rel=AD.rel;
+  const o={};
+  if(rel==='son'||rel==='daughter'){const w=$('a_with');o.with=w?w.value:''}
+  if(rel==='spouse'){o.utype=$('a_ut').value;const y=$('a_ud').value.trim();o.udate=/^\d{4}(-\d{2}){0,2}$/.test(y)?y:''}
+  if((rel==='father'||rel==='mother')&&x[rel]&&P(x[rel])&&P(x[rel]).ph){
+    const q=P(x[rel]);Object.assign(q,d,{ph:false});return q;
+  }
+  return addRelative(x.id,rel,d,o);
+}
+function scratch(fn){
+  const keep=T;T=JSON.parse(JSON.stringify(T));reindex();
+  try{return fn()}finally{T=keep;reindex()}
+}
+let adTimer=null;
+function checkAdd(){
+  clearTimeout(adTimer);
+  adTimer=setTimeout(()=>{
+    const box=$('a_warn');if(!box||!AD) return;
+    const d=readAdd();
+    if(!d.first&&!d.last&&!d.born){box.innerHTML='';return}
+    let iss=[];
+    try{
+      iss=scratch(()=>{
+        const before=new Set(runChecks().map(i=>i.msg));
+        const n=applyAdd(d);reindex();
+        return runChecks().filter(i=>!before.has(i.msg)&&i.sev!=='info'&&i.ids.includes(n.id));
+      });
+    }catch(e){}
+    box.innerHTML=iss.map(i=>'<div class="issue '+i.sev+'"><span>'+esc(i.msg)+'</span></div>').join('')+(iss.length?'<div class="muted" style="font-size:12.5px">You can still save. This is only a check.</div>':'');
+  },180);
+}
+function saveAdd(more){
+  const d=readAdd();
+  if(!d.first&&!d.last){toast('Please type a name.');return}
+  const x=AD.x,rel=AD.rel;let nid='';
+  edit(()=>{const n=applyAdd(d);if(PHOTO_NEW) n.photo=PHOTO_NEW;nid=n.id},'Added '+(d.first||d.last));PHOTO_NEW='';
+  if(more){openAdd(x,rel,{last:d.last,place:d.place});}
+  else{closeModal();selectPerson(nid);}
+}
+
+/* ---- first person ---- */
+function openFirst(){
+  let h=mh('Add yourself first');
+  h+='<p class="muted" style="margin-top:0">Start with you. Then add your parents, brothers, sisters, husband or wife and children from your card.</p><div class="form">';
+  h+='<label class="fld"><span>First name</span><input id="a_first" autocomplete="off" autofocus></label><label class="fld"><span>Last name</span><input id="a_last" autocomplete="off"></label>';
+  h+='<div class="fld"><span>Gender</span>'+seg('a_g',[['m','Male'],['f','Female'],['x','Other']],'m')+'</div><div class="fld"><span>Status</span>'+seg('a_st',[['a','Living']],'a')+'</div>';
+  h+=dateFields('a_b','','Date of birth (year is enough)');
+  h+='<label class="fld w"><span>Lives in</span><input id="a_place"></label></div>';
+  h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="firstSave">Save</button></div>';
+  openModal(h);
+}
+function saveFirst(){
+  const d={first:$('a_first').value.trim(),last:$('a_last').value.trim(),gender:segVal('a_g'),born:readDate('a_b'),place:$('a_place').value.trim()};
+  if(!d.first&&!d.last){toast('Please type a name.');return}
+  let id='';
+  edit(()=>{const n=newPerson(d);T.people.push(n);id=n.id;T.me=id},'Added '+(d.first||d.last));
+  closeModal();selectPerson(id);
+}
+
+/* ---- checks, share, export, settings modals ---- */
+function openChecks(){
+  const iss=runChecks();
+  let h=mh('Checks on your tree');
+  if(!iss.length) h+='<p>Everything looks fine. No problems found.</p>';
+  else{
+    const err=iss.filter(i=>i.sev==='err').length,warn=iss.filter(i=>i.sev==='warn').length;
+    h+='<p class="muted" style="margin-top:0">The app checks ages, dates, parents and husband-wife links by itself. '+err+' to fix, '+warn+' to look at.</p><div style="display:grid;gap:8px">';
+    iss.forEach(i=>{h+='<div class="issue '+i.sev+'"><span style="flex:1">'+esc(i.msg)+'</span>'+(i.ids[0]?'<button class="btn sm" data-sel="'+esc(i.ids[0])+'" data-close>Open</button>':'')+'</div>'});
+    h+='</div>';
+  }
+  openModal(h);
+}
+async function openShare(){
+  if(!T.people.length){toast('Add someone first.');return}
+  const code=await packTree(),sum=summaryText();
+  let h=mh('Share your tree');
+  h+='<div class="sec"><h3>Share code</h3><p class="muted" style="margin:0 0 6px;font-size:13.5px">Send this code on WhatsApp or email. The other person pastes it into Import in their copy of this app. Photos are left out to keep it short.</p><textarea class="code" id="s_code" readonly>'+esc(code)+'</textarea><div class="row2" style="margin-top:6px"><button class="btn sm pri" data-act="copyCode">Copy code</button><button class="btn sm" data-act="copySum">Copy family list</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(sum.slice(0,1500))+'">WhatsApp</a><button class="btn sm" data-act="nativeShare">Share from phone</button></div></div>';
+  h+='<div class="sec" style="margin-top:14px"><h3>Import a tree</h3><p class="muted" style="margin:0 0 6px;font-size:13.5px">Paste a share code, a backup (.json) or a GEDCOM (.ged) file text. Or choose a file. This replaces the tree you see now. You can press Undo.</p><textarea class="code" id="s_in" placeholder="Paste here"></textarea><div class="row2" style="margin-top:6px"><button class="btn sm pri" data-act="doImport">Import</button><label class="btn sm" style="cursor:pointer">Choose file<input id="s_file" type="file" accept=".json,.ged,.txt" hidden></label></div></div>';
+  openModal(h);
+  S._sum=sum;
+}
+function openExport(){
+  if(!T.people.length){toast('Add someone first.');return}
+  const it=(k,t,d)=>'<button class="btn" data-exp="'+k+'"><span><b>'+t+'</b><br><small class="muted" style="font-weight:400">'+d+'</small></span></button>';
+  openModal(mh('Export')+'<p class="muted" style="margin-top:0">Pick a format. You will be asked where to save it.</p><div class="opts">'+
+    it('pdf','PDF report','Family list by generation')+it('xlsx','Excel sheet','People, couples, birthdays')+it('csv','CSV','Opens in any sheet app')+
+    it('png','Chart picture (PNG)','Current chart view')+it('svg','Chart (SVG)','Sharp, for printing big')+it('ged','GEDCOM','Works with other family tree apps')+
+    it('json','Backup (JSON)','Everything, to restore later')+it('ics','Calendar (.ics)','Birthdays and remembrance days')+'</div>');
+}
+function openSettings(){
+  let h=mh('Settings');
+  h+='<div class="form"><label class="fld w"><span>Family tree name</span><input id="st_name" value="'+esc(T.name)+'"></label>';
+  h+='<label class="fld"><span>Relation words</span><select id="st_lang"><option value="both"'+(S.lang==='both'?' selected':'')+'>English and Hindi (Chacha)</option><option value="en"'+(S.lang==='en'?' selected':'')+'>English only</option><option value="hi"'+(S.lang==='hi'?' selected':'')+'>Hindi only</option></select></label>';
+  h+='<label class="fld"><span>Colour</span><select id="st_theme"><option value=""'+(!S.theme?' selected':'')+'>Same as my phone</option><option value="light"'+(S.theme==='light'?' selected':'')+'>Light</option><option value="dark"'+(S.theme==='dark'?' selected':'')+'>Dark</option></select></label>';
+  h+='<label class="chk w"><input type="checkbox" id="st_age"'+(S.ages?' checked':'')+'> Show age on the cards</label></div>';
+  h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="stSave">Save settings</button><button class="btn" data-act="loadSample">Load sample family</button><button class="btn dng" data-act="wipeAsk">Delete everything</button></div><div id="wipeBox"></div>';
+  openModal(h);
+}
+
+/* ---- render ---- */
+function applyTheme(){
+  const d=document.documentElement;
+  if(S.theme) d.setAttribute('data-theme',S.theme);else d.removeAttribute('data-theme');
+}
+function render(){
+  applyTheme();
+  const nmI=$('tname');if(document.activeElement!==nmI) nmI.value=T.name;
+  const rp=realPeople();
+  $('tsub').textContent=rp.length?rp.length+' people · '+rp.filter(p=>p.alive!==false).length+' living':'No one added yet';
+  $('bUndo').disabled=!UNDO.length;$('bRedo').disabled=!REDO.length;
+  const sb=$('sampleBar');
+  sb.innerHTML=T.sample?'<div class="sampleBar"><p><b>This is a sample family</b> so you can look around. Tap any card to open it. Try the other views above.</p><div class="row2"><button class="btn pri sm" data-act="startOwn">Start my own tree</button></div></div>':'';
+  $('tabs').innerHTML=TABS.map(t=>'<button class="tab" role="tab" data-tab="'+t[0]+'" aria-selected="'+(S.tab===t[0])+'">'+t[1]+'</button>').join('');
+  const cur=TABS.find(t=>t[0]===S.tab)||TABS[1];
+  const old=document.querySelector('#view .pz');
+  const keep=old?{k:old.dataset.key,l:old.scrollLeft,t:old.scrollTop}:null;
+  $('view').innerHTML=cur[2]();
+  const pz=document.querySelector('#view .pz[data-key]');
+  if(pz&&keep&&keep.k===pz.dataset.key){pz.scrollLeft=keep.l;pz.scrollTop=keep.t}
+  const iss=runChecks().filter(i=>i.sev!=='info');
+  const cb=$('chkN');cb.textContent=iss.length;cb.className='badge'+(iss.some(i=>i.sev==='err')?' err':iss.length?' warn':' ok');
+  if(S.sel&&!P(S.sel)) S.sel='';
+  renderPanel();markSel();
+  const at=document.querySelector('.tab[aria-selected="true"]');if(at&&at.scrollIntoView&&!render.once){render.once=1;try{at.scrollIntoView({inline:'center',block:'nearest'})}catch(e){}}
+}
+function setZoom(pz,z){
+  const k=pz.dataset.key,w=+pz.dataset.w,h=+pz.dataset.h;
+  z=Math.max(.2,Math.min(2.2,z));S.zoom[k]=z;
+  const sv=pz.querySelector('svg');sv.setAttribute('width',Math.round(w*z));sv.setAttribute('height',Math.round(h*z));
+}
+function fitZoom(pz){const w=+pz.dataset.w;setZoom(pz,Math.max(.35,Math.min(1,(pz.clientWidth-20)/w)))}
+
+/* ---- events ---- */
+function tipSearch(){
+  const q=$('q').value.trim().toLowerCase(),dd=$('qd');
+  if(!q){dd.hidden=true;return}
+  const r=realPeople().filter(p=>(nm(p)+' '+p.nick+' '+p.place+' '+p.job+' '+p.bplace).toLowerCase().includes(q)).slice(0,12);
+  dd.innerHTML=r.length?r.map(p=>'<button data-sel="'+esc(p.id)+'" data-qclose>'+avatar(p,'mini')+'<span>'+esc(nm(p))+'<br><small class="muted">'+esc(lifeText(p,true)+(p.place?' · '+p.place:''))+'</small></span></button>').join(''):'<div style="padding:10px 12px" class="muted">No match</div>';
+  dd.hidden=false;
+}
+const ACT={
+  clearFocus(){S.focus='';render()},
+  moveOlder(){stepSibling(S.sel,-1)},
+  moveYounger(){stepSibling(S.sel,1)},
+  resetOrder(){edit(()=>resetOrder(S.sel),'Back to birth-date order')},
+  closePanel(){closePanel()},
+  addRel(){openAdd(S.sel)},
+  setMe(){edit(()=>{T.me=S.sel},'Marked as you')},
+  treeFrom(){S.rootId=S.sel;S.tab='chart';render()},
+  ancFrom(){S.ancId=S.sel;S.tab='anc';render()},
+  saveEdit(){saveEdit()},
+  rmPhoto(){PHOTO='';const p=P(S.sel);$('e_pv').innerHTML=avatar(Object.assign({},p,{photo:''}))},
+  rmUnion(el){edit(()=>{T.unions=T.unions.filter(u=>u.id!==el.dataset.u)},'Removed');S.ptab='edit';renderPanel()},
+  linkSp(){
+    const v=$('e_link').value;if(!v) return;
+    edit(()=>{ensureUnion(S.sel,v,'married','')},'Linked');S.ptab='edit';renderPanel();
+  },
+  delAsk(){$('delBox').innerHTML='<div class="issue err" style="margin-top:10px;flex-wrap:wrap"><span style="flex:1 1 200px">Delete '+esc(nm(P(S.sel)))+'? Their children stay in the tree.</span><button class="btn sm dng" data-act="delYes">Yes, delete</button><button class="btn sm" data-act="delNo">Keep</button></div>'},
+  delNo(){$('delBox').innerHTML=''},
+  delYes(){const id=S.sel;edit(()=>deletePerson(id),'Deleted');S.sel='';render()},
+  addSave(){saveAdd(false)},
+  addMore(){saveAdd(true)},
+  firstSave(){saveFirst()},
+  copyCode(){copyText($('s_code').value,'Code copied')},
+  copySum(){copyText(S._sum||summaryText(),'Family list copied')},
+  async nativeShare(){
+    const sum=S._sum||summaryText();
+    try{if(navigator.share){await navigator.share({title:T.name,text:sum});return}}catch(e){if(e&&e.name==='AbortError') return}
+    copyText(sum,'Sharing is not available here. Family list copied instead.');
+  },
+  async doImport(){await runImport($('s_in').value)},
+  stSave(){
+    S.lang=$('st_lang').value;S.theme=$('st_theme').value;S.ages=$('st_age').checked;
+    const n=$('st_name').value.trim()||'My Family';
+    edit(()=>{T.name=n},'Settings saved');closeModal();
+  },
+  loadSample(){edit(()=>{T=loadSampleTree()},'Sample family loaded');closeModal();S.sel='';S.rootId='';render()},
+  wipeAsk(){$('wipeBox').innerHTML='<div class="issue err" style="margin-top:10px;flex-wrap:wrap"><span style="flex:1 1 200px">Delete the whole tree? You can press Undo right after.</span><button class="btn sm dng" data-act="wipeYes">Yes, delete all</button></div>'},
+  wipeYes(){edit(()=>{T={v:1,name:T.name,me:'',sample:false,people:[],unions:[]}},'Everything deleted');closeModal();S.sel='';render()},
+  startOwn(){edit(()=>{T={v:1,name:'My Family',me:'',sample:false,people:[],unions:[]}},'');S.sel='';S.rootId='';render();openFirst()}
+};
+function stepSibling(id,d){
+  const g=sibGroup(id),i=g.findIndex(x=>x.id===id),j=i+d;
+  if(j<0||j>=g.length){toast(d<0?'Already the eldest.':'Already the youngest.');return}
+  edit(()=>{moveSibling(id,g[j].id,d>0)},'Order changed');
+}
+function copyText(t,msg){
+  const done=()=>toast(msg||'Copied');
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){toast('Press and hold to copy the text.')}ta.remove()};
+  try{navigator.clipboard.writeText(t).then(done,fallback)}catch(e){fallback()}
+}
+async function runImport(text){
+  try{
+    const t=await parseImport(text);
+    const c=cleanTree(t);
+    if(!c||!c.people.length) throw new Error('empty');
+    edit(()=>{T=c;T.sample=false},'Imported '+c.people.length+' people');
+    closeModal();S.sel='';S.rootId='';render();
+  }catch(e){toast('Could not read that. Check the code or file and try again.')}
+}
+document.addEventListener('click',ev=>{
+  const t=ev.target;
+  if(!t.closest('.search')) $('qd').hidden=true;
+  if(t.id==='modal'){closeModal();return}
+  if(lastTap&&Date.now()-lastTap.t<450&&Math.hypot(ev.clientX-lastTap.x,ev.clientY-lastTap.y)<40&&t.closest&&!t.closest('button,a,input,select,textarea,label,.zoom')){const id=lastTap.id;lastTap=null;focusOn(id);return}
+  const exp=t.closest('[data-exp]');if(exp){doExport(exp.dataset.exp);return}
+  const act=t.closest('[data-act]');
+  if(act&&ACT[act.dataset.act]){ACT[act.dataset.act](act);return}
+  const pt=t.closest('[data-ptab]');if(pt){S.ptab=pt.dataset.ptab;renderPanel();return}
+  const sel=t.closest('[data-sel]');
+  if(sel){
+    const close=sel.hasAttribute('data-close')||sel.hasAttribute('data-qclose');
+    if(close){if(!$('modal').hidden) closeModal();$('qd').hidden=true;$('q').value=''}
+    selectPerson(sel.dataset.sel);return;
+  }
+  if(t.closest('[data-close]')){closeModal();return}
+  const tab=t.closest('[data-tab]');if(tab){S.tab=tab.dataset.tab;persist();render();return}
+  const em=t.closest('.emp');if(em){openAdd(em.dataset.add,em.dataset.role);return}
+  const nd=t.closest('.nd');
+  if(nd&&nd.dataset.id){
+    const now=Date.now();
+    if(lastTap&&now-lastTap.t<450&&Math.hypot(ev.clientX-lastTap.x,ev.clientY-lastTap.y)<40){const id=lastTap.id;lastTap=null;focusOn(id);return}
+    lastTap={id:nd.dataset.id,x:ev.clientX,y:ev.clientY,t:now};
+    selectPerson(nd.dataset.id);return;
+  }
+  const fsg=t.closest('.fseg[data-id]');if(fsg){selectPerson(fsg.dataset.id);return}
+  const tl=t.closest('.tl-row');if(tl){selectPerson(tl.dataset.id);return}
+  const z=t.closest('[data-z]');
+  if(z){const pz=z.closest('.pz'),cur=S.zoom[pz.dataset.key]||1;if(z.dataset.z==='fit') fitZoom(pz);else setZoom(pz,cur*(z.dataset.z==='in'?1.25:.8));return}
+  const tg=t.closest('[data-tg]');if(tg){const k=tg.dataset.tg;S.coll[k]=!S.coll[k];render();return}
+  const th=t.closest('th[data-sort]');
+  if(th){const k=th.dataset.sort;if(S.pSort===k) S.pDir*=-1;else{S.pSort=k;S.pDir=1}render();return}
+  const sg=t.closest('.seg button');
+  if(sg){
+    const box=sg.parentElement;box.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===sg?'true':'false'));
+    if(box.id==='e_st'||box.id==='a_st'){const w=$(box.id==='e_st'?'e_dwrap':'a_dwrap');if(w) w.style.display=sg.dataset.v==='d'?'':'none'}
+    if(box.id==='a_g') checkAdd();
+    if(box.id==='a_st') checkAdd();
+    return;
+  }
+  const tr=t.closest('tbody tr[data-sel]');if(tr){selectPerson(tr.dataset.sel);return}
+  const id=t.id;
+  if(id==='bAdd'){if(!T.people.length) openFirst();else openAdd(S.sel&&P(S.sel)?S.sel:(T.me&&P(T.me)?T.me:T.people[0].id))}
+  else if(id==='bFirst') openFirst();
+  else if(id==='bCheck') openChecks();
+  else if(id==='bShare') openShare();
+  else if(id==='bExport') openExport();
+  else if(id==='bSet') openSettings();
+  else if(id==='bUndo') undo();
+  else if(id==='bRedo') redo();
+  else if(id==='scrim') closePanel();
+  else if(id==='olAll'){T.people.forEach(p=>{if(kidsOf(p.id).length) S.coll[p.id]=true});render()}
+  else if(id==='olOpen'){S.coll={};render()}
+  else if(id==='icsBtn') doExport('ics');
+});
+document.addEventListener('change',ev=>{
+  const t=ev.target;
+  if(t.id==='rootSel'){S.rootId=t.value;S.zoom.chart=0;S.zoom.side=0;delete S.zoom.chart;delete S.zoom.side;render()}
+  else if(t.id==='ancSel'){S.ancId=t.value;render()}
+  else if(t.id==='ancG'){S.ancGens=+t.value;render()}
+  else if(t.id==='ancO'){S.ancOrient=t.value;render()}
+  else if(t.id==='plMode'){S.placeMode=t.value;render()}
+  else if(t.id==='pFil'){S.pFilter=t.value;render()}
+  else if(t.id==='rfA'||t.id==='rfB'){S.rfA=$('rfA').value;S.rfB=$('rfB').value;$('rfOut').innerHTML=relFinderText(S.rfB,S.rfA)}
+  else if(t.id==='a_rel'){
+    const k=AD.keep||{};k.first=$('a_first').value.trim();k.born=readDate('a_b');k.place=$('a_place').value.trim();k.alive=segVal('a_st')==='a';k.died=readDate('a_d');
+    delete k.last;delete k.gender;
+    AD.rel=t.value;AD.keep=k;drawAdd();
+  }
+  else if(t.id==='a_photo'&&t.files[0]){
+    resizePhoto(t.files[0]).then(d=>{PHOTO_NEW=d;$('a_pv').innerHTML='<span class="av"><img alt="" src="'+d+'"></span>'}).catch(()=>toast('Could not read that picture.'));
+  }
+  else if(t.id==='fanSel'){S.ancId=t.value;render()}
+  else if(t.id==='fanG'){S.ancGens=+t.value-1;render()}
+  else if(t.id==='phOnly'){S.photoOnly=t.checked;render()}
+  else if(t.id==='e_photo'&&t.files[0]){
+    resizePhoto(t.files[0]).then(u=>{PHOTO=u;const p=P(S.sel);$('e_pv').innerHTML=avatar(Object.assign({},p,{photo:u}))}).catch(()=>toast('Could not read that picture.'));
+  }
+  else if(t.id==='s_file'&&t.files[0]){
+    const fr=new FileReader();fr.onload=()=>runImport(String(fr.result));fr.onerror=()=>toast('Could not read the file.');fr.readAsText(t.files[0]);
+  }
+  else if(t.id==='tname'){const n=t.value.trim()||'My Family';edit(()=>{T.name=n})}
+  if(AD&&t.closest&&t.closest('#mbox')&&t.id!=='a_rel') checkAdd();
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='q') tipSearch();
+  else if(AD&&ev.target.closest&&ev.target.closest('#mbox')) checkAdd();
+});
+let lastTap=null;
+function focusOn(id){
+  S.focus=S.focus===id?'':id;render();
+  if(S.focus){const g=document.querySelector('.nd.focus');if(g&&g.scrollIntoView) try{g.scrollIntoView({block:'center',inline:'center',behavior:'smooth'})}catch(e){}}
+}
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'){if(S.focus){S.focus='';render();return}if(!$('modal').hidden) closeModal();else if(S.sel) closePanel()}
+  if(ev.key==='Enter'&&ev.target.closest&&ev.target.closest('#mbox')&&ev.target.tagName==='INPUT'&&AD){ev.preventDefault();saveAdd(false)}
+});
+/* mouse drag to pan the chart */
+(function(){
+  let drag=null;
+  document.addEventListener('pointerdown',ev=>{
+    if(ev.pointerType!=='mouse'||ev.button!==0) return;
+    const pz=ev.target.closest&&ev.target.closest('.pz[data-key]');
+    if(!pz||ev.target.closest('.nd,.emp,.zoom')) return;
+    drag={pz,x:ev.clientX,y:ev.clientY,l:pz.scrollLeft,t:pz.scrollTop};pz.classList.add('drag');
+  });
+  document.addEventListener('pointermove',ev=>{if(!drag) return;drag.pz.scrollLeft=drag.l-(ev.clientX-drag.x);drag.pz.scrollTop=drag.t-(ev.clientY-drag.y)});
+  document.addEventListener('pointerup',()=>{if(drag){drag.pz.classList.remove('drag');drag=null}});
+})();
+
+/* drag a card onto a brother or sister to change the order */
+(function(){
+  let pend=null,drag=null,sup=0;
+  const sideY=()=>S.tab==='side';
+  function elId(el){return el.dataset.drag||el.dataset.id}
+  function startDrag(){
+    const p=pend;pend=null;if(!p) return;
+    const sibs=new Set(siblingsOf(p.id).map(s=>s.id));
+    if(!sibs.size){toast('This person has no brothers or sisters to reorder with.');return}
+    drag={id:p.id,el:p.el,sibs,tgt:null,after:false,ghost:document.createElement('div')};
+    drag.ghost.className='ghost';drag.ghost.textContent='Moving '+short(P(p.id));document.body.appendChild(drag.ghost);
+    p.el.classList.add('dragsrc');
+    moveGhost(p.x,p.y);
+  }
+  function moveGhost(x,y){if(drag){drag.ghost.style.left=x+'px';drag.ghost.style.top=y+'px'}}
+  function clearT(){document.querySelectorAll('.dtgt').forEach(e=>e.classList.remove('dtgt','before','after','beforeY','afterY'))}
+  document.addEventListener('pointerdown',ev=>{
+    if(ev.button>0) return;
+    const el=ev.target.closest&&ev.target.closest('.nd[data-id],[data-drag]');
+    if(!el||el.closest('#modal')) return;
+    pend={id:elId(el),el,x:ev.clientX,y:ev.clientY,type:ev.pointerType,sx:ev.clientX,sy:ev.clientY};
+    if(ev.pointerType!=='mouse') pend.timer=setTimeout(()=>{if(pend){startDrag();if(drag&&navigator.vibrate) try{navigator.vibrate(15)}catch(e){}}},380);
+  });
+  document.addEventListener('pointermove',ev=>{
+    if(pend){
+      const dx=ev.clientX-pend.sx,dy=ev.clientY-pend.sy,mv=Math.hypot(dx,dy);
+      if(pend.type==='mouse'){if(mv>7){pend.x=ev.clientX;pend.y=ev.clientY;startDrag()}}
+      else if(mv>10){clearTimeout(pend.timer);pend=null}
+    }
+    if(!drag) return;
+    moveGhost(ev.clientX,ev.clientY);
+    clearT();drag.tgt=null;
+    const els=document.elementsFromPoint(ev.clientX,ev.clientY);
+    for(const e of els){
+      const n=e.closest&&e.closest('.nd[data-id],[data-drag]');
+      if(!n) continue;
+      const tid=elId(n);
+      if(tid&&tid!==drag.id&&drag.sibs.has(tid)){
+        const r=n.getBoundingClientRect(),y=sideY()&&n.classList.contains('nd');
+        drag.after=y?ev.clientY>r.top+r.height/2:ev.clientX>r.left+r.width/2;
+        drag.tgt=tid;n.classList.add('dtgt',y?(drag.after?'afterY':'beforeY'):(drag.after?'after':'before'));
+        break;
+      }
+    }
+  });
+  const end=ev=>{
+    if(pend){clearTimeout(pend.timer);pend=null}
+    if(!drag) return;
+    const d=drag;drag=null;clearT();d.ghost.remove();d.el.classList.remove('dragsrc');
+    sup=Date.now();
+    if(d.tgt) edit(()=>{moveSibling(d.id,d.tgt,d.after)},()=>'Order changed: '+short(P(d.id))+' is now '+ordinal(birthOrder(P(d.id)).n)+' of '+birthOrder(P(d.id)).of);
+  };
+  document.addEventListener('pointerup',end);
+  document.addEventListener('pointercancel',end);
+  document.addEventListener('touchmove',e=>{if(drag&&e.cancelable) e.preventDefault()},{passive:false});
+  document.addEventListener('click',e=>{if(Date.now()-sup<350){e.stopPropagation();e.preventDefault()}},true);
+  document.addEventListener('contextmenu',e=>{if(drag||pend) e.preventDefault()});
+})();
+
+/* ---- init ---- */
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(!raw) return false;
+    const st=JSON.parse(raw);
+    if(st&&st.T&&applyTree(st.T)){
+      lastLocalTs=st.ts||0;
+      if(st.S) ['lang','theme','ages','tab','rootId','ancId','ancGens','ancOrient','placeMode'].forEach(k=>{if(st.S[k]!==undefined) S[k]=st.S[k]});
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+function dbInit(){
+  const cl=window.claude;
+  if(!cl||typeof cl.use!=='function') return;
+  Promise.all([cl.use('user'),cl.use('db')]).then(r=>{
+    const u=r[0],db=r[1];
+    if(!u||!db||typeof u.id!=='function') return null;
+    return u.id().then(id=>{
+      if(!id) return null;
+      dbDoc=db.doc('data/users/'+id+'/familytree');
+      return dbDoc.get();
+    });
+  }).then(snap=>{
+    if(!dbDoc) return;
+    if(snap&&snap.exists){
+      let remote=null;
+      try{remote=JSON.parse(snap.data().json)}catch(e){}
+      if(remote&&remote.T&&remote.ts>lastLocalTs){
+        if(applyTree(remote.T)){
+          if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
+          lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
+          try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}
+          S.sel='';render();toast('Loaded your saved tree from your account.');
+        }
+      }
+    }
+    if(lastLocalTs) scheduleDb();
+  }).catch(()=>{});
+}
+function init(){
+  hooks.render=render;
+  if(!window.claude){const bb=$('bBack');if(bb) bb.hidden=false}
+  S.ages=true;S.tab='chart';S.ancGens=3;
+  if(!loadLocal()){T=loadSampleTree();S.tab='chart'}
+  reindex();
+  if(!TABS.some(t=>t[0]===S.tab)) S.tab='chart';
+  render();
+  dbInit();
+  window.addEventListener('beforeunload',()=>{try{persist()}catch(e){}});
+}
+init();
+
+</script>
+</body></html>

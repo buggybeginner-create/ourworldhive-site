@@ -1,4 +1,4 @@
-/* Marketplace showcase: auto-playing app screens, story style progress, tilt, rotating headline */
+/* Hive Apps showcase: auto-playing app screens, story style progress, tilt, rotating headline */
 (function(){
 var APPS=[
 {id:'pm',icon:'🛠️',name:'PM Tracker',tag:'Never miss a calibration or PM again.',def:'m',href:'pm.html',cta:'Open PM Tracker',price:'pm',ac:'#14b8a6',url:'ourworldhive.com/pm',

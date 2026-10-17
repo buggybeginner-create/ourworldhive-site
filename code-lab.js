@@ -216,7 +216,7 @@ function clearCon(){consoleEl.innerHTML='';conCount=0;$('#clConN').textContent='
 window.addEventListener('message',function(e){
  var d=e.data;if(!d||!d.cl||e.source!==frame.contentWindow)return;
  if(d.t==='log'){conCount++;var li=document.createElement('div');li.className='lg '+d.k;li.textContent=(d.k==='error'?'✖ ':d.k==='warn'?'⚠ ':'› ')+d.m;consoleEl.appendChild(li);consoleEl.scrollTop=1e6;$('#clConN').textContent=conCount;if(d.k==='error')$('#clConBox').open=true}
- else if(d.t==='hover'){var r=D.T[d.tag],txt=r?pick(r).split(/\.\s/)[0]:'';inspEl.innerHTML='<code>&lt;'+esc(d.tag)+(d.id?' id="'+esc(d.id)+'"':'')+(d.cls?' class="'+esc(d.cls)+'"':'')+'&gt;</code> '+d.w+'×'+d.h+'px'+(txt?' &nbsp;·&nbsp; '+esc(txt):'')}
+ else if(d.t==='hover'){var r=D.T[d.tag],txt=r?pick(r).split(/\.\s/)[0]:'';inspEl.innerHTML='<code>&lt;'+esc(d.tag)+(d.id?' id="'+esc(d.id)+'"':'')+(d.cls?' class="'+esc(d.cls)+'"':'')+'&gt;</code> '+(+d.w||0)+'×'+(+d.h||0)+'px'+(txt?' &nbsp;·&nbsp; '+esc(txt):'')}
  else if(d.t==='click'){var n=-1;for(var i=0;i<cur.toks.length;i++){var t=cur.toks[i];if(t.k==='tag:'+d.tag&&code.charAt(t.s-1)==='<'){n++;if(n===d.idx){goPane('code');jumpTo(t.s-1,t.e-t.s+1);return}}}}});
 /* ---------------- suggestions ---------------- */
 var lintEl=$('#clLint'),lintT=null;

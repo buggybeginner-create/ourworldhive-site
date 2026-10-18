@@ -1,0 +1,31 @@
+{
+ "name": "Worldhive Cricket",
+ "short_name": "Cricket",
+ "description": "Bat, bowl, collect cards and climb the rankings.",
+ "start_url": "cricket.html",
+ "scope": "./cricket.html",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#04060d",
+ "theme_color": "#04060d",
+ "icons": [
+  {
+   "src": "cricket-icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "cricket-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "cricket-icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

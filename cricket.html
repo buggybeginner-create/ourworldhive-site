@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#04060d"><meta name="description" content="Ourworldhive Cricket: bat, bowl, collect player cards, set fields and play online."><title>Cricket | Ourworldhive</title><link rel="canonical" href="https://ourworldhive.com/cricket.html"></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#04060d"><meta name="description" content="Ourworldhive Cricket: bat, bowl, collect player cards, set fields and play online."><title>Cricket | Ourworldhive</title><link rel="canonical" href="https://ourworldhive.com/cricket.html"><link rel="manifest" href="cricket-manifest.webmanifest"><link rel="apple-touch-icon" href="cricket-apple-touch-icon.png"><meta name="mobile-web-app-capable" content="yes"></head>
 <style>
 html,body{margin:0;height:100%;background:#04060d;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 body{display:flex;align-items:center;justify-content:center}
@@ -572,6 +572,10 @@ function drawRig(J,S){
     CURCH='leg'+side;
     const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
     cap(hp,k,0.128,S.pants,0.088,{gap:1});
+    cap(vmix(hp,k,0.14),vmix(hp,k,0.76),0.141,S.pants,0.121,{off:0.005});
+    sph(k,S.pad?0.1:0.094,S.pad?S.padCol:S.pants,0.015);
+    if(!S.pad)cap(vmix(k,an,0.08),vmix(k,an,0.6),0.097,S.pants,0.07,{off:0.005});
+    else sph(vmix(k,an,0.06),0.099,S.padCol,0.02);
     if(S.pad&&side==='L')cap(vmix(hp,k,0.22),vmix(hp,k,0.92),0.1,S.padCol,0.088,{off:0.02});
     if(S.pad){
       cap(k,an,0.088,S.padCol,0.072,{straps:[0.28,0.62],off:0.01,gap:1});
@@ -592,18 +596,25 @@ function drawRig(J,S){
    cap(mid,up,0.162,S.jersey,0.17);
    cap(up,J.neck,0.17,S.jersey,0.105);
    cap(J.sL,J.sR,0.1,S.jersey);
+   sph(vadd(vmix(mid,up,0.5),vsc(fc,0.045)),0.165,S.jersey,0.012);
   }
   {const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
    if(!S.nonum&&c0[2]>NEAR&&c1[2]>c0[2]+0.02){const mm=vmix(J.pel,J.neck,0.6),cm=cs(mm[0],mm[1],mm[2]);
      if(cm[2]>NEAR){const jc=S.jersey,lum=jc[0]*0.3+jc[1]*0.59+jc[2]*0.11;parts.push({t:2,ca:cm,col:trim&&Math.abs((trim[0]*0.3+trim[1]*0.59+trim[2]*0.11)-lum)>90?trim:(lum>140?[20,24,36]:[245,245,250]),txt:String((jc[0]*3+jc[1]*5+jc[2]*7)%97+1),d:cm[2]-0.17})}}}
   if(FLATSTYLE)cap(vmix(up,J.neck,0.55),vadd(J.neck,[0,0.02,0]),0.07,trim||[246,246,246],0.075,{off:-0.01});
-  else{cap(J.neck,J.sL,0.05,S.jersey,0.09,{off:0.02});cap(J.neck,J.sR,0.05,S.jersey,0.09,{off:0.02})}
+  else{cap(J.neck,J.sL,0.05,S.jersey,0.09,{off:0.02});cap(J.neck,J.sR,0.05,S.jersey,0.09,{off:0.02});
+    cap(vadd(J.neck,vsc(rt,-0.075)),vadd(J.neck,vsc(rt,0.075)),0.032,trim||[240,240,246],0.032,{off:0.03})}
   CURCH=null;
   /* arms */
   for(const side of ['L','R']){
     CURCH='arm'+side;
     const s=J['s'+side],e=J['e'+side],h=J['h'+side];
     cap(s,e,0.088,S.jersey,0.06,Object.assign({gap:1},trim?{bands:[[0.8,0.93,trim]]}:{}));
+    sph(s,0.104,S.jersey,0.012);
+    cap(vmix(s,e,0.08),vmix(s,e,0.62),0.103,S.jersey,0.088,{off:0.004});
+    sph(e,0.056,S.skin,0.008);
+    cap(vmix(e,h,0.04),vmix(e,h,0.46),0.068,S.skin,0.05,{off:0.004});
+    cap(vmix(e,h,0.1),vmix(e,h,0.42),0.014,shade(S.skin,1.14),0.011,{off:0.03});
     const fd=nrm(vsub(h,e));
     if(S.glove){
       cap(e,vmix(e,h,0.7),0.05,S.skin,0.042,{gap:1});
@@ -619,12 +630,15 @@ function drawRig(J,S){
   CURCH=null;
   /* head */
   cap(J.neck,J.head,0.057,S.skin,0.05);
+  if(!S.helmet&&!S.cap)sph(vadd(J.head,vadd(vsc(fc,-0.035),[0,0.04,0])),0.112,S.hair||[26,20,18],-0.02);
   sph(J.head,0.108,S.skin);
   sph(vadd(vadd(J.head,vsc(fc,0.03)),[0,-0.05,0]),0.082,shade(S.skin,0.97));
   for(const sg of [-1,1])sph(vadd(J.head,vsc(rt,sg*0.104)),0.026,shade(S.skin,0.88),0.01);
   /* face (only when it points toward the camera) */
   {const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
    if(c0[2]>NEAR&&c1[2]>NEAR&&c1[2]<c0[2]-0.015){
+     sph(vadd(vadd(J.head,vsc(fc,0.112)),[0,-0.022,0]),0.017,shade(S.skin,1.06),0.06);
+     for(const sg of [-1,1])cap(vadd(vadd(J.head,vsc(fc,0.1)),vadd(vsc(rt,sg*0.07),[0,0.045,0])),vadd(vadd(J.head,vsc(fc,0.104)),vadd(vsc(rt,sg*0.03),[0,0.05,0])),0.006,[34,24,22],0.006,{off:0.07});
      for(const sg of [-1,1]){
        sph(vadd(vadd(J.head,vsc(fc,0.1)),vadd(vsc(rt,sg*0.055),[0,-0.03,0])),0.024,mixc(S.skin,[255,120,120],0.45),0.05);
        sph(vadd(vadd(J.head,vsc(fc,0.104)),vadd(vsc(rt,sg*0.04),[0,0.012,0])),0.009,[34,26,28],0.07);
@@ -634,6 +648,9 @@ function drawRig(J,S){
   if(S.helmet){
     const hc=vadd(J.head,[0,0.03,0]);
     sph(hc,0.128,S.helmet);
+    sph(vadd(hc,[0.045,0.085,0]),0.034,shade(S.helmet,1.45),0.02);
+    if(trim)sph(vadd(vadd(hc,vsc(fc,0.12)),[0,0.04,0]),0.018,trim,0.05);
+    for(const sg of [-1,1])cap(vadd(hc,vadd(vsc(rt,sg*0.116),[0,-0.085,0])),vadd(vadd(J.head,vsc(fc,0.06)),[0,-0.105,0]),0.007,[30,30,34],0.007,{off:0.02});
     /* peak */
     cap(vadd(hc,[0,0.0,0]),vadd(vadd(hc,vsc(fc,0.125)),[0,-0.02,0]),0.04,S.helmet,0.028);
     /* centre stripe over the shell */
@@ -899,6 +916,7 @@ function modelStyle(p,kit){const m=mdlOf(p),o={mdl:m};if(m.sk>=0&&SKINS[m.sk])o.
   return o}
 function batterStyle(B){const st=Object.assign({},BAT_BASE,B.card.kit);
   try{if(B===bat&&MT&&humanBat()){const pr=sideBat().prof;if(pr)Object.assign(st,modelStyle(pr,B.card.kit))}}catch(e){}
+  if(!st.helmet&&!st.cap&&B.card.kit&&B.card.kit.helmet)st.helmet=B.card.kit.helmet;
   return st}
 function batContactPoint(J){return vadd(J.bat[0],vsc(J.bat[1],0.62))}
 /* =====================  PHYSICS  ===================== */
@@ -982,7 +1000,8 @@ const FLD=FIELDS.BALANCED.pos.map((d,i)=>{const a=d[1]*Math.PI/180,x=d[2]*Math.s
 function resetFielders(){for(const f of FLD){f.x=f.hx;f.z=f.hz;f.tried=false;f.stopped=false;f.moving=false;f.act=0;f.actT=0;f.acted=false;f.chain=null}}
 function applyField(key,snap){
   S.field=key;const P=FIELDS[key].pos,M=(bat&&bat.mir)?-1:1;
-  for(let i=0;i<FLD.length;i++){const f=FLD[i],d=P[i],a=d[1]*M*Math.PI/180;f.name=d[0];f.hx=d[2]*Math.sin(a);f.hz=d[2]*Math.cos(a)+0.8;if(snap){f.x=f.hx;f.z=f.hz;f.hd=Math.atan2(-f.x,-f.z)}}
+  let outside=0;const pp=inPowerplay();
+  for(let i=0;i<FLD.length;i++){const f=FLD[i],d=P[i],a=d[1]*M*Math.PI/180;let rad=d[2];if(pp&&rad>31){if(++outside>2)rad=29}f.name=d[0];f.hx=rad*Math.sin(a);f.hz=rad*Math.cos(a)+0.8;if(snap){f.x=f.hx;f.z=f.hz;f.hd=Math.atan2(-f.x,-f.z)}}
 }
 function moveFielder(i,x,z){const f=FLD[i];if(!f)return;const d=Math.hypot(x,z-CZ);const k=d>RB-4?(RB-4)/d:1;f.hx=x*k;f.hz=(z-CZ)*k+CZ}
 
@@ -1294,6 +1313,16 @@ const COMM={
   wicket:['Gone! The crowd erupts!','Big wicket! He has to walk.','What a delivery!','Out! Stunning stuff.']
 };
 const pick=a=>a[(Math.random()*a.length)|0];
+function buzz(p){try{if(OPT.sound!==false&&navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+const PP_OVERS={2:1,5:1,10:2,20:6};
+function inPowerplay(){return !!MT&&S.balls<(PP_OVERS[MT.overs]||1)*6}
+function richComm(cm,res,bc,wc){
+  const b=bc&&bc.name,w=wc&&wc.name;if(!b||!w||Math.random()<0.4)return cm;
+  if(res.wicket)return pick([w+' strikes! '+b+' has to walk back.','Gone! '+b+' falls to '+w+'.','What a ball from '+w+'! '+b+' is out.']);
+  if(res.runs===6)return pick([b+' launches '+w+' into the stands!','Huge six from '+b+'!',''+b+' sends it sailing over the rope!']);
+  if(res.runs===4)return pick([b+' finds the rope off '+w+'.','Beautifully timed by '+b+'. Four!','Four more for '+b+'!']);
+  if(res.runs===0&&!res.wide)return pick([w+' keeps it tight to '+b+'.','Good length from '+w+'. No run.',b+' watchful, no run.']);
+  return cm}
 function showPopup(txt,col,dur,y,big){G.popup={txt,col,t:0,dur:dur||1.4,y:y||0,big:big||0}}
 function setBoard(txt,col,dur){G.boardMsg={txt,col};G.boardMsgT=dur||2.5}
 function inningsOver(){return(S.target>0&&S.runs>=S.target)||S.wk>=S.maxWk||S.balls>=S.maxBalls}
@@ -1324,6 +1353,8 @@ function finishBall(res){
   else if(res.wide){dur=1.4;col=[255,255,255];cm='Wide ball. Extra run!'}
   else if(res.runs>0){G.excite=Math.max(G.excite,0.25);sfx.cheer(0.25);cm=pick(COMM.run);col=[190,255,200]}
   else{cm=pick(COMM.dot);col=[200,210,230]}
+  cm=richComm(cm,res,bc,wc);
+  if(res.wicket)buzz([70,40,140]);else if(res.runs===6)buzz([90,30,90]);else if(res.runs===4)buzz(55);
   if(!txt)txt=res.runs===0?'DOT BALL':res.runs+' RUN'+(res.runs>1?'S':'');
   if(res.runs>=4&&!res.txt)txt=res.runs===6?'SIX!':'FOUR!';
   const big=(res.runs>=4||res.wicket)?1:0;
@@ -1363,6 +1394,55 @@ function endInnings(){
   }else endMatch();
 }
 function nextInnings(){startInnings(MT.k+1)}
+
+/* ---------------- shared rankings (cricket) ----------------
+   Every finished match vs CPU or online is queued, then written to Firestore:
+   ck_rank/{uid}  detailed batting / bowling stats for all-time, this week and this month
+   hr_rank/{uid}  the shared site ladder (g.cricket), so cricket joins the all-round ranking */
+const RQ_KEY='wh_ck_rankq';
+function rkWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-day);const y=t.getUTCFullYear();const w=Math.ceil(((t-Date.UTC(y,0,1))/864e5+1)/7);return y+'-W'+String(w).padStart(2,'0')}
+function rkMonth(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function rkAdd(o,e){o=Object.assign({m:0,w:0,l:0,t:0,r:0,b:0,out:0,s:0,f:0,wk:0,br:0,bb:0,hs:0,bw:0,bwr:0,f50:0,f100:0,bp:0,wp:0,pts:0},o||{});
+  o.m++;if(e.res==='w')o.w++;else if(e.res==='l')o.l++;else o.t++;
+  o.r+=e.r;o.b+=e.b;o.out+=e.out;o.s+=e.s;o.f+=e.f;o.wk+=e.wk;o.br+=e.br;o.bb+=e.bb;o.f50+=e.f50;o.f100+=e.f100;
+  if(e.hs>o.hs){o.hs=e.hs;o.hsn=e.hsn}
+  if(e.bw>o.bw||(e.bw===o.bw&&e.bw>0&&e.bwr<o.bwr)){o.bw=e.bw;o.bwr=e.bwr;o.bwn=e.bwn}
+  o.bp+=e.bp;o.wp+=e.wp;o.pts+=e.bp+e.wp+e.rp;return o}
+function rkQueue(e){try{const q=JSON.parse(localStorage.getItem(RQ_KEY)||'[]');q.push(e);localStorage.setItem(RQ_KEY,JSON.stringify(q.slice(-40)))}catch(x){}rkFlush()}
+let rkBusy=false;
+async function rkFlush(){
+  if(rkBusy||(navigator.onLine===false))return;let q;try{q=JSON.parse(localStorage.getItem(RQ_KEY)||'[]')}catch(x){q=[]}
+  if(!q.length)return;rkBusy=true;
+  try{
+    const b='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
+    if(!window.firebase||!firebase.firestore){await loadScript(b+'firebase-app-compat.js');await loadScript(b+'firebase-auth-compat.js');await loadScript(b+'firebase-firestore-compat.js')}
+    const cfg=window.OWH_FIREBASE||NET_CFG;if(!firebase.apps.length)firebase.initializeApp(cfg);
+    const auth=firebase.auth();if(!auth.currentUser)await auth.signInAnonymously();const uid=auth.currentUser.uid,db=firebase.firestore();
+    while(q.length){
+      const e=q[0],d=new Date(e.t||Date.now()),wk=rkWeek(d),mo=rkMonth(d);
+      await db.runTransaction(async t=>{const ref=db.collection('ck_rank').doc(uid),sn=await t.get(ref),cur=sn.exists?sn.data():{};
+        if(cur.done&&cur.done.indexOf(e.key)>=0)return;
+        const nw=Object.assign({},cur);nw.name=e.name;nw.av=e.av||'🏏';nw.upd=Date.now();
+        nw.all=rkAdd(cur.all,e);nw.wk=rkAdd(cur.wk&&cur.wk.k===wk?cur.wk:{k:wk},e);nw.wk.k=wk;nw.mo=rkAdd(cur.mo&&cur.mo.k===mo?cur.mo:{k:mo},e);nw.mo.k=mo;
+        nw.done=(cur.done||[]).concat([e.key]).slice(-40);t.set(ref,nw)});
+      await db.runTransaction(async t=>{const ref=db.collection('hr_rank').doc(uid),sn=await t.get(ref);
+        const cur=sn.exists?sn.data():{name:e.name,av:e.av||'🏏',pts:0,n:0,g:{},done:[]};const k='ck_'+e.key;
+        if(cur.done&&cur.done.indexOf(k)>=0)return;
+        const PT={w:25,d:8,l:4},r=e.res==='t'?'d':e.res;cur.g=cur.g||{};
+        const g=cur.g.cricket||{w:0,l:0,d:0,pts:0,n:0};g[r]=(g[r]||0)+1;g.pts+=PT[r];g.n+=1;cur.g.cricket=g;
+        cur.pts=(cur.pts||0)+PT[r];cur.n=(cur.n||0)+1;cur.name=cur.name||e.name;cur.av=cur.av||e.av||'🏏';cur.upd=Date.now();cur.done=(cur.done||[]).concat([k]).slice(-30);t.set(ref,cur)});
+      q.shift();try{localStorage.setItem(RQ_KEY,JSON.stringify(q))}catch(x){}
+    }
+  }catch(err){console.warn('rank sync',err&&err.code||err)}
+  rkBusy=false}
+function rkBuild(m,si,p,won,tie,cs){
+  let r=0,b=0,out=0,s=0,f=0,wk=0,br=0,bb=0,f50=0,f100=0,hs=0,hsn='',bw=0,bwr=0,bwn='';
+  for(const id in cs){const c=cs[id];r+=c.r;b+=c.b;out+=c.out?1:0;s+=c.s;f+=c.f;wk+=c.w;br+=c.br;bb+=c.bb;if(c.r>=100)f100++;else if(c.r>=50)f50++;
+    if(c.r>hs){hs=c.r;hsn=c.c.name}if(c.bowl&&(c.w>bw||(c.w===bw&&c.br<bwr))){bw=c.w;bwr=c.br;bwn=c.c.name}}
+  const mul=OPT.diff==='pro'?1.5:1;
+  const bp=Math.round((r+2*s+f+10*f50+25*f100)*mul),wp=Math.round((wk*15+(wk>=3?10:0))*mul),rp=tie?8:won?25:4;
+  return{key:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:Date.now(),name:p.name,av:'🏏',res:tie?'t':won?'w':'l',r,b,out,s,f,wk,br,bb,f50,f100,hs,hsn,bw,bwr,bwn,bp,wp,rp,ov:m.overs}}
+
 function endMatch(){
   if(MT&&MT.online&&NETX)NETX.finished=true;
   const m=MT,r=m.res;let win=null,tie=false,title='',sub='';
@@ -1418,6 +1498,7 @@ function endMatch(){
     const xpGain=runs+wk*10+(won?25:5);const l0=levelOf(p.xp);p.xp+=xpGain;const l1=levelOf(p.xp);
     p.hist.unshift({o:overs,mode:m.mode,res:tie?'T':won?'W':'L',runs,wk,t:Date.now()});if(p.hist.length>12)p.hist.length=12;
     awards.push({name:p.name,team:p.team,stars,bonus,xp:xpGain,lvl:l1>l0?l1:0,runs,wk,sixes:sx,best:hs?hsId+' '+hs:''});
+    if(m.mode!=='two'){try{const ke=rkBuild(m,si,p,won,tie,cs);rkQueue(ke);setTimeout(()=>toast('RANKING +'+(ke.bp+ke.wp+ke.rp)+' PTS'),1800)}catch(e){console.warn(e)}}
   }
   saveProfiles();
   const anyWin=humanSides.some(i=>win===i)||(m.mode==='two'&&!tie);
@@ -3236,6 +3317,7 @@ function drawHUD(T){
   tx(bt.name,20,23,10,'#8fa6d4','left','bold',130);
   tx(S.runs+'/'+S.wk,20,52,34,'#ffffff');
   tx('OVERS',158,23,10,'#8fa6d4');tx(overText(),158,50,26,'#ffffff');tx('/ '+MT.overs,208,54,12,'#8fa6d4');
+  if(inPowerplay())tx('POWERPLAY',184,67,8.5,'#ffd23f','center','800');
   if(S.target>0){
     const need=S.target-S.runs;
     tx('TARGET '+S.target,262,23,10,'#8fa6d4');
@@ -3620,8 +3702,8 @@ function scrHome(T){
   rr(16,160,448,118,18);ctx.fillStyle='rgba(8,14,32,0.85)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1.2;ctx.stroke();
   hot('profile',16,160,448,118);
   drawBust(26,170,74,98,bc);
-  tx(p.team,112,184,19,'#fff','left','900',250);btn('ren_team',366,171,86,24,'RENAME',{size:10,r:10});
-  tx(p.name,112,210,13,'#bcd0f5','left','700',160);btn('ren_name',366,201,86,24,'RENAME',{size:10,r:10});
+  tx(p.team,112,184,19,'#fff','left','900',250);btn('ren_team',366,171,86,24,'TEAM NAME',{size:9.5,r:10});
+  tx(p.name,112,210,13,'#bcd0f5','left','700',160);btn('ren_name',366,201,86,24,'PLAYER NAME',{size:9.5,r:10});
   const l=levelOf(p.xp),a=xpForLevel(l),b=xpForLevel(l+1);
   rr(112,228,60,22,11);ctx.fillStyle='#ffb703';ctx.fill();tx('LV '+l,142,239.5,12,'#2a1800','center','900');
   rr(180,235,170,8,4);ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fill();rr(180,235,Math.max(8,170*(p.xp-a)/(b-a)),8,4);ctx.fillStyle='#7cf29a';ctx.fill();
@@ -3634,7 +3716,7 @@ function scrHome(T){
   btn('play',...pl,'PLAY OFFLINE',{on:true,col:'#22c55e',size:19,r:22});ctx.restore();
   btn('online',248,336,216,70,'PLAY ONLINE',{on:true,col:'#4cc9f0',tc:'#04121c',size:19,r:22});
   tx('Online: auto-match with players of your level + friends',356,418,9.5,'#8fa6d4','center','700',216);
-  btn('squad',16,430,108,60,'SQUAD',{size:14});btn('market',130,430,108,60,'MARKET',{size:14});btn('career',244,430,108,60,'CAREER',{size:14});btn('profile',358,430,106,60,'PROFILE',{size:14,on:true,col:'#ffd23f',tc:'#2a1800'});
+  btn('squad',16,430,84,60,'SQUAD',{size:12.5});btn('market',107,430,84,60,'MARKET',{size:12.5});btn('career',198,430,84,60,'CAREER',{size:12.5});btn('ranks',289,430,84,60,'RANKS',{size:12.5,on:true,col:'#c77dff',tc:'#16062a'});btn('profile',380,430,84,60,'PROFILE',{size:12.5,on:true,col:'#ffd23f',tc:'#2a1800'});
   tx('Pick your batter and bowler cards • buy new ones with stars',W/2,506,11,'#8fa6d4','center','600',440);
   timeRow(552);
   btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'2D ART PLAYERS (tap = next)':OPT.gfx==='classic'?'CLASSIC (tap = next)':OPT.gfx==='models'?'3D PLAYERS (tap = next)':'FULL 3D (tap = next)'),{on:OPT.gfx==='art',col:'#4cc9f0',tc:'#04121c',size:12.5});
@@ -4129,8 +4211,8 @@ function scrProfile(T){
   rr(16,y,448,112,18);ctx.fillStyle='rgba(8,14,32,0.88)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1.2;ctx.stroke();
   ctx.beginPath();ctx.arc(66,y+56,38,0,TAU);const g=ctx.createLinearGradient(30,y,100,y+110);g.addColorStop(0,'#2a6df0');g.addColorStop(1,'#7c3aed');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#ffd23f';ctx.lineWidth=3;ctx.stroke();
   emo(AVATARS[p.av%AVATARS.length],66,y+58,40);
-  tx(p.name,118,y+22,19,'#fff','left','900',230);btn('ren_name',366,y+8,86,24,'RENAME',{size:10,r:10});
-  tx(p.team,118,y+46,13,'#bcd0f5','left','700',230);btn('ren_team',366,y+38,86,24,'RENAME',{size:10,r:10});
+  tx(p.name,118,y+22,19,'#fff','left','900',230);btn('ren_name',366,y+8,86,24,'PLAYER NAME',{size:9.5,r:10});
+  tx(p.team,118,y+46,13,'#bcd0f5','left','700',230);btn('ren_team',366,y+38,86,24,'TEAM NAME',{size:9.5,r:10});
   const l=levelOf(p.xp),a=xpForLevel(l),b=xpForLevel(l+1);
   rr(118,y+62,56,22,11);ctx.fillStyle='#ffb703';ctx.fill();tx('LV '+l,146,y+73.5,12,'#2a1800','center','900');
   rr(182,y+69,150,8,4);ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fill();rr(182,y+69,Math.max(8,150*(p.xp-a)/(b-a)),8,4);ctx.fillStyle='#7cf29a';ctx.fill();
@@ -4542,6 +4624,7 @@ function handleUI(id,r,x,y){
     case 'pause':if(isPlaying()&&!(MT&&MT.online))G.paused=true;break;
     case 'resume':G.paused=false;break;
     case 'quit':case 'menu':G.paused=false;if(MT&&MT.online&&NETX){const wasEnd=G.mode==='end';NETX.forfeit();toMenu();if(wasEnd)G.screen='online';break}toMenu();break;
+    case 'ranks':try{location.href='rankings.html#cricket'}catch(e){}break;
     case 'pf_friends':G.from='profile';G.screen='friends';break;
     case 'pf_career':G.from='profile';G.screen='career';break;
     case 'back':if(G.from==='profile'&&(G.screen==='friends'||G.screen==='career')){G.from=null;G.screen='profile';break}
@@ -4800,5 +4883,6 @@ requestAnimationFrame(frame);
     if(c.length===6){const p=PR();p.friends=p.friends||[];if(c!==profCode(p)&&!p.friends.some(f=>f.code===c)){p.friends.push({code:c,name:(q.get('n')||'FRIEND').toUpperCase().slice(0,12)});saveProfiles();setTimeout(()=>toast('Friend added! Open PLAY ONLINE > FRIENDS'),800)}}}catch(e){}
 })();
 </script>
+<script>setTimeout(function(){try{rkFlush()}catch(e){}},4000);try{if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('cricket-sw.js',{scope:'./cricket.html'}).catch(function(){})}catch(e){}</script>
 <script>setInterval(function(){try{var h=document.getElementById('hm');h.style.display=(typeof G!=='undefined'&&G.mode==='menu')?'block':'none'}catch(e){}},300);</script>
 </body></html>

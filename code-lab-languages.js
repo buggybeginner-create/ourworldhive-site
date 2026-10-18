@@ -26,8 +26,8 @@ function checks(){var l=L(),c=code(),ok=0;
  if(all&&!st.done[st.c+'_'+st.i]){st.done[st.c+'_'+st.i]=true;LS.set('cll_done',st.done);toast(st.lang==='hi'?'Lesson poora! 🎉':'Lesson complete! 🎉');var o=$('#cllSel');if(o)o.options[st.i].text='✓ '+(st.i+1)+'. '+T(l.t)}
  var d=doneCount(),n=D[st.c].length;if($('#cllBar'))$('#cllBar').style.width=Math.round(d/n*100)+'%';if($('#cllProg'))$('#cllProg').textContent=(st.lang==='hi'?'Poore hue lessons: ':'Lessons done: ')+d+' / '+n+'  ·  '+(st.lang==='hi'?'Is lesson ke kaam: ':'This lesson: ')+ok+' / '+l.tasks.length}
 function lines(){var n=code().split('\n').length,g=[];for(var i=1;i<=n;i++)g.push(i);$('#cllGut').textContent=g.join('\n');$('#cllGut').scrollTop=$('#cllTa').scrollTop}
-function setCode(v){$('#cllTa').value=v;lines();checks()}
-function go(i){var n=D[st.c].length;if(i<0||i>=n)return;st.i=i;LS.set('cll_idx_'+st.c,i);var sv=LS.get(key(),null);$('#cllTa').value=sv==null?L().code:sv;lines();lesson();outReset();modeUi()}
+function setCode(v){$('#cllTa').value=v;lines();checks();st.cq&&st.cq.refresh()}
+function go(i){var n=D[st.c].length;if(i<0||i>=n)return;st.i=i;LS.set('cll_idx_'+st.c,i);var sv=LS.get(key(),null);$('#cllTa').value=sv==null?L().code:sv;lines();lesson();outReset();modeUi();st.cq&&st.cq.refresh()}
 function course(c){if(!D[c])return;st.c=c;LS.set('cll_course',c);st.i=Math.min(LS.get('cll_idx_'+c,0),D[c].length-1)||0;ui();go(st.i)}
 function modeUi(){var py=st.c==='py';$('#cllRun').hidden=!py;$('#cllStop').hidden=true;$('#cllExp').hidden=false;$('#cllFile').textContent=py?'main.py':st.c==='java'?'Main.java':'Program.vb';
  var N={py:['Press Run to execute your Python code here in the browser. It runs privately on your device.','Run dabao, aapka Python code yahin browser me chalega. Ye aapke device par hi chalta hai.'],
@@ -53,8 +53,9 @@ function expected(){var l=L(),changed=code()!==l.code;out(l.out+(changed?'\n'+(s
 function boot(){
  if(!D.py){$('#cllLesson').textContent='Lessons could not load.';return}
  ui();$('#cllCourse').addEventListener('click',function(e){var b=e.target.closest('button');if(b)course(b.dataset.c)});
- $('#clLang').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.lang=b.dataset.l;LS.set('cl_lang',st.lang);ui();lesson();modeUi()});
- var ta=$('#cllTa');ta.addEventListener('input',function(){LS.set(key(),ta.value);lines();checks()});ta.addEventListener('scroll',function(){$('#cllGut').scrollTop=ta.scrollTop});
+ $('#clLang').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.lang=b.dataset.l;LS.set('cl_lang',st.lang);ui();lesson();modeUi();st.cq&&st.cq.refresh()});
+ var ta=$('#cllTa');try{st.cq=window.CLUI&&CLUI.attach({ta:ta,host:ta.parentNode,lang:function(){return st.c},hi:function(){return st.lang==='hi'}})}catch(e){}
+ ta.addEventListener('input',function(){LS.set(key(),ta.value);lines();checks()});ta.addEventListener('scroll',function(){$('#cllGut').scrollTop=ta.scrollTop});
  ta.addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();var s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+'    '+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+4;ta.dispatchEvent(new Event('input'))}else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();if(st.c==='py')run();else expected()}});
  $('#cllRun').onclick=run;$('#cllStop').onclick=stop;$('#cllExp').onclick=expected;
  $('#cllReset').onclick=function(){try{localStorage.removeItem(key())}catch(e){}setCode(L().code);outReset();toast(st.lang==='hi'?'Starter code wapas aaya':'Starter code restored')};

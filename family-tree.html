@@ -244,7 +244,45 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style><script src="firebase-config.js"></script></head><body>
+.mfil{display:grid;gap:8px;margin-bottom:10px}
+.mfil .ctl{align-items:flex-end}
+.mfil input[type=search],.mfil input[type=text],.mfil select{min-height:40px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:0 10px;font-size:15px;min-width:0;max-width:100%}
+.mtagrow{display:flex;flex-wrap:wrap;gap:6px}
+.mtagf{min-height:32px;padding:2px 12px}
+.mtagf[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.mbox2{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.mrow2{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line)}
+.mrow2:last-child{border-bottom:0}
+.mrow2:hover{background:var(--soft)}
+.mrow2 input[type=checkbox]{width:22px;height:22px}
+.mgrip{display:inline-grid;place-items:center;width:30px;height:34px;border-radius:6px;color:var(--ink2);cursor:grab;touch-action:none;user-select:none;font-size:18px;line-height:1}
+.mgrip:hover{background:var(--line)}
+.minfo{min-width:0;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
+.minfo .pc{max-width:100%}
+.tg2{display:inline-flex;align-items:center;gap:2px;padding:1px 4px 1px 8px;border-radius:999px;background:var(--soft);font-size:12px;font-weight:600;color:var(--ink2)}
+.tg2 button{border:0;background:none;width:20px;height:20px;border-radius:50%;padding:0;font-size:12px;color:var(--ink2)}
+.tg2 button:hover{background:var(--line)}
+.tag.warn{color:var(--warn)}
+.mbulk{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px;border:1px dashed var(--line);border-radius:10px;margin:10px 0}
+.mbulk input[type=text],.mbulk select{min-height:38px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:0 8px;min-width:0;max-width:100%}
+.mgroups{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px}
+.mgroup{border:2px solid var(--line);border-radius:12px;padding:10px;background:var(--panel);min-width:0}
+.mgroup.over{border-color:var(--accent);background:var(--soft)}
+.mgroup input.mgname{font:700 16px var(--fd);border:1px solid transparent;background:transparent;border-radius:6px;width:100%;padding:2px 6px;margin-left:-6px;color:var(--ink)}
+.mgroup input.mgname:hover,.mgroup input.mgname:focus{border-color:var(--line)}
+.mgm{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;min-height:36px}
+.mgm .wrapc{display:inline-flex;align-items:center;gap:2px}
+.mgm .wrapc>button.x{border:0;background:none;width:24px;height:24px;border-radius:50%;padding:0;color:var(--ink2)}
+.mghost{position:fixed;z-index:90;pointer-events:none;padding:6px 12px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:13px;transform:translate(-50%,-130%);box-shadow:var(--shadow)}
+.msend textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:16px;background:var(--panel);resize:vertical}
+.mprev{white-space:pre-wrap;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:14px}
+.mq{border:2px solid var(--accent);border-radius:12px;padding:12px;margin-bottom:12px;display:grid;gap:10px}
+.mnote{font-size:13px;color:var(--ink2)}
+.sec2{margin-top:18px}
+.sec2>h3{font-size:16px;margin-bottom:6px}
+.ctl label.chk{flex-direction:row;font-size:14px;color:var(--ink)}
+.mbox2{max-height:420px;overflow:auto}
+</style></head><body>
 <div class="wrap">
   <header class="top">
     <div class="brand">
@@ -255,7 +293,6 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
     <div class="acts">
       <button class="btn pri" id="bAdd">+ Add person</button>
       <button class="btn" id="bCheck">Checks <span class="badge" id="chkN">0</span></button>
-      <button class="btn" id="bAcct">&#9729; Sign in</button>
       <button class="btn" id="bShare">Share</button>
       <button class="btn" id="bExport">Export</button>
       <button class="btn" id="bSet">Settings</button>
@@ -487,7 +524,7 @@ const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
 
 /* ---- people ---- */
 function newPerson(o){
-  return Object.assign({id:uid(),first:'',last:'',nick:'',gender:'m',born:'',died:'',alive:true,bplace:'',place:'',job:'',phone:'',note:'',photo:'',father:'',mother:'',adopted:false,ph:false,order:0},o||{});
+  return Object.assign({id:uid(),first:'',last:'',nick:'',gender:'m',born:'',died:'',alive:true,bplace:'',place:'',job:'',phone:'',note:'',photo:'',father:'',mother:'',adopted:false,ph:false,order:0,tags:[]},o||{});
 }
 function reindex(){IDX=new Map(T.people.map(p=>[p.id,p]));G=null;RELC=null;KC.clear()}
 const P=id=>IDX.get(id);
@@ -694,7 +731,7 @@ function cleanTree(t){
     const q=newPerson({});
     ['id','first','last','nick','born','died','bplace','place','job','phone','note','photo','father','mother'].forEach(k=>{if(typeof p[k]==='string') q[k]=p[k].slice(0,k==='photo'?60000:k==='note'?2000:200)});
     q.gender=['m','f','x'].includes(p.gender)?p.gender:'m';
-    q.alive=p.alive!==false;q.adopted=!!p.adopted;q.ph=!!p.ph;q.order=Number.isFinite(+p.order)?+p.order:0;
+    q.tags=Array.isArray(p.tags)?p.tags.filter(x=>typeof x==='string').map(x=>x.slice(0,24)).slice(0,12):[];q.alive=p.alive!==false;q.adopted=!!p.adopted;q.ph=!!p.ph;q.order=Number.isFinite(+p.order)?+p.order:0;
     if(!q.id||ids.has(q.id)) q.id=uid();
     ids.add(q.id);o.people.push(q);
   });
@@ -704,6 +741,7 @@ function cleanTree(t){
     if(!u||!set.has(u.a)||!set.has(u.b)||u.a===u.b) return;
     o.unions.push({id:u.id||uid(),a:u.a,b:u.b,type:['married','partner','divorced'].includes(u.type)?u.type:'married',date:typeof u.date==='string'?u.date:'',year:typeof u.year==='string'?u.year:''});
   });
+  o.groups=(Array.isArray(t.groups)?t.groups:[]).slice(0,100).filter(g=>g&&typeof g==='object').map(g=>({id:String(g.id||uid()).slice(0,20),name:String(g.name||'Group').slice(0,40),members:(Array.isArray(g.members)?g.members:[]).filter(x=>set.has(x))}));
   if(!set.has(o.me)) o.me='';
   return o;
 }
@@ -774,6 +812,7 @@ function deletePerson(id){
   T.people=T.people.filter(p=>p.id!==id);
   T.people.forEach(p=>{if(p.father===id) p.father='';if(p.mother===id) p.mother=''});
   T.unions=T.unions.filter(u=>u.a!==id&&u.b!==id);
+  if(Array.isArray(T.groups)) T.groups.forEach(g=>{g.members=g.members.filter(x=>x!==id)});
   if(T.me===id) T.me='';
 }
 
@@ -1792,6 +1831,264 @@ async function parseImport(text){
   throw new Error('unknown format');
 }
 
+/* ================= Groups, tags and bulk messages ================= */
+S.msg={q:'',tags:[],any:true,grp:'',living:true,phoneOnly:false,place:'',sel:{},text:'',chan:'wa',cc:'91',tpl:'',queue:null};
+const GR=()=>{if(!Array.isArray(T.groups)) T.groups=[];return T.groups};
+const tagsOf=p=>Array.isArray(p.tags)?p.tags:[];
+function parseTags(s){
+  const out=[];
+  String(s||'').split(/[,;\n]/).forEach(x=>{x=x.trim().slice(0,24);if(x&&!out.some(y=>y.toLowerCase()===x.toLowerCase())) out.push(x)});
+  return out.slice(0,12);
+}
+function allTags(){
+  const m=new Map();
+  realPeople().forEach(p=>tagsOf(p).forEach(t=>{const k=t.toLowerCase();if(!m.has(k)) m.set(k,{t,k,n:0});m.get(k).n++}));
+  return [...m.values()].sort((a,b)=>a.t.localeCompare(b.t));
+}
+function phoneDigits(p){
+  let d=String(p.phone||'').trim();if(!d) return '';
+  const plus=d[0]==='+'||d.startsWith('00');
+  d=d.replace(/\D/g,'');
+  if(d.startsWith('00')) d=d.slice(2);
+  if(!plus){d=d.replace(/^0+/,'');if(d.length===10) d=String(S.msg.cc||'91').replace(/\D/g,'')+d}
+  return d.length>=8&&d.length<=15?d:'';
+}
+function msgFiltered(){
+  const m=S.msg,q=m.q.trim().toLowerCase();
+  return realPeople().filter(p=>{
+    if(m.living&&p.alive===false) return false;
+    if(m.phoneOnly&&!phoneDigits(p)) return false;
+    if(m.place&&(p.place||'').trim().toLowerCase()!==m.place) return false;
+    if(m.grp){const g=GR().find(x=>x.id===m.grp);if(!g||!g.members.includes(p.id)) return false}
+    if(m.tags.length){
+      const tl=tagsOf(p).map(x=>x.toLowerCase());
+      if(m.any?!m.tags.some(t=>tl.includes(t)):!m.tags.every(t=>tl.includes(t))) return false;
+    }
+    if(q&&!(nm(p)+' '+(p.nick||'')+' '+(p.place||'')+' '+tagsOf(p).join(' ')).toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>nm(a).localeCompare(nm(b)));
+}
+const selIds=()=>Object.keys(S.msg.sel).filter(k=>S.msg.sel[k]&&P(k));
+function recipients(){
+  const shown=new Set(msgFiltered().map(p=>p.id));
+  const ids=selIds().filter(id=>shown.has(id));
+  const all=ids.map(id=>P(id));
+  const ok=S.msg.chan==='tg'?all:all.filter(p=>phoneDigits(p));
+  return {all,ok,skipped:all.length-ok.length};
+}
+function fillText(t,p){
+  const rel=T.me&&p.id!==T.me?relShort(p.id):'';
+  return String(t||'').replace(/\{first\}/gi,p.first||p.last||'').replace(/\{name\}/gi,nm(p)).replace(/\{relation\}/gi,rel||'');
+}
+function msgLink(p,text){
+  const ch=S.msg.chan,d=phoneDigits(p),t=encodeURIComponent(text);
+  if(ch==='wa') return 'https://wa.me/'+d+'?text='+t;
+  if(ch==='tg') return 'https://t.me/share/url?url='+encodeURIComponent(' ')+'&text='+t;
+  return 'sms:+'+d+'?body='+t;
+}
+const TPL={
+  bday:'Happy birthday, {first}! Wishing you a year full of health, happiness and good news. With love from all of us.',
+  fest:'Dear {first}, wishing you and your family a very happy festival. May this bring joy and good health to your home.',
+  event:'Dear {first}, you are invited to our family gathering. Date: \nTime: \nPlace: \nPlease let me know if you can come.',
+  news:'Hello {first}, a small family update: '
+};
+
+/* ---- list ---- */
+function msgRows(list){
+  if(!list.length) return '<div class="empty" style="padding:20px"><p>No one matches these filters.</p></div>';
+  return list.map(p=>{
+    const d=phoneDigits(p),gs=GR().filter(g=>g.members.includes(p.id));
+    const rel=T.me&&p.id!==T.me?relShort(p.id):'';
+    return '<div class="mrow2"><input type="checkbox" data-msel="'+esc(p.id)+'"'+(S.msg.sel[p.id]?' checked':'')+' aria-label="Select '+esc(nm(p))+'"><span class="mgrip" data-mdrag="'+esc(p.id)+'" title="Drag to a group" aria-label="Drag to a group">⠿</span><div class="minfo"><button class="pc" data-sel="'+esc(p.id)+'">'+avatar(p,'mini')+'<span>'+esc(nm(p))+'<small>'+esc([rel,p.place].filter(Boolean).join(' · '))+'</small></span></button>'+
+      (d?'<span class="tag ok mono">+'+esc(d)+'</span>':'<span class="tag warn">no phone</span>')+
+      tagsOf(p).map(t=>'<span class="tg2">'+esc(t)+'<button data-mtagrm="'+esc(p.id)+'" data-t="'+esc(t)+'" aria-label="Remove tag '+esc(t)+'">✕</button></span>').join('')+
+      gs.map(g=>'<span class="tag">'+esc(g.name)+'</span>').join('')+'</div></div>';
+  }).join('');
+}
+function msgCount(list){
+  const n=selIds().filter(id=>list.some(p=>p.id===id)).length;
+  return n+' selected of '+list.length+' shown';
+}
+
+/* ---- view ---- */
+function vMsg(){
+  const rp=realPeople();if(!rp.length) return emptyView();
+  const m=S.msg,list=msgFiltered(),tags=allTags(),G=GR();
+  const pl=new Map();rp.forEach(p=>{const v=(p.place||'').trim();if(v) pl.set(v.toLowerCase(),v)});
+  let h=vhead('Groups and messages','Pick people, put them in groups, give them tags, then send one message to all of them.');
+  /* filters */
+  h+='<div class="sec2" style="margin-top:0"><h3>1. Who</h3><div class="mfil"><div class="ctl"><label>Search<input type="search" id="mq" value="'+esc(m.q)+'" placeholder="Name, place or tag"></label>'+
+    '<label>Group<select id="mg"><option value="">Everyone</option>'+G.map(g=>'<option value="'+g.id+'"'+(m.grp===g.id?' selected':'')+'>'+esc(g.name)+' ('+g.members.length+')</option>').join('')+'</select></label>'+
+    '<label>Lives in<select id="mpl"><option value="">Any place</option>'+[...pl.entries()].sort((a,b)=>a[1].localeCompare(b[1])).map(([k,v])=>'<option value="'+esc(k)+'"'+(m.place===k?' selected':'')+'>'+esc(v)+'</option>').join('')+'</select></label></div>'+
+    (tags.length?'<div><div class="mnote" style="margin-bottom:4px">Tags <select id="mtm" aria-label="Match any or all tags" style="min-height:30px;border:1px solid var(--line);border-radius:6px;background:var(--panel)"><option value="any"'+(m.any?' selected':'')+'>match any</option><option value="all"'+(!m.any?' selected':'')+'>match all</option></select></div><div class="mtagrow">'+tags.map(t=>'<button class="pc mtagf" data-mtag="'+esc(t.k)+'" aria-pressed="'+m.tags.includes(t.k)+'">'+esc(t.t)+' <span class="muted">'+t.n+'</span></button>').join('')+'</div></div>':'<p class="mnote" style="margin:0">No tags yet. Add a tag like "Close family" or "Wedding list" to selected people below.</p>')+
+    '<div class="ctl"><label class="chk"><input type="checkbox" id="mlv"'+(m.living?' checked':'')+'> Living only</label><label class="chk"><input type="checkbox" id="mph"'+(m.phoneOnly?' checked':'')+'> Has phone number</label></div></div>';
+  h+='<div class="row2" style="margin-bottom:8px"><button class="btn sm" data-mall>Select all shown</button><button class="btn sm" data-mnone>Clear selection</button><span class="mnote" id="mcount" style="align-self:center">'+msgCount(list)+'</span></div>';
+  h+='<div class="mbox2" id="mlistBox">'+msgRows(list)+'</div>';
+  h+='<div class="mbulk"><label class="mnote" for="mbt">For the selected people:</label><input type="text" id="mbt" placeholder="Tag, e.g. Close family" maxlength="24" list="mtl"><datalist id="mtl">'+tags.map(t=>'<option value="'+esc(t.t)+'">').join('')+'</datalist><button class="btn sm" data-mtagadd>Add tag</button><select id="mbg" aria-label="Group"><option value="">Choose group</option>'+G.map(g=>'<option value="'+g.id+'">'+esc(g.name)+'</option>').join('')+'</select><button class="btn sm" data-mgadd>Add to group</button></div>';
+  /* groups */
+  h+='<div class="sec2"><h3>2. Groups</h3><p class="mnote" style="margin:0 0 8px">Drag the ⠿ handle of a person onto a group box. If you ticked several people, all of them move together. You can also use the dropdown above.</p><div class="mgroups">'+
+    G.map(g=>'<div class="mgroup" data-g="'+g.id+'"><input class="mgname" data-mgname="'+g.id+'" value="'+esc(g.name)+'" maxlength="40" aria-label="Group name"><div class="mnote">'+g.members.filter(id=>P(id)).length+' people</div><div class="mgm">'+
+      (g.members.filter(id=>P(id)).map(id=>'<span class="wrapc"><button class="pc" data-sel="'+esc(id)+'">'+avatar(P(id),'mini')+'<span>'+esc(short(P(id)))+'</span></button><button class="x" data-mgrm="'+g.id+'" data-p="'+esc(id)+'" aria-label="Remove from group">✕</button></span>').join('')||'<span class="mnote">Drop people here</span>')+
+      '</div><div class="row2"><button class="btn sm" data-mgsel="'+g.id+'">Select all</button><button class="btn sm" data-mgfil="'+g.id+'">Show only</button><button class="btn sm dng" data-mgdel="'+g.id+'">Delete</button></div></div>').join('')+
+    '<div class="mgroup" style="border-style:dashed"><label class="fld"><span>New group</span><input type="text" id="mng" maxlength="40" placeholder="e.g. Pune cousins"></label><div class="row2" style="margin-top:8px"><button class="btn sm pri" data-mgnew>Create group</button></div></div></div></div>';
+  /* compose */
+  h+='<div class="sec2 msend"><h3>3. Message</h3>';
+  h+=msgQueueHTML();
+  h+='<div class="form" style="margin-bottom:10px"><div class="fld"><span>Send with</span><div class="seg" id="mch">'+[['wa','WhatsApp'],['tg','Telegram'],['sms','SMS']].map(o=>'<button type="button" data-mch="'+o[0]+'" aria-pressed="'+(m.chan===o[0])+'">'+o[1]+'</button>').join('')+'</div></div>'+
+    '<label class="fld"><span>Country code for 10-digit numbers</span><input type="text" id="mcc" inputmode="numeric" value="'+esc(m.cc)+'" maxlength="4"></label>'+
+    '<label class="fld w"><span>Start from a ready message</span><select id="mtpl"><option value="">Write my own</option><option value="bday">Birthday wishes</option><option value="fest">Festival greeting</option><option value="event">Family gathering invite</option><option value="news">Family news</option></select></label></div>';
+  h+='<textarea id="mtext" placeholder="Type your message. {first} becomes each person\'s first name." aria-label="Message">'+esc(m.text)+'</textarea>';
+  h+='<div class="row2" style="margin:6px 0"><button class="btn sm" data-mins="{first}">+ first name</button><button class="btn sm" data-mins="{name}">+ full name</button><button class="btn sm" data-mins="{relation}">+ relation</button></div>';
+  h+='<div class="mnote" style="margin-bottom:4px">Preview</div><div class="mprev" id="mprev"></div><div class="mnote" id="msum" style="margin:8px 0"></div>';
+  h+='<div class="row2"><button class="btn pri" data-mstart>Start sending</button><button class="btn" data-mcopy>Copy message</button><button class="btn" data-mnums>Copy phone numbers</button></div>';
+  h+='<p class="mnote" style="margin-top:10px">How sending works: the app opens one chat at a time with your message already typed. You press Send in '+(m.chan==='tg'?'Telegram':m.chan==='sms'?'your messages app':'WhatsApp')+', come back, and the next person is ready. A website cannot send WhatsApp or Telegram messages by itself without your tap. For a real WhatsApp Broadcast list, copy the phone numbers and add them there (people must have your number saved). Send only to family who are happy to hear from you.</p></div>';
+  return h;
+}
+function msgQueueHTML(){
+  const q=S.msg.queue;if(!q) return '';
+  if(q.i>=q.ids.length) return '<div class="mq"><b>All done.</b> '+q.ids.length+' chats were opened.<div class="row2"><button class="btn sm" data-mstop>Close</button></div></div>';
+  const p=P(q.ids[q.i]);if(!p){q.i++;return msgQueueHTML()}
+  const t=fillText(S.msg.text,p),ch=S.msg.chan,lab=ch==='wa'?'WhatsApp':ch==='tg'?'Telegram':'SMS';
+  return '<div class="mq" aria-live="polite"><div><b>'+(q.i+1)+' of '+q.ids.length+'</b> · '+esc(nm(p))+(phoneDigits(p)?' <span class="mono muted">+'+esc(phoneDigits(p))+'</span>':'')+'</div><div class="mprev">'+esc(t)+'</div>'+
+    '<div class="row2"><a class="btn pri" id="mopen" target="_blank" rel="noopener" data-mopen href="'+esc(msgLink(p,t))+'">Open '+lab+(ch==='tg'?' and choose '+esc(short(p)):'')+'</a><button class="btn" data-mskip>Skip</button><button class="btn" data-mdone>Mark sent, next</button><button class="btn dng" data-mstop>Stop</button></div>'+
+    '<div class="mnote">After you press Send in '+lab+', come back here. Tapping the green button also moves to the next person.</div></div>';
+}
+function refreshMsgBits(){
+  const m=S.msg,list=msgFiltered();
+  const lb=$('mlistBox');if(lb) lb.innerHTML=msgRows(list);
+  const c=$('mcount');if(c) c.textContent=msgCount(list);
+  const pv=$('mprev'),sm=$('msum');
+  if(pv){
+    const r=recipients(),first=r.ok[0]||r.all[0]||realPeople()[0];
+    pv.textContent=m.text.trim()?fillText(m.text,first):'Your message will show here.';
+  }
+  if(sm){
+    const r=recipients();
+    sm.textContent=r.all.length?(r.ok.length+' '+(r.ok.length===1?'person':'people')+' will be messaged'+(r.skipped?'. '+r.skipped+' skipped because there is no valid phone number.':'.')):'Tick the people above to message them.';
+  }
+}
+TABS.splice(Math.max(0,TABS.findIndex(t=>t[0]==='days')),0,['msg','Message',vMsg]);
+S._msgAfter=function(){refreshMsgBits()};
+
+/* ---- actions ---- */
+function msgGroupAdd(gid,ids){
+  const g=GR().find(x=>x.id===gid);if(!g||!ids.length) return;
+  edit(()=>{const gg=GR().find(x=>x.id===gid);ids.forEach(id=>{if(!gg.members.includes(id)) gg.members.push(id)})},'Added '+ids.length+' to '+g.name);
+}
+document.addEventListener('click',ev=>{
+  const t=ev.target;if(!t.closest) return;
+  const b=n=>t.closest('['+n+']');
+  let el;
+  if((el=b('data-mtag'))){const k=el.dataset.mtag,a=S.msg.tags,i=a.indexOf(k);if(i<0) a.push(k);else a.splice(i,1);render();return}
+  if(b('data-mall')){msgFiltered().forEach(p=>{S.msg.sel[p.id]=true});render();return}
+  if(b('data-mnone')){S.msg.sel={};render();return}
+  if((el=b('data-mtagrm'))){const id=el.dataset.mtagrm,tg=el.dataset.t;edit(()=>{const p=P(id);p.tags=tagsOf(p).filter(x=>x!==tg)});return}
+  if(b('data-mtagadd')){
+    const v=parseTags($('mbt').value),ids=selIds();
+    if(!v.length){toast('Type a tag name first.');return}
+    if(!ids.length){toast('Tick some people first.');return}
+    edit(()=>{ids.forEach(id=>{const p=P(id);const cur=tagsOf(p).slice();v.forEach(x=>{if(!cur.some(y=>y.toLowerCase()===x.toLowerCase())) cur.push(x)});p.tags=cur.slice(0,12)})},'Tag added to '+ids.length);
+    return;
+  }
+  if(b('data-mgadd')){
+    const gid=$('mbg').value,ids=selIds();
+    if(!gid){toast('Choose a group first.');return}
+    if(!ids.length){toast('Tick some people first.');return}
+    msgGroupAdd(gid,ids);return;
+  }
+  if(b('data-mgnew')){
+    const n=$('mng').value.trim();if(!n){toast('Type a group name.');return}
+    const ids=selIds();
+    edit(()=>{GR().push({id:uid(),name:n.slice(0,40),members:ids.slice()})},ids.length?'Group created with '+ids.length+' people':'Group created');return;
+  }
+  if((el=b('data-mgrm'))){const gid=el.dataset.mgrm,pid=el.dataset.p;edit(()=>{const g=GR().find(x=>x.id===gid);if(g) g.members=g.members.filter(x=>x!==pid)});return}
+  if((el=b('data-mgsel'))){const g=GR().find(x=>x.id===el.dataset.mgsel);if(g){g.members.forEach(id=>{S.msg.sel[id]=true});render()}return}
+  if((el=b('data-mgfil'))){S.msg.grp=el.dataset.mgfil;render();return}
+  if((el=b('data-mgdel'))){const gid=el.dataset.mgdel;edit(()=>{T.groups=GR().filter(x=>x.id!==gid)},'Group deleted');if(S.msg.grp===gid){S.msg.grp='';render()}return}
+  if((el=b('data-mch'))){S.msg.chan=el.dataset.mch;render();return}
+  if((el=b('data-mins'))){
+    const ta=$('mtext');if(!ta) return;
+    const s=ta.selectionStart==null?ta.value.length:ta.selectionStart,e=ta.selectionEnd==null?s:ta.selectionEnd;
+    ta.value=ta.value.slice(0,s)+el.dataset.mins+ta.value.slice(e);S.msg.text=ta.value;ta.focus();
+    const pos=s+el.dataset.mins.length;try{ta.setSelectionRange(pos,pos)}catch(x){}
+    refreshMsgBits();return;
+  }
+  if(b('data-mcopy')){const r=recipients(),p=r.ok[0]||r.all[0]||realPeople()[0];copyText(fillText(S.msg.text,p),'Message copied');return}
+  if(b('data-mnums')){
+    const r=recipients(),nums=r.ok.map(p=>'+'+phoneDigits(p)).filter(x=>x.length>3);
+    if(!nums.length){toast('No phone numbers in the selection.');return}
+    copyText(nums.join('\n'),nums.length+' numbers copied');return;
+  }
+  if(b('data-mstart')){
+    if(!S.msg.text.trim()){toast('Write the message first.');return}
+    const r=recipients();
+    if(!r.ok.length){toast(S.msg.chan==='tg'?'Tick some people first.':'Tick people who have a phone number.');return}
+    S.msg.queue={ids:r.ok.map(p=>p.id),i:0};render();
+    const q=$('mopen');if(q&&q.scrollIntoView) try{q.scrollIntoView({block:'center'})}catch(x){}
+    return;
+  }
+  if(b('data-mskip')||b('data-mdone')){if(S.msg.queue){S.msg.queue.i++;render()}return}
+  if(b('data-mstop')){S.msg.queue=null;render();return}
+  if(b('data-mopen')){setTimeout(()=>{if(S.msg.queue){S.msg.queue.i++;render()}},500);return}
+});
+document.addEventListener('change',ev=>{
+  const t=ev.target;
+  if(t.dataset&&t.dataset.msel){S.msg.sel[t.dataset.msel]=t.checked;refreshMsgBits();return}
+  if(t.dataset&&t.dataset.mgname){const n=t.value.trim().slice(0,40);if(n) edit(()=>{const g=GR().find(x=>x.id===t.dataset.mgname);if(g) g.name=n},'Renamed');return}
+  if(t.id==='mg'){S.msg.grp=t.value;render()}
+  else if(t.id==='mpl'){S.msg.place=t.value;render()}
+  else if(t.id==='mtm'){S.msg.any=t.value==='any';render()}
+  else if(t.id==='mlv'){S.msg.living=t.checked;render()}
+  else if(t.id==='mph'){S.msg.phoneOnly=t.checked;render()}
+  else if(t.id==='mcc'){S.msg.cc=t.value.replace(/\D/g,'')||'91';t.value=S.msg.cc;render()}
+  else if(t.id==='mtpl'){if(t.value){S.msg.text=TPL[t.value]||'';S.msg.tpl=t.value;render()}}
+});
+let mqT=null;
+document.addEventListener('input',ev=>{
+  const t=ev.target;
+  if(t.id==='mq'){clearTimeout(mqT);mqT=setTimeout(()=>{S.msg.q=t.value;refreshMsgBits()},150)}
+  else if(t.id==='mtext'){S.msg.text=t.value;refreshMsgBits()}
+});
+/* drag a person (or all ticked people) onto a group box */
+(function(){
+  let md=null;
+  const under=(x,y)=>{const e=document.elementFromPoint(x,y);return e&&e.closest?e.closest('.mgroup[data-g]'):null};
+  document.addEventListener('pointerdown',ev=>{
+    const g=ev.target.closest&&ev.target.closest('[data-mdrag]');
+    if(!g||(ev.pointerType==='mouse'&&ev.button!==0)) return;
+    ev.preventDefault();
+    const id=g.dataset.mdrag;
+    const ids=S.msg.sel[id]?selIds():[id];
+    const gh=document.createElement('div');gh.className='mghost';gh.textContent=ids.length>1?ids.length+' people':short(P(id));
+    gh.style.left=ev.clientX+'px';gh.style.top=ev.clientY+'px';document.body.appendChild(gh);
+    md={ids,gh,over:null,x:ev.clientX,y:ev.clientY,tm:setInterval(()=>{
+      if(!md) return;
+      const H=window.innerHeight;let d=0;
+      if(md.y<80) d=-16;else if(md.y>H-80) d=16;
+      if(d){window.scrollBy(0,d);hover()}
+    },16)};
+  });
+  function hover(){
+    const o=under(md.x,md.y);
+    if(o!==md.over){if(md.over) md.over.classList.remove('over');md.over=o;if(o) o.classList.add('over')}
+  }
+  document.addEventListener('pointermove',ev=>{
+    if(!md) return;
+    md.x=ev.clientX;md.y=ev.clientY;
+    md.gh.style.left=ev.clientX+'px';md.gh.style.top=ev.clientY+'px';
+    hover();
+  });
+  const end=ev=>{
+    if(!md) return;
+    const o=md.over||(ev&&ev.clientX!=null?under(ev.clientX,ev.clientY):null);
+    clearInterval(md.tm);md.gh.remove();if(md.over) md.over.classList.remove('over');
+    const ids=md.ids;md=null;
+    if(o&&ev&&ev.type==='pointerup') msgGroupAdd(o.dataset.g,ids);
+  };
+  document.addEventListener('pointerup',end);
+  document.addEventListener('pointercancel',end);
+})();
+
 /* ================= UI ================= */
 let toastT=null;
 function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2800)}
@@ -1890,6 +2187,8 @@ function panelProfile(p,rel){
   const nb=nextBirthday(p);if(nb) row('Next birthday',esc(nb.date.getDate()+' '+MON[nb.date.getMonth()]+' · '+(nb.days===0?'today':'in '+nb.days+' days')));
   if(f.length) h+='<dl class="facts" style="margin:0">'+f.join('')+'</dl>';
   if(p.note) h+='<div class="sec"><h3>Notes</h3><div style="white-space:pre-wrap">'+esc(p.note)+'</div></div>';
+  if(tagsOf(p).length) h+='<div class="sec"><h3>Tags</h3><div class="chips">'+tagsOf(p).map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div></div>';
+  {const gs=GR().filter(g=>g.members.includes(p.id));if(gs.length) h+='<div class="sec"><h3>Groups</h3><div class="chips">'+gs.map(g=>'<span class="tag ok">'+esc(g.name)+'</span>').join('')+'</div></div>'}
   const fa=p.father&&P(p.father),mo=p.mother&&P(p.mother);
   h+=famRow('Parents',[fa,mo].filter(Boolean).map(q=>chip(q,esc(q.id===p.father?'Father':'Mother')+(p.adopted?' · adoptive':''))));
   h+=famRow('Husband / wife',spousesOf(p.id).map(s=>chip(s.p,esc({married:'Married',partner:'Partner',divorced:'Divorced'}[s.u.type])+(dfmt(s.u.date||s.u.year)?' '+esc(yr(s.u.date||s.u.year)):''))));
@@ -1922,6 +2221,7 @@ function panelEdit(p){
   h+='<label class="fld"><span>Born in</span><input id="e_bplace" value="'+esc(p.bplace)+'"></label>';
   h+='<label class="fld"><span>Work</span><input id="e_job" value="'+esc(p.job)+'"></label>';
   h+='<label class="fld"><span>Phone</span><input id="e_phone" type="tel" value="'+esc(p.phone)+'"></label>';
+  h+='<label class="fld w"><span>Tags (separate with commas, e.g. Close family, Wedding list)</span><input id="e_tags" value="'+esc(tagsOf(p).join(', '))+'" maxlength="200"></label>';
   h+='<label class="fld w"><span>Notes</span><textarea id="e_note">'+esc(p.note)+'</textarea></label>';
   h+='<div class="fld w"><span>Photo</span><div class="photoRow"><span id="e_pv">'+avatar(p)+'</span><label class="btn sm" style="cursor:pointer">Choose photo<input id="e_photo" type="file" accept="image/*" hidden></label>'+(p.photo?'<button type="button" class="btn sm" data-act="rmPhoto">Remove</button>':'')+'</div></div>';
   h+='<label class="fld"><span>Father</span><select id="e_fa">'+popts(p.father,'Not added',q=>okPar(q)&&(q.gender!=='f'||q.id===p.father))+'</select></label>';
@@ -1939,7 +2239,7 @@ function panelEdit(p){
 }
 function readEdit(p){
   const alive=segVal('e_st')==='a';
-  return {first:$('e_first').value.trim(),last:$('e_last').value.trim(),nick:$('e_nick').value.trim(),gender:segVal('e_g')||p.gender,alive,born:readDate('e_b'),died:alive?'':readDate('e_d'),place:$('e_place').value.trim(),bplace:$('e_bplace').value.trim(),job:$('e_job').value.trim(),phone:$('e_phone').value.trim(),note:$('e_note').value,father:$('e_fa').value,mother:$('e_mo').value,adopted:$('e_ad').checked};
+  return {first:$('e_first').value.trim(),last:$('e_last').value.trim(),nick:$('e_nick').value.trim(),gender:segVal('e_g')||p.gender,alive,born:readDate('e_b'),died:alive?'':readDate('e_d'),place:$('e_place').value.trim(),bplace:$('e_bplace').value.trim(),job:$('e_job').value.trim(),phone:$('e_phone').value.trim(),note:$('e_note').value,father:$('e_fa').value,mother:$('e_mo').value,adopted:$('e_ad').checked,tags:parseTags($('e_tags')?$('e_tags').value:'')};
 }
 function saveEdit(){
   const p=P(S.sel);if(!p) return;
@@ -2144,6 +2444,7 @@ function render(){
   const old=document.querySelector('#view .pz');
   const keep=old?{k:old.dataset.key,l:old.scrollLeft,t:old.scrollTop}:null;
   $('view').innerHTML=cur[2]();
+  if(S.tab==='msg') refreshMsgBits();
   const pz=document.querySelector('#view .pz[data-key]');
   if(pz&&keep&&keep.k===pz.dataset.key){pz.scrollLeft=keep.l;pz.scrollTop=keep.t}
   const iss=runChecks().filter(i=>i.sev!=='info');
@@ -2272,7 +2573,6 @@ document.addEventListener('click',ev=>{
   if(id==='bAdd'){if(!T.people.length) openFirst();else openAdd(S.sel&&P(S.sel)?S.sel:(T.me&&P(T.me)?T.me:T.people[0].id))}
   else if(id==='bFirst') openFirst();
   else if(id==='bCheck') openChecks();
-  else if(id==='bAcct') openAcct();
   else if(id==='bShare') openShare();
   else if(id==='bExport') openExport();
   else if(id==='bSet') openSettings();
@@ -2422,14 +2722,12 @@ function dbInit(){
       dbDoc=db.doc('data/users/'+id+'/familytree');
       return dbDoc.get();
     });
-  }).then(dbLoad).catch(()=>{});
-}
-function dbLoad(snap){
+  }).then(snap=>{
     if(!dbDoc) return;
     if(snap&&snap.exists){
       let remote=null;
       try{remote=JSON.parse(snap.data().json)}catch(e){}
-      if(remote&&remote.T&&(remote.ts>lastLocalTs||T.sample)){
+      if(remote&&remote.T&&remote.ts>lastLocalTs){
         if(applyTree(remote.T)){
           if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
           lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
@@ -2439,53 +2737,8 @@ function dbLoad(snap){
       }
     }
     if(lastLocalTs) scheduleDb();
+  }).catch(()=>{});
 }
-
-/* ---- account + cloud sync (website): Google or email sign in, tree saved per account in Firestore ---- */
-const CL={ready:false,user:null,busy:false};
-function loadJs(u){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=()=>no(new Error('load'));document.head.appendChild(e)})}
-async function cloudInit(){
-  if(CL.ready) return;
-  if(!window.OWH_FIREBASE) throw new Error('cfg');
-  const b='https://www.gstatic.com/firebasejs/10.12.2/';
-  if(!window.firebase){await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
-  if(!firebase.apps||!firebase.apps.length) firebase.initializeApp(window.OWH_FIREBASE);
-  CL.auth=firebase.auth();CL.fs=firebase.firestore();CL.ready=true;
-  CL.auth.onAuthStateChanged(u=>{
-    CL.user=u?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;
-    if(u){
-      const ref=CL.fs.doc('vansh_trees/'+u.uid);
-      dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({email:u.email||''},d))};
-      lastWritten='';
-      dbDoc.get().then(dbLoad).catch(()=>{toast('Could not reach your cloud copy. Your work is saved on this device.')});
-      toast('Signed in. Your tree now syncs.');
-    }else{dbDoc=null;lastWritten=''}
-    acctBtn();
-  });
-}
-function acctBtn(){const b=$('bAcct');if(!b) return;b.innerHTML=CL.user?'&#9729; '+esc((CL.user.name||CL.user.email||'Account').split(' ')[0].slice(0,12)):'&#9729; Sign in'}
-function acctErr(e){
-  const c=e&&e.code||'';
-  const m={'auth/invalid-email':'That email does not look right.','auth/missing-password':'Enter your password.','auth/weak-password':'Password must be at least 6 characters.','auth/email-already-in-use':'This email already has an account. Use Sign in.','auth/user-not-found':'No account with this email. Use Create account.','auth/wrong-password':'Wrong password.','auth/invalid-credential':'Wrong email or password.','auth/too-many-requests':'Too many tries. Wait a little and try again.','auth/popup-closed-by-user':'Sign in window was closed.','auth/network-request-failed':'No internet connection.','auth/unauthorized-domain':'This website address is not allowed for sign in yet.','auth/popup-blocked':'Your browser blocked the sign in window. Allow pop-ups and try again.','permission-denied':'Cloud save is not allowed yet.'};
-  return m[c]||(e&&e.message==='cfg'?'Sign in is not set up on this page.':'Something went wrong. Try again.');
-}
-async function openAcct(){
-  openModal(mh('Account and sync')+'<p class="muted">Loading&hellip;</p>');
-  try{await cloudInit()}catch(e){openModal(mh('Account and sync')+'<p class="muted">Could not load sign in. Check your internet and try again.</p>');return}
-  if(CL.user){
-    openModal(mh('Account and sync')+'<div class="sec"><p style="margin:0 0 6px"><b>'+esc(CL.user.name||'Signed in')+'</b><br><span class="muted">'+esc(CL.user.email)+'</span></p><p class="muted" style="font-size:13.5px">Your tree saves to your account a moment after each change. Sign in with the same email on any phone or computer to see it.</p><div class="opts"><button class="btn" id="aSync">Sync now</button><button class="btn" id="aOut">Sign out</button></div></div>');
-    $('aSync').onclick=()=>{lastWritten='';persist();toast('Saving to your account...');setTimeout(()=>toast('Saved.'),1800)};
-    $('aOut').onclick=async()=>{lastWritten='';flushDb();await new Promise(r=>setTimeout(r,900));await CL.auth.signOut();closeModal();toast('Signed out. The tree stays on this device.')};
-    return;
-  }
-  openModal(mh('Sign in to sync')+'<p class="muted" style="margin-top:0;font-size:13.5px">Without sign in, your tree stays only in this browser. Sign in to keep it safe and open it on every device.</p><div class="opts"><button class="btn pri" id="aG">Continue with Google</button></div><div class="sec" style="margin-top:14px"><h3>Or use email</h3><div class="fld"><label for="aE">Email</label><input id="aE" type="email" autocomplete="email" inputmode="email"></div><div class="fld" style="margin-top:8px"><label for="aP">Password</label><input id="aP" type="password" autocomplete="current-password"></div><div id="aM" class="muted" role="alert" style="min-height:20px;margin:8px 0;font-size:13.5px;color:#c0392b"></div><div class="opts"><button class="btn pri" id="aIn">Sign in</button><button class="btn" id="aUp">Create account</button><button class="btn sm" id="aFg">Forgot password</button></div></div>');
-  const say=t=>{$('aM').textContent=t},go=async f=>{if(CL.busy)return;CL.busy=true;say('');try{await f();closeModal()}catch(e){say(acctErr(e))}CL.busy=false};
-  $('aG').onclick=()=>go(()=>CL.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
-  $('aIn').onclick=()=>go(()=>CL.auth.signInWithEmailAndPassword($('aE').value.trim(),$('aP').value));
-  $('aUp').onclick=()=>go(()=>CL.auth.createUserWithEmailAndPassword($('aE').value.trim(),$('aP').value));
-  $('aFg').onclick=async()=>{const e=$('aE').value.trim();if(!e){say('Type your email first.');return}try{await CL.auth.sendPasswordResetEmail(e);say('Reset link sent. Check your email (and spam).');$('aM').style.color='inherit'}catch(x){say(acctErr(x))}};
-}
-function acctBoot(){if(window.claude||!window.OWH_FIREBASE) return;if(!window.claude){const b=$('bAcct');if(b) b.hidden=false}cloudInit().catch(()=>{})}
 function init(){
   hooks.render=render;
   if(!window.claude){const bb=$('bBack');if(bb) bb.hidden=false}
@@ -2495,7 +2748,6 @@ function init(){
   if(!TABS.some(t=>t[0]===S.tab)) S.tab='chart';
   render();
   dbInit();
-  if(window.claude){const ab=$('bAcct');if(ab) ab.hidden=true}else acctBoot();
   window.addEventListener('beforeunload',()=>{try{persist()}catch(e){}});
 }
 init();

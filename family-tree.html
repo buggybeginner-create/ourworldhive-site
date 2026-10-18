@@ -244,7 +244,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style></head><body>
+</style><script src="firebase-config.js"></script></head><body>
 <div class="wrap">
   <header class="top">
     <div class="brand">
@@ -255,6 +255,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
     <div class="acts">
       <button class="btn pri" id="bAdd">+ Add person</button>
       <button class="btn" id="bCheck">Checks <span class="badge" id="chkN">0</span></button>
+      <button class="btn" id="bAcct">&#9729; Sign in</button>
       <button class="btn" id="bShare">Share</button>
       <button class="btn" id="bExport">Export</button>
       <button class="btn" id="bSet">Settings</button>
@@ -2271,6 +2272,7 @@ document.addEventListener('click',ev=>{
   if(id==='bAdd'){if(!T.people.length) openFirst();else openAdd(S.sel&&P(S.sel)?S.sel:(T.me&&P(T.me)?T.me:T.people[0].id))}
   else if(id==='bFirst') openFirst();
   else if(id==='bCheck') openChecks();
+  else if(id==='bAcct') openAcct();
   else if(id==='bShare') openShare();
   else if(id==='bExport') openExport();
   else if(id==='bSet') openSettings();
@@ -2420,12 +2422,14 @@ function dbInit(){
       dbDoc=db.doc('data/users/'+id+'/familytree');
       return dbDoc.get();
     });
-  }).then(snap=>{
+  }).then(dbLoad).catch(()=>{});
+}
+function dbLoad(snap){
     if(!dbDoc) return;
     if(snap&&snap.exists){
       let remote=null;
       try{remote=JSON.parse(snap.data().json)}catch(e){}
-      if(remote&&remote.T&&remote.ts>lastLocalTs){
+      if(remote&&remote.T&&(remote.ts>lastLocalTs||T.sample)){
         if(applyTree(remote.T)){
           if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
           lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
@@ -2435,8 +2439,53 @@ function dbInit(){
       }
     }
     if(lastLocalTs) scheduleDb();
-  }).catch(()=>{});
 }
+
+/* ---- account + cloud sync (website): Google or email sign in, tree saved per account in Firestore ---- */
+const CL={ready:false,user:null,busy:false};
+function loadJs(u){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=()=>no(new Error('load'));document.head.appendChild(e)})}
+async function cloudInit(){
+  if(CL.ready) return;
+  if(!window.OWH_FIREBASE) throw new Error('cfg');
+  const b='https://www.gstatic.com/firebasejs/10.12.2/';
+  if(!window.firebase){await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
+  if(!firebase.apps||!firebase.apps.length) firebase.initializeApp(window.OWH_FIREBASE);
+  CL.auth=firebase.auth();CL.fs=firebase.firestore();CL.ready=true;
+  CL.auth.onAuthStateChanged(u=>{
+    CL.user=u?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;
+    if(u){
+      const ref=CL.fs.doc('vansh_trees/'+u.uid);
+      dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({email:u.email||''},d))};
+      lastWritten='';
+      dbDoc.get().then(dbLoad).catch(()=>{toast('Could not reach your cloud copy. Your work is saved on this device.')});
+      toast('Signed in. Your tree now syncs.');
+    }else{dbDoc=null;lastWritten=''}
+    acctBtn();
+  });
+}
+function acctBtn(){const b=$('bAcct');if(!b) return;b.innerHTML=CL.user?'&#9729; '+esc((CL.user.name||CL.user.email||'Account').split(' ')[0].slice(0,12)):'&#9729; Sign in'}
+function acctErr(e){
+  const c=e&&e.code||'';
+  const m={'auth/invalid-email':'That email does not look right.','auth/missing-password':'Enter your password.','auth/weak-password':'Password must be at least 6 characters.','auth/email-already-in-use':'This email already has an account. Use Sign in.','auth/user-not-found':'No account with this email. Use Create account.','auth/wrong-password':'Wrong password.','auth/invalid-credential':'Wrong email or password.','auth/too-many-requests':'Too many tries. Wait a little and try again.','auth/popup-closed-by-user':'Sign in window was closed.','auth/network-request-failed':'No internet connection.','auth/unauthorized-domain':'This website address is not allowed for sign in yet.','auth/popup-blocked':'Your browser blocked the sign in window. Allow pop-ups and try again.','permission-denied':'Cloud save is not allowed yet.'};
+  return m[c]||(e&&e.message==='cfg'?'Sign in is not set up on this page.':'Something went wrong. Try again.');
+}
+async function openAcct(){
+  openModal(mh('Account and sync')+'<p class="muted">Loading&hellip;</p>');
+  try{await cloudInit()}catch(e){openModal(mh('Account and sync')+'<p class="muted">Could not load sign in. Check your internet and try again.</p>');return}
+  if(CL.user){
+    openModal(mh('Account and sync')+'<div class="sec"><p style="margin:0 0 6px"><b>'+esc(CL.user.name||'Signed in')+'</b><br><span class="muted">'+esc(CL.user.email)+'</span></p><p class="muted" style="font-size:13.5px">Your tree saves to your account a moment after each change. Sign in with the same email on any phone or computer to see it.</p><div class="opts"><button class="btn" id="aSync">Sync now</button><button class="btn" id="aOut">Sign out</button></div></div>');
+    $('aSync').onclick=()=>{lastWritten='';persist();toast('Saving to your account...');setTimeout(()=>toast('Saved.'),1800)};
+    $('aOut').onclick=async()=>{lastWritten='';flushDb();await new Promise(r=>setTimeout(r,900));await CL.auth.signOut();closeModal();toast('Signed out. The tree stays on this device.')};
+    return;
+  }
+  openModal(mh('Sign in to sync')+'<p class="muted" style="margin-top:0;font-size:13.5px">Without sign in, your tree stays only in this browser. Sign in to keep it safe and open it on every device.</p><div class="opts"><button class="btn pri" id="aG">Continue with Google</button></div><div class="sec" style="margin-top:14px"><h3>Or use email</h3><div class="fld"><label for="aE">Email</label><input id="aE" type="email" autocomplete="email" inputmode="email"></div><div class="fld" style="margin-top:8px"><label for="aP">Password</label><input id="aP" type="password" autocomplete="current-password"></div><div id="aM" class="muted" role="alert" style="min-height:20px;margin:8px 0;font-size:13.5px;color:#c0392b"></div><div class="opts"><button class="btn pri" id="aIn">Sign in</button><button class="btn" id="aUp">Create account</button><button class="btn sm" id="aFg">Forgot password</button></div></div>');
+  const say=t=>{$('aM').textContent=t},go=async f=>{if(CL.busy)return;CL.busy=true;say('');try{await f();closeModal()}catch(e){say(acctErr(e))}CL.busy=false};
+  $('aG').onclick=()=>go(()=>CL.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
+  $('aIn').onclick=()=>go(()=>CL.auth.signInWithEmailAndPassword($('aE').value.trim(),$('aP').value));
+  $('aUp').onclick=()=>go(()=>CL.auth.createUserWithEmailAndPassword($('aE').value.trim(),$('aP').value));
+  $('aFg').onclick=async()=>{const e=$('aE').value.trim();if(!e){say('Type your email first.');return}try{await CL.auth.sendPasswordResetEmail(e);say('Reset link sent. Check your email (and spam).');$('aM').style.color='inherit'}catch(x){say(acctErr(x))}};
+}
+function acctBoot(){if(window.claude||!window.OWH_FIREBASE) return;if(!window.claude){const b=$('bAcct');if(b) b.hidden=false}cloudInit().catch(()=>{})}
 function init(){
   hooks.render=render;
   if(!window.claude){const bb=$('bBack');if(bb) bb.hidden=false}
@@ -2446,6 +2495,7 @@ function init(){
   if(!TABS.some(t=>t[0]===S.tab)) S.tab='chart';
   render();
   dbInit();
+  if(window.claude){const ab=$('bAcct');if(ab) ab.hidden=true}else acctBoot();
   window.addEventListener('beforeunload',()=>{try{persist()}catch(e){}});
 }
 init();

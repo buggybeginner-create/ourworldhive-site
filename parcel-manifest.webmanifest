@@ -1,1 +1,40 @@
-{"name":"Parcel Ledger","short_name":"Parcel Ledger","description":"Track every online order, budgets, returns and refunds.","start_url":"parcel-ledger.html","scope":"./parcel-ledger.html","display":"standalone","orientation":"portrait","background_color":"#F2F4F1","theme_color":"#0E6B5A","icons":[{"src":"parcel-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"parcel-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"parcel-icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
+{
+ "name": "Parcel Ledger",
+ "short_name": "Parcel Ledger",
+ "description": "Track every online order, budgets, returns and refunds.",
+ "start_url": "parcel-ledger.html",
+ "scope": "./parcel-ledger.html",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#F2F4F1",
+ "theme_color": "#0E6B5A",
+ "icons": [
+  {
+   "src": "parcel-icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "parcel-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "parcel-icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "share_target": {
+  "action": "parcel-ledger.html",
+  "method": "GET",
+  "params": {
+   "title": "title",
+   "text": "text",
+   "url": "url"
+  }
+ }
+}

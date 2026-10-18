@@ -7,7 +7,7 @@ var APPS=[
 {id:'pp',icon:'📊',name:'Project Planner',tag:'Plan, track and approve with your whole team.',def:'d',href:'project-planner.html',cta:'Open Project Planner',price:'pp',ac:'#3b82f6',url:'ourworldhive.com/project-planner',
  fl:['📅 ✅ ❌ ➕ calendar','👥 Roles and approvals','📈 Planned vs actual %'],
  s:[['Gantt with planned and actual bars','Dependencies across sections, critical path and the percentage inside every actual bar.'],['A calendar that tells the truth','✅ done as planned, ❌ planned but not done, ➕ extra work. Tap a day for the report and share it.'],['Dashboard for all or each section','S-curve, task status and section progress, overall or one section at a time.'],['Manpower, budget and resources','Supervisors log, managers approve. Planned and actual side by side.']]},
-{id:'diary',icon:'📓',name:'My Diary',tag:'A paper-style diary that follows you.',def:'m',href:'diary.html',cta:'Open My Diary',ac:'#f59e0b',url:'ourworldhive.com/diary',
+{id:'diary',icon:'📓',name:'My Diary',tag:'A paper-style diary that follows you.',def:'m',price:'diary',href:'diary.html',cta:'Open My Diary',ac:'#f59e0b',url:'ourworldhive.com/diary',
  fl:['✍️ Type or use a pen','☁️ Syncs to every device','☑️ Tasks inside the page'],
  s:[['Write about your day','Ruled pages, auto-save and a new page for every day.'],['Tasks live in your diary','Add tasks, assign them and tick them off without leaving the page.']]},
 {id:'games',icon:'🎮',name:'Games',tag:'Play alone or against real players.',def:'d',href:'games.html',cta:'Play now',ac:'#a855f7',url:'ourworldhive.com/games',fl:['🏆 Weekly rankings','🎯 Multiplayer','🥇 Medals'],
@@ -32,7 +32,7 @@ function build(host){
   a.devs={};
   ['m','d'].forEach(function(md){
    var d=mk('div','dev '+(md==='m'?'phone':'laptop'));d.setAttribute('aria-hidden','true');var scr=mk('div','scr');
-   var imgs=a.s.map(function(s,k){var im=new Image();im.className='sl';im.alt=a.name+(md==='m'?' on a phone: ':' on a computer: ')+s[0];im.decoding='async';if(i>0||k>0||md!==a.def)im.loading='lazy';im.src='shots/'+a.id+'-'+md+'-'+(k+1)+'.webp';scr.appendChild(im);return im});
+   var imgs=a.s.map(function(s,k){var im=new Image();im.className='sl';im.alt=a.name+(md==='m'?' on a phone: ':' on a computer: ')+s[0];im.decoding='async';if(i>0||k>0||md!==a.def)im.loading='lazy';im.src=({ele:'electronics',cmp:'compare'}[a.id]||a.id)+'-'+md+'-'+(k+1)+'.webp';scr.appendChild(im);return im});
    if(md==='d'){var lid=mk('div','lid','<div class="bar"><i></i><i></i><i></i><span>'+esc(a.url)+'</span></div>');lid.appendChild(scr);d.appendChild(lid);d.appendChild(mk('div','base'))}else d.appendChild(scr);
    a.fl.forEach(function(t){d.appendChild(mk('div','fl',esc(t)))});
    rig.appendChild(d);a.devs[md]={el:d,imgs:imgs}})});

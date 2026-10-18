@@ -4306,6 +4306,7 @@ window.OWH_BOOT = boot;
 })();
 </script>
 <script src="firebase-config.js"></script>
+<script src="owh-pricing.js"></script>
 <script>
 (function(){
 'use strict';
@@ -4360,9 +4361,28 @@ function Admin(db,u){
   var users=db.collection('diary_users'), me=users.doc(u.uid), cfg=db.collection('config').doc('diary');
   /* record this person so the owner can see who uses the diary (they can never change their own plan) */
   me.get().then(function(d){
-    if(!d.exists) return me.set({uid:u.uid,email:email,name:u.name||'',joined:Date.now(),lastSeen:Date.now(),plan:'free'});
+    if(!d.exists){ buyBtn('free'); return me.set({uid:u.uid,email:email,name:u.name||'',joined:Date.now(),lastSeen:Date.now(),plan:'free'}); }
+    buyBtn(d.data().plan);
     return me.update({email:email,name:u.name||'',lastSeen:Date.now()});
   }).catch(function(e){ console.warn('diary_users',e&&e.code); });
+  /* one-time payment: price, UPI and PayPal come from the shared price list (owh-pricing.js) */
+  function buyBtn(plan){
+    var nav=document.getElementById('nav'); if(isOwner||!nav||document.getElementById('owhBuy')) return;
+    var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button';
+    function lab(){ b.textContent=plan==='paid'?'✅ Full version':('💎 Get full version'+(window.OWH_PRICE?' · '+OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm'):'')); }
+    lab(); window.addEventListener('owh-price',lab);
+    nav.insertBefore(b,nav.querySelector('.sp')||nav.firstChild);
+    b.onclick=function(){
+      var o=document.getElementById('owhBuyV'); if(o) o.remove();
+      o=document.createElement('div'); o.id='owhBuyV';
+      o.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px');
+      o.innerHTML='<div role="dialog" aria-label="Get My Diary" style="background:var(--card,#fff);color:var(--ink,#222);border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow:auto;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0;font-size:20px">📓 My Diary, full version</h2><button type="button" class="btn" id="owhBuyX">✕</button></div>'+(plan==='paid'?'<p>You already have the full version. Thank you!</p>':'<p style="margin:0 0 10px;font-size:14px;line-height:1.5">Pay once and keep the diary for ever. No monthly fee, no renewal.</p><div id="owhBuyB"></div>')+'</div>';
+      document.body.appendChild(o);
+      o.querySelector('#owhBuyX').onclick=function(){ o.remove(); };
+      o.addEventListener('click',function(ev){ if(ev.target===o) o.remove(); });
+      var bx=o.querySelector('#owhBuyB'); if(bx&&window.OWH_PRICE) OWH_PRICE.payBox(bx,{tool:'diary',ref:email});
+    };
+  }
   /* settings made by the owner, shown to everyone */
   var title0=(document.querySelector('.sh-title')||{}).textContent||'';
   var note=document.createElement('div'); note.id='owhNote'; note.hidden=true;

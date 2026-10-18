@@ -605,37 +605,40 @@ var BL={id:'blockade',n:'Gate Rush',i:'🧱',bars:true,desc:'Race to the far sid
  after:function(m,seat){(m.t==='w'?SFX.wall:SFX.move)();
   if(m.t==='w'){sysMsg('🧱 '+G.names[seat]+' placed a bar');if(G.bot){if(seat===0&&Math.random()<.4)later(function(){say(1,pick(['Hey! That hurts 😭','Blocked me? Rude 😤','Hmm, clever 🤔']))},700);if(seat===1&&Math.random()<.3)later(function(){say(1,pick(['Blocked! 😎','Try this 🧱😈']))},400)}}}};
 /* ===== Crown Rush (2-4 players) ===== */
-var CK={U:14,O:8,COLS:['#3fd8ff','#ff6fb4','#4be39a','#ff9f43'],NAMES:['Blue','Pink','Green','Orange'],SIDE:[[6,3],[3,0],[0,3],[3,6]]};
+var CK={U:14,O:8,COLS:['#3fd8ff','#ff6fb4','#4be39a','#ff9f43'],NAMES:['Blue','Pink','Green','Orange']};
+/* two maps: 2 players on 7x7, 3 or 4 players on a bigger 9x9 so every bar of every player always has room (tested: worst case room is far above the bars handed out) */
+function ckCfg(np){return np<=2?{N:7,B:6,L:200}:{N:9,B:6,L:320}}
+function ckSide(N,i){var c=(N-1)/2;return[[N-1,c],[c,0],[0,c],[c,N-1]][i]}
 function ckXY(r,c){return{x:CK.O+c*CK.U+CK.U/2,y:CK.O+r*CK.U+CK.U/2}}
-function ckNew(np){np=np||4;var sides=np===2?[0,2]:[0,1,2,3].slice(0,np),z=function(){var a=[];for(var i=0;i<6;i++)a.push([0,0,0,0,0,0]);return a};
- return{np:np,p:sides.map(function(i){return{r:CK.SIDE[i][0],c:CK.SIDE[i][1]}}),wl:sides.map(function(){return 6}),hw:z(),vw:z(),turn:0,n:0,last:null,win:-1,why:'',out:sides.map(function(){return 0})}}
-function ckClone(s){return{np:s.np,p:s.p.map(function(p){return p&&{r:p.r,c:p.c}}),wl:s.wl.slice(),hw:s.hw.map(function(a){return a.slice()}),vw:s.vw.map(function(a){return a.slice()}),turn:s.turn,n:s.n,last:s.last,win:s.win,why:s.why,out:s.out.slice()}}
-function ckH(s,i,j){return i>=0&&i<6&&j>=0&&j<6&&s.hw[i][j]}
-function ckV(s,i,j){return i>=0&&i<6&&j>=0&&j<6&&s.vw[i][j]}
+function ckNew(np){np=np||4;var cf=ckCfg(np),N=cf.N,M=N-1,sides=np===2?[0,2]:[0,1,2,3].slice(0,np),z=function(){var a=[];for(var i=0;i<M;i++)a.push(new Array(M).fill(0));return a};
+ return{np:np,N:N,B:cf.B,lim:cf.L,p:sides.map(function(i){var q=ckSide(N,i);return{r:q[0],c:q[1]}}),wl:sides.map(function(){return cf.B}),hw:z(),vw:z(),turn:0,n:0,last:null,win:-1,why:'',out:sides.map(function(){return 0})}}
+function ckClone(s){return{np:s.np,N:s.N,B:s.B,lim:s.lim,p:s.p.map(function(p){return p&&{r:p.r,c:p.c}}),wl:s.wl.slice(),hw:s.hw.map(function(a){return a.slice()}),vw:s.vw.map(function(a){return a.slice()}),turn:s.turn,n:s.n,last:s.last,win:s.win,why:s.why,out:s.out.slice()}}
+function ckH(s,i,j){var M=s.hw.length;return i>=0&&i<M&&j>=0&&j<M&&s.hw[i][j]}
+function ckV(s,i,j){var M=s.hw.length;return i>=0&&i<M&&j>=0&&j<M&&s.vw[i][j]}
 function ckBlocked(s,r,c,dr,dc){if(dr===-1)return !!(ckH(s,r-1,c)||ckH(s,r-1,c-1));if(dr===1)return !!(ckH(s,r,c)||ckH(s,r,c-1));if(dc===-1)return !!(ckV(s,r,c-1)||ckV(s,r-1,c-1));return !!(ckV(s,r,c)||ckV(s,r-1,c))}
-function ckIn(r,c){return r>=0&&r<7&&c>=0&&c<7}
-function ckDist(s,seat,wantPath){var me=s.p[seat];if(!me)return wantPath?null:99;var q=[[me.r,me.c]],seen={},par={},k0=me.r*7+me.c;seen[k0]=1;
- for(var h=0;h<q.length;h++){var r=q[h][0],c=q[h][1];if(r===3&&c===3){var kk=r*7+c;if(!wantPath){var d=0;while(kk!==k0){kk=par[kk];d++}return d}var path=[];while(kk!==k0){path.push([Math.floor(kk/7),kk%7]);kk=par[kk]}path.push([me.r,me.c]);return path.reverse()}
-  for(var i=0;i<4;i++){var d2=DIRS[i],nr=r+d2[0],nc=c+d2[1];if(!ckIn(nr,nc)||ckBlocked(s,r,c,d2[0],d2[1]))continue;var k2=nr*7+nc;if(seen[k2])continue;seen[k2]=1;par[k2]=r*7+c;q.push([nr,nc])}}
+function ckIn(r,c,N){N=N||7;return r>=0&&r<N&&c>=0&&c<N}
+function ckDist(s,seat,wantPath){var me=s.p[seat];if(!me)return wantPath?null:99;var W=s.N||7,c0=(W-1)/2,q=[[me.r,me.c]],seen={},par={},k0=me.r*W+me.c;seen[k0]=1;
+ for(var h=0;h<q.length;h++){var r=q[h][0],c=q[h][1];if(r===c0&&c===c0){var kk=r*W+c;if(!wantPath){var d=0;while(kk!==k0){kk=par[kk];d++}return d}var path=[];while(kk!==k0){path.push([Math.floor(kk/W),kk%W]);kk=par[kk]}path.push([me.r,me.c]);return path.reverse()}
+  for(var i=0;i<4;i++){var d2=DIRS[i],nr=r+d2[0],nc=c+d2[1];if(!ckIn(nr,nc,W)||ckBlocked(s,r,c,d2[0],d2[1]))continue;var k2=nr*W+nc;if(seen[k2])continue;seen[k2]=1;par[k2]=r*W+c;q.push([nr,nc])}}
  return wantPath?null:-1}
-function ckWallCheck(s,seat,w){if(s.wl[seat]<1)return 1;var r=w.r,c=w.c;if(r<0||r>5||c<0||c>5)return 2;
- if(w.o==='h'){if(s.hw[r][c]||(c>0&&s.hw[r][c-1])||(c<5&&s.hw[r][c+1])||s.vw[r][c])return 2}else{if(s.vw[r][c]||(r>0&&s.vw[r-1][c])||(r<5&&s.vw[r+1][c])||s.hw[r][c])return 2}
+function ckWallCheck(s,seat,w){if(s.wl[seat]<1)return 1;var r=w.r,c=w.c,M=s.hw.length;if(r<0||r>M-1||c<0||c>M-1)return 2;
+ if(w.o==='h'){if(s.hw[r][c]||(c>0&&s.hw[r][c-1])||(c<M-1&&s.hw[r][c+1])||s.vw[r][c])return 2}else{if(s.vw[r][c]||(r>0&&s.vw[r-1][c])||(r<M-1&&s.vw[r+1][c])||s.hw[r][c])return 2}
  var A=w.o==='h'?s.hw:s.vw;A[r][c]=1;var ok=true;for(var i=0;i<s.np;i++)if(s.p[i]&&!s.out[i]&&ckDist(s,i)<0)ok=false;A[r][c]=0;return ok?0:3}
 function ckPawnMoves(s,seat){var me=s.p[seat],out=[];if(!me)return out;
- DIRS.forEach(function(d){var nr=me.r+d[0],nc=me.c+d[1];if(!ckIn(nr,nc)||ckBlocked(s,me.r,me.c,d[0],d[1]))return;var occ=-1;for(var i=0;i<s.np;i++)if(i!==seat&&s.p[i]&&s.p[i].r===nr&&s.p[i].c===nc)occ=i;
+ DIRS.forEach(function(d){var nr=me.r+d[0],nc=me.c+d[1];if(!ckIn(nr,nc,s.N)||ckBlocked(s,me.r,me.c,d[0],d[1]))return;var occ=-1;for(var i=0;i<s.np;i++)if(i!==seat&&s.p[i]&&s.p[i].r===nr&&s.p[i].c===nc)occ=i;
   if(occ<0){out.push({t:'m',r:nr,c:nc});return}
-  var lr=nr+d[0],lc=nc+d[1];if(!ckIn(lr,lc)||ckBlocked(s,nr,nc,d[0],d[1]))return;for(var j=0;j<s.np;j++)if(s.p[j]&&s.p[j].r===lr&&s.p[j].c===lc)return;out.push({t:'m',r:nr,c:nc,sh:occ})});return out}
-function ckAnyWall(s,seat){if(s.wl[seat]<1)return false;for(var r=0;r<6;r++)for(var c=0;c<6;c++)for(var k=0;k<2;k++)if(ckWallCheck(s,seat,{r:r,c:c,o:k?'v':'h'})===0)return true;return false}
+  var lr=nr+d[0],lc=nc+d[1];if(!ckIn(lr,lc,s.N)||ckBlocked(s,nr,nc,d[0],d[1]))return;for(var j=0;j<s.np;j++)if(s.p[j]&&s.p[j].r===lr&&s.p[j].c===lc)return;out.push({t:'m',r:nr,c:nc,sh:occ})});return out}
+function ckAnyWall(s,seat){if(s.wl[seat]<1)return false;var M=s.hw.length;for(var r=0;r<M;r++)for(var c=0;c<M;c++)for(var k=0;k<2;k++)if(ckWallCheck(s,seat,{r:r,c:c,o:k?'v':'h'})===0)return true;return false}
 function ckValid(s,seat,m){if(s.win!==-1||s.out[seat])return false;if(m.t==='w')return ckWallCheck(s,seat,m)===0;if(m.t==='m')return ckPawnMoves(s,seat).some(function(x){return x.r===m.r&&x.c===m.c});if(m.t==='p')return !ckPawnMoves(s,seat).length&&!ckAnyWall(s,seat);return false}
 function ckCanAct(s,t){return !s.out[t]&&s.p[t]&&(ckPawnMoves(s,t).length>0||s.wl[t]>0)}
 function ckNext(s,seat){var t=seat;for(var k=0;k<s.np;k++){t=(t+1)%s.np;if(ckCanAct(s,t))return t}return (seat+1)%s.np}
 function ckApply(s,seat,m){
  if(m.t==='m'){var p=s.p[seat],fr=p.r,fc=p.c,dr=m.r-fr,dc=m.c-fc,sh=-1;for(var i=0;i<s.np;i++)if(i!==seat&&s.p[i]&&s.p[i].r===m.r&&s.p[i].c===m.c){sh=i;s.p[i]={r:m.r+dr,c:m.c+dc}}
-  s.p[seat]={r:m.r,c:m.c};s.last={t:'m',seat:seat,fr:fr,fc:fc,r:m.r,c:m.c,sh:sh,dr:dr,dc:dc};if(m.r===3&&m.c===3){s.win=seat;s.why='Reached the crown'}}
+  s.p[seat]={r:m.r,c:m.c};s.last={t:'m',seat:seat,fr:fr,fc:fc,r:m.r,c:m.c,sh:sh,dr:dr,dc:dc};if(m.r===((s.N||7)-1)/2&&m.c===((s.N||7)-1)/2){s.win=seat;s.why='Reached the crown'}}
  else if(m.t==='w'){(m.o==='h'?s.hw:s.vw)[m.r][m.c]=1;s.wl[seat]--;s.last={t:'w',seat:seat,r:m.r,c:m.c,o:m.o}}
  else s.last={t:'p',seat:seat};
  s.n++;s.turn=ckNext(s,seat);
- if(s.win===-1&&s.n>=200){var best=-1,bd=99,tie=false;for(var k=0;k<s.np;k++)if(s.p[k]&&!s.out[k]){var d=ckDist(s,k);if(d<bd){bd=d;best=k;tie=false}else if(d===bd)tie=true}s.win=tie?-2:best;s.why='Move limit: closest to the crown'}}
+ if(s.win===-1&&s.n>=(s.lim||200)){var best=-1,bd=99,tie=false;for(var k=0;k<s.np;k++)if(s.p[k]&&!s.out[k]){var d=ckDist(s,k);if(d<bd){bd=d;best=k;tie=false}else if(d===bd)tie=true}s.win=tie?-2:best;s.why='Move limit: closest to the crown'}}
 function ckEval(s,me){if(s.win>=0)return s.win===me?1e4:-1e4;if(s.win===-2)return 0;var dm=ckDist(s,me),ds=[],wl=0;
  for(var i=0;i<s.np;i++)if(i!==me&&s.p[i]&&!s.out[i]){ds.push(ckDist(s,i));wl+=s.wl[i]}if(!ds.length)return 1e4;var mn=Math.min.apply(null,ds),sum=ds.reduce(function(a,b){return a+b},0);
  return (mn-dm)*12+(sum/ds.length-dm)*4+(s.wl[me]-wl/ds.length)*1.2}
@@ -646,7 +649,7 @@ function ckWallCands(s,seat,target){var path=ckDist(s,target,true),out=[],seen={
 function ckCands(s,seat){var o=ckPawnMoves(s,seat);if(s.wl[seat]>0){var rivals=[];for(var i=0;i<s.np;i++)if(i!==seat&&s.p[i]&&!s.out[i])rivals.push({i:i,d:ckDist(s,i)});rivals.sort(function(a,b){return a.d-b.d});
   rivals.slice(0,2).forEach(function(r){o=o.concat(ckWallCands(s,seat,r.i))})}return o}
 function ckBot(s,seat,lvl){var C=ckCands(s,seat);if(!C.length)return {t:'p'};
- var wn=C.filter(function(m){return m.t==='m'&&m.r===3&&m.c===3})[0];if(wn)return wn;
+ var cc0=((s.N||7)-1)/2,wn=C.filter(function(m){return m.t==='m'&&m.r===cc0&&m.c===cc0})[0];if(wn)return wn;
  if(lvl===0){var pm=C.filter(function(m){return m.t==='m'}),bs=null,bd=99;pm.forEach(function(m){var t=ckClone(s);ckApply(t,seat,m);var d=ckDist(t,seat);if(d<bd){bd=d;bs=m}});var ws=C.filter(function(m){return m.t==='w'});if(ws.length&&Math.random()<.28)return ws[Math.floor(Math.random()*ws.length)];return bs||C[0]}
  var best=null,bv=-1e9;
  C.forEach(function(m){var t=ckClone(s);ckApply(t,seat,m);var v=ckEval(t,seat);
@@ -655,35 +658,35 @@ function ckBot(s,seat,lvl){var C=ckCands(s,seat);if(!C.length)return {t:'p'};
 /* ---- drawing ---- */
 function ckWallRect(w,cls,parent){var U=CK.U,O=CK.O,x,y,ww,hh;if(w.o==='h'){x=O+w.c*U+1;y=O+(w.r+1)*U-1;ww=2*U-2;hh=2}else{x=O+(w.c+1)*U-1;y=O+w.r*U+1;ww=2;hh=2*U-2}
  var gl=el('rect',{x:x-.6,y:y-.6,width:ww+1.2,height:hh+1.2,rx:1.6,fill:'#8fd8ff',opacity:.55,filter:'url(#glow)',class:cls},parent),r=el('rect',{x:x,y:y,width:ww,height:hh,rx:1,fill:'url(#gWall)',stroke:'#fff','stroke-width':.25,class:cls},parent);return[gl,r]}
-function ckBuild(){svg.innerHTML='';commonDefs();var U=CK.U,O=CK.O,np=G.np;
- L.tiles=el('g',{},svg);for(var r=0;r<7;r++)for(var c=0;c<7;c++)el('rect',{x:O+c*U+.5,y:O+r*U+.5,width:U-1,height:U-1,rx:2.4,class:(r===3&&c===3)?'crownt':'ctile'},L.tiles);
- G.s.p.forEach(function(p,i){el('rect',{x:O+p.c*U+.5,y:O+p.r*U+.5,width:U-1,height:U-1,rx:2.4,fill:CK.COLS[i],opacity:.22},L.tiles)});
- var ct=el('text',{x:O+3.5*U,y:O+3.5*U+.4,'font-size':9,'text-anchor':'middle','dominant-baseline':'central',style:'pointer-events:none'},L.tiles);ct.textContent='👑';
+function ckBuild(){svg.innerHTML='';commonDefs();var N=G.s.N||7,c0=(N-1)/2;CK.O=8;CK.U=98/N;var U=CK.U,O=CK.O,np=G.np,kk=U/14;
+ L.tiles=el('g',{},svg);for(var r=0;r<N;r++)for(var c=0;c<N;c++)el('rect',{x:O+c*U+.5,y:O+r*U+.5,width:U-1,height:U-1,rx:2.4*kk,class:(r===c0&&c===c0)?'crownt':'ctile'},L.tiles);
+ G.s.p.forEach(function(p,i){el('rect',{x:O+p.c*U+.5,y:O+p.r*U+.5,width:U-1,height:U-1,rx:2.4*kk,fill:CK.COLS[i],opacity:.22},L.tiles)});
+ var ct=el('text',{x:O+(c0+.5)*U,y:O+(c0+.5)*U+.4,'font-size':9*kk,'text-anchor':'middle','dominant-baseline':'central',style:'pointer-events:none'},L.tiles);ct.textContent='👑';
  L.walls=el('g',{},svg);L.hint=el('g',{},svg);L.mk=el('g',{},svg);L.ghost=el('g',{},svg);L.pawns=el('g',{},svg);
  L.pw=G.s.p.map(function(p,i){var g=el('g',{class:'pawn'},L.pawns),q=ckXY(p.r,p.c);g.style.transform='translate('+q.x+'px,'+q.y+'px)';
-  el('circle',{cx:0,cy:0,r:6.6,fill:CK.COLS[i],opacity:.35,filter:'url(#glow)'},g);el('circle',{cx:0,cy:0,r:5.5,fill:'url(#gP'+i+')',stroke:'rgba(255,255,255,.85)','stroke-width':.4},g);el('circle',{cx:0,cy:0,r:5.5,fill:'none',stroke:CK.COLS[i],'stroke-width':.5,class:'ring'},g);
-  var t=el('text',{x:0,y:.3},g);t.setAttribute('style','font-size:6.4px;text-anchor:middle;dominant-baseline:central;pointer-events:none');t.textContent=G.avs[i];return g});
+  el('circle',{cx:0,cy:0,r:6.6*kk,fill:CK.COLS[i],opacity:.35,filter:'url(#glow)'},g);el('circle',{cx:0,cy:0,r:5.5*kk,fill:'url(#gP'+i+')',stroke:'rgba(255,255,255,.85)','stroke-width':.4},g);el('circle',{cx:0,cy:0,r:5.5*kk,fill:'none',stroke:CK.COLS[i],'stroke-width':.5,class:'ring'},g);
+  var t=el('text',{x:0,y:.3},g);t.setAttribute('style','font-size:'+(6.4*kk)+'px;text-anchor:middle;dominant-baseline:central;pointer-events:none');t.textContent=G.avs[i];return g});
  G.ckW=-1;G.fxN=0;svg.onclick=ckClick;svg.onpointermove=ckMoveEv;svg.onpointerleave=function(){if(G&&G.mode==='wall'){G.ghost=null;ckDrawGhost()}}}
-function ckSlotAt(pt){var U=CK.U,O=CK.O,j=Math.max(0,Math.min(5,Math.round((pt.x-O)/U)-1)),i=Math.max(0,Math.min(5,Math.round((pt.y-O)/U)-1));return{r:i,c:j,o:G.ori||'h'}}
+function ckSlotAt(pt){var U=CK.U,O=CK.O,M=G.s.hw.length,j=Math.max(0,Math.min(M-1,Math.round((pt.x-O)/U)-1)),i=Math.max(0,Math.min(M-1,Math.round((pt.y-O)/U)-1));return{r:i,c:j,o:G.ori||'h'}}
 function ckDrawGhost(){L.ghost.innerHTML='';var gh=G.ghost;if(!gh||G.over||G.mode!=='wall')return;var ok=ckWallCheck(G.s,G.s.turn,gh)===0,rs=ckWallRect(gh,'ghost',L.ghost);rs[1].setAttribute('fill',ok?'rgba(255,255,255,.75)':'#ff7a7a');rs[0].setAttribute('fill',ok?'#8fd8ff':'#ff7a7a')}
 function ckMoveEv(e){if(!G||G.over||G.mode!=='wall'||!myTurn()||e.pointerType!=='mouse')return;G.ghost=ckSlotAt(toSvg(e));ckDrawGhost()}
 function ckClick(e){if(!G||G.over||!myTurn()||G.busy)return;var pt=toSvg(e),s=G.s,seat=s.turn;
- if(G.mode==='move'){var c=Math.floor((pt.x-CK.O)/CK.U),r=Math.floor((pt.y-CK.O)/CK.U);if(!ckIn(r,c))return;var m=ckPawnMoves(s,seat).filter(function(x){return x.r===r&&x.c===c})[0];if(m)play(m);else SFX.bad();return}
+ if(G.mode==='move'){var c=Math.floor((pt.x-CK.O)/CK.U),r=Math.floor((pt.y-CK.O)/CK.U);if(!ckIn(r,c,s.N))return;var m=ckPawnMoves(s,seat).filter(function(x){return x.r===r&&x.c===c})[0];if(m)play(m);else SFX.bad();return}
  var w=ckSlotAt(pt);G.ghost=w;var code=ckWallCheck(s,seat,w);if(code){SFX.bad();ckDrawGhost();toast(code===3?'Not allowed: that bar would close a path to the crown.':code===1?'No bars left.':'A bar is already there.');return}
  G.ghost=null;ckDrawGhost();throwBar(w,seat,function(){play({t:'w',r:w.r,c:w.c,o:w.o})})}
 function ckDraw(){var s=G.s,U=CK.U,O=CK.O;
  s.p.forEach(function(p,i){var g=L.pw[i];if(!p){g.style.opacity=0;return}var q=ckXY(p.r,p.c);g.style.opacity=1;g.style.transform='translate('+q.x+'px,'+q.y+'px)';g.classList.toggle('act',!G.over&&s.turn===i)});
- var wc=s.hw.flat().join('')+s.vw.flat().join('');if(G.ckW!==wc){G.ckW=wc;L.walls.innerHTML='';for(var r=0;r<6;r++)for(var c=0;c<6;c++){if(s.hw[r][c])ckWallRect({r:r,c:c,o:'h'},'wall',L.walls);if(s.vw[r][c])ckWallRect({r:r,c:c,o:'v'},'wall',L.walls)}}
- L.mk.innerHTML='';if(!G.over&&G.mode==='move'&&myTurn())ckPawnMoves(s,s.turn).forEach(function(m){var q=ckXY(m.r,m.c);el('rect',{x:q.x-U/2+.5,y:q.y-U/2+.5,width:U-1,height:U-1,rx:2.4,class:'mkh'},L.mk);el('circle',{cx:q.x,cy:q.y,r:m.sh!=null?2.8:1.8,class:'mk',style:m.sh!=null?'fill:#ff7a7a':''},L.mk)});
+ var wc=s.hw.flat().join('')+s.vw.flat().join('');if(G.ckW!==wc){G.ckW=wc;L.walls.innerHTML='';for(var r=0;r<s.hw.length;r++)for(var c=0;c<s.hw.length;c++){if(s.hw[r][c])ckWallRect({r:r,c:c,o:'h'},'wall',L.walls);if(s.vw[r][c])ckWallRect({r:r,c:c,o:'v'},'wall',L.walls)}}
+ L.mk.innerHTML='';if(!G.over&&G.mode==='move'&&myTurn())ckPawnMoves(s,s.turn).forEach(function(m){var q=ckXY(m.r,m.c);el('rect',{x:q.x-U/2+.5,y:q.y-U/2+.5,width:U-1,height:U-1,rx:2.4*(U/14),class:'mkh'},L.mk);el('circle',{cx:q.x,cy:q.y,r:(m.sh!=null?2.8:1.8)*(U/14),class:'mk',style:m.sh!=null?'fill:#ff7a7a':''},L.mk)});
  ckDrawGhost();
  L.hint.innerHTML='';if(G.hint&&!G.over&&myTurn()){var path=ckDist(s,s.turn,true);if(path)el('polyline',{points:path.map(function(q){var x=ckXY(q[0],q[1]);return x.x+','+x.y}).join(' '),class:'hintl'},L.hint)}
- if(G.fxN!==s.n){G.fxN=s.n;var l=s.last;if(l&&l.t==='m')setTimeout(function(){if(!G||G.def.id!=='clash')return;var q=ckXY(l.r,l.c),p=fxPx(q.x,q.y);if(l.sh>=0){impact(p.x,p.y,'h',p.R);toast('💥 '+G.names[l.seat]+' shoved '+G.names[l.sh]+'!')}else burst(p.x,p.y,p.R.width*.08,'#fff');if(l.r===3&&l.c===3)burst(p.x,p.y,p.R.width*.3,'#ffd36a')},200)}}
-var CLD={id:'clash',n:'Crown Rush',i:'👑',bars:true,multi:true,maxP:4,desc:'Up to 4 players race from four sides to the golden crown. Throw bars to block, shove rivals aside. First on the crown wins.',act:'step toward the crown or throw a bar',
+ if(G.fxN!==s.n){G.fxN=s.n;var l=s.last;if(l&&l.t==='m')setTimeout(function(){if(!G||G.def.id!=='clash')return;var q=ckXY(l.r,l.c),p=fxPx(q.x,q.y);if(l.sh>=0){impact(p.x,p.y,'h',p.R);toast('💥 '+G.names[l.seat]+' shoved '+G.names[l.sh]+'!')}else burst(p.x,p.y,p.R.width*.08,'#fff');if(l.r===((s.N||7)-1)/2&&l.c===((s.N||7)-1)/2)burst(p.x,p.y,p.R.width*.3,'#ffd36a')},200)}}
+var CLD={id:'clash',n:'Crown Rush',i:'👑',bars:true,multi:true,maxP:4,desc:'2 to 4 players race to the golden crown. Two players get a 7x7 map, three or four get a bigger 9x9 map. Throw bars to block, shove rivals aside. First on the crown wins.',act:'step toward the crown or throw a bar',
  newState:ckNew,clone:ckClone,valid:ckValid,apply:ckApply,winner:function(s){return s.win},bot:ckBot,build:ckBuild,draw:ckDraw,
  bar:function(w){return{x:CK.O+(w.c+1)*CK.U,y:CK.O+(w.r+1)*CK.U,len:2*CK.U-2,th:2,rot:w.o==='h'?0:90}},
  anchor:function(seat){var p=G.s.p[seat]||{r:3,c:3},q=ckXY(p.r,p.c);return{x:q.x,y:q.y}},
  sub:function(i){return CK.NAMES[i]+' · '+G.s.wl[i]+' bars'},
- pips:function(i){var h='';for(var k=0;k<6;k++)h+='<i class="'+(k<G.s.wl[i]?'':'u')+'"></i>';return'<span class="walls">'+h+'</span>'},
+ pips:function(i){var h='';for(var k=0;k<G.s.B;k++)h+='<i class="'+(k<G.s.wl[i]?'':'u')+'"></i>';return'<span class="walls">'+h+'</span>'},
  score:function(i){var d=ckDist(G.s,i);return[['Steps to crown',d>=99?'-':d],['Bars left',G.s.wl[i]]]},
  after:function(m,seat){var l=G.s.last;if(m.t==='w'){SFX.wall();sysMsg('🧱 '+G.names[seat]+' placed a bar')}else{SFX.move();if(l.sh>=0){SFX.wall();sysMsg('💥 '+G.names[seat]+' shoved '+G.names[l.sh])}}
   if(G.bot&&G.bots[l.seat]&&Math.random()<.18)later(function(){say(l.seat,pick(['Mine! 👑','Out of my way 😎','Try me 😈']))},400)}};
@@ -792,7 +795,7 @@ function hhBot(s,seat,lvl){var C=hhCands(s,seat);if(!C.length)C=hhAll(s,seat);if
  C.forEach(function(m){var t=hhClone(s);hhApply(t,seat,m);var v=hhSearch(t,seat,depth-1,-1e9,1e9,seat)+Math.random()*(lvl===1?3:.4);if(v>bv){bv=v;best=m}});return best}
 
 /* ---- Hen Hunt drawing ---- */
-function hhBuild(){svg.innerHTML='';commonDefs();var U=CK.U,O=CK.O,s=G.s;
+function hhBuild(){svg.innerHTML='';commonDefs();CK.U=14;CK.O=8;var U=CK.U,O=CK.O,s=G.s;
  L.tiles=el('g',{},svg);for(var r=0;r<7;r++)for(var c=0;c<7;c++)el('rect',{x:O+c*U+.5,y:O+r*U+.5,width:U-1,height:U-1,rx:2.4,class:'ctile'},L.tiles);
  L.sunT=el('rect',{x:O,y:2.4,width:7*U,height:1.8,rx:.9,fill:'rgba(255,255,255,.13)'},svg);L.sunF=el('rect',{x:O,y:2.4,width:0,height:1.8,rx:.9,fill:'#ffc542'},svg);var sn=el('text',{x:O+7*U,y:3.4},svg);sn.setAttribute('style','font-size:4.6px;text-anchor:end;dominant-baseline:central');sn.textContent='🌇';
  L.eggs=el('g',{},svg);L.walls=el('g',{},svg);L.traps=el('g',{},svg);L.hint=el('g',{},svg);L.mk=el('g',{},svg);L.ghost=el('g',{},svg);L.pawns=el('g',{},svg);
@@ -843,7 +846,7 @@ function renderHow(){
  var rule=function(a){return'<ul class="how">'+a.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>'};
  $('#howC').innerHTML='<h2>How to play</h2>'+
  '<h3 style="margin-top:14px">🧱 Gate Rush</h3>'+rule(['<b>Goal:</b> reach the opposite edge first. Blue goes up, pink goes down.','<b>Your turn:</b> step one tile, or throw one bar. You have 10 bars: pick <b>Flat</b> or <b>Upright</b>, then tap a spot. It flies from your avatar and lands there.','<b>Fair rule:</b> you may never close the last path.','<b>Jumping:</b> if the rival is next to you, jump over. If a bar is behind them, step diagonally.'])+
- '<h3 style="margin-top:14px">👑 Crown Rush (2 to 4 players)</h3>'+rule(['Each player starts at the middle of one side, in their own colour. The golden tile in the middle is the <b>crown</b>.','<b>Goal:</b> be the <b>first to step on the crown</b>.','<b>Your turn:</b> step one tile, or throw one of your 6 bars to block a rival (same bars as Gate Rush). Nobody can be fully walled in.','<b>Shove:</b> step into a rival next to you and they slide one tile back, if that tile is free and no bar is in the way.','<b>Time out or resign:</b> that player leaves and the rest play on.'])+
+ '<h3 style="margin-top:14px">👑 Crown Rush (2 to 4 players)</h3>'+rule(['Each player starts at the middle of one side, in their own colour. The golden tile in the middle is the <b>crown</b>.','<b>Goal:</b> be the <b>first to step on the crown</b>.','<b>Maps:</b> 2 players use a 7x7 map. 3 or 4 players use a bigger 9x9 map. Every player has 6 bars, and the map always has room for all of them.','<b>Your turn:</b> step one tile, or throw one of your 6 bars to block a rival (same bars as Gate Rush). A bar can never close the last road: every player always keeps at least one way to the crown.','<b>Shove:</b> step into a rival next to you and they slide one tile back, if that tile is free and no bar is in the way.','<b>Time out or resign:</b> that player leaves and the rest play on.'])+
  '<h3 style="margin-top:14px">🐔 Hen Hunt (2 players)</h3>'+rule(['One player is the <b>hen</b>, the other the <b>hunter</b>. Roles are picked at random and swap on every rematch.','<b>Hen wins:</b> walk onto all '+HH.EGGS+' 🥚 eggs before the 🌇 daylight bar runs out and before the hunter catches her.','<b>Hunter wins:</b> step onto the hen, or run out the daylight.','<b>Hen power:</b> instead of moving, throw a fence bar ('+HH.B+' in total). Bars block both players, but the hunter can never be walled in and every egg always keeps an open side.','<b>Hunter power:</b> instead of moving, set a 🪤 trap ('+HH.T+' in total) within '+HH.REACH+' steps. The hen cannot step on traps. Traps can never go on an egg or seal an egg off.','Both sides get one action per turn, so the powers are balanced.'])+
  '<h3 style="margin-top:14px">💎 Gem Line</h3>'+rule(['Tap a column to drop a gem. It falls to the lowest free slot.','First to connect <b>four</b> in a row (across, up or diagonal) wins. A full board is a draw.'])+
  '<h3 style="margin-top:14px">🏅 Points and ranks</h3>'+rule(['Win against the computer: <b>10 / 20 / 35</b> points (Easy / Medium / Hard). Lose: 2. Draw: 5. Pass and play: win 15, lose 3.','Every game has its own rank ladder. Your <b>all-round rank</b> is the average level across all games, so play them all.'])+

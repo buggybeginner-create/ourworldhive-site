@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>PM Tracker: preventive maintenance and calibration</title><meta name="theme-color" content="#0f766e"><link rel="manifest" href="pm-manifest.webmanifest"><link rel="apple-touch-icon" href="pm-icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PM Tracker"><script src="firebase-config.js"></script><script src="owh-pricing.js"></script><script src="pm-config.js"></script>
 <style>
 :root{--p:#0f766e;--p2:#14b8a6;--bg:#eef3f3;--card:#fff;--ink:#102a2a;--mut:#5b7070;--line:#d9e3e3;--red:#dc2626;--amb:#d97706;--yel:#ca8a04;--grn:#16a34a;--blu:#2563eb;--pur:#7c3aed;--r:14px}
@@ -1072,4 +1072,4 @@ READONLY.add('qrbulk');READONLY.add('qbsel');READONLY.add('qbpdf');READONLY.add(
 Object.assign(A,{qrbulk:qrBulk,qbsel(d){const q=ui.qb,L=qbItems();L.forEach(i=>{if(d.v==='1')delete q.off[qbK(i)];else q.off[qbK(i)]=1});qrBulk.draw()},
  qbpdf(){const it=qbData(),er=$('er');if(!it.length){er.textContent='Select at least one equipment.';return}er.textContent='';const o=qbOpts();dlBlob(qrPdf(it,o),'pm-qr-labels-'+PL().code+'-'+o.size+'in.pdf');toast('PDF downloaded: '+it.length+' labels.')},
  async qbxls(){const it=qbData(),er=$('er');if(!it.length){er.textContent='Select at least one equipment.';return}er.textContent='Preparing the Excel file...';const o=qbOpts();try{const b=await qrXlsx(it,o);er.textContent='';dlBlob(b,'pm-qr-labels-'+PL().code+'-'+o.size+'in.xlsx');toast('Excel downloaded: '+it.length+' labels.')}catch(e){er.textContent='Could not make the Excel file. Try the PDF.'}}});
-</script></body></html>
+</script><div class="owh-copyline" style="clear:both;text-align:center;padding:14px 16px;margin:0;font:12px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:inherit;opacity:.7">&copy; <span class="owh-yr">2026</span> DUKEKRRISH. All rights reserved. The design, code and original content may not be copied or republished without permission.</div></body></html>

@@ -661,7 +661,7 @@ function crash(){
 function finishRun(){
   const m=Math.floor(G.dist);let nb=false;
   if(m>SAVE.best){SAVE.best=m;nb=true}
-  save();
+  save();try{if(window.OWHG)OWHG.report({pts:Math.round(m/12)+Math.round(G.coins/25),round:1,win:nb})}catch(e){}
   $('oScore').textContent=m;$('oBest').textContent=SAVE.best;$('oCoins').textContent=G.coins;$('oTot').textContent=SAVE.coins;
   $('oNew').style.display=nb?'block':'none';
   const rv=$('oRev');rv.style.display=G.revived?'none':'';rv.disabled=SAVE.coins<150;rv.innerHTML='Revive &middot; 150 &#129689;';

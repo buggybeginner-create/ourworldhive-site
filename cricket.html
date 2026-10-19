@@ -15,7 +15,7 @@ canvas{touch-action:none;display:block}
 <div id="stage"><canvas id="bg"></canvas><canvas id="gl"></canvas><canvas id="c"></canvas></div>
 <a id="hm" href="games.html" title="Back to Games" aria-label="Back to Games">&#8962;</a>
 <button id="fs" title="Full screen (F)">&#9974;</button>
-<script src="owh-bots.js"></script><script src="store-items.js"></script>
+<script src="owh-bots.js"></script><script src="owh-game.js"></script><script src="cricket-items.js"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -606,7 +606,7 @@ function eqOver(ids){
   return Object.keys(o).length?o:null;
 }
 function myOver(){
-  try{const k=localStorage.getItem('owh_store_v1')||'';if(k!==MYO_K){MYO_K=k;MYO=window.OWHSTORE?eqOver(OWHSTORE.eq()):null}}catch(e){MYO=null}
+  try{const k=localStorage.getItem('owh_gw_cricket')||'';if(k!==MYO_K){MYO_K=k;MYO=window.OWHSTORE?eqOver(OWHSTORE.eq()):null}}catch(e){MYO=null}
   return MYO;
 }
 function sideOver(side){if(!side)return null;if(side.human)return myOver();return side.eqo||null}
@@ -4044,7 +4044,8 @@ function scrHome(T){
   timeRow(552);
   if(OWNER)btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART':OPT.gfx==='stick'?'PLAYERS: STICKMAN':'PLAYERS: CLASSIC')+' \u25B6',{on:OPT.gfx!=='classic',col:'#4cc9f0',tc:'#04121c',size:12.5});
   btn('fx',248,606,216,34,'ULTRA FX: '+(OPT.fx?'ON':'OFF'),{on:OPT.fx,col:'#c77dff',tc:'#16062a',size:12.5});
-  tx('PLAYER 2 on this device uses the other profile slot',W/2,660,10.5,'#7e93bd','center','600',440);
+  btn('gstore',16,640,224,32,'\uD83D\uDED2 STORE: SKINS & TAUNTS',{size:12,on:true,col:'#e0a81c',tc:'#2b1d00'});btn('grank',248,640,216,32,'\uD83C\uDFC6 CRICKET RANKING',{size:12,on:true,col:'#7c6cff',tc:'#fff'});
+  tx('PLAYER 2 on this device uses the other profile slot',W/2,684,10.5,'#7e93bd','center','600',440);
   tx(BRAND,W/2,H-24,11,'rgba(255,255,255,0.45)','center','700');
 }
 const MODES=[['chase','QUICK CHASE','Bat only. Chase the CPU target.'],['defend','DEFEND','Bowl only. Stop the CPU chasing.'],['full','FULL MATCH','Bat first, then bowl against the CPU.'],['two','2 PLAYER','Same device. Player 1 vs Player 2.']];
@@ -4478,7 +4479,7 @@ function chatSend(kind,i){
   if(G.RT<CHAT.cd)return;
   if(kind==='p'||kind==='t'){
     const it=window.OWHSTORE&&OWHSTORE.by(i);if(!it||it.t!==(kind==='t'?'taunt':'chat'))return;
-    if(!OWHSTORE.has(OWHSTORE.load(),i)){window.open('store.html','_blank');return}
+    if(!OWHSTORE.has(OWHSTORE.load(),i)){OWHG.openStore(kind==='t'?'taunt':'chat');return}
     CHAT.cd=G.RT+(kind==='t'?2.5:1.2);CHAT.open=false;
     if(kind==='t'){CHAT2.taunt={side:'me',id:i,ts:G.RT};sfx&&sfx.pop&&sfx.pop()}else chatAdd('me','p',i);
     if(MT&&MT.online&&NETX)NETX.send('chat',{k:kind,i:i});
@@ -5021,7 +5022,9 @@ function handleUI(id,r,x,y){
     case 'chat_p':chatSend('p',d);break;
     case 'chat_t':chatSend('t',d);break;
     case 'chat_tab':CHAT2.tab=d;break;
-    case 'chat_shop':window.open('store.html','_blank');break;
+    case 'chat_shop':OWHG.openStore(CHAT2.tab==='t'?'taunt':'chat');break;
+    case 'gstore':OWHG.openStore('kit');break;
+    case 'grank':OWHG.openRank();break;
     case 'slot0':CUR=0;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'slot1':CUR=1;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'ren_team':askText('TEAM NAME',PR().team,16,v=>{PR().team=v;saveProfiles()});break;

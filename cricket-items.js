@@ -1,4 +1,4 @@
-/* Hive Store: shared catalog + local cache (used by store.html and the games). */
+/* Cricket store: this game's OWN catalog, wallet and ranking (engine: owh-game.js). */
 (function(){
 var C=function(r,g,b){return[r,g,b]};
 var ITEMS=[
@@ -46,18 +46,16 @@ var ITEMS=[
  {id:'ch_try',t:'chat',n:'Nice try',txt:'Nice try champ',cur:'coins',p:15},
  {id:'ch_bring',t:'chat',n:'Bring it on',txt:'Bring it on!',cur:'coins',p:15}
 ];
-var PACKS=[
- {id:'c10',cur:'coins',amt:100,rs:10},{id:'c20',cur:'coins',amt:230,rs:20},{id:'c50',cur:'coins',amt:650,rs:50},
- {id:'g10',cur:'gems',amt:12,rs:10},{id:'g50',cur:'gems',amt:70,rs:50},{id:'g100',cur:'gems',amt:150,rs:100}
-];
-var KEY='owh_store_v1';
-function by(id){for(var i=0;i<ITEMS.length;i++)if(ITEMS[i].id===id)return ITEMS[i];return null}
-function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');return{coins:+s.coins||0,gems:+s.gems||0,owned:s.owned||[],eq:s.eq||{},owner:!!s.owner}}catch(e){return{coins:0,gems:0,owned:[],eq:{},owner:false}}}
-function save(w){try{localStorage.setItem(KEY,JSON.stringify(w))}catch(e){}}
-function has(w,id){var it=by(id);return !!it&&(!!it.free||!!w.owner||w.owned.indexOf(id)>=0)}
-window.OWHSTORE={ITEMS:ITEMS,PACKS:PACKS,by:by,load:load,save:save,has:has,
- /* what the game should draw for this player: only items the player really has */
- eq:function(w){w=w||load();var o={},e=w.eq||{};['kit','cap','bat'].forEach(function(t){var it=e[t]&&has(w,e[t])?by(e[t]):null;if(it&&!it.free)o[t]=e[t]});return o},
- owned:function(t,w){w=w||load();return ITEMS.filter(function(i){return i.t===t&&has(w,i.id)})}
-};
+/* decorate for the generic store UI */
+ITEMS.forEach(function(i){
+  if(i.t==='kit')i.sw='background:'+(i.col?'rgb('+i.col.join(',')+')':'#2a6df0');
+  else if(i.t==='cap'){i.e=i.style==='crown'?'👑':i.style==='cowboy'?'🤠':i.style==='beanie'?'🧢':i.style==='cap'?'🧢':'🥷';i.sw='background:#1d2547'}
+  else if(i.t==='bat'){i.e='🏏';i.sw='background:'+(i.col?'rgb('+i.col.join(',')+')':'#dcb17a')}
+  else if(i.t==='chat'){i.sw='background:#1d2547;font-size:13px;padding:4px';i.e=i.txt;i.noequip=1}
+  else if(i.t==='taunt'){i.sw='background:#1d2547';i.noequip=1;i.d='Big banner on the main screen. Your opponent sees it too.'}
+});
+OWHG.init({game:'cricket',name:'Cricket',icon:'🏏',rankScale:600,items:ITEMS,
+  types:[{t:'kit',n:'Kits'},{t:'cap',n:'Caps'},{t:'bat',n:'Bats'},{t:'taunt',n:'Taunts'},{t:'chat',n:'Chat lines'}]});
+/* compatibility layer used by the cricket code */
+window.OWHSTORE={ITEMS:ITEMS,by:OWHG.by,has:function(w,id){return OWHG.has(id)},load:function(){return{}},eq:function(){return OWHG.eqIds()},owned:function(t){return OWHG.owned(t)}};
 })();

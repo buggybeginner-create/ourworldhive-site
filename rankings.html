@@ -129,7 +129,7 @@ ol.rk li:nth-child(1) .no{ color:#ffd36a } ol.rk li:nth-child(2) .no{ color:#d9e
 'use strict';
 var TIERS=[[0,'Novice','🌱'],[30,'Beginner','🌿'],[80,'Apprentice','🥉'],[160,'Challenger','🥈'],[280,'Skilled','🥇'],[450,'Expert','💠'],[700,'Master','🔮'],[1000,'Grandmaster','👑'],[1400,'Legend','🐉'],[2000,'Mythic Legend','🌌']];
 var TC=['#b6c6e8','#8fe3a0','#e0a46a','#d9e3f2','#ffd36a','#3fd8ff','#b48bff','#ffc94d','#ff7a45','#ff6fb4'],TCL=['','','s','s','s g','s g','s g','s g','s f','r s'];
-var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Gem Line',i:'💎'},{id:'cricket',n:'Cricket',i:'🏏'},{id:'towerdef',n:'Hive Defense',i:'🏰'}];
+var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Gem Line',i:'💎'},{id:'cricket',n:'Cricket',i:'🏏'},{id:'towerdef',n:'Hive Defense',i:'🏰'},{id:'chess',n:'Royal Duel',i:'♚'},{id:'ludo',n:'Home Dash',i:'🎲'},{id:'carrom',n:'Disc Flick',i:'🎯'},{id:'uttt',n:'Nine Grids',i:'❌'},{id:'runner3d',n:'Hive Runner 3D',i:'🏃'},{id:'kidballoons',n:'Balloon Pop',i:'🎈'},{id:'kidcatch',n:'Fruit Catch',i:'🧺'},{id:'kidmath',n:'Magic Math',i:'🔢'},{id:'kidanimals',n:'Animal Sounds',i:'🐮'}];
 var $=function(s){return document.querySelector(s)};
 function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function tierOf(p){var i=0;TIERS.forEach(function(t,k){if(p>=t[0])i=k});return i}
@@ -140,12 +140,12 @@ var cur='all',rows=[],me=null;
 function paintLadder(){$('#ladder').innerHTML=TIERS.map(function(t,i){return'<span>'+tierHtml(i)+' <small class="muted">'+t[0]+'+</small></span>'}).join('')}
 function paintSeg(){var all=[{id:'all',n:'All-round',i:'🏅'}].concat(GAMES);$('#rkGame').innerHTML=all.map(function(g){return'<button type="button" data-v="'+g.id+'" aria-pressed="'+(g.id===cur)+'">'+g.i+' '+esc(g.n)+'</button>'}).join('')}
 function paint(){var list=rows.map(function(r){var g=r.g||{},o={uid:r.uid,name:r.name,av:r.av};
-  if(cur==='all'){var sum=0,played=0,tot=0;GAMES.forEach(function(x){var p=(g[x.id]&&g[x.id].pts)||0;sum+=lvlOf(p);if(g[x.id]&&g[x.id].n)played++;tot+=p});o.score=sum/GAMES.length;o.pts=tot;o.played=played;o.ti=Math.min(9,Math.floor(o.score));if(!played)return null}
+  if(cur==='all'){var sum=0,played=0,tot=0,lv=[];GAMES.forEach(function(x){var p=(g[x.id]&&g[x.id].pts)||0;lv.push(lvlOf(p));if(g[x.id]&&g[x.id].n)played++;tot+=p});lv.sort(function(a,b){return b-a});lv.slice(0,6).forEach(function(v){sum+=v});o.score=sum/6;o.pts=tot;o.played=played;o.ti=Math.min(9,Math.floor(o.score));if(!played)return null}
   else{var s=g[cur];if(!s||!s.n)return null;o.pts=s.pts||0;o.w=s.w||0;o.l=s.l||0;o.d=s.d||0;o.score=o.pts;o.ti=tierOf(o.pts)}return o}).filter(Boolean).sort(function(a,b){return b.score-a.score||b.pts-a.pts}).slice(0,100);
  $('#rkList').innerHTML=list.map(function(o,i){var sub=cur==='all'?tierHtml(o.ti)+'<span>'+o.played+'/'+GAMES.length+' games</span>':tierHtml(o.ti)+'<span>'+o.w+'W '+o.l+'L '+o.d+'D</span>';
   return'<li class="'+(me&&o.uid===me?'me':'')+'"><span class="no">'+(i+1)+'</span>'+avHtml(o.av,o.ti)+'<div style="min-width:0"><div class="nm">'+esc(o.name||'Player')+(me&&o.uid===me?' (you)':'')+'</div><div class="sub">'+sub+'</div></div><div class="pts">'+(cur==='all'?o.score.toFixed(1)+'<small>avg level</small>':o.pts+'<small>points</small>')+'</div></li>'}).join('');
  var g=cur==='all'?null:GAMES.filter(function(x){return x.id===cur})[0];
- $('#rkNote').textContent=list.length?(cur==='all'?'Average level over all '+GAMES.length+' games. Unplayed games count as level 0, so play them all.':'Top '+list.length+' in '+g.n+'.'):'No ranked matches here yet. Be the first: host a room and win!'}
+ $('#rkNote').textContent=list.length?(cur==='all'?'Average level of each player\'s best 6 games. Play more games to raise it.':'Top '+list.length+' in '+g.n+'.'):'No ranked matches here yet. Be the first: host a room and win!'}
 function load(){
  if(!window.OWH_FIREBASE){$('#rkNote').textContent='Rankings need the site connection. Please try again later.';return}
  var FB='10.12.2',b='https://www.gstatic.com/firebasejs/'+FB+'/';

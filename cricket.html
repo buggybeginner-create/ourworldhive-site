@@ -567,6 +567,21 @@ function drawRig(J,S){
   const dk=[34,34,40],metal=[70,74,84];let CURCH=null;
   const fc=J.face||[0,0,1],rt=[fc[2],0,-fc[0]];
   const trim=S.trim||null;
+  const STICK=OPT.gfx==='stick'&&!GLX.collecting;
+  if(STICK){
+    const K=S.stickCol||[22,24,34],R=0.032,jc=S.jersey||K;
+    for(const side of ['L','R']){CURCH='leg'+side;const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
+      cap(hp,k,R,K);cap(k,an,R*0.95,K);cap(an,tt,R*0.9,K);
+      if(S.pad)cap(vmix(k,an,0.08),vmix(k,an,0.92),R*1.9,[238,238,232],R*1.6,{off:0.01})}
+    CURCH='torso';cap(J.hipL,J.hipR,R,K);cap(J.pel,J.neck,R*1.15,K);cap(J.sL,J.sR,R,K);
+    cap(vmix(J.pel,J.neck,0.12),vmix(J.pel,J.neck,0.88),R*2.7,jc,R*2.3,{off:0.012});
+    for(const side of ['L','R']){CURCH='arm'+side;const s_=J['s'+side],e_=J['e'+side],h_=J['h'+side];
+      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove)sph(h_,R*1.8,S.glove,0.02);else sph(h_,R*1.2,K)}
+    CURCH=null;cap(J.neck,J.head,R,K);
+    sph(J.head,0.1,[247,247,244],0.0);sph(J.head,0.108,K,-0.03);
+    if(S.helmet)sph(vadd(J.head,[0,0.035,0]),0.112,S.helmet,0.04);
+    else if(S.cap)sph(vadd(J.head,[0,0.05,0]),0.098,S.cap,0.04);
+  }else{
   /* legs */
   for(const side of ['L','R']){
     CURCH='leg'+side;
@@ -668,6 +683,7 @@ function drawRig(J,S){
     cap(hc,vadd(hc,vsc(fc,0.15)),0.026,S.cap,0.02);
     if(S.brim)cap(vadd(hc,[-0.15*fc[2],-0.02,0.15*fc[0]]),vadd(hc,[0.15*fc[2],-0.02,-0.15*fc[0]]),0.025,S.cap);
     sph(vadd(hc,[0,0.1,0]),0.02,shade(S.cap,1.2),0.02);
+  }
   }
   /* bat / ball */
   const bs0=parts.length;
@@ -2884,7 +2900,7 @@ CH.drawMain=function(setCommon,setLight){
    If anything fails the game drops back to the CLASSIC look by itself.
    ===================================================================== */
 try{OPT.gfx=localStorage.getItem('wh_cricket_gfx2')||'art'}catch(e){OPT.gfx='art'}
-if(OPT.gfx!=='classic')OPT.gfx='art';
+if(OPT.gfx!=='classic'&&OPT.gfx!=='stick')OPT.gfx='art';
 OPT.gl=false;
 const GLX={on:false,ready:false,collecting:false,err:null,bgc:null,sph:null,fru:null,ns:0,nf:0,SMS:2048};
 (function(){
@@ -3925,7 +3941,7 @@ function scrHome(T){
   btn('squad',16,430,84,60,'SQUAD',{size:12.5});btn('market',107,430,84,60,'MARKET',{size:12.5});btn('career',198,430,84,60,'CAREER',{size:12.5});btn('ranks',289,430,84,60,'RANKS',{size:12.5,on:true,col:'#c77dff',tc:'#16062a'});btn('profile',380,430,84,60,'PROFILE',{size:12.5,on:true,col:'#ffd23f',tc:'#2a1800'});
   tx('Pick your batter and bowler cards • buy new ones with stars',W/2,506,11,'#8fa6d4','center','600',440);
   timeRow(552);
-  btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART (tap = switch)':'PLAYERS: CLASSIC (tap = switch)'),{on:OPT.gfx==='art',col:'#4cc9f0',tc:'#04121c',size:12.5});
+  btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART':OPT.gfx==='stick'?'PLAYERS: STICKMAN':'PLAYERS: CLASSIC')+' \u25B6',{on:OPT.gfx!=='classic',col:'#4cc9f0',tc:'#04121c',size:12.5});
   btn('fx',248,606,216,34,'ULTRA FX: '+(OPT.fx?'ON':'OFF'),{on:OPT.fx,col:'#c77dff',tc:'#16062a',size:12.5});
   tx('PLAYER 2 on this device uses the other profile slot',W/2,660,10.5,'#7e93bd','center','600',440);
   tx(BRAND,W/2,H-24,11,'rgba(255,255,255,0.45)','center','700');
@@ -4863,7 +4879,7 @@ function handleUI(id,r,x,y){
       else if(res==='poor')toast('Need '+(c.price-PR().stars)+' more stars');
       break}
     /* in-match */
-    case 'gl3d':OPT.gfx=OPT.gfx==='art'?'classic':'art';OPT.gl=false;try{localStorage.setItem('wh_cricket_gfx2',OPT.gfx)}catch(e){}break;
+    case 'gl3d':OPT.gfx=OPT.gfx==='art'?'classic':OPT.gfx==='classic'?'stick':'art';OPT.gl=false;try{localStorage.setItem('wh_cricket_gfx2',OPT.gfx)}catch(e){}break;
     case 'fx':OPT.fx=!OPT.fx;try{localStorage.setItem('wh_cricket_fx',OPT.fx?'1':'0')}catch(e){}break;
     case 'pace':if(G.mode==='aim')G.pace=d;break;
     case 'bowlgo':

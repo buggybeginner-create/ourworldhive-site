@@ -285,6 +285,11 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 
   <div id="vI" hidden>
     <div class="box"><h2>Hide until ready</h2><p>Tick a tool or game to hide it from visitors. While you are signed in to Studio in this browser, you still see it on the Hive Apps and Games pages with an orange "Hidden" label, so you can try it. Untick it when it is ready and everyone sees it. (Your own items and games added below have their own Show tick.)</p><h3>Hive Apps tools</h3><div id="hM"></div><h3>Games</h3><div id="hG"></div><div class="row" style="margin-top:12px"><button class="sb gold" id="hSave" type="button">Save</button></div><p class="msg4" id="hMsg" role="status"></p></div>
+    <div class="box"><h2>Online bots</h2><p>When this is ON, a player who searches for an online match and finds nobody after 7 to 16 seconds is matched with computer players that have random human-style names. They look like real players. Bot games are practice games: no ranking points. Only you can change this, because you are signed in to Studio.</p>
+      <label class="chk"><input type="checkbox" id="bOn"> Bots ON (master switch)</label>
+      <label class="chk"><input type="checkbox" id="bTag"> Show a "(BOT)" tag after the bot names</label>
+      <h3 style="margin:12px 0 4px;font-size:15px">Allow bots in</h3><div id="bG"></div>
+      <div class="row"><button class="sb gold" id="bSave">Save</button></div><p class="msg4" id="bMsg" role="status"></p></div>
     <div class="box"><h2>The Anime Way: your YouTube videos</h2><p>Paste the links of videos you posted on YouTube. They show on the page animeway.html for everyone. To make a new video, open any animation on that page while signed in here and tap "Share / Download video".</p><label class="fld">Your YouTube channel link (optional)<input id="awCh" placeholder="https://www.youtube.com/@yourchannel"></label><div id="awList"></div><div class="row" style="margin-top:12px"><button class="sb" id="awAdd" type="button">Add a video</button><button class="sb gold" id="awSave" type="button">Save</button></div><p class="msg4" id="awMsg" role="status"></p></div>
     <div class="box"><h2>Hive Apps items</h2><p>Add your own products or tools to the Hive Apps page. Each one gets a button with your link (for example a payment link or the link to a tool).</p>
       <div id="iList"></div>
@@ -467,6 +472,14 @@ $('hSave').onclick=function(){
   say('hMsg','Saving\u2026'); db.collection('config').doc('hidden').set({mk:mk,gm:gm}).then(function(){ hid={mk:mk,gm:gm}; say('hMsg','Saved. '+(mk||gm?'Hidden items show to you only (with an orange label). Visitors do not see them.':'Everything is visible to everyone.'),'ok'); }).catch(function(e){ say('hMsg',friendly(e),'err'); });
 };
 
+var BGL=[['cricket','Cricket 3D'],['arena','3D multiplayer games (Games page)'],['chess','Chess'],['ludo','Ludo'],['carrom','Carrom'],['uttt','Ultimate Tic-Tac-Toe'],['hen','Hen Hunt'],['blockade','Gate Rush'],['clash','Crown Rush'],['four','Gem Line']],bcfg={on:false,tag:false,off:''};
+function renderBots(){ $('bOn').checked=!!bcfg.on; $('bTag').checked=!!bcfg.tag; $('bG').innerHTML=BGL.map(function(x){ return '<label class="chk"><input type="checkbox" data-bg="'+x[0]+'"'+(hasH(bcfg.off,x[0])?'':' checked')+'> '+esc(x[1])+'</label>'; }).join(''); }
+function loadBots(){ db.collection('config').doc('bots').get().then(function(d){ if(d.exists){ var o=d.data(); bcfg={on:!!o.on,tag:!!o.tag,off:String(o.off||'')}; } renderBots(); }).catch(function(){ renderBots(); }); }
+$('bSave').onclick=function(){
+  var off=[].filter.call(document.querySelectorAll('[data-bg]'),function(e){ return !e.checked; }).map(function(e){ return e.dataset.bg; }).join(','), on=$('bOn').checked, tag=$('bTag').checked;
+  say('bMsg','Saving\u2026'); db.collection('config').doc('bots').set({on:on,tag:tag,off:off}).then(function(){ bcfg={on:on,tag:tag,off:off}; say('bMsg','Saved. Bots are '+(on?'ON':'OFF')+'.','ok'); }).catch(function(e){ say('bMsg',friendly(e),'err'); });
+};
+
 var awItems=[];
 function ytId(u){ u=String(u||'').trim(); var m=/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/.exec(u); if(m) return m[1]; return /^[A-Za-z0-9_-]{11}$/.test(u)?u:''; }
 function renderAw(){
@@ -481,7 +494,7 @@ $('awSave').onclick=function(){
   var ch=$('awCh').value.trim(); if(ch&&!/^https:\/\/(www\.)?youtube\.com\//i.test(ch)){ say('awMsg','The channel link must start with https://www.youtube.com/','err'); return; }
   say('awMsg','Saving\u2026'); db.collection('config').doc('animeway').set({v:JSON.stringify({channel:ch,items:items})}).then(function(){ awItems=items; renderAw(); say('awMsg','Saved. '+items.length+' video(s) are live on animeway.html.','ok'); }).catch(function(e){ say('awMsg',friendly(e),'err'); });
 };
-function loadAll(){ loadPosts(); loadMenu(); loadHidden(); loadAw(); loadItems(); loadAnimals(); loadGames(); loadSettings(); loadAdmins(); }
+function loadAll(){ loadPosts(); loadMenu(); loadHidden(); loadBots(); loadAw(); loadItems(); loadAnimals(); loadGames(); loadSettings(); loadAdmins(); }
 
 
 /* ---------- games added by code ---------- */

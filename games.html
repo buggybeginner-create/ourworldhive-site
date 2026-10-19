@@ -251,7 +251,7 @@ body.playing .arena > h1, body.playing .arena > .lede, body.playing .arena > .ab
   }
   var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
 })();
-</script><script src="firebase-config.js"></script><script src="site.js"></script><script src="engage.js"></script><script>'use strict';
+</script><script src="firebase-config.js"></script><script src="owh-bots.js"></script><script src="site.js"></script><script src="engage.js"></script><script>'use strict';
 const $=id=>document.getElementById(id);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1231,8 +1231,8 @@ function makeBots(id,n,diff){const ref=(GAMES[id]&&GAMES[id].ref)||REFS[id]||200
 function botScore(b,t,T){const p=Math.min(1,t/T),c=Math.pow(p,.88)*(1+.05*Math.sin(t*.9+b.ph));return Math.max(0,Math.floor(b.final*Math.min(1,c)))}
 function openBotSetup(id){const G=GAMES[id];openSheet(`<div class="row"><h2 style="margin:0">${esc(G.icon)} ${esc(G.name)}: with bots</h2><button class="btn alt sm" id="bX" aria-label="Close">\u2715</button></div><p class="sub">Practice against computer players. Everyone plays at the same time and you can see how you compare. Practice games do not give ranking points and do not need a login.</p><h3>Bots</h3><div class="seg" id="bN">${[1,2,3].map(n=>`<button data-n="${n}" class="${BOTSET.n===n?'on':''}">${n} bot${n>1?'s':''}</button>`).join('')}</div><h3>Level</h3><div class="seg" id="bD">${[['easy','Easy'],['normal','Normal'],['hard','Hard']].map(x=>`<button data-d="${x[0]}" class="${BOTSET.d===x[0]?'on':''}">${x[1]}</button>`).join('')}</div><button class="btn big" id="bGo">\uD83E\uDD16 Start</button>`);
  $('bX').onclick=closeSheet;$('bN').querySelectorAll('button').forEach(b=>b.onclick=()=>{BOTSET.n=+b.dataset.n;openBotSetup(id)});$('bD').querySelectorAll('button').forEach(b=>b.onclick=()=>{BOTSET.d=b.dataset.d;openBotSetup(id)});$('bGo').onclick=()=>{closeSheet();beginPlay(id,'bots',{seed:Math.floor(Math.random()*2147483647),bots:makeBots(id,BOTSET.n,BOTSET.d)})}}
-function botsFinish(sc){const G=PL.G,id=PL.id,bots=PL.bots;const rows=[{n:'You',s:sc,me:true}].concat(bots.map(b=>({n:b.name+' (bot)',s:b.final})));rows.sort((a,b)=>b.s-a.s);const place=rows.findIndex(r=>r.me)+1;stopPlay();show('res');if(place===1)SFX.win();
- $('resCard').innerHTML=`<div class="sub c">${G.icon} ${G.name} (practice with bots)</div><div class="big">${MEDAL[place-1]||'\uD83C\uDFC1'} ${sc}</div><p class="c"><b>${place===1?'You beat the bots!':'You finished '+['','1st','2nd','3rd','4th'][place]}</b></p><table>${rows.map((r,i)=>`<tr class="${r.me?'me':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}</td></tr>`).join('')}</table><p class="note c">Practice with bots does not give ranking points.</p><div class="row"><button class="btn" id="rsAgain">Play again</button><button class="btn alt" id="rsMp">\uD83D\uDC65 Multiplayer</button><button class="btn alt" id="rsHome">Games</button></div>`;
+function botsFinish(sc){const G=PL.G,id=PL.id,bots=PL.bots;const rows=[{n:'You',s:sc,me:true}].concat(bots.map(b=>({n:b.name+(b.hid?'':' (bot)'),s:b.final})));rows.sort((a,b)=>b.s-a.s);const place=rows.findIndex(r=>r.me)+1;stopPlay();show('res');if(place===1)SFX.win();
+ $('resCard').innerHTML=`<div class="sub c">${G.icon} ${G.name}${bots.some(b=>b.hid)?'':' (practice with bots)'}</div><div class="big">${MEDAL[place-1]||'\uD83C\uDFC1'} ${sc}</div><p class="c"><b>${place===1?'You beat the bots!':'You finished '+['','1st','2nd','3rd','4th'][place]}</b></p><table>${rows.map((r,i)=>`<tr class="${r.me?'me':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}</td></tr>`).join('')}</table><p class="note c">Practice with bots does not give ranking points.</p><div class="row"><button class="btn" id="rsAgain">Play again</button><button class="btn alt" id="rsMp">\uD83D\uDC65 Multiplayer</button><button class="btn alt" id="rsHome">Games</button></div>`;
  $('rsAgain').onclick=()=>beginPlay(id,'bots',{seed:Math.floor(Math.random()*2147483647),bots:makeBots(id,bots.length,BOTSET.d)});$('rsMp').onclick=()=>{renderHub();openMpSetup(id)};$('rsHome').onclick=renderHub}
 function openMpSetup(id){
   const G=GAMES[id];
@@ -1251,7 +1251,7 @@ function openMpSetup(id){
 /* ---------- rooms ---------- */
 let MPS=null;
 const roomRef=id=>FS.collection('arena_rooms').doc(id), pCol=id=>roomRef(id).collection('p');
-function mpStop(){if(MPS){clearInterval(MPS.iv);try{MPS.u1&&MPS.u1()}catch(e){}try{MPS.u2&&MPS.u2()}catch(e){}MPS=null}}
+function mpStop(){if(MPS){clearInterval(MPS.iv);clearTimeout(MPS.botT);try{MPS.u1&&MPS.u1()}catch(e){}try{MPS.u2&&MPS.u2()}catch(e){}MPS=null}}
 async function findMatch(game,size,scope){
   mpStop();stopPlay();show('lobby');$('lbT').textContent=(GAMES[game]?GAMES[game].icon+' '+GAMES[game].name:'Multiplayer room');$('lbInfo').textContent='Looking for a room\u2026';$('lbSeats').innerHTML='';$('lbMsg').textContent='';$('lbBar').style.width='0%';$('lbNone').classList.add('hide');$('lbReady').classList.add('hide');$('lbLeave').classList.remove('hide');
   const token={};MPS={token,game,size,scope,rid:null,room:null,players:[],iv:0,started:false,settled:false};
@@ -1270,6 +1270,12 @@ async function findMatch(game,size,scope){
     MPS.u1=roomRef(rid).onSnapshot(s=>{if(MPS&&MPS.token===token){MPS.room=s.exists?s.data():null;lobbyTick()}});
     MPS.u2=pCol(rid).onSnapshot(q=>{if(MPS&&MPS.token===token){MPS.players=q.docs.map(d=>d.data());lobbyTick();if(PL&&PL.mode==='multi')hud()}});
     MPS.iv=setInterval(()=>{lobbyTick();beat()},500);MPS.hbAt=0
+    /* owner-controlled bots (Studio > Online bots): if nobody joins, fill the room with computer players */
+    if(window.OWHBOTS)OWHBOTS.cfg(FS,'arena').then(c=>{if(!c||!MPS||MPS.token!==token)return;
+      MPS.botT=setTimeout(async()=>{const M=MPS;if(!M||M.token!==token||M.started||!M.room||M.room.status!=='waiting')return;
+        if(aliveList().length>=2)return;
+        const g=M.game,sz=M.size;await leaveRoom();const n=Math.max(1,Math.min(3,sz-1)),bots=makeBots(g,n,'normal'),nm=OWHBOTS.names(n,c.tag);bots.forEach((b,i)=>{b.name=nm[i];b.hid=!c.tag});
+        beginPlay(g,'bots',{seed:Math.floor(Math.random()*2147483647),bots})},OWHBOTS.delay())})
   }catch(e){console.error(e);mpStop();show('hub');toast('Could not find a room right now. Please check your internet and try again.',4200)}}
 function beat(){if(!MPS||!MPS.rid||!MPS.room||MPS.room.status!=='waiting')return;const n=Date.now();if(n-MPS.hbAt<5000)return;MPS.hbAt=n;pCol(MPS.rid).doc(ME.uid).update({hb:n}).catch(()=>{})}
 function aliveList(){const n=Date.now(),ok=MPS.players.filter(p=>n-(p.hb||0)<15000).map(p=>p.uid);return ok.filter(u=>MPS.room.members.indexOf(u)>=0)}
@@ -1341,7 +1347,7 @@ function beginPlay(id,mode,mp){
   let st=null;try{st=G.own?makeOwnStage(G):makeStage()}catch(e){console.error(e)}
   if(!st){backWithMsg('This device or browser could not start 3D graphics. '+(window.__glErr||''));return}
   SFX.init();seedGame(mode==='single'?null:mp.seed);
-  $('pTitle').textContent=G.name+(mode==='multi'?' (multiplayer)':mode==='bots'?' (with bots)':'');$('pStage').innerHTML='';$('pStage').appendChild(st.wrap);$('pPad').innerHTML='';$('pHow').textContent=G.how;
+  $('pTitle').textContent=G.name+(mode==='multi'?' (multiplayer)':mode==='bots'?(mp.bots&&mp.bots[0]&&mp.bots[0].hid?' (multiplayer)':' (with bots)'):'');$('pStage').innerHTML='';$('pStage').appendChild(st.wrap);$('pPad').innerHTML='';$('pHow').textContent=G.how;
   $('pPause').classList.toggle('hide',mode==='multi');$('pPause').textContent='Pause';$('pSnd').textContent=PREF.snd.s?'\uD83D\uDD0A':'\uD83D\uDD07';$('pMus').textContent=PREF.snd.m?'\uD83C\uDFB5':'\uD83D\uDD15';
   $('pRv').classList.toggle('hide',mode==='single');$('pRv').innerHTML='';
   let g;try{g=G.own?G.make(ownCtx(st,mode,mp)):G.make({R:st.R,cv:st.cv,btn:padBtn,car:PREF.car})}catch(e){console.error(e);try{st.dispose()}catch(_){}backWithMsg('The game could not start: '+String(e&&e.message||e).slice(0,120));return}

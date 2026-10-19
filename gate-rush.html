@@ -259,7 +259,7 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
 <div id="cbg" hidden></div>
 <div id="toast" role="status"></div>
 
-<script>window.HR_LOCK='blockade';</script>
+<script>window.HR_LOCK='blockade';</script><script src="owh-bots.js"></script>
 <script>
 (function(){
 'use strict';
@@ -447,7 +447,7 @@ var QUICK=['Good luck! 🍀','Nice move! 👏','Hmm, tricky 🤔','Oops! 😅','
 var EMO=['😀','😂','😮','😡','👏','🔥','😭','👍','💎','🎉'];
 function start(opt){
  var gid=SET.game,D=DEFS[gid],bot=SET.mode==='bot',lv=+SET.lvl,tm=+SET.tm,np=D.multi?+SET.np:2,nm=$$('.p2n').map(function(i){return i.value.trim().slice(0,14)}),RN=['','II','III'],BA=[BOTS[lv].av,'🐙','🦈'],names=[prof.name],avs=[prof.av],bots=[false];
- for(var k=1;k<np;k++){names.push(bot?BOTS[lv].n+(k>1?' '+RN[k-1]:''):(nm[k-1]||('Friend '+k)));avs.push(bot?BA[k-1]:['🐙','🐸','🦋'][k-1]);bots.push(bot)}
+ for(var k=1;k<np;k++){names.push(bot?(window.HR_BOTNAMES&&window.HR_BOTNAMES[k-1]||BOTS[lv].n+(k>1?' '+RN[k-1]:'')):(nm[k-1]||('Friend '+k)));avs.push(bot?BA[k-1]:['🐙','🐸','🦋'][k-1]);bots.push(bot)}
  if(opt&&opt.online){var O=opt.online;gid=O.game;D=DEFS[gid];bot=false;tm=0;np=O.names.length;names=O.names.slice();avs=O.avs.slice();bots=names.map(function(){return false});SET.role=O.role||0;SET.seed=O.seed||0}
  clearInterval(G&&G.iv);
  G={game:gid,def:D,bot:bot,bots:bots,np:np,lvl:lv,s:D.newState(np),names:names,avs:avs,over:0,mode:'move',flip:false,ghost:null,hint:false,busy:false,tm:tm,ck:names.map(function(){return tm*6e4}),t0:Date.now(),lastT:Date.now(),iv:null,sel:null,fxN:0,online:(opt&&opt.online)?{seat:opt.online.me,code:opt.online.code,gn:opt.online.gn,pend:false,ap:false}:null};
@@ -968,6 +968,12 @@ async function joinRoom(c){try{await boot()}catch(e){toast(errMsg(e));return}c=S
   var s=r.seats.concat([{u:uid,n:p.n,a:p.a,r:0}]);return{seats:s,us:r.us.concat([uid])}})}catch(e){toast(/not found/i.test(e.message)?'Room not found. Check the code.':errMsg(e));return}enterRoom(c)}
 function enterRoom(c){cleanup();code=c;LSset('hr_room',c);curGn=0;
  offs.push(RT.watchRoom(c,onRoom));
+ /* owner-controlled bots (Studio > Online bots): nobody joined -> start a computer match with random names */
+ if(window.OWHBOTS&&window.HR_LOCK&&!demo)try{OWHBOTS.cfg(firebase.firestore(),HR_LOCK).then(function(cf){
+  if(!cf||code!==c)return;
+  tm.bot=setTimeout(function(){if(code!==c||!R||R.st!=='lobby'||R.us.length>1||R.host!==uid)return;
+   var g=R.game,np=R.max;RT.tx(c,function(r){return r.st==='lobby'?{st:'closed',why:'Closed'}:null}).catch(function(){});
+   cleanup();window.HR_BOTNAMES=OWHBOTS.names(3,cf.tag);window.__cb.start({game:g,mode:'bot',lvl:1,np:np});window.HR_BOTNAMES=null},OWHBOTS.delay())})}catch(e){}
  tm.ui=setInterval(tick1,1000);tm.dog=setInterval(watchdog,4000);tm.beat=setInterval(beat,BEAT);beat();
  H.setHooks(hooks)}
 function beat(){if(!code||!R||R.st==='closed')return;RT.beat(code,uid).then(function(){lastBeatOk=now()}).catch(function(){})}

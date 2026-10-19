@@ -116,7 +116,18 @@ BX.lobby=function(root,o){BX.closeFs();
   $('#bxCp',root).onclick=function(){try{navigator.clipboard.writeText(location.origin+location.pathname+'?room='+rid);BX.toast('Link copied')}catch(e){}};
   var done=false;function go(r){if(done)return;done=true;un();var seats=r.players.map(function(u){return{name:(r.names&&r.names[u])||'Player',bot:false}});start({mode:'online',rid:rid,seats:seats,uids:r.players,me:r.players.indexOf(BX.uid),seed:r.seed})}
   var un=BX.room.watch(rid,function(r){if(done)return;W.querySelector('p.bx-p').firstChild.textContent='Waiting for players ('+r.players.length+'/'+r.max+')… Share this code or link:';if(r.status!=='open'&&r.players.length>=r.max)go(r)});
-  unW=function(){if(!done){done=true;un()}};
+  unW=function(){if(!done){done=true;un();clearTimeout(botT)}};
+  /* owner-controlled bots: if nobody joins, fill the room with computer players (set in Studio) */
+  var botT=0;
+  if(d.players.length<d.max&&d.players.length<=1&&d.host===BX.uid){
+   (window.OWHBOTS?Promise.resolve():new Promise(function(ok){var sc=document.createElement('script');sc.src='owh-bots.js';sc.onload=sc.onerror=ok;document.head.appendChild(sc)})).then(function(){
+    if(done||!window.OWHBOTS)return;return OWHBOTS.cfg(BX.db,o.game).then(function(c){
+     if(!c||done)return;
+     botT=setTimeout(function(){if(done)return;done=true;un();
+      BX.db.collection('board_rooms').doc(rid).delete().catch(function(){});
+      var nm=OWHBOTS.names(d.max-1,c.tag),seats=[{name:BX.name(),bot:false}];
+      for(var i=0;i<d.max-1;i++)seats.push({name:nm[i],bot:true,level:lvl});
+      start({mode:'bot',seats:seats,me:0,seed:Math.floor(Math.random()*2147483646)+1,uids:null})},OWHBOTS.delay())})})}
   $('#bxCx',root).onclick=function(){unW();BX.db.collection('board_rooms').doc(rid).delete().catch(function(){});render()};
   if(d.players.length>=d.max&&d.status!=='open')go(d)}
  function onlineUI(){var W=$('#bxOn',root);

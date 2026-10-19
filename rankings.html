@@ -129,7 +129,7 @@ ol.rk li:nth-child(1) .no{ color:#ffd36a } ol.rk li:nth-child(2) .no{ color:#d9e
 'use strict';
 var TIERS=[[0,'Novice','🌱'],[30,'Beginner','🌿'],[80,'Apprentice','🥉'],[160,'Challenger','🥈'],[280,'Skilled','🥇'],[450,'Expert','💠'],[700,'Master','🔮'],[1000,'Grandmaster','👑'],[1400,'Legend','🐉'],[2000,'Mythic Legend','🌌']];
 var TC=['#b6c6e8','#8fe3a0','#e0a46a','#d9e3f2','#ffd36a','#3fd8ff','#b48bff','#ffc94d','#ff7a45','#ff6fb4'],TCL=['','','s','s','s g','s g','s g','s g','s f','r s'];
-var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Gem Line',i:'💎'},{id:'cricket',n:'Cricket',i:'🏏'}];
+var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Gem Line',i:'💎'},{id:'cricket',n:'Cricket',i:'🏏'},{id:'towerdef',n:'Hive Defense',i:'🏰'}];
 var $=function(s){return document.querySelector(s)};
 function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function tierOf(p){var i=0;TIERS.forEach(function(t,k){if(p>=t[0])i=k});return i}

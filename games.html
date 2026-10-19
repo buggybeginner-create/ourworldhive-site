@@ -1158,7 +1158,10 @@ GAMES.kidmath={link:'kid-math.html',own:true,kind:'gl',name:'Magic Math',icon:'\
 GAMES.kidanimals={link:'kid-animals.html',own:true,kind:'gl',name:'Animal Sounds',icon:'\uD83D\uDC2E',bg:'linear-gradient(135deg,#ff8a1f,#ff4d5e)',modes:'single',tagsHtml:'<i>Kids</i><i>No ads</i>',
  desc:'Who says Moo? Listen and tap the right animal.',
  how:'Opens the kids game. Tap the animal that makes the sound.',make(){return{}}};
-const ORDER=['highway','runner3d','stack','space','pingpong','badminton','cricket','tank','snake','hop','penalty','hoops','mole','memory','merge','kidballoons','kidcatch','kidmath','kidanimals'],CUSTOM=[];
+GAMES.towerdef={link:'towerdef.html',own:true,kind:'gl',name:'Hive Defense',icon:'\uD83C\uDFF0',bg:'linear-gradient(135deg,#2a3f95,#2fb344)',modes:'single',tagsHtml:'<i>Strategy</i><i>12 stages</i><i>Ranking</i>',
+ desc:'A tower defense game with 12 stages, four landscapes, five tower types, monster waves and bosses. Earn stars to unlock new towers and upgrades, and climb a ranking against bot rivals and real players.',
+ how:'Opens Hive Defense. Pick a tower, tap a free tile to build it, tap a tower to upgrade or sell, and use the meteor when it gets tough.',make(){return{}}};
+const ORDER=['highway','runner3d','towerdef','stack','space','pingpong','badminton','cricket','tank','snake','hop','penalty','hoops','mole','memory','merge','kidballoons','kidcatch','kidmath','kidanimals'],CUSTOM=[];
 let HID=[],OWN=false;try{OWN=localStorage.getItem('owh_owner')==='1'}catch(e){}
 function gameIds(){return ORDER.filter(id=>GAMES[id]&&(OWN||HID.indexOf(id)<0)).concat(CUSTOM.filter(id=>GAMES[id]))}
 function renderHub(){
@@ -1222,7 +1225,7 @@ function openGame(id){
   if(id==='highway'){const sync=()=>{$('shCars').querySelectorAll('.opt').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.t));$('shCols').querySelectorAll('.cc').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.c))};
     $('shCars').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{PREF.car.t=+b.dataset.i;persist();sync()});$('shCols').querySelectorAll('.cc').forEach(b=>b.onclick=()=>{PREF.car.c=+b.dataset.c;persist();sync()})}}
 const MPSET={size:4,scope:'any'};
-const REFS={highway:480,runner:380,stack:260,space:450,pingpong:110,badminton:100,cricket:26,runner3d:600,tank:220,snake:120,hop:150,penalty:35,hoops:24,mole:32,memory:160,merge:600,kidballoons:40,kidcatch:30,kidmath:30,kidanimals:30};
+const REFS={highway:480,runner:380,stack:260,space:450,pingpong:110,badminton:100,cricket:26,runner3d:600,towerdef:500,tank:220,snake:120,hop:150,penalty:35,hoops:24,mole:32,memory:160,merge:600,kidballoons:40,kidcatch:30,kidmath:30,kidanimals:30};
 const BOTN=['Aarav','Kabir','Zoya','Mia','Leo','Nora','Ishan','Tara','Omar','Lina','Dev','Sara'];let BOTSET={n:2,d:'normal'};
 function makeBots(id,n,diff){const ref=(GAMES[id]&&GAMES[id].ref)||REFS[id]||200,f={easy:.55,normal:.85,hard:1.15}[diff]||.85,names=BOTN.slice().sort(()=>Math.random()-.5),out=[];for(let i=0;i<n;i++)out.push({uid:'bot'+i,name:names[i],final:Math.max(1,Math.round(ref*f*(.72+Math.random()*.56))),ph:Math.random()*6.28});return out}
 function botScore(b,t,T){const p=Math.min(1,t/T),c=Math.pow(p,.88)*(1+.05*Math.sin(t*.9+b.ph));return Math.max(0,Math.floor(b.final*Math.min(1,c)))}

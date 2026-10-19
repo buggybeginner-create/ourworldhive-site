@@ -49,7 +49,7 @@ var stats=document.createElement('div'); stats.className='gx-stats';
 stats.innerHTML='<div><b data-n="0" id="gxN">0</b><span>games</span></div><div><b>Free</b><span>to play</span></div><div><b>Live</b><span>rankings</span></div>';
 var lede=$('.lede',arena); if(lede) lede.parentNode.insertBefore(stats,lede.nextSibling);
 
-var CATS={all:null,sports:['pingpong','badminton','cricket','penalty','hoops'],racing:['highway','runner3d','hop'],action:['space','tank','snake'],puzzle:['stack','mole','memory','merge'],kids:['kidballoons','kidcatch','kidmath','kidanimals']};
+var CATS={all:null,sports:['pingpong','badminton','cricket','penalty','hoops'],racing:['highway','runner3d','hop'],action:['space','tank','snake','towerdef'],puzzle:['stack','mole','memory','merge'],kids:['kidballoons','kidcatch','kidmath','kidanimals']};
 var NAMES={all:'All',sports:'🏆 Sports',racing:'🏎️ Racing',action:'🚀 Action',puzzle:'🧩 Puzzle',kids:'👶 Kids'};
 var chips=document.createElement('div'); chips.className='gx-chips'; chips.setAttribute('role','group'); chips.setAttribute('aria-label','Game type');
 chips.innerHTML=Object.keys(NAMES).map(function(k){return '<button type="button" data-c="'+k+'"'+(k==='all'?' class="on"':'')+'>'+NAMES[k]+'</button>'}).join('')+'<button type="button" class="surp" data-c="rnd">🎲 Surprise me</button>';

@@ -265,6 +265,9 @@ let PROFILES=[newProfile(0),newProfile(1)],CUR=0;
 })();
 function saveProfiles(){try{localStorage.setItem(PKEY,JSON.stringify({p:PROFILES,cur:CUR}))}catch(e){}}
 const PR=()=>PROFILES[CUR];
+/* one global unique player name: keep this profile's name in step with it */
+function syncGlobalName(){try{const k=localStorage.getItem('owh_name_key'),g=localStorage.getItem('owh_bx_name');if(k&&g&&PR().name.toLowerCase()!==g.toLowerCase()){PR().name=g.toUpperCase().slice(0,14);saveProfiles()}}catch(e){}}
+setTimeout(async()=>{try{if(!localStorage.getItem('owh_name_key')){const r=await OWHG.claimName(PR().name);if(!r.ok){const n=await OWHG.ensureName();PR().name=String(n).toUpperCase().slice(0,14);saveProfiles()}}else syncGlobalName()}catch(e){}},2500);
 function cardName(p,c){return(p&&p.nick&&p.nick[c.id])||c.name}
 function ownedCards(p,role){return p.own[role==='B'?'b':'w'].map(id=>CARD_BY_ID[id]).filter(Boolean)}
 function isOwned(p,c){return p.own[c.role==='B'?'b':'w'].indexOf(c.id)>=0}
@@ -558,6 +561,18 @@ function skLook(name){const h=skHash(name);return{H:0.88+((h%24)/23)*0.26,W:0.8+
 function celT(){const t=G.celT;if(t===undefined||t===null)return -1;const d=G.clock-t;return d>=0&&d<3.6?d:-1}
 function celO(x,z,hd,ct,ph){const rx=Math.cos(hd),rz=-Math.sin(hd),jh=0.16*Math.abs(Math.sin(ct*8+ph)),sp=0.12,wv=0.1*Math.sin(ct*12+ph);
   return{hip:0.95+jh,ankR:[x+rx*sp,0.07+jh,z+rz*sp],ankL:[x-rx*sp,0.07+jh,z-rz*sp],handR:[x+rx*0.3,2.1+wv,z+rz*0.3],handL:[x-rx*0.3,2.1-wv,z-rz*0.3]}}
+/* taunt actions: the taunting side's stickmen act it out for ~2.7 s */
+function tauntRole(role){
+  const T=(typeof CHAT2!=='undefined')?CHAT2.taunt:null;if(!T||!MT)return null;const age=G.RT-T.ts;if(age<0||age>2.7)return null;
+  let ts;if(MT.online){ts=T.side==='me'?MT.online.me:1-MT.online.me}else{const hi=MT.sides.findIndex(q=>q.human);ts=T.side==='me'?(hi<0?0:hi):(hi<0?1:1-hi)}
+  const side=role==='bat'?S.bside:S.wside;if(side!==ts)return null;return{ct:age,kind:skHash(T.id)%3}}
+function tauntO(x,z,hd,ct,ph,kind){
+  const rx=Math.cos(hd),rz=-Math.sin(hd),fx=Math.sin(hd),fz=Math.cos(hd);
+  if(kind===0)return celO(x,z,hd,ct,ph);
+  if(kind===1){const sw=Math.sin(ct*7+ph),b=0.05*Math.abs(sw),sp=0.16;
+    return{hip:0.93+b,ankR:[x+rx*(sp+0.1*sw),0.07,z+rz*(sp+0.1*sw)],ankL:[x-rx*(sp-0.1*sw),0.07,z-rz*(sp-0.1*sw)],handR:[x+rx*0.62,1.35+0.18*sw,z+rz*0.62],handL:[x-rx*0.62,1.35-0.18*sw,z-rz*0.62],spread:0.1}}
+  const w=Math.sin(ct*10+ph),pump=Math.abs(Math.sin(ct*5+ph));
+  return{hip:0.95,ankR:[x+rx*0.14,0.07,z+rz*0.14],ankL:[x-rx*0.14,0.07,z-rz*0.14],handR:[x+rx*0.22+fx*0.1+rx*0.12*w,1.75+0.35*pump,z+rz*0.22+fz*0.1],handL:[x-rx*0.3,1.0,z-rz*0.3+0.12*fz],lean:0.08}}
 function frustJ(J,B,T){
   const t=Math.max(0,T-(B.outT0===undefined?T:B.outT0)),fc=J.face||[0,0,1],r=[fc[2],0,-fc[0]],up=[0,1,0];
   const sh=Math.sin(t*13)*0.012,hd=vadd(J.head,[fc[0]*0.07+r[0]*sh,-0.13+Math.sin(t*5)*0.01,fc[2]*0.07+r[2]*sh]);
@@ -635,7 +650,7 @@ function drawRig(J,S){
     {const bx=(J.aL[0]+J.aR[0])/2,bz=(J.aL[2]+J.aR[2])/2,sc=q=>[bx+(q[0]-bx)*Hs,q[1]*Hs,bz+(q[2]-bz)*Hs],J2={};
      for(const kk in J){const v=J[kk];if(kk==='face')J2[kk]=v;else if(kk==='bat')J2[kk]=[sc(v[0]),v[1]];else if(Array.isArray(v)&&v.length===3&&typeof v[0]==='number')J2[kk]=sc(v);else J2[kk]=v}
      J=J2}
-    const K=[22,24,34],R=0.03*LK.W,hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
+    const K=[22,24,34],R=0.042*LK.W,hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
     for(const side of ['L','R']){CURCH='leg'+side;const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
       cap(hp,k,R,K);cap(k,an,R*0.95,K);cap(an,tt,R*0.9,K);
       if(S.pad)cap(vmix(k,an,0.08),vmix(k,an,0.92),R*1.9,[238,238,232],R*1.6,{off:0.01})}
@@ -660,10 +675,12 @@ function drawRig(J,S){
       const mp=vadd(fb,[0,-0.034,0]),mw=[0.062,0.048,0.078][LK.mu],dr=[0.008,0.022,0.0][LK.mu],th=[0.011,0.009,0.016][LK.mu],mc=[28,18,14];
       cap(vadd(mp,vadd(vsc(rt,-mw),[0,-dr,0])),mp,th,mc,th,{off:0.08});cap(mp,vadd(mp,vadd(vsc(rt,mw),[0,-dr,0])),th,mc,th,{off:0.08});
       if(S.mood==='sad'){cap(vadd(mp,[0,-0.045,0]),vadd(mp,vadd(vsc(rt,0.03),[0,-0.05,0])),0.006,mc,0.006,{off:0.08})}}
-    /* numbered necklace */
+    /* numbered necklace (the umpire wears none) */
+    if(S.label!=='UMPIRE'){
     const pc=vadd(vmix(J.pel,J.neck,0.7),vsc(fc,0.085*sgn)),cl=vadd(vmix(J.neck,J.sL,0.5),vsc(fc,0.05*sgn)),cr=vadd(vmix(J.neck,J.sR,0.5),vsc(fc,0.05*sgn));
     cap(cl,pc,0.006,[255,206,64],0.006,{off:0.06});cap(cr,pc,0.006,[255,206,64],0.006,{off:0.06});
     sph(pc,0.05,[255,255,255],0.07);{const cm=cs(pc[0],pc[1],pc[2]);if(cm[2]>NEAR)parts.push({t:2,ca:cm,col:[20,24,40],txt:String(LK.num),sz:0.085,d:cm[2]-0.13})}
+    }
     if(S.label){const lp=cs(J.head[0],J.head[1]+0.27,J.head[2]);if(lp[2]>NEAR)parts.push({t:4,ca:lp,txt:String(S.label).toUpperCase().slice(0,14),d:-1})}
   }else{
   /* legs */
@@ -893,6 +910,7 @@ const FACT_DUR={dive:1.35,block:0.95,pickup:0.7,catch:0.9,throw:0.8};
 function blendJ(A,B,t){const J={};for(const k in A){const a=A[k],b=B[k];J[k]=(Array.isArray(a)&&Array.isArray(b)&&a.length===3&&k!=='face')?[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]:a}return J}
 function fielderJ(f){
   const o0={crouch:f.moving?0:0.5};
+  {const tn=f.act?null:tauntRole('bowl');if(tn)return poseWalk(f.x,f.z,f.hd,0,0,tauntO(f.x,f.z,f.hd,tn.ct,FLD.indexOf(f)*0.9,tn.kind))}
   const ct=f.act?-1:celT();if(ct>=0)return poseWalk(f.x,f.z,f.hd,0,0,celO(f.x,f.z,f.hd,ct,FLD.indexOf(f)*0.9));
   const base=poseWalk(f.x,f.z,f.hd,f.ph,f.moving?1:0,o0);
   if(!f.act)return base;
@@ -1115,7 +1133,7 @@ function moveFielder(i,x,z){const f=FLD[i];if(!f)return;const d=Math.hypot(x,z-C
 const TEAM_NAMES=['THUNDER XI','SPARTANS','COBRAS','FALCONS','ROYALS XI','HIVE RIDERS','TITANS','STORM KINGS'];
 function humanSide(p,col){const sq=humanSquad(p,TEAM_N[OPT.overs]);return{name:p.team,pname:p.name,human:true,prof:p,bats:sq.bats,bowls:sq.bowls,col:hx(KP[col][0])}}
 function aiSide(diff,col){const sq=aiSquad(diff,0,TEAM_N[OPT.overs]);return{name:TEAM_NAMES[(Math.random()*TEAM_NAMES.length)|0],pname:'CPU',human:false,prof:null,bats:sq.bats,bowls:sq.bowls,col:hx(KP[col][0])}}
-function startMatch(){
+function startMatch(){try{setTimeout(()=>OWHG.hint(),700)}catch(e){}
   const m=OPT.mode,ov=OPT.overs,diff=OPT.diff,p0=PROFILES[CUR],p1=PROFILES[1-CUR];
   const tgt=Math.round(ov*(diff==='easy'?8.5:10.5));
   let sides,inns;
@@ -1922,6 +1940,7 @@ function keeperJ(kp){const ct=celT();let o={crouch:G.mode==='dead'||G.mode==='hi
     if(E.caught){o.handR=[x+0.07,1.25,kp[1]+0.38];o.handL=[x-0.07,1.25,kp[1]+0.38]}
     else{o.handR=[tx+0.06,by,kp[1]+0.5];o.handL=[tx-0.06,by,kp[1]+0.5]}}
   else if(ct>=0)o=celO(kp[0],kp[1],0,ct,0.9);
+  else{const tn=tauntRole('bowl');if(tn)o=tauntO(kp[0],kp[1],0,tn.ct,0.9,tn.kind)}
   return poseWalk(x,kp[1],0,0,0,o)}
 function bowlerJ(){
   const x=G.bowlerX;let hd=Math.PI,amp=0,ph=0,o={};
@@ -1929,7 +1948,7 @@ function bowlerJ(){
   else if(G.mode==='runup'){amp=1;ph=G.tRun*17;o.ball=true;
     const a0=RU-0.5;if(G.tRun>a0){o.arm=lerp(-2.8,0.25,sm((G.tRun-a0)/0.5));o.ball=G.tRun<RU-0.01}}
   else if(G.mode==='flight'){const tf=G.clock-G.Trel;const k=sm(tf/0.9);amp=1-k;ph=G.T*15;o.arm=lerp(0.25,2.2,Math.min(1,tf/0.3));o.lean=0.25*(1-k)}
-  {const ct=celT();if(ct>=0){hd=Math.PI;amp=0;ph=0;o=celO(x,G.bowlerZ,hd,ct,0)}}
+  {const ct=celT();if(ct>=0){hd=Math.PI;amp=0;ph=0;o=celO(x,G.bowlerZ,hd,ct,0)}else{const tn=tauntRole('bowl');if(tn&&G.mode!=='runup'&&G.mode!=='flight'){hd=Math.PI;amp=0;ph=0;o=tauntO(x,G.bowlerZ,hd,tn.ct,0,tn.kind)}}}
   const J=poseWalk(x,G.bowlerZ,hd,ph,amp,o);
   return(S.bowler&&S.bowler.arm==='L')?mirrorJ(J,x):J;
 }
@@ -1956,6 +1975,7 @@ function walkerJ(B,T){
 }
 function batterJ(B,T){
   if(B.state==='walkon'||B.state==='walkoff')return walkerJ(B,T);
+  if(B===bat&&B.state==='stance'){const tn=tauntRole('bat');if(tn){const a=actorXZ(B);return poseWalk(a[0],a[1],0,0,0,Object.assign(tauntO(a[0],a[1],0,tn.ct,0.4,tn.kind),{batDir:[0.14,-0.98,0.06]}))}}
   const J=poseBatter(B,batterParams(B,T),batterStyle(B));
   return B.state==='out'?frustJ(J,B,T):J;
 }
@@ -4044,7 +4064,7 @@ function scrHome(T){
   timeRow(552);
   if(OWNER)btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART':OPT.gfx==='stick'?'PLAYERS: STICKMAN':'PLAYERS: CLASSIC')+' \u25B6',{on:OPT.gfx!=='classic',col:'#4cc9f0',tc:'#04121c',size:12.5});
   btn('fx',248,606,216,34,'ULTRA FX: '+(OPT.fx?'ON':'OFF'),{on:OPT.fx,col:'#c77dff',tc:'#16062a',size:12.5});
-  btn('gstore',16,640,224,32,'\uD83D\uDED2 STORE: SKINS & TAUNTS',{size:12,on:true,col:'#e0a81c',tc:'#2b1d00'});btn('grank',248,640,216,32,'\uD83C\uDFC6 CRICKET RANKING',{size:12,on:true,col:'#7c6cff',tc:'#fff'});
+  btn('gstore',16,640,150,32,'\uD83D\uDED2 STORE',{size:12,on:true,col:'#e0a81c',tc:'#2b1d00'});btn('grank',172,640,170,32,'\uD83C\uDFC6 RANKING',{size:12,on:true,col:'#7c6cff',tc:'#fff'});btn('ginfo',348,640,116,32,'\u24D8 CONTROLS',{size:11.5});
   tx('PLAYER 2 on this device uses the other profile slot',W/2,684,10.5,'#7e93bd','center','600',440);
   tx(BRAND,W/2,H-24,11,'rgba(255,255,255,0.45)','center','700');
 }
@@ -4528,7 +4548,7 @@ function drawChat(){
   /* taunt banner on the main screen (both players see it) */
   {const T=CHAT2.taunt;if(T){const age=G.RT-T.ts,it=window.OWHSTORE&&OWHSTORE.by(T.id);
     if(!it||age>2.8)CHAT2.taunt=null;else{
-      const a=clamp(Math.min(age/0.18,(2.8-age)/0.5),0,1),sc=1+0.25*Math.max(0,1-age/0.25),cy=H*0.42;
+      const a=clamp(Math.min(age/0.18,(2.8-age)/0.5),0,1),sc=1+0.25*Math.max(0,1-age/0.25),cy=H*0.25;
       ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,cy);ctx.scale(sc,sc);
       rr(-210,-58,420,116,26);ctx.fillStyle='rgba(6,8,22,0.82)';ctx.fill();ctx.strokeStyle=it.col;ctx.lineWidth=4;ctx.stroke();
       emo(it.e,-150,2,56);tx(it.txt,30,6,it.txt.length>14?24:32,it.col,'center','900',270);
@@ -5025,10 +5045,11 @@ function handleUI(id,r,x,y){
     case 'chat_shop':OWHG.openStore(CHAT2.tab==='t'?'taunt':'chat');break;
     case 'gstore':OWHG.openStore('kit');break;
     case 'grank':OWHG.openRank();break;
+    case 'ginfo':OWHG.openHelp();break;
     case 'slot0':CUR=0;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'slot1':CUR=1;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'ren_team':askText('TEAM NAME',PR().team,16,v=>{PR().team=v;saveProfiles()});break;
-    case 'ren_name':askText('PLAYER NAME',PR().name,14,v=>{PR().name=v;saveProfiles()});break;
+    case 'ren_name':askText('PLAYER NAME',PR().name,14,v=>{OWHG.claimName(v).then(r=>{if(r.ok){PR().name=r.name.toUpperCase();saveProfiles();toast('Name saved. Your scores moved to the new name.')}else toast(r.msg)})});break;
     case 'mode':OPT.mode=d;saveOpt();break;
     case 'overs':OPT.overs=d;saveOpt();break;
     case 'start':startMatch();break;
@@ -5140,8 +5161,11 @@ window.addEventListener('keydown',e=>{
   if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
   sfx.init();
   const k=e.key;
-  if(k==='m'||k==='M'){OPT.sound=!OPT.sound;sfx.setMute();return}
-  if(k==='Escape'||k==='p'||k==='P'){if(G.paused)G.paused=false;else if(isPlaying())G.paused=true;return}
+  if(OWHG.isKey(e,'mute')){OPT.sound=!OPT.sound;sfx.setMute();return}
+  if(OWHG.isKey(e,'help')){if(isPlaying())G.paused=true;OWHG.openHelp();e.preventDefault();return}
+  if(OWHG.isKey(e,'pause')){if(G.paused)G.paused=false;else if(isPlaying())G.paused=true;return}
+  if(OWHG.isKey(e,'chat')&&typeof chatAvail==='function'&&chatAvail()){CHAT.open=!CHAT.open;CHAT2.tab='m';e.preventDefault();return}
+  if(OWHG.isKey(e,'taunt')&&typeof chatAvail==='function'&&chatAvail()){CHAT.open=!CHAT.open;CHAT2.tab='t';e.preventDefault();return}
   if(G.mode==='menu'){if((k==='Enter'||k===' ')&&G.screen==='play')startMatch();return}
   if(G.mode==='end'){if(k==='Enter'||k===' ')startMatch();return}
   if(G.mode==='break'){if(k==='Enter'||k===' ')nextInnings();return}
@@ -5156,16 +5180,31 @@ window.addEventListener('keydown',e=>{
   }
   if(G.mode==='runup'&&humanBowl()&&(k==='Enter'||(k===' '&&!humanBat()))){handleUI('bowlgo');e.preventDefault();return}
   if(!humanBat())return;
-  if(k==='l'||k==='L'||k===' '){OPT.loft=!OPT.loft;e.preventDefault();return}
+  if(OWHG.isKey(e,'loft')){OPT.loft=!OPT.loft;e.preventDefault();return}
   if(k==='g'||k==='G'){OPT.loft=false;return}
-  if(k==='e'||k==='E'){handleUI('special');return}
+  if(OWHG.isKey(e,'special')){handleUI('special');return}
   if(!canSwing())return;
-  const M=1;
-  if(k==='ArrowLeft'||k==='a'||k==='A')startSwing({az:-0.85,power:0.88,loft:OPT.loft});
-  else if(k==='ArrowRight'||k==='d'||k==='D')startSwing({az:0.85,power:0.88,loft:OPT.loft});
-  else if(k==='ArrowUp'||k==='w'||k==='W')startSwing({az:0,power:0.9,loft:OPT.loft});
-  else if(k==='ArrowDown'||k==='s'||k==='S')startSwing({az:0,power:0.18,loft:false,defend:true});
+  if(OWHG.isKey(e,'left'))startSwing({az:-0.85,power:0.88,loft:OPT.loft});
+  else if(OWHG.isKey(e,'right'))startSwing({az:0.85,power:0.88,loft:OPT.loft});
+  else if(OWHG.isKey(e,'straight'))startSwing({az:0,power:0.9,loft:OPT.loft});
+  else if(OWHG.isKey(e,'pull'))startSwing({az:-1.45,power:0.9,loft:OPT.loft});
+  else if(OWHG.isKey(e,'cut'))startSwing({az:1.45,power:0.9,loft:OPT.loft});
+  else if(OWHG.isKey(e,'defend'))startSwing({az:0,power:0.18,loft:false,defend:true});
 });
+
+OWHG.setHelp({keys:[
+ {id:'left',label:'Shot to leg side (left)',def:['a','ArrowLeft'],short:'leg side'},
+ {id:'right',label:'Shot to off side (right)',def:['d','ArrowRight'],short:'off side'},
+ {id:'straight',label:'Straight drive',def:['w','ArrowUp'],short:'straight'},
+ {id:'defend',label:'Defend the ball',def:['s','ArrowDown'],short:'defend'},
+ {id:'pull',label:'Pull / hook (square leg)',def:['q'],short:'pull'},
+ {id:'cut',label:'Cut (point)',def:['r'],short:'cut'},
+ {id:'loft',label:'Switch Ground / Loft',def:['l','Space'],short:'loft'},
+ {id:'special',label:'Eagle eye / special',def:['e'],short:'special'},
+ {id:'chat',label:'Open chat',def:['c']},{id:'taunt',label:'Open taunts',def:['t']},
+ {id:'pause',label:'Pause',def:['p','Escape']},{id:'mute',label:'Sound on / off',def:['m']},{id:'help',label:'Show these controls',def:['h']}],
+ fixed:[['Enter / Space','Bowl the ball (when you bowl) and continue screens'],['\u2190 \u2192 \u2191 \u2193','Aim the ball (when you bowl)'],['1 - 6','Choose the delivery type (when you bowl)']],
+ touch:[['\uD83D\uDC46','Batting: swipe the way you want to hit, tap to defend'],['\uD83C\uDFAF','Bowling: drag on the pitch to aim, tap to release'],['\uD83D\uDCAC','Chat button: emojis, quick lines and taunts']]});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&isPlaying())G.paused=true});
 window.addEventListener('blur',()=>{if(isPlaying())G.paused=true});
 

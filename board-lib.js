@@ -29,7 +29,10 @@ var TS=function(){return firebase.firestore.FieldValue.serverTimestamp()};
 function code(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='',a=new Uint8Array(5);crypto.getRandomValues(a);for(var i=0;i<5;i++)s+=c[a[i]%c.length];return s}
 BX.need=function(cb){if(window.OWHG&&window.BX_CATALOG)return cb();function ld(u,n){var x=document.createElement('script');x.src=u;x.onload=n;x.onerror=n;document.head.appendChild(x)}
  (window.OWHG?function(n){n()}:function(n){ld('owh-game.js',n)})(function(){ld('board-items.js',cb)})};
-BX.gameInit=function(g){BX.G=g;BX.need(function(){var c=window.BX_CATALOG&&BX_CATALOG[g];if(c&&window.OWHG){OWHG.init(c);OWHG.mount()}})};
+BX.gameInit=function(g){BX.G=g;BX.need(function(){var c=window.BX_CATALOG&&BX_CATALOG[g];if(c&&window.OWHG){OWHG.init(c);var H={chess:[['\uD83D\uDC46','Click or tap a piece, then click the square to move to'],['\u23F1\uFE0F','Pick a timer mode in the lobby if you want a clock']],ludo:[['\uD83C\uDFB2','Click or tap the dice to roll'],['\uD83D\uDC46','Then click the token you want to move']],carrom:[['\uD83D\uDC46','Slide the striker along your line to place it'],['\uD83C\uDFAF','Drag back to aim and set power, release to shoot']],uttt:[['\uD83D\uDC46','Click a cell in the highlighted board'],['\uD83E\uDDE0','Your cell decides which board your opponent plays next']]};
+  OWHG.setHelp({keys:[{id:'help',label:'Show these controls',def:['h'],short:'controls'}],fixed:[['Esc','Close menus and panels'],['Mouse','Everything works with a mouse or touch']],touch:(H[g]||[]).concat([['\uD83D\uDCAC','Chat button: emojis, quick lines and taunts']])});
+  if(!BX._hk){BX._hk=1;document.addEventListener('keydown',function(e){if(/INPUT|TEXTAREA/.test((e.target||{}).tagName)||e.ctrlKey||e.metaKey)return;if(window.OWHG&&OWHG.isKey(e,'help')){OWHG.openHelp();e.preventDefault()}})}
+  OWHG.mount();setTimeout(function(){OWHG.hint()},900)}})};
 BX.eqName=function(){var n=BX.name();try{var b=window.OWHG&&OWHG.game()===BX.G&&OWHG.eq('badge');if(b)n=(n.slice(0,12)+' '+b.e).slice(0,16)}catch(e){}return n};
 BX.room={
  create:async function(game,max,alt){await BX.init();var rid=code(),seed=Math.floor(Math.random()*2147483646)+1;
@@ -98,7 +101,7 @@ BX.lobby=function(root,o){BX.closeFs();BX.gameInit(o.game);
  '<div class="bx-card bx-note"><b>Fair play.</b> '+(o.note||'')+'</div></div>';
  var TCS=o.timer||null,tcI=0;try{tcI=Math.min((TCS||[]).length-1,+localStorage.getItem('owh_tc')||0)}catch(e){}
  var P=$('#bxP',root),tab='bot',nB=o.maxP?Math.min(o.maxP,o.minP||2):2,lvl=1,unW=null;
- $('#bxN',root).oninput=function(){BX.name(this.value)};
+ $('#bxN',root).onchange=function(){var el=this,old=BX.name(),v=el.value.trim();BX.need(function(){OWHG.claimName(v).then(function(r){if(r.ok){el.value=r.name;BX.toast('Name saved. Your scores moved to the new name.')}else{el.value=old;BX.toast(r.msg)}})})};
  var nums=function(id,lo,hi,cur){var h='';for(var i=lo;i<=hi;i++)h+='<button data-v="'+i+'" class="'+(i===cur?'on':'')+'">'+i+'</button>';return'<div class="bx-seg" id="'+id+'">'+h+'</div>'};
  function seg(id,cb){$('#'+id,root).onclick=function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(this.children,function(x){x.classList.remove('on')});b.classList.add('on');cb(b.dataset.v)}}
  function tcHtml(){if(!TCS)return'';return'<label class="bx-l">⏱ Timer mode</label><div class="bx-seg bx-tc" id="bxT">'+TCS.map(function(t,i){return'<button data-v="'+i+'" class="'+(i===tcI?'on':'')+'">'+t.n+'</button>'}).join('')+'</div>'}

@@ -51,7 +51,7 @@ async function attach(){
 function rkKey(){return'owh_rk_'+C.game}
 function flushRank(){
   clearTimeout(qT);qT=0;if(!(Q.pts||Q.n||Q.w||Q.l||Q.d))return;var d=Q;Q={pts:0,w:0,l:0,d:0,n:0};
-  fb().then(function(f){var ref=f.db.collection('hr_rank').doc(CUR.uid),named=jget('owh_rk_named',0);
+  ensureName().then(function(){return fb()}).then(function(f){var ref=f.db.collection('hr_rank').doc(CUR.uid),named=jget('owh_rk_named',0);
     return f.db.runTransaction(async function(t){var sn=await t.get(ref),cur=sn.exists?sn.data():{name:pName(),av:C.icon||'🏅',pts:0,n:0,g:{},done:[]};cur.g=cur.g||{};
       var g=cur.g[C.game]||{w:0,l:0,d:0,pts:0,n:0};g.w=(g.w||0)+d.w;g.l=(g.l||0)+d.l;g.d=(g.d||0)+d.d;g.pts=(g.pts||0)+d.pts;g.n=(g.n||0)+d.n;cur.g[C.game]=g;
       cur.pts=(cur.pts||0)+d.pts;cur.n=(cur.n||0)+d.n;if(named||!cur.name)cur.name=pName();cur.av=cur.av||C.icon||'🏅';cur.upd=Date.now();t.set(ref,cur)})}).catch(function(){Q.pts+=d.pts;Q.w+=d.w;Q.l+=d.l;Q.d+=d.d;Q.n+=d.n})}
@@ -64,6 +64,74 @@ window.addEventListener('pagehide',function(){if(C)flushRank()});
 function botRows(){
   var days=Math.max(0,(Date.now()-Date.UTC(2026,9,1))/864e5),sc=C.rankScale||400,out=[];
   BOTN.slice(0,10).forEach(function(n,i){var base=sc*(0.9-i*0.075),pts=Math.max(5,Math.round(base*(0.35+Math.min(0.65,days*0.012))+(i*7)%13));out.push({n:n,p:pts,bot:1,av:'🤖'})});return out}
+
+/* ---------------- unique player names (one global name per player) ---------------- */
+function nameKey(n){return String(n||'').toLowerCase().replace(/\s+/g,' ').trim().replace(/ /g,'_')}
+function nameOK(n){n=String(n||'').trim();if(n.length<3)return'Use at least 3 letters.';if(n.length>14)return'Use at most 14 characters.';if(!/^[A-Za-z0-9 _.\-]+$/.test(n))return'Use only letters, numbers, space, dot, dash or underscore.';
+  if(BOTN.some(function(b){return nameKey(b)===nameKey(n)}))return'This name is taken.';return''}
+/* claim (or keep) a name; resolves {ok:true,name} or {ok:false,msg} */
+async function claimName(n){
+  n=String(n||'').replace(/\s+/g,' ').trim();var bad=nameOK(n);if(bad)return{ok:false,msg:bad};
+  var f;try{f=await fb()}catch(e){return{ok:false,msg:'Changing the name needs internet (so no two players share a name).'}}
+  var key=nameKey(n),db=f.db,oldKey=jget('owh_name_key','');
+  try{
+    await db.runTransaction(async function(t){var ref=db.collection('names').doc(key),sn=await t.get(ref);
+      if(sn.exists&&sn.data().uid!==CUR.uid)throw new Error('taken');t.set(ref,{uid:CUR.uid,name:n,t:Date.now()})});
+  }catch(e){return{ok:false,msg:e.message==='taken'?'This name is already taken. Try another.':'Could not check the name: '+(e.code||e.message)}}
+  if(oldKey&&oldKey!==key)db.collection('names').doc(oldKey).delete().catch(function(){});
+  jset('owh_name_key',key);try{localStorage.setItem('owh_bx_name',n)}catch(e){}jset('owh_rk_named',1);
+  /* the new name shows on every ranking and every game score straight away (scores live on your account, not on the name) */
+  var up={name:n,upd:Date.now()};
+  db.collection('hr_rank').doc(CUR.uid).set(up,{merge:true}).catch(function(){});
+  db.collection('ck_rank').doc(CUR.uid).get().then(function(s){if(s.exists)return db.collection('ck_rank').doc(CUR.uid).update({name:n})}).catch(function(){});
+  emit();return{ok:true,name:n}}
+/* make sure the current (possibly auto) name is registered; if somebody else owns it, pick a free one */
+var ensuring=null;
+function ensureName(){if(ensuring)return ensuring;ensuring=(async function(){
+  try{var n=pName(),k=jget('owh_name_key','');if(k&&k===nameKey(n))return n;
+    for(var i=0;i<6;i++){var cand=i===0?n:(n.replace(/\d+$/,'').slice(0,10)+(100+Math.floor(Math.random()*900)));
+      if(nameOK(cand)){cand='Player'+(100+Math.floor(Math.random()*900))}
+      var r=await claimName(cand);if(r.ok)return r.name;if(/internet/.test(r.msg))return n}
+  }catch(e){}return pName()})().then(function(v){ensuring=null;return v});return ensuring}
+/* ---------------- controls help + key settings ---------------- */
+var HP=null;
+function keyId(e){var k=e.key;if(k===' ')return'space';return String(k).toLowerCase()}
+function keyShow(k){k=String(k).toLowerCase();return({space:'Space',arrowleft:'\u2190',arrowright:'\u2192',arrowup:'\u2191',arrowdown:'\u2193',escape:'Esc',enter:'Enter'})[k]||String(k).toUpperCase()}
+function keyCfgKey(){return'owh_keys_'+C.game}
+function isKey(e,id){if(!HP)return false;var a=HP.keys.filter(function(x){return x.id===id})[0];if(!a)return false;var o=jget(keyCfgKey(),{})[id],k=keyId(e);
+  return o?k===o:a.def.some(function(d){return d.toLowerCase()===k})}
+function keyLabel(id){var a=HP.keys.filter(function(x){return x.id===id})[0];if(!a)return'';var o=jget(keyCfgKey(),{})[id];return o?keyShow(o):a.def.map(keyShow).join(' / ')}
+function setHelp(h){HP=h;var p=$('#ogPill');if(p&&!$('#ogBi')){addInfoBtn(p)}}
+function addInfoBtn(p){var b=document.createElement('button');b.id='ogBi';b.setAttribute('aria-label','Controls');b.textContent='\u24D8';b.onclick=function(){openHelp()};p.insertBefore(b,p.firstChild)}
+var capturing=null;
+function openHelp(){
+  if(!HP)return;var sh=mkOv('ogHelp','86vh');
+  var kb=jget(keyCfgKey(),{});
+  sh.innerHTML='<div class="og-h"><span style="font-size:24px">\uD83C\uDFAE</span><h2>'+esc(C.name)+' controls</h2><button class="og-x" aria-label="Close">&#10005;</button></div>'+
+   '<p class="og-note">Keys are set to <b>auto</b> (the default below). Tap a key to change it, then press the new key.</p>'+
+   '<div id="ogKs">'+HP.keys.map(function(k){return'<div class="og-row" style="margin-bottom:6px"><div class="mid"><div class="nm">'+esc(k.label)+'</div></div><button class="og-b" data-k="'+k.id+'" style="min-width:92px">'+esc(keyLabel(k.id))+(kb[k.id]?' *':'')+'</button></div>'}).join('')+'</div>'+
+   (HP.fixed&&HP.fixed.length?'<p class="og-note" style="margin-top:10px"><b>Fixed keys</b></p>'+HP.fixed.map(function(r){return'<div class="og-row" style="margin-bottom:6px"><div class="mid"><div class="sb" style="font-size:13px;color:#eef1ff">'+esc(r[1])+'</div></div><span class="og-tier" style="--tc:#8fe3a0">'+esc(r[0])+'</span></div>'}).join(''):'')+
+   (HP.touch&&HP.touch.length?'<p class="og-note" style="margin-top:10px"><b>Touch / mouse</b></p>'+HP.touch.map(function(r){return'<div class="og-row" style="margin-bottom:6px"><span style="font-size:20px">'+r[0]+'</span><div class="mid"><div class="sb" style="font-size:13px;color:#eef1ff">'+esc(r[1])+'</div></div></div>'}).join(''):'')+
+   '<div style="display:flex;gap:8px;margin-top:12px"><button class="og-b" id="ogKr">Reset to auto</button><button class="og-b pri" id="ogKd">Done</button></div><p class="og-msg" id="ogKm"></p>';
+  $('.og-x',sh).onclick=function(){closeOv('ogHelp')};$('#ogKd').onclick=function(){closeOv('ogHelp')};
+  $('#ogKr').onclick=function(){try{localStorage.removeItem(keyCfgKey())}catch(e){}openHelp()};
+  [].forEach.call(sh.querySelectorAll('[data-k]'),function(b){b.onclick=function(){
+    b.textContent='Press a key...';if(capturing)window.removeEventListener('keydown',capturing,true);
+    capturing=function(e){e.preventDefault();e.stopImmediatePropagation();window.removeEventListener('keydown',capturing,true);capturing=null;var k=keyId(e);
+      if(k==='escape'){openHelp();return}
+      var cur=jget(keyCfgKey(),{}),clash=HP.keys.filter(function(x){return x.id!==b.dataset.k&&isKeyStr(x.id,k)})[0];
+      if(clash){openHelp();var m=$('#ogKm');if(m){m.textContent=keyShow(k)+' is already used for "'+clash.label+'".';m.className='og-msg err'}return}
+      cur[b.dataset.k]=k;jset(keyCfgKey(),cur);openHelp()};
+    window.addEventListener('keydown',capturing,true)}})}
+function isKeyStr(id,k){var a=HP.keys.filter(function(x){return x.id===id})[0],o=jget(keyCfgKey(),{})[id];return o?o===k:a.def.some(function(d){return d.toLowerCase()===k})}
+/* short hint before a game starts (every time until "don't show again") */
+function hint(force){
+  if(!HP)return;if(!force&&jget('owh_hint_'+C.game,0))return;css();var o=$('#ogHint');if(o)o.remove();
+  o=document.createElement('div');o.id='ogHint';o.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));z-index:2900;width:min(94vw,520px);background:rgba(12,16,38,.96);border:1px solid #3a4580;border-radius:16px;padding:12px 14px;color:#eef1ff;font:14px system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)';
+  var top=HP.keys.slice(0,5).map(function(k){return'<b>'+esc(keyLabel(k.id))+'</b> '+esc(k.short||k.label)}).join(' &middot; ');
+  o.innerHTML='<div style="margin-bottom:8px">\uD83C\uDFAE <b>Keyboard:</b> '+top+'</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="og-b pri" id="ogHc">All controls &amp; settings</button><button class="og-b" id="ogHg">Got it</button><label style="font-size:12px;color:#98a3cc"><input type="checkbox" id="ogHn"> Do not show again</label></div>';
+  document.body.appendChild(o);function done(){if($('#ogHn').checked)jset('owh_hint_'+C.game,1);o.remove()}
+  $('#ogHg').onclick=done;$('#ogHc').onclick=function(){done();openHelp()};setTimeout(function(){if(o.parentNode)o.remove()},14000)}
 /* ---------------- styles ---------------- */
 function css(){if($('#ogCss'))return;var s=document.createElement('style');s.id='ogCss';s.textContent=`
 .og-pill{position:fixed;z-index:900;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));display:flex;gap:6px}
@@ -143,9 +211,9 @@ function paintRank(real,ok){
     return'<li class="og-row'+(r.me?' me':'')+'" style="animation-delay:'+Math.min(i,12)*.03+'s"><span class="no">'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</span>'+av(r)+'<div class="mid"><div class="nm">'+(r.bot?'🤖 ':'')+esc(r.n)+(r.me?' (you)':'')+ar+'</div><div class="sb">'+(r.bot?'Rival bot':(r.w||0)+'W '+(r.l||0)+'L '+(r.d||0)+'D')+' &middot; '+TIERS[tierOf(r.p)][1]+'</div></div><div class="pts">'+r.p+'<small>points</small></div></li>'}).join('')+'</ul>';
   var nl={};rows.forEach(function(r,i){nl[r.uid||('b'+r.n)]=i+1});if(ok)jset('owh_rk_last_'+C.game,nl);
   b.innerHTML=pod+me+list+(ok?'':'<p class="og-note">Online ranking is not reachable right now. Showing rival bots and your saved score.</p>')+
-   '<div class="og-nm"><input id="ogNm" maxlength="14" value="'+esc(pName())+'" aria-label="Your name"><button class="og-b pri" id="ogNs">Save name</button></div><p class="og-note">Your name shows on every Ourworldhive ranking. Bots are marked 🤖.</p>';
-  $('#ogNs').onclick=function(){var v=($('#ogNm').value||'').replace(/[^\w \-.]/g,'').trim().slice(0,14);if(!v)return;try{localStorage.setItem('owh_bx_name',v)}catch(e){}jset('owh_rk_named',1);
-    fb().then(function(f){return f.db.collection('hr_rank').doc(CUR.uid).set({name:v,upd:Date.now()},{merge:true})}).catch(function(){});$('#ogNs').textContent='Saved ✔'}}
+   '<div class="og-nm"><input id="ogNm" maxlength="14" value="'+esc(pName())+'" aria-label="Your name"><button class="og-b pri" id="ogNs">Save name</button></div><p class="og-msg" id="ogNmMsg"></p><p class="og-note">One name for all games. It must be unique. Bots are marked 🤖.</p>';
+  $('#ogNs').onclick=async function(){var v=($('#ogNm').value||'').trim(),b=$('#ogNs');b.disabled=true;b.textContent='Checking...';var r=await claimName(v);b.disabled=false;
+    var m=$('#ogNmMsg');if(r.ok){b.textContent='Saved ✔';m.textContent='Name saved. All your scores now show under '+r.name+'.';m.className='og-msg ok';if(C.onName)C.onName(r.name);paintRank(real,ok)}else{b.textContent='Save name';m.textContent=r.msg;m.className='og-msg err'}}}
 /* ----- store ----- */
 var sTab=null,sSel=null,sPack=null,sPrev={};
 function sw(it){var st=it.sw||(it.col?('background:'+(Array.isArray(it.col)?'rgb('+it.col.join(',')+')':it.col)):it.bg?('background:'+it.bg):'background:#1d2547');return'<div class="sw" style="'+st+'">'+(it.e||'')+'</div>'}
@@ -211,7 +279,7 @@ function pill(){var p=$('#ogPill');if(!p)return;var r=$('#ogPr');if(r)r.textCont
 function mount(o){o=o||{};css();if($('#ogPill'))return;var p=document.createElement('div');p.className='og-pill';p.id='ogPill';
   if(o.top!=null)p.style.top=o.top;if(o.right!=null)p.style.right=o.right;if(o.left!=null){p.style.left=o.left;p.style.right='auto'}if(o.bottom!=null){p.style.bottom=o.bottom;p.style.top='auto'}
   p.innerHTML='<button id="ogBr" aria-label="Ranking">🏆 <b id="ogPr">'+RK.pts+'</b></button>'+(C.items&&C.items.length?'<button id="ogBs" aria-label="Store">🛒 Store</button>':'');
-  document.body.appendChild(p);$('#ogBr').onclick=openRank;var s=$('#ogBs');if(s)s.onclick=function(){openStore()}}
+  document.body.appendChild(p);if(HP)addInfoBtn(p);$('#ogBr').onclick=openRank;var s=$('#ogBs');if(s)s.onclick=function(){openStore()}}
 function unmount(){var p=$('#ogPill');if(p)p.remove()}
 function init(cfg){
   C=cfg;C.items=C.items||[];C.types=C.types||[];
@@ -221,5 +289,5 @@ function init(cfg){
   return OWHG}
 var OWHG=window.OWHG={init:init,report:report,openRank:openRank,openStore:openStore,mount:mount,unmount:unmount,showTaunt:showTaunt,
   by:function(id){return C?by(id):null},has:function(id){return C?has(id):false},eq:function(t){return C?eqItem(t):null},eqIds:function(){return C?eqIds():{}},owned:function(t){return C?owned(t):[]},
-  items:function(t){return C?C.items.filter(function(i){return !t||i.t===t}):[]},on:function(f){LISTEN.push(f)},rank:function(){return RK},name:pName,game:function(){return C&&C.game}};
+  items:function(t){return C?C.items.filter(function(i){return !t||i.t===t}):[]},on:function(f){LISTEN.push(f)},rank:function(){return RK},name:pName,game:function(){return C&&C.game},claimName:claimName,ensureName:ensureName,setHelp:setHelp,openHelp:openHelp,hint:hint,isKey:isKey,keyLabel:keyLabel};
 })();

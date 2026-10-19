@@ -259,7 +259,7 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
 <div id="cbg" hidden></div>
 <div id="toast" role="status"></div>
 
-<script>window.HR_LOCK='hen';</script><script src="owh-bots.js"></script>
+<script>window.HR_LOCK='hen';</script><script src="owh-bots.js"></script><script src="owh-game.js"></script>
 <script>
 (function(){
 'use strict';
@@ -386,7 +386,9 @@ function renderMine(){
 function record(rec){var a=matches();a.push(rec);if(a.length>300)a=a.slice(-300);LS.set('cb_matches',a)}
 /* ---------------- profile ---------------- */
 function drawProf(){$('#pName').value=prof.name;$('#avPick').innerHTML=AVS.map(function(a){return'<button type="button" data-a="'+a+'" aria-pressed="'+(a===prof.av)+'" aria-label="Avatar '+a+'">'+a+'</button>'}).join('')}
-$('#pName').addEventListener('input',function(){prof.name=this.value.trim().slice(0,14)||'Player';LS.set('cb_prof',prof);renderRank();renderMine()});
+$('#pName').addEventListener('change',function(){var el=this,v=el.value.trim().slice(0,14)||'Player',old=prof.name;
+  if(window.OWHG)OWHG.claimName(v).then(function(r){if(r.ok){prof.name=r.name;el.value=r.name;LS.set('cb_prof',prof);renderRank();renderMine();toast('Name saved. Your scores moved to the new name.')}else{el.value=old;toast(r.msg)}});
+  else{prof.name=v;LS.set('cb_prof',prof);renderRank();renderMine()}});
 $('#avPick').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;prof.av=b.dataset.a;LS.set('cb_prof',prof);drawProf()});
 $('#rkSample').addEventListener('change',function(){RK.sample=this.checked;renderRank()});
 /* ---------------- modals ---------------- */

@@ -251,7 +251,7 @@ body.playing .arena > h1, body.playing .arena > .lede, body.playing .arena > .ab
   }
   var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
 })();
-</script><script src="firebase-config.js"></script><script src="owh-bots.js"></script><script src="site.js"></script><script src="engage.js"></script><script>'use strict';
+</script><script src="firebase-config.js"></script><script src="owh-bots.js"></script><script src="owh-game.js"></script><script src="site.js"></script><script src="engage.js"></script><script>'use strict';
 const $=id=>document.getElementById(id);
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1141,6 +1141,7 @@ function openProfile(first){
   if($('pfX'))$('pfX').onclick=closeSheet;
   $('pfGo').onclick=async()=>{const n=$('pfN').value.trim().replace(/\s+/g,' '),c=$('pfC').value;
     if(n.length<2||n.length>20){$('pfE').textContent='Name must be 2 to 20 characters.';return} if(!c){$('pfE').textContent='Please choose your country.';return}
+    if(window.OWHG&&(!PROF||PROF.name!==n)){$('pfE').textContent='Checking name...';const cr=await OWHG.claimName(n);if(!cr.ok){$('pfE').textContent=cr.msg;return}$('pfE').textContent=''}
     try{const d={uid:ME.uid,name:n,country:c,updated:Date.now()};await FS.collection('arena_players').doc(ME.uid).set(d);PROF=d;closeSheet();renderBar();drawBoard();toast('Saved.')}catch(e){$('pfE').textContent='Could not save right now. Please try again.'}}}
 /* ---------- hub ---------- */
 GAMES.runner3d={link:'runner3d.html',own:true,kind:'gl',name:'Hive Runner 3D',icon:'\uD83C\uDFC3',bg:'linear-gradient(135deg,#ff4fa3,#3df2ff)',modes:'single',tagsHtml:'<i>Real 3D</i><i>Skins</i><i>Characters</i>',

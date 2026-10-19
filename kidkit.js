@@ -12,7 +12,19 @@ window.KK=(function(){
  function addStars(n){D.stars+=n;save();if(n>0&&window.OWHG)try{OWHG.report({pts:n,round:1})}catch(e){}var e=document.getElementById('kkStars');if(e)e.textContent=D.stars}
  function best(game,v){if(v===undefined)return D.best[game]||0;if(v>(D.best[game]||0)){D.best[game]=v;save();return true}return false}
  var KID={'kid-balloons':'kidballoons','kid-catch':'kidcatch','kid-math':'kidmath','kid-animals':'kidanimals'};
- function kkRank(title,icon){var f=(location.pathname.split('/').pop()||'').replace('.html',''),id=KID[f];if(!id)return;function ld(u,n){var x=document.createElement('script');x.src=u;x.onload=n;x.onerror=n;document.head.appendChild(x)}ld('firebase-config.js',function(){ld('owh-game.js',function(){if(!window.OWHG)return;OWHG.init({game:id,name:title,icon:icon,rankScale:120,items:[]});OWHG.mount({top:'64px'})})})}
+ function kkRank(title,icon){var f=(location.pathname.split('/').pop()||'').replace('.html',''),id=KID[f];if(!id)return;function ld(u,n){var x=document.createElement('script');x.src=u;x.onload=n;x.onerror=n;document.head.appendChild(x)}ld('firebase-config.js',function(){ld('owh-game.js',function(){if(!window.OWHG)return;OWHG.init({game:id,name:title,icon:icon,rankScale:120,items:[]});
+ var K={keys:[{id:'go',label:'Start / continue',def:['Enter','Space'],short:'start'},{id:'n1',label:'Pick answer 1',def:['1']},{id:'n2',label:'Pick answer 2',def:['2']},{id:'n3',label:'Pick answer 3',def:['3']},{id:'n4',label:'Pick answer 4',def:['4']},{id:'help',label:'Show these controls',def:['h']}],fixed:[],touch:[['\uD83D\uDC46','Tap or click the answer, animal or balloon']]};
+ if(id==='kidcatch'){K.keys=[{id:'left',label:'Move basket left',def:['ArrowLeft','a'],short:'left'},{id:'right',label:'Move basket right',def:['ArrowRight','d'],short:'right'},{id:'go',label:'Start / play again',def:['Enter','Space'],short:'start'},{id:'help',label:'Show these controls',def:['h']}]}
+ if(id==='kidballoons'){K.keys=[{id:'go',label:'Start / continue',def:['Enter','Space'],short:'start'},{id:'help',label:'Show these controls',def:['h']}];K.fixed=[['A - Z / 0 - 9','Type the letter or number to pop that balloon']]}
+ OWHG.setHelp(K);OWHG.mount({top:'64px'});setTimeout(function(){OWHG.hint()},900);
+ window.KKK={left:0,right:0};
+ document.addEventListener('keydown',function(e){if(/INPUT|TEXTAREA/.test((e.target||{}).tagName)||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(OWHG.isKey(e,'help')){OWHG.openHelp();return}
+  if(OWHG.isKey(e,'left'))KKK.left=1;if(OWHG.isKey(e,'right'))KKK.right=1;
+  if(OWHG.isKey(e,'go')){var p=document.querySelector('.panel.on .btn');if(p){p.click();e.preventDefault();return}}
+  for(var i=1;i<=4;i++)if(OWHG.isKey(e,'n'+i)){var b=document.querySelectorAll('#ans .btn,#ch .btn')[i-1];if(b){b.click();return}}
+  if(id==='kidballoons'&&e.key.length===1){var v=e.key.toUpperCase(),bs=[].slice.call(document.querySelectorAll('.bal')).filter(function(x){return x.textContent.trim().toUpperCase()===v});if(bs[0])bs[0].dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}});
+ document.addEventListener('keyup',function(e){if(OWHG.isKey(e,'left'))KKK.left=0;if(OWHG.isKey(e,'right'))KKK.right=0});})})}
  function top(title,icon){var t=document.createElement('div');t.id='top';t.innerHTML='<a class="btn round y" href="games.html" aria-label="Back to games">⌂</a><span class="pill">'+icon+' '+title+'</span><span class="sp"></span><span class="pill">⭐ <span id="kkStars">'+D.stars+'</span></span><button class="btn round" id="kkSnd" aria-label="Sound">🔊</button>';document.body.appendChild(t);kkRank(title,icon);document.getElementById('kkSnd').onclick=function(){mute=!mute;this.textContent=mute?'🔇':'🔊';if(mute&&window.speechSynthesis)speechSynthesis.cancel()}}
  document.addEventListener('pointerdown',function(){ac()},{once:true});
  return{sfx:sfx,say:say,confetti:confetti,addStars:addStars,best:best,top:top,rnd:function(a,b){return a+Math.floor(Math.random()*(b-a+1))},pick:function(a){return a[Math.floor(Math.random()*a.length)]},shuffle:function(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}}

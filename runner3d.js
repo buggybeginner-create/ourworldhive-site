@@ -629,7 +629,7 @@ async function goMenu(){
 }
 function clearPowerups(){P.shield=P.magnet=P.x2=0;updatePw()}
 function stopRunAudio(){musicStop()}
-async function startRun(){
+async function startRun(){try{setTimeout(()=>window.OWHG&&OWHG.hint(),900)}catch(e){}
   audioInit();if(AC&&AC.state==='suspended')AC.resume();
   await setChar(SAVE.char);
   G.coins=0;G.dist=0;G.speed=0;G.time=0;G.revived=false;G.shake=0;G.deadT=0;G.nextTheme=900;
@@ -687,12 +687,13 @@ function laneMove(d){if(G.mode!=='run')return;const nl=clamp(P.lane+d,0,2);if(nl
 function doJump(){if(G.mode!=='run')return;if(P.y<=.02&&!P.jumping||P.y<=.02){P.vy=JV;P.jumping=true;P.slide=0;sfx('jump');const a=cur.def.anim;if(a.jump)playAnim(a.jump,{once:true,fade:.08,ts:1.15});emit(P.x,.1,P.z,0,1.5,0,[.8,.8,.9],.4)}}
 function doSlide(){if(G.mode!=='run')return;if(P.y>.15){P.vy=-22;return}if(P.slide<=0){P.slide=.8;sfx('slide')}}
 addEventListener('keydown',e=>{
-  if(e.repeat)return;const k=e.key;
-  if(k==='ArrowLeft'||k==='a'||k==='A')laneMove(-1);
-  else if(k==='ArrowRight'||k==='d'||k==='D')laneMove(1);
-  else if(k==='ArrowUp'||k==='w'||k==='W'||k===' ')doJump();
-  else if(k==='ArrowDown'||k==='s'||k==='S')doSlide();
-  else if(k==='p'||k==='P'||k==='Escape')pauseToggle();
+  if(e.repeat)return;const k=e.key,K=window.OWHG;
+  if(K&&K.isKey(e,'help')){K.openHelp();e.preventDefault();return}
+  if(K?K.isKey(e,'left'):(k==='ArrowLeft'||k==='a'||k==='A'))laneMove(-1);
+  else if(K?K.isKey(e,'right'):(k==='ArrowRight'||k==='d'||k==='D'))laneMove(1);
+  else if(K?K.isKey(e,'jump'):(k==='ArrowUp'||k==='w'||k==='W'||k===' '))doJump();
+  else if(K?K.isKey(e,'slide'):(k==='ArrowDown'||k==='s'||k==='S'))doSlide();
+  else if(K?K.isKey(e,'pause'):(k==='p'||k==='P'||k==='Escape'))pauseToggle();
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(k))e.preventDefault();
 });
 let sw=null;

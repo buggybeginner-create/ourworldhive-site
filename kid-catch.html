@@ -20,6 +20,7 @@ function hud(){var h='';for(var i=0;i<3;i++)h+=i<lives?'❤️':'🤍';document.
 function loop(t){requestAnimationFrame(loop);var dt=Math.min(.05,(t-last)/1000||0);last=t;
  x.clearRect(0,0,W,H);if(!run)return;sp-=dt;
  if(sp<=0){sp=Math.max(.45,1.0-lvl*.06);var r=Math.random();items.push({x:30+Math.random()*(W-60),y:-30,v:120+lvl*18+Math.random()*60,k:r<.16?'🪨':r<.24?'⭐':KK.pick(F)})}
+ if(window.KKK&&(KKK.left||KKK.right))bx=Math.max(30,Math.min(W-30,bx+(KKK.right-KKK.left)*Math.max(420,W*.7)*dt));
  var by=H-90,bw=Math.min(120,W*.28);
  x.font='54px serif';x.textAlign='center';x.fillText('🧺',bx,by+46);
  for(var i=items.length-1;i>=0;i--){var o=items[i];o.y+=o.v*dt;x.font='42px serif';x.fillText(o.k,o.x,o.y);

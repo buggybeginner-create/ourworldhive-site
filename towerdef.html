@@ -98,7 +98,7 @@ input.nm{width:100%;border:2px solid #3a4ea8;border-radius:12px;background:#0a10
  <button class="btn y" id="rRank">🏆 See ranking</button>
 </div></div>
 <div class="toast" id="toast"></div>
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js"></script><script src="owh-game.js"></script>
 <script>
 'use strict';
 /* ====================== data ====================== */
@@ -400,9 +400,27 @@ async function showRank(){leave();allOv();$('rank').classList.add('on');$('nameI
  $('rkMe').innerHTML=total()?('Your rank: <b>#'+(i+1)+'</b> · '+total()+' points · '+cleared()+'/'+NST+' stages cleared'+(R.ok?'':'<br><small>Online ranking is not reachable right now. Showing bot rivals and your local score.</small>')):'Clear a stage to join the ranking. Beat the bots! 🤖'+(R.ok?'':'<br><small>Online ranking is not reachable right now.</small>');
  $('rkT').innerHTML=R.rows.slice(0,30).map(function(r,k){return'<tr class="'+(r.me?'me':'')+'"><td>'+(k<3?['🥇','🥈','🥉'][k]:k+1)+'</td><td>'+(r.bot?'🤖 ':'')+esc(r.n)+(r.me?' (you)':'')+'</td><td>'+r.p+'</td></tr>'}).join('')}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-$('nameSave').onclick=function(){var v=$('nameIn').value.replace(/[^\w \-.]/g,'').trim().slice(0,14);if(!v){toast('Write a name');return}SAVE.name=v;persist();toast('Name saved');
- FBP&&fb().then(function(f){return f.db.collection('hr_rank').doc(f.uid).set({name:v,upd:Date.now()},{merge:true})}).catch(function(){}).then(showRank)};
+$('nameSave').onclick=function(){var v=$('nameIn').value.trim();if(!v){toast('Write a name');return}
+ OWHG.claimName(v).then(function(r){if(!r.ok){toast(r.msg);return}SAVE.name=r.name;persist();toast('Name saved. Your scores moved to the new name.');showRank()})};
 /* ====================== debug hook ====================== */
 if(/[?&]debug/.test(location.search))window.TD={get S(){return S},SAVE:SAVE,startStage:startStage,step:step,render:render,buildAt:buildAt,hold:function(v){HOLD=v},finish:finish,genWave:genWave,total:total,botPts:botPts,castMeteor:castMeteor,TW:TW,tstat:tstat};
 fit();showHome();
+
+OWHG.init({game:'towerdef',name:'Hive Defense',icon:'🏰',items:[]});
+OWHG.setHelp({keys:[
+ {id:'t1',label:'Select tower 1',def:['1'],short:'tower'},{id:'t2',label:'Select tower 2',def:['2']},{id:'t3',label:'Select tower 3',def:['3']},{id:'t4',label:'Select tower 4',def:['4']},{id:'t5',label:'Select tower 5',def:['5']},
+ {id:'up',label:'Upgrade selected tower',def:['u'],short:'upgrade'},{id:'sell',label:'Sell selected tower',def:['x']},{id:'meteor',label:'Meteor spell',def:['m'],short:'meteor'},
+ {id:'speed',label:'Game speed',def:['f'],short:'speed'},{id:'pause',label:'Pause / resume',def:['p','Escape']},{id:'help',label:'Show these controls',def:['h']}],
+ fixed:[],touch:[['\uD83D\uDC46','Tap or click a tower, then a free tile to build it'],['\uD83D\uDD27','Tap a built tower to upgrade or sell it'],['\u2604\uFE0F','Meteor button: tap it, then tap the map']]});
+(function(){var B=function(sel){var e=document.querySelector(sel);if(e&&!e.disabled)e.click()};
+ document.addEventListener('keydown',function(e){if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(OWHG.isKey(e,'help')){OWHG.openHelp();e.preventDefault();return}
+  if(OWHG.isKey(e,'pause')){var pv=document.getElementById('pause');if(pv&&pv.classList.contains('on'))B('#pResume');else B('#bPause');e.preventDefault();return}
+  if(OWHG.isKey(e,'meteor'))return B('#bMet');if(OWHG.isKey(e,'speed'))return B('#bSpd');if(OWHG.isKey(e,'up'))return B('#sUp');
+  if(OWHG.isKey(e,'sell'))return B('#sel .btn.r');
+  for(var i=1;i<=5;i++)if(OWHG.isKey(e,'t'+i)){var tb=document.querySelectorAll('#towers .tb')[i-1];if(tb)tb.click();return}});
+ var st=startStage;startStage=function(id){var r=st.apply(this,arguments);setTimeout(function(){OWHG.hint()},600);return r};
+ OWHG.mount({top:'auto',bottom:'8px',left:'8px',right:'auto'});
+ setTimeout(function(){try{var k=localStorage.getItem('owh_name_key'),g=localStorage.getItem('owh_bx_name');if(k&&g&&SAVE.name!==g){SAVE.name=g;persist()}else if(!k&&SAVE.name){OWHG.claimName(SAVE.name).then(function(r){if(!r.ok)OWHG.ensureName().then(function(n){SAVE.name=n;persist()})})}}catch(e){}},2500);
+})();
 </script></body></html>

@@ -4020,6 +4020,7 @@ function scrHome(T){
   btn('squad',16,430,84,60,'SQUAD',{size:12.5});btn('market',107,430,84,60,'MARKET',{size:12.5});btn('career',198,430,84,60,'CAREER',{size:12.5});btn('ranks',289,430,84,60,'RANKS',{size:12.5,on:true,col:'#c77dff',tc:'#16062a'});btn('profile',380,430,84,60,'PROFILE',{size:12.5,on:true,col:'#ffd23f',tc:'#2a1800'});
   tx('Pick your batter and bowler cards • buy new ones with stars',W/2,506,11,'#8fa6d4','center','600',440);
   timeRow(552);
+  if(OWNER)btn('admin',16,676,70,22,'ADMIN',{size:10.5});
   if(OWNER)btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART':OPT.gfx==='stick'?'PLAYERS: STICKMAN':'PLAYERS: CLASSIC')+' \u25B6',{on:OPT.gfx!=='classic',col:'#4cc9f0',tc:'#04121c',size:12.5});
   btn('fx',248,606,216,34,'ULTRA FX: '+(OPT.fx?'ON':'OFF'),{on:OPT.fx,col:'#c77dff',tc:'#16062a',size:12.5});
   tx('PLAYER 2 on this device uses the other profile slot',W/2,660,10.5,'#7e93bd','center','600',440);
@@ -4673,9 +4674,19 @@ async function netSearch(want){
     const p=PR();NETM.rating=myRating(p);
     NETM.state='searching';
     await ad.join({name:p.team,team:p.team,rating:NETM.rating,overs:OPT.overs,code:profCode(p),want:want||''},async r=>{
-      NETM.state='found';NETM.msg='Opponent found! Getting ready...';
+      clearTimeout(NETM.botT);NETM.state='found';NETM.msg='Opponent found! Getting ready...';
       netBegin(ad,r);
     });
+    /* owner-controlled practice rivals: only if the owner switched them on and nobody real joined in time */
+    if(!want&&NETM.state==='searching'){botCfg(ad).then(cfg=>{
+      if(cfg&&cfg.on&&NETM.state==='searching'){
+        NETM.botT=setTimeout(async()=>{
+          if(NETM.state!=='searching')return;
+          await netCancel();NETM.state='found';NETM.msg='Opponent found! Getting ready...';
+          setTimeout(()=>startBotMatch(cfg),900);
+        },(7+Math.random()*9)*1000);
+      }
+    })}
   }catch(e){
     NETM.state='error';
     const m=String((e&&e.code)||(e&&e.message)||e);
@@ -4683,10 +4694,47 @@ async function netSearch(want){
   }
 }
 async function netCancel(){
+  clearTimeout(NETM.botT);
   if(NETM.ad&&(NETM.state==='searching'||NETM.state==='connecting')){try{await NETM.ad.leave()}catch(e){}}
   NETM.state='idle';NETM.msg='';
 }
 
+
+/* ---- owner-only: practice rivals (bots) for online search ---- */
+const OWNER_EMAIL='er.krushnananda@gmail.com';
+const BOT_FIRST=['ARJUN','ROHAN','VIKRAM','AMAN','KARTIK','SAHIL','NIKHIL','YASH','DEV','HARSHIT','MANISH','ADITYA','RAVI','SURAJ','ANKIT','PRANAV','TUSHAR','VIVEK','RAHUL','DEEPAK','SANJAY','ABHAY','IMRAN','FAIZAL','ZAHEER','NAVEEN','KABIR','MOHIT','RAJAT','SATISH','LUCKY','SONU','BUNTY','ROHIT','JAY','OM','PIYUSH','SUBHAM','BIKASH','SAMIR'];
+const BOT_LAST=['K','S','P','M','R','D','T','B','N','G','V','J','A','H'];
+async function botCfg(ad){try{if(!ad||ad.name!=='firebase'||!ad.db)return null;const sn=await ad.db.collection('cricket_cfg').doc('bots').get();return sn.exists?sn.data():null}catch(e){return null}}
+function startBotMatch(cfg){
+  const nm=BOT_FIRST[(Math.random()*BOT_FIRST.length)|0]+' '+BOT_LAST[(Math.random()*BOT_LAST.length)|0];
+  const sv=OPT.mode;OPT.mode='full';startMatch();OPT.mode=sv;
+  if(MT&&MT.sides&&MT.sides[1])MT.sides[1].pname=nm+(cfg&&cfg.tag?' (BOT)':'');
+  NETM.state='idle';NETM.msg='';
+}
+function openAdmin(){
+  let el=document.getElementById('whAdmin');if(el)el.remove();
+  el=document.createElement('div');el.id='whAdmin';
+  el.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(2,6,16,.92);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Arial,sans-serif;color:#fff';
+  el.innerHTML='<div style="width:100%;max-width:360px;background:#0f1a36;border:1px solid #2c4a8a;border-radius:18px;padding:18px;text-align:center"><h3 style="margin:0 0 10px">Admin: online bots</h3><div id="whAdBody" style="font-size:14px;line-height:1.5">Loading...</div><button id="whAdX" style="margin-top:14px;padding:10px 22px;border:0;border-radius:12px;background:#33486f;color:#fff;font-size:15px">Close</button></div>';
+  document.body.appendChild(el);document.getElementById('whAdX').onclick=()=>el.remove();adminPaint();
+}
+async function adminPaint(){
+  const b=document.getElementById('whAdBody');if(!b)return;
+  const bt='padding:12px 18px;margin:6px 0;border:0;border-radius:12px;font-size:16px;font-weight:700;color:#fff;width:100%;';
+  try{await FBA.init()}catch(e){b.textContent='Could not connect to Firebase.';return}
+  const u=FBA.auth.currentUser,ok=!!(u&&u.email&&u.email.toLowerCase()===OWNER_EMAIL);
+  if(!ok){
+    b.innerHTML='<p style="margin:0 0 8px">Sign in with the owner Google account to control bots.</p><button id="whG" style="'+bt+'background:#3b6fe0">Sign in with Google</button><p id="whGm" style="color:#ff9a9a;margin:6px 0 0"></p>';
+    document.getElementById('whG').onclick=async()=>{try{await FBA.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());FBA.uid=FBA.auth.currentUser.uid;adminPaint()}catch(e){document.getElementById('whGm').textContent='Sign-in failed: '+(e.code||e.message)}};
+    return;
+  }
+  let cfg={on:false,tag:false};
+  try{const sn=await FBA.db.collection('cricket_cfg').doc('bots').get();if(sn.exists)cfg=Object.assign(cfg,sn.data())}catch(e){b.textContent='Cannot read settings. Publish the Firestore rule for cricket_cfg first.';return}
+  b.innerHTML='<p style="margin:0 0 8px;color:#9fb3d9">Signed in as '+u.email+'</p><button id="whOn" style="'+bt+'background:'+(cfg.on?'#1fa24a':'#a33')+'">Bots: '+(cfg.on?'ON':'OFF')+'</button><button id="whTag" style="'+bt+'background:'+(cfg.tag?'#3b6fe0':'#33486f')+'">Show BOT tag: '+(cfg.tag?'ON':'OFF')+'</button><p style="margin:8px 0 0;color:#9fb3d9;font-size:12px">When ON, a player who searches online and finds nobody for 7-16 seconds gets a CPU rival with a random name.</p><p id="whAm" style="color:#ff9a9a;margin:6px 0 0"></p>';
+  const save=async(patch)=>{try{await FBA.db.collection('cricket_cfg').doc('bots').set(Object.assign({on:cfg.on,tag:cfg.tag},patch,{by:u.email,t:Date.now()}));adminPaint()}catch(e){document.getElementById('whAm').textContent='Could not save: '+(e.code||e.message)}};
+  document.getElementById('whOn').onclick=()=>save({on:!cfg.on});
+  document.getElementById('whTag').onclick=()=>save({tag:!cfg.tag});
+}
 /* ---- live match sync ---- */
 function netBegin(ad,r){
   const X={ad:ad,n:0,lat:0,applying:false,seq:0,rx:{},next:1,q:[],lastRx:performance.now(),finished:false,host:!!r.host,mid:r.id,opp:null,pingAt:0,me:r.host?0:1,helloSent:false,built:false,lats:[]};
@@ -4958,6 +5006,7 @@ function handleUI(id,r,x,y){
       else if(res==='poor')toast('Need '+(c.price-PR().stars)+' more stars');
       break}
     /* in-match */
+    case 'admin':if(OWNER)openAdmin();break;
     case 'gl3d':if(!OWNER)break;OPT.gfx=OPT.gfx==='art'?'classic':OPT.gfx==='classic'?'stick':'art';OPT.gl=false;try{localStorage.setItem('wh_cricket_gfx3',OPT.gfx)}catch(e){}break;
     case 'fx':OPT.fx=!OPT.fx;try{localStorage.setItem('wh_cricket_fx',OPT.fx?'1':'0')}catch(e){}break;
     case 'pace':if(G.mode==='aim')G.pace=d;break;

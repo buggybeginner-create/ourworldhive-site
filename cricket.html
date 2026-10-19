@@ -15,7 +15,7 @@ canvas{touch-action:none;display:block}
 <div id="stage"><canvas id="bg"></canvas><canvas id="gl"></canvas><canvas id="c"></canvas></div>
 <a id="hm" href="games.html" title="Back to Games" aria-label="Back to Games">&#8962;</a>
 <button id="fs" title="Full screen (F)">&#9974;</button>
-<script src="owh-bots.js"></script>
+<script src="owh-bots.js"></script><script src="store-items.js"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -595,8 +595,24 @@ function drawStickBust(x,y,w,h,c){
   ctx.beginPath();ctx.arc(cx0,py,Math.max(8,w*0.075),0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#ffce40';ctx.lineWidth=1.6;ctx.stroke();
   tx(String(LK.num),cx0,py+0.5,Math.max(8,w*0.085),'#1b2238','center','900');
   ctx.restore()}
+/* ---- Hive Store skins (kit / cap / bat) ---- */
+let MYO_K=null,MYO=null;
+function eqOver(ids){
+  if(!ids||!window.OWHSTORE)return null;const o={};
+  const k=OWHSTORE.by(ids.kit),c=OWHSTORE.by(ids.cap),b=OWHSTORE.by(ids.bat);
+  if(k&&k.t==='kit'&&k.col)o.jersey=k.col;
+  if(c&&c.t==='cap'&&c.style){o.capStyle=c.style;o.capCol=c.col;if(c.col){o.helmet=c.col;o.cap=c.col}}
+  if(b&&b.t==='bat'&&b.col){o.bat=b.col;o.sticker=b.sticker||null}
+  return Object.keys(o).length?o:null;
+}
+function myOver(){
+  try{const k=localStorage.getItem('owh_store_v1')||'';if(k!==MYO_K){MYO_K=k;MYO=window.OWHSTORE?eqOver(OWHSTORE.eq()):null}}catch(e){MYO=null}
+  return MYO;
+}
+function sideOver(side){if(!side)return null;if(side.human)return myOver();return side.eqo||null}
 function drawRig(J,S){
   const parts=[];
+  if(S&&S.eqs&&MT&&OPT.gfx==='stick'){try{const ov=sideOver(S.eqs==='bat'?sideBat():sideBowl());if(ov)S=Object.assign({},S,ov)}catch(e){}}
   if(GLX.collecting&&CH.ready&&CH.add(J,GLX.hybrid?Object.assign({},S,{hidebat:true}):S)){
     if(GLX.hybrid){GLX.addParts(parts);return}
     if(J.bat&&!CH.lastBat){const d=J.bat[1],b0=J.bat[0],cap0=(a,b,r,col,r2,x)=>{const ca=cs(a[0],a[1],a[2]),cb=cs(b[0],b[1],b[2]);parts.push({t:0,ca,cb,r,r2:r2===undefined?r:r2,col,x:x||null,d:0})};
@@ -633,7 +649,12 @@ function drawRig(J,S){
     const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
     const front=c0[2]>NEAR&&c1[2]>NEAR&&c1[2]<c0[2]-0.015,sgn=front?1:-1;
     sph(J.head,hr,[246,224,196],0.0);
-    cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),[0,hr*0.45,0]),vadd(vadd(J.head,vsc(rt,hr*0.97)),[0,hr*0.45,0]),0.017,S.helmet||S.cap||jc0,0.017,{off:0.03});
+    {const cst=S.capStyle,cc=S.capCol||jc0,up=(y)=>[0,hr*y,0];
+     if(!cst||cst==='band'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.45)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.45)),0.017,S.helmet||S.cap||jc0,0.017,{off:0.03})}
+     else if(cst==='cap'){sph(vadd(J.head,up(0.78)),hr*0.64,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.55)),up(0.5)),vadd(vadd(J.head,vsc(fc,hr*1.55)),up(0.42)),0.03,shade(cc,0.8),0.03,{off:0.05})}
+     else if(cst==='beanie'){sph(vadd(J.head,up(0.7)),hr*0.8,cc,0.04);sph(vadd(J.head,up(1.45)),hr*0.22,[255,255,255],0.05)}
+     else if(cst==='cowboy'){cap(vadd(vadd(J.head,vsc(rt,-hr*1.8)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*1.8)),up(0.62)),0.022,cc,0.022,{off:0.04});sph(vadd(J.head,up(1.0)),hr*0.58,cc,0.045)}
+     else if(cst==='crown'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.62)),0.024,cc,0.024,{off:0.04});for(const sx of [-0.7,0,0.7])sph(vadd(vadd(J.head,vsc(rt,hr*sx)),up(1.05)),hr*0.2,cc,0.05)}}
     if(front){const fb=vadd(J.head,vsc(fc,hr*0.96));
       for(const sd of [-1,1])sph(vadd(fb,vadd(vsc(rt,sd*0.04),[0,0.012,0])),0.011,[25,25,30],0.06);
       const mp=vadd(fb,[0,-0.034,0]),mw=[0.062,0.048,0.078][LK.mu],dr=[0.008,0.022,0.0][LK.mu],th=[0.011,0.009,0.016][LK.mu],mc=[28,18,14];
@@ -933,7 +954,7 @@ const SKINS=[hx('#f1c27d'),hx('#e0ac69'),hx('#c68642'),hx('#8d5524'),hx('#d9a47a
 
 /* ---------- batter ---------- */
 const KEYS=['phi','crouch','bend','tilt','ha','hb','hc','E','U','stepX','stepZ','backX','backZ'];
-const STANCE={phi:0,crouch:0.38,bend:0.52,tilt:0.07,ha:0.40,hb:0.80,hc:0.0,E:-1.25,U:0,stepX:0,stepZ:0,backX:0,backZ:0};
+const STANCE={phi:0,crouch:0.38,bend:0.52,tilt:0.07,ha:0.34,hb:0.74,hc:0.0,E:-1.2,U:0,stepX:0,stepZ:0,backX:0,backZ:0};
 const BACKLIFT={phi:0,crouch:0.42,bend:0.52,tilt:0.1,ha:0.16,hb:1.16,hc:0.07,E:0.95,U:1.95,stepX:0,stepZ:0,backX:0,backZ:0};
 function kmix(a,b,t){const o={};for(const k of KEYS)o[k]=a[k]+(b[k]-a[k])*t;return o}
 const BT_ROOT=[-0.44,0,0.55];
@@ -1981,15 +2002,15 @@ function drawActors(T){
   const keepN=items.length;
   const ART_ON=!GLX.collecting&&OPT.gfx==='art'&&artReady();
   items.push({d:dep(0.95,21.5),f:()=>{if(ART_ON&&artHas(VF?'umpB':'ump'))artDrawUmp();else drawRig(umpireJ(),Object.assign({},UMP_STYLE,{label:'UMPIRE'}))}});
-  items.push({d:dep(G.bowlerX,G.bowlerZ),f:()=>{const bk=S.bowler?S.bowler.kit:null,st=Object.assign({},FIELD_STYLE,{jersey:MT?sideBowl().col:(bk?bk.jersey:hx('#e63946')),skin:bk?bk.skin:BOWL_SK,ballCol:ballCol(),trim:bk?bk.trim:null,cap:bk?bk.helmet:FIELD_STYLE.cap,vid:'bowl',label:((S.bowler&&(S.bowler.name||(S.bowler.card&&S.bowler.card.name)))||'BOWLER')});try{if(MT&&humanBowl()){const pr=sideBowl().prof;if(pr)Object.assign(st,modelStyle(pr,bk||{}))}}catch(e){}if(ART_ON)artDrawBowler(st);else drawRig(bowlerJ(),st)}});
+  items.push({d:dep(G.bowlerX,G.bowlerZ),f:()=>{const bk=S.bowler?S.bowler.kit:null,st=Object.assign({},FIELD_STYLE,{jersey:MT?sideBowl().col:(bk?bk.jersey:hx('#e63946')),skin:bk?bk.skin:BOWL_SK,ballCol:ballCol(),trim:bk?bk.trim:null,cap:bk?bk.helmet:FIELD_STYLE.cap,vid:'bowl',label:((S.bowler&&(S.bowler.name||(S.bowler.card&&S.bowler.card.name)))||'BOWLER')});try{if(MT&&humanBowl()){const pr=sideBowl().prof;if(pr)Object.assign(st,modelStyle(pr,bk||{}))}}catch(e){}if(ART_ON)artDrawBowler(st);else drawRig(bowlerJ(),Object.assign(st,{eqs:'bowl'}))}});
   for(const f of FLD){
     items.push({d:dep(f.x,f.z),f:()=>{
-      const fs_=Object.assign({},FIELD_STYLE,{skin:f.skin,vid:FLD.indexOf(f),nobat:true,label:artFName(FLD.indexOf(f))},fieldCol());if(ART_ON)artDrawFielder(f,FLD.indexOf(f),fs_.jersey);else drawRig(fielderJ(f),fs_)}});
+      const fs_=Object.assign({},FIELD_STYLE,{skin:f.skin,vid:FLD.indexOf(f),nobat:true,label:artFName(FLD.indexOf(f))},fieldCol());if(ART_ON)artDrawFielder(f,FLD.indexOf(f),fs_.jersey);else drawRig(fielderJ(f),Object.assign(fs_,{eqs:'bowl'}))}});
   }
-  if(VF&&!GLX.collecting){const kp=keeperPos();items.push({d:dep(kp[0],kp[1]),f:()=>{if(ART_ON)artDrawKeeper();else drawRig(keeperJ(kp),Object.assign(keeperStyle(),{label:'KEEPER'}))}})}
-  if(nsBat&&!crossing())items.push({d:dep(NS_X,NS_Z),f:()=>{if(ART_ON&&artHas(VF?'nsB':'ns'))artDrawNs();else drawRig(nsJ(),Object.assign(nsStyle(),{label:nsBat.card.name}))}});
-  {const xr=G.xrun;if(xr&&crossing()){let ri=0;for(const r of runnerPos(xr)){const rj=ri++;items.push({d:dep(r.x,r.z),f:()=>{if(ART_ON&&artDrawRunner(r,rj))return;drawRig(poseWalk(r.x,r.z,r.hd,G.clock*17,r.amp,{batDir:[0.14,-0.98,0.06]}),Object.assign({},BAT_BASE,r.card.kit,{helmet:r.card.kit.helmet,label:r.card.name}))}})}}}
-  for(const B of [outBat,bat]){if(!B)continue;if(B===bat&&crossing())continue;const a=actorXZ(B);items.push({d:dep(a[0],a[1]),f:()=>{const J=batterJ(B,T);if(B===bat&&B.state==='swing')recordBat(J);if(ART_ON)artDrawBatter(B,T);else drawRig(J,Object.assign(batterStyle(B),{label:B.card.name,hurt:(B.hurtT&&G.clock<B.hurtT)?Math.min(1,(G.clock-(B.hurtT-2.6))/0.15)*Math.min(1,(B.hurtT-G.clock)/0.8):0,mood:B.state==='out'?'sad':''}));if(B===bat)drawBatTrail()}})}
+  if(VF&&!GLX.collecting){const kp=keeperPos();items.push({d:dep(kp[0],kp[1]),f:()=>{if(ART_ON)artDrawKeeper();else drawRig(keeperJ(kp),Object.assign(keeperStyle(),{label:'KEEPER',eqs:'bowl'}))}})}
+  if(nsBat&&!crossing())items.push({d:dep(NS_X,NS_Z),f:()=>{if(ART_ON&&artHas(VF?'nsB':'ns'))artDrawNs();else drawRig(nsJ(),Object.assign(nsStyle(),{label:nsBat.card.name,eqs:'bat'}))}});
+  {const xr=G.xrun;if(xr&&crossing()){let ri=0;for(const r of runnerPos(xr)){const rj=ri++;items.push({d:dep(r.x,r.z),f:()=>{if(ART_ON&&artDrawRunner(r,rj))return;drawRig(poseWalk(r.x,r.z,r.hd,G.clock*17,r.amp,{batDir:[0.14,-0.98,0.06]}),Object.assign({},BAT_BASE,r.card.kit,{helmet:r.card.kit.helmet,label:r.card.name,eqs:'bat'}))}})}}}
+  for(const B of [outBat,bat]){if(!B)continue;if(B===bat&&crossing())continue;const a=actorXZ(B);items.push({d:dep(a[0],a[1]),f:()=>{const J=batterJ(B,T);if(B===bat&&B.state==='swing')recordBat(J);if(ART_ON)artDrawBatter(B,T);else drawRig(J,Object.assign(batterStyle(B),{eqs:'bat',label:B.card.name,hurt:(B.hurtT&&G.clock<B.hurtT)?Math.min(1,(G.clock-(B.hurtT-2.6))/0.15)*Math.min(1,(B.hurtT-G.clock)/0.8):0,mood:B.state==='out'?'sad':''}));if(B===bat)drawBatTrail()}})}
   if(GLX.hybridBg)items.splice(1,items.length);
   items.sort((a,b)=>b.d-a.d);
   for(const it of items)it.f();
@@ -4451,13 +4472,28 @@ const EMOFONT='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-seri
 const CHAT={open:false,list:[],cd:0,reply:null};
 function emo(s,x,y,size){ctx.font=size+'px '+EMOFONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.fillText(s,x,y)}
 function chatAdd(side,kind,i){CHAT.list.push({side:side,kind:kind,i:i,ts:G.RT});if(CHAT.list.length>4)CHAT.list.shift();sfx&&sfx.pop&&sfx.pop()}
+const CHAT2={tab:'e',taunt:null};
+function ownedItems(t){try{return window.OWHSTORE?OWHSTORE.owned(t):[]}catch(e){return[]}}
 function chatSend(kind,i){
-  if(G.RT<CHAT.cd||!(i>=0&&i<(kind==='m'?CHAT_MSG.length:CHAT_EMO.length)))return;CHAT.cd=G.RT+1.2;CHAT.open=false;
+  if(G.RT<CHAT.cd)return;
+  if(kind==='p'||kind==='t'){
+    const it=window.OWHSTORE&&OWHSTORE.by(i);if(!it||it.t!==(kind==='t'?'taunt':'chat'))return;
+    if(!OWHSTORE.has(OWHSTORE.load(),i)){window.open('store.html','_blank');return}
+    CHAT.cd=G.RT+(kind==='t'?2.5:1.2);CHAT.open=false;
+    if(kind==='t'){CHAT2.taunt={side:'me',id:i,ts:G.RT};sfx&&sfx.pop&&sfx.pop()}else chatAdd('me','p',i);
+    if(MT&&MT.online&&NETX)NETX.send('chat',{k:kind,i:i});
+    else if(MT&&MT.mode!=='two'){CHAT.reply={t:G.RT+1.5+Math.random()*1.5,kind:'e'}}
+    return;
+  }
+  if(!(i>=0&&i<(kind==='m'?CHAT_MSG.length:CHAT_EMO.length)))return;CHAT.cd=G.RT+1.2;CHAT.open=false;
   chatAdd('me',kind,i);
   if(MT&&MT.online&&NETX)NETX.send('chat',{k:kind,i:i});
   else if(MT&&MT.mode!=='two'){CHAT.reply={t:G.RT+1.5+Math.random()*1.5,kind:kind}}
 }
 function chatRecv(d){
+  if(d&&(d.k==='p'||d.k==='t')){
+    const it=window.OWHSTORE&&OWHSTORE.by(d.i);if(!it||it.t!==(d.k==='t'?'taunt':'chat'))return;
+    if(d.k==='t'){CHAT2.taunt={side:'opp',id:d.i,ts:G.RT};sfx&&sfx.pop&&sfx.pop()}else chatAdd('opp','p',d.i);return}
   const k=d&&d.k==='m'?'m':'e',n=k==='m'?CHAT_MSG.length:CHAT_EMO.length,i=(d&&d.i|0);
   if(i<0||i>=n)return;chatAdd('opp',k,i);
 }
@@ -4479,7 +4515,7 @@ function drawChat(){
   for(let j=CHAT.list.length-1;j>=0;j--){
     const c=CHAT.list[j],age=G.RT-c.ts;if(age>3.6)continue;
     const a=clamp(Math.min(age/0.2,(3.6-age)/0.5),0,1),left=c.side==='me';
-    const txt=c.kind==='m'?CHAT_MSG[c.i]:null,w=txt?Math.min(190,12+txt.length*8.2):54,h=txt?30:54;
+    const txt=c.kind==='m'?CHAT_MSG[c.i]:c.kind==='p'?((OWHSTORE.by(c.i)||{}).txt||''):null,w=txt?Math.min(190,12+txt.length*8.2):54,h=txt?30:54;
     const x=left?12:W-12-w,y=256+k*(h+6);
     ctx.save();ctx.globalAlpha=a;
     rr(x,y,w,h,txt?15:20);ctx.fillStyle=left?'rgba(20,70,45,0.92)':'rgba(40,36,90,0.92)';ctx.fill();ctx.strokeStyle=left?'rgba(124,242,154,0.9)':'rgba(160,150,255,0.9)';ctx.lineWidth=1.5;ctx.stroke();
@@ -4488,17 +4524,38 @@ function drawChat(){
     ctx.restore();k++;
     if(k>=3)break;
   }
+  /* taunt banner on the main screen (both players see it) */
+  {const T=CHAT2.taunt;if(T){const age=G.RT-T.ts,it=window.OWHSTORE&&OWHSTORE.by(T.id);
+    if(!it||age>2.8)CHAT2.taunt=null;else{
+      const a=clamp(Math.min(age/0.18,(2.8-age)/0.5),0,1),sc=1+0.25*Math.max(0,1-age/0.25),cy=H*0.42;
+      ctx.save();ctx.globalAlpha=a;ctx.translate(W/2,cy);ctx.scale(sc,sc);
+      rr(-210,-58,420,116,26);ctx.fillStyle='rgba(6,8,22,0.82)';ctx.fill();ctx.strokeStyle=it.col;ctx.lineWidth=4;ctx.stroke();
+      emo(it.e,-150,2,56);tx(it.txt,30,6,it.txt.length>14?24:32,it.col,'center','900',270);
+      tx(T.side==='me'?'YOU':'OPPONENT',0,-44,11,'#c9d3ff','center','900');
+      ctx.restore()}}}
   if(!chatAvail())return;
   btn('chatbtn',12,198,44,44,'',{r:22,on:CHAT.open,col:'#4cc9f0'});emo('💬',34,221,22);
   if(!CHAT.open)return;
   hot('chatclose',0,0,W,H*2);
-  const px=12,py=248,pw=300,ph=336;
+  const px=12,py=248,pw=300,ph=372;
   rr(px,py,pw,ph,16);ctx.fillStyle='rgba(6,10,24,0.96)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();
   hot('chatpanel',px,py,pw,ph);
-  tx('EMOJIS',px+14,py+16,10.5,'#9fb3d9','left','800');
-  CHAT_EMO.forEach((e,i)=>{const x=px+12+(i%5)*57,y=py+28+Math.floor(i/5)*54;btn('chat_e',x,y,50,48,'',{r:12,d:i});emo(e,x+25,y+26,28)});
-  tx('QUICK MESSAGES',px+14,py+148,10.5,'#9fb3d9','left','800');
-  CHAT_MSG.forEach((m,i)=>{const x=px+12+(i%2)*144,y=py+160+Math.floor(i/2)*33;btn('chat_m',x,y,138,28,m,{r:10,size:11.5,d:i})});
+  [['e','EMOJI'],['m','CHAT'],['t','TAUNTS']].forEach((t,i)=>btn('chat_tab',px+10+i*94,py+8,90,28,t[1],{r:10,size:11.5,on:CHAT2.tab===t[0],d:t[0]}));
+  const y0=py+46;
+  if(CHAT2.tab==='e'){
+    CHAT_EMO.forEach((e,i)=>{const x=px+12+(i%5)*57,y=y0+Math.floor(i/5)*54;btn('chat_e',x,y,50,48,'',{r:12,d:i});emo(e,x+25,y+26,28)});
+  }else if(CHAT2.tab==='m'){
+    const prem=ownedItems('chat').filter(i=>!i.free);
+    CHAT_MSG.forEach((m,i)=>{const x=px+12+(i%2)*144,y=y0+Math.floor(i/2)*31;btn('chat_m',x,y,138,27,m,{r:10,size:11.5,d:i})});
+    const yb=y0+Math.ceil(CHAT_MSG.length/2)*31+4;
+    prem.slice(0,8).forEach((it,i)=>{const x=px+12+(i%2)*144,y=yb+Math.floor(i/2)*31;btn('chat_p',x,y,138,27,it.txt,{r:10,size:11.5,d:it.id,on:true,col:'#7c3aed',tc:'#fff'})});
+    btn('chat_shop',px+12,py+ph-38,276,28,prem.length?'\uD83D\uDED2  MORE CHAT LINES':'\uD83D\uDED2  GET PREMIUM CHAT LINES',{r:10,size:11.5,on:true,col:'#e0a81c',tc:'#2b1d00'});
+  }else{
+    const list=window.OWHSTORE?OWHSTORE.ITEMS.filter(i=>i.t==='taunt'):[];
+    list.forEach((it,i)=>{const x=px+12+(i%2)*144,y=y0+Math.floor(i/2)*40,own=OWHSTORE.has(OWHSTORE.load(),it.id);
+      btn('chat_t',x,y,138,35,(own?it.e+' ':'\uD83D\uDD12 ')+it.n,{r:10,size:12,d:it.id,on:own,col:it.col,tc:'#fff'})});
+    btn('chat_shop',px+12,py+ph-38,276,28,'\uD83D\uDED2  GET MORE TAUNTS',{r:10,size:11.5,on:true,col:'#e0a81c',tc:'#2b1d00'});
+  }
 }
 
 /* ---------- profile screen ---------- */
@@ -4816,7 +4873,7 @@ function netBegin(ad,r){
     if(X.built||!X.opp||!X.helloSent)return;X.built=true;
     const p=PR(),n=TEAM_N[OPT.overs],o=X.opp;
     const mine=humanSide(p,X.me);
-    const remote={name:o.team,pname:o.name,human:false,remote:true,prof:null,bats:o.bats.slice(0,n),bowls:o.bowls,col:hx(KP[1-X.me][0])};
+    const remote={eqo:eqOver(o.eq),name:o.team,pname:o.name,human:false,remote:true,prof:null,bats:o.bats.slice(0,n),bowls:o.bowls,col:hx(KP[1-X.me][0])};
     const sides=X.me===0?[mine,remote]:[remote,mine];
     if(sides[0].name===sides[1].name)sides[1].name+=' 2';
     OPT.mode='full';
@@ -4832,7 +4889,7 @@ function netBegin(ad,r){
   ad.open(r.id,X.recv);
   /* say hello with our squad */
   const p=PR(),sq=humanSquad(p,TEAM_N[OPT.overs]);
-  X.send('hello',{name:p.name,team:p.team,rating:myRating(p),level:levelOf(p.xp),bats:sq.bats,bowls:sq.bowls});
+  X.send('hello',{eq:(window.OWHSTORE?OWHSTORE.eq():{}),name:p.name,team:p.team,rating:myRating(p),level:levelOf(p.xp),bats:sq.bats,bowls:sq.bowls});
   X.helloSent=true;X.tryBuild();
   /* the toss quiz hooks into the same channel */
   TOSSNET.emit=function(type,d){if(NETX&&MT&&MT.online){if(type==='qwin'&&!TS.host)return;X.send(type,d)}};
@@ -4961,6 +5018,10 @@ function handleUI(id,r,x,y){
     case 'chatpanel':break;
     case 'chat_e':chatSend('e',d);break;
     case 'chat_m':chatSend('m',d);break;
+    case 'chat_p':chatSend('p',d);break;
+    case 'chat_t':chatSend('t',d);break;
+    case 'chat_tab':CHAT2.tab=d;break;
+    case 'chat_shop':window.open('store.html','_blank');break;
     case 'slot0':CUR=0;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'slot1':CUR=1;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'ren_team':askText('TEAM NAME',PR().team,16,v=>{PR().team=v;saveProfiles()});break;

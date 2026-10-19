@@ -286,10 +286,14 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
   <div id="vI" hidden>
     <div class="box"><h2>Hide until ready</h2><p>Tick a tool or game to hide it from visitors. While you are signed in to Studio in this browser, you still see it on the Hive Apps and Games pages with an orange "Hidden" label, so you can try it. Untick it when it is ready and everyone sees it. (Your own items and games added below have their own Show tick.)</p><h3>Hive Apps tools</h3><div id="hM"></div><h3>Games</h3><div id="hG"></div><div class="row" style="margin-top:12px"><button class="sb gold" id="hSave" type="button">Save</button></div><p class="msg4" id="hMsg" role="status"></p></div>
     <div class="box"><h2>Online bots</h2><p>When this is ON, a player who searches for an online match and finds nobody after 7 to 16 seconds is matched with computer players that have random human-style names. They look like real players. Bot games are practice games: no ranking points. Only you can change this, because you are signed in to Studio.</p>
-      <label class="chk"><input type="checkbox" id="bOn"> Bots ON (master switch)</label>
-      <label class="chk"><input type="checkbox" id="bTag"> Show a "(BOT)" tag after the bot names</label>
-      <h3 style="margin:12px 0 4px;font-size:15px">Allow bots in</h3><div id="bG"></div>
-      <div class="row"><button class="sb gold" id="bSave">Save</button></div><p class="msg4" id="bMsg" role="status"></p></div>
+      <label class="chk"><input type="checkbox" id="botOn"> Bots ON (master switch)</label>
+      <label class="chk"><input type="checkbox" id="botTag"> Show a "(BOT)" tag after the bot names</label>
+      <h3 style="margin:12px 0 4px;font-size:15px">Allow bots in</h3><div id="botG"></div>
+      <div class="row"><button class="sb gold" id="botSave">Save</button></div><p class="msg4" id="botMsg" role="status"></p></div>
+    <div class="box"><h2>Hive Store: payments</h2><p>Players pay you by UPI and then enter the 12 digit UTR on the Store page. Check the payment in your bank or UPI app, then press Approve to add the coins or gems to their wallet.</p>
+      <label class="fld">Your UPI ID<input id="stUpi" placeholder="name@bank"></label><label class="fld">Name shown in the UPI app<input id="stName" placeholder="Ourworldhive"></label>
+      <div class="row"><button class="sb gold" id="stSave">Save UPI details</button></div><p class="msg4" id="stMsg" role="status"></p>
+      <h3 style="margin:14px 0 6px;font-size:15px">Pending top-ups <button class="sb" id="stRef" type="button">Refresh</button></h3><div id="stList"><p>Loading...</p></div><p class="msg4" id="stMsg2" role="status"></p></div>
     <div class="box"><h2>The Anime Way: your YouTube videos</h2><p>Paste the links of videos you posted on YouTube. They show on the page animeway.html for everyone. To make a new video, open any animation on that page while signed in here and tap "Share / Download video".</p><label class="fld">Your YouTube channel link (optional)<input id="awCh" placeholder="https://www.youtube.com/@yourchannel"></label><div id="awList"></div><div class="row" style="margin-top:12px"><button class="sb" id="awAdd" type="button">Add a video</button><button class="sb gold" id="awSave" type="button">Save</button></div><p class="msg4" id="awMsg" role="status"></p></div>
     <div class="box"><h2>Hive Apps items</h2><p>Add your own products or tools to the Hive Apps page. Each one gets a button with your link (for example a payment link or the link to a tool).</p>
       <div id="iList"></div>
@@ -473,12 +477,26 @@ $('hSave').onclick=function(){
 };
 
 var BGL=[['cricket','Cricket 3D'],['arena','3D multiplayer games (Games page)'],['chess','Chess'],['ludo','Ludo'],['carrom','Carrom'],['uttt','Ultimate Tic-Tac-Toe'],['hen','Hen Hunt'],['blockade','Gate Rush'],['clash','Crown Rush'],['four','Gem Line']],bcfg={on:false,tag:false,off:''};
-function renderBots(){ $('bOn').checked=!!bcfg.on; $('bTag').checked=!!bcfg.tag; $('bG').innerHTML=BGL.map(function(x){ return '<label class="chk"><input type="checkbox" data-bg="'+x[0]+'"'+(hasH(bcfg.off,x[0])?'':' checked')+'> '+esc(x[1])+'</label>'; }).join(''); }
+function renderBots(){ $('botOn').checked=!!bcfg.on; $('botTag').checked=!!bcfg.tag; $('botG').innerHTML=BGL.map(function(x){ return '<label class="chk"><input type="checkbox" data-bg="'+x[0]+'"'+(hasH(bcfg.off,x[0])?'':' checked')+'> '+esc(x[1])+'</label>'; }).join(''); }
 function loadBots(){ db.collection('config').doc('bots').get().then(function(d){ if(d.exists){ var o=d.data(); bcfg={on:!!o.on,tag:!!o.tag,off:String(o.off||'')}; } renderBots(); }).catch(function(){ renderBots(); }); }
-$('bSave').onclick=function(){
-  var off=[].filter.call(document.querySelectorAll('[data-bg]'),function(e){ return !e.checked; }).map(function(e){ return e.dataset.bg; }).join(','), on=$('bOn').checked, tag=$('bTag').checked;
-  say('bMsg','Saving\u2026'); db.collection('config').doc('bots').set({on:on,tag:tag,off:off}).then(function(){ bcfg={on:on,tag:tag,off:off}; say('bMsg','Saved. Bots are '+(on?'ON':'OFF')+'.','ok'); }).catch(function(e){ say('bMsg',friendly(e),'err'); });
+$('botSave').onclick=function(){
+  var off=[].filter.call(document.querySelectorAll('[data-bg]'),function(e){ return !e.checked; }).map(function(e){ return e.dataset.bg; }).join(','), on=$('botOn').checked, tag=$('botTag').checked;
+  say('botMsg','Saving\u2026'); db.collection('config').doc('bots').set({on:on,tag:tag,off:off}).then(function(){ bcfg={on:on,tag:tag,off:off}; say('botMsg','Saved. Bots are '+(on?'ON':'OFF')+'.','ok'); }).catch(function(e){ say('botMsg',friendly(e),'err'); });
 };
+
+function loadStore(){ db.collection('config').doc('store').get().then(function(d){ if(d.exists){ $('stUpi').value=d.data().upi||''; $('stName').value=d.data().name||''; } }).catch(function(){}); loadOrders(); }
+$('stSave').onclick=function(){ var u=$('stUpi').value.trim(), n=$('stName').value.trim(); if(u&&!/^[\w.\-]{2,}@[\w.\-]{2,}$/.test(u)){ say('stMsg','That does not look like a UPI ID (name@bank).','err'); return; } say('stMsg','Saving…'); db.collection('config').doc('store').set({upi:u,name:n}).then(function(){ say('stMsg','Saved.','ok'); }).catch(function(e){ say('stMsg',friendly(e),'err'); }); };
+function loadOrders(){ $('stList').innerHTML='<p>Loading...</p>'; db.collection('store_orders').where('status','==','pending').limit(50).get().then(function(q){
+  var a=q.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }).sort(function(x,y){ return x.t-y.t; });
+  $('stList').innerHTML=a.length?a.map(function(o){ return '<div class="blk" data-id="'+o.id+'"><div class="bh"><span>₹'+o.rs+' &middot; '+(o.cur==='gems'?'💎 ':'🪙 ')+o.amt+'</span><span class="sp"><button type="button" class="sb gold" data-ok="1">Approve</button> <button type="button" class="sb" data-no="1">Reject</button></span></div><p style="margin:4px 0">UTR: <b>'+esc(o.utr)+'</b> &middot; '+new Date(o.t).toLocaleString()+'<br><small>wallet '+esc(o.uid)+'</small></p></div>'; }).join(''):'<p>No pending top-ups.</p>';
+  [].forEach.call($('stList').querySelectorAll('.blk'),function(el){ el.querySelector('[data-ok]').onclick=function(){ decide(el.dataset.id,true); }; el.querySelector('[data-no]').onclick=function(){ decide(el.dataset.id,false); }; });
+ }).catch(function(e){ $('stList').innerHTML='<p>Could not load: '+esc(friendly(e))+'</p>'; }); }
+function decide(id,ok){ say('stMsg2','Working…'); var oref=db.collection('store_orders').doc(id);
+  db.runTransaction(function(tx){ return tx.get(oref).then(function(os){ if(!os.exists) throw new Error('Order not found'); var o=os.data(); if(o.status!=='pending') throw new Error('Already handled'); var wref=db.collection('wallets').doc(o.uid);
+    return tx.get(wref).then(function(ws){ if(ok){ var w=ws.exists?ws.data():{coins:0,gems:0,owned:[],eq:{}}, up={}; up[o.cur]=(+w[o.cur]||0)+o.amt; if(!ws.exists){ up.coins=up.coins===undefined?0:up.coins; up.gems=up.gems===undefined?0:up.gems; up.owned=[]; up.eq={}; } tx.set(wref,up,{merge:true}); }
+      tx.update(oref,{status:ok?'approved':'rejected',by:'owner',tdone:Date.now()}); }); }); })
+  .then(function(){ say('stMsg2',ok?'Approved. The wallet was credited.':'Rejected.','ok'); loadOrders(); }).catch(function(e){ say('stMsg2',(e&&e.code)?friendly(e):(e&&e.message)||'Failed','err'); }); }
+$('stRef').onclick=loadOrders;
 
 var awItems=[];
 function ytId(u){ u=String(u||'').trim(); var m=/(?:youtu\.be\/|v=|embed\/|shorts\/)([A-Za-z0-9_-]{11})/.exec(u); if(m) return m[1]; return /^[A-Za-z0-9_-]{11}$/.test(u)?u:''; }
@@ -494,7 +512,7 @@ $('awSave').onclick=function(){
   var ch=$('awCh').value.trim(); if(ch&&!/^https:\/\/(www\.)?youtube\.com\//i.test(ch)){ say('awMsg','The channel link must start with https://www.youtube.com/','err'); return; }
   say('awMsg','Saving\u2026'); db.collection('config').doc('animeway').set({v:JSON.stringify({channel:ch,items:items})}).then(function(){ awItems=items; renderAw(); say('awMsg','Saved. '+items.length+' video(s) are live on animeway.html.','ok'); }).catch(function(e){ say('awMsg',friendly(e),'err'); });
 };
-function loadAll(){ loadPosts(); loadMenu(); loadHidden(); loadBots(); loadAw(); loadItems(); loadAnimals(); loadGames(); loadSettings(); loadAdmins(); }
+function loadAll(){ loadPosts(); loadMenu(); loadHidden(); loadBots(); loadStore(); loadAw(); loadItems(); loadAnimals(); loadGames(); loadSettings(); loadAdmins(); }
 
 
 /* ---------- games added by code ---------- */

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Fruit Catch | Ourworldhive Kids</title>
+<meta name="description" content="Move the basket and catch the falling fruit. A free kids game.">
+<link rel="stylesheet" href="kidkit.css">
+<style>canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}#hud{position:fixed;left:50%;top:66px;transform:translateX(-50%);font-size:28px;z-index:10;letter-spacing:4px}</style></head><body>
+<canvas id="c"></canvas><div id="hud"></div>
+<div class="panel on" id="start"><div class="big">🧺</div><h1>Fruit Catch</h1><p>Drag the basket. Catch fruit, skip the rocks!</p><div class="menu"><button class="btn g" id="go">Play</button></div></div>
+<div class="panel" id="over"><div class="big">🍎</div><h1>Well done!</h1><p id="sc"></p><div class="menu"><button class="btn g" id="again">Play again</button></div></div>
+<script src="kidkit.js"></script>
+<script>
+KK.top('Fruit Catch','🧺');
+var cv=document.getElementById('c'),x=cv.getContext('2d'),W,H,dpr=Math.min(2,devicePixelRatio||1);
+function rs(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}rs();onresize=rs;
+var F=['🍎','🍌','🍇','🍓','🍊','🍉','🍐'],items=[],bx=0,lives=3,score=0,run=false,last=0,sp=0,lvl=1;
+function pt(e){bx=e.clientX;e.preventDefault()}
+cv.addEventListener('pointermove',pt);cv.addEventListener('pointerdown',pt);
+function hud(){var h='';for(var i=0;i<3;i++)h+=i<lives?'❤️':'🤍';document.getElementById('hud').textContent=h+'  ⭐'+score}
+function loop(t){requestAnimationFrame(loop);var dt=Math.min(.05,(t-last)/1000||0);last=t;
+ x.clearRect(0,0,W,H);if(!run)return;sp-=dt;
+ if(sp<=0){sp=Math.max(.45,1.0-lvl*.06);var r=Math.random();items.push({x:30+Math.random()*(W-60),y:-30,v:120+lvl*18+Math.random()*60,k:r<.16?'🪨':r<.24?'⭐':KK.pick(F)})}
+ var by=H-90,bw=Math.min(120,W*.28);
+ x.font='54px serif';x.textAlign='center';x.fillText('🧺',bx,by+46);
+ for(var i=items.length-1;i>=0;i--){var o=items[i];o.y+=o.v*dt;x.font='42px serif';x.fillText(o.k,o.x,o.y);
+  if(o.y>by-10&&o.y<by+40&&Math.abs(o.x-bx)<bw/2){items.splice(i,1);
+   if(o.k==='🪨'){lives--;KK.sfx.oops();hud();if(lives<=0)end()}
+   else{score+=o.k==='⭐'?5:1;KK.addStars(o.k==='⭐'?2:0);KK.sfx.pop();hud();lvl=1+Math.floor(score/10)}}
+  else if(o.y>H+40)items.splice(i,1)}}
+function end(){run=false;KK.sfx.win();KK.confetti(30);document.getElementById('sc').textContent='You caught '+score+' points! Best: '+KK.best('catch',score);document.getElementById('over').classList.add('on')}
+function begin(){items=[];lives=3;score=0;lvl=1;bx=W/2;hud();run=true;document.getElementById('start').classList.remove('on');document.getElementById('over').classList.remove('on')}
+document.getElementById('go').onclick=begin;document.getElementById('again').onclick=begin;
+requestAnimationFrame(loop);
+</script></body></html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Animal Sounds | Ourworldhive Kids</title>
+<meta name="description" content="Who says Moo? Learn animals and their sounds. A free kids game with voice.">
+<link rel="stylesheet" href="kidkit.css">
+<style>#q{position:fixed;left:0;right:0;top:120px;text-align:center;color:#fff;font-weight:900;font-size:clamp(28px,8vw,48px);text-shadow:0 3px 0 rgba(0,0,0,.2);padding:0 16px}
+#ch{position:fixed;left:0;right:0;top:200px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:0 16px;max-width:460px;margin:auto}
+#ch .btn{font-size:clamp(60px,20vw,92px);padding:14px 0;line-height:1.1}</style></head><body>
+<div id="q"></div><div id="ch"></div>
+<div class="panel on" id="start"><div class="big">🐮</div><h1>Animal Sounds</h1><p>Listen and tap the right animal!</p><div class="menu"><button class="btn g" id="go">Play</button></div></div>
+<script src="kidkit.js"></script>
+<script>
+KK.top('Animal Sounds','🐮');
+var A=[['🐮','cow','Moo'],['🐶','dog','Woof'],['🐱','cat','Meow'],['🐑','sheep','Baa'],['🐸','frog','Ribbit'],['🦆','duck','Quack'],['🐷','pig','Oink'],['🐴','horse','Neigh'],['🦁','lion','Roar'],['🐔','hen','Cluck'],['🐝','bee','Buzz'],['🐍','snake','Hiss']],cur=null,n=0;
+function round(){var o=KK.shuffle(A.slice()).slice(0,4);cur=KK.pick(o.filter(function(a){return !cur||a!==cur}));
+ document.getElementById('q').textContent='Who says '+cur[2]+'?';KK.say('Who says '+cur[2]+'?');
+ var h=document.getElementById('ch');h.innerHTML='';o.forEach(function(a){var b=document.createElement('button');b.className='btn '+KK.pick(['g','p','y']);b.textContent=a[0];b.onclick=function(){tap(a,b)};h.appendChild(b)})}
+function tap(a,b){if(a===cur){KK.sfx.ding();KK.addStars(1);KK.confetti(14);KK.say('Yes! The '+a[1]+' says '+a[2]+'!',0.9);n++;setTimeout(round,1900)}
+ else{KK.sfx.oops();b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');KK.say('That is a '+a[1])}}
+document.getElementById('go').onclick=function(){document.getElementById('start').classList.remove('on');KK.sfx.tap();round()};
+</script></body></html>

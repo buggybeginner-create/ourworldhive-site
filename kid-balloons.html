@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Balloon Pop ABC | Ourworldhive Kids</title>
+<meta name="description" content="Pop the right balloon: learn letters, numbers and colours. A free kids game with voice help.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8E%88%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="kidkit.css">
+<style>
+#field{position:fixed;inset:0;overflow:hidden}
+.bal{position:absolute;width:var(--s);height:calc(var(--s)*1.2);border-radius:50% 50% 48% 48%/55% 55% 45% 45%;display:grid;place-items:center;font-size:calc(var(--s)*.46);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25);cursor:pointer;background:radial-gradient(circle at 32% 28%,#fff9 0,#fff0 28%),var(--c);box-shadow:inset -6px -8px 0 rgba(0,0,0,.14),0 6px 10px rgba(0,0,0,.12);will-change:transform}
+.bal::after{content:"";position:absolute;left:50%;bottom:-16px;width:2px;height:18px;background:#0004;transform:translateX(-50%)}
+.bal::before{content:"";position:absolute;left:50%;bottom:-4px;border:7px solid transparent;border-bottom-color:var(--c);border-top:0;transform:translateX(-50%)}
+#ask{position:fixed;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:15;pointer-events:none}
+#ask .pill{font-size:clamp(22px,6vw,34px);padding:12px 24px;pointer-events:auto}
+#prog{position:fixed;left:50%;top:66px;transform:translateX(-50%);display:flex;gap:6px;z-index:10;font-size:22px}
+</style></head><body>
+<div id="field"></div><div id="prog"></div>
+<div id="ask"><span class="pill" id="askTxt">&nbsp;</span><button class="btn round" id="again" aria-label="Say it again" style="margin-left:10px;pointer-events:auto">🗣️</button></div>
+<div class="panel on" id="start"><div class="big">🎈</div><h1>Balloon Pop ABC</h1><p>Pop the balloon the voice asks for. Pick what to learn!</p>
+ <div class="menu"><button class="btn p" data-m="letters">ABC Letters</button><button class="btn g" data-m="numbers">123 Numbers</button><button class="btn y" data-m="colors">🎨 Colours</button></div></div>
+<div class="panel" id="win"><div class="big">🌟</div><h1>Great job!</h1><p>You popped 10 balloons!</p><div class="menu"><button class="btn g" id="go">Keep playing</button><button class="btn" id="menu">Change game</button></div></div>
+<script src="kidkit.js"></script>
+<script>
+KK.top('Balloon Pop','🎈');
+var field=document.getElementById('field'),mode='letters',target=null,got=0,bals=[],last=0,spawnT=0,running=false,spd=1;
+var COLS=[['red','#ff4d5e'],['blue','#3d8bff'],['green','#34c759'],['yellow','#ffc61a'],['purple','#a35cff'],['orange','#ff8a1f'],['pink','#ff6fb5']];
+var LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),NUM=[];for(var i=1;i<=20;i++)NUM.push(String(i));
+function pool(){return mode==='letters'?LET:mode==='numbers'?NUM:COLS.map(function(c){return c[0]})}
+function colOf(v){var c=COLS.filter(function(x){return x[0]===v})[0];return c?c[1]:KK.pick(COLS)[1]}
+function ask(){var p=pool();target=KK.pick(p.filter(function(v){return v!==target}));
+ var t=mode==='colors'?'Pop the '+target+' balloon!':mode==='letters'?'Pop the letter '+target+'!':'Pop number '+target+'!';
+ document.getElementById('askTxt').textContent=t;KK.say(t.replace('Pop the letter A','Pop the letter, A'))}
+function addBal(forceTarget){
+ var p=pool(),v=forceTarget?target:KK.pick(p),s=Math.max(74,Math.min(118,innerWidth/5.2)),d=document.createElement('div');
+ d.className='bal';d.style.setProperty('--s',s+'px');d.style.setProperty('--c',mode==='colors'?colOf(v):KK.pick(COLS)[1]);
+ d.textContent=mode==='colors'?'':v;var o={el:d,v:v,x:Math.random()*(innerWidth-s-10)+5,y:innerHeight+40,vy:(55+Math.random()*50)*spd,ph:Math.random()*6,s:s};
+ d.onpointerdown=function(e){e.preventDefault();hit(o)};field.appendChild(d);bals.push(o)}
+function hit(o){
+ if(!running)return;
+ if(o.v===target){KK.sfx.pop();o.el.classList.add('pop');setTimeout(function(){o.el.remove()},300);bals.splice(bals.indexOf(o),1);got++;KK.addStars(1);prog();
+  if(got%10===0){running=false;KK.sfx.win();KK.confetti(40);document.getElementById('win').classList.add('on');KK.say('Great job!')}
+  else{KK.sfx.ding();ask()}}
+ else{KK.sfx.oops();o.el.classList.remove('shake');void o.el.offsetWidth;o.el.classList.add('shake');KK.say(mode==='colors'?'That is '+o.v:o.v)}}
+function prog(){var n=got%10,h='';for(var i=0;i<10;i++)h+=i<n?'⭐':'☆';document.getElementById('prog').textContent=h}
+function loop(t){requestAnimationFrame(loop);var dt=Math.min(.05,(t-last)/1000||0);last=t;if(!running)return;
+ spawnT-=dt;if(spawnT<=0&&bals.length<7){spawnT=.9;addBal(!bals.some(function(b){return b.v===target})||Math.random()<.25)}
+ for(var i=bals.length-1;i>=0;i--){var b=bals[i];b.y-=b.vy*dt;b.ph+=dt*2;var x=b.x+Math.sin(b.ph)*14;b.el.style.transform='translate('+x+'px,'+b.y+'px)';b.el.style.left=0;b.el.style.top=0;
+  if(b.y<-b.s*1.6){b.el.remove();bals.splice(i,1)}}}
+function begin(){bals.forEach(function(b){b.el.remove()});bals=[];got=0;spd=1;prog();running=true;ask()}
+document.querySelectorAll('#start .btn').forEach(function(b){b.onclick=function(){mode=b.dataset.m;document.getElementById('start').classList.remove('on');KK.sfx.tap();begin()}});
+document.getElementById('go').onclick=function(){document.getElementById('win').classList.remove('on');spd=Math.min(1.8,spd+.15);running=true;ask()};
+document.getElementById('menu').onclick=function(){document.getElementById('win').classList.remove('on');document.getElementById('start').classList.add('on');running=false};
+document.getElementById('again').onclick=function(){KK.say(document.getElementById('askTxt').textContent)};
+requestAnimationFrame(loop);
+</script></body></html>

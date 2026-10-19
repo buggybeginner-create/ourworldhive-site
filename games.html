@@ -1143,7 +1143,10 @@ function openProfile(first){
     if(n.length<2||n.length>20){$('pfE').textContent='Name must be 2 to 20 characters.';return} if(!c){$('pfE').textContent='Please choose your country.';return}
     try{const d={uid:ME.uid,name:n,country:c,updated:Date.now()};await FS.collection('arena_players').doc(ME.uid).set(d);PROF=d;closeSheet();renderBar();drawBoard();toast('Saved.')}catch(e){$('pfE').textContent='Could not save right now. Please try again.'}}}
 /* ---------- hub ---------- */
-const ORDER=['highway','runner','stack','space','pingpong','badminton','cricket','tank','snake','hop','penalty','hoops','mole','memory','merge'],CUSTOM=[];
+GAMES.runner3d={link:'runner3d.html',own:true,kind:'gl',name:'Hive Runner 3D',icon:'\uD83E\uDD16',bg:'linear-gradient(135deg,#ff4fa3,#3df2ff)',modes:'single',tagsHtml:'<i>Real 3D</i><i>Skins</i><i>Characters</i>',
+ desc:'A real 3D endless runner through a neon city. Dodge, jump and slide, collect coins and power-ups, then unlock characters, skins and trails in the garage.',
+ how:'Opens the 3D runner. Swipe left or right to change lane, up to jump, down to slide.',make(){return{}}};
+const ORDER=['highway','runner','stack','space','pingpong','badminton','cricket','runner3d','tank','snake','hop','penalty','hoops','mole','memory','merge'],CUSTOM=[];
 let HID=[],OWN=false;try{OWN=localStorage.getItem('owh_owner')==='1'}catch(e){}
 function gameIds(){return ORDER.filter(id=>GAMES[id]&&(OWN||HID.indexOf(id)<0)).concat(CUSTOM.filter(id=>GAMES[id]))}
 function renderHub(){
@@ -1207,7 +1210,7 @@ function openGame(id){
   if(id==='highway'){const sync=()=>{$('shCars').querySelectorAll('.opt').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.t));$('shCols').querySelectorAll('.cc').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.c))};
     $('shCars').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{PREF.car.t=+b.dataset.i;persist();sync()});$('shCols').querySelectorAll('.cc').forEach(b=>b.onclick=()=>{PREF.car.c=+b.dataset.c;persist();sync()})}}
 const MPSET={size:4,scope:'any'};
-const REFS={highway:480,runner:380,stack:260,space:450,pingpong:110,badminton:100,cricket:26,tank:220,snake:120,hop:150,penalty:35,hoops:24,mole:32,memory:160,merge:600};
+const REFS={highway:480,runner:380,stack:260,space:450,pingpong:110,badminton:100,cricket:26,runner3d:600,tank:220,snake:120,hop:150,penalty:35,hoops:24,mole:32,memory:160,merge:600};
 const BOTN=['Aarav','Kabir','Zoya','Mia','Leo','Nora','Ishan','Tara','Omar','Lina','Dev','Sara'];let BOTSET={n:2,d:'normal'};
 function makeBots(id,n,diff){const ref=(GAMES[id]&&GAMES[id].ref)||REFS[id]||200,f={easy:.55,normal:.85,hard:1.15}[diff]||.85,names=BOTN.slice().sort(()=>Math.random()-.5),out=[];for(let i=0;i<n;i++)out.push({uid:'bot'+i,name:names[i],final:Math.max(1,Math.round(ref*f*(.72+Math.random()*.56))),ph:Math.random()*6.28});return out}
 function botScore(b,t,T){const p=Math.min(1,t/T),c=Math.pow(p,.88)*(1+.05*Math.sin(t*.9+b.ph));return Math.max(0,Math.floor(b.final*Math.min(1,c)))}

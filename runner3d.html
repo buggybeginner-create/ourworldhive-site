@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a1f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%A4%96%3C/text%3E%3C/svg%3E">
+<title>Hive Runner 3D | Ourworldhive</title>
+<meta name="description" content="Hive Runner 3D: a real 3D endless runner with animated characters, skins, trails and a neon city. Free to play on Ourworldhive.">
+<style>
+:root{--bg:#0b0a1f;--ink:#f4f1ff;--mut:#a8a3d6;--cy:#3df2ff;--pk:#ff4fa3;--yl:#ffd23f;--gn:#7dff7a;--glass:rgba(16,13,44,.72);--line:rgba(160,150,255,.28)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:600 15px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+.ui{position:fixed;inset:0;pointer-events:none;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));display:none;flex-direction:column}
+.ui.on{display:flex}
+.ui button,.ui .card,.ui .panel{pointer-events:auto}
+.row{display:flex;gap:10px;align-items:center}
+.sp{flex:1}
+.chip{background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:800;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.chip b{color:var(--yl)}
+.btn{font:inherit;font-weight:900;letter-spacing:.04em;color:#10082a;background:linear-gradient(180deg,#7df7ff,#2fd0ea);border:0;border-radius:16px;padding:14px 22px;box-shadow:0 6px 0 #138aa3,0 12px 24px rgba(0,0,0,.35);cursor:pointer;text-transform:uppercase;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #138aa3,0 6px 12px rgba(0,0,0,.35)}
+.btn.pk{background:linear-gradient(180deg,#ff8cc6,#ff3f9a);box-shadow:0 6px 0 #a3185f,0 12px 24px rgba(0,0,0,.35)}
+.btn.yl{background:linear-gradient(180deg,#ffe98a,#ffbe1f);box-shadow:0 6px 0 #a87400,0 12px 24px rgba(0,0,0,.35)}
+.btn.gh{background:var(--glass);color:var(--ink);border:1px solid var(--line);box-shadow:none;backdrop-filter:blur(8px)}
+.btn.sm{padding:10px 14px;font-size:13px;border-radius:13px}
+.btn[disabled]{filter:grayscale(.8) brightness(.7);pointer-events:none}
+.ic{width:44px;height:44px;border-radius:14px;padding:0;display:grid;place-items:center;font-size:20px}
+h1{margin:0;font-size:clamp(34px,9vw,60px);line-height:.95;letter-spacing:.02em;font-weight:900;text-transform:uppercase;text-shadow:0 0 24px rgba(61,242,255,.45),0 4px 0 rgba(0,0,0,.35)}
+h1 em{font-style:normal;color:var(--pk);text-shadow:0 0 24px rgba(255,79,163,.55),0 4px 0 rgba(0,0,0,.35)}
+.tag{color:var(--mut);font-weight:700;letter-spacing:.12em;font-size:12px;text-transform:uppercase}
+/* menu */
+#menu .mid{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:14px;padding-bottom:6px}
+#menu .play{font-size:22px;padding:18px 60px;min-width:min(78vw,320px)}
+#menu .title{text-align:center;margin-top:8px}
+/* hud */
+#hud .score{font-size:clamp(30px,8vw,46px);font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.4),0 0 18px rgba(61,242,255,.5);line-height:1}
+#hud .score small{font-size:.38em;color:var(--mut);margin-left:4px;letter-spacing:.1em}
+.pw{display:flex;gap:8px;margin-top:10px}
+.pw .p{position:relative;width:46px;height:46px;border-radius:14px;background:var(--glass);border:2px solid var(--c);display:grid;place-items:center;font-size:21px;overflow:hidden}
+.pw .p i{position:absolute;left:0;bottom:0;width:100%;background:var(--c);opacity:.35}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,40,70,0) 30%,rgba(255,40,70,.75));transition:opacity .35s}
+#big{position:fixed;left:0;right:0;top:34%;text-align:center;pointer-events:none;font-size:clamp(64px,22vw,150px);font-weight:900;text-shadow:0 0 30px rgba(61,242,255,.7),0 6px 0 rgba(0,0,0,.4);opacity:0}
+#big.pop{animation:pop .7s ease-out}
+@keyframes pop{0%{opacity:0;transform:scale(1.8)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.9)}}
+#tip{position:fixed;left:0;right:0;bottom:16%;text-align:center;pointer-events:none;color:#fff;font-weight:800;text-shadow:0 2px 8px #000;opacity:0;transition:opacity .4s}
+#tip.on{opacity:1}
+#tip span{display:inline-block;background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px 16px;margin:4px;backdrop-filter:blur(8px)}
+/* panels */
+.sheet{margin-top:auto;background:linear-gradient(180deg,rgba(18,14,52,.86),rgba(10,8,30,.94));border:1px solid var(--line);border-radius:26px 26px 18px 18px;padding:14px 12px 12px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);width:100%;max-width:640px;margin-left:auto;margin-right:auto;box-shadow:0 -10px 40px rgba(0,0,0,.45)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{flex:1;font:inherit;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);background:transparent;border:1px solid transparent;border-radius:12px;padding:9px 6px;cursor:pointer}
+.tab.on{color:#10082a;background:var(--cy)}
+.cards{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cards::-webkit-scrollbar{display:none}
+.card{flex:0 0 auto;width:104px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid transparent;padding:10px 8px;text-align:center;cursor:pointer;position:relative}
+.card.sel{border-color:var(--cy);background:rgba(61,242,255,.12)}
+.card.eq::after{content:"\2713";position:absolute;top:6px;right:8px;color:var(--gn);font-weight:900}
+.card .sw{height:46px;border-radius:12px;margin-bottom:8px;display:grid;place-items:center;font-size:24px;border:1px solid rgba(255,255,255,.18)}
+.card .nm{font-size:13px;font-weight:800}
+.card .pr{font-size:12px;color:var(--yl);font-weight:800;min-height:16px}
+.card .lk{position:absolute;inset:0;border-radius:14px;background:rgba(6,4,22,.38);pointer-events:none}
+.go{margin:auto;width:min(92vw,420px);text-align:center;padding:22px 18px;background:linear-gradient(180deg,rgba(24,18,66,.92),rgba(10,8,30,.95));border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.go h2{margin:0 0 4px;font-size:30px;text-transform:uppercase;letter-spacing:.05em}
+.go .big{font-size:56px;font-weight:900;color:var(--cy);line-height:1;text-shadow:0 0 22px rgba(61,242,255,.5)}
+.go .st{display:flex;justify-content:center;gap:10px;margin:14px 0;flex-wrap:wrap}
+.go .btns{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.new{color:var(--yl);font-weight:900;letter-spacing:.1em}
+#load{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#2a1a66,#0b0a1f 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9}
+#load .bar{width:min(70vw,300px);height:10px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+#load .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pk));transition:width .2s}
+#nogl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:30px;z-index:10;background:var(--bg)}
+a.back{color:inherit;text-decoration:none}
+@media (min-aspect-ratio:11/10){.sheet{margin-right:0;max-width:min(46vw,460px)}#menu .mid{padding-bottom:0;align-items:flex-end;padding-right:5vw}#menu .title{text-align:left}h1{font-size:clamp(30px,6vw,54px)}}
+</style>
+</head>
+<body>
+<canvas id="cv" tabindex="0"></canvas>
+<div id="flash"></div>
+<div id="big"></div>
+<div id="tip"></div>
+
+<!-- main menu -->
+<div class="ui" id="menu">
+  <div class="row">
+    <span class="chip">&#129689; <b id="mCoins">0</b></span>
+    <span class="chip">BEST <b id="mBest">0</b> m</span>
+    <span class="sp"></span>
+    <a class="btn gh ic" href="games.html" aria-label="Back to games">&#8962;</a>
+  </div>
+  <div class="title"><h1>Hive <em>Runner</em></h1><div class="tag">3D endless run &middot; ourworldhive</div></div>
+  <div class="mid">
+    <button class="btn play" id="bPlay">Play</button>
+    <div class="row">
+      <button class="btn gh" id="bGarage">&#128085; Garage</button>
+      <button class="btn gh ic" id="bSnd" aria-label="Sound">&#128266;</button>
+      <button class="btn gh" id="bQ">Graphics: <span id="qLbl">Auto</span></button>
+    </div>
+    <div class="tag" style="font-size:10px;opacity:.7;text-align:center;letter-spacing:.06em">Bolt: CC0 by Quaternius &middot; Vanguard &amp; X-Bot: Mixamo &middot; three.js</div>
+  </div>
+</div>
+
+<!-- garage -->
+<div class="ui" id="garage">
+  <div class="row">
+    <button class="btn gh ic" id="gBack" aria-label="Back">&#8592;</button>
+    <span class="chip">&#129689; <b id="gCoins">0</b></span>
+    <span class="sp"></span>
+    <span class="tag" id="gName"></span>
+  </div>
+  <div class="sheet panel">
+    <div class="tabs" id="gTabs">
+      <button class="tab on" data-t="char">Runner</button>
+      <button class="tab" data-t="skin">Skin</button>
+      <button class="tab" data-t="trail">Trail</button>
+    </div>
+    <div class="cards" id="gCards"></div>
+    <button class="btn yl" id="gAct" style="width:100%">Equip</button>
+  </div>
+</div>
+
+<!-- hud -->
+<div class="ui" id="hud">
+  <div class="row" style="align-items:flex-start">
+    <div><div class="score"><span id="hScore">0</span><small>M</small></div><div class="pw" id="hPw"></div></div>
+    <span class="sp"></span>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+      <span class="chip">&#129689; <b id="hCoins">0</b></span>
+      <button class="btn gh ic" id="bPause" aria-label="Pause">&#10074;&#10074;</button>
+    </div>
+  </div>
+</div>
+
+<!-- pause -->
+<div class="ui" id="pause">
+  <div class="go">
+    <h2>Paused</h2>
+    <div class="btns">
+      <button class="btn" id="pResume">Resume</button>
+      <button class="btn gh" id="pRestart">Restart</button>
+      <button class="btn gh" id="pMenu">Main menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- game over -->
+<div class="ui" id="over">
+  <div class="go">
+    <h2>Crashed!</h2>
+    <div class="big"><span id="oScore">0</span><small style="font-size:.35em;color:var(--mut)"> M</small></div>
+    <div class="new" id="oNew" style="display:none">NEW BEST!</div>
+    <div class="st">
+      <span class="chip">BEST <b id="oBest">0</b></span>
+      <span class="chip">&#129689; +<b id="oCoins">0</b></span>
+      <span class="chip">TOTAL <b id="oTot">0</b></span>
+    </div>
+    <div class="btns">
+      <button class="btn pk" id="oRev">Revive &middot; 150</button>
+      <button class="btn" id="oAgain">Run again</button>
+      <button class="btn gh" id="oMenu">Garage / menu</button>
+    </div>
+  </div>
+</div>
+
+<div id="load"><h1>Hive <em>Runner</em></h1><div class="bar"><i id="loadBar"></i></div><div class="tag" id="loadTxt">Loading 3D world...</div></div>
+<div id="nogl"><div><h1>3D not supported</h1><p class="tag">Your browser or device does not support WebGL. Try Chrome or Safari, or update your browser.</p><p><a class="btn" href="games.html">More games</a></p></div></div>
+
+<script type="importmap">
+{"imports":{"three":"./lib3d/three.module.min.js","three/addons/":"./lib3d/jsm/"}}
+</script>
+<script type="module" src="runner3d.js"></script>
+</body>
+</html>

@@ -1362,11 +1362,11 @@ function finishBall(res){
   chatReact(res);
   S.hist.push({t:res.wicket?'W':res.wide?'Wd':res.runs===0?'•':String(res.runs)});
   if(S.hist.length>6)S.hist.shift();
-  let dur=1.7,txt=res.txt,col=[255,255,255],cm='';
+  let dur=2.5,txt=res.txt,col=[255,255,255],cm='';
   if(res.wicket){dur=3.4;col=[255,90,90];G.excite=Math.max(G.excite,0.8);sfx.groan();G.umpSig=3;G.umpT=2.4;cm=pick(COMM.wicket);G.flash=0.5;G.flashCol=[255,60,60];G.shake=1.0;G.slow=0.4;G.slowT=0.5;setBoard('OUT!',[200,20,40],2.6)}
-  else if(res.runs===6){dur=3.0;col=[255,225,90];G.excite=1;sfx.cheer(1);G.umpSig=2;G.umpT=2.4;cm=pick(COMM.six);G.flash=0.7;G.flashCol=[255,230,150];burst('six');setBoard('SIX!',[255,160,0],3);G.shake=Math.max(G.shake,0.6)}
-  else if(res.runs===4){dur=2.4;col=[120,230,255];G.excite=0.85;sfx.cheer(0.8);G.umpSig=1;G.umpT=2.0;cm=pick(COMM.four);burst('four');setBoard('FOUR!',[20,150,230],2.5)}
-  else if(res.wide){dur=1.4;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8}
+  else if(res.runs===6){dur=3.8;col=[255,225,90];G.excite=1;sfx.cheer(1);G.umpSig=2;G.umpT=2.4;cm=pick(COMM.six);G.flash=0.7;G.flashCol=[255,230,150];burst('six');setBoard('SIX!',[255,160,0],3);G.shake=Math.max(G.shake,0.6)}
+  else if(res.runs===4){dur=3.1;col=[120,230,255];G.excite=0.85;sfx.cheer(0.8);G.umpSig=1;G.umpT=2.0;cm=pick(COMM.four);burst('four');setBoard('FOUR!',[20,150,230],2.5)}
+  else if(res.wide){dur=2.2;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8}
   else if(res.runs>0){G.excite=Math.max(G.excite,0.25);sfx.cheer(0.25);cm=pick(COMM.run);col=[190,255,200]}
   else{cm=pick(COMM.dot);col=[200,210,230]}
   cm=richComm(cm,res,bc,wc);
@@ -1382,7 +1382,8 @@ function finishBall(res){
   /* over complete? */
   G.overBanner=0;
   if(res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls&&!inningsOver()){G.overBanner=1;G.deadDur+=0.9}
-  G.newBatT=(res.wicket&&S.wk<S.maxWk)?1.2:-1;
+  G.newBatT=(res.wicket&&S.wk<S.maxWk)?2.0:-1;
+  if(G.newBatT>0)G.deadDur=Math.max(G.deadDur,G.newBatT+3.3);
   if(inningsOver())G.deadDur+=0.4;
   G.followT=Math.min(G.followT,1.2);
 }
@@ -1544,7 +1545,7 @@ function newBatterWalk(){
   if(ni>=S.stats.length){ni=S.nsi>=0?S.nsi:S.bi;S.nsi=-1;mkNs()}else S.nx++;
   S.bi=ni;
   const card=curCard();
-  bat=newBatter(card,-3.6,BT_ROOT[2]);bat.state='walkon';bat.walk={t0:G.clock+0.3,x0:-3.6,dur:2.3};
+  bat=newBatter(card,3.6,BT_ROOT[2]);bat.state='walkon';bat.walk={t0:G.clock+0.3,x0:3.6,dur:2.3};
   S.bspLeft=bspFor(card);G.armed=null;cstat(S.bside,card).bat=1;
   resetStumps();
   applyField(S.field,false);
@@ -1626,10 +1627,10 @@ function update(dt){
       G.stT+=dt;
       if(bat.state==='walkon'){
         if(G.clock-bat.walk.t0>=bat.walk.dur){bat.state='stance';bat.root=[rootX(bat.card),0,BT_ROOT[2]]}
-      }else if(bat.state==='stance'&&G.bowlerZ>=BZ0&&G.stT>(S.balls===0&&S.hist.length===0?2.6:1.1)){
+      }else if(bat.state==='stance'&&G.bowlerZ>=BZ0&&G.stT>(S.balls===0&&S.hist.length===0?2.6:2.0)){
         if(humanBowl()){G.mode='aim';G.turnT=15}else if(remoteBowl())G.mode='netbowl';else beginDelivery();
       }
-      if(G.bowlerZ<BZ0)G.bowlerZ=Math.min(BZ0,G.bowlerZ+dt*9);else if(G.bowlerZ>BZ0)G.bowlerZ=BZ0;
+      if(G.bowlerZ<BZ0)G.bowlerZ=Math.min(BZ0,G.bowlerZ+dt*6);else if(G.bowlerZ>BZ0)G.bowlerZ=BZ0;
       bat.backU=Math.max(0,bat.backU-dt*2);
       break;
     }
@@ -1728,7 +1729,7 @@ function update(dt){
   }
   updateFielders(dt);updateBall(dt);
   /* walkers */
-  if(outBat&&outBat.state==='walkoff'&&G.clock-outBat.walk.t0>4.5)outBat=null;
+  if(outBat&&outBat.state==='walkoff'&&G.clock-outBat.walk.t0>5.6)outBat=null;
   /* particles */
   for(let i=PARTS.length-1;i>=0;i--){
     const p=PARTS[i];
@@ -1834,11 +1835,11 @@ function walkerJ(B,T){
   const w=B.walk,bd=vsc([0.14,-0.98,0.06],1);
   if(B.state==='walkon'){
     const t=clamp((G.clock-w.t0)/w.dur,0,1),x=lerp(w.x0,rootX(B.card),t);
-    return poseWalk(x,BT_ROOT[2],Math.PI/2,(G.clock-w.t0)*9,0.55,{batDir:bd});
+    return poseWalk(x,BT_ROOT[2],rootX(B.card)<w.x0?-Math.PI/2:Math.PI/2,(G.clock-w.t0)*9,0.55,{batDir:bd});
   }
   const t=G.clock-w.t0,u=sm(t/0.6),hd=lerp(Math.PI/2,-Math.PI/2,u);
-  const x=w.x0-1.7*Math.max(0,t-0.2),z=w.z0-0.3*Math.max(0,t-0.2);
-  return poseWalk(x,z,hd,t*9,0.55*u+0.1,{batDir:[0.0,-1,0.3]});
+  const x=w.x0-1.35*Math.max(0,t-0.3),z=w.z0-0.25*Math.max(0,t-0.3);
+  return poseWalk(x,z,hd,t*6.5,0.5*u+0.1,{batDir:[0.0,-1,0.3]});
 }
 function batterJ(B,T){
   if(B.state==='walkon'||B.state==='walkoff')return walkerJ(B,T);
@@ -1846,7 +1847,7 @@ function batterJ(B,T){
 }
 function actorXZ(B){
   if(B.state==='walkon'){const w=B.walk,t=clamp((G.clock-w.t0)/w.dur,0,1);return[lerp(w.x0,rootX(B.card),t),BT_ROOT[2]]}
-  if(B.state==='walkoff'){const w=B.walk,t=G.clock-w.t0;return[w.x0-1.7*Math.max(0,t-0.2),w.z0-0.3*Math.max(0,t-0.2)]}
+  if(B.state==='walkoff'){const w=B.walk,t=G.clock-w.t0;return[w.x0-1.35*Math.max(0,t-0.3),w.z0-0.25*Math.max(0,t-0.3)]}
   return[B.root[0]+0.0,B.root[2]];
 }
 
@@ -2214,7 +2215,8 @@ function artDrawBatter(B,T){
   let flip=!!B.mir,lift=0,mo={};
   const kind=(VF&&artHas('batF'))?'batF':'bat',fr=Math.min(fr0,ART_META[kind].length-1);
   if(B.state==='walkon'){const w=B.walk,p=(G.clock-w.t0)*9;flip=rootX(B.card)<w.x0;lift=Math.abs(Math.sin(p))*0.09;mo.legs={k:kind,f:7,p:p,amp:0.25,split:0.58};mo.rot=0.05+0.02*Math.sin(p);mo.sy=1+0.015*Math.sin(p*2)}
-  else if(B.state==='walkoff'){const p=(G.clock-B.walk.t0)*9;flip=true;lift=Math.abs(Math.sin(p))*0.07;mo.rot=0.03;mo.sy=1+0.015*Math.sin(p*2)}
+  else if(B.state==='walkoff'){const p=(G.clock-B.walk.t0)*6.5;flip=true;lift=Math.abs(Math.sin(p))*0.05;mo.legs={k:kind,f:7,p:p,amp:0.22,split:0.58};mo.rot=0.07+0.012*Math.sin(p);mo.sy=0.985+0.01*Math.sin(p*2)}
+  else if(B.state==='out'){mo.rot=0.05;mo.sy=0.985}
   else if(B.state==='swing'){const s=B.swing,t=T-s.t0,u=Math.max(0,Math.min(1,t/(s.dc+0.45)));mo.rot=-0.05+0.2*Math.sin(Math.PI*Math.min(1,u*1.15));mo.sx=1+0.05*Math.sin(Math.PI*u);lift=0.03*Math.sin(Math.PI*u)}
   else{mo.sy=1+0.012*Math.sin(G.RT*2.3);mo.rot=0.012*Math.sin(G.RT*1.4)-0.03*(B.backU||0);if(fr0===1)mo.sx=1.02}
   const nm=B.card?(B.card.num||artHash(B.card.id||B.card.name)):7;

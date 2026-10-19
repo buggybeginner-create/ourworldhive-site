@@ -1174,8 +1174,8 @@ function startSwing(sh,forceTs){
   if(D.loose&&(q==='ok'||q==='edge'))q='good';
   const sw={ts,e,q,sh,hit:q!=='miss',M,arm,k};G.swing=sw;
   {const ms=Math.round(ae*1000),early=e>0,TM={perfect:[124,242,154],good:[190,255,205],ok:[255,225,120],edge:[255,170,90],miss:[255,110,110]};
-   sw.tm=G.mode==='runup'?'TOO EARLY':ae<0.03*k?'PERFECT':(early?'EARLY ':'LATE ')+ms+'ms';
-   G.tmTag={e,k,q,t0:G.RT,txt:sw.tm==='PERFECT'?'PERFECT TIMING':G.mode==='runup'?'TOO EARLY':(q==='miss'?(early?'TOO EARLY ':'TOO LATE '):(early?'EARLY ':'LATE '))+(G.mode==='runup'?'':ms+'ms'),col:TM[q]||TM.miss,sub:D.tight?'PERFECT BALL: NEEDS PERFECT TIMING':D.loose?'LOOSE BALL: EASY TO HIT':'',who:humanBat()?1:0}}
+   sw.tm=G.mode==='runup'?'EARLY':ae<0.03*k?'PERFECT':early?'EARLY':'LATE';
+   G.tmTag={e,k,q,t0:G.RT,txt:sw.tm,col:TM[q]||TM.miss,sub:D.tight?'PERFECT BALL: NEEDS PERFECT TIMING':'',who:humanBat()?1:0}}
   /* build batter keyframes (in right-hander space; mirrored for left-handers) */
   const azm=clamp(M*sh.az-e*3.0*(sw.hit?1:0),-1.7,1.7),high=pc[1]>1.0;
   const phiC=Math.PI/2-azm;
@@ -3559,11 +3559,11 @@ function drawMeter(y){
   if(fillTo>X+Wd*0.62){ctx.fillStyle='#ef4444';ctx.fillRect(X+Wd*0.62,y,fillTo-(X+Wd*0.62),34)}
   ctx.fillStyle='rgba(255,255,255,0.18)';ctx.fillRect(X,y,Wd,12);
   ctx.restore();
-  tx('LOOSE',X+Wd*0.19,y+17,10.5,n>0.19?'#2a1500':'#ffd9a8','center','900');
+  tx('EARLY',X+Wd*0.19,y+17,10.5,n>0.19?'#2a1500':'#ffd9a8','center','900');
   tx('PERFECT',X+Wd*0.5,y+17,10.5,n>0.5?'#052a14':'#b6f5cb','center','900');
-  tx('NO BALL',X+Wd*0.81,y+17,10.5,n>0.62?'#fff':'#ffd6d6','center','900');
+  tx('LATE',X+Wd*0.81,y+17,10.5,n>0.62?'#fff':'#ffd6d6','center','900');
   ctx.fillStyle='#fff';ctx.fillRect(px-2,y-2,4,38);
-  const msg=n>0.62?'OVER-STEPPED: NO BALL + FREE HIT':n<0.38?'TOO EARLY = LOOSE BALL, EASY TO HIT':'TAP NOW FOR A TIGHT BALL';
+  const msg=n>0.62?'LATE = NO BALL + FREE HIT':n<0.38?'EARLY = EASY BALL TO HIT':'PERFECT = TIGHT BALL';
   tx('GREEN IS FAST: TAP AT THE RIGHT MOMENT.  '+msg,X+Wd/2,y-9,10,n>0.62?'#ff8a8a':n<0.38?'#ffc27a':'#9bffbf','center','800',Wd);
 }
 function drawSwipeTrail(T){
@@ -3626,7 +3626,7 @@ function drawOverCard(){
     rr(rx,ry,rw,rh-4,9);ctx.fillStyle='rgba(255,255,255,0.07)';ctx.fill();
     tx(String(i+1),rx+12,ry+(rh-4)/2,12,'#8fa6d4','center','900');
     tx((b.ty||'BALL').toUpperCase().replace(' BALL',''),rx+26,ry+(rh-4)*0.34,10,'#fff','left','800',rw-82);
-    tx((b.kph?b.kph+' km/h':'')+(b.rq==='T'?'  • TIGHT':b.rq==='L'?'  • LOOSE':'')+(b.tm?'  • '+b.tm:''),rx+26,ry+(rh-4)*0.72,8.5,'#9fb3d9','left','700',rw-82);
+    tx((b.kph?b.kph+' km/h':'')+(b.rq==='T'?'  • TIGHT':'')+(b.tm?'  • '+b.tm:''),rx+26,ry+(rh-4)*0.72,8.5,'#9fb3d9','left','700',rw-82);
     rr(rx+rw-40,ry+4,34,rh-12,8);ctx.fillStyle=ovCol(b);ctx.fill();
     tx(ovLab(b),rx+rw-23,ry+(rh-4)/2,13,b.runs>=4||b.wk||b.runs===0||b.wd||b.nb?'#fff':'#0a1226','center','900')});
   y=py+ph+22;

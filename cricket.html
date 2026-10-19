@@ -320,7 +320,7 @@ const SKIN=['#f1c27d','#e0ac69','#c68642','#8d5524','#ffdbac'].map(hx);
 const POSTER=['#ff3b3b','#ffe14d','#3bd16f','#35b6ff','#ff7ad9','#ffffff','#ff9f1c'].map(hx);
 const CR=new Float32Array(NS*ROWS*PPR*4);
 (function(){const r=mulberry(1234);for(let i=0;i<CR.length;i++)CR[i]=r()})();
-const BANTXT=['SIX!','CHAKKA!','WORLDHIVE','LET\'S GO!','FOUR!','DHAMAKA!','BUGGY ARMY','HIT IT!','CHAUKA!','6 6 6',BRAND,'WE LOVE CRICKET','MAARO!','BOWL \'EM OUT'];
+const BANTXT=['SIX!','WE NEED A SIX!','WORLDHIVE','LET\'S GO!','FOUR!','DHAMAKA!','BUGGY ARMY','HIT IT!','WE WANT A FOUR!','6 6 6',BRAND,'WE LOVE CRICKET','MAARO!','BOWL \'EM OUT'];
 const BANNERS=[];
 (function(){const r=mulberry(9);for(let k=0;k<24;k++)BANNERS.push({i0:(k*6-12+NS*2)%NS,row:1+(k*5)%4,span:3,txt:BANTXT[k%BANTXT.length],c1:SHIRT[(k*3)%SHIRT.length],dark:r()<0.5})})();
 const BOARDCOL=['#d62828','#1b3a6b','#f77f00','#118a7e','#6a4c93','#0f3d6e','#c9184a'].map(hx);
@@ -1437,7 +1437,8 @@ function finishBall(res){
   {const Dd=G.deliv||{};(S.ovLog||(S.ovLog=[])).push({bx:Dd.bx,bz:Dd.bz,ty:Dd.type||'',kph:Dd.kph||0,runs:res.runs||0,wk:!!res.wicket,wd:!!res.wide,nb:!!res.noball,tm:(G.swing&&G.swing.tm)||'',rq:Dd.tight?'T':Dd.loose?'L':''})}
   {const base=res.runs-((res.wide||res.noball)?1:0),rot=!res.wicket&&!res.wide&&base%2===1,ovEnd=res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls;
    G.swapPend=S.nsi>=0&&!res.wicket&&(rot!==ovEnd);
-   G.xrun=(G.swapPend&&rot&&nsBat)?{t0:G.clock+0.35,dur:1.4,a:bat.card,b:nsBat.card}:null}
+   const nR=(!res.wicket&&!res.wide&&base>=1&&base<=3&&nsBat)?base:0;
+   G.xrun=(nR>0&&((nR%2===1)===!!G.swapPend))?{t0:G.clock+0.35,dur:nR>1?1.15:1.4,n:nR,a:bat.card,b:nsBat.card}:null}
   if(res.legal!==false||res.wide){if(res.wicket||res.runs>0)S.dotRun=0;else if(++S.dotRun>=3){S.dotRun=0;S.spBonus++;if(!humanBat())showPopup('3 DOTS! SPECIAL BALL UNLOCKED',[255,215,90],1.4,60)}}
   chatReact(res);
   S.hist.push({t:res.wicket?'W':res.wide?'Wd':res.runs===0?'•':String(res.runs)});
@@ -1449,6 +1450,7 @@ function finishBall(res){
   else if(res.wide){dur=2.2;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8}
   else if(res.runs>0){G.excite=Math.max(G.excite,0.25);sfx.cheer(0.25);cm=pick(COMM.run);col=[190,255,200]}
   else{cm=pick(COMM.dot);col=[200,210,230]}
+  if(G.xrun)dur=Math.max(dur,0.35+G.xrun.n*G.xrun.dur+0.9);
   cm=richComm(cm,res,bc,wc);
   if(res.wicket)buzz([70,40,140]);else if(res.runs===6)buzz([90,30,90]);else if(res.runs===4)buzz(55);
   if(!txt)txt=res.runs===0?'DOT BALL':res.runs+' RUN'+(res.runs>1?'S':'');
@@ -1891,7 +1893,14 @@ function updateCamera(dt){
 /* =====================  RENDER: ACTORS / BALL  ===================== */
 const dep=(x,z)=>cs(x,0,z)[2];
 const BOWL_SK=hx('#c68642');
-function keeperJ(kp){const ct=celT();let o={crouch:G.mode==='dead'||G.mode==='hit'?0.05:0.5};if(ct>=0)o=celO(kp[0],kp[1],0,ct,0.9);return poseWalk(kp[0],kp[1],0,0,0,o)}
+function keeperJ(kp){const ct=celT();let o={crouch:G.mode==='dead'||G.mode==='hit'?0.05:0.5},x=kp[0];
+  const E=keeperEdge();
+  if(E){x=kp[0]+E.sx;const by=ball.p?clamp(ball.p[1],0.5,1.6):1.0,tx=ball.p?clamp(ball.p[0],x-1.0,x+1.0):x;
+    o={crouch:0.5,spread:0.14,lean:0.2};
+    if(E.caught){o.handR=[x+0.07,1.25,kp[1]+0.38];o.handL=[x-0.07,1.25,kp[1]+0.38]}
+    else{o.handR=[tx+0.06,by,kp[1]+0.5];o.handL=[tx-0.06,by,kp[1]+0.5]}}
+  else if(ct>=0)o=celO(kp[0],kp[1],0,ct,0.9);
+  return poseWalk(x,kp[1],0,0,0,o)}
 function bowlerJ(){
   const x=G.bowlerX;let hd=Math.PI,amp=0,ph=0,o={};
   if((G.mode==='ready'||G.mode==='aim')&&G.bowlerZ<BZ0){hd=0;amp=0.9;ph=G.T*16}
@@ -1936,20 +1945,22 @@ function actorXZ(B){
 
 function crossing(){const xr=G.xrun;return !!xr&&G.clock>=xr.t0&&G.mode==='dead'}
 function runnerPos(xr){
-  const u=sm(clamp((G.clock-xr.t0)/xr.dur,0,1)),mv=u>0&&u<1,amp=mv?1:0.15;
-  const ax=rootX(xr.a),bx=rootX(xr.b);
-  return[{card:xr.a,x:lerp(ax,NS_X+0.5,u),z:lerp(BT_ROOT[2],NS_Z,u),hd:0,amp:amp},{card:xr.b,x:lerp(NS_X,bx,u),z:lerp(NS_Z,BT_ROOT[2],u),hd:Math.PI,amp:amp}]}
+  const n=xr.n||1,p=clamp((G.clock-xr.t0)/xr.dur,0,n),leg=Math.min(n-1,Math.floor(p)),u=sm(p-leg>=1?1:p-leg),mv=p>0&&p<n&&(p-leg)>0&&(p-leg)<1,amp=mv?1:0.15,odd=leg%2===1;
+  const ax=rootX(xr.a),bx=rootX(xr.b),aS=[ax,BT_ROOT[2]],aE=[NS_X+0.5,NS_Z],bS=[NS_X,NS_Z],bE=[bx,BT_ROOT[2]];
+  const A0=odd?aE:aS,A1=odd?aS:aE,B0=odd?bE:bS,B1=odd?bS:bE;
+  return[{card:xr.a,x:lerp(A0[0],A1[0],u),z:lerp(A0[1],A1[1],u),hd:odd?Math.PI:0,amp:amp},{card:xr.b,x:lerp(B0[0],B1[0],u),z:lerp(B0[1],B1[1],u),hd:odd?0:Math.PI,amp:amp}]}
 function nsJ(){return poseWalk(NS_X,NS_Z,Math.PI,0,0,{batDir:[0.12,-0.98,-0.05]})}
 function nsStyle(){const c=nsBat.card;return Object.assign({},BAT_BASE,c.kit,{helmet:c.kit.helmet,nonum:true})}
 /* wicketkeeper: only visible from the bowler's end camera (the normal batting camera stands where he does) */
 function keeperPos(){return[0.12,BZ0<20?-0.95:-2.3]}
+function keeperEdge(){if(G.mode!=='edge')return null;const kp=keeperPos(),u=clamp(G.hitT/0.3,0,1),bx=ball.p?ball.p[0]:0,dx=clamp(bx-kp[0],-1.5,1.5);return{sx:dx*sm(u),dir:dx<0?-1:1,u:u,caught:G.hitT>0.4}}
 function keeperStyle(){const f0=FLD[0];return Object.assign({},FIELD_STYLE,{skin:f0?f0.skin:FIELD_STYLE.skin,vid:77,nobat:true},fieldCol())}
 function artDrawKeeper(){
   const kp=keeperPos(),m=G.mode,up=(m==='dead'||m==='hit'||m==='end'),mo={};
-  const fr=up?0:3;
-  mo.sy=1+0.012*Math.sin(G.RT*2.2);
+  const fr=up?0:3,E=keeperEdge();
+  mo.sy=1+0.012*Math.sin(G.RT*2.2);if(E){mo.rot=0.55*E.dir*E.u}
   if(m==='flight'){const tf=G.clock-G.Trel;mo.rot=0.03*Math.sin(Math.min(1,tf/0.9)*Math.PI)}
-  artDraw('fld',fr,kp[0],kp[1],false,keeperStyle().jersey,artHash('keeper'),null,0,'wk',mo)}
+  artDraw('fld',fr,kp[0]+(E?E.sx:0),kp[1],false,keeperStyle().jersey,artHash('keeper'),null,0,'wk',mo)}
 function drawActors(T){
   /* shadows first (classic mode only; 3D mode has real shadow mapping) */
   if(!GLX.collecting){

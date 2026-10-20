@@ -114,12 +114,13 @@ function nameOK(n){n=String(n||'').trim();if(n.length<3)return'Use at least 3 le
 /* claim (or keep) a name; resolves {ok:true,name} or {ok:false,msg} */
 async function claimName(n){
   n=String(n||'').replace(/\s+/g,' ').trim();var bad=nameOK(n);if(bad)return{ok:false,msg:bad};
-  var f;try{f=await fb()}catch(e){return{ok:false,msg:'Changing the name needs internet (so no two players share a name).'}}
+  var f;try{f=await fb()}catch(e){try{localStorage.setItem('owh_bx_name',n)}catch(x){}emit();return{ok:true,name:n,warn:'Saved on this device only. No internet, so the unique-name check will happen later.'}}
   var key=nameKey(n),db=f.db,oldKey=jget('owh_name_key','');
   try{
     await db.runTransaction(async function(t){var ref=db.collection('names').doc(key),sn=await t.get(ref);
       if(sn.exists&&sn.data().uid!==CUR.uid)throw new Error('taken');t.set(ref,{uid:CUR.uid,name:n,t:Date.now()})});
-  }catch(e){return{ok:false,msg:e.message==='taken'?'This name is already taken. Try another.':'Could not check the name: '+(e.code||e.message)}}
+  }catch(e){if(e.message==='taken')return{ok:false,msg:'This name is already taken. Try another.'};
+    try{localStorage.setItem('owh_bx_name',n)}catch(x){}emit();return{ok:true,name:n,warn:'Name saved on this device. Online check failed ('+(e.code||e.message)+'), it will sync when the site rules allow.'}}
   if(oldKey&&oldKey!==key)db.collection('names').doc(oldKey).delete().catch(function(){});
   jset('owh_name_key',key);try{localStorage.setItem('owh_bx_name',n)}catch(e){}jset('owh_rk_named',1);
   /* the new name shows on every ranking and every game score straight away (scores live on your account, not on the name) */

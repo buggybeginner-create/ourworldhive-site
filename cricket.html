@@ -5067,7 +5067,7 @@ function hitUI(x,y){for(let i=UI.rects.length-1;i>=0;i--){const r=UI.rects[i];if
 const isPlaying=()=>G.mode==='ready'||G.mode==='runup'||G.mode==='flight'||G.mode==='hit'||G.mode==='dead'||G.mode==='edge'||G.mode==='aim';
 const canSwing=()=>humanBat()&&(G.mode==='runup'||G.mode==='flight');
 const menuOY=()=>(H-720)/2;
-function toast(t){UI.toast={txt:t,t:2.2}}
+function toast(t,s){UI.toast={txt:t,t:s||2.2}}
 function askText(title,init,max,cb){
   const ov=document.createElement('div');
   ov.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(2,5,14,.82);display:flex;align-items:center;justify-content:center;z-index:99;font-family:"Segoe UI",Roboto,Arial,sans-serif';
@@ -5154,7 +5154,7 @@ function handleUI(id,r,x,y){
     case 'slot0':CUR=0;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'slot1':CUR=1;saveProfiles();bat=newBatter(CARD_BY_ID[PR().sel.b]);break;
     case 'ren_team':askText('TEAM NAME',PR().team,16,v=>{PR().team=v;saveProfiles()});break;
-    case 'ren_name':askText('PLAYER NAME',PR().name,14,v=>{OWHG.claimName(v).then(r=>{if(r.ok){PR().name=r.name.toUpperCase();saveProfiles();toast('Name saved. Your scores moved to the new name.')}else toast(r.msg)})});break;
+    case 'ren_name':askText('PLAYER NAME',PR().name,14,v=>{toast('Checking name...',6);OWHG.claimName(v).then(r=>{if(r.ok){PR().name=r.name.toUpperCase();saveProfiles();toast(r.warn||'Name saved. Your scores moved to the new name.',r.warn?5:2.2)}else toast(r.msg,4.5)}).catch(e=>toast('Could not save the name: '+(e&&e.message||e),4.5))});break;
     case 'mode':OPT.mode=d;saveOpt();break;
     case 'overs':OPT.overs=d;saveOpt();break;
     case 'start':startMatch();break;

@@ -597,7 +597,7 @@ GAMES.pingpong={own:true,kind:'gl',sky:'linear-gradient(#0e1230,#2b3170)',name:'
    score(){return my*10+(won?20:0)},hud(){return'Streak '+streak},msg(){return msgT>0?msgS:''},net(){return[my*10+(won?20:0),best,my,opp]},debug(){return{fl:fl&&{t:fl.t,D:fl.D,toP:fl.toP,x1:fl.x1},px,tx,my,opp,score:my*10}},dispose(){off()}}}};
 
 /* ---------------- Tank Battle ---------------- */
-GAMES.tank={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#26324f,#5b6b8f)',name:'Tank Battle 3D',icon:'\uD83D\uDEE1\uFE0F',bg:'linear-gradient(135deg,#7a8450,#2f3b24)',
+GAMES.tank={own:true,kind:'gl',sky:'linear-gradient(#26324f,#5b6b8f)',name:'Tank Battle 3D',icon:'\uD83D\uDEE1\uFE0F',bg:'linear-gradient(135deg,#7a8450,#2f3b24)',
  desc:'Drive your tank through waves of enemy tanks. Your turret aims and fires by itself, you do the driving. In multiplayer everyone faces the same waves.',
  how:'Touch and drag anywhere to drive (the tank moves the way you drag). On a keyboard use WASD or the arrow keys. Your gun fires automatically at the nearest enemy. Stay away from red rammers and dodge the purple tanks\u2019 shells. Green crates give health.',
  make(c){
@@ -944,7 +944,7 @@ GAMES.hop={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#5ab3ff,#cdeaf
 function tapAt(el,fn){return listen(el,{pointerdown:ev=>{ev.preventDefault();const r=el.getBoundingClientRect();fn((ev.clientX-r.left)/r.width*360,(ev.clientY-r.top)/r.height*480)}})}
 
 /* ---------------- Penalty Shootout ---------------- */
-GAMES.penalty={own:true,modes:'single',kind:'gl',sky:CK_SKY,name:'Penalty Shootout 3D',icon:'\u26BD',bg:'linear-gradient(135deg,#2f9e44,#a9e34b)',
+GAMES.penalty={own:true,kind:'gl',sky:CK_SKY,name:'Penalty Shootout 3D',icon:'\u26BD',bg:'linear-gradient(135deg,#2f9e44,#a9e34b)',
  desc:'Five penalty kicks against a diving goalkeeper. Time your shot. In multiplayer everyone faces the same goalkeeper.',
  how:'A target moves across the goal. Tap the screen (or press Space) to shoot when the target is where you want the ball to go. Corners are harder for the keeper but easier to miss. You have 5 kicks.',
  make(c){
@@ -975,7 +975,7 @@ GAMES.penalty={own:true,modes:'single',kind:'gl',sky:CK_SKY,name:'Penalty Shooto
    score(){return score},hud(){return'Goals '+goals+' / '+KICKS+'<br><span style="font-size:14px">Kick '+Math.min(KICKS,k+(phase==='aim'||phase==='fly'?1:0))+' of '+KICKS+'</span>'},msg(){return msgT>0?msgS:''},net(){return[score,goals,k]},debug(){return{phase,k,goals,pt,score}},dispose(){off()}}}};
 
 /* ---------------- Hoops ---------------- */
-GAMES.hoops={own:true,modes:'single',kind:'gl',dur:45,sky:'linear-gradient(#150c30,#3a2a78)',name:'Hoops 3D',icon:'\uD83C\uDFC0',bg:'linear-gradient(135deg,#ff7a1a,#8a5cff)',
+GAMES.hoops={own:true,kind:'gl',dur:45,sky:'linear-gradient(#150c30,#3a2a78)',name:'Hoops 3D',icon:'\uD83C\uDFC0',bg:'linear-gradient(135deg,#ff7a1a,#8a5cff)',
  desc:'Shoot as many baskets as you can in 45 seconds, like a real game: shots from inside the arc score 2, shots from behind the 3-point arc score 3. After a few baskets the hoop starts to move. In multiplayer everyone gets the same shots.',
  how:'Swipe up from the ball to shoot. A longer swipe sends the ball farther, and a swipe to the side aims it left or right. The yellow spot on the floor is a 2-point shot, the red spot (behind the arc) is a 3-pointer and needs a stronger swipe. Clean swishes feel great but score the same.',
  make(c){

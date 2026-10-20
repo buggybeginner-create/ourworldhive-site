@@ -1236,11 +1236,14 @@ function aiChooseBall(c){
   for(const k in w){if((r-=w[k])<0)return k}
   return K.list[0];
 }
+function setBowlSide(bsd,c){c=c||S.bowler;if(!c)return;const L=c.arm==='L',ov=L?0.54:0.16;
+  /* round the wicket: the bowler runs in from the other side of the stumps, clearly wider than over the wicket */
+  REL[0]=bsd==='round'?ov+(L?-1:1)*1.35:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd}
 function beginDelivery(nm){
   const c=S.bowler;let key,aim=null,rq,seed=null,pace=1;
   RU=KINDS[c.kind].ru;BZ0=KINDS[c.kind].z0;
   const bsd=(nm&&nm.bs)?nm.bs:(humanBowl()?G.bwSide:(Math.random()<0.2?'round':'over'));
-  {const ov=c.arm==='L'?0.54:0.16;REL[0]=bsd==='round'?0.35-(ov-0.35)*2.2:ov;G.bowlerX=REL[0]+(c.arm==='L'?-0.19:0.19);G.curSide=bsd}
+  setBowlSide(bsd,c);
   if(nm){key=nm.key;aim=nm.aim;rq=0.5;seed=nm.seed;pace=nm.pace}
   else if(humanBowl()){if(G.aimT){G.sel.x=G.aimT.x;G.sel.z=G.aimT.z}key=G.sel.key;aim={x:G.sel.x,z:G.sel.z};rq=0.5;pace=G.pace;if(MT.online)seed=(Math.random()*2147483647)|0;RU=Math.max(RU,2.0)}
   else key=aiChooseBall(c);
@@ -1480,18 +1483,19 @@ function bstatOf(c){return S.bstat[c.id]||(S.bstat[c.id]={b:0,r:0,w:0})}
 function finishBall(res){
   if(G.mode==='dead')return;
   if(MT&&MT.online&&NETX&&!NETX.applying){if(remoteBat())return;if(humanBat())NETX.sendRes(res)}
-  if(G.freeNB){G.freeNB=false;res=Object.assign({},res,{runs:res.runs+1,legal:false,noball:true,txt:'NO BALL +1 '+(res.wicket?'(NOT OUT) ':'')+(res.runs?res.runs+' RUNS':'')});if(res.wicket)delete res.wicket;G.freeHitNext=true;G.chk={t:0,a:'CHECKING FRONT FOOT...',v:'NO BALL - CONFIRMED',c:[255,190,80]};G.umpSig=5;G.umpT=1.8;showPopup('FREE HIT NEXT BALL',[160,255,190],1.6,60,0)}
+  if(G.freeNB){G.freeNB=false;res=Object.assign({},res,{runs:res.runs+1,legal:false,noball:true,txt:'NO BALL, +1 EXTRA'+(res.runs?', '+res.runs+' OFF THE BAT':'')+(res.wicket?' (NOT OUT)':'')});if(res.wicket)delete res.wicket;G.freeHitNext=true;G.chk={t:0,a:'CHECKING FRONT FOOT...',v:'NO BALL - CONFIRMED',c:[255,190,80]};G.umpSig=5;G.umpT=1.8;showPopup('FREE HIT NEXT BALL',[160,255,190],1.6,60,0)}
   G.mode='dead';G.deadT=0;G.res=res;G.followT=Math.max(0,G.followT>50?1.0:G.followT);
   G.freeBall=false;
   if(res.wicket)batterOut();else batterRelax();
   const bs=S.stats[S.bi],bc=curCard(),wc=S.bowler,cb=cstat(S.bside,bc),cw=cstat(S.wside,wc),bw=bstatOf(wc);
   if(res.legal!==false){S.balls++;bs.b++;cb.b++;cw.bb++;bw.b++}
-  S.runs+=res.runs;bs.r+=res.runs;cb.r+=res.runs;cw.br+=res.runs;bw.r+=res.runs;S.overRuns+=res.runs;
+  const bR=res.wide?0:res.noball?res.runs-1:res.runs; /* runs off the bat: wides and the no-ball extra never go to the batter */
+  S.runs+=res.runs;bs.r+=bR;cb.r+=bR;cw.br+=res.runs;bw.r+=res.runs;S.overRuns+=res.runs;
   cw.bowl=1;
-  if(res.runs===4){bs.f++;S.fours++;cb.f++}
-  if(res.runs===6){bs.s++;S.sixes++;cb.s++}
+  if(bR===4){bs.f++;S.fours++;cb.f++}
+  if(bR===6){bs.s++;S.sixes++;cb.s++}
   if(cb.r>=50&&!cb.b50)cb.b50=cb.b;if(cb.r>=100&&!cb.b100)cb.b100=cb.b;
-  if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;cw.w++;bw.w++}
+  if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;if(res.wicket!=='RUN OUT'){cw.w++;bw.w++}}
   if(res.wide||res.noball)S.extras++;
   {const Dd=G.deliv||{};(S.ovLog||(S.ovLog=[])).push({bx:Dd.bx,bz:Dd.bz,ty:Dd.type||'',kph:Dd.kph||0,runs:res.runs||0,wk:!!res.wicket,wd:!!res.wide,nb:!!res.noball,tm:(G.swing&&G.swing.tm)||'',rq:Dd.tight?'T':Dd.loose?'L':''})}
   {const base=res.runs-((res.wide||res.noball)?1:0),rot=!res.wicket&&!res.wide&&base%2===1,ovEnd=res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls;
@@ -1801,7 +1805,7 @@ function update(dt){
       if(bat.state==='walkon'){
         if(G.clock-bat.walk.t0>=bat.walk.dur){bat.state='stance';bat.root=[rootX(bat.card),0,BT_ROOT[2]]}
       }else if(bat.state==='stance'&&G.bowlerZ>=BZ0&&G.stT>(S.balls===0&&S.hist.length===0?2.6:2.0)){
-        if(humanBowl()){G.mode='aim';G.turnT=15}else if(remoteBowl())G.mode='netbowl';else beginDelivery();
+        if(humanBowl()){G.mode='aim';G.turnT=15;setBowlSide(G.bwSide)}else if(remoteBowl())G.mode='netbowl';else beginDelivery();
       }
       if(G.bowlerZ<BZ0)G.bowlerZ=Math.min(BZ0,G.bowlerZ+dt*6);else if(G.bowlerZ>BZ0)G.bowlerZ=BZ0;
       bat.backU=Math.max(0,bat.backU-dt*2);
@@ -1931,6 +1935,7 @@ function throwAttempt(f,want,safe){
   if(f.act!=='dive'&&f.act!=='block'&&f.act!=='pickup')startAct(f,'throw',[tx,tz]);
   return{out,direct,toBat,over:direct&&!out&&Math.random()<0.15}
 }
+const MAXRUN=3;
 function fieldIt(f,extra){
   ball.v=[0,0,0];ball.mode='dead';
   if(f&&f.act!=='dive'&&f.act!=='block'&&f.act!=='pickup')startAct(f,'throw',[0,0.5]);else if(f&&f.act==='pickup'||f&&f.act==='block')f.chain='throw';
@@ -1948,11 +1953,17 @@ function fieldIt(f,extra){
         finishBall({runs:Math.max(0,want-1),wicket:'RUN OUT',txt:'RUN OUT! '+(r.direct?'DIRECT HIT BY '+f.name:'GREAT THROW BY '+f.name),legal:true,kind:'wicket',fielder:f,shot});
         sfx.stumps();return;
       }
-      runs=want+(r.over?1:0);
-      txt=r.over?'OVERTHROW! '+runs+' RUNS':runs+' RUN'+(runs>1?'S':'')+' - SAFE! THROW MISSED';
+      runs=want+(r.over&&want<MAXRUN?1:0); /* running (plus overthrow) never exceeds 3 */
+      txt=(r.over&&want<MAXRUN)?'OVERTHROW! '+runs+' RUNS':runs+' RUN'+(runs>1?'S':'')+' - SAFE! THROW MISSED';
     }
   }else if(runs>0&&f){
     G.thr={a:[f.x,1.4,f.z],b:[0.12,1.0,0.2],t:0,dur:clamp(Math.hypot(f.x,f.z)/30,0.4,1.1),arc:1};
+    /* the batters were running too: a sharp throw can still run one of them out (more risk for 2s and 3s) */
+    if(!G.freeBall){const rr=throwAttempt(f,runs,runs-1),ch=runs===1?0.12:runs===2?0.4:0.6;
+      if(rr.out&&Math.random()<ch){batterOut();sfx.catchKeeper();
+        finishBall({runs:Math.max(0,runs-1),wicket:'RUN OUT',txt:'RUN OUT! '+(rr.direct?'DIRECT HIT BY '+f.name:'GREAT THROW BY '+f.name),legal:true,kind:'wicket',fielder:f,shot});sfx.stumps();return}
+      else G.thr=null}
+    if(!G.thr)G.thr={a:[f.x,1.4,f.z],b:[0.12,1.0,0.2],t:0,dur:clamp(Math.hypot(f.x,f.z)/30,0.4,1.1),arc:1};
   }
   sfx.catchKeeper();
   finishBall({runs,txt:txt||(runs===0?'FIELDED. NO RUN':runs+' RUN'+(runs>1?'S':'')),legal:true,kind:runs?'run':'dot',fielder:f,shot});
@@ -5108,7 +5119,7 @@ function handleUI(id,r,x,y){
     case 'chopen':chestOpenNext();break;
     case 'chnext':if(chOf(PR()).q.length)chestOpenNext();else CHEST.view='list';break;
     case 'chgem':{const ch=chOf(PR());if(ch.gems>=5){ch.gems-=5;ch.q.unshift('gold');saveProfiles();chestOpenNext()}break}
-    case 'runbtn':if(G.mode==='hit'&&humanBat()&&OPT.runMan!==false){G.runReq=Math.min(3,(G.runReq|0)+1);manProv(G.runReq);sfx.bounce(0.35);buzz(20)}break;
+    case 'runbtn':if(G.mode==='hit'&&humanBat()&&OPT.runMan!==false){G.runReq=Math.min(MAXRUN,(G.runReq|0)+1);manProv(G.runReq);sfx.bounce(0.35);buzz(20)}break;
     case 'runmode':OPT.runMan=OPT.runMan===false;saveOpt();break;
     case 'ground':OPT.loft=false;break;case 'loft':OPT.loft=true;break;
     case 'special':{const c=curCard();if(c.sp&&S.bspLeft>0&&!G.swing)G.armed=G.armed?null:c.sp;break}
@@ -5186,7 +5197,7 @@ function handleUI(id,r,x,y){
     case 'gl3d':if(!OWNER)break;OPT.gfx=OPT.gfx==='art'?'classic':OPT.gfx==='classic'?'stick':'art';OPT.gl=false;try{localStorage.setItem('wh_cricket_gfx3',OPT.gfx)}catch(e){}break;
     case 'fx':OPT.fx=!OPT.fx;try{localStorage.setItem('wh_cricket_fx',OPT.fx?'1':'0')}catch(e){}break;
     case 'pace':if(G.mode==='aim')G.pace=d;break;
-    case 'bwside':if(G.mode==='aim'){G.bwSide=d;sfx.pop()}break;
+    case 'bwside':if(G.mode==='aim'||G.mode==='dead'||G.mode==='break'){G.bwSide=d;setBowlSide(d);sfx.pop();toast(d==='round'?'ROUND THE WICKET':'OVER THE WICKET',1.6)}break;
     case 'bowlgo':
       if(G.mode==='aim')G.bowlGo=true;
       else if(G.mode==='runup'&&!G.relTapped&&G.tRun>0){G.relTapped=true;const n=relWarp(G.tRun/RU);G.relN=n;G.relQ=n>0.68?0.1:n<0.32?0.04+0.2*(n/0.32):0.55+0.45*clamp(1-Math.abs(n-0.5)/0.12,0,1);G.noBallNow=n>0.68;G.tRun=Math.max(G.tRun,RU)}

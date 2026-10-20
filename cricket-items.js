@@ -27,6 +27,21 @@ var ITEMS=[
  {id:'bat_ninja',t:'bat',n:'Black Ninja',cur:'coins',p:50,col:C(30,30,36),sticker:C(255,60,60)},
  {id:'bat_lime',t:'bat',n:'Lime Smash',cur:'coins',p:40,col:C(130,220,40),sticker:C(30,60,20)},
  {id:'bat_gold',t:'bat',n:'Golden Bat',cur:'gems',p:10,col:C(240,190,40),sticker:C(255,255,255)},
+ /* pad and glove skins (same size on every player; colours can be edited per player in STYLE) */
+ {id:'pad_std',t:'pad',n:'Classic White Pads',free:1,col:null},
+ {id:'pad_carbon',t:'pad',n:'Carbon Pads',cur:'coins',p:35,col:C(40,42,50),band:C(255,200,0)},
+ {id:'pad_flame',t:'pad',n:'Flame Pads',cur:'coins',p:40,col:C(220,60,30),band:C(255,210,70)},
+ {id:'pad_royal',t:'pad',n:'Royal Pads',cur:'coins',p:40,col:C(40,90,220),band:C(255,255,255)},
+ {id:'pad_neon',t:'pad',n:'Neon Pads',cur:'coins',p:45,col:C(60,230,150),band:C(20,30,40)},
+ {id:'pad_gold',t:'pad',n:'Golden Pads',cur:'gems',p:8,col:C(240,190,40),band:C(255,255,255)},
+ {id:'pad_galaxy',t:'pad',n:'Galaxy Pads',cur:'gems',p:10,col:C(110,60,210),band:C(255,120,220)},
+ {id:'glv_std',t:'glove',n:'Classic Gloves',free:1,col:null},
+ {id:'glv_black',t:'glove',n:'Shadow Gloves',cur:'coins',p:30,col:C(30,32,40),trim:C(255,60,60)},
+ {id:'glv_red',t:'glove',n:'Ruby Gloves',cur:'coins',p:30,col:C(210,40,50),trim:C(255,255,255)},
+ {id:'glv_blue',t:'glove',n:'Ocean Gloves',cur:'coins',p:30,col:C(40,110,230),trim:C(255,255,255)},
+ {id:'glv_lime',t:'glove',n:'Lime Gloves',cur:'coins',p:35,col:C(140,220,50),trim:C(30,60,20)},
+ {id:'glv_gold',t:'glove',n:'Golden Gloves',cur:'gems',p:8,col:C(240,190,40),trim:C(255,255,255)},
+ {id:'glv_galaxy',t:'glove',n:'Galaxy Gloves',cur:'gems',p:10,col:C(110,60,210),trim:C(255,120,220)},
  /* taunts: big banner on the main screen, both players see it */
  {id:'tn_six',t:'taunt',n:'Sixer!',e:'🔥',txt:'SIXER INCOMING!',col:'#ff7a1a',cur:'coins',p:20},
  {id:'tn_bowl',t:'taunt',n:'Bowled you',e:'😎',txt:'BOWLED YOU!',col:'#2dd4bf',cur:'coins',p:20},
@@ -55,7 +70,7 @@ ITEMS.forEach(function(i){
   else if(i.t==='taunt'){i.sw='background:#1d2547';i.noequip=1;i.d='Big banner on the main screen. Your opponent sees it too.'}
 });
 OWHG.init({game:'cricket',name:'Cricket',icon:'🏏',rankScale:600,items:ITEMS,
-  types:[{t:'kit',n:'Kits'},{t:'cap',n:'Caps'},{t:'bat',n:'Bats'},{t:'taunt',n:'Taunts'},{t:'chat',n:'Chat lines'}]});
+  types:[{t:'kit',n:'Kits'},{t:'cap',n:'Caps'},{t:'bat',n:'Bats'},{t:'pad',n:'Pads'},{t:'glove',n:'Gloves'},{t:'taunt',n:'Taunts'},{t:'chat',n:'Chat lines'}]});
 /* compatibility layer used by the cricket code */
 window.OWHSTORE={ITEMS:ITEMS,by:OWHG.by,has:function(w,id){return OWHG.has(id)},load:function(){return{}},eq:function(){return OWHG.eqIds()},owned:function(t){return OWHG.owned(t)}};
 })();

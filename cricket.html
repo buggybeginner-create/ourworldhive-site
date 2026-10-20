@@ -585,7 +585,8 @@ function frustJ(J,B,T){
   if(J.bat){const b0=[J.pel[0]+r[0]*0.55+fc[0]*0.1,0.03,J.pel[2]+r[2]*0.55+fc[2]*0.1],dd=[fc[0]*0.35+r[0]*0.2,0,fc[2]*0.35+r[2]*0.2],l=Math.hypot(dd[0],dd[2])||1;O.bat=[b0,[dd[0]/l,0,dd[2]/l]]}
   return O}
 function drawStickBust(x,y,w,h,c){
-  const k=c.kit,LK=skLook(c.name),sk=[246,224,196],K=[22,24,34];
+  const lo=lookOf(c.id),k=Object.assign({},c.kit),LK=Object.assign({},skLook(c.name)),sk=(lo&&lo.sk>=0)?LOOK_SK[lo.sk]:[246,224,196],K=[22,24,34];
+  if(lo){if(lo.jc>=0)k.jersey=LOOK_CLR[lo.jc];if(lo.cc>=0)k.helmet=LOOK_CLR[lo.cc];if(lo.bd>=0)LK.W=[0.85,1.1,1.45][lo.bd];if(lo.ht>=0)LK.H=[0.9,1.0,1.14][lo.ht]}
   ctx.save();rr(x,y,w,h,12);ctx.clip();
   const g=ctx.createLinearGradient(0,y,0,y+h);g.addColorStop(0,rgba(shade(k.jersey,0.5)));g.addColorStop(1,rgba(shade(k.jersey,0.2)));ctx.fillStyle=g;ctx.fillRect(x,y,w,h);
   const Rc=hx(RAR[c.rar].c),gl=ctx.createRadialGradient(x+w/2,y+h*0.45,2,x+w/2,y+h*0.45,h*0.75);gl.addColorStop(0,rgba(Rc,0.45));gl.addColorStop(1,rgba(Rc,0));ctx.fillStyle=gl;ctx.fillRect(x,y,w,h);
@@ -604,7 +605,7 @@ function drawStickBust(x,y,w,h,c){
   ctx.strokeStyle=rgba(k.helmet||k.cap||k.jersey);ctx.lineWidth=Math.max(3,hr*0.28);ctx.beginPath();ctx.moveTo(cx0-hr*0.93,hy-hr*0.35);ctx.lineTo(cx0+hr*0.93,hy-hr*0.35);ctx.stroke();
   ctx.fillStyle=rgba(K);for(const sd of [-1,1]){ctx.beginPath();ctx.arc(cx0+sd*hr*0.38,hy+hr*0.02,Math.max(1.4,hr*0.09),0,TAU);ctx.fill()}
   const mw=[0.5,0.38,0.62][LK.mu]*hr,mt=[hr*0.12,hr*0.1,hr*0.18][LK.mu],md=[hr*0.08,hr*0.2,0][LK.mu];
-  ctx.strokeStyle='#1c120e';ctx.lineWidth=mt;ctx.beginPath();ctx.moveTo(cx0-mw,hy+hr*0.42+md);ctx.quadraticCurveTo(cx0-mw*0.4,hy+hr*0.3,cx0,hy+hr*0.38);ctx.quadraticCurveTo(cx0+mw*0.4,hy+hr*0.3,cx0+mw,hy+hr*0.42+md);ctx.stroke();
+  if(!(lo&&lo.mu===0)){ctx.strokeStyle='#1c120e';ctx.lineWidth=mt;ctx.beginPath();ctx.moveTo(cx0-mw,hy+hr*0.42+md);ctx.quadraticCurveTo(cx0-mw*0.4,hy+hr*0.3,cx0,hy+hr*0.38);ctx.quadraticCurveTo(cx0+mw*0.4,hy+hr*0.3,cx0+mw,hy+hr*0.42+md);ctx.stroke();}
   /* necklace chain + number pendant */
   const py=sy+h*0.2;ctx.strokeStyle='#ffce40';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(cx0-sw*0.45,sy+3);ctx.quadraticCurveTo(cx0,py-4,cx0+sw*0.45,sy+3);ctx.stroke();
   ctx.beginPath();ctx.arc(cx0,py,Math.max(8,w*0.075),0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#ffce40';ctx.lineWidth=1.6;ctx.stroke();
@@ -618,6 +619,7 @@ function eqOver(ids){
   if(k&&k.t==='kit'&&k.col)o.jersey=k.col;
   if(c&&c.t==='cap'&&c.style){o.capStyle=c.style;o.capCol=c.col;if(c.col){o.helmet=c.col;o.cap=c.col}}
   if(b&&b.t==='bat'&&b.col){o.bat=b.col;o.sticker=b.sticker||null}
+  {const pd=OWHSTORE.by(ids.pad),gv=OWHSTORE.by(ids.glove);if(pd&&pd.t==='pad'&&pd.col){o.padSk=pd.col;o.padBand=pd.band||null;o.padCol=pd.col}if(gv&&gv.t==='glove'&&gv.col){o.gloveSk=gv.col;o.gloveTrim=gv.trim||null;o.glove=gv.col}}
   return Object.keys(o).length?o:null;
 }
 function myOver(){
@@ -628,6 +630,7 @@ function sideOver(side){if(!side)return null;if(side.human)return myOver();retur
 function drawRig(J,S){
   const parts=[];
   if(S&&S.eqs&&MT&&OPT.gfx==='stick'){try{const ov=sideOver(S.eqs==='bat'?sideBat():sideBowl());if(ov)S=Object.assign({},S,ov)}catch(e){}}
+  if(S&&S.lkp)S=Object.assign({},S,S.lkp);
   if(GLX.collecting&&CH.ready&&CH.add(J,GLX.hybrid?Object.assign({},S,{hidebat:true}):S)){
     if(GLX.hybrid){GLX.addParts(parts);return}
     if(J.bat&&!CH.lastBat){const d=J.bat[1],b0=J.bat[0],cap0=(a,b,r,col,r2,x)=>{const ca=cs(a[0],a[1],a[2]),cb=cs(b[0],b[1],b[2]);parts.push({t:0,ca,cb,r,r2:r2===undefined?r:r2,col,x:x||null,d:0})};
@@ -646,34 +649,42 @@ function drawRig(J,S){
   const trim=S.trim||null;
   const STICK=OPT.gfx==='stick'&&!GLX.collecting;
   if(STICK){
-    const LK=skLook(S.label||'x'),Hs=LK.H;
+    const LK=Object.assign(skLook(S.label||'x'),S.lk||{}),Hs=LK.H;
     {const bx=(J.aL[0]+J.aR[0])/2,bz=(J.aL[2]+J.aR[2])/2,sc=q=>[bx+(q[0]-bx)*Hs,q[1]*Hs,bz+(q[2]-bz)*Hs],J2={};
      for(const kk in J){const v=J[kk];if(kk==='face')J2[kk]=v;else if(kk==='bat')J2[kk]=[sc(v[0]),v[1]];else if(Array.isArray(v)&&v.length===3&&typeof v[0]==='number')J2[kk]=sc(v);else J2[kk]=v}
      J=J2}
-    const K=[22,24,34],R=0.042*(S.label==='UMPIRE'?1.6:LK.W),hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
+    const R0=0.042,K=[22,24,34],R=R0*(S.label==='UMPIRE'?1.6:LK.W),hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
     for(const side of ['L','R']){CURCH='leg'+side;const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
       cap(hp,k,R,K);cap(k,an,R*0.95,K);cap(an,tt,R*0.9,K);
-      if(S.pad)cap(vmix(k,an,0.08),vmix(k,an,0.92),R*1.9,[238,238,232],R*1.6,{off:0.01})}
+      if(S.pad){const pc_=S.padC||S.padSk||[238,238,232],pb=S.padBand;cap(vmix(k,an,0.08),vmix(k,an,0.92),R0*1.9,pc_,R0*1.6,pb?{off:0.01,bands:[[0.28,0.4,pb],[0.62,0.74,pb]]}:{off:0.01})}
+      /* shoe */
+      {const shc=S.shoeC||(S.label==='UMPIRE'?K:(S.shoe||[240,240,240]));cap(vadd(an,[0,-0.01,0]),tt,R0*1.25,shc,R0*1.0,{off:0.012})}}
     CURCH='torso';cap(J.hipL,J.hipR,R,K);cap(J.pel,J.neck,R*1.15,K);cap(J.sL,J.sR,R,K);
-    cap(vmix(J.pel,J.neck,0.12),vmix(J.pel,J.neck,0.88),R*2.7*sw,jc,R*2.3*sw,{off:0.012});
+    {const jb=S.jdes?(()=>{const lm=jc[0]*.3+jc[1]*.59+jc[2]*.11,ac=S.trim&&Math.abs((S.trim[0]*.3+S.trim[1]*.59+S.trim[2]*.11)-lm)>60?S.trim:(lm>150?[30,34,48]:[250,250,250]);return S.jdes===1?[[0.18,0.3,ac],[0.42,0.54,ac],[0.66,0.78,ac]]:S.jdes===2?[[0.38,0.62,ac]]:[[0.82,0.98,ac]]})():null;
+    cap(vmix(J.pel,J.neck,0.12),vmix(J.pel,J.neck,0.88),R*2.7*sw,jc,R*2.3*sw,jb?{off:0.012,bands:jb}:{off:0.012})}
     if(hurt>0){const mp=vmix(J.pel,J.neck,0.5);sph(vadd(mp,vsc(fc,0.04)),0.13*hurt*(1+0.08*Math.sin(G.clock*20)),[255,58,50],0.03)}
     for(const side of ['L','R']){CURCH='arm'+side;const s_=J['s'+side],e_=J['e'+side],h_=J['h'+side];
-      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove)sph(h_,R*1.8,S.glove,0.02);else sph(h_,R*1.2,K)}
+      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove){const gcl=S.gloveC||S.gloveSk||S.glove;sph(h_,R0*1.8,gcl,0.02);if(S.gloveS===1)cap(vmix(e_,h_,0.55),h_,R0*1.5,S.gloveTrim||shade(gcl,0.7),R0*1.4,{off:0.022});else if(S.gloveTrim)sph(vmix(e_,h_,0.9),R0*1.0,S.gloveTrim,0.03)}else sph(h_,R*1.2,K)}
     CURCH=null;cap(J.neck,J.head,R,K);
     const hr=0.1*(0.92+0.16*(LK.W-0.8)/0.75);
     const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
     const front=c0[2]>NEAR&&c1[2]>NEAR&&c1[2]<c0[2]-0.015,sgn=front?1:-1;
-    sph(J.head,hr,[246,224,196],0.0);
+    sph(J.head,hr,S.skinC||[246,224,196],0.0);
     {const cst=S.capStyle,cc=S.capCol||jc0,up=(y)=>[0,hr*y,0];
      if(!cst||cst==='band'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.45)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.45)),0.017,S.helmet||S.cap||jc0,0.017,{off:0.03})}
      else if(cst==='cap'){sph(vadd(J.head,up(0.78)),hr*0.64,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.55)),up(0.5)),vadd(vadd(J.head,vsc(fc,hr*1.55)),up(0.42)),0.03,shade(cc,0.8),0.03,{off:0.05})}
      else if(cst==='beanie'){sph(vadd(J.head,up(0.7)),hr*0.8,cc,0.04);sph(vadd(J.head,up(1.45)),hr*0.22,[255,255,255],0.05)}
+     else if(cst==='helmet'){sph(vadd(J.head,up(0.66)),hr*0.98,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.7)),up(0.3)),vadd(vadd(J.head,vsc(fc,hr*1.1)),up(-0.2)),0.014,[60,64,74],0.014,{off:0.06})}
      else if(cst==='cowboy'){cap(vadd(vadd(J.head,vsc(rt,-hr*1.8)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*1.8)),up(0.62)),0.022,cc,0.022,{off:0.04});sph(vadd(J.head,up(1.0)),hr*0.58,cc,0.045)}
      else if(cst==='crown'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.62)),0.024,cc,0.024,{off:0.04});for(const sx of [-0.7,0,0.7])sph(vadd(vadd(J.head,vsc(rt,hr*sx)),up(1.05)),hr*0.2,cc,0.05)}}
     if(front){const fb=vadd(J.head,vsc(fc,hr*0.96));
       for(const sd of [-1,1])sph(vadd(fb,vadd(vsc(rt,sd*0.04),[0,0.012,0])),0.011,[25,25,30],0.06);
-      const mp=vadd(fb,[0,-0.034,0]),mw=[0.062,0.048,0.078][LK.mu],dr=[0.008,0.022,0.0][LK.mu],th=[0.011,0.009,0.016][LK.mu],mc=[28,18,14];
-      cap(vadd(mp,vadd(vsc(rt,-mw),[0,-dr,0])),mp,th,mc,th,{off:0.08});cap(mp,vadd(mp,vadd(vsc(rt,mw),[0,-dr,0])),th,mc,th,{off:0.08});
+      const mp=vadd(fb,[0,-0.034,0]),MUS=[null,[0.048,0.022,0.009],[0.078,0,0.016],[0.074,-0.026,0.011]],mu_=LK.ms!=null?MUS[LK.ms]:[[0.062,0.008,0.011],[0.048,0.022,0.009],[0.078,0.0,0.016]][LK.mu],mc=[28,18,14];
+      if(mu_){const mw=mu_[0],dr=mu_[1],th=mu_[2];cap(vadd(mp,vadd(vsc(rt,-mw),[0,-dr,0])),mp,th,mc,th,{off:0.08});cap(mp,vadd(mp,vadd(vsc(rt,mw),[0,-dr,0])),th,mc,th,{off:0.08})}
+      {const bdn=LK.beard|0,ch=vadd(fb,[0,-0.088,0]);
+       if(bdn===1)cap(vadd(ch,vsc(rt,-0.055)),vadd(ch,vsc(rt,0.055)),0.026,mixc(S.skinC||[246,224,196],mc,0.4),0.026,{off:0.07});
+       else if(bdn===2)sph(vadd(ch,[0,-0.004,0]),0.024,mc,0.08);
+       else if(bdn===3){const l_=vadd(vadd(fb,vsc(rt,-0.078)),[0,-0.045,0]),r_=vadd(vadd(fb,vsc(rt,0.078)),[0,-0.045,0]);cap(l_,vadd(ch,[0,-0.012,0]),0.022,mc,0.022,{off:0.07});cap(vadd(ch,[0,-0.012,0]),r_,0.022,mc,0.022,{off:0.07});sph(vadd(ch,[0,-0.01,0]),0.03,mc,0.075)}}
       if(S.mood==='sad'){cap(vadd(mp,[0,-0.045,0]),vadd(mp,vadd(vsc(rt,0.03),[0,-0.05,0])),0.006,mc,0.006,{off:0.08})}}
     /* numbered necklace (the umpire wears none) */
     if(S.label!=='UMPIRE'){
@@ -1026,6 +1037,45 @@ function poseBatter(B,P,kit){
   return M<0?mirrorJ(J,0):J;
 }
 const BAT_BASE={pad:true,padCol:hx('#f1f1ee'),glove:hx('#f6f6f6'),shoe:hx('#f3f3f3'),bat:hx('#dcb17a'),sticker:null,grip:hx('#222222')};
+
+/* ===== player style editor: every owned character can be restyled ===== */
+const LOOK_CLR=[[245,245,240],[24,26,34],[214,40,52],[44,104,226],[30,160,96],[250,200,40],[244,128,20],[142,68,220],[236,72,160],[120,130,150]];
+const LOOK_CLN=['WHITE','BLACK','RED','BLUE','GREEN','YELLOW','ORANGE','PURPLE','PINK','GREY'];
+const LOOK_SK=[[255,226,196],[246,214,170],[232,184,128],[205,146,96],[160,104,64],[110,70,44],[78,50,34],[255,205,190]];
+const LOOK_CAPS=['band','cap','beanie','cowboy','helmet'];
+const LOOK_DEF={bd:-1,ht:-1,sk:-1,mu:-1,br:0,cs:-1,cc:-1,jc:-1,jd:0,gs:0,gc:-1,pc:-1,sc:-1};
+const LOOK_OPTS=[
+ ['bd','BODY STYLE',['AUTO','SLIM','NORMAL','STOCKY'],-1],
+ ['ht','HEIGHT',['AUTO','SHORT','MEDIUM','TALL'],-1],
+ ['sk','SKIN TONE','SK',-1],
+ ['mu','MUSTACHE',['AUTO','NONE','THIN','THICK','CURLY'],-1],
+ ['br','BEARD',['NONE','STUBBLE','GOATEE','FULL'],0],
+ ['cs','CAP / HELMET',['AUTO','BAND','CAP','BEANIE','COWBOY','HELMET'],-1],
+ ['cc','CAP COLOUR','CLR',-1],
+ ['jc','JERSEY COLOUR','CLR',-1],
+ ['jd','JERSEY DESIGN',['PLAIN','HOOPS','CHEST BAND','SHOULDERS'],0],
+ ['gs','GLOVE STYLE',['SHORT','LONG CUFF'],0],
+ ['gc','GLOVE COLOUR','CLR',-1],
+ ['pc','PAD COLOUR','CLR',-1],
+ ['sc','SHOE COLOUR','CLR',-1]];
+function lookOf(id,p){p=p||PR();return p&&p.look&&p.look[id]||null}
+function lookEdit(id){const p=PR();p.look=p.look||{};return p.look[id]||(p.look[id]=Object.assign({},LOOK_DEF))}
+/* style overlay for one of the player's own cards (stickman rig and classic rig) */
+function lookOver(card,p){
+  const l=card&&lookOf(card.id,p);if(!l)return null;const o={},lk={};
+  if(l.bd>=0)lk.W=[0.85,1.1,1.45][l.bd];if(l.ht>=0)lk.H=[0.9,1.0,1.14][l.ht];
+  lk.ms=l.mu>=0?l.mu:null;lk.beard=l.br|0;o.lk=lk;
+  if(l.sk>=0){o.skinC=LOOK_SK[l.sk];o.skin=LOOK_SK[l.sk]}
+  if(l.cs>=0){o.capStyle=LOOK_CAPS[l.cs]}
+  if(l.cc>=0){o.capCol=LOOK_CLR[l.cc];o.helmet=LOOK_CLR[l.cc];o.cap=LOOK_CLR[l.cc]}
+  if(l.jc>=0)o.jersey=LOOK_CLR[l.jc];
+  o.jdes=l.jd|0;
+  if(card.role==='B'){
+    o.gloveS=l.gs|0;if(l.gc>=0){o.gloveC=LOOK_CLR[l.gc];o.glove=LOOK_CLR[l.gc]}
+    if(l.pc>=0){o.padC=LOOK_CLR[l.pc];o.padCol=LOOK_CLR[l.pc]}}
+  if(l.sc>=0){o.shoeC=LOOK_CLR[l.sc];o.shoe=LOOK_CLR[l.sc]}
+  return o}
+function lkpFor(card,side){try{if(!MT||!card)return{};const sd=side==='bat'?sideBat():sideBowl();if(!sd||!sd.human)return{};const o=lookOver(card,sd.prof);return o?{lkp:o}:{}}catch(e){return{}}}
 const MODEL_PRESETS=[
   {n:'HERO',b:1,hs:1,hc:3,face:0,gear:2,ey:1},
   {n:'STRIKER',b:2,hs:3,hc:0,face:0,gear:0,ey:0},
@@ -1041,6 +1091,7 @@ function batterStyle(B){const st=Object.assign({},BAT_BASE,B.card.kit);
   try{if(MT){const sd=sideBat();if(sd&&sd.colI!=null){const k=KP[sd.colI];st.jersey=hx(k[0]);st.trim=hx(k[1]);st.helmet=hx(k[2]);st.pants=hx(k[3])}}}catch(e){}
   try{if(B===bat&&MT&&humanBat()){const pr=sideBat().prof;if(pr)Object.assign(st,modelStyle(pr,B.card.kit))}}catch(e){}
   if(!st.helmet&&!st.cap&&B.card.kit&&B.card.kit.helmet)st.helmet=B.card.kit.helmet;
+  Object.assign(st,lkpFor(B.card,'bat'));
   return st}
 function batContactPoint(J){return vadd(J.bat[0],vsc(J.bat[1],0.62))}
 /* =====================  PHYSICS  ===================== */
@@ -1501,7 +1552,7 @@ function finishBall(res){
   {const base=res.runs-((res.wide||res.noball)?1:0),rot=!res.wicket&&!res.wide&&base%2===1,ovEnd=res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls;
    G.swapPend=S.nsi>=0&&!res.wicket&&(rot!==ovEnd);
    const nR=(!res.wicket&&!res.wide&&base>=1&&base<=3&&nsBat)?base:0;
-   const wantX=nR>0&&((nR%2===1)===!!G.swapPend),pv=G.xrun&&G.xrun.prov?G.xrun:null;
+   const wantX=nR>0,pv=G.xrun&&G.xrun.prov?G.xrun:null;
    if(pv){
      /* runners already started when the ball was hit: now fit the run to the throw so it ends before the ball reaches the keeper or bowler */
      if(wantX){const p0=Math.min(nR,clamp((G.clock-pv.t0)/pv.dur,0,pv.n)),rem=(G.thr?Math.max(0.25,G.thr.dur-G.thr.t):0.6)+0.15,d2=clamp(rem/Math.max(0.2,nR-p0),0.85,1.6);
@@ -2095,7 +2146,7 @@ function runnerPos(xr){
   const A0=odd?aE:aS,A1=odd?aS:aE,B0=odd?bE:bS,B1=odd?bS:bE;
   return[{card:xr.a,x:lerp(A0[0],A1[0],u),z:lerp(A0[1],A1[1],u),hd:odd?Math.PI:0,amp:amp},{card:xr.b,x:lerp(B0[0],B1[0],u),z:lerp(B0[1],B1[1],u),hd:odd?0:Math.PI,amp:amp}]}
 function nsJ(){return poseWalk(NS_X,NS_Z,Math.PI,0,0,{batDir:[0.12,-0.98,-0.05]})}
-function nsStyle(){const c=nsBat.card;return Object.assign({},BAT_BASE,c.kit,{helmet:c.kit.helmet,nonum:true})}
+function nsStyle(){const c=nsBat.card;return Object.assign({},BAT_BASE,c.kit,{helmet:c.kit.helmet,nonum:true},lkpFor(c,'bat'))}
 /* wicketkeeper: only visible from the bowler's end camera (the normal batting camera stands where he does) */
 function keeperPos(){return[0.12,BZ0<20?-0.95:-2.3]}
 function keeperEdge(){if(G.mode!=='edge')return null;const kp=keeperPos(),u=clamp(G.hitT/0.3,0,1),bx=ball.p?ball.p[0]:0,dx=clamp(bx-kp[0],-1.5,1.5);return{sx:dx*sm(u),dir:dx<0?-1:1,u:u,caught:G.hitT>0.4}}
@@ -2125,14 +2176,14 @@ function drawActors(T){
   const keepN=items.length;
   const ART_ON=!GLX.collecting&&OPT.gfx==='art'&&artReady();
   items.push({d:dep(0.95,21.5),f:()=>{if(ART_ON&&artHas(VF?'umpB':'ump'))artDrawUmp();else drawRig(umpireJ(),Object.assign({},UMP_STYLE,{label:'UMPIRE'}))}});
-  items.push({d:dep(G.bowlerX,G.bowlerZ),f:()=>{const bk=S.bowler?S.bowler.kit:null,st=Object.assign({},FIELD_STYLE,{jersey:MT?sideBowl().col:(bk?bk.jersey:hx('#e63946')),skin:bk?bk.skin:BOWL_SK,ballCol:ballCol(),trim:bk?bk.trim:null,cap:bk?bk.helmet:FIELD_STYLE.cap,vid:'bowl',label:((S.bowler&&(S.bowler.name||(S.bowler.card&&S.bowler.card.name)))||'BOWLER')});try{if(MT&&humanBowl()){const pr=sideBowl().prof;if(pr)Object.assign(st,modelStyle(pr,bk||{}))}}catch(e){}if(ART_ON)artDrawBowler(st);else drawRig(bowlerJ(),Object.assign(st,{eqs:'bowl'}))}});
+  items.push({d:dep(G.bowlerX,G.bowlerZ),f:()=>{const bk=S.bowler?S.bowler.kit:null,st=Object.assign({},FIELD_STYLE,{jersey:MT?sideBowl().col:(bk?bk.jersey:hx('#e63946')),skin:bk?bk.skin:BOWL_SK,ballCol:ballCol(),trim:bk?bk.trim:null,cap:bk?bk.helmet:FIELD_STYLE.cap,vid:'bowl',label:((S.bowler&&(S.bowler.name||(S.bowler.card&&S.bowler.card.name)))||'BOWLER')});try{if(MT&&humanBowl()){const pr=sideBowl().prof;if(pr)Object.assign(st,modelStyle(pr,bk||{}))}}catch(e){}if(ART_ON)artDrawBowler(st);else drawRig(bowlerJ(),Object.assign(st,{eqs:'bowl'},lkpFor(S.bowler&&(S.bowler.card||S.bowler),'bowl')))}});
   for(const f of FLD){
     items.push({d:dep(f.x,f.z),f:()=>{
       const fs_=Object.assign({},FIELD_STYLE,{skin:f.skin,vid:FLD.indexOf(f),nobat:true,label:artFName(FLD.indexOf(f))},fieldCol());if(ART_ON)artDrawFielder(f,FLD.indexOf(f),fs_.jersey);else drawRig(fielderJ(f),Object.assign(fs_,{eqs:'bowl'}))}});
   }
   if(VF&&!GLX.collecting){const kp=keeperPos();items.push({d:dep(kp[0],kp[1]),f:()=>{if(ART_ON)artDrawKeeper();else drawRig(keeperJ(kp),Object.assign(keeperStyle(),{label:'KEEPER',eqs:'bowl'}))}})}
   if(nsBat&&!crossing())items.push({d:dep(NS_X,NS_Z),f:()=>{if(ART_ON&&artHas(VF?'nsB':'ns'))artDrawNs();else drawRig(nsJ(),Object.assign(nsStyle(),{label:nsBat.card.name,eqs:'bat'}))}});
-  {const xr=G.xrun;if(xr&&crossing()){let ri=0;for(const r of runnerPos(xr)){const rj=ri++;items.push({d:dep(r.x,r.z),f:()=>{if(ART_ON&&artDrawRunner(r,rj))return;drawRig(poseWalk(r.x,r.z,r.hd,G.clock*17,r.amp,{batDir:[0.14,-0.98,0.06]}),Object.assign({},BAT_BASE,r.card.kit,{helmet:r.card.kit.helmet,label:r.card.name,eqs:'bat'}))}})}}}
+  {const xr=G.xrun;if(xr&&crossing()){let ri=0;for(const r of runnerPos(xr)){const rj=ri++;items.push({d:dep(r.x,r.z),f:()=>{if(ART_ON&&artDrawRunner(r,rj))return;drawRig(poseWalk(r.x,r.z,r.hd,G.clock*17,r.amp,{batDir:[0.14,-0.98,0.06]}),Object.assign({},BAT_BASE,r.card.kit,{helmet:r.card.kit.helmet,label:r.card.name,eqs:'bat'},lkpFor(r.card,'bat')))}})}}}
   for(const B of [outBat,bat]){if(!B)continue;if(B===bat&&crossing())continue;const a=actorXZ(B);items.push({d:dep(a[0],a[1]),f:()=>{const J=batterJ(B,T);if(B===bat&&B.state==='swing')recordBat(J);if(ART_ON)artDrawBatter(B,T);else drawRig(J,Object.assign(batterStyle(B),{eqs:'bat',label:B.card.name,hurt:(B.hurtT&&G.clock<B.hurtT)?Math.min(1,(G.clock-(B.hurtT-2.6))/0.15)*Math.min(1,(B.hurtT-G.clock)/0.8):0,mood:B.state==='out'?'sad':''}));if(B===bat)drawBatTrail()}})}
   if(GLX.hybridBg)items.splice(1,items.length);
   items.sort((a,b)=>b.d-a.d);
@@ -4141,7 +4192,7 @@ function drawMenu(T){
   UI.rects.length=0;UI.oy=(H-720)/2;ctx.save();ctx.translate(0,UI.oy);
   try{
     switch(G.screen){
-      case 'play':scrPlay(T);break;case 'online':scrOnline(T);break;case 'friends':scrFriends(T);break;case 'squad':scrSquad(T);break;case 'market':scrMarket(T);break;case 'career':scrCareer(T);break;case 'profile':scrProfile(T);break;
+      case 'look':scrLook(T);break;case 'play':scrPlay(T);break;case 'online':scrOnline(T);break;case 'friends':scrFriends(T);break;case 'squad':scrSquad(T);break;case 'market':scrMarket(T);break;case 'career':scrCareer(T);break;case 'profile':scrProfile(T);break;
       default:scrHome(T);
     }
     if(UI.toast&&UI.toast.t>0){const a=clamp(UI.toast.t/0.4,0,1);rr(W/2-170,H-104,340,40,20);ctx.fillStyle='rgba(20,60,40,'+0.94*a+')';ctx.fill();ctx.strokeStyle='rgba(124,242,154,'+a+')';ctx.lineWidth=1.5;ctx.stroke();tx(UI.toast.txt,W/2,H-83,14,'rgba(255,255,255,'+a+')','center','800',320)}
@@ -4224,8 +4275,9 @@ function tabs(){
     btn('tab_w',168,60,144,38,'BOWLERS',{on:G.tab==='W',col:'#ff9f1c',tc:'#1b1000',size:12});
     btn('tab_s',320,60,144,38,'SKINS',{on:G.tab==='S',col:'#c77dff',tc:'#16062a',size:12});
   }else{
-    btn('tab_b',16,60,222,38,'BATTERS ('+nb+'/'+BAT_CARDS.length+')',{on:G.tab==='B',col:'#4cc9f0',tc:'#06121a',size:13});
-    btn('tab_w',242,60,222,38,'BOWLERS ('+nw+'/'+BOWL_CARDS.length+')',{on:G.tab==='W',col:'#ff9f1c',tc:'#1b1000',size:13});
+    btn('tab_b',16,60,148,38,'BATTERS ('+nb+')',{on:G.tab==='B',col:'#4cc9f0',tc:'#06121a',size:12.5});
+    btn('tab_w',172,60,148,38,'BOWLERS ('+nw+')',{on:G.tab==='W',col:'#ff9f1c',tc:'#1b1000',size:12.5});
+    btn('tab_s',328,60,136,38,'\uD83C\uDFA8 STYLE',{on:G.tab==='S',col:'#c77dff',tc:'#16062a',size:12.5});
   }
 }
 const SKIN_SHOP=[
@@ -4257,9 +4309,92 @@ function scrSkins(){
   tx('Cards and skins will be bought with real money later. Stars still unlock normal cards.',W/2,y0+30+SKIN_SHOP.length*rh+10,10.5,'#8fa6d4','center','600',430);
   listEnd(30+SKIN_SHOP.length*rh+34);
 }
+
+/* ---------- STYLE tab: list of owned players + editor ---------- */
+function scrStyleList(){
+  const p=PR(),all=ownedCards(p,'B').concat(ownedCards(p,'W')),y0=118,y1=H-8,rh=86;
+  tx('Tap EDIT to change body, face, cap, gloves, pads, shoes and colours',W/2,106,11,'#e0c3ff','center','800',450);
+  listBegin(y0,y1,'styleL');
+  all.forEach((c,i)=>{
+    const y=y0+i*rh;rr(16,y,448,rh-8,16);ctx.fillStyle='rgba(10,16,34,0.86)';ctx.fill();ctx.strokeStyle=RAR[c.rar].c;ctx.globalAlpha=0.55;ctx.lineWidth=1.4;ctx.stroke();ctx.globalAlpha=1;
+    drawBust(24,y+7,54,rh-22,c);
+    tx(cardName(p,c),90,y+22,16,'#fff','left','800',240);tx((c.role==='B'?'BATTER':'BOWLER')+(lookOf(c.id)?'  •  CUSTOM STYLE':''),90,y+44,10.5,lookOf(c.id)?'#e0c3ff':'#9fb3d9','left','700',250);
+    btn('lookedit',352,y+16,104,40,'EDIT',{on:true,col:'#c77dff',tc:'#16062a',size:14,d:c.id});
+  });
+  listEnd(all.length*rh+16);
+}
+function lookCols(c,l){
+  const k=c.kit||{},ov=(()=>{try{return myOver()||{}}catch(e){return{}}})(),d=l||LOOK_DEF,pk=(i,def)=>i>=0?LOOK_CLR[i]:def;
+  return{jersey:pk(d.jc,ov.jersey||k.jersey||[60,90,200]),skin:d.sk>=0?LOOK_SK[d.sk]:(ov.skin||[246,224,196]),cap:pk(d.cc,ov.capCol||k.helmet||k.jersey||[40,40,70]),
+    glove:pk(d.gc,ov.gloveSk||[246,246,246]),gtrim:ov.gloveTrim||null,pad:pk(d.pc,ov.padSk||[238,238,232]),pband:ov.padBand||null,shoe:pk(d.sc,[245,245,245])}
+}
+/* 2D preview of the character with the current style (pads and gloves are the same size on everyone) */
+function drawLookFig(cx,top,sc,c,l){
+  const C=lookCols(c,l),K=[22,24,34],W_=l.bd>=0?[0.85,1.1,1.45][l.bd]:1.1,H_=l.ht>=0?[0.9,1.0,1.14][l.ht]:1.0,u=sc;
+  const hr=15*u*(0.92+0.16*(W_-0.8)/0.75),hy=top+hr+8*u,sy=hy+hr+10*u,bw=17*u*(0.8+0.5*(W_-0.8)/0.75),bh=58*u*H_,hipY=sy+bh,legL=62*u*H_,ankY=hipY+legL;
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+  /* legs + pads + shoes */
+  for(const sd of [-1,1]){const x0=cx+sd*bw*0.45,x1=cx+sd*bw*0.55;
+    ctx.strokeStyle=rgba(K);ctx.lineWidth=8*u;ctx.beginPath();ctx.moveTo(x0,hipY);ctx.lineTo(x1,ankY);ctx.stroke();
+    if(c.role==='B'){const py0=hipY+legL*0.12,py1=ankY-legL*0.02;ctx.strokeStyle=rgba(C.pad);ctx.lineWidth=15*u;ctx.beginPath();ctx.moveTo(x0+(x1-x0)*0.12,py0);ctx.lineTo(x1,py1);ctx.stroke();
+      if(C.pband){ctx.strokeStyle=rgba(C.pband);ctx.lineWidth=3*u;for(const t of [0.3,0.62]){const yy=py0+(py1-py0)*t,xx=x0+(x1-x0)*(0.12+0.88*t);ctx.beginPath();ctx.moveTo(xx-6*u,yy);ctx.lineTo(xx+6*u,yy);ctx.stroke()}}}
+    ctx.fillStyle=rgba(C.shoe);ctx.strokeStyle=rgba(shade(C.shoe,0.5));ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(x1+sd*3*u,ankY+4*u,10*u,5*u,0,0,TAU);ctx.fill();ctx.stroke()}
+  /* arms + gloves */
+  for(const sd of [-1,1]){const sx=cx+sd*bw,hx_=cx+sd*(bw+9*u),hy2=sy+bh*0.78;
+    ctx.strokeStyle=rgba(K);ctx.lineWidth=6.5*u;ctx.beginPath();ctx.moveTo(sx,sy+6*u);ctx.lineTo(hx_,hy2);ctx.stroke();
+    if(c.role==='B'){if(l.gs===1){ctx.strokeStyle=rgba(C.gtrim||shade(C.glove,0.7));ctx.lineWidth=9*u;ctx.beginPath();ctx.moveTo(sx+(hx_-sx)*0.4,sy+6*u+(hy2-sy-6*u)*0.4);ctx.lineTo(hx_,hy2);ctx.stroke()}
+      ctx.fillStyle=rgba(C.glove);ctx.strokeStyle=rgba(C.gtrim||shade(C.glove,0.6));ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(hx_,hy2+3*u,7.5*u,0,TAU);ctx.fill();ctx.stroke()}
+    else{ctx.fillStyle=rgba(C.skin);ctx.beginPath();ctx.arc(hx_,hy2+3*u,5*u,0,TAU);ctx.fill()}}
+  /* jersey */
+  ctx.fillStyle=rgba(C.jersey);ctx.strokeStyle=rgba(K);ctx.lineWidth=1.8;rr(cx-bw,sy,bw*2,bh,10*u);ctx.fill();ctx.stroke();
+  if(l.jd){const lm=C.jersey[0]*.3+C.jersey[1]*.59+C.jersey[2]*.11,ac=lm>150?[30,34,48]:[250,250,250];ctx.save();rr(cx-bw,sy,bw*2,bh,10*u);ctx.clip();ctx.fillStyle=rgba(ac);
+    if(l.jd===1)for(const t of [0.18,0.42,0.66])ctx.fillRect(cx-bw,sy+bh*t,bw*2,bh*0.12);else if(l.jd===2)ctx.fillRect(cx-bw,sy+bh*0.38,bw*2,bh*0.24);else ctx.fillRect(cx-bw,sy,bw*2,bh*0.18);ctx.restore()}
+  /* head */
+  ctx.strokeStyle=rgba(K);ctx.lineWidth=7*u;ctx.beginPath();ctx.moveTo(cx,hy+hr);ctx.lineTo(cx,sy+2);ctx.stroke();
+  ctx.fillStyle=rgba(C.skin);ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,hy,hr,0,TAU);ctx.fill();ctx.stroke();
+  ctx.fillStyle=rgba(K);for(const sd of [-1,1]){ctx.beginPath();ctx.arc(cx+sd*hr*0.38,hy+hr*0.02,Math.max(1.4,hr*0.09),0,TAU);ctx.fill()}
+  const LK=skLook(c.name),ms=l.mu>=0?l.mu:LK.mu+1,mw=[0,0.38,0.6,0.55][ms]*hr,mt=[0,hr*0.1,hr*0.18,hr*0.12][ms],md=[0,hr*0.2,0,-hr*0.16][ms],mcol='#1c120e';
+  if(ms){ctx.strokeStyle=mcol;ctx.lineWidth=mt;ctx.beginPath();ctx.moveTo(cx-mw,hy+hr*0.42+md);ctx.quadraticCurveTo(cx-mw*0.4,hy+hr*0.3,cx,hy+hr*0.38);ctx.quadraticCurveTo(cx+mw*0.4,hy+hr*0.3,cx+mw,hy+hr*0.42+md);ctx.stroke()}
+  if(l.br===1){ctx.strokeStyle='rgba(28,18,14,0.45)';ctx.lineWidth=hr*0.28;ctx.beginPath();ctx.arc(cx,hy+hr*0.1,hr*0.82,0.35,Math.PI-0.35);ctx.stroke()}
+  else if(l.br===2){ctx.fillStyle=mcol;ctx.beginPath();ctx.ellipse(cx,hy+hr*0.82,hr*0.2,hr*0.26,0,0,TAU);ctx.fill()}
+  else if(l.br===3){ctx.strokeStyle=mcol;ctx.lineWidth=hr*0.34;ctx.beginPath();ctx.arc(cx,hy+hr*0.1,hr*0.8,0.25,Math.PI-0.25);ctx.stroke()}
+  /* cap */
+  const cs=l.cs>=0?LOOK_CAPS[l.cs]:'band',cc=C.cap;ctx.fillStyle=rgba(cc);ctx.strokeStyle=rgba(cc);
+  if(cs==='band'){ctx.lineWidth=Math.max(3,hr*0.26);ctx.beginPath();ctx.moveTo(cx-hr*0.95,hy-hr*0.42);ctx.lineTo(cx+hr*0.95,hy-hr*0.42);ctx.stroke()}
+  else if(cs==='cap'){ctx.beginPath();ctx.arc(cx,hy-hr*0.1,hr*1.02,Math.PI,TAU);ctx.fill();ctx.fillStyle=rgba(shade(cc,0.78));rr(cx-hr*0.2,hy-hr*0.3,hr*1.5,hr*0.3,hr*0.15);ctx.fill()}
+  else if(cs==='beanie'){ctx.beginPath();ctx.arc(cx,hy-hr*0.08,hr*1.04,Math.PI,TAU);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cx,hy-hr*1.14,hr*0.24,0,TAU);ctx.fill()}
+  else if(cs==='cowboy'){ctx.lineWidth=hr*0.2;ctx.beginPath();ctx.moveTo(cx-hr*1.8,hy-hr*0.5);ctx.lineTo(cx+hr*1.8,hy-hr*0.5);ctx.stroke();ctx.beginPath();ctx.arc(cx,hy-hr*0.5,hr*0.62,Math.PI,TAU);ctx.fill()}
+  else if(cs==='helmet'){ctx.beginPath();ctx.arc(cx,hy-hr*0.05,hr*1.08,Math.PI,TAU);ctx.fill();ctx.strokeStyle='#454b5a';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(cx+hr*0.7,hy-hr*0.1+i*hr*0.3);ctx.lineTo(cx+hr*1.15,hy-hr*0.1+i*hr*0.3);ctx.stroke()}}
+  ctx.restore();
+}
+function scrLook(T){
+  const c=CARD_BY_ID[G.lookId];if(!c){G.screen='squad';return}
+  const p=PR(),l=lookOf(c.id)||LOOK_DEF;
+  chrome('STYLE',true);
+  tx(cardName(p,c),W/2,64,15,'#fff','center','900',300);
+  rr(16,76,448,236,18);const g=ctx.createLinearGradient(0,76,0,312);g.addColorStop(0,'rgba(36,26,70,0.95)');g.addColorStop(1,'rgba(10,14,34,0.95)');ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='rgba(199,125,255,0.5)';ctx.lineWidth=1.4;ctx.stroke();
+  drawLookFig(W/2,86,1.12,c,l);
+  const y0=322,y1=H-72;listBegin(y0,y1,'look');let y=y0+4;
+  for(const [key,label,vals] of LOOK_OPTS){
+    if(c.role!=='B'&&(key==='gs'||key==='gc'||key==='pc'))continue;
+    tx(label,18,y+8,10.5,'#c9b2f0','left','900');y+=20;
+    const items=vals==='SK'?[{v:-1,t:'AUTO'}].concat(LOOK_SK.map((c2,i)=>({v:i,col:c2}))):vals==='CLR'?[{v:-1,t:key==='jc'?'TEAM':'AUTO'}].concat(LOOK_CLR.map((c2,i)=>({v:i,col:c2}))):vals.map((t,i)=>({v:(key==='bd'||key==='ht'||key==='mu'||key==='cs')?i-1:i,t}));
+    let x=16,rowH=34;
+    for(const it of items){
+      const w=it.col?38:Math.max(54,it.t.length*8.2+22);
+      if(x+w>464){x=16;y+=rowH+4}
+      const on=(l[key]===undefined?LOOK_DEF[key]:l[key])===it.v;
+      if(it.col){btn('lk',x,y,w,rowH,'',{d:key+':'+it.v});ctx.beginPath();ctx.arc(x+w/2,y+rowH/2,11,0,TAU);ctx.fillStyle=rgba(it.col);ctx.fill();ctx.lineWidth=on?3:1;ctx.strokeStyle=on?'#ffd23f':'rgba(255,255,255,0.4)';ctx.stroke()}
+      else btn('lk',x,y,w,rowH,it.t,{on:on,col:'#c77dff',tc:'#16062a',size:10.5,d:key+':'+it.v});
+      x+=w+6}
+    y+=rowH+14}
+  listEnd(y-y0+10);
+  btn('lkreset',16,H-62,96,44,'RESET',{size:12});
+  btn('lkstore',120,H-62,344,44,'🛍 PAD & GLOVE SKINS  (STORE)',{on:true,col:'#ffb703',tc:'#2a1800',size:13});
+}
 function scrSquad(T){
-  if(G.tab==='S')G.tab='B';
   chrome('MY SQUAD',true);tabs();
+  if(G.tab==='S'){scrStyleList();return}
   const p=PR(),list=ownedCards(p,G.tab),N=TEAM_N[OPT.overs],isB=G.tab==='B',mx=isB?N:5;
   const xi=xiOf(p,G.tab);
   tx(isB?('BATTING ORDER: '+xi.length+'/'+N+' picked for '+OPT.overs+' overs (rest = club players)'):('ATTACK: '+xi.length+'/5 bowlers picked'),W/2,106,11.5,'#ffd24a','center','800',440);
@@ -5132,7 +5267,8 @@ function handleUI(id,r,x,y){
     case 'records':try{OWHG.openRecords()}catch(e){}break;
     case 'pf_friends':G.from='profile';G.screen='friends';break;
     case 'pf_career':G.from='profile';G.screen='career';break;
-    case 'back':if(G.from==='profile'&&(G.screen==='friends'||G.screen==='career')){G.from=null;G.screen='profile';break}
+    case 'back':if(G.screen==='look'){G.screen='squad';G.tab='S';break}
+      if(G.from==='profile'&&(G.screen==='friends'||G.screen==='career')){G.from=null;G.screen='profile';break}
       if(G.screen==='friends'){G.screen='online';if(NETM.state==='error')NETM.state='idle'}else{if(G.screen==='online'&&(NETM.state==='searching'||NETM.state==='connecting')){netCancel()}if(NETM.state==='error')NETM.state='idle';G.screen='home'}break;
     case 'online':G.screen='online';break;case 'friends':G.screen='friends';break;
     case 'findmatch':netSearch('');break;case 'netcancel':netCancel();break;case 'netretry':NETM.state='idle';break;
@@ -5184,6 +5320,10 @@ function handleUI(id,r,x,y){
     case 'overs':OPT.overs=d;saveOpt();break;
     case 'start':startMatch();break;
     case 'again':if(MT&&MT.online){if(NETX)NETX.close();toMenu();G.screen='online';NETM.state='idle';break}startMatch();break;
+    case 'lookedit':G.lookId=d;G.screen='look';G.sc.look=0;break;
+    case 'lk':{const [k,v]=String(d).split(':'),o=lookEdit(G.lookId);o[k]=+v;saveProfiles();break}
+    case 'lkreset':{const p=PR();if(p.look)delete p.look[G.lookId];saveProfiles();toast('Style reset');break}
+    case 'lkstore':try{OWHG.openStore('pad')}catch(e){}break;
     case 'tab_b':G.tab='B';break;case 'tab_w':G.tab='W';break;case 'tab_s':G.tab='S';break;
     case 'select':{const c=CARD_BY_ID[d],p=PR();toggleXI(p,c,c.role==='B'?TEAM_N[OPT.overs]:5);const a=xiOf(p,c.role);p.sel[c.role==='B'?'b':'w']=a[0];saveProfiles();if(c.role==='B')bat=newBatter(CARD_BY_ID[a[0]]);break}
     case 'up':{const c=CARD_BY_ID[d],p=PR();moveXI(p,c);const a=xiOf(p,c.role);p.sel[c.role==='B'?'b':'w']=a[0];saveProfiles();break}

@@ -664,18 +664,18 @@ function drawRig(J,S){
     cap(vmix(J.pel,J.neck,0.12),vmix(J.pel,J.neck,0.88),R*2.7*sw,jc,R*2.3*sw,jb?{off:0.012,bands:jb}:{off:0.012})}
     if(hurt>0){const mp=vmix(J.pel,J.neck,0.5);sph(vadd(mp,vsc(fc,0.04)),0.13*hurt*(1+0.08*Math.sin(G.clock*20)),[255,58,50],0.03)}
     for(const side of ['L','R']){CURCH='arm'+side;const s_=J['s'+side],e_=J['e'+side],h_=J['h'+side];
-      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove){const gcl=S.gloveC||S.gloveSk||S.glove;sph(h_,R0*1.8,gcl,0.02);if(S.gloveS===1)cap(vmix(e_,h_,0.55),h_,R0*1.5,S.gloveTrim||shade(gcl,0.7),R0*1.4,{off:0.022});else if(S.gloveTrim)sph(vmix(e_,h_,0.9),R0*1.0,S.gloveTrim,0.03)}else sph(h_,R*1.2,K)}
-    CURCH=null;cap(J.neck,J.head,R,K);
+      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove){const gcl=S.gloveC||S.gloveSk||S.glove;sph(h_,R0*1.8,gcl,0.02);if(S.gloveS===1)cap(vmix(e_,h_,0.55),h_,R0*1.5,S.gloveTrim||shade(gcl,0.7),R0*1.4,{off:0.022});else if(S.gloveTrim)sph(vmix(e_,h_,0.9),R0*1.0,S.gloveTrim,0.03)}else sph(h_,R*1.2,S.skinC||K)}
+    CURCH=null;cap(J.neck,J.head,R*(S.skinC?1.1:1),S.skinC||K);
     const hr=0.1*(0.92+0.16*(LK.W-0.8)/0.75);
     const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
     const front=c0[2]>NEAR&&c1[2]>NEAR&&c1[2]<c0[2]-0.015,sgn=front?1:-1;
     sph(J.head,hr,S.skinC||[246,224,196],0.0);
     {const cst=S.capStyle,cc=S.capCol||jc0,up=(y)=>[0,hr*y,0];
-     if(!cst||cst==='band'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.45)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.45)),0.017,S.helmet||S.cap||jc0,0.017,{off:0.03})}
-     else if(cst==='cap'){sph(vadd(J.head,up(0.78)),hr*0.64,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.55)),up(0.5)),vadd(vadd(J.head,vsc(fc,hr*1.55)),up(0.42)),0.03,shade(cc,0.8),0.03,{off:0.05})}
-     else if(cst==='beanie'){sph(vadd(J.head,up(0.7)),hr*0.8,cc,0.04);sph(vadd(J.head,up(1.45)),hr*0.22,[255,255,255],0.05)}
-     else if(cst==='helmet'){sph(vadd(J.head,up(0.66)),hr*0.98,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.7)),up(0.3)),vadd(vadd(J.head,vsc(fc,hr*1.1)),up(-0.2)),0.014,[60,64,74],0.014,{off:0.06})}
-     else if(cst==='cowboy'){cap(vadd(vadd(J.head,vsc(rt,-hr*1.8)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*1.8)),up(0.62)),0.022,cc,0.022,{off:0.04});sph(vadd(J.head,up(1.0)),hr*0.58,cc,0.045)}
+     if(!cst||cst==='band'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.12),up(0.88))),hr*0.8,[[22,16,14],[44,28,20],[18,18,22],[70,46,28]][(LK.h>>>0)%4],0.03);cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.45)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.45)),0.017,S.helmet||S.cap||jc0,0.017,{off:0.04})}
+     else if(cst==='cap'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.1),up(0.9))),hr*0.82,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.55)),up(0.5)),vadd(vadd(J.head,vsc(fc,hr*1.55)),up(0.42)),0.03,shade(cc,0.8),0.03,{off:0.05})}
+     else if(cst==='beanie'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.1),up(0.86))),hr*0.88,cc,0.04);cap(vadd(vadd(J.head,vsc(rt,-hr*0.9)),up(0.3)),vadd(vadd(J.head,vsc(rt,hr*0.9)),up(0.3)),hr*0.2,shade(cc,0.85),hr*0.2,{off:0.045});sph(vadd(J.head,up(1.72)),hr*0.24,[255,255,255],0.05)}
+     else if(cst==='helmet'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.08),up(0.84))),hr*0.92,cc,0.04);for(const sd of [-1,1])cap(vadd(vadd(J.head,vsc(rt,sd*hr*0.93)),up(0.6)),vadd(vadd(J.head,vsc(rt,sd*hr*0.9)),up(-0.35)),hr*0.16,shade(cc,0.85),hr*0.16,{off:0.04});cap(vadd(vadd(J.head,vsc(fc,hr*0.7)),up(0.3)),vadd(vadd(J.head,vsc(fc,hr*1.1)),up(-0.2)),0.014,[60,64,74],0.014,{off:0.06})}
+     else if(cst==='cowboy'){cap(vadd(vadd(J.head,vsc(rt,-hr*1.8)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*1.8)),up(0.62)),hr*0.16,cc,hr*0.16,{off:0.04});cap(vadd(vadd(J.head,vsc(fc,-hr*1.5)),up(0.62)),vadd(vadd(J.head,vsc(fc,hr*1.7)),up(0.6)),hr*0.16,cc,hr*0.16,{off:0.04});sph(vadd(J.head,up(1.1)),hr*0.66,shade(cc,0.9),0.05)}
      else if(cst==='crown'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.62)),0.024,cc,0.024,{off:0.04});for(const sx of [-0.7,0,0.7])sph(vadd(vadd(J.head,vsc(rt,hr*sx)),up(1.05)),hr*0.2,cc,0.05)}}
     if(front){const fb=vadd(J.head,vsc(fc,hr*0.96));
       for(const sd of [-1,1])sph(vadd(fb,vadd(vsc(rt,sd*0.04),[0,0.012,0])),0.011,[25,25,30],0.06);
@@ -1161,7 +1161,7 @@ function makeDelivery0(card,key,aim,rq,pace){
 
 /* =====================  GAME STATE  ===================== */
 const OPT={time:'auto',diff:'easy',sound:true,loft:false,overs:5,mode:'full',radar:true,runMan:true};
-try{const o=JSON.parse(localStorage.getItem('wh_cricket_opt')||'null');if(o){OPT.time=o.time||'auto';OPT.diff=o.diff||'easy';if(OVERS_OPTS.indexOf(o.overs)>=0)OPT.overs=o.overs;if(['chase','defend','full','two'].indexOf(o.mode)>=0)OPT.mode=o.mode;if(o.radar===false)OPT.radar=false;if(o.runMan===false)OPT.runMan=false}}catch(e){}
+try{const o=JSON.parse(localStorage.getItem('wh_cricket_opt')||'null');if(o){OPT.time=o.time||'auto';OPT.diff=o.diff||'easy';if(OVERS_OPTS.indexOf(o.overs)>=0)OPT.overs=o.overs;if(['chase','defend','full'].indexOf(o.mode)>=0)OPT.mode=o.mode;if(o.radar===false)OPT.radar=false;if(o.runMan===false)OPT.runMan=false}}catch(e){}
 function saveOpt(){try{localStorage.setItem('wh_cricket_opt',JSON.stringify({time:OPT.time,diff:OPT.diff,overs:OPT.overs,mode:OPT.mode,radar:OPT.radar,runMan:OPT.runMan}))}catch(e){}}
 const G={mode:'menu',screen:'home',T:0,RT:0,clock:0,paused:false,excite:0,shake:0,slow:1,slowT:0,deliv:null,Trel:0,swing:null,tRun:0,stT:0,deadT:0,deadDur:2,res:null,
   boardMsg:null,boardMsgT:0,hitT:0,flash:0,flashCol:[255,255,255],popup:null,comm:'',commT:0,info:'',infoT:0,chasers:[],pred:null,followT:0,
@@ -4240,7 +4240,7 @@ function scrHome(T){
   tx('PLAYER 2 on this device uses the other profile slot',W/2,684,10.5,'#7e93bd','center','600',440);
   tx(BRAND,W/2,H-24,11,'rgba(255,255,255,0.45)','center','700');
 }
-const MODES=[['chase','QUICK CHASE','Bat only. Chase the CPU target.'],['defend','DEFEND','Bowl only. Stop the CPU chasing.'],['full','FULL MATCH','Bat first, then bowl against the CPU.'],['two','2 PLAYER','Same device. Player 1 vs Player 2.']];
+const MODES=[['chase','QUICK CHASE','Bat only. Chase the CPU target.'],['defend','DEFEND','Bowl only. Stop the CPU chasing.'],['full','FULL MATCH','Bat first, then bowl against the CPU.']];
 function scrPlay(T){
   chrome('CHOOSE MATCH',true);
   MODES.forEach((m,i)=>{

@@ -262,6 +262,7 @@ let PROFILES=[newProfile(0),newProfile(1)],CUR=0;
     if(raw){const o=JSON.parse(raw);if(o&&o.p&&o.p.length===2){PROFILES=o.p.map((p,i)=>Object.assign(newProfile(i),p,{own:Object.assign({b:[],w:[]},p.own),sel:Object.assign({},p.sel),tot:Object.assign(newProfile(i).tot,p.tot)}));CUR=o.cur|0}}
     else{const old=+localStorage.getItem('wh_cricket_best')||0;if(old)PROFILES[0].tot.hs=old}
   }catch(e){}
+  CUR=0; /* one profile per device: the same-device 2 player slot is gone */
 })();
 function saveProfiles(){try{localStorage.setItem(PKEY,JSON.stringify({p:PROFILES,cur:CUR}))}catch(e){}}
 const PR=()=>PROFILES[CUR];
@@ -4224,8 +4225,6 @@ function scrHome(T){
   rr(180,235,170,8,4);ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fill();rr(180,235,Math.max(8,170*(p.xp-a)/(b-a)),8,4);ctx.fillStyle='#7cf29a';ctx.fill();
   star(374,239,11,'#ffd23f');tx(String(p.stars),390,240,19,'#ffd23f','left','900');
   tx('W '+p.tot.w+'  L '+p.tot.l+'  •  HS '+p.tot.hs+'  •  '+p.tot.wk+' wkts',112,262,11,'#8fa6d4','left','700',340);
-  btn('slot0',16,290,220,34,PROFILES[0].name,{on:CUR===0,col:'#4cc9f0',tc:'#06121a',size:12});
-  btn('slot1',244,290,220,34,PROFILES[1].name,{on:CUR===1,col:'#ff9f1c',tc:'#1b1000',size:12});
   const pl=[16,336,216,70],pulse=1+0.02*Math.sin(T*4);
   ctx.save();ctx.translate(pl[0]+pl[2]/2,pl[1]+pl[3]/2);ctx.scale(pulse,pulse);ctx.translate(-(pl[0]+pl[2]/2),-(pl[1]+pl[3]/2));
   btn('play',...pl,'PLAY OFFLINE',{on:true,col:'#22c55e',size:19,r:22});ctx.restore();
@@ -4237,7 +4236,6 @@ function scrHome(T){
   if(OWNER)btn('gl3d',16,606,224,34,(OPT.gfx==='art'?'PLAYERS: 2D ART':OPT.gfx==='stick'?'PLAYERS: STICKMAN':'PLAYERS: CLASSIC')+' \u25B6',{on:OPT.gfx!=='classic',col:'#4cc9f0',tc:'#04121c',size:12.5});
   btn('fx',248,606,216,34,'ULTRA FX: '+(OPT.fx?'ON':'OFF'),{on:OPT.fx,col:'#c77dff',tc:'#16062a',size:12.5});
   btn('gstore',16,640,150,32,'\uD83D\uDED2 STORE',{size:12,on:true,col:'#e0a81c',tc:'#2b1d00'});btn('grank',172,640,170,32,'\uD83C\uDFC6 RANKING',{size:12,on:true,col:'#7c6cff',tc:'#fff'});btn('ginfo',348,640,116,32,'\u24D8 CONTROLS',{size:11.5});
-  tx('PLAYER 2 on this device uses the other profile slot',W/2,684,10.5,'#7e93bd','center','600',440);
   tx(BRAND,W/2,H-24,11,'rgba(255,255,255,0.45)','center','700');
 }
 const MODES=[['chase','QUICK CHASE','Bat only. Chase the CPU target.'],['defend','DEFEND','Bowl only. Stop the CPU chasing.'],['full','FULL MATCH','Bat first, then bowl against the CPU.']];

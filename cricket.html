@@ -1366,7 +1366,7 @@ function performHit(){
   sw.azm=clamp(sw.M*sw.sh.az-sw.e*3.0,-1.7,1.7);sw.az=sw.M*sw.azm;
   const sv=shotVelocity(sw);
   ball.v=sv.v;ball.mode='hit';ball.bounced=false;ball.bounces=0;ball.cfg=HITCFG;ball.trail.length=0;
-  G.mode='hit';G.hitT=0;G.hitFlag=true;G.pred=predictBall(ball);assignChasers();
+  G.mode='hit';G.hitT=0;G.hitFlag=true;G.pred=predictBall(ball);assignChasers();autoProv();
   sw.speed=sv.speed;sw.name=shotName(sw.azm,sw.sh.loft,sw.high);
   if(MT&&MT.online&&humanBat()&&NETX)NETX.send('hit',{n:NETX.n-1,v:ball.v.slice(),az:sw.az,q:sw.q,e:sw.e,speed:sw.speed,name:sw.name});
   const pw=clamp(sv.speed/36,0.2,1);
@@ -1497,7 +1497,14 @@ function finishBall(res){
   {const base=res.runs-((res.wide||res.noball)?1:0),rot=!res.wicket&&!res.wide&&base%2===1,ovEnd=res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls;
    G.swapPend=S.nsi>=0&&!res.wicket&&(rot!==ovEnd);
    const nR=(!res.wicket&&!res.wide&&base>=1&&base<=3&&nsBat)?base:0;
-   G.xrun=(nR>0&&((nR%2===1)===!!G.swapPend))?{t0:G.clock+0.35,dur:nR>1?1.15:1.4,n:nR,a:bat.card,b:nsBat.card}:null}
+   const wantX=nR>0&&((nR%2===1)===!!G.swapPend),pv=G.xrun&&G.xrun.prov?G.xrun:null;
+   if(pv){
+     /* runners already started when the ball was hit: now fit the run to the throw so it ends before the ball reaches the keeper or bowler */
+     if(wantX){const p0=Math.min(nR,clamp((G.clock-pv.t0)/pv.dur,0,pv.n)),rem=(G.thr?Math.max(0.25,G.thr.dur-G.thr.t):0.6)+0.15,d2=clamp(rem/Math.max(0.2,nR-p0),0.85,1.6);
+       pv.n=nR;pv.dur=d2;pv.t0=G.clock-p0*d2;pv.prov=false}
+     else if(res.wicket||base>3||res.wide)G.xrun=null;
+     else{pv.p0=clamp((G.clock-pv.t0)/pv.dur,0,pv.n);pv.can=G.clock;pv.prov=false}
+   }else G.xrun=wantX?{t0:G.clock+0.35,dur:nR>1?1.15:1.4,n:nR,a:bat.card,b:nsBat.card}:null}
   if(res.legal!==false||res.wide){if(res.wicket||res.runs>0)S.dotRun=0;else if(++S.dotRun>=3){S.dotRun=0;S.spBonus++;if(!humanBat())showPopup('3 DOTS! SPECIAL BALL UNLOCKED',[255,215,90],1.4,60)}}
   chatReact(res);
   S.hist.push({t:res.wicket?'W':res.wide?'Wd':res.runs===0?'•':String(res.runs)});
@@ -1509,7 +1516,7 @@ function finishBall(res){
   else if(res.wide){dur=2.2;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8;G.chk={t:0,a:'CHECKING WIDE LINE...',v:'WIDE - CONFIRMED',c:[255,255,255]}}
   else if(res.runs>0){G.excite=Math.max(G.excite,0.25);sfx.cheer(0.25);cm=pick(COMM.run);col=[190,255,200]}
   else{cm=pick(COMM.dot);col=[200,210,230]}
-  if(G.xrun)dur=Math.max(dur,0.35+G.xrun.n*G.xrun.dur+0.9);
+  if(G.xrun&&G.xrun.can==null)dur=Math.max(dur,G.xrun.t0+G.xrun.n*G.xrun.dur-G.clock+0.9);
   cm=richComm(cm,res,bc,wc);
   if(res.wicket)buzz([70,40,140]);else if(res.runs===6)buzz([90,30,90]);else if(res.runs===4)buzz(55);
   if(!txt)txt=res.runs===0?'DOT BALL':res.runs+' RUN'+(res.runs>1?'S':'');
@@ -2063,9 +2070,16 @@ function actorXZ(B){
   return[B.root[0]+0.0,B.root[2]];
 }
 
-function crossing(){const xr=G.xrun;return !!xr&&G.clock>=xr.t0&&G.mode==='dead'}
+function runnerP(xr){const n=xr.n||1;if(xr.can!=null)return Math.max(0,xr.p0-(G.clock-xr.can)/xr.dur*1.4);return clamp((G.clock-xr.t0)/xr.dur,0,n)}
+function crossing(){const xr=G.xrun;if(!xr||G.clock<xr.t0)return false;if(xr.can!=null&&runnerP(xr)<=0)return false;return G.mode==='dead'||G.mode==='hit'}
+/* batters start running as soon as the ball is hit (not after the score is shown) */
+function autoProv(){try{
+  if(!bat||!nsBat||S.nsi<0||!G.pred)return;if(humanBat()&&OPT.runMan!==false)return;
+  const rs=G.pred.rest;if(Math.hypot(rs[0],rs[1]-CZ)>=RB)return;const n=runsForDist(rs[0],rs[1]);if(!n)return;
+  const T=clamp(G.pred.t*0.85+0.6,1.2,4.5);G.xrun={t0:G.clock+0.35,dur:clamp(T/n,0.95,1.8),n:n,a:bat.card,b:nsBat.card,prov:true}}catch(e){}}
+function manProv(n){const xr=G.xrun;if(xr&&xr.prov){xr.n=n;return}if(!bat||!nsBat||S.nsi<0)return;G.xrun={t0:G.clock+0.15,dur:1.3,n:n,a:bat.card,b:nsBat.card,prov:true}}
 function runnerPos(xr){
-  const n=xr.n||1,p=clamp((G.clock-xr.t0)/xr.dur,0,n),leg=Math.min(n-1,Math.floor(p)),u=sm(p-leg>=1?1:p-leg),mv=p>0&&p<n&&(p-leg)>0&&(p-leg)<1,amp=mv?1:0.15,odd=leg%2===1;
+  const n=xr.n||1,p=runnerP(xr),leg=Math.min(n-1,Math.floor(p)),u=sm(p-leg>=1?1:p-leg),mv=p>0&&p<n&&(p-leg)>0&&(p-leg)<1,amp=mv?1:0.15,odd=leg%2===1;
   const ax=rootX(xr.a),bx=rootX(xr.b),aS=[ax,BT_ROOT[2]],aE=[NS_X+0.5,NS_Z],bS=[NS_X,NS_Z],bE=[bx,BT_ROOT[2]];
   const A0=odd?aE:aS,A1=odd?aS:aE,B0=odd?bE:bS,B1=odd?bS:bE;
   return[{card:xr.a,x:lerp(A0[0],A1[0],u),z:lerp(A0[1],A1[1],u),hd:odd?Math.PI:0,amp:amp},{card:xr.b,x:lerp(B0[0],B1[0],u),z:lerp(B0[1],B1[1],u),hd:odd?0:Math.PI,amp:amp}]}
@@ -4955,7 +4969,7 @@ function netBegin(ad,r){
     const sw=G.swing;if(!sw)return;
     sw.hit=true;sw.q=d.q;sw.e=d.e;sw.az=d.az;sw.name=d.name;sw.speed=d.speed;
     ball.p=D.pc.slice();ball.vis=true;ball.v=d.v.slice();ball.mode='hit';ball.bounced=false;ball.bounces=0;ball.cfg=HITCFG;ball.trail.length=0;
-    G.mode='hit';G.hitT=0;G.hitFlag=true;G.pred=predictBall(ball);assignChasers();
+    G.mode='hit';G.hitT=0;G.hitFlag=true;G.pred=predictBall(ball);assignChasers();autoProv();
     const pw=clamp(d.speed/36,0.2,1);sfx.hit(pw);G.shake=0.25+pw*0.7;G.followT=99;
     if(d.q==='perfect'){G.slow=0.32;G.slowT=0.28;G.flash=0.5;G.flashCol=[255,255,255]}
   };
@@ -5094,7 +5108,7 @@ function handleUI(id,r,x,y){
     case 'chopen':chestOpenNext();break;
     case 'chnext':if(chOf(PR()).q.length)chestOpenNext();else CHEST.view='list';break;
     case 'chgem':{const ch=chOf(PR());if(ch.gems>=5){ch.gems-=5;ch.q.unshift('gold');saveProfiles();chestOpenNext()}break}
-    case 'runbtn':if(G.mode==='hit'&&humanBat()&&OPT.runMan!==false){G.runReq=Math.min(3,(G.runReq|0)+1);sfx.bounce(0.35);buzz(20)}break;
+    case 'runbtn':if(G.mode==='hit'&&humanBat()&&OPT.runMan!==false){G.runReq=Math.min(3,(G.runReq|0)+1);manProv(G.runReq);sfx.bounce(0.35);buzz(20)}break;
     case 'runmode':OPT.runMan=OPT.runMan===false;saveOpt();break;
     case 'ground':OPT.loft=false;break;case 'loft':OPT.loft=true;break;
     case 'special':{const c=curCard();if(c.sp&&S.bspLeft>0&&!G.swing)G.armed=G.armed?null:c.sp;break}

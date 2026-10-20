@@ -195,9 +195,12 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .nd:hover rect.card{fill:var(--soft)}
 .nd circle.avc{fill:var(--m)}.nd.f circle.avc{fill:var(--f)}.nd.x circle.avc{fill:var(--x)}
 .nd text.ini{fill:#fff;font:700 15px var(--fd);text-anchor:middle}
-.nd text.t1{font:600 14px var(--fb)}
-.nd text.t2{font:400 12px var(--fb);fill:var(--ink2)}
-.nd text.t3{font:400 11px var(--fm);fill:var(--ink2)}
+.nd text.t1{font:700 13px var(--fb)}
+.nd text.t2{font:500 12px var(--fb);fill:var(--ink)}
+.nd text.t3{font:400 11px var(--fb);fill:var(--ink2)}
+.nd .tgp rect{fill:var(--soft);stroke:var(--line)}.nd .tgp text{fill:var(--ink);font:600 10px var(--fb)}
+.nd .ico circle{fill:#16a34a}.nd .ico.wa circle{fill:#25d366}.nd .ico path{fill:#fff}.nd .ico{cursor:pointer}
+.ordb rect{fill:var(--ink)}
 .nd.dead rect.card{stroke-dasharray:5 3}
 .nd.dead circle.avc{fill:var(--dead)}
 .nd.dead text.t1{fill:var(--dead)}
@@ -208,7 +211,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .nd.me rect.card{stroke-width:3.2}
 .nd.sel rect.card{stroke:var(--accent);stroke-width:4}
 .nd .metag rect{fill:var(--accent)}.nd .metag text{fill:var(--accent-ink);font:700 9.5px var(--fb);text-anchor:middle}
-.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 11px var(--fb);text-anchor:middle}
+.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 10px var(--fb);text-anchor:middle}
 .ln{fill:none;stroke:var(--ink2);stroke-width:1.6}
 .un{fill:none;stroke:var(--ink);stroke-width:2.4}
 .un.partner{stroke-dasharray:6 3}
@@ -284,6 +287,8 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .mbox2{max-height:420px;overflow:auto}
 #gate{position:fixed;inset:0;z-index:9999;background:var(--bg,#0b1220);color:var(--fg,#e8eefc);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #gate[hidden]{display:none!important}
+.sharedbar{background:var(--accent,#0f766e);color:var(--accent-ink,#fff);padding:8px 12px;border-radius:10px;margin-bottom:10px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13.5px}.sharedbar[hidden]{display:none}
+.clist{display:grid;gap:8px;margin:8px 0}.crow{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:14px;flex-wrap:wrap}.crow b{overflow-wrap:anywhere}
 #gate .gbox{max-width:380px;display:flex;flex-direction:column;gap:14px;align-items:center}
 #gate h1{font-size:26px;margin:0}#gate p{margin:0;opacity:.8;line-height:1.5;font-size:14px}
 #gate .gbtn{padding:13px 22px;border-radius:999px;border:0;background:#fbbf24;color:#2a1800;font:700 16px system-ui,sans-serif;cursor:pointer}
@@ -291,6 +296,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 </style><script src="firebase-config.js"></script></head><body>
 <div id="gate" hidden><div class="gbox"><h1>Vansh Family Tree</h1><p>Sign in with your Google email. Your whole family tree is saved to your account, so you can open it on any phone or laptop and never lose it.</p><button class="gbtn" id="gGo">Continue with Google</button><div class="gerr" id="gErr" role="alert"></div><a href="marketplace.html" style="font-size:13px;opacity:.7;color:inherit">&larr; Back to Hive Apps</a></div></div>
 <div class="wrap">
+  <div id="sharedBar" class="sharedbar" hidden></div>
   <header class="top">
     <div class="brand">
       <a class="btn sm" id="bBack" href="marketplace.html" hidden>&larr; Hive Apps</a>
@@ -303,6 +309,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
       <button class="btn" id="bShare">Share</button>
       <button class="btn" id="bExport">Export</button>
       <button class="btn" id="bSet">Settings</button>
+      <button class="btn" id="bCollab" hidden>Invite</button>
       <button class="btn" id="bOut" hidden title="Sign out">Sign out</button>
     </div>
   </header>
@@ -517,7 +524,7 @@ function makePdf(blocks,meta){
   return u;
 }
 
-const CHART_CSS=".chartsvg text{font-family:var(--fb);fill:var(--ink)}\n.nd{cursor:pointer}\n.nd rect.card{fill:var(--panel);stroke:var(--m);stroke-width:2}\n.nd.f rect.card{stroke:var(--f)}.nd.x rect.card{stroke:var(--x)}\n.nd:hover rect.card{fill:var(--soft)}\n.nd circle.avc{fill:var(--m)}.nd.f circle.avc{fill:var(--f)}.nd.x circle.avc{fill:var(--x)}\n.nd text.ini{fill:#fff;font:700 15px var(--fd);text-anchor:middle}\n.nd text.t1{font:600 14px var(--fb)}\n.nd text.t2{font:400 12px var(--fb);fill:var(--ink2)}\n.nd text.t3{font:400 11px var(--fm);fill:var(--ink2)}\n.nd.dead rect.card{stroke-dasharray:5 3}\n.nd.dead circle.avc{fill:var(--dead)}\n.nd.dead text.t1{fill:var(--dead)}\n.nd.ph rect.card{stroke-dasharray:2 3;stroke:var(--dead)}\n.nd.ph text.t1{font-style:italic;fill:var(--ink2)}\n.nd.ph circle.avc{fill:var(--dead)}\n.nd.dup{opacity:.6}\n.nd.me rect.card{stroke-width:3.2}\n.nd.sel rect.card{stroke:var(--accent);stroke-width:4}\n.nd .metag rect{fill:var(--accent)}.nd .metag text{fill:var(--accent-ink);font:700 9.5px var(--fb);text-anchor:middle}\n.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 11px var(--fb);text-anchor:middle}\n.ln{fill:none;stroke:var(--ink2);stroke-width:1.6}\n.un{fill:none;stroke:var(--ink);stroke-width:2.4}\n.un.partner{stroke-dasharray:6 3}\n.un.divorced{stroke:var(--err);stroke-dasharray:2 4}\n.emp rect{fill:none;stroke:var(--line);stroke-dasharray:5 4;stroke-width:1.5}\n.emp text{fill:var(--ink2);font:500 12px var(--fb);text-anchor:middle}\n.emp{cursor:pointer}\n.emp:hover rect{stroke:var(--accent)}\n.tl-axis{stroke:var(--line);stroke-width:1}\n.tl-tick{fill:var(--ink2);font:400 11px var(--fm)}\n.tl-row{cursor:pointer}\n.tl-row:hover .tl-bg{fill:var(--soft)}\n.tl-bg{fill:transparent}\n.tl-bar.m{fill:var(--m)}.tl-bar.f{fill:var(--f)}.tl-bar.x{fill:var(--x)}\n.tl-bar.dead{opacity:.55}\n.tl-name{font:500 12.5px var(--fb)}\n.tl-now{stroke:var(--accent);stroke-dasharray:3 3}\n\n.nd image{pointer-events:none}.nd.dead image{filter:grayscale(.85)}\n.nd.dtgt.before{filter:drop-shadow(-6px 0 0 var(--accent))}.nd.dtgt.after{filter:drop-shadow(6px 0 0 var(--accent))}\n.nd.dtgt.beforeY{filter:drop-shadow(0 -6px 0 var(--accent))}.nd.dtgt.afterY{filter:drop-shadow(0 6px 0 var(--accent))}\n.nd.dragsrc{opacity:.35}\n.fseg{stroke:var(--panel);stroke-width:2;cursor:pointer}\n.fseg.m{fill:var(--m)}.fseg.f{fill:var(--f)}.fseg.x{fill:var(--x)}.fseg.e{fill:var(--soft);cursor:default}.fseg.dead{opacity:.6}\n.fseg.c{fill:var(--accent)}\n.fseg:hover{stroke:var(--ink)}\n.ftx{fill:#fff;font:600 12px var(--fb);text-anchor:middle;dominant-baseline:middle;pointer-events:none}\n.fseg.e+.ftx{fill:var(--ink2)}\n.chartsvg{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}\n.nd.dim{opacity:.22}\n.nd.near rect.card{stroke-width:3}\n.nd.focus rect.card{stroke:var(--accent);stroke-width:4}\n.ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}\n";
+const CHART_CSS=".chartsvg text{font-family:var(--fb);fill:var(--ink)}\n.nd{cursor:pointer}\n.nd rect.card{fill:var(--panel);stroke:var(--m);stroke-width:2}\n.nd.f rect.card{stroke:var(--f)}.nd.x rect.card{stroke:var(--x)}\n.nd:hover rect.card{fill:var(--soft)}\n.nd circle.avc{fill:var(--m)}.nd.f circle.avc{fill:var(--f)}.nd.x circle.avc{fill:var(--x)}\n.nd text.ini{fill:#fff;font:700 15px var(--fd);text-anchor:middle}\n.nd text.t1{font:600 14px var(--fb)}\n.nd text.t2{font:400 12px var(--fb);fill:var(--ink2)}\n.nd text.t3{font:400 11px var(--fb);fill:var(--ink2)}\n.nd .tgp rect{fill:var(--soft);stroke:var(--line)}.nd .tgp text{fill:var(--ink);font:600 10px var(--fb)}\n.nd .ico circle{fill:#16a34a}.nd .ico.wa circle{fill:#25d366}.nd .ico path{fill:#fff}.nd .ico{cursor:pointer}\n.ordb rect{fill:var(--ink)}\n.nd.dead rect.card{stroke-dasharray:5 3}\n.nd.dead circle.avc{fill:var(--dead)}\n.nd.dead text.t1{fill:var(--dead)}\n.nd.ph rect.card{stroke-dasharray:2 3;stroke:var(--dead)}\n.nd.ph text.t1{font-style:italic;fill:var(--ink2)}\n.nd.ph circle.avc{fill:var(--dead)}\n.nd.dup{opacity:.6}\n.nd.me rect.card{stroke-width:3.2}\n.nd.sel rect.card{stroke:var(--accent);stroke-width:4}\n.nd .metag rect{fill:var(--accent)}.nd .metag text{fill:var(--accent-ink);font:700 9.5px var(--fb);text-anchor:middle}\n.ordb circle{fill:var(--ink)}.ordb text{fill:var(--bg);font:700 10px var(--fb);text-anchor:middle}\n.ln{fill:none;stroke:var(--ink2);stroke-width:1.6}\n.un{fill:none;stroke:var(--ink);stroke-width:2.4}\n.un.partner{stroke-dasharray:6 3}\n.un.divorced{stroke:var(--err);stroke-dasharray:2 4}\n.emp rect{fill:none;stroke:var(--line);stroke-dasharray:5 4;stroke-width:1.5}\n.emp text{fill:var(--ink2);font:500 12px var(--fb);text-anchor:middle}\n.emp{cursor:pointer}\n.emp:hover rect{stroke:var(--accent)}\n.tl-axis{stroke:var(--line);stroke-width:1}\n.tl-tick{fill:var(--ink2);font:400 11px var(--fm)}\n.tl-row{cursor:pointer}\n.tl-row:hover .tl-bg{fill:var(--soft)}\n.tl-bg{fill:transparent}\n.tl-bar.m{fill:var(--m)}.tl-bar.f{fill:var(--f)}.tl-bar.x{fill:var(--x)}\n.tl-bar.dead{opacity:.55}\n.tl-name{font:500 12.5px var(--fb)}\n.tl-now{stroke:var(--accent);stroke-dasharray:3 3}\n\n.nd image{pointer-events:none}.nd.dead image{filter:grayscale(.85)}\n.nd.dtgt.before{filter:drop-shadow(-6px 0 0 var(--accent))}.nd.dtgt.after{filter:drop-shadow(6px 0 0 var(--accent))}\n.nd.dtgt.beforeY{filter:drop-shadow(0 -6px 0 var(--accent))}.nd.dtgt.afterY{filter:drop-shadow(0 6px 0 var(--accent))}\n.nd.dragsrc{opacity:.35}\n.fseg{stroke:var(--panel);stroke-width:2;cursor:pointer}\n.fseg.m{fill:var(--m)}.fseg.f{fill:var(--f)}.fseg.x{fill:var(--x)}.fseg.e{fill:var(--soft);cursor:default}.fseg.dead{opacity:.6}\n.fseg.c{fill:var(--accent)}\n.fseg:hover{stroke:var(--ink)}\n.ftx{fill:#fff;font:600 12px var(--fb);text-anchor:middle;dominant-baseline:middle;pointer-events:none}\n.fseg.e+.ftx{fill:var(--ink2)}\n.chartsvg{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}\n.nd.dim{opacity:.22}\n.nd.near rect.card{stroke-width:3}\n.nd.focus rect.card{stroke:var(--accent);stroke-width:4}\n.ftag rect{fill:var(--accent)}.ftag text{fill:var(--accent-ink);font:600 10.5px var(--fb)}\n";
 /* ================= Core: data, dates, graph, checks ================= */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -692,15 +699,19 @@ function genMap(){
 /* ---- undo, save ---- */
 let UNDO=[],REDO=[],saveTimer=null,dbDoc=null,dbTimer=null,dbBusy=false,dbPending=false,lastWritten='',lastLocalTs=0,hooks={};
 const snap=()=>JSON.stringify(T);
+let RO=false,SHARED=false;
 function mut(fn,label){
+  if(RO){toast('You can only view this tree. Ask the owner for edit access.');return}
   UNDO.push(snap());if(UNDO.length>60) UNDO.shift();REDO.length=0;
   fn();reindex();changed(typeof label==='function'?label():label);
 }
 function undo(){
+  if(RO) return;
   if(!UNDO.length){toast('Nothing to undo.');return}
   REDO.push(snap());T=JSON.parse(UNDO.pop());reindex();changed('Undone');
 }
 function redo(){
+  if(RO) return;
   if(!REDO.length){toast('Nothing to redo.');return}
   UNDO.push(snap());T=JSON.parse(REDO.pop());reindex();changed('Redone');
 }
@@ -712,7 +723,8 @@ function changed(label){
 function stateObj(){return {v:1,ts:Date.now(),T:T,S:S}}
 function persist(){
   const st=stateObj();lastLocalTs=st.ts;
-  try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}
+  if(RO) return;
+  if(!SHARED){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
   scheduleDb();
 }
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,300)}
@@ -1052,7 +1064,7 @@ function relBetween(aId,bId){
 }
 
 /* ================= Views ================= */
-const CARD_W=176,CARD_H=66;
+const CARD_W=214,CARD_H=80;
 const cut=(s,n)=>{s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s};
 function popts(sel,blank,fn){
   const arr=T.people.filter(fn||(()=>true)).slice().sort((a,b)=>nm(a).localeCompare(nm(b)));
@@ -1246,13 +1258,23 @@ function nodeSVG(L,n,ox,oy){
   const bo=birthOrder(p);
   let s='<g class="'+cls.join(' ')+'" data-id="'+esc(p.id)+'" transform="translate('+m[0].toFixed(1)+' '+m[1].toFixed(1)+')">';
   s+='<title>'+esc(nm(p))+'</title><rect class="card" width="'+CARD_W+'" height="'+CARD_H+'" rx="10"/>';
-  s+='<circle class="avc" cx="32" cy="33" r="20"/>';
-  if(p.photo&&!p.ph) s+='<image href="'+esc(p.photo)+'" x="14" y="15" width="36" height="36" preserveAspectRatio="xMidYMid slice" clip-path="url(#avclip)"/>';
-  else s+='<text class="ini" x="32" y="38.5">'+esc(initials(p))+'</text>';
-  s+='<text class="t1" x="60" y="26">'+esc(cut(p.first||p.last||'Unnamed',14))+'</text>';
-  s+='<text class="t2" x="60" y="42">'+esc(cut(p.first?p.last:'',16))+'</text>';
-  s+='<text class="t3" x="60" y="58">'+esc(cut(lifeText(p,S.ages),21))+'</text>';
-  if(bo.of>1&&!p.ph&&!n.dup) s+='<g class="ordb"><circle cx="2" cy="2" r="10"/><text x="2" y="6">'+bo.n+'</text></g>';
+  const cy=CARD_H/2,ph=!p.ph&&phoneDigits(p),avail=CARD_W-62-(ph?36:8);
+  const fit=(t,sz,y,cls)=>{t=String(t||'');if(!t) return '';const w=t.length*sz*0.56;return '<text class="'+cls+'" x="60" y="'+y+'"'+(w>avail?' textLength="'+avail+'" lengthAdjust="spacingAndGlyphs"':'')+'>'+esc(t)+'</text>'};
+  s+='<circle class="avc" cx="32" cy="'+cy+'" r="20"/>';
+  if(p.photo&&!p.ph) s+='<image href="'+esc(p.photo)+'" x="14" y="'+(cy-18)+'" width="36" height="36" preserveAspectRatio="xMidYMid slice" clip-path="url(#avclip)"/>';
+  else s+='<text class="ini" x="32" y="'+(cy+5.5)+'">'+esc(initials(p))+'</text>';
+  s+=fit(nm(p)==='Unnamed'&&p.ph?'Unknown':nm(p),13,22,'t1');
+  s+=fit(lifeText(p,true)||(p.alive===false?'Passed away':''),12,41,'t2');
+  s+=fit([p.place,p.job].filter(Boolean).join(' · '),11,58,'t3');
+  if(S.showTags!==false){
+    const tg=cardTags(p).slice(0,3).join(' · ');
+    if(tg){const w=Math.min(CARD_W-70,tg.length*5.6+14);s+='<g class="tgp"><rect x="0" y="-17" width="'+w.toFixed(0)+'" height="15" rx="7.5"/><text x="7" y="-6.5"'+(tg.length*5.6>w-14?' textLength="'+(w-14).toFixed(0)+'" lengthAdjust="spacingAndGlyphs"':'')+'>'+esc(tg)+'</text></g>'}
+  }
+  if(ph){
+    s+='<g class="ico call" data-call="'+esc(p.id)+'" transform="translate('+(CARD_W-18)+' '+(cy-14)+')"><title>Call</title><circle r="12"/><path d="M-5.6 -4.8c.4 2.8 2.6 5.5 5.6 6.9l1.9-1.9-2.4-1.4-1 .8c-1.2-.6-2.2-1.6-2.8-2.8l.8-1-1.4-2.4z" transform="translate(0 .6)"/></g>';
+    s+='<g class="ico wa" data-wa="'+esc(p.id)+'" transform="translate('+(CARD_W-18)+' '+(cy+14)+')"><title>WhatsApp</title><circle r="12"/><path d="M0 -6.5a6.5 6.5 0 0 0-5.6 9.8L-6.6 6.6l3.4-1A6.5 6.5 0 1 0 0 -6.5zm3.5 8.9c-.2.5-1.1 1-1.6 1-.4 0-1 .2-3.2-.7-2.7-1.1-4.4-3.8-4.5-4-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .5.4l.8 1.9c.1.1.1.3 0 .4l-.3.5-.4.4c-.1.1-.3.3-.1.5.1.3.7 1.1 1.5 1.8 1 .9 1.9 1.1 2.1 1.3.3.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.8.9c.2.1.3.2.4.3 0 .2 0 .8-.2 1.4z" transform="scale(.9)"/></g>';
+  }
+  if(bo.of>1&&!p.ph&&!n.dup) s+='<g class="ordb"><title>'+esc(ordinal(bo.n)+' of '+bo.of+' brothers and sisters (birth order)')+'</title><rect x="-8" y="-8" width="30" height="18" rx="9"/><text x="7" y="5">'+ordinal(bo.n)+'</text></g>';
   if(ftag) s+='<g class="ftag"><rect x="0" y="'+(CARD_H+3)+'" width="'+Math.min(CARD_W,ftag.length*6.4+14)+'" height="16" rx="8"/><text x="7" y="'+(CARD_H+14.5)+'">'+esc(ftag)+'</text></g>';
   if(T.me===p.id) s+='<g class="metag"><rect x="'+(CARD_W-30)+'" y="-8" width="26" height="14" rx="7"/><text x="'+(CARD_W-17)+'" y="2">ME</text></g>';
   return s+'</g>';
@@ -1260,7 +1282,7 @@ function nodeSVG(L,n,ox,oy){
 function chartSVG(L){
   const pad=28,ox=pad,oy=pad;
   const W=(L.horiz?L.bd:L.bw)+pad*2,H=(L.horiz?L.bw:L.bd)+pad*2;
-  let s='<defs><clipPath id="avclip"><circle cx="32" cy="33" r="18"/></clipPath></defs>';
+  let s='<defs><clipPath id="avclip"><circle cx="32" cy="'+(CARD_H/2)+'" r="18"/></clipPath></defs>';
   L.links.forEach(l=>{s+='<path class="ln" d="'+ptsPath(L,l,ox,oy)+'"/>'});
   L.marks.forEach(mk=>{s+='<path class="un '+mk.type+'" d="'+ptsPath(L,mk.pts,ox,oy)+'"/>'});
   L.nodes.forEach(n=>{s+=nodeSVG(L,n,ox,oy)});
@@ -1843,6 +1865,7 @@ async function parseImport(text){
 S.msg={q:'',tags:[],any:true,grp:'',living:true,phoneOnly:false,place:'',sel:{},text:'',chan:'wa',cc:'91',tpl:'',queue:null};
 const GR=()=>{if(!Array.isArray(T.groups)) T.groups=[];return T.groups};
 const tagsOf=p=>Array.isArray(p.tags)?p.tags:[];
+function cardTags(p){const g=(Array.isArray(T.groups)?T.groups:[]).filter(x=>x&&Array.isArray(x.members)&&x.members.includes(p.id)).map(x=>x.name);return g.concat(tagsOf(p)).filter((v,i,a)=>v&&a.indexOf(v)===i)}
 function parseTags(s){
   const out=[];
   String(s||'').split(/[,;\n]/).forEach(x=>{x=x.trim().slice(0,24);if(x&&!out.some(y=>y.toLowerCase()===x.toLowerCase())) out.push(x)});
@@ -2191,7 +2214,7 @@ function panelProfile(p,rel){
   row('Born',esc(dfmt(p.born)));row('Age',esc(ageText(p)));
   if(p.alive===false) row('Died',esc(dfmt(p.died)||'Date not known'));
   row('Birth order',bo.of>1?esc(ordinal(bo.n)+' of '+bo.of):'');
-  row('Lives in',esc(p.place));row('Born in',esc(p.bplace));row('Work',esc(p.job));row('Phone',esc(p.phone));
+  row('Lives in',esc(p.place));row('Born in',esc(p.bplace));row('Work',esc(p.job));row('Phone',esc(p.phone)+(phoneDigits(p)?' <a class="btn sm" href="tel:+'+phoneDigits(p)+'">Call</a> <a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/'+phoneDigits(p)+'">WhatsApp</a>':''));
   const nb=nextBirthday(p);if(nb) row('Next birthday',esc(nb.date.getDate()+' '+MON[nb.date.getMonth()]+' · '+(nb.days===0?'today':'in '+nb.days+' days')));
   if(f.length) h+='<dl class="facts" style="margin:0">'+f.join('')+'</dl>';
   if(p.note) h+='<div class="sec"><h3>Notes</h3><div style="white-space:pre-wrap">'+esc(p.note)+'</div></div>';
@@ -2316,6 +2339,7 @@ function drawAdd(){
   h+=dateFields('a_b',k.born||'','Date of birth (year is enough)');
   h+='<div id="a_dwrap" class="w" style="'+(k.alive===false?'':'display:none')+'">'+dateFields('a_d',k.died||'','Date of death')+'</div>';
   h+='<label class="fld w"><span>Lives in (city or village)</span><input id="a_place" value="'+esc(k.place||'')+'"></label>';
+  h+='<label class="fld w"><span>Mobile number (optional, for call and WhatsApp)</span><input id="a_phone" type="tel" value="'+esc(k.phone||'')+'"></label>';
   h+='<div class="fld w"><span>Photo (optional)</span><div class="photoRow"><span id="a_pv">'+(PHOTO_NEW?'<span class="av"><img alt="" src="'+PHOTO_NEW+'"></span>':'')+'</span><label class="btn sm" style="cursor:pointer">Choose photo<input id="a_photo" type="file" accept="image/*" hidden></label></div></div>';
   if(rel==='son'||rel==='daughter'){
     const sp=spousesOf(x.id);
@@ -2326,13 +2350,13 @@ function drawAdd(){
     h+='<label class="fld"><span>Relationship</span><select id="a_ut"><option value="married">Married</option><option value="partner">Partner</option><option value="divorced">Divorced</option></select></label><label class="fld"><span>Marriage year</span><input id="a_ud" inputmode="numeric" placeholder="e.g. 2015"></label>';
   }
   h+='</div><div id="a_warn" style="margin-top:10px;display:grid;gap:6px"></div>';
-  h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="addSave">Save</button><button class="btn" data-act="addMore">Save and add another</button></div>';
+  h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="addMore">Save and add another</button><button class="btn" data-act="addSave">Save and close</button></div>';
   openModal(h);
   checkAdd();
 }
 function readAdd(){
   const alive=segVal('a_st')==='a';
-  return {first:$('a_first').value.trim(),last:$('a_last').value.trim(),gender:segVal('a_g'),alive,born:readDate('a_b'),died:alive?'':readDate('a_d'),place:$('a_place').value.trim(),bplace:''};
+  return {first:$('a_first').value.trim(),last:$('a_last').value.trim(),gender:segVal('a_g'),alive,born:readDate('a_b'),died:alive?'':readDate('a_d'),place:$('a_place').value.trim(),phone:($('a_phone')?$('a_phone').value.trim():''),bplace:''};
 }
 function applyAdd(d){
   const x=P(AD.x),rel=AD.rel;
@@ -2371,8 +2395,8 @@ function saveAdd(more){
   if(!d.first&&!d.last){toast('Please type a name.');return}
   const x=AD.x,rel=AD.rel;let nid='';
   edit(()=>{const n=applyAdd(d);if(PHOTO_NEW) n.photo=PHOTO_NEW;nid=n.id},'Added '+(d.first||d.last));PHOTO_NEW='';
-  if(more){openAdd(x,rel,{last:d.last,place:d.place});}
-  else{closeModal();selectPerson(nid);}
+  if(more){toast('Added '+(d.first||d.last)+'. Add the next one for '+nm(P(x)));openAdd(x,rel,{last:d.last,place:d.place});}
+  else{closeModal();selectPerson(x);}
 }
 
 /* ---- first person ---- */
@@ -2429,7 +2453,8 @@ function openSettings(){
   h+='<div class="form"><label class="fld w"><span>Family tree name</span><input id="st_name" value="'+esc(T.name)+'"></label>';
   h+='<label class="fld"><span>Relation words</span><select id="st_lang"><option value="both"'+(S.lang==='both'?' selected':'')+'>English and Hindi (Chacha)</option><option value="en"'+(S.lang==='en'?' selected':'')+'>English only</option><option value="hi"'+(S.lang==='hi'?' selected':'')+'>Hindi only</option></select></label>';
   h+='<label class="fld"><span>Colour</span><select id="st_theme"><option value=""'+(!S.theme?' selected':'')+'>Same as my phone</option><option value="light"'+(S.theme==='light'?' selected':'')+'>Light</option><option value="dark"'+(S.theme==='dark'?' selected':'')+'>Dark</option></select></label>';
-  h+='<label class="chk w"><input type="checkbox" id="st_age"'+(S.ages?' checked':'')+'> Show age on the cards</label></div>';
+  h+='<label class="chk w"><input type="checkbox" id="st_age"'+(S.ages?' checked':'')+'> Show age on the cards</label>';
+  h+='<label class="chk w"><input type="checkbox" id="st_tags"'+(S.showTags!==false?' checked':'')+'> Show groups and tags above the cards</label></div>';
   h+='<div class="row2" style="margin-top:14px"><button class="btn pri" data-act="stSave">Save settings</button><button class="btn" data-act="loadSample">Load sample family</button><button class="btn dng" data-act="wipeAsk">Delete everything</button></div><div id="wipeBox"></div>';
   openModal(h);
 }
@@ -2508,7 +2533,7 @@ const ACT={
   },
   async doImport(){await runImport($('s_in').value)},
   stSave(){
-    S.lang=$('st_lang').value;S.theme=$('st_theme').value;S.ages=$('st_age').checked;
+    S.lang=$('st_lang').value;S.theme=$('st_theme').value;S.ages=$('st_age').checked;S.showTags=$('st_tags').checked;
     const n=$('st_name').value.trim()||'My Family';
     edit(()=>{T.name=n},'Settings saved');closeModal();
   },
@@ -2540,6 +2565,8 @@ document.addEventListener('click',ev=>{
   const t=ev.target;
   if(!t.closest('.search')) $('qd').hidden=true;
   if(t.id==='modal'){closeModal();return}
+  const cl=t.closest('[data-call]'),wa=t.closest('[data-wa]');
+  if(cl||wa){const pp=P((cl||wa).dataset[cl?'call':'wa']),dg=pp?phoneDigits(pp):'';if(dg){if(cl) location.href='tel:+'+dg;else window.open('https://wa.me/'+dg,'_blank','noopener')}return}
   if(lastTap&&Date.now()-lastTap.t<450&&Math.hypot(ev.clientX-lastTap.x,ev.clientY-lastTap.y)<40&&t.closest&&!t.closest('button,a,input,select,textarea,label,.zoom')){const id=lastTap.id;lastTap=null;focusOn(id);return}
   const exp=t.closest('[data-exp]');if(exp){doExport(exp.dataset.exp);return}
   const act=t.closest('[data-act]');
@@ -2582,6 +2609,8 @@ document.addEventListener('click',ev=>{
   else if(id==='bFirst') openFirst();
   else if(id==='bCheck') openChecks();
   else if(id==='bShare') openShare();
+  else if(id==='bCollab') openCollab();
+  else if(id==='bBackMine') ACT.backMine();
   else if(id==='bExport') openExport();
   else if(id==='bSet') openSettings();
   else if(id==='bUndo') undo();
@@ -2713,7 +2742,7 @@ function loadLocal(){
     const st=JSON.parse(raw);
     if(st&&st.T&&applyTree(st.T)){
       lastLocalTs=st.ts||0;
-      if(st.S) ['lang','theme','ages','tab','rootId','ancId','ancGens','ancOrient','placeMode'].forEach(k=>{if(st.S[k]!==undefined) S[k]=st.S[k]});
+      if(st.S) ['lang','theme','ages','tab','rootId','ancId','ancGens','ancOrient','placeMode','showTags'].forEach(k=>{if(st.S[k]!==undefined) S[k]=st.S[k]});
       return true;
     }
   }catch(e){}
@@ -2725,7 +2754,7 @@ function applySnap(snap){
     try{remote=JSON.parse(snap.data().json)}catch(e){}
     if(remote&&remote.T&&remote.ts>lastLocalTs){
       if(applyTree(remote.T)){
-        if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
+        if(remote.S) ['lang','theme','ages','showTags'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
         lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
         try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}
         S.sel='';render();toast('Loaded your saved tree from your account.');
@@ -2749,32 +2778,110 @@ function dbInit(){
 }
 /* website mode: sign in with Google, tree saved in Firestore under the user's account */
 function loadJs(u){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=u;e.onload=res;e.onerror=()=>rej(new Error('load '+u));document.head.appendChild(e)})}
+let CL={fs:null,auth:null,user:null,ref:null,meta:{},unsub:null,first:true};
+function parseRemote(d){let r=null;try{r=JSON.parse(d.json)}catch(e){}return r&&r.T?r:null}
+function watchTree(ref){
+  if(CL.unsub){try{CL.unsub()}catch(e){}}
+  CL.first=true;
+  CL.unsub=ref.onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return;
+    CL.meta=snap.exists?snap.data():{};
+    const first=CL.first;CL.first=false;
+    if(snap.exists){
+      const r=parseRemote(CL.meta);
+      const newer=SHARED?(r&&r.ts!==lastLocalTs):(r&&r.ts>lastLocalTs);
+      if(newer&&applyTree(r.T)){
+        if(r.S) ['lang','theme','ages','showTags'].forEach(k=>{if(r.S[k]!==undefined&&!SHARED) S[k]=r.S[k]});
+        lastWritten=JSON.stringify(T);lastLocalTs=r.ts;
+        if(!SHARED){try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}}
+        S.sel='';render();toast(first?'Loaded your saved tree from your account.':'Updated: someone changed this tree.');
+      }else if(!SHARED&&r&&lastLocalTs>r.ts) scheduleDb();
+    }else if(!SHARED){persist()}
+    if($('mbox')&&!$('modal').hidden&&$('collabBox')) openCollab();
+  },e=>{toast(e&&e.code==='permission-denied'?'Saving is blocked: Firestore rules are not updated yet.':'Could not reach your account. Working offline.')});
+}
+function setShareBar(info){
+  const bar=$('sharedBar');
+  if(!info){bar.hidden=true;return}
+  bar.hidden=false;bar.innerHTML='<span>Viewing <b>'+esc(info.email||'another user')+'</b>\u2019s tree \u00b7 '+(info.role==='edit'?'you can edit':'view only')+'</span><button class="btn sm" id="bBackMine">Back to my tree</button>';
+}
 async function cloudStart(){
   const gate=$('gate'),gErr=$('gErr');
   try{
     if(!window.OWH_FIREBASE) throw new Error('cfg');
     if(!window.firebase){const b='https://www.gstatic.com/firebasejs/10.12.2/';await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
     if(!firebase.apps.length) firebase.initializeApp(window.OWH_FIREBASE);
-    const auth=firebase.auth(),fs=firebase.firestore();
+    const auth=firebase.auth(),fs=firebase.firestore();CL.fs=fs;CL.auth=auth;
     $('gGo').onclick=()=>{gErr.textContent='';auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{gErr.textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
-    $('bOut').onclick=()=>{try{persist()}catch(e){}auth.signOut().then(()=>{try{localStorage.removeItem(KEY);localStorage.removeItem('owh_ft_uid')}catch(e){}location.reload()})};
+    $('bOut').onclick=()=>{try{persist()}catch(e){}try{sessionStorage.removeItem('owh_ft_open')}catch(e){}auth.signOut().then(()=>{try{localStorage.removeItem(KEY);localStorage.removeItem('owh_ft_uid')}catch(e){}location.reload()})};
     auth.onAuthStateChanged(u=>{
-      if(!u){gate.hidden=false;$('bOut').hidden=true;dbDoc=null;return}
-      gate.hidden=true;$('bOut').hidden=false;$('bOut').title='Signed in as '+(u.email||'');
-      let prev=null;try{prev=localStorage.getItem('owh_ft_uid')}catch(e){}
+      if(!u){gate.hidden=false;$('bOut').hidden=true;$('bCollab').hidden=true;dbDoc=null;return}
+      CL.user=u;gate.hidden=true;$('bOut').hidden=false;$('bCollab').hidden=false;$('bOut').title='Signed in as '+(u.email||'');
+      let prev=null,op=null;try{prev=localStorage.getItem('owh_ft_uid');op=JSON.parse(sessionStorage.getItem('owh_ft_open')||'null')}catch(e){}
+      if(op&&op.uid&&op.uid!==u.uid){
+        /* open a tree somebody shared with me */
+        SHARED=true;RO=op.role!=='edit';
+        T={v:1,name:'',me:'',sample:false,people:[],unions:[]};lastLocalTs=0;lastWritten='';reindex();render();
+        const ref=fs.collection('family_trees').doc(op.uid);CL.ref=ref;
+        setShareBar({email:op.email,role:op.role});
+        dbDoc=op.role==='edit'?{get:()=>ref.get(),set:d=>ref.update({json:d.json,ts:d.ts,upd:Date.now(),lastEditor:u.email||''})}:null;
+        watchTree(ref);return;
+      }
+      SHARED=false;RO=false;setShareBar(null);
       if(prev&&prev!==u.uid){try{localStorage.removeItem(KEY)}catch(e){}T=loadSampleTree();lastLocalTs=0;lastWritten='';reindex();render()}
       try{localStorage.setItem('owh_ft_uid',u.uid)}catch(e){}
-      const ref=fs.collection('family_trees').doc(u.uid);
-      dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({},d,{email:u.email||'',upd:Date.now()}))};
-      ref.get().then(snap=>{
-        if(!snap.exists&&!lastLocalTs&&T&&T.sample){/* new account: start with the sample so there is something to see */}
-        applySnap(snap);
-        if(!snap.exists){persist()}
-      }).catch(e=>{toast(e&&e.code==='permission-denied'?'Saving is blocked: Firestore rules are not updated yet.':'Could not reach your account. Working offline.')});
+      const ref=fs.collection('family_trees').doc(u.uid);CL.ref=ref;
+      dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({},d,{email:u.email||'',upd:Date.now()}),{merge:true})};
+      watchTree(ref);
     });
     gate.hidden=false;
   }catch(e){gate.hidden=false;gErr.textContent='Cannot connect to sign-in right now. Check your internet and reload.'}
 }
+const okEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+async function openCollab(){
+  if(!CL.user){toast('Please sign in first.');return}
+  const me=(CL.user.email||'').toLowerCase();
+  let h='<div id="collabBox">'+mh('Invite family and share access');
+  if(SHARED){
+    h+='<p>You are viewing another person\u2019s tree ('+(RO?'view only':'you can edit')+').</p><div class="row2"><button class="btn pri" data-act="backMine">Back to my tree</button></div>';
+  }else{
+    const ed=CL.meta.editors||[],vw=CL.meta.viewers||[];
+    h+='<p class="muted" style="margin-top:0">Add the Google email of a family member. <b>View</b> = can only see. <b>Edit</b> = can add and change people. Only you can add or remove people here.</p>';
+    h+='<div class="form"><label class="fld w"><span>Email</span><input id="cb_email" type="email" inputmode="email" placeholder="name@gmail.com" autocomplete="off"></label><div class="fld"><span>Can</span>'+seg('cb_role',[['view','View'],['edit','Edit']],'view')+'</div></div>';
+    h+='<div class="row2" style="margin-top:10px"><button class="btn pri" data-act="collabAdd">Give access</button></div><div id="cb_err" class="muted" style="color:var(--err)"></div>';
+    h+='<div class="clist">'+(ed.length+vw.length?ed.map(e=>crow(e,'edit')).concat(vw.map(e=>crow(e,'view'))).join(''):'<div class="muted">Nobody added yet.</div>')+'</div>';
+  }
+  h+='<div class="sec"><h3>Trees shared with me</h3><div id="cb_mine" class="clist"><div class="muted">Loading...</div></div></div></div>';
+  openModal(h);
+  try{
+    const q=await CL.fs.collection('family_trees').where('members','array-contains',me).get();
+    const rows=[];q.forEach(d=>{if(d.id===CL.user.uid) return;const v=d.data(),role=(v.editors||[]).includes(me)?'edit':'view';let nmv='';try{nmv=JSON.parse(v.json).T.name}catch(e){}
+      rows.push('<div class="crow"><span><b>'+esc(nmv||'Family tree')+'</b><br><small class="muted">'+esc(v.email||'')+' \u00b7 '+(role==='edit'?'can edit':'view only')+'</small></span><button class="btn sm" data-act="openShared" data-uid="'+esc(d.id)+'" data-role="'+role+'" data-email="'+esc(v.email||'')+'">Open</button></div>')});
+    const box=$('cb_mine');if(box) box.innerHTML=rows.length?rows.join(''):'<div class="muted">No one has shared a tree with this email yet.</div>';
+  }catch(e){const box=$('cb_mine');if(box) box.innerHTML='<div class="muted">Could not load. Check the Firestore rules.</div>'}
+}
+function crow(e,role){return '<div class="crow"><span><b>'+esc(e)+'</b> <span class="badge">'+(role==='edit'?'Can edit':'View only')+'</span></span><button class="btn sm dng" data-act="collabDel" data-email="'+esc(e)+'">Remove</button></div>'}
+async function saveShare(ed,vw){
+  const members=ed.concat(vw.filter(x=>!ed.includes(x)));
+  await CL.ref.set({editors:ed,viewers:vw,members:members,email:CL.user.email||'',upd:Date.now()},{merge:true});
+}
+Object.assign(ACT,{
+  async collabAdd(){
+    const em=($('cb_email').value||'').trim().toLowerCase(),role=segVal('cb_role'),er=$('cb_err');
+    if(!okEmail(em)){er.textContent='Type a correct email address.';return}
+    if(em===(CL.user.email||'').toLowerCase()){er.textContent='That is your own email.';return}
+    let ed=(CL.meta.editors||[]).filter(x=>x!==em),vw=(CL.meta.viewers||[]).filter(x=>x!==em);
+    (role==='edit'?ed:vw).push(em);
+    try{if(!CL.meta.json&&lastLocalTs===0)persist();await saveShare(ed,vw);CL.meta=Object.assign({},CL.meta,{editors:ed,viewers:vw});toast('Access given to '+em);openCollab()}catch(e){er.textContent=e&&e.code==='permission-denied'?'Blocked by Firestore rules. Publish the new rules first.':'Could not save. Try again.'}
+  },
+  async collabDel(el){
+    const em=el.dataset.email;
+    const ed=(CL.meta.editors||[]).filter(x=>x!==em),vw=(CL.meta.viewers||[]).filter(x=>x!==em);
+    try{await saveShare(ed,vw);CL.meta=Object.assign({},CL.meta,{editors:ed,viewers:vw});toast('Removed '+em);openCollab()}catch(e){toast('Could not remove. Try again.')}
+  },
+  openShared(el){try{sessionStorage.setItem('owh_ft_open',JSON.stringify({uid:el.dataset.uid,role:el.dataset.role,email:el.dataset.email}))}catch(e){}location.reload()},
+  backMine(){try{sessionStorage.removeItem('owh_ft_open')}catch(e){}location.reload()}
+});
 function init(){
   hooks.render=render;
   if(!window.claude){const bb=$('bBack');if(bb) bb.hidden=false}

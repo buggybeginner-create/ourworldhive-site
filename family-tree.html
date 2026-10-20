@@ -282,7 +282,14 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
 .sec2>h3{font-size:16px;margin-bottom:6px}
 .ctl label.chk{flex-direction:row;font-size:14px;color:var(--ink)}
 .mbox2{max-height:420px;overflow:auto}
-</style></head><body>
+#gate{position:fixed;inset:0;z-index:9999;background:var(--bg,#0b1220);color:var(--fg,#e8eefc);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+#gate[hidden]{display:none!important}
+#gate .gbox{max-width:380px;display:flex;flex-direction:column;gap:14px;align-items:center}
+#gate h1{font-size:26px;margin:0}#gate p{margin:0;opacity:.8;line-height:1.5;font-size:14px}
+#gate .gbtn{padding:13px 22px;border-radius:999px;border:0;background:#fbbf24;color:#2a1800;font:700 16px system-ui,sans-serif;cursor:pointer}
+#gate .gerr{color:#f87171;font-size:13px;min-height:18px}
+</style><script src="firebase-config.js"></script></head><body>
+<div id="gate" hidden><div class="gbox"><h1>Vansh Family Tree</h1><p>Sign in with your Google email. Your whole family tree is saved to your account, so you can open it on any phone or laptop and never lose it.</p><button class="gbtn" id="gGo">Continue with Google</button><div class="gerr" id="gErr" role="alert"></div><a href="marketplace.html" style="font-size:13px;opacity:.7;color:inherit">&larr; Back to Hive Apps</a></div></div>
 <div class="wrap">
   <header class="top">
     <div class="brand">
@@ -296,6 +303,7 @@ textarea.code{width:100%;min-height:90px;font:12px var(--fm);border:1px solid va
       <button class="btn" id="bShare">Share</button>
       <button class="btn" id="bExport">Export</button>
       <button class="btn" id="bSet">Settings</button>
+      <button class="btn" id="bOut" hidden title="Sign out">Sign out</button>
     </div>
   </header>
   <div class="bar2">
@@ -2711,6 +2719,21 @@ function loadLocal(){
   }catch(e){}
   return false;
 }
+function applySnap(snap){
+  if(snap&&snap.exists){
+    let remote=null;
+    try{remote=JSON.parse(snap.data().json)}catch(e){}
+    if(remote&&remote.T&&remote.ts>lastLocalTs){
+      if(applyTree(remote.T)){
+        if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
+        lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
+        try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}
+        S.sel='';render();toast('Loaded your saved tree from your account.');
+      }
+    }
+  }
+  if(lastLocalTs) scheduleDb();
+}
 function dbInit(){
   const cl=window.claude;
   if(!cl||typeof cl.use!=='function') return;
@@ -2722,22 +2745,35 @@ function dbInit(){
       dbDoc=db.doc('data/users/'+id+'/familytree');
       return dbDoc.get();
     });
-  }).then(snap=>{
-    if(!dbDoc) return;
-    if(snap&&snap.exists){
-      let remote=null;
-      try{remote=JSON.parse(snap.data().json)}catch(e){}
-      if(remote&&remote.T&&remote.ts>lastLocalTs){
-        if(applyTree(remote.T)){
-          if(remote.S) ['lang','theme','ages'].forEach(k=>{if(remote.S[k]!==undefined) S[k]=remote.S[k]});
-          lastWritten=JSON.stringify(T);lastLocalTs=remote.ts;
-          try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}
-          S.sel='';render();toast('Loaded your saved tree from your account.');
-        }
-      }
-    }
-    if(lastLocalTs) scheduleDb();
-  }).catch(()=>{});
+  }).then(snap=>{if(dbDoc)applySnap(snap)}).catch(()=>{});
+}
+/* website mode: sign in with Google, tree saved in Firestore under the user's account */
+function loadJs(u){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=u;e.onload=res;e.onerror=()=>rej(new Error('load '+u));document.head.appendChild(e)})}
+async function cloudStart(){
+  const gate=$('gate'),gErr=$('gErr');
+  try{
+    if(!window.OWH_FIREBASE) throw new Error('cfg');
+    if(!window.firebase){const b='https://www.gstatic.com/firebasejs/10.12.2/';await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
+    if(!firebase.apps.length) firebase.initializeApp(window.OWH_FIREBASE);
+    const auth=firebase.auth(),fs=firebase.firestore();
+    $('gGo').onclick=()=>{gErr.textContent='';auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{gErr.textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
+    $('bOut').onclick=()=>{try{persist()}catch(e){}auth.signOut().then(()=>{try{localStorage.removeItem(KEY);localStorage.removeItem('owh_ft_uid')}catch(e){}location.reload()})};
+    auth.onAuthStateChanged(u=>{
+      if(!u){gate.hidden=false;$('bOut').hidden=true;dbDoc=null;return}
+      gate.hidden=true;$('bOut').hidden=false;$('bOut').title='Signed in as '+(u.email||'');
+      let prev=null;try{prev=localStorage.getItem('owh_ft_uid')}catch(e){}
+      if(prev&&prev!==u.uid){try{localStorage.removeItem(KEY)}catch(e){}T=loadSampleTree();lastLocalTs=0;lastWritten='';reindex();render()}
+      try{localStorage.setItem('owh_ft_uid',u.uid)}catch(e){}
+      const ref=fs.collection('family_trees').doc(u.uid);
+      dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({},d,{email:u.email||'',upd:Date.now()}))};
+      ref.get().then(snap=>{
+        if(!snap.exists&&!lastLocalTs&&T&&T.sample){/* new account: start with the sample so there is something to see */}
+        applySnap(snap);
+        if(!snap.exists){persist()}
+      }).catch(e=>{toast(e&&e.code==='permission-denied'?'Saving is blocked: Firestore rules are not updated yet.':'Could not reach your account. Working offline.')});
+    });
+    gate.hidden=false;
+  }catch(e){gate.hidden=false;gErr.textContent='Cannot connect to sign-in right now. Check your internet and reload.'}
 }
 function init(){
   hooks.render=render;
@@ -2747,7 +2783,7 @@ function init(){
   reindex();
   if(!TABS.some(t=>t[0]===S.tab)) S.tab='chart';
   render();
-  dbInit();
+  if(window.claude) dbInit(); else cloudStart();
   window.addEventListener('beforeunload',()=>{try{persist()}catch(e){}});
 }
 init();

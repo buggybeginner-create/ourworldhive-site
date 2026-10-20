@@ -650,7 +650,7 @@ function drawRig(J,S){
     {const bx=(J.aL[0]+J.aR[0])/2,bz=(J.aL[2]+J.aR[2])/2,sc=q=>[bx+(q[0]-bx)*Hs,q[1]*Hs,bz+(q[2]-bz)*Hs],J2={};
      for(const kk in J){const v=J[kk];if(kk==='face')J2[kk]=v;else if(kk==='bat')J2[kk]=[sc(v[0]),v[1]];else if(Array.isArray(v)&&v.length===3&&typeof v[0]==='number')J2[kk]=sc(v);else J2[kk]=v}
      J=J2}
-    const K=[22,24,34],R=0.042*LK.W,hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
+    const K=[22,24,34],R=0.042*(S.label==='UMPIRE'?1.6:LK.W),hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
     for(const side of ['L','R']){CURCH='leg'+side;const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
       cap(hp,k,R,K);cap(k,an,R*0.95,K);cap(an,tt,R*0.9,K);
       if(S.pad)cap(vmix(k,an,0.08),vmix(k,an,0.92),R*1.9,[238,238,232],R*1.6,{off:0.01})}

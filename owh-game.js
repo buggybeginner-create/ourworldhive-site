@@ -65,6 +65,48 @@ function botRows(){
   var days=Math.max(0,(Date.now()-Date.UTC(2026,9,1))/864e5),sc=C.rankScale||400,out=[];
   BOTN.slice(0,10).forEach(function(n,i){var base=sc*(0.9-i*0.075),pts=Math.max(5,Math.round(base*(0.35+Math.min(0.65,days*0.012))+(i*7)%13));out.push({n:n,p:pts,bot:1,av:'🤖'})});return out}
 
+/* ---------------- Hive Records (fastest 50, highest score ...): one shared system ---------------- */
+function recKey(){return'owh_rec_'+C.game}
+function recBetter(a,b,low){return low?a<b:a>b}
+var RECC=null,RKI=null;
+/* OWHG.record(key,label,value,{low:true if smaller is better,unit,detail,disp,icon,ord}) -> true if it is a new personal best */
+function record(key,label,val,o){
+  if(!C||!key)return false;o=o||{};val=+val;if(!isFinite(val))return false;if(!o.low&&val<=0)return false;
+  var pb=jget(recKey(),{}),cur=pb[key];if(cur&&!recBetter(val,cur.val,o.low))return false;
+  pb[key]={val:val,label:label,low:!!o.low,detail:o.detail||'',unit:o.unit||'',disp:o.disp||'',icon:o.icon||'',ord:o.ord==null?99:o.ord,t:Date.now(),sent:0};jset(recKey(),pb);
+  pushRecords();emit();return true}
+function pushRecords(){
+  if(!C)return;var pb=jget(recKey(),{}),todo=Object.keys(pb).filter(function(k){return !pb[k].sent});if(!todo.length)return;
+  ensureName().then(function(){return fb()}).then(function(f){
+    return Promise.all(todo.map(function(k){var e=pb[k],ref=f.db.collection('hive_records').doc(C.game+'__'+k);
+      return f.db.runTransaction(async function(t){var sn=await t.get(ref),d=sn.exists?sn.data():null;
+        if(d&&!recBetter(e.val,d.val,e.low))return;
+        t.set(ref,{game:C.game,key:k,label:e.label,val:e.val,low:e.low,unit:e.unit,disp:e.disp,icon:e.icon,ord:e.ord,detail:e.detail,name:pName(),uid:CUR.uid,av:C.icon||'🏅',t:e.t})
+      }).then(function(){var p2=jget(recKey(),{});if(p2[k]&&p2[k].t===e.t){p2[k].sent=1;jset(recKey(),p2)}}).catch(function(){})}))}).catch(function(){})}
+function recShow(r){return r.disp||(r.val+(r.unit?' '+r.unit:''))}
+function loadRecords(){return fb().then(function(f){return f.db.collection('hive_records').where('game','==',C.game).limit(80).get()}).then(function(q){var a=[];q.forEach(function(d){a.push(d.data())});RECC=a;return a})}
+function paintRecords(real,ok){
+  var b=$('#ogRc');if(!b)return;var pb=jget(recKey(),{}),keys={},rows=[];
+  (real||RECC||[]).forEach(function(r){keys[r.key]=r});
+  Object.keys(pb).forEach(function(k){if(!keys[k])keys[k]={key:k,label:pb[k].label,low:pb[k].low,unit:pb[k].unit,disp:'',icon:pb[k].icon,ord:pb[k].ord,none:1}});
+  Object.keys(keys).forEach(function(k){rows.push(keys[k])});
+  rows.sort(function(a,c){return (a.ord==null?99:a.ord)-(c.ord==null?99:c.ord)||String(a.label).localeCompare(c.label)});
+  if(!rows.length){b.innerHTML='<p class="og-note">No records yet. Play a match and set the first Hive Record!</p>';return}
+  b.innerHTML='<ul class="og-rows">'+rows.map(function(r,i){var m=pb[r.key],mine=!r.none&&CUR.uid&&r.uid===CUR.uid;
+    var mineTxt=m?'Your best: <b>'+esc(recShow(m))+'</b>'+(m.detail?' &middot; '+esc(m.detail):''):'Your best: not set';
+    return'<li class="og-row'+(mine?' me':'')+'" style="animation-delay:'+Math.min(i,12)*.03+'s;align-items:flex-start"><span class="no" style="font-size:20px">'+esc(r.icon||'🏆')+'</span><div class="mid" style="flex:1;min-width:0"><div class="nm">'+esc(r.label)+'</div>'+
+      (r.none?'<div class="og-note" style="margin:2px 0">Not on the Hive board yet</div>':'<div class="og-note" style="margin:2px 0">Holder: <b style="color:#fff">'+esc(r.name||'Player')+(mine?' (you)':'')+'</b>'+(r.detail?' &middot; '+esc(r.detail):'')+'</div>')+
+      '<div class="og-note" style="margin:2px 0">'+mineTxt+'</div></div><div class="pt" style="color:#ffc857;font-weight:800;font-size:17px;white-space:nowrap">'+(r.none?esc(recShow(m)):esc(recShow(r)))+'</div></li>'}).join('')+'</ul>'+
+    (ok===false?'<p class="og-note">Online records are not reachable right now. Showing your saved personal bests.</p>':'')+'<p class="og-note">Records are shared by every player. Beat one and your name takes its place.</p>'}
+function openRecords(){openRank('rec')}
+/* real position among players of this game (cached; works offline with the last known value) */
+function refreshRankInfo(){
+  if(!C)return Promise.resolve(RKI);RKI=RKI||jget('owh_rki_'+C.game,null);
+  return fb().then(function(f){return f.db.collection('hr_rank').orderBy('g.'+C.game+'.pts','desc').limit(100).get()}).then(function(q){
+    var better=0,n=0,last=0;q.forEach(function(d){var g=(d.data().g||{})[C.game];if(!g||!(g.pts>0))return;n++;last=g.pts;if(d.id!==CUR.uid&&g.pts>RK.pts)better++});
+    RKI={pos:better+1,over:RK.pts<last&&n>=100,n:n,pts:RK.pts,t:Date.now()};jset('owh_rki_'+C.game,RKI);return RKI}).catch(function(){return RKI})}
+function rankInfo(){var r=RKI||(C&&jget('owh_rki_'+C.game,null)),ti=tierOf(RK.pts);return{pos:r?r.pos:0,over:!!(r&&r.over),pts:RK.pts,tier:TIERS[ti][1],icon:TIERS[ti][2],n:r?r.n:0}}
+
 /* ---------------- unique player names (one global name per player) ---------------- */
 function nameKey(n){return String(n||'').toLowerCase().replace(/\s+/g,' ').trim().replace(/ /g,'_')}
 function nameOK(n){n=String(n||'').trim();if(n.length<3)return'Use at least 3 letters.';if(n.length>14)return'Use at most 14 characters.';if(!/^[A-Za-z0-9 _.\-]+$/.test(n))return'Use only letters, numbers, space, dot, dash or underscore.';
@@ -153,6 +195,7 @@ function css(){if($('#ogCss'))return;var s=document.createElement('style');s.id=
 .og-me .r1{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.og-me b.big{font-size:26px}
 .og-tier{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid var(--tc);color:var(--tc)}
 .og-prog{height:7px;border-radius:5px;background:rgba(255,255,255,.12);margin-top:8px;overflow:hidden}.og-prog i{display:block;height:100%;background:linear-gradient(90deg,#ffc857,#ff7a45);transition:width .8s}
+.og-tb{display:flex;gap:6px;margin-bottom:10px}.og-tb .og-b{flex:1}.og-tb .og-b.on{background:#4a2a78;border-color:#6a5cff}
 .og-rows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .og-row{display:flex;align-items:center;gap:10px;background:#121936;border:1px solid #232c50;border-radius:12px;padding:8px 10px;animation:ogS .35s both}
 @keyframes ogS{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
@@ -183,9 +226,12 @@ function closeOv(id){var o=$('#'+id);if(o)o.remove();if(id==='ogStore'&&C.onPrev
 function mkOv(id,h){closeOv(id);css();var o=document.createElement('div');o.className='og-ov';o.id=id;if(h)o.style.setProperty('--ogh',h);o.innerHTML='<div class="og-sh"></div>';o.addEventListener('click',function(e){if(e.target===o)closeOv(id)});document.body.appendChild(o);return o.firstChild}
 /* ----- rank ----- */
 var rkRows=null,rkUn=null;
-function openRank(){
+function openRank(tab){
   var sh=mkOv('ogRank');
-  sh.innerHTML='<div class="og-h"><span style="font-size:26px">'+esc(C.icon||'🏆')+'</span><h2>'+esc(C.name)+' ranking</h2><span class="og-live"><i></i>LIVE</span><button class="og-x" aria-label="Close">&#10005;</button></div><div id="ogRb"><p class="og-note">Loading...</p></div>';
+  sh.innerHTML='<div class="og-h"><span style="font-size:26px">'+esc(C.icon||'🏆')+'</span><h2>'+esc(C.name)+' ranking</h2><span class="og-live"><i></i>LIVE</span><button class="og-x" aria-label="Close">&#10005;</button></div><div class="og-tb" id="ogTabs"><button class="og-b on" data-v="rk">🏅 Ranking</button><button class="og-b" data-v="rec">🏆 Hive Records</button></div><div id="ogRb"><p class="og-note">Loading...</p></div><div id="ogRc" hidden><p class="og-note">Loading...</p></div>';
+  var tabSet=function(v){$('#ogRb').hidden=v==='rec';$('#ogRc').hidden=v!=='rec';[].forEach.call($('#ogTabs').children,function(b){b.classList.toggle('on',b.dataset.v===v)});
+    if(v==='rec'){paintRecords(null,true);loadRecords().then(function(a){paintRecords(a,true)}).catch(function(){paintRecords(null,false)})}};
+  [].forEach.call($('#ogTabs').children,function(b){b.onclick=function(){tabSet(b.dataset.v)}});if(tab==='rec')tabSet('rec');
   $('.og-x',sh).onclick=function(){closeOv('ogRank');if(rkUn){try{rkUn()}catch(e){}rkUn=null}};
   flushRank();paintRank(null,false);
   fb().then(function(f){
@@ -287,7 +333,7 @@ function init(cfg){
   var r=jget(rkKey(),{});RK={pts:+r.pts||0,w:+r.w||0,l:+r.l||0,d:+r.d||0,n:+r.n||0};
   if(C.items.length||C.rank!==false)setTimeout(function(){fb().then(function(){return C.items.length?attach():0}).catch(function(){CUR.off=true})},300);
   return OWHG}
-var OWHG=window.OWHG={init:init,report:report,openRank:openRank,openStore:openStore,mount:mount,unmount:unmount,showTaunt:showTaunt,
+var OWHG=window.OWHG={init:init,report:report,openRank:openRank,openRecords:openRecords,record:record,records:loadRecords,rankInfo:rankInfo,refreshRankInfo:refreshRankInfo,openStore:openStore,mount:mount,unmount:unmount,showTaunt:showTaunt,
   by:function(id){return C?by(id):null},has:function(id){return C?has(id):false},eq:function(t){return C?eqItem(t):null},eqIds:function(){return C?eqIds():{}},owned:function(t){return C?owned(t):[]},
   items:function(t){return C?C.items.filter(function(i){return !t||i.t===t}):[]},on:function(f){LISTEN.push(f)},rank:function(){return RK},name:pName,game:function(){return C&&C.game},claimName:claimName,ensureName:ensureName,setHelp:setHelp,openHelp:openHelp,hint:hint,isKey:isKey,keyLabel:keyLabel};
 })();

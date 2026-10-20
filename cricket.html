@@ -1490,6 +1490,7 @@ function finishBall(res){
   cw.bowl=1;
   if(res.runs===4){bs.f++;S.fours++;cb.f++}
   if(res.runs===6){bs.s++;S.sixes++;cb.s++}
+  if(cb.r>=50&&!cb.b50)cb.b50=cb.b;if(cb.r>=100&&!cb.b100)cb.b100=cb.b;
   if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;cw.w++;bw.w++}
   if(res.wide||res.noball)S.extras++;
   {const Dd=G.deliv||{};(S.ovLog||(S.ovLog=[])).push({bx:Dd.bx,bz:Dd.bz,ty:Dd.type||'',kph:Dd.kph||0,runs:res.runs||0,wk:!!res.wicket,wd:!!res.wide,nb:!!res.noball,tm:(G.swing&&G.swing.tm)||'',rq:Dd.tight?'T':Dd.loose?'L':''})}
@@ -1592,6 +1593,26 @@ async function rkFlush(){
     }
   }catch(err){console.warn('rank sync',err&&err.code||err)}
   rkBusy=false}
+
+/* ---- Hive Records: shared with the site (hive_records) through OWHG.record ---- */
+function hiveRecords(m,si,p,cs,sixes,total,overs){
+  const R=(k,l,v,o)=>{try{if(OWHG.record(k,l,v,o))setTimeout(()=>toast('NEW PERSONAL BEST: '+l.toUpperCase()),2600)}catch(e){}};
+  let f50=null,f100=null,hs=null,bowl=null,econ=null;
+  for(const id in cs){const c=cs[id];
+    if(c.b50&&(!f50||c.b50<f50.b))f50={b:c.b50,n:c.c.name};
+    if(c.b100&&(!f100||c.b100<f100.b))f100={b:c.b100,n:c.c.name};
+    if(c.r>0&&(!hs||c.r>hs.r))hs={r:c.r,b:c.b,n:c.c.name};
+    if(c.bowl&&c.w>0){const v=c.w*1000+Math.max(0,999-c.br);if(!bowl||v>bowl.v)bowl={v:v,w:c.w,r:c.br,n:c.c.name}}
+    if(c.bb>=12){const e=c.br*6/c.bb;if(!econ||e<econ.e)econ={e:e,n:c.c.name,o:Math.floor(c.bb/6)}}}
+  if(f50)R('fast50','Fastest 50',f50.b,{low:1,unit:'balls',detail:f50.n+' ('+overs+' ov match)',icon:'⚡',ord:1});
+  if(f100)R('fast100','Fastest 100',f100.b,{low:1,unit:'balls',detail:f100.n+' ('+overs+' ov match)',icon:'💯',ord:2});
+  if(hs)R('hs','Highest individual score',hs.r,{unit:'runs',detail:hs.n+' off '+hs.b+' balls',icon:'🏏',ord:3});
+  R('total'+overs,'Highest team total ('+overs+' overs)',total,{unit:'runs',detail:p.team||p.name,icon:'📈',ord:4});
+  R('sixes','Most sixes in a match',sixes,{unit:'sixes',detail:overs+' ov match',icon:'💥',ord:5});
+  if(bowl)R('bowl','Best bowling figures',bowl.v,{disp:bowl.w+'/'+bowl.r,detail:bowl.n,icon:'🎯',ord:6});
+  if(econ)R('econ','Best economy (2+ overs)',+econ.e.toFixed(2),{low:1,disp:econ.e.toFixed(2)+' rpo',detail:econ.n+' ('+econ.o+' ov)',icon:'🧊',ord:7});
+  R('streak','Longest win streak',chOf(p).streak,{unit:'wins',detail:'in a row',icon:'🔥',ord:8});
+}
 function rkBuild(m,si,p,won,tie,cs){
   let r=0,b=0,out=0,s=0,f=0,wk=0,br=0,bb=0,f50=0,f100=0,hs=0,hsn='',bw=0,bwr=0,bwn='';
   for(const id in cs){const c=cs[id];r+=c.r;b+=c.b;out+=c.out?1:0;s+=c.s;f+=c.f;wk+=c.w;br+=c.br;bb+=c.bb;if(c.r>=100)f100++;else if(c.r>=50)f50++;
@@ -1656,6 +1677,7 @@ function endMatch(){
     p.hist.unshift({o:overs,mode:m.mode,res:tie?'T':won?'W':'L',runs,wk,t:Date.now()});if(p.hist.length>12)p.hist.length=12;
     const chestT=m.mode!=='two'?chestEarn(p,won,tie):null;
     awards.push({chest:chestT,streak:chOf(p).streak,name:p.name,team:p.team,stars,bonus,xp:xpGain,lvl:l1>l0?l1:0,runs,wk,sixes:sx,best:hs?hsId+' '+hs:''});
+    if(m.mode!=='two'){try{hiveRecords(m,si,p,cs,sx,runsOf[si]||0,overs)}catch(e){console.warn(e)}}
     if(m.mode!=='two'){try{const ke=rkBuild(m,si,p,won,tie,cs);rkQueue(ke);setTimeout(()=>toast('RANKING +'+(ke.bp+ke.wp+ke.rp)+' PTS'),1800)}catch(e){console.warn(e)}}
   }
   saveProfiles();
@@ -5081,7 +5103,8 @@ function handleUI(id,r,x,y){
     case 'pause':if(isPlaying()&&!(MT&&MT.online))G.paused=true;break;
     case 'resume':G.paused=false;break;
     case 'quit':case 'menu':G.paused=false;if(MT&&MT.online&&NETX){const wasEnd=G.mode==='end';NETX.forfeit();toMenu();if(wasEnd)G.screen='online';break}toMenu();break;
-    case 'ranks':try{location.href='rankings.html#cricket'}catch(e){}break;
+    case 'ranks':try{OWHG.openRank()}catch(e){try{location.href='rankings.html#cricket'}catch(e2){}}break;
+    case 'records':try{OWHG.openRecords()}catch(e){}break;
     case 'pf_friends':G.from='profile';G.screen='friends';break;
     case 'pf_career':G.from='profile';G.screen='career';break;
     case 'back':if(G.from==='profile'&&(G.screen==='friends'||G.screen==='career')){G.from=null;G.screen='profile';break}
@@ -5302,6 +5325,7 @@ const VSX={on:false,go:null,t0:0};
 function showVS(go){
   if(!MT||MT.online||MT.mode==='two'&&false){go();return}
   VSX.on=true;VSX.go=go;VSX.t0=G.RT;G.mode='menu';G.screen='home';
+  try{OWHG.refreshRankInfo()}catch(e){}
 }
 function setVsColor(side,i){
   const sd=MT.sides[side],ot=MT.sides[1-side];
@@ -5348,6 +5372,8 @@ function drawVS(){
       tx((sd.human?sd.pname:(m.diff==='pro'?'CPU \u2022 PRO':'CPU \u2022 EASY'))+'  \u2022  '+(role==='bat'?'BATS FIRST':'BOWLS FIRST'),60,y0+37,10,'#d6e2ff','left','700',200);
       tx('BAT AVG '+pw[s].b+'   BOWL AVG '+pw[s].w+'   POWER',60,y0+53,10.5,'#ffd23f','left','800',230);tx(String(pw[s].o),292,y0+53,13,'#fff','left','900');
       if(pw[s].o>=pw[1-s].o&&!(pw[0].o===pw[1].o))tx('STRONGER',W-18,y0+53,9.5,'#7cf29a','right','900');
+      if(sd.human){let ri={pos:0,tier:'',icon:'',pts:0};try{ri=OWHG.rankInfo()}catch(e){}
+        tx('WORLD RANK '+(ri.pos?(ri.over?'100+':'#'+ri.pos):'--')+'  \u2022  '+ri.icon+' '+ri.tier.toUpperCase()+'  \u2022  '+ri.pts+' PTS',60,y0+64,9.5,'#8ff0c0','left','800',260)}
       /* column heads */
       const cy=y0+74;
       tx('#',16,cy,9,'#9fb3d9','left','800');tx('BATTERS',38,cy,9,'#9fb3d9','left','800');tx('PW',160,cy,9,'#9fb3d9','right','800');tx('TM',182,cy,9,'#9fb3d9','right','800');tx('CT',204,cy,9,'#9fb3d9','right','800');tx('OVR',232,cy,9,'#9fb3d9','right','800');
@@ -5374,7 +5400,7 @@ function drawVS(){
     const vy=Y0[0]+BH+15;
     ctx.beginPath();ctx.arc(W/2,vy,18,0,TAU);ctx.fillStyle='#0a1226';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#ffd23f';ctx.stroke();
     tx('VS',W/2,vy+1,14,'#ffd23f','center','900');
-    tx('Rank = rating among all batters or bowlers in this match. Gold = top 3.',W/2,vy+24,9,'rgba(255,255,255,0.45)','center','600',420);
+    tx('#n = rating rank among players in this match (gold = top 3). WORLD RANK = your live Hive ranking.',W/2,vy+24,9,'rgba(255,255,255,0.45)','center','600',420);
     btn('vsgo',90,Y0[1]+BH+14,300,46,'START MATCH',{on:true,col:'#22c55e',size:20,r:16});
   }finally{ctx.restore();UI.oy=0}
 }

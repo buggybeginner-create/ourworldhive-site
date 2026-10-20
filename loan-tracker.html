@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Loan Tracker | Ourworldhive</title>
+<meta name="description" content="Loan Tracker keeps every loan you give: amount, interest, installments, overdue, call and WhatsApp reminders, waive off and total profit. Saved to your email on phone and laptop.">
+<meta name="theme-color" content="#0f3d33"><meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f3d33'/%3E%3Cpath d='M9 22V10l7 8 7-8v12' fill='none' stroke='%23f2b84b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<script src="firebase-config.js"></script>
+<style>
+:root{--bg:#f4f1e8;--panel:#fffdf8;--ink:#14231e;--ink2:#5a6a63;--line:#e2ddcf;--soft:#ece7d9;--brand:#0f3d33;--brand2:#1a5c4c;--gold:#d99a1f;--gold-bg:#fbefd0;--good:#16794d;--good-bg:#dcf2e5;--bad:#b3261e;--bad-bg:#fbe0dc;--warn:#9a5a06;--warn-bg:#fdecc8;--blue:#245d9e;--blue-bg:#dde9f7;--shadow:0 1px 2px rgba(20,35,30,.06),0 6px 20px rgba(20,35,30,.06);--fd:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--fb:"DM Sans","Segoe UI",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0c1512;--panel:#14201b;--ink:#e9f0ec;--ink2:#93a69d;--line:#24332c;--soft:#1b2a24;--brand:#0a2a23;--brand2:#2a8a70;--gold:#f2b84b;--gold-bg:#3a2e12;--good:#5ad08e;--good-bg:#143324;--bad:#ff8a80;--bad-bg:#3d1a17;--warn:#f0a44b;--warn-bg:#3a2a10;--blue:#8db8ee;--blue-bg:#16283d;--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3)}}
+:root[data-theme=dark]{--bg:#0c1512;--panel:#14201b;--ink:#e9f0ec;--ink2:#93a69d;--line:#24332c;--soft:#1b2a24;--brand:#0a2a23;--brand2:#2a8a70;--gold:#f2b84b;--gold-bg:#3a2e12;--good:#5ad08e;--good-bg:#143324;--bad:#ff8a80;--bad-bg:#3d1a17;--warn:#f0a44b;--warn-bg:#3a2a10;--blue:#8db8ee;--blue-bg:#16283d;--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3)}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 40px max(16px,env(safe-area-inset-left))}
+/* gate */
+#gate{position:fixed;inset:0;z-index:90;background:linear-gradient(160deg,#0a2a23,#0f3d33 55%,#14584a);color:#f6f2e6;display:grid;place-items:center;padding:24px;text-align:center}
+.gbox{max-width:400px;display:grid;gap:14px;justify-items:center}
+.gbox h1{font:800 34px/1.05 var(--fd);margin:0;letter-spacing:-.02em}.gbox p{margin:0;opacity:.85}
+.gbtn{border:0;border-radius:999px;padding:14px 26px;background:#f2b84b;color:#2a1c00;font-weight:700;font-size:16px;cursor:pointer}
+.gerr{color:#ffb4ab;min-height:20px;font-size:14px}
+.logo{width:58px;height:58px;border-radius:16px;background:rgba(255,255,255,.1);display:grid;place-items:center}
+/* top */
+.top{background:var(--brand);color:#f6f2e6;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
+.top .wrap{display:flex;gap:10px;align-items:center;justify-content:space-between;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center;font:800 20px var(--fd);letter-spacing:-.01em}
+.brand .lg{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center;justify-content:center;text-decoration:none;min-height:40px}
+.btn:hover{background:var(--soft)}
+.btn.pri{background:var(--gold);border-color:var(--gold);color:#2a1c00}.btn.pri:hover{filter:brightness(1.06)}
+.btn.sm{padding:6px 10px;min-height:32px;font-size:13.5px;border-radius:8px}
+.btn.dng{color:var(--bad)}
+.top .btn:not(.pri){background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#f6f2e6}
+.sync{font-size:12.5px;opacity:.85;display:flex;gap:6px;align-items:center}.sync i{width:8px;height:8px;border-radius:50%;background:#5ad08e;display:inline-block}.sync.off i{background:#f0a44b}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0 6px}
+.st{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.st small{display:block;color:var(--ink2);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
+.st b{display:block;font:800 26px/1.15 var(--fd);margin-top:4px;letter-spacing:-.02em}
+.st em{font-style:normal;color:var(--ink2);font-size:12.5px}
+.st.hero{background:linear-gradient(135deg,#0f3d33,#1a5c4c);color:#f6f2e6;border-color:transparent}.st.hero small,.st.hero em{color:rgba(246,242,230,.75)}
+.st.gold b{color:var(--gold)}.st.red b{color:var(--bad)}.st.green b{color:var(--good)}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.st{padding:10px 12px;border-radius:14px}.st b{font-size:20px}.st small{font-size:11px}.st.hero{grid-column:1/-1}.top .wrap{padding-top:8px;padding-bottom:8px}}
+.tabs{display:flex;gap:6px;margin:18px 0 12px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}
+.tab[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+/* tools */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools input[type=search]{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--brand2);border-color:var(--brand2);color:#fff}
+select.sel{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 10px}
+/* split */
+.split{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media(min-width:980px){.split{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start}.detail{position:sticky;top:76px;max-height:calc(100vh - 92px);overflow:auto}}
+.list{display:grid;gap:12px}
+.loan{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);cursor:pointer;display:grid;gap:10px;position:relative}
+.loan:hover{border-color:var(--brand2)}.loan.sel{outline:2px solid var(--brand2)}
+.loan.od{border-left:5px solid var(--bad)}.loan.done{opacity:.8}
+.lh{display:flex;gap:12px;align-items:center}
+.av{width:44px;height:44px;border-radius:14px;flex:none;display:grid;place-items:center;color:#fff;font:800 16px var(--fd)}
+.lh .nm{font:700 17px/1.2 var(--fd);overflow-wrap:anywhere}.lh small{color:var(--ink2);display:block;font-size:13px}
+.lh .r{margin-left:auto;text-align:right;flex:none}.lh .r b{font:800 19px var(--fd);display:block}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;background:var(--soft);color:var(--ink2);white-space:nowrap}
+.pill.good{background:var(--good-bg);color:var(--good)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.blue{background:var(--blue-bg);color:var(--blue)}.pill.gold{background:var(--gold-bg);color:var(--warn)}
+.bar{height:8px;border-radius:6px;background:var(--soft);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand2),var(--good));border-radius:6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13.5px;color:var(--ink2);justify-content:space-between}
+.qa{display:flex;gap:8px;flex-wrap:wrap}
+.ib{width:38px;height:38px;border-radius:50%;border:0;display:inline-grid;place-items:center;cursor:pointer;color:#fff;text-decoration:none}
+.ib.call{background:#1f8a5b}.ib.wa{background:#25d366}.ib svg{width:20px;height:20px;fill:#fff}
+.empty{text-align:center;padding:36px 16px;color:var(--ink2);background:var(--panel);border:1px dashed var(--line);border-radius:16px}
+.empty b{display:block;font:800 20px var(--fd);color:var(--ink);margin-bottom:6px}
+/* detail */
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px}
+@media(max-width:979px){.detail{position:fixed;inset:0;z-index:40;border-radius:0;overflow:auto;padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:calc(24px + env(safe-area-inset-bottom));transform:translateY(102%);transition:transform .22s;visibility:hidden}.detail.open{transform:none;visibility:visible}}
+@media(min-width:980px){.detail .back{display:none}.detail.none{display:grid;place-items:center;min-height:240px;color:var(--ink2)}}
+.dh{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.dh h2{font:800 24px/1.15 var(--fd);margin:0;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0}
+.kv div{background:var(--soft);border-radius:12px;padding:10px 12px}.kv small{display:block;color:var(--ink2);font-size:12px;font-weight:600}.kv b{font:800 18px var(--fd)}
+.kv .g b{color:var(--good)}.kv .r b{color:var(--bad)}.kv .y b{color:var(--warn)}
+h3{font:800 15px var(--fd);text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin:18px 0 8px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2);text-align:left;padding:8px 10px;background:var(--soft);white-space:nowrap}
+.tbl td{padding:9px 10px;border-top:1px solid var(--line);white-space:nowrap}
+.tbl td.r,.tbl th.r{text-align:right}
+.prow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+.prow:first-child{border-top:0}
+.row2{display:flex;gap:8px;flex-wrap:wrap}.row2>.btn{flex:1 1 140px}
+/* modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(8,16,13,.55);display:grid;place-items:end center}
+.mbox{background:var(--panel);width:min(640px,100%);max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.modal{place-items:center}.mbox{border-radius:20px}}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.mh h2{margin:0;font:800 21px var(--fd)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form .w{grid-column:1/-1}
+@media(max-width:520px){.form{grid-template-columns:1fr}}
+.fld{display:grid;gap:4px}.fld>span{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.fld input,.fld select,.fld textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 11px;width:100%;min-width:0}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:2px solid var(--brand2);outline-offset:0}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{flex:1 1 0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 8px;font-weight:700;cursor:pointer;min-width:80px}.seg button[aria-pressed=true]{background:var(--brand2);color:#fff;border-color:var(--brand2)}
+.preview{background:var(--gold-bg);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--ink)}
+.preview b{font-weight:800}
+.err{color:var(--bad);font-size:13.5px;min-height:18px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:99;max-width:90vw;font-weight:600}
+.chart{width:100%;height:auto}
+.rep{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.foot{text-align:center;color:var(--ink2);font-size:12px;padding:18px 16px}
+</style></head><body>
+<div id="gate"><div class="gbox"><div class="logo"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#f2b84b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22V10l7 8 7-8v12"/></svg></div><h1>Loan Tracker</h1><p>Sign in with your Google email. All your loans, installments and payments are saved to your account, so they are safe and open on your phone and laptop.</p><button class="gbtn" id="gGo">Continue with Google</button><div class="gerr" id="gErr" role="alert"></div><a href="marketplace.html" style="color:inherit;opacity:.75;font-size:13px">&larr; Back to Hive Apps</a></div></div>
+
+<div id="app" hidden>
+<header class="top"><div class="wrap">
+  <div class="brand"><span class="lg"><svg width="20" height="20" viewBox="0 0 32 32" fill="none" stroke="#f2b84b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 22V10l7 8 7-8v12"/></svg></span>Loan Tracker</div>
+  <div class="acts"><span class="sync" id="sync"><i></i><span id="syncT">Saved</span></span>
+    <button class="btn pri" id="bNew">+ New loan</button><button class="btn" id="bMore">Backup / Export</button><button class="btn" id="bOut">Sign out</button></div>
+</div></header>
+<div class="wrap">
+  <section class="stats" id="stats"></section>
+  <div class="tabs"><button class="tab" data-tab="loans" aria-pressed="true">Loans</button><button class="tab" data-tab="reports" aria-pressed="false">Reports</button></div>
+  <div id="vLoans">
+    <div class="tools"><input type="search" id="q" placeholder="Search name, place, mobile or recommended by"><select class="sel" id="sort"><option value="due">Sort: next due</option><option value="amount">Sort: amount</option><option value="new">Sort: newest</option><option value="name">Sort: name</option></select></div>
+    <div class="chips" id="flt" style="margin-bottom:12px"></div>
+    <div class="split"><div class="list" id="list"></div><aside class="detail none" id="detail"></aside></div>
+  </div>
+  <div id="vRep" hidden></div>
+</div>
+<div class="foot">&copy; <span class="owh-yr">2026</span> DUKEKRRISH. All rights reserved. Loan Tracker is a record keeping tool. Follow the money lending rules of your state.</div>
+</div>
+<div class="modal" id="modal" hidden><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const r2=x=>Math.round((+x+Number.EPSILON)*100)/100;
+const INR=n=>{n=+n||0;const neg=n<0;n=Math.abs(n);const w=Math.abs(n-Math.round(n))<0.005;return (neg?'-':'')+'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:w?0:2,maximumFractionDigits:w?0:2})};
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>iso(new Date());
+const pd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null};
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fd=s=>{const d=pd(s);return d?d.getDate()+' '+MON[d.getMonth()]+' '+String(d.getFullYear()).slice(2):'-'};
+const days=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+function addMonths(s,k){const d=pd(s),day=d.getDate();const x=new Date(d.getFullYear(),d.getMonth()+k,1);const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(day,last));return iso(x)}
+function addDays(s,k){const d=pd(s);d.setDate(d.getDate()+k);return iso(d)}
+
+/* ---------- data ---------- */
+let D={v:1,ts:0,loans:[],cc:'91'};
+let UI={tab:'loans',q:'',f:'all',sort:'due',sel:null};
+const COLORS=['#0f6b57','#2b5fa8','#a8481f','#7a3f98','#b5851a','#1d7a86','#a0366b','#4f6b1c'];
+const colorOf=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]};
+const ini=n=>{const p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+(p[1]?p[1][0]:'')).toUpperCase()};
+const phoneDigits=(p,cc)=>{let d=String(p||'').trim();if(!d)return '';const plus=d[0]==='+'||d.startsWith('00');d=d.replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);if(!plus){d=d.replace(/^0+/,'');if(d.length===10)d=String(cc||'91').replace(/\D/g,'')+d}return d.length>=8&&d.length<=15?d:''};
+
+/* schedule */
+function annualOf(l){return l.unit==='year'?+l.rate:+l.rate*12}
+function buildSchedule(l){
+  const P=+l.amount,n=Math.max(1,Math.round(+l.plan.n||1)),type=l.plan.type,freq=l.plan.freq==='weekly'?'weekly':'monthly';
+  const annual=annualOf(l),ppy=freq==='weekly'?52:12,per=annual/ppy/100;
+  const due=k=>freq==='weekly'?addDays(l.date,7*k):addMonths(l.date,k);
+  const out=[];
+  if(type==='bullet'){
+    const it=r2(P*annual/12*n/100);
+    out.push({n:1,due:addMonths(l.date,n),principal:r2(P),interest:it,amt:r2(P+it)});
+  }else if(type==='interest'){
+    const it=r2(P*per);
+    for(let k=1;k<=n;k++)out.push({n:k,due:due(k),principal:k===n?r2(P):0,interest:it,amt:r2(it+(k===n?P:0))});
+  }else if(type==='flat'){
+    const tot=P*per*n;let pr=0,inn=0;
+    for(let k=1;k<=n;k++){const p=k===n?r2(P-pr):r2(P/n),i=k===n?r2(tot-inn):r2(tot/n);pr+=p;inn+=i;out.push({n:k,due:due(k),principal:p,interest:i,amt:r2(p+i)})}
+  }else if(type==='reducing'){
+    let outS=P,pr=0;
+    for(let k=1;k<=n;k++){const p=k===n?r2(P-pr):r2(P/n),i=r2(outS*per);pr+=p;outS-=P/n;out.push({n:k,due:due(k),principal:p,interest:i,amt:r2(p+i)})}
+  }else{ /* emi */
+    const emi=per>0?P*per*Math.pow(1+per,n)/(Math.pow(1+per,n)-1):P/n;let bal=P,pr=0;
+    for(let k=1;k<=n;k++){const i=r2(bal*per);let p=k===n?r2(P-pr):r2(emi-i);pr+=p;bal-=p;out.push({n:k,due:due(k),principal:p,interest:i,amt:r2(p+i)})}
+  }
+  return out;
+}
+const PLANS={emi:'EMI (equal installments)',reducing:'Equal principal + interest on balance',flat:'Flat interest, equal installments',interest:'Monthly interest, principal at the end',bullet:'One payment at the end (principal + interest)'};
+
+/* compute everything about a loan */
+function calc(l,asOf){
+  asOf=asOf||today();
+  const inst=(l.sched||[]).map(i=>Object.assign({},i,{paid:0,waived:0,ev:[]}));
+  const pays=(l.pays||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.t||0)-(b.t||0));
+  let cash=0,lateRecv=0,lateWaived=0,extra=0;
+  for(const p of pays){
+    const a=+p.amt||0;
+    if(p.kind==='late'){lateRecv+=a;cash+=a;continue}
+    if(p.kind==='waivelate'){lateWaived+=a;continue}
+    let rest=a;const start=p.inst!=null&&inst[p.inst]?p.inst:0;
+    for(let k=0;k<inst.length&&rest>0.004;k++){
+      const x=inst[(start+k)%inst.length];const left=x.amt-x.paid-x.waived;if(left<=0.004)continue;
+      const t=Math.min(left,rest);rest-=t;
+      if(p.kind==='waive')x.waived+=t;else x.paid+=t;
+      x.ev.push({d:p.d,amt:t});
+    }
+    if(p.kind!=='waive'){cash+=a-rest;if(rest>0.004){extra+=rest;cash+=rest}}
+  }
+  const lateRate=(l.lateRate===''||l.lateRate==null)?annualOf(l)/12:+l.lateRate; /* % per month */
+  const dayRate=l.lateOn===false?0:(lateRate*12)/365/100;
+  let principalRecv=0,interestRecv=lateRecv+extra,outPr=0,overdue=0,overdueN=0,lateAcc=0,left=0,waived=lateWaived,next=null,paidAmt=0;
+  for(const x of inst){
+    x.left=r2(x.amt-x.paid-x.waived);if(x.left<0.01)x.left=0;
+    const ratio=x.amt>0?x.principal/x.amt:0;
+    principalRecv+=x.paid*ratio;interestRecv+=x.paid*(1-ratio);outPr+=x.left*ratio;left+=x.left;waived+=x.waived;paidAmt+=x.paid;
+    /* late interest */
+    let bal=x.amt,last=x.due,acc=0;
+    for(const e of x.ev){if(e.d>x.due){acc+=bal*dayRate*Math.max(0,days(last,e.d));last=e.d}bal-=e.amt}
+    if(bal>0.01&&asOf>x.due)acc+=bal*dayRate*Math.max(0,days(last>x.due?last:x.due,asOf));
+    x.late=r2(acc);lateAcc+=acc;
+    if(x.left===0)x.st=x.waived>0&&x.paid===0?'waived':'paid';
+    else if(x.due<asOf){x.st='overdue';overdue+=x.left;overdueN++;x.days=days(x.due,asOf)}
+    else if(x.due===asOf)x.st='today';
+    else x.st=x.paid>0||x.waived>0?'partial':'upcoming';
+    if(x.left>0&&!next)next=x;
+  }
+  const lateOwed=Math.max(0,r2(lateAcc-lateRecv-lateWaived));
+  const done=inst.length>0&&left<0.01;
+  const totalSched=inst.reduce((s,x)=>s+x.amt,0),interestSched=inst.reduce((s,x)=>s+x.interest,0);
+  const maxDays=inst.reduce((m,x)=>x.st==='overdue'?Math.max(m,x.days):m,0);
+  return{inst,cash:r2(cash),principalRecv:r2(principalRecv),interestRecv:r2(interestRecv),outPr:r2(outPr),overdue:r2(overdue),overdueN,maxDays,lateAcc:r2(lateAcc),lateOwed,lateRecv,lateWaived,left:r2(left),waived:r2(waived),next,done,totalSched:r2(totalSched),interestSched:r2(interestSched),paidPct:totalSched>0?Math.min(100,(paidAmt+waived)/totalSched*100):0,extra};
+}
+function loanState(l,c){return c.done&&(c.lateOwed<0.01||l.closed)?'closed':c.overdue>0?'overdue':'active'}
+function totals(){
+  const t={given:0,recv:0,interest:0,out:0,overdue:0,lateOwed:0,waived:0,active:0,od:0,closed:0,expInt:0};
+  for(const l of D.loans){const c=calc(l);t.given+=+l.amount;t.recv+=c.cash;t.interest+=c.interestRecv;t.out+=c.outPr;t.overdue+=c.overdue;t.lateOwed+=c.lateOwed;t.waived+=c.waived;t.expInt+=c.interestSched;
+    const s=loanState(l,c);if(s==='closed')t.closed++;else if(s==='overdue'){t.od++;t.active++}else t.active++}
+  return t;
+}
+
+/* ---------- storage + sync ---------- */
+let ST={uid:'',email:'',fs:null,ref:null,unsub:null,timer:null,busy:false,pend:false,last:''};
+function setSync(t,off){$('syncT').textContent=t;$('sync').classList.toggle('off',!!off)}
+function saveAll(){
+  D.ts=Date.now();
+  try{localStorage.setItem('owh_loan_'+ST.uid,JSON.stringify(D))}catch(e){}
+  if(!ST.ref){setSync('Saved on this device',true);return}
+  setSync('Saving...',true);clearTimeout(ST.timer);ST.timer=setTimeout(flush,700);
+}
+function flush(){
+  if(!ST.ref)return;
+  if(ST.busy){ST.pend=true;return}
+  ST.busy=true;const j=JSON.stringify(D);
+  ST.ref.set({json:j,ts:D.ts,email:ST.email,upd:Date.now()}).then(()=>{ST.last=j;setSync('Saved to your email',false)}).catch(e=>{setSync(e&&e.code==='permission-denied'?'Blocked: update Firestore rules':'Offline, saved on device',true)}).then(()=>{ST.busy=false;if(ST.pend){ST.pend=false;flush()}});
+}
+function loadLocal(){try{const o=JSON.parse(localStorage.getItem('owh_loan_'+ST.uid)||'null');if(o&&Array.isArray(o.loans))D=Object.assign({v:1,ts:0,loans:[],cc:'91'},o)}catch(e){}}
+function startApp(user,ref){
+  ST.uid=user.uid;ST.email=user.email||'';ST.ref=ref||null;
+  D={v:1,ts:0,loans:[],cc:'91'};loadLocal();
+  $('gate').hidden=true;$('app').hidden=false;render();
+  if(ref){
+    if(ST.unsub){try{ST.unsub()}catch(e){}}
+    ST.unsub=ref.onSnapshot(snap=>{
+      if(snap.metadata.hasPendingWrites)return;
+      if(snap.exists){let r=null;try{r=JSON.parse(snap.data().json)}catch(e){}
+        if(r&&Array.isArray(r.loans)){
+          if((r.ts||0)>(D.ts||0)){D=Object.assign({v:1,ts:0,loans:[],cc:'91'},r);try{localStorage.setItem('owh_loan_'+ST.uid,JSON.stringify(D))}catch(e){}render();setSync('Saved to your email',false)}
+          else if((D.ts||0)>(r.ts||0))flush();else setSync('Saved to your email',false)}
+      }else if(D.loans.length)flush();else setSync('Saved to your email',false);
+    },e=>setSync(e&&e.code==='permission-denied'?'Blocked: update Firestore rules':'Offline, saved on device',true));
+  }else setSync('Saved on this device',true);
+}
+function loadJs(u){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=u;e.onload=res;e.onerror=()=>rej(new Error('load'));document.head.appendChild(e)})}
+async function boot(){
+  try{
+    if(!window.OWH_FIREBASE)throw new Error('cfg');
+    if(!window.firebase){const b='https://www.gstatic.com/firebasejs/10.12.2/';await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
+    if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
+    const auth=firebase.auth(),fs=firebase.firestore();
+    $('gGo').onclick=()=>{$('gErr').textContent='';auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{$('gErr').textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
+    $('bOut').onclick=()=>auth.signOut().then(()=>location.reload());
+    auth.onAuthStateChanged(u=>{if(!u){$('gate').hidden=false;$('app').hidden=true;return}startApp({uid:u.uid,email:u.email},fs.collection('loan_data').doc(u.uid))});
+  }catch(e){$('gErr').textContent='Cannot connect to sign-in right now. Check your internet and reload.'}
+}
+
+/* ---------- UI helpers ---------- */
+let toastT=null;
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2800)}
+function openModal(h){$('mbox').innerHTML=h;$('modal').hidden=false;const f=$('mbox').querySelector('[autofocus]');if(f&&innerWidth>700)try{f.focus()}catch(e){}}
+function closeModal(){$('modal').hidden=true;$('mbox').innerHTML=''}
+const mh=t=>'<div class="mh"><h2>'+esc(t)+'</h2><button class="btn sm" data-close>Close</button></div>';
+const seg=(id,opts,val)=>'<div class="seg" id="'+id+'">'+opts.map(o=>'<button type="button" data-v="'+o[0]+'" aria-pressed="'+(o[0]===val)+'">'+o[1]+'</button>').join('')+'</div>';
+const segVal=id=>{const b=$(id)&&$(id).querySelector('[aria-pressed="true"]');return b?b.dataset.v:''};
+const ICO_CALL='<svg viewBox="-12 -12 24 24"><path d="M-5.6 -4.8c.4 2.8 2.6 5.5 5.6 6.9l1.9-1.9-2.4-1.4-1 .8c-1.2-.6-2.2-1.6-2.8-2.8l.8-1-1.4-2.4z" transform="translate(0 .6) scale(1.75)"/></svg>';
+const ICO_WA='<svg viewBox="-12 -12 24 24"><path d="M0 -8.5a8.5 8.5 0 0 0-7.4 12.8L-8.6 8.6l4.5-1.2A8.5 8.5 0 1 0 0 -8.5zm4.6 11.7c-.3.7-1.4 1.3-2.1 1.3-.5 0-1.3.3-4.2-.9-3.6-1.5-5.8-5-6-5.2-.1-.3-1.5-1.9-1.5-3.6s.9-2.5 1.2-2.9c.3-.3.6-.4.9-.4h.7c.2 0 .5 0 .7.5l1.1 2.5c.1.2.1.4 0 .6l-.4.7-.5.5c-.2.2-.4.4-.2.7.2.4.9 1.5 2 2.4 1.3 1.2 2.5 1.5 2.8 1.7.4.2.6.1.8-.1l.9-1.2c.2-.3.4-.3.7-.2l2.4 1.1c.3.2.5.3.6.4.1.3.1 1-.2 1.8z"/></svg>';
+
+/* ---------- render ---------- */
+function render(){
+  renderStats();renderFilters();
+  $('vLoans').hidden=UI.tab!=='loans';$('vRep').hidden=UI.tab!=='reports';
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tab===UI.tab));
+  if(UI.tab==='loans'){renderList();renderDetail()}else renderReports();
+}
+function renderStats(){
+  const t=totals();
+  $('stats').innerHTML=
+   '<div class="st hero"><small>Total given</small><b class="num">'+INR(t.given)+'</b><em>'+D.loans.length+' loan'+(D.loans.length===1?'':'s')+' · '+t.active+' running</em></div>'+
+   '<div class="st green"><small>Total received</small><b class="num">'+INR(t.recv)+'</b><em>cash collected so far</em></div>'+
+   '<div class="st gold"><small>Benefit (interest earned)</small><b class="num">'+INR(t.interest)+'</b><em>of '+INR(t.expInt)+' expected</em></div>'+
+   '<div class="st"><small>Still to recover</small><b class="num">'+INR(t.out)+'</b><em>principal outstanding</em></div>'+
+   '<div class="st red"><small>Overdue</small><b class="num">'+INR(t.overdue+t.lateOwed)+'</b><em>'+t.od+' borrower'+(t.od===1?'':'s')+(t.lateOwed>0?' · incl. '+INR(t.lateOwed)+' late interest':'')+'</em></div>'+
+   (t.waived>0?'<div class="st"><small>Waived off</small><b class="num">'+INR(t.waived)+'</b><em>given up</em></div>':'');
+}
+function renderFilters(){
+  const t=totals(),F=[['all','All ('+D.loans.length+')'],['active','Running ('+t.active+')'],['overdue','Overdue ('+t.od+')'],['closed','Closed ('+t.closed+')']];
+  $('flt').innerHTML=F.map(f=>'<button class="chip" data-f="'+f[0]+'" aria-pressed="'+(UI.f===f[0])+'">'+f[1]+'</button>').join('');
+}
+function filtered(){
+  const q=UI.q.trim().toLowerCase();
+  let L=D.loans.map(l=>({l,c:calc(l)})).map(x=>(x.s=loanState(x.l,x.c),x));
+  if(UI.f==='active')L=L.filter(x=>x.s!=='closed');else if(UI.f==='overdue')L=L.filter(x=>x.s==='overdue');else if(UI.f==='closed')L=L.filter(x=>x.s==='closed');
+  if(q)L=L.filter(x=>[x.l.name,x.l.loc,x.l.phone,x.l.ref,x.l.note].join(' ').toLowerCase().includes(q));
+  const by={due:(a,b)=>{const rank=x=>x.s==='overdue'?0:x.s==='active'?1:2;if(rank(a)!==rank(b))return rank(a)-rank(b);const da=a.c.next?a.c.next.due:'9999',db=b.c.next?b.c.next.due:'9999';return da<db?-1:da>db?1:0},amount:(a,b)=>b.l.amount-a.l.amount,new:(a,b)=>(b.l.created||0)-(a.l.created||0),name:(a,b)=>a.l.name.localeCompare(b.l.name)};
+  return L.sort(by[UI.sort]||by.due);
+}
+function dueLine(x){
+  const c=x.c;
+  if(x.s==='closed')return '<span class="pill good">Fully paid</span>';
+  if(x.s==='overdue')return '<span class="pill bad">OVERDUE '+c.maxDays+' day'+(c.maxDays===1?'':'s')+'</span> <span class="num"><b>'+INR(c.overdue)+'</b>'+(c.lateOwed>0?' + '+INR(c.lateOwed)+' late':'')+'</span>';
+  const n=c.next;return n?'<span class="pill '+(n.st==='today'?'warn':'blue')+'">'+(n.st==='today'?'Due today':'Next '+fd(n.due))+'</span> <span class="num"><b>'+INR(n.left)+'</b></span>':'';
+}
+function renderList(){
+  const L=filtered();
+  if(!D.loans.length){$('list').innerHTML='<div class="empty"><b>No loans yet</b>Tap "+ New loan" to add the first one. Enter the name, amount, date and interest. The installments are made for you.</div>';return}
+  if(!L.length){$('list').innerHTML='<div class="empty"><b>Nothing found</b>Try another filter or search.</div>';return}
+  $('list').innerHTML=L.map(x=>{
+    const l=x.l,c=x.c,dg=phoneDigits(l.phone,D.cc);
+    return '<article class="loan '+(x.s==='overdue'?'od ':'')+(x.s==='closed'?'done ':'')+(UI.sel===l.id?'sel':'')+'" data-open="'+l.id+'">'+
+     '<div class="lh"><span class="av" style="background:'+colorOf(l.name)+'">'+esc(ini(l.name))+'</span><div><div class="nm">'+esc(l.name)+'</div><small>'+esc([l.loc,l.ref?'via '+l.ref:''].filter(Boolean).join(' · ')||fd(l.date))+'</small></div><div class="r"><b class="num">'+INR(l.amount)+'</b><small class="num">'+esc(l.rate)+'% / '+(l.unit==='year'?'yr':'mo')+'</small></div></div>'+
+     '<div class="bar"><i style="width:'+c.paidPct.toFixed(0)+'%"></i></div>'+
+     '<div class="meta"><span>'+dueLine(x)+'</span><span class="num">Left '+INR(c.left)+'</span></div>'+
+     '<div class="qa">'+(dg?'<a class="ib call" data-stop href="tel:+'+dg+'" title="Call" aria-label="Call">'+ICO_CALL+'</a><a class="ib wa" data-stop data-wa="'+l.id+'" href="#" title="WhatsApp" aria-label="WhatsApp">'+ICO_WA+'</a>':'')+(x.s!=='closed'?'<button class="btn sm" data-stop data-pay="'+l.id+'">+ Payment</button>':'')+'</div></article>';
+  }).join('');
+}
+function badge(st,x){const M={paid:['good','Paid'],waived:['gold','Waived'],overdue:['bad','Overdue '+(x.days||'')+'d'],today:['warn','Due today'],partial:['warn','Part paid'],upcoming:['blue','Upcoming']}[st]||['','' ];return '<span class="pill '+M[0]+'">'+M[1]+'</span>'}
+function renderDetail(){
+  const box=$('detail'),l=D.loans.find(x=>x.id===UI.sel);
+  if(!l){box.className='detail none';box.innerHTML='<div>Tap a loan to see its installments and payments.</div>';return}
+  box.className='detail open';
+  if(innerWidth>=980)box.className='detail';
+  const c=calc(l),s=loanState(l,c),dg=phoneDigits(l.phone,D.cc);
+  let h='<div class="dh"><div><button class="btn sm back" data-back>← All loans</button><h2 style="margin-top:8px">'+esc(l.name)+'</h2><div style="color:var(--ink2);font-size:14px">'+esc([l.loc,l.phone,l.ref?'Recommended by '+l.ref:''].filter(Boolean).join(' · '))+'</div></div>'+
+   '<div class="qa">'+(dg?'<a class="ib call" href="tel:+'+dg+'" aria-label="Call">'+ICO_CALL+'</a><a class="ib wa" data-wa="'+l.id+'" href="#" aria-label="WhatsApp">'+ICO_WA+'</a>':'')+'<button class="btn sm" data-edit="'+l.id+'">Edit</button></div></div>';
+  h+='<div class="kv"><div><small>Given on '+fd(l.date)+'</small><b class="num">'+INR(l.amount)+'</b></div><div><small>Interest</small><b class="num">'+esc(l.rate)+'% / '+(l.unit==='year'?'year':'month')+'</b></div><div class="g"><small>Received</small><b class="num">'+INR(c.cash)+'</b></div><div class="g"><small>Interest earned</small><b class="num">'+INR(c.interestRecv)+'</b></div><div><small>Left to pay</small><b class="num">'+INR(c.left)+'</b></div>'+(c.overdue>0?'<div class="r"><small>Overdue</small><b class="num">'+INR(c.overdue)+'</b></div>':'')+(c.lateOwed>0?'<div class="y"><small>Late interest owed</small><b class="num">'+INR(c.lateOwed)+'</b></div>':'')+(c.waived>0?'<div><small>Waived off</small><b class="num">'+INR(c.waived)+'</b></div>':'')+'</div>';
+  h+='<div class="row2">'+(s!=='closed'?'<button class="btn pri" data-pay="'+l.id+'">+ Record payment</button><button class="btn" data-waive="'+l.id+'">Waive off</button><button class="btn" data-full="'+l.id+'">Mark full paid</button>':'<span class="pill good" style="padding:8px 14px">This loan is fully paid</span>')+'</div>';
+  h+='<h3>Installments</h3><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Due</th><th class="r">Amount</th><th class="r">Interest</th><th class="r">Left</th><th>Status</th><th></th></tr></thead><tbody>'+c.inst.map((x,i)=>'<tr><td>'+x.n+'</td><td>'+fd(x.due)+'</td><td class="r num">'+INR(x.amt)+'</td><td class="r num">'+INR(x.interest)+'</td><td class="r num">'+INR(x.left)+(x.late>0?'<br><small style="color:var(--bad)">+'+INR(x.late)+' late</small>':'')+'</td><td>'+badge(x.st,x)+'</td><td>'+(x.left>0?'<button class="btn sm" data-mark="'+l.id+'" data-i="'+i+'">Mark paid</button>':'')+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<div style="font-size:13px;color:var(--ink2);margin-top:6px">Plan: '+esc(PLANS[l.plan.type]||'')+' · '+l.plan.n+' '+(l.plan.freq==='weekly'?'weeks':'months')+' · total interest '+INR(c.interestSched)+(l.lateOn===false?' · late interest off':'')+'</div>';
+  const pays=(l.pays||[]).slice().sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+  h+='<h3>Payments</h3>'+(pays.length?pays.map(p=>'<div class="prow"><span><b class="num">'+INR(p.amt)+'</b> <span class="pill '+(p.kind==='waive'||p.kind==='waivelate'?'gold':p.kind==='late'?'warn':'good')+'">'+({installment:'Installment',late:'Late interest',waive:'Waived',waivelate:'Late interest waived'}[p.kind]||'Payment')+'</span><br><small style="color:var(--ink2)">'+fd(p.d)+(p.note?' · '+esc(p.note):'')+'</small></span><button class="btn sm dng" data-delpay="'+l.id+'" data-pid="'+p.id+'">Delete</button></div>').join(''):'<div style="color:var(--ink2)">No payment recorded yet.</div>');
+  if(l.note)h+='<h3>Note</h3><div style="white-space:pre-wrap">'+esc(l.note)+'</div>';
+  box.innerHTML=h;
+}
+function renderReports(){
+  const box=$('vRep');
+  if(!D.loans.length){box.innerHTML='<div class="empty"><b>No data yet</b>Add a loan to see reports.</div>';return}
+  /* monthly given vs received (12 months) */
+  const now=new Date(),months=[];for(let k=11;k>=0;k--){const d=new Date(now.getFullYear(),now.getMonth()-k,1);months.push({key:d.getFullYear()+'-'+pad(d.getMonth()+1),lab:MON[d.getMonth()],g:0,r:0})}
+  const idx=Object.fromEntries(months.map((m,i)=>[m.key,i]));
+  for(const l of D.loans){const k=(l.date||'').slice(0,7);if(idx[k]!=null)months[idx[k]].g+=+l.amount;for(const p of l.pays||[]){if(p.kind==='installment'||p.kind==='late'){const kk=(p.d||'').slice(0,7);if(idx[kk]!=null)months[idx[kk]].r+=+p.amt}}}
+  const mx=Math.max(1,...months.map(m=>Math.max(m.g,m.r))),W=560,Hh=190,bw=W/months.length;
+  let svg='<svg class="chart" viewBox="0 0 '+W+' '+(Hh+28)+'" role="img" aria-label="Given and received per month">';
+  months.forEach((m,i)=>{const x=i*bw+4,h1=m.g/mx*Hh,h2=m.r/mx*Hh;svg+='<rect x="'+x+'" y="'+(Hh-h1)+'" width="'+(bw/2-5)+'" height="'+h1+'" rx="3" fill="var(--gold)"><title>'+m.lab+' given '+INR(m.g)+'</title></rect><rect x="'+(x+bw/2-4)+'" y="'+(Hh-h2)+'" width="'+(bw/2-5)+'" height="'+h2+'" rx="3" fill="var(--good)"><title>'+m.lab+' received '+INR(m.r)+'</title></rect><text x="'+(x+bw/2-2)+'" y="'+(Hh+16)+'" text-anchor="middle" font-size="11" fill="var(--ink2)">'+m.lab+'</text>'});
+  svg+='</svg>';
+  /* by recommender */
+  const refs={};for(const l of D.loans){const k=(l.ref||'').trim()||'Direct (no one)';const c=calc(l);const r=refs[k]||(refs[k]={n:0,g:0,od:0,recv:0});r.n++;r.g+=+l.amount;r.od+=c.overdue;r.recv+=c.cash}
+  const rrows=Object.entries(refs).sort((a,b)=>b[1].g-a[1].g).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td class="r">'+v.n+'</td><td class="r num">'+INR(v.g)+'</td><td class="r num">'+INR(v.recv)+'</td><td class="r num" style="color:'+(v.od>0?'var(--bad)':'inherit')+'">'+INR(v.od)+'</td></tr>').join('');
+  /* by place */
+  const pl={};for(const l of D.loans){const k=(l.loc||'').trim()||'Not given';const c=calc(l);const r=pl[k]||(pl[k]={n:0,g:0,od:0});r.n++;r.g+=+l.amount;r.od+=c.overdue}
+  const prow=Object.entries(pl).sort((a,b)=>b[1].g-a[1].g).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td class="r">'+v.n+'</td><td class="r num">'+INR(v.g)+'</td><td class="r num" style="color:'+(v.od>0?'var(--bad)':'inherit')+'">'+INR(v.od)+'</td></tr>').join('');
+  /* top overdue */
+  const od=D.loans.map(l=>({l,c:calc(l)})).filter(x=>x.c.overdue>0).sort((a,b)=>b.c.overdue-a.c.overdue).slice(0,8);
+  box.innerHTML='<div class="rep"><div class="card" style="grid-column:1/-1"><h3>Given and received, last 12 months</h3>'+svg+'<div style="font-size:13px;color:var(--ink2);margin-top:4px"><span style="color:var(--gold)">■</span> Given &nbsp; <span style="color:var(--good)">■</span> Received</div></div>'+
+   '<div class="card"><h3>Overdue borrowers</h3>'+(od.length?od.map(x=>'<div class="prow"><span><b>'+esc(x.l.name)+'</b><br><small style="color:var(--ink2)">'+x.c.maxDays+' days late'+(x.l.ref?' · via '+esc(x.l.ref):'')+'</small></span><b class="num" style="color:var(--bad)">'+INR(x.c.overdue+x.c.lateOwed)+'</b></div>').join(''):'<div style="color:var(--ink2)">Nobody is overdue. 👍</div>')+'</div>'+
+   '<div class="card"><h3>By recommended person</h3><div class="tw"><table class="tbl"><thead><tr><th>Person</th><th class="r">Loans</th><th class="r">Given</th><th class="r">Received</th><th class="r">Overdue</th></tr></thead><tbody>'+rrows+'</tbody></table></div></div>'+
+   '<div class="card"><h3>By place</h3><div class="tw"><table class="tbl"><thead><tr><th>Place</th><th class="r">Loans</th><th class="r">Given</th><th class="r">Overdue</th></tr></thead><tbody>'+prow+'</tbody></table></div></div></div>';
+}
+
+/* ---------- loan form ---------- */
+function loanForm(l){
+  const e=!!l,v=l||{name:'',phone:'',loc:'',ref:'',amount:'',date:today(),rate:'2',unit:'month',lateRate:'',lateOn:true,note:'',plan:{type:'emi',n:6,freq:'monthly'}};
+  const locked=e&&(l.pays||[]).length>0;
+  let h=mh(e?'Edit loan':'New loan');
+  h+='<div class="form"><label class="fld w"><span>Borrower name *</span><input id="f_name" value="'+esc(v.name)+'" autocomplete="off" autofocus></label>';
+  h+='<label class="fld"><span>Mobile number</span><input id="f_phone" type="tel" value="'+esc(v.phone)+'" placeholder="for call and WhatsApp"></label><label class="fld"><span>Place / location</span><input id="f_loc" value="'+esc(v.loc)+'" placeholder="village, town"></label>';
+  h+='<label class="fld w"><span>Recommended by</span><input id="f_ref" value="'+esc(v.ref)+'" placeholder="who introduced this person"></label>';
+  h+='<label class="fld"><span>Amount given (₹) *</span><input id="f_amt" type="number" inputmode="decimal" min="1" value="'+esc(v.amount)+'"'+(locked?' disabled':'')+'></label><label class="fld"><span>Date given</span><input id="f_date" type="date" value="'+esc(v.date)+'"'+(locked?' disabled':'')+'></label>';
+  h+='<label class="fld"><span>Interest rate %</span><input id="f_rate" type="number" inputmode="decimal" step="0.01" min="0" value="'+esc(v.rate)+'"'+(locked?' disabled':'')+'></label><div class="fld"><span>Rate is per</span>'+seg('f_unit',[['month','Month'],['year','Year']],v.unit)+'</div>';
+  h+='<label class="fld w"><span>How will it be repaid?</span><select id="f_type"'+(locked?' disabled':'')+'>'+Object.entries(PLANS).map(([k,t])=>'<option value="'+k+'"'+(v.plan.type===k?' selected':'')+'>'+t+'</option>').join('')+'</select></label>';
+  h+='<label class="fld"><span id="f_nl">Number of installments</span><input id="f_n" type="number" inputmode="numeric" min="1" max="360" value="'+esc(v.plan.n)+'"'+(locked?' disabled':'')+'></label><div class="fld"><span>Installment every</span>'+seg('f_freq',[['monthly','Month'],['weekly','Week']],v.plan.freq)+'</div>';
+  h+='<div class="fld w"><span>Charge interest on unpaid installments (late interest)</span>'+seg('f_late',[['on','Yes'],['off','No']],v.lateOn===false?'off':'on')+'</div>';
+  h+='<label class="fld w" id="f_lrw"><span>Late interest % per month (empty = same as loan rate)</span><input id="f_lr" type="number" inputmode="decimal" step="0.01" min="0" value="'+esc(v.lateRate)+'"></label>';
+  h+='<label class="fld w"><span>Note</span><textarea id="f_note" rows="2">'+esc(v.note)+'</textarea></label></div>';
+  if(locked)h+='<div class="err" style="color:var(--warn)">Payments are already recorded, so the amount, date and plan are locked. Delete the payments first to change them.</div>';
+  h+='<div class="preview" id="f_prev" style="margin-top:10px"></div><div class="err" id="f_err"></div>';
+  h+='<div class="row2" style="margin-top:10px"><button class="btn pri" data-saveloan="'+(e?l.id:'')+'">'+(e?'Save changes':'Add loan')+'</button>'+(e?'<button class="btn dng" data-delloan="'+l.id+'">Delete loan</button>':'')+'</div>';
+  openModal(h);prevLoan(l);
+}
+function readLoanForm(){
+  return{name:$('f_name').value.trim(),phone:$('f_phone').value.trim(),loc:$('f_loc').value.trim(),ref:$('f_ref').value.trim(),amount:+$('f_amt').value,date:$('f_date').value,rate:+$('f_rate').value||0,unit:segVal('f_unit')||'month',lateOn:segVal('f_late')!=='off',lateRate:$('f_lr').value===''?'':+$('f_lr').value,note:$('f_note').value.trim(),plan:{type:$('f_type').value,n:Math.max(1,Math.round(+$('f_n').value||1)),freq:segVal('f_freq')||'monthly'}};
+}
+function prevLoan(orig){
+  const box=$('f_prev');if(!box)return;
+  const ty=$('f_type').value;$('f_nl').textContent=ty==='bullet'?'Months until the payment':'Number of installments';
+  $('f_lrw').hidden=segVal('f_late')==='off';
+  const v=readLoanForm();
+  if(!(v.amount>0)||!pd(v.date)){box.innerHTML='Fill the amount and date to see the installments.';return}
+  const sc=buildSchedule(v),ti=sc.reduce((s,x)=>s+x.interest,0),tt=sc.reduce((s,x)=>s+x.amt,0);
+  box.innerHTML='You give <b>'+INR(v.amount)+'</b> and get back <b>'+INR(tt)+'</b>. Your benefit is <b>'+INR(ti)+'</b>.<br>'+(sc.length>1?'First installment <b>'+INR(sc[0].amt)+'</b> on '+fd(sc[0].due)+', last on '+fd(sc[sc.length-1].due)+'.':'Pay <b>'+INR(sc[0].amt)+'</b> on '+fd(sc[0].due)+'.');
+}
+function saveLoan(id){
+  const v=readLoanForm(),er=$('f_err');
+  if(!v.name){er.textContent='Please type the borrower name.';return}
+  if(!(v.amount>0)){er.textContent='Please type the amount given.';return}
+  if(!pd(v.date)){er.textContent='Please choose the date.';return}
+  if(id){
+    const l=D.loans.find(x=>x.id===id);if(!l)return;
+    const locked=(l.pays||[]).length>0;
+    Object.assign(l,{name:v.name,phone:v.phone,loc:v.loc,ref:v.ref,note:v.note,lateOn:v.lateOn,lateRate:v.lateRate});
+    if(!locked){Object.assign(l,{amount:v.amount,date:v.date,rate:v.rate,unit:v.unit,plan:v.plan});l.sched=buildSchedule(l)}
+    toast('Saved');
+  }else{
+    const l=Object.assign({id:uid(),created:Date.now(),pays:[]},v);l.sched=buildSchedule(l);D.loans.push(l);UI.sel=l.id;toast('Loan added');
+  }
+  saveAll();closeModal();render();
+}
+
+/* ---------- payments ---------- */
+function payForm(id,pre){
+  const l=D.loans.find(x=>x.id===id);if(!l)return;const c=calc(l);pre=pre||{};
+  const nx=c.next;
+  let h=mh('Record payment · '+l.name);
+  h+='<div style="color:var(--ink2);font-size:14px;margin-bottom:8px">'+(c.overdue>0?'Overdue now: <b>'+INR(c.overdue)+'</b>'+(c.lateOwed>0?' + late interest <b>'+INR(c.lateOwed)+'</b>':''):nx?'Next installment: <b>'+INR(nx.left)+'</b> on '+fd(nx.due):'')+'</div>';
+  h+='<div class="form"><label class="fld"><span>Amount received (₹)</span><input id="p_amt" type="number" inputmode="decimal" min="0" value="'+esc(pre.amt!=null?pre.amt:(nx?nx.left:''))+'" autofocus></label><label class="fld"><span>Date</span><input id="p_date" type="date" value="'+today()+'"></label>';
+  h+='<div class="fld w"><span>This money is for</span>'+seg('p_kind',[['installment','Installment'],['late','Late interest']],pre.kind||'installment')+'</div>';
+  h+='<label class="fld w"><span>Note (optional)</span><input id="p_note" placeholder="cash, UPI, who paid"></label></div><div class="err" id="p_err"></div>';
+  h+='<div class="row2" style="margin-top:10px"><button class="btn pri" data-savepay="'+id+'" data-inst="'+(pre.inst!=null?pre.inst:'')+'">Save payment</button></div>';
+  openModal(h);
+}
+function addPay(l,o){(l.pays||(l.pays=[])).push(Object.assign({id:uid(),t:Date.now(),d:today(),kind:'installment'},o))}
+function savePay(id,inst){
+  const l=D.loans.find(x=>x.id===id),amt=+$('p_amt').value,d=$('p_date').value,er=$('p_err');
+  if(!l)return;if(!(amt>0)){er.textContent='Type the amount received.';return}if(!pd(d)){er.textContent='Choose the date.';return}
+  addPay(l,{amt:r2(amt),d,kind:segVal('p_kind'),note:$('p_note').value.trim(),inst:inst===''?null:+inst});
+  saveAll();closeModal();render();toast('Payment saved');
+}
+function waiveForm(id){
+  const l=D.loans.find(x=>x.id===id);if(!l)return;const c=calc(l);
+  let h=mh('Waive off · '+l.name)+'<p style="margin-top:0;color:var(--ink2)">Waive off means you give up some money. It is saved as waived, not as received.</p>';
+  h+='<div class="fld w"><span>What do you waive?</span>'+seg('w_what',[['late','Late interest only'],['next','Next installment'],['all','Everything left']],c.lateOwed>0?'late':'all')+'</div>';
+  h+='<div class="preview" style="margin-top:10px">Late interest owed: <b>'+INR(c.lateOwed)+'</b><br>Next installment left: <b>'+INR(c.next?c.next.left:0)+'</b><br>All left: <b>'+INR(c.left)+'</b></div>';
+  h+='<label class="fld" style="margin-top:10px"><span>Note (optional)</span><input id="w_note" placeholder="reason"></label><div class="row2" style="margin-top:10px"><button class="btn pri" data-savewaive="'+id+'">Waive off</button></div>';
+  openModal(h);
+}
+function saveWaive(id){
+  const l=D.loans.find(x=>x.id===id);if(!l)return;const c=calc(l),w=segVal('w_what'),note=$('w_note').value.trim();let n=0;
+  if(w==='late'){if(c.lateOwed>0){addPay(l,{amt:c.lateOwed,kind:'waivelate',note});n++}}
+  else if(w==='next'){if(c.next){addPay(l,{amt:c.next.left,kind:'waive',inst:c.inst.indexOf(c.next),note});n++}}
+  else{if(c.left>0){addPay(l,{amt:c.left,kind:'waive',note});n++}if(c.lateOwed>0){addPay(l,{amt:c.lateOwed,kind:'waivelate',note});n++}}
+  if(!n){toast('Nothing to waive.');return}
+  saveAll();closeModal();render();toast('Waived off');
+}
+function fullForm(id){
+  const l=D.loans.find(x=>x.id===id);if(!l)return;const c=calc(l);
+  let h=mh('Mark full paid · '+l.name)+'<div class="preview">Remaining installments: <b>'+INR(c.left)+'</b>'+(c.lateOwed>0?'<br>Late interest owed: <b>'+INR(c.lateOwed)+'</b>':'')+'</div>';
+  h+='<div class="form" style="margin-top:10px"><label class="fld"><span>Amount received for the installments (₹)</span><input id="x_amt" type="number" inputmode="decimal" value="'+c.left+'"></label><label class="fld"><span>Date</span><input id="x_date" type="date" value="'+today()+'"></label>';
+  if(c.lateOwed>0)h+='<div class="fld w"><span>Late interest owed '+INR(c.lateOwed)+'</span>'+seg('x_late',[['collect','Collected'],['waive','Waive off'],['skip','Ignore']],'collect')+'</div>';
+  h+='</div><div class="row2" style="margin-top:10px"><button class="btn pri" data-savefull="'+id+'">Mark full paid</button></div>';
+  openModal(h);
+}
+function saveFull(id){
+  const l=D.loans.find(x=>x.id===id);if(!l)return;const c=calc(l),amt=+$('x_amt').value,d=$('x_date').value||today();
+  if(amt>0)addPay(l,{amt:r2(amt),d,kind:'installment',note:'Full payment'});
+  const rest=r2(c.left-amt);if(rest>0.01)addPay(l,{amt:rest,d,kind:'waive',note:'Remaining waived at settlement'});
+  if(c.lateOwed>0){const k=segVal('x_late');if(k==='collect')addPay(l,{amt:c.lateOwed,d,kind:'late',note:'Late interest'});else if(k==='waive')addPay(l,{amt:c.lateOwed,d,kind:'waivelate',note:'Late interest waived'});else l.closed=true}
+  saveAll();closeModal();render();toast('Loan closed');
+}
+
+/* ---------- whatsapp / export ---------- */
+function reminderText(l){
+  const c=calc(l);let t;
+  if(c.overdue>0)t='Hello '+l.name+', this is a reminder that '+INR(c.overdue)+(c.lateOwed>0?' (plus late interest '+INR(c.lateOwed)+')':'')+' is overdue on your loan of '+INR(l.amount)+' given on '+fd(l.date)+'. Please pay as soon as you can. Thank you.';
+  else if(c.next)t='Hello '+l.name+', a gentle reminder: your installment of '+INR(c.next.left)+' is due on '+fd(c.next.due)+' for the loan of '+INR(l.amount)+'. Thank you.';
+  else t='Hello '+l.name+', thank you. Your loan of '+INR(l.amount)+' is fully paid.';
+  return t;
+}
+function openWa(id){const l=D.loans.find(x=>x.id===id),dg=l&&phoneDigits(l.phone,D.cc);if(!dg){toast('No valid mobile number saved.');return}window.open('https://wa.me/'+dg+'?text='+encodeURIComponent(reminderText(l)),'_blank','noopener')}
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function csvCell(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCsv(){
+  const rows=[['Name','Mobile','Place','Recommended by','Amount given','Date given','Rate %','Per','Received','Interest earned','Outstanding principal','Overdue','Late interest owed','Waived','Status']];
+  D.loans.forEach(l=>{const c=calc(l);rows.push([l.name,l.phone,l.loc,l.ref,l.amount,l.date,l.rate,l.unit,c.cash,c.interestRecv,c.outPr,c.overdue,c.lateOwed,c.waived,loanState(l,c)])});
+  rows.push([]);rows.push(['PAYMENTS']);rows.push(['Name','Date','Amount','Type','Note']);
+  D.loans.forEach(l=>(l.pays||[]).forEach(p=>rows.push([l.name,p.d,p.amt,p.kind,p.note])));
+  download('loans-'+today()+'.csv','﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\n'),'text/csv');
+}
+function moreMenu(){
+  let h=mh('Backup and export')+'<div style="display:grid;gap:10px"><button class="btn" data-exp="csv">Download Excel file (CSV)</button><button class="btn" data-exp="json">Download backup (JSON)</button><label class="btn" style="cursor:pointer">Restore from a backup file<input type="file" id="imp" accept=".json,application/json" hidden></label>';
+  h+='<label class="fld"><span>Country code for mobile numbers</span><input id="m_cc" value="'+esc(D.cc)+'" inputmode="numeric" style="max-width:120px"></label><button class="btn" data-savecc>Save country code</button></div><p style="color:var(--ink2);font-size:13px">Your data is always saved to your email account. A backup file is an extra copy for you.</p>';
+  openModal(h);
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',ev=>{
+  const t=ev.target;if(!t.closest)return;
+  const wa=t.closest('[data-wa]');if(wa){ev.preventDefault();ev.stopPropagation();openWa(wa.dataset.wa);return}
+  if(t.closest('a[data-stop]'))return;
+  const pay=t.closest('[data-pay]');if(pay){ev.stopPropagation();payForm(pay.dataset.pay);return}
+  if(t.closest('[data-close]')||t===$('modal')){closeModal();return}
+  const sp=t.closest('[data-saveloan]');if(sp){saveLoan(sp.dataset.saveloan);return}
+  const dl=t.closest('[data-delloan]');if(dl){const l=D.loans.find(x=>x.id===dl.dataset.delloan);if(l&&!dl.dataset.sure){dl.dataset.sure='1';dl.textContent='Tap again to delete for ever';return}D.loans=D.loans.filter(x=>x.id!==dl.dataset.delloan);UI.sel=null;saveAll();closeModal();render();toast('Loan deleted');return}
+  const sv=t.closest('[data-savepay]');if(sv){savePay(sv.dataset.savepay,sv.dataset.inst);return}
+  const sw=t.closest('[data-savewaive]');if(sw){saveWaive(sw.dataset.savewaive);return}
+  const sf=t.closest('[data-savefull]');if(sf){saveFull(sf.dataset.savefull);return}
+  const sg=t.closest('.seg button');if(sg){sg.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===sg));if($('f_prev'))prevLoan();return}
+  const ed=t.closest('[data-edit]');if(ed){loanForm(D.loans.find(x=>x.id===ed.dataset.edit));return}
+  const wv=t.closest('[data-waive]');if(wv){waiveForm(wv.dataset.waive);return}
+  const fu=t.closest('[data-full]');if(fu){fullForm(fu.dataset.full);return}
+  const mk=t.closest('[data-mark]');if(mk){const l=D.loans.find(x=>x.id===mk.dataset.mark),c=l&&calc(l),i=+mk.dataset.i;if(l&&c.inst[i])payForm(l.id,{amt:c.inst[i].left,inst:i});return}
+  const dp=t.closest('[data-delpay]');if(dp){const l=D.loans.find(x=>x.id===dp.dataset.delpay);if(l){if(!dp.dataset.sure){dp.dataset.sure='1';dp.textContent='Sure?';return}l.pays=l.pays.filter(p=>p.id!==dp.dataset.pid);saveAll();render();toast('Payment deleted')}return}
+  const ex=t.closest('[data-exp]');if(ex){if(ex.dataset.exp==='csv')exportCsv();else download('loan-tracker-backup-'+today()+'.json',JSON.stringify(D),'application/json');return}
+  if(t.closest('[data-savecc]')){D.cc=($('m_cc').value||'91').replace(/\D/g,'')||'91';saveAll();render();toast('Saved');return}
+  const bk=t.closest('[data-back]');if(bk){UI.sel=null;render();return}
+  const op=t.closest('[data-open]');if(op){UI.sel=op.dataset.open;render();const d=$('detail');if(innerWidth<980)d.scrollTop=0;return}
+  const tab=t.closest('[data-tab]');if(tab){UI.tab=tab.dataset.tab;render();return}
+  const fl=t.closest('[data-f]');if(fl){UI.f=fl.dataset.f;render();return}
+  const id=t.closest('button')&&t.closest('button').id;
+  if(id==='bNew')loanForm(null);else if(id==='bMore')moreMenu();
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='q'){UI.q=ev.target.value;renderList();return}
+  if(ev.target.closest&&ev.target.closest('#mbox')&&$('f_prev'))prevLoan();
+});
+document.addEventListener('change',ev=>{
+  if(ev.target.id==='sort'){UI.sort=ev.target.value;renderList();return}
+  if(ev.target.id==='f_type'||ev.target.id==='f_n'){prevLoan();return}
+  if(ev.target.id==='imp'){const f=ev.target.files[0];if(!f)return;f.text().then(tx=>{try{const o=JSON.parse(tx);if(!o||!Array.isArray(o.loans))throw 0;D=Object.assign({v:1,ts:0,loans:[],cc:'91'},o);saveAll();closeModal();UI.sel=null;render();toast('Backup restored')}catch(e){toast('That file is not a Loan Tracker backup.')}})}
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&!$('modal').hidden)closeModal()});
+document.querySelectorAll('.owh-yr').forEach(e=>e.textContent=new Date().getFullYear());
+boot();
+</script></body></html>

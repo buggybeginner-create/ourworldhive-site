@@ -1071,6 +1071,13 @@ function trajAt(traj,t){
 let RU=1.3,BZ0=31;
 const gs=()=>(Math.random()+Math.random()+Math.random()-1.5)*2;
 function makeDelivery(card,key,aim,rq,pace){
+  /* keep every delivery on the pitch: if swing/turn would carry it outside, pull the aim inwards and try again */
+  const bad=d=>!isFinite(d.pc[0])||Math.abs(d.pc[0])>1.65||(d.bx!=null&&Math.abs(d.bx)>1.5)||(d.bz!=null&&(d.bz<0.3||d.bz>11.5));
+  let d=makeDelivery0(card,key,aim,rq,pace),k=0;
+  while(bad(d)&&k<7){k++;const a2=aim?{x:aim.x*Math.pow(0.72,k),z:aim.z+(5.5-aim.z)*(k/7)}:aim;d=makeDelivery0(card,key,a2,rq,pace)}
+  return d;
+}
+function makeDelivery0(card,key,aim,rq,pace){
   pace=pace===undefined?1:pace;
   const ty=buildBall(card,key),rn=a=>a[0]+Math.random()*(a[1]-a[0]);
   const human=aim!==null&&aim!==undefined,q=(rq===undefined?0.5:rq),ef=human?(1.6-1.2*q):1;
@@ -3628,9 +3635,9 @@ function drawHUD(T){
   if(inPowerplay())tx('POWERPLAY',184,67,8.5,'#ffd23f','center','800');
   if(S.target>0){
     const need=S.target-S.runs;
-    tx('TARGET '+S.target,262,23,10,'#8fa6d4');
-    tx(need>0?'NEED '+need+' OFF '+ballsLeft():'TARGET CHASED!',262,48,need>0?15:14,'#ffd23f');
-    tx('REQ RATE '+(ballsLeft()>0&&need>0?(need*6/ballsLeft()).toFixed(1):'-'),262,64,9.5,'#8fa6d4','left','600');
+    tx('TARGET '+S.target,262,23,10,'#8fa6d4','left','bold',84);
+    tx(need>0?'NEED '+need:'CHASED!',262,45,need>0?17:15,'#ffd23f','left','bold',84);
+    tx(need>0?'OFF '+ballsLeft()+' BALLS \u2022 RRR '+(ballsLeft()>0?(need*6/ballsLeft()).toFixed(1):'-'):'',262,63,9,'#8fa6d4','left','700',86);
   }else{
     tx('1ST INNINGS',262,23,10,'#8fa6d4');
     tx('RUN RATE '+(S.balls?(S.runs*6/S.balls).toFixed(1):'0.0'),262,48,15,'#ffd23f');
@@ -3659,7 +3666,7 @@ function drawHUD(T){
     tx(bw.name+'  '+bs.w+'-'+bs.r+' ('+Math.floor(bs.b/6)+'.'+(bs.b%6)+')',270,96,12.5,'#fff','left','bold',150);
     tx(KINDS[bw.kind].n,466,96,9.5,'#ffd23f','right','700');
   }
-  if(G.infoT>0){const a=clamp(G.infoT/0.4,0,1);rr(W/2-100,112,200,24,12);ctx.fillStyle='rgba(6,10,22,'+0.7*a+')';ctx.fill();tx(G.info,W/2,125,12,'rgba(255,214,90,'+a+')','center')}
+  if(G.infoT>0){const a=clamp(G.infoT/0.4,0,1);rr(W/2-100,126,200,24,12);ctx.fillStyle='rgba(6,10,22,'+0.7*a+')';ctx.fill();tx(G.info,W/2,139,12,'rgba(255,214,90,'+a+')','center')}
 }
 function drawChk(){
   const c=G.chk;if(!c)return;
@@ -5313,6 +5320,7 @@ function roleIcon(cx,cy,r,role,col){
   }
   ctx.restore();
 }
+function cardOvr(c){return c?Math.round(c.role==='B'?(c.pw+c.tm+c.ct)/3:(c.spd+c.swg+c.acc)/3):0}
 function drawVS(){
   const m=MT;if(!m){VSX.on=false;return}
   UI.rects.length=0;UI.oy=(H-720)/2;ctx.save();ctx.translate(0,UI.oy);
@@ -5320,48 +5328,54 @@ function drawVS(){
     const t=G.RT-VSX.t0,k=sm(Math.min(1,t/0.55));
     ctx.fillStyle='#050a18';ctx.fillRect(0,-UI.oy,W,H);
     const firstBat=m.inns[0].bat;
+    /* rank every batter and bowler of both teams by rating */
+    const allB=[],allW=[];
+    m.sides.forEach((sd,si)=>{sd.bats.forEach(c=>allB.push({c,si,o:cardOvr(c)}));sd.bowls.forEach(c=>allW.push({c,si,o:cardOvr(c)}))});
+    const rk=(arr,c,si)=>{const L=arr.slice().sort((a,b)=>b.o-a.o);return L.findIndex(x=>x.c===c&&x.si===si)+1};
+    const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;
+    const pw=m.sides.map(sd=>{const b=avg(sd.bats.map(cardOvr)),w=avg(sd.bowls.map(cardOvr));return{b,w,o:Math.round((b+w)/2)}});
+    tx('MATCH DAY',W/2,22,18,'#ffffff','center','900');
+    tx(m.overs+' overs  \u2022  '+({full:'Full match',chase:'Chase the target',defend:'Defend the target',two:'Two players'}[m.mode]||'')+(m.tossInfo?'  \u2022  '+m.sides[m.tossInfo.winner].name+' won the toss':''),W/2,40,11,'#bcd0f5','center','700',440);
+    const BH=252,Y0=[50,50+BH+30];
     for(let s=0;s<2;s++){
-      const sd=m.sides[s],x0=s*W/2,cx=x0+W/4,off=(1-k)*(s?160:-160);
+      const sd=m.sides[s],y0=Y0[s],off=(1-k)*(s?160:-160);
       ctx.save();ctx.translate(off,0);
-      const c=sd.col||[60,70,100],g=ctx.createLinearGradient(0,0,0,720);g.addColorStop(0,rgba(c,0.55));g.addColorStop(1,rgba(shade(c,0.25),0.9));
-      ctx.fillStyle=g;ctx.fillRect(x0-(s?0:60),-UI.oy,W/2+60,H);
+      const c=sd.col||[60,70,100];
+      rr(8,y0,W-16,BH,16);const g=ctx.createLinearGradient(0,y0,0,y0+BH);g.addColorStop(0,rgba(c,0.5));g.addColorStop(1,rgba(shade(c,0.22),0.92));ctx.fillStyle=g;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=rgba(c,0.9);ctx.stroke();
       const role=s===firstBat?'bat':'ball';
-      tx(role==='bat'?'BATS FIRST':'BOWLS FIRST',cx,92,12,'#fff','center','800',220);
-      roleIcon(cx,138,30,role,'#fff');
-      tx(sd.name,cx,196,16,'#fff','center','900',220);
-      tx(sd.human?sd.pname:(m.diff==='pro'?'CPU • PRO':'CPU • EASY'),cx,216,12,'#d6e2ff','center','700',220);
-      const bc=sd.human?CARD_BY_ID[sd.prof.sel.b]:sd.bats[0],wc=sd.human?CARD_BY_ID[sd.prof.sel.w]:sd.bowls[0];
-      if(bc){drawBust(cx-52,236,104,128,bc)}
-      const ovr=c2=>c2?Math.round(c2.role==='B'?(c2.pw+c2.tm+c2.ct)/3:(c2.spd+c2.swg+c2.acc)/3):0;
-      roleIcon(x0+30,392,13,'bat','#ffd23f');tx(bc?bc.name:'-',x0+50,392,12,'#fff','left','800',150);tx(String(ovr(bc)),x0+W/2-22,392,13,'#ffd23f','right','900');
-      roleIcon(x0+30,424,13,'ball','#ffd23f');tx(wc?wc.name:'-',x0+50,424,12,'#fff','left','800',150);tx(String(ovr(wc)),x0+W/2-22,424,13,'#ffd23f','right','900');
-      if(sd.human){const p=sd.prof,t2=p.tot;
-        tx('LEVEL '+levelOf(p.xp),cx,462,13,'#7cf29a','center','900');
-        tx('Won '+t2.w+'  Lost '+t2.l+'  Matches '+t2.m,cx,484,11,'#d6e2ff','center','700',220);
-        tx('Best score '+t2.hs+'  •  Sixes '+t2.s,cx,502,11,'#d6e2ff','center','700',220);
-      }else{tx('Squad of '+sd.bats.length,cx,470,12,'#d6e2ff','center','700',220)}
+      roleIcon(34,y0+30,17,role,'#fff');
+      tx(sd.name,60,y0+20,15,'#fff','left','900',170);
+      tx((sd.human?sd.pname:(m.diff==='pro'?'CPU \u2022 PRO':'CPU \u2022 EASY'))+'  \u2022  '+(role==='bat'?'BATS FIRST':'BOWLS FIRST'),60,y0+37,10,'#d6e2ff','left','700',200);
+      tx('BAT AVG '+pw[s].b+'   BOWL AVG '+pw[s].w+'   POWER',60,y0+53,10.5,'#ffd23f','left','800',230);tx(String(pw[s].o),292,y0+53,13,'#fff','left','900');
+      if(pw[s].o>=pw[1-s].o&&!(pw[0].o===pw[1].o))tx('STRONGER',W-18,y0+53,9.5,'#7cf29a','right','900');
+      /* column heads */
+      const cy=y0+74;
+      tx('#',16,cy,9,'#9fb3d9','left','800');tx('BATTERS',38,cy,9,'#9fb3d9','left','800');tx('PW',160,cy,9,'#9fb3d9','right','800');tx('TM',182,cy,9,'#9fb3d9','right','800');tx('CT',204,cy,9,'#9fb3d9','right','800');tx('OVR',232,cy,9,'#9fb3d9','right','800');
+      tx('#',252,cy,9,'#9fb3d9','left','800');tx('BOWLERS',274,cy,9,'#9fb3d9','left','800');tx('SPD',384,cy,9,'#9fb3d9','right','800');tx('SWG',410,cy,9,'#9fb3d9','right','800');tx('ACC',436,cy,9,'#9fb3d9','right','800');tx('OVR',468,cy,9,'#9fb3d9','right','800');
+      const row=14.6;
+      sd.bats.slice(0,11).forEach((c2,i)=>{const y=cy+14+i*row,r=rk(allB,c2,s),top=r<=3;
+        if(top){rr(10,y-8,230,14,6);ctx.fillStyle='rgba(255,210,63,0.14)';ctx.fill()}
+        tx('#'+r,16,y,10,top?'#ffd23f':'#d6e2ff','left','900');tx(c2.name,38,y,10.5,'#fff','left','700',104);
+        tx(String(c2.pw),160,y,10,'#d6e2ff','right','700');tx(String(c2.tm),182,y,10,'#d6e2ff','right','700');tx(String(c2.ct),204,y,10,'#d6e2ff','right','700');tx(String(cardOvr(c2)),232,y,11,top?'#ffd23f':'#fff','right','900')});
+      sd.bowls.slice(0,11).forEach((c2,i)=>{const y=cy+14+i*row,r=rk(allW,c2,s),top=r<=3;
+        if(top){rr(246,y-8,226,14,6);ctx.fillStyle='rgba(255,210,63,0.14)';ctx.fill()}
+        tx('#'+r,252,y,10,top?'#ffd23f':'#d6e2ff','left','900');tx(c2.name,274,y,10.5,'#fff','left','700',104);
+        tx(String(c2.spd),384,y,10,'#d6e2ff','right','700');tx(String(c2.swg),410,y,10,'#d6e2ff','right','700');tx(String(c2.acc),436,y,10,'#d6e2ff','right','700');tx(String(cardOvr(c2)),468,y,11,top?'#ffd23f':'#fff','right','900')});
       ctx.restore();
-    }
-    /* colour pickers (drawn after the slide so taps work) */
-    if(k>=1){
-      for(let s=0;s<2;s++){
-        const sd=m.sides[s];if(!sd.human)continue;
-        const cx=s*W/2+W/4;tx('TEAM COLOUR',cx,532,10.5,'#fff','center','800');
+      if(k>=1&&sd.human){
         for(let i=0;i<KP.length;i++){
-          const col=i%7,row=(i/7)|0,x=s*W/2+14+col*31,y=544+row*30,on=sd.colI===i;
-          ctx.beginPath();ctx.arc(x+13,y+13,11,0,TAU);ctx.fillStyle=KP[i][0];ctx.fill();
-          ctx.lineWidth=on?3:1.2;ctx.strokeStyle=on?'#fff':'rgba(255,255,255,0.35)';ctx.stroke();
-          hot('vscol',x,y,26,26,s*100+i);
+          const col=i%7,row2=(i/7)|0,x=W-8-12-(6-col)*17-6+8,yy=y0+10+row2*17,on=sd.colI===i;
+          ctx.beginPath();ctx.arc(x,yy+8,7,0,TAU);ctx.fillStyle=KP[i][0];ctx.fill();ctx.lineWidth=on?2.6:1;ctx.strokeStyle=on?'#fff':'rgba(255,255,255,0.35)';ctx.stroke();
+          hot('vscol',x-8.5,yy,17,17,s*100+i);
         }
       }
     }
-    /* centre VS + toss info */
-    ctx.save();ctx.beginPath();ctx.arc(W/2,300,28,0,TAU);ctx.fillStyle='#0a1226';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#ffd23f';ctx.stroke();ctx.restore();
-    tx('VS',W/2,301,20,'#ffd23f','center','900');
-    tx('MATCH DAY',W/2,40,22,'#ffffff','center','900');
-    tx(m.overs+' overs  •  '+({full:'Full match',chase:'Chase the target',defend:'Defend the target',two:'Two players'}[m.mode]||'')+(m.tossInfo?'  •  '+m.sides[m.tossInfo.winner].name+' won the toss':''),W/2,64,11.5,'#bcd0f5','center','700',440);
-    btn('vsgo',90,646,300,54,'START MATCH',{on:true,col:'#22c55e',size:22,r:18});
-    tx(BRAND,W/2,H-UI.oy-18,10.5,'rgba(255,255,255,0.4)','center','700');
+    /* centre VS strip */
+    const vy=Y0[0]+BH+15;
+    ctx.beginPath();ctx.arc(W/2,vy,18,0,TAU);ctx.fillStyle='#0a1226';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#ffd23f';ctx.stroke();
+    tx('VS',W/2,vy+1,14,'#ffd23f','center','900');
+    tx('Rank = rating among all batters or bowlers in this match. Gold = top 3.',W/2,vy+24,9,'rgba(255,255,255,0.45)','center','600',420);
+    btn('vsgo',90,Y0[1]+BH+14,300,46,'START MATCH',{on:true,col:'#22c55e',size:20,r:16});
   }finally{ctx.restore();UI.oy=0}
 }
 

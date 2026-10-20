@@ -1211,6 +1211,15 @@ function renderHub(){
  @keyframes ckIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
 }`;document.head.appendChild(st)}
     l.parentNode.insertBefore(a,l)}
+  if(!document.getElementById('rkBan')){const l=$('gList'),a=document.createElement('a');a.id='rkBan';a.href='rankings.html';
+    a.innerHTML='<span class="rk-em">\uD83C\uDFC6</span><span class="rk-txt"><small>LIVE LEADERBOARD</small><b>Rankings &amp; Hive Records</b><em>Climb from Novice to Mythic Legend. See fastest 50, fastest 100 and every record.</em></span><span class="rk-go">VIEW \u25B6</span>';
+    if(!document.getElementById('rkCss')){const st=document.createElement('style');st.id='rkCss';st.textContent=`#rkBan{position:relative;display:flex;align-items:center;gap:14px;overflow:hidden;margin:0 0 14px;padding:16px;border-radius:18px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#2b1760,#5a2a9a 55%,#b0409a);box-shadow:0 14px 34px rgba(110,60,190,.35),inset 0 0 0 1px rgba(255,255,255,.16);transition:transform .25s,box-shadow .25s}
+#rkBan:hover,#rkBan:focus-visible{transform:translateY(-3px);box-shadow:0 20px 44px rgba(110,60,190,.5),inset 0 0 0 1px rgba(255,255,255,.3)}#rkBan:active{transform:scale(.985)}
+#rkBan .rk-em{font-size:46px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));flex:none}#rkBan .rk-txt{display:block;min-width:0;flex:1}
+#rkBan small{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#ffd96b}#rkBan b{display:block;font-size:19px;line-height:1.15;margin:2px 0}#rkBan em{display:block;font-style:normal;font-size:12.5px;opacity:.9}
+#rkBan .rk-go{flex:none;font-weight:800;font-size:12px;padding:8px 12px;border-radius:20px;background:#ffd96b;color:#2b1760}
+@media (prefers-reduced-motion:no-preference){#rkBan .rk-em{animation:rkB 2.4s ease-in-out infinite}@keyframes rkB{50%{transform:translateY(-4px) rotate(-6deg)}}}`;document.head.appendChild(st)}
+    l.parentNode.insertBefore(a,l)}
   $('gList').innerHTML=gameIds().map(id=>{const G=GAMES[id];return `<button class="game" data-g="${id}"><span class="ic" style="background:${G.bg}">${esc(G.icon)}</span><span><b>${esc(G.name)}</b><div class="sub">${esc(G.desc)}</div><div class="tags">${HID.indexOf(id)>=0?'<i style="background:#b45309;color:#fff">Hidden: only you</i>':''}${G.tagsHtml||('<i>Single player</i>'+(G.modes==='single'?'':'<i>Multiplayer 2 to 4</i>')+'<i>Your best '+(PREF.best[id]||0)+'</i>')}</div><div class="owhc" data-owh-c="game__${id.replace(/[^A-Za-z0-9_-]/g,'_')}"></div></span></button>`}).join('');
   $('gList').querySelectorAll('.game').forEach(b=>b.onclick=()=>{const G=GAMES[b.dataset.g];if(G&&G.link){location.href=G.link;return}openGame(b.dataset.g)});
   renderBar();drawBoard()}

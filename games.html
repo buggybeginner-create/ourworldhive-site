@@ -493,7 +493,7 @@ GAMES.highway={own:true,kind:'gl',skyScene:true,name:'Highway Racer 3D',icon:'\u
   return g}};
 
 /* ---------------- Stack Tower ---------------- */
-GAMES.stack={own:true,kind:'gl',sky:'linear-gradient(#1b2250,#7a5cff 55%,#ffb48a)',name:'Stack Tower 3D',icon:'\uD83E\uDDF1',bg:'linear-gradient(135deg,#ffc857,#ff6b8b)',desc:'Drop the sliding blocks at the right moment and build the tallest tower. In multiplayer you race the others and see their floors live.',
+GAMES.stack={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#1b2250,#7a5cff 55%,#ffb48a)',name:'Stack Tower 3D',icon:'\uD83E\uDDF1',bg:'linear-gradient(135deg,#ffc857,#ff6b8b)',desc:'Drop the sliding blocks at the right moment and build the tallest tower.',
  how:'Tap the screen (or press Space) to drop the moving block. Only the part that sits on the tower stays. A perfect drop keeps the full size and builds a bonus streak.',
  make(c){
   const e=c.eng,ov=c.ov,W=360,H=480,BH=.6;let layers=[{x:0,z:0,w:3.2,d:3.2,col:hsl(0,.62,.6)}],falling=[],rings=[],level=0,perfect=0,combo=0,phase=0,spd=1.7,camY=0,over=false,msgT=0,msgS='',lastTap=-1,sc=0,T=0;
@@ -521,7 +521,7 @@ GAMES.stack={own:true,kind:'gl',sky:'linear-gradient(#1b2250,#7a5cff 55%,#ffb48a
    msg(){return msgT>0?msgS:''},net(){return[level,perfect]},dispose(){off()}}}};
 
 /* ---------------- Merge 2048 ---------------- */
-GAMES.merge={own:true,kind:'2d',sky:'linear-gradient(160deg,#17163a,#2c1f5e)',name:'Merge 2048',icon:'\uD83E\uDDE9',bg:'linear-gradient(135deg,#3de0d0,#3a86ff)',desc:'Slide the tiles and merge equal numbers. In multiplayer everyone gets the same tiles and the highest score wins.',
+GAMES.merge={own:true,modes:'single',kind:'2d',sky:'linear-gradient(160deg,#17163a,#2c1f5e)',name:'Merge 2048',icon:'\uD83E\uDDE9',bg:'linear-gradient(135deg,#3de0d0,#3a86ff)',desc:'Slide the tiles and merge equal numbers.',
  how:'Swipe on the board (or use the arrow buttons or keys) to slide all tiles. When two equal tiles touch they merge into one. Each merge adds its value to your score.',
  make(c){
   const x2=c.cv.getContext('2d'),W=360,H=480,B=336,X0=12,Y0=118,N=4,CELL=B/N,GAPP=8;let grid=[],score=0,over=false,anim=null,pops={},T=0,best=0,qd=null,msgT=0,msgS='';
@@ -597,7 +597,7 @@ GAMES.pingpong={own:true,kind:'gl',sky:'linear-gradient(#0e1230,#2b3170)',name:'
    score(){return my*10+(won?20:0)},hud(){return'Streak '+streak},msg(){return msgT>0?msgS:''},net(){return[my*10+(won?20:0),best,my,opp]},debug(){return{fl:fl&&{t:fl.t,D:fl.D,toP:fl.toP,x1:fl.x1},px,tx,my,opp,score:my*10}},dispose(){off()}}}};
 
 /* ---------------- Tank Battle ---------------- */
-GAMES.tank={own:true,kind:'gl',sky:'linear-gradient(#26324f,#5b6b8f)',name:'Tank Battle 3D',icon:'\uD83D\uDEE1\uFE0F',bg:'linear-gradient(135deg,#7a8450,#2f3b24)',
+GAMES.tank={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#26324f,#5b6b8f)',name:'Tank Battle 3D',icon:'\uD83D\uDEE1\uFE0F',bg:'linear-gradient(135deg,#7a8450,#2f3b24)',
  desc:'Drive your tank through waves of enemy tanks. Your turret aims and fires by itself, you do the driving. In multiplayer everyone faces the same waves.',
  how:'Touch and drag anywhere to drive (the tank moves the way you drag). On a keyboard use WASD or the arrow keys. Your gun fires automatically at the nearest enemy. Stay away from red rammers and dodge the purple tanks\u2019 shells. Green crates give health.',
  make(c){
@@ -891,7 +891,7 @@ GAMES.space={own:true,kind:'gl',sky:'linear-gradient(#02030f,#171046)',name:'Gal
    score(){return Math.floor(d/5)+cr*10+near*5},hud(){return'\uD83D\uDC8E '+cr+'<br><span style="font-size:17px">'+'\u2764'.repeat(Math.max(0,lives))+'</span>'},msg(){return msgT>0?msgS:''},net(){return[sx,d,cr,lives]},debug(){return{d,lives,cr}},dispose(){off()}}}};
 
 /* ---------------- Snake 3D ---------------- */
-GAMES.snake={own:true,kind:'gl',sky:'linear-gradient(#10261c,#2d5a3f)',name:'Snake 3D',icon:'\uD83D\uDC0D',bg:'linear-gradient(135deg,#7bc043,#1f7a42)',
+GAMES.snake={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#10261c,#2d5a3f)',name:'Snake 3D',icon:'\uD83D\uDC0D',bg:'linear-gradient(135deg,#7bc043,#1f7a42)',
  desc:'Guide the snake to the apples without hitting the walls or yourself. In multiplayer everyone gets the same apples.',
  how:'Swipe in the direction you want to turn (or use the arrow buttons, arrow keys or WASD). Each apple makes the snake longer and faster.',
  make(c){
@@ -916,7 +916,7 @@ GAMES.snake={own:true,kind:'gl',sky:'linear-gradient(#10261c,#2d5a3f)',name:'Sna
    score(){return apples*10},hud(){return'Length '+sn.length},msg(){return msgT>0?msgS:''},net(){return[apples,sn.length]},debug(){return{apples,len:sn.length,head:sn[0],over}},dispose(){off()}}}};
 
 /* ---------------- Sky Hop ---------------- */
-GAMES.hop={own:true,kind:'gl',sky:'linear-gradient(#5ab3ff,#cdeaff)',name:'Sky Hop 3D',icon:'\uD83D\uDC26',bg:'linear-gradient(135deg,#5ab3ff,#ffd23f)',
+GAMES.hop={own:true,modes:'single',kind:'gl',sky:'linear-gradient(#5ab3ff,#cdeaff)',name:'Sky Hop 3D',icon:'\uD83D\uDC26',bg:'linear-gradient(135deg,#5ab3ff,#ffd23f)',
  desc:'Tap to flap and glide through the gaps between the pipes. In multiplayer everyone flies the same pipes.',
  how:'Tap the screen (or press Space) to flap. Gravity pulls you down between taps. Pass through the gaps without touching the pipes, the ground or the sky.',
  make(c){
@@ -944,7 +944,7 @@ GAMES.hop={own:true,kind:'gl',sky:'linear-gradient(#5ab3ff,#cdeaff)',name:'Sky H
 function tapAt(el,fn){return listen(el,{pointerdown:ev=>{ev.preventDefault();const r=el.getBoundingClientRect();fn((ev.clientX-r.left)/r.width*360,(ev.clientY-r.top)/r.height*480)}})}
 
 /* ---------------- Penalty Shootout ---------------- */
-GAMES.penalty={own:true,kind:'gl',sky:CK_SKY,name:'Penalty Shootout 3D',icon:'\u26BD',bg:'linear-gradient(135deg,#2f9e44,#a9e34b)',
+GAMES.penalty={own:true,modes:'single',kind:'gl',sky:CK_SKY,name:'Penalty Shootout 3D',icon:'\u26BD',bg:'linear-gradient(135deg,#2f9e44,#a9e34b)',
  desc:'Five penalty kicks against a diving goalkeeper. Time your shot. In multiplayer everyone faces the same goalkeeper.',
  how:'A target moves across the goal. Tap the screen (or press Space) to shoot when the target is where you want the ball to go. Corners are harder for the keeper but easier to miss. You have 5 kicks.',
  make(c){
@@ -975,7 +975,7 @@ GAMES.penalty={own:true,kind:'gl',sky:CK_SKY,name:'Penalty Shootout 3D',icon:'\u
    score(){return score},hud(){return'Goals '+goals+' / '+KICKS+'<br><span style="font-size:14px">Kick '+Math.min(KICKS,k+(phase==='aim'||phase==='fly'?1:0))+' of '+KICKS+'</span>'},msg(){return msgT>0?msgS:''},net(){return[score,goals,k]},debug(){return{phase,k,goals,pt,score}},dispose(){off()}}}};
 
 /* ---------------- Hoops ---------------- */
-GAMES.hoops={own:true,kind:'gl',dur:45,sky:'linear-gradient(#150c30,#3a2a78)',name:'Hoops 3D',icon:'\uD83C\uDFC0',bg:'linear-gradient(135deg,#ff7a1a,#8a5cff)',
+GAMES.hoops={own:true,modes:'single',kind:'gl',dur:45,sky:'linear-gradient(#150c30,#3a2a78)',name:'Hoops 3D',icon:'\uD83C\uDFC0',bg:'linear-gradient(135deg,#ff7a1a,#8a5cff)',
  desc:'Shoot as many baskets as you can in 45 seconds, like a real game: shots from inside the arc score 2, shots from behind the 3-point arc score 3. After a few baskets the hoop starts to move. In multiplayer everyone gets the same shots.',
  how:'Swipe up from the ball to shoot. A longer swipe sends the ball farther, and a swipe to the side aims it left or right. The yellow spot on the floor is a 2-point shot, the red spot (behind the arc) is a 3-pointer and needs a stronger swipe. Clean swishes feel great but score the same.',
  make(c){
@@ -1006,7 +1006,7 @@ GAMES.hoops={own:true,kind:'gl',dur:45,sky:'linear-gradient(#150c30,#3a2a78)',na
    score(){return sc},hud(){return'Shots '+att},msg(){return msgT>0?msgS:''},net(){return[sc,baskets]},debug(){return{ready,fl:!!fl,baskets,sc,D:DST(),made2,made3}},shoot,dispose(){off()}}}};
 
 /* ---------------- Mole Smash ---------------- */
-GAMES.mole={own:true,kind:'gl',dur:45,sky:CK_SKY,name:'Mole Smash 3D',icon:'\uD83D\uDD28',bg:'linear-gradient(135deg,#8a5a2b,#7bc043)',
+GAMES.mole={own:true,modes:'single',kind:'gl',dur:45,sky:CK_SKY,name:'Mole Smash 3D',icon:'\uD83D\uDD28',bg:'linear-gradient(135deg,#8a5a2b,#7bc043)',
  desc:'Smash the moles as they pop up, but leave the bombs alone. 45 seconds. In multiplayer everyone gets the same moles.',
  how:'Tap a mole to smash it (+1, fast hits +2). Do not tap the black bombs: they cost 2 points. Moles pop up faster as time goes by.',
  make(c){
@@ -1031,7 +1031,7 @@ GAMES.mole={own:true,kind:'gl',dur:45,sky:CK_SKY,name:'Mole Smash 3D',icon:'\uD8
    score(){return sc},hud(){return'Smashed '+hits},msg(){return msgT>0?msgS:''},net(){return[sc,hits]},debug(){return{T,sc,next:ev.filter(m=>T>=m.a&&T<=m.a+m.dur&&!m.hit).map(m=>({h:m.h,b:m.bomb}))}},dispose(){off()}}}};
 
 /* ---------------- Memory Match ---------------- */
-GAMES.memory={own:true,kind:'2d',dur:75,sky:'linear-gradient(160deg,#1a1442,#3b2a7a)',name:'Memory Match',icon:'\uD83C\uDCCF',bg:'linear-gradient(135deg,#ff5d93,#ffc857)',
+GAMES.memory={own:true,modes:'single',kind:'2d',dur:75,sky:'linear-gradient(160deg,#1a1442,#3b2a7a)',name:'Memory Match',icon:'\uD83C\uDCCF',bg:'linear-gradient(135deg,#ff5d93,#ffc857)',
  desc:'Flip cards and find the matching pairs before time runs out. A new board appears when you clear one. In multiplayer everyone gets the same boards.',
  how:'Tap two cards to flip them. If they match you score and they stay open. Quick matches in a row build a streak bonus. Clear the whole board for a bonus and a new board.',
  make(c){
@@ -1098,7 +1098,7 @@ async function onAuth(u){
   if(!u){ME=null;PROF=null;renderBar();drawBoard();return}
   ME={uid:u.uid,name:u.displayName||String(u.email||'Player').split('@')[0]};
   try{const s=await FS.collection('arena_players').doc(u.uid).get();PROF=s.exists?s.data():null}catch(e){PROF=null}
-  renderBar();drawBoard(); if(!PROF&&!document.body.classList.contains('playing'))openProfile(true)}
+  renderBar();drawBoard();hsFlush(); if(!PROF&&!document.body.classList.contains('playing'))openProfile(true)}
 function renderBar(){
   const b=$('abar');
   if(MPSTATE==='off')b.innerHTML='<span class="sub">Multiplayer and rankings switch on when the site is connected to Firebase. Solo play works now.</span>';
@@ -1106,6 +1106,31 @@ function renderBar(){
   else if(!ME)b.innerHTML='<span class="sub">Playing as a guest. Sign in to play multiplayer and join the rankings.</span><button class="btn sm" id="bIn">Sign in</button>';
   else b.innerHTML=`<span><b>${esc(PROF?PROF.name:ME.name)}</b> <span class="sub">${PROF?esc(flag(PROF.country)+' '+cname(PROF.country)):'Set up your profile'}</span></span><span><button class="btn alt sm" id="bPf">Profile</button> <button class="btn alt sm" id="bOut">Sign out</button></span>`;
   if($('bIn'))$('bIn').onclick=openSignIn; if($('bPf'))$('bPf').onclick=()=>openProfile(false); if($('bOut'))$('bOut').onclick=()=>AUTH.signOut().then(()=>toast('Signed out.'))}
+
+/* ---------- high-score ranking for every game (works offline; goes online when signed in) ---------- */
+function hsQ(){try{return JSON.parse(localStorage.getItem('owh_hs_q')||'{}')}catch(e){return{}}}
+function hsSaveQ(q){try{localStorage.setItem('owh_hs_q',JSON.stringify(q))}catch(e){}}
+function hsName(){return(PROF&&PROF.name)||(ME&&ME.name)||(function(){try{return localStorage.getItem('owh_bx_name')}catch(e){return''}})()||'Player'}
+function hsPush(id,sc){if(!(sc>0))return;const q=hsQ();if(sc>(q[id]||0)){q[id]=sc;hsSaveQ(q)}hsFlush()}
+let _hsBusy=false;
+async function hsFlush(){
+  if(_hsBusy||!FS||!ME)return;_hsBusy=true;
+  try{const q=hsQ();for(const id of Object.keys(q)){const sc=q[id];
+    try{const ref=FS.collection('game_scores').doc(id).collection('p').doc(ME.uid);
+      await FS.runTransaction(async t=>{const sn=await t.get(ref),cur=sn.exists?(sn.data().best||0):0;if(sc>cur)t.set(ref,{game:id,uid:ME.uid,name:hsName(),av:(GAMES[id]&&GAMES[id].icon)||'🎮',c:(PROF&&PROF.country)||'',best:sc,t:Date.now()})});
+      const q2=hsQ();if(q2[id]===sc){delete q2[id];hsSaveQ(q2)}}catch(e){}}}
+  finally{_hsBusy=false}}
+async function openHs(id){
+  const G=GAMES[id],mine=PREF.best[id]||0;
+  openSheet(`<div class="row"><h2 style="margin:0">🏆 ${esc(G.name)} ranking</h2><button class="btn alt sm" id="hsX" aria-label="Close">✕</button></div><p class="sub">Your best on this device: <b>${mine}</b></p><div id="hsBody"><p class="sub">Loading…</p></div>`);
+  $('hsX').onclick=closeSheet;
+  const body=$('hsBody');
+  if(!FS){body.innerHTML='<p class="sub">Offline or not connected: only your own best score is shown. Online ranking appears when the site can connect.</p>';return}
+  if(ME)await hsFlush();
+  try{const s=await FS.collection('game_scores').doc(id).collection('p').orderBy('best','desc').limit(50).get(),rows=s.docs.map(d=>d.data()),idx=ME?rows.findIndex(r=>r.uid===ME.uid):-1;
+    body.innerHTML=(!ME?'<p class="note">Sign in to put your score on this ranking.</p>':idx>=0?`<p class="c">Your rank: <b>#${idx+1}</b></p>`:'<p class="note">'+(mine>0?'You are outside the top 50 or your score is still uploading.':'Play once to join the ranking.')+'</p>')+
+      (rows.length?'<div class="arena"><table><tr><th>#</th><th>Player</th><th>Best</th></tr>'+rows.map((r,i)=>`<tr class="${ME&&r.uid===ME.uid?'me':''}"><td>${i<3?MEDAL[i]:i+1}</td><td>${esc(r.name)}${r.c?' '+flag(r.c):''}</td><td>${r.best}</td></tr>`).join('')+'</table></div>':'<p class="sub">No scores yet. Be the first!</p>')
+  }catch(e){body.innerHTML='<p class="sub">Could not load the online ranking right now. Your best score on this device: <b>'+mine+'</b></p>'}}
 /* ---------- sheets ---------- */
 function openSheet(html){$('sheetIn').innerHTML=html;$('sheet').classList.remove('hide')}
 function closeSheet(){$('sheet').classList.add('hide')}
@@ -1229,8 +1254,9 @@ function openGame(id){
   const G=GAMES[id];try{window.OWHEng&&OWHEng.view('game__'+id.replace(/[^A-Za-z0-9_-]/g,'_'))}catch(e){}
   openSheet(`<div class="row"><h2 style="margin:0">${esc(G.icon)} ${esc(G.name)}</h2><button class="btn alt sm" id="shX" aria-label="Close">\u2715</button></div><p class="sub">${esc(G.how)}</p><p class="sub">Your best score: <b>${PREF.best[id]||0}</b></p><div data-owh-eng="game__${id.replace(/[^A-Za-z0-9_-]/g,'_')}" data-owh-view="1"></div>${id==='highway'?carHtml():''}${id==='runner'?runnerHtml():''}
    <button class="btn big" id="shS">\uD83C\uDFAF Single player<div class="sub" style="color:inherit;opacity:.8">Play alone and beat your best score</div></button>
-   ${G.modes==='single'?'':'<button class="btn big alt" id="shM">\uD83D\uDC65 Multiplayer<div class="sub">Play real players at the same time. Win to climb the weekly, monthly and all-time rankings</div></button>'}${G.custom?'':'<button class="btn big alt" id="shB">\uD83E\uDD16 Play with bots<div class="sub">Practice against computer players. No ranking points</div></button>'}`);
-  $('shX').onclick=closeSheet;$('shS').onclick=()=>{closeSheet();beginPlay(id,'single')};if($('shM'))$('shM').onclick=()=>openMpSetup(id);if($('shB'))$('shB').onclick=()=>openBotSetup(id);
+   <button class="btn big alt" id="shR">\uD83C\uDFC6 High-score ranking<div class="sub">Top players of ${esc(G.name)}, online and on this device</div></button>
+   ${G.modes==='single'?'':'<button class="btn big alt" id="shM">\uD83D\uDC65 Multiplayer<div class="sub">Play real players at the same time. Win to climb the weekly, monthly and all-time rankings</div></button>'}${(G.custom||G.modes==='single')?'':'<button class="btn big alt" id="shB">\uD83E\uDD16 Play with bots<div class="sub">Practice against computer players. No ranking points</div></button>'}`);
+  $('shX').onclick=closeSheet;$('shS').onclick=()=>{closeSheet();beginPlay(id,'single')};if($('shR'))$('shR').onclick=()=>openHs(id);if($('shM'))$('shM').onclick=()=>openMpSetup(id);if($('shB'))$('shB').onclick=()=>openBotSetup(id);
   if(id==='runner'){const sy=()=>$('shLoc').querySelectorAll('.opt').forEach(b=>b.classList.toggle('on',b.dataset.k===(PREF.loc||'city')));$('shLoc').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{PREF.loc=b.dataset.k;persist();sy()});$('shHint').onchange=e=>{PREF.rhint=e.target.checked;persist()};$('shLite').onchange=e=>{PREF.rq=e.target.checked?'lite':'high';persist()}}
   if(id==='highway'){const sync=()=>{$('shCars').querySelectorAll('.opt').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.t));$('shCols').querySelectorAll('.cc').forEach((b,i)=>b.classList.toggle('on',i===PREF.car.c))};
     $('shCars').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{PREF.car.t=+b.dataset.i;persist();sync()});$('shCols').querySelectorAll('.cc').forEach(b=>b.onclick=()=>{PREF.car.c=+b.dataset.c;persist();sync()})}}
@@ -1397,9 +1423,10 @@ function finish(){
   const G=PL.G,id=PL.id,mode=PL.mode,sc=Math.max(0,Math.floor(PL.g.score()));
   if(mode==='multi')return mpFinish(sc);if(mode==='bots')return botsFinish(sc);
   const old=PREF.best[id]||0,isNB=sc>old;if(isNB){PREF.best[id]=sc;persist()}
+  hsPush(id,sc);
   stopPlay();show('res');if(isNB&&old>0)SFX.win();
-  $('resCard').innerHTML=`<div class="sub c">${G.icon} ${G.name} (single player)</div><div class="big">\uD83C\uDFC1 ${sc}</div><p class="c">${isNB&&old>0?'\uD83C\uDF89 New personal best!':'Your best: <b>'+PREF.best[id]+'</b>'}</p><p class="note c">Single player scores are saved on this device. Multiplayer wins count for the rankings.</p><div class="row"><button class="btn" id="rsAgain">Play again</button><button class="btn alt" id="rsMp">\uD83D\uDC65 Multiplayer</button><button class="btn alt" id="rsHome">Games</button></div>`;
-  $('rsAgain').onclick=()=>beginPlay(id,'single');$('rsMp').onclick=()=>{renderHub();openMpSetup(id)};$('rsHome').onclick=renderHub}
+  $('resCard').innerHTML=`<div class="sub c">${G.icon} ${G.name} (single player)</div><div class="big">\uD83C\uDFC1 ${sc}</div><p class="c">${isNB&&old>0?'\uD83C\uDF89 New personal best!':'Your best: <b>'+PREF.best[id]+'</b>'}</p><p class="note c">${ME?'Your best score is sent to the online high-score ranking.':'Sign in to join the online high-score ranking. Your best is saved on this device.'}</p><div class="row"><button class="btn" id="rsAgain">Play again</button>${G.modes==='single'?'<button class="btn alt" id="rsRk">\uD83C\uDFC6 Ranking</button>':'<button class="btn alt" id="rsMp">\uD83D\uDC65 Multiplayer</button>'}<button class="btn alt" id="rsHome">Games</button></div>`;
+  $('rsAgain').onclick=()=>beginPlay(id,'single');if($('rsMp'))$('rsMp').onclick=()=>{renderHub();openMpSetup(id)};if($('rsRk'))$('rsRk').onclick=()=>{renderHub();openHs(id)};$('rsHome').onclick=renderHub}
 async function mpFinish(sc){
   const M=MPS,G=PL.G,id=PL.id,maxT=PL.maxT,rid=PL.mp.rid;
   stopPlay();show('wait');$('wtT').textContent=G.icon+' '+G.name;$('wtMsg').textContent='Your score: '+sc+'. Waiting for the other players to finish\u2026';
@@ -1419,6 +1446,7 @@ async function settleMatch(mySc){
   try{saved=await saveResult({rid,game:id,size,place,pts,score:mySc})}catch(e){console.warn('save',e)}
   roomRef(rid).update({status:'finished'}).catch(()=>{});
   const old=PREF.best[id]||0;if(mySc>old){PREF.best[id]=mySc;persist()}
+  hsPush(id,mySc);
   show('res');if(place===1)SFX.win();
   $('resCard').innerHTML=`<div class="sub c">${G.icon} ${G.name} (multiplayer)</div><div class="big">${MEDAL[place-1]||'\uD83C\uDFC1'} ${mySc}</div><p class="c"><b>${place===1?'You won!':'You finished '+['','1st','2nd','3rd','4th'][place]}</b></p>
    <table>${rows.map((r,i)=>`<tr class="${r.uid===ME.uid?'me':''}"><td>${i+1}</td><td>${flag(r.country)} ${esc(r.name)}</td><td>${r.score||0}</td></tr>`).join('')}</table>

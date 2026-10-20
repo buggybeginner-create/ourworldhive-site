@@ -1146,6 +1146,8 @@ function makeDelivery0(card,key,aim,rq,pace){
   }
   xt=clamp(xt,-1.6,1.6);
   let xl=xt*0.6,traj,cp=null;
+  /* round / over the wicket changes the release angle: shift the bounce point so the ball still arrives on the chosen line (no accidental wides) */
+  {const kk=clamp((zl-ZC)/(REL[2]-zl),0,1.2);xl+=(REL[0]-0.16)*kk/(1+kk)}
   for(let it=0;it<6;it++){
     const T1=(REL[2]-zl)/(speed*0.99);
     const v=[(xl-REL[0])/T1,(0.5*GRAV*T1*T1-REL[1])/T1,-(REL[2]-zl)/T1];
@@ -1290,11 +1292,12 @@ function aiChooseBall(c){
 }
 function setBowlSide(bsd,c){c=c||S.bowler;if(!c)return;const L=c.arm==='L',ov=L?0.54:0.16;
   /* round the wicket: the bowler runs in from the other side of the stumps, clearly wider than over the wicket */
-  REL[0]=bsd==='round'?ov+(L?-1:1)*1.35:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd}
+  REL[0]=bsd==='round'?ov+(L?-1:1)*0.9:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd}
 function beginDelivery(nm){
   const c=S.bowler;let key,aim=null,rq,seed=null,pace=1;
   RU=KINDS[c.kind].ru;BZ0=KINDS[c.kind].z0;
-  const bsd=(nm&&nm.bs)?nm.bs:(humanBowl()?G.bwSide:(Math.random()<0.2?'round':'over'));
+  if(!humanBowl()&&G.cpuSideOv!==Math.floor(S.balls/6)){G.cpuSideOv=Math.floor(S.balls/6);G.cpuSide=Math.random()<0.25?'round':'over'}
+  const bsd=(nm&&nm.bs)?nm.bs:(humanBowl()?G.bwSide:G.cpuSide||'over');
   setBowlSide(bsd,c);
   if(nm){key=nm.key;aim=nm.aim;rq=0.5;seed=nm.seed;pace=nm.pace}
   else if(humanBowl()){if(G.aimT){G.sel.x=G.aimT.x;G.sel.z=G.aimT.z}key=G.sel.key;aim={x:G.sel.x,z:G.sel.z};rq=0.5;pace=G.pace;if(MT.online)seed=(Math.random()*2147483647)|0;RU=Math.max(RU,2.0)}
@@ -2024,7 +2027,7 @@ function hitChecks(){
   const b=ball,p=b.p,sp=Math.hypot(b.v[0],b.v[1],b.v[2]);
   /* catches */
   for(const f of FLD){
-    if(f.tried)continue;
+    if(f.tried||b.bounced)continue; /* a ball that has pitched can never be a catch */
     const dh=Math.hypot(p[0]-f.x,p[2]-f.z);
     if(dh<1.15&&p[1]>0.3&&p[1]<2.7){
       f.tried=true;startAct(f,'catch');f.tgt=[p[0],p[1],p[2]];

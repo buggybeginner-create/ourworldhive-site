@@ -10,7 +10,15 @@ var THEMES={
  neon:{ml:12,md:12,mf:12,name:'Neon Grid',l:'#23306f',d:'#0d1236',frame:'#2a0d55',base:'#0a0620',table:'#05030f',bg:'radial-gradient(ellipse at 50% 30%,#3a1488,#05020f 70%)',fog:[.03,.01,.08],spec:.8,el:.3,ed:.22,orb:['#3de0ff','#ff3da8']},
  ice:{ml:8,md:8,mf:8,name:'Frozen Lake',l:'#eaf7ff',d:'#78b0d8',frame:'#3c6283',base:'#1d3550',table:'#122238',bg:'radial-gradient(ellipse at 50% 28%,#6fa8d6,#0d1e33 72%)',fog:[.1,.16,.22],spec:1,orb:['#ffffff']},
  lava:{ml:6,md:7,mf:6,name:'Volcano',l:'#6a2f24',d:'#220d09',frame:'#150807',base:'#0c0403',table:'#080302',bg:'radial-gradient(ellipse at 50% 80%,#8a2a08,#1a0603 55%,#050101)',fog:[.14,.04,.02],spec:.6,ed:.28,edc:'#ff4b1a',orb:['#ff7a1a','#ffcf33']},
- grave:{ml:6,md:6,mf:6,name:'Haunted Yard',l:'#a3a29c',d:'#4b4a52',frame:'#26262b',base:'#121216',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 30%,#2b4a3a,#060b09 72%)',fog:[.03,.06,.05],spec:.2,orb:['#9dffb0']}
+ grave:{ml:6,md:6,mf:6,name:'Haunted Yard',l:'#a3a29c',d:'#4b4a52',frame:'#26262b',base:'#121216',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 30%,#2b4a3a,#060b09 72%)',fog:[.03,.06,.05],spec:.2,orb:['#9dffb0']},
+ forest:{ml:13,md:13,mf:13,name:'Forest Floor',l:'#a9e06a',d:'#5fae3c',frame:'#1f4a22',base:'#0f2a12',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#2d6a34,#07130a 72%)',fog:[0.03,0.08,0.04],spec:0.4,orb:null},
+ sand:{ml:5,md:5,mf:5,name:'Desert Dunes',l:'#f4e2b2',d:'#d4a85e',frame:'#6a4a22',base:'#3a2812',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#c98f4a,#2a1608 72%)',fog:[0.12,0.08,0.03],spec:0.4,orb:null},
+ sakura:{ml:13,md:13,mf:13,name:'Sakura Garden',l:'#ffe6ef',d:'#f2a9c4',frame:'#7a3a52',base:'#3a1a28',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#d77aa0,#2a0e1a 72%)',fog:[0.12,0.06,0.08],spec:0.4,orb:null},
+ ocean:{ml:8,md:8,mf:8,name:'Deep Ocean',l:'#bfe9f5',d:'#3f8fb8',frame:'#16496a',base:'#0a2638',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#1f78a8,#02101c 72%)',fog:[0.02,0.08,0.14],spec:0.9,orb:null},
+ candy:{ml:13,md:13,mf:13,name:'Candy Land',l:'#fff0f6',d:'#ff9cc8',frame:'#a03a7a',base:'#4a1a3a',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#ff7ab8,#3a0a28 72%)',fog:[0.14,0.05,0.1],spec:0.7,orb:null},
+ slate:{ml:6,md:6,mf:6,name:'Slate Stone',l:'#b9bec7',d:'#6a7080',frame:'#2b2f38',base:'#14161c',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#4a5060,#0b0d12 72%)',fog:[0.05,0.05,0.07],spec:0.2,orb:null},
+ sunset:{ml:13,md:13,mf:13,name:'Sunset Court',l:'#ffd9a0',d:'#e0707a',frame:'#7a2a4a',base:'#2a0f22',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#e0607a,#1a0614 72%)',fog:[0.14,0.06,0.06],spec:0.6,orb:null},
+ mono:{ml:13,md:13,mf:13,name:'Newsprint',l:'#f2f2ee',d:'#6c6c6c',frame:'#222222',base:'#0c0c0c',table:'#0b0d0d',bg:'radial-gradient(ellipse at 50% 28%,#555,#0a0a0a 72%)',fog:[0.06,0.06,0.06],spec:0.3,orb:null}
 };
 var SKINS={
  classic:{mw:5,mb:10,name:'Ivory and Ebony',w:'#f4ecd8',b:'#2b2420',sw:.55,sb:.6,ew:0,eb:0,aw:1,ab:1},
@@ -19,7 +27,31 @@ var SKINS={
  neon:{mw:12,mb:12,name:'Neon Glow',w:'#4dfcff',b:'#ff4dd2',sw:.9,sb:.9,ew:.55,eb:.55,aw:1,ab:1},
  crystal:{mw:4,mb:4,name:'Crystal',w:'#d6efff',b:'#7a55c8',sw:1,sb:1,ew:.12,eb:.18,aw:.78,ab:.8},
  fire:{mw:8,mb:7,name:'Fire and Ice',w:'#bfe9ff',b:'#ff5a1f',sw:1,sb:.7,ew:.1,eb:.55,aw:.92,ab:1},
- haunt:{mw:5,mb:6,name:'Bone and Shadow',w:'#e9e5cf',b:'#3a2a52',sw:.3,sb:.7,ew:0,eb:.3,aw:1,ab:1,bglow:'#7dff6a'}
+ haunt:{mw:5,mb:6,name:'Bone and Shadow',w:'#e9e5cf',b:'#3a2a52',sw:.3,sb:.7,ew:0,eb:.3,aw:1,ab:1,bglow:'#7dff6a'},
+ forest:{mw:5,mb:6,name:'Forest Folk',w:'#e8e2c4',b:'#2f6b3a',sw:0.4,sb:0.3,ew:0,eb:0,aw:1,ab:1},
+ jade:{mw:4,mb:10,name:'Jade and Ink',w:'#bff0d4',b:'#1c2b2a',sw:1,sb:0.8,ew:0.08,eb:0,aw:0.85,ab:1},
+ ruby:{mw:4,mb:10,name:'Ruby and Onyx',w:'#ff7a8a',b:'#201418',sw:1,sb:0.9,ew:0.12,eb:0,aw:0.82,ab:1},
+ sapphire:{mw:4,mb:13,name:'Sapphire and Pearl',w:'#4f8bff',b:'#f4f1ea',sw:1,sb:0.9,ew:0.15,eb:0,aw:0.82,ab:1},
+ amethyst:{mw:4,mb:4,name:'Amethyst',w:'#d9b3ff',b:'#5a2ca0',sw:1,sb:1,ew:0.12,eb:0.2,aw:0.8,ab:0.82},
+ bronze:{mw:3,mb:6,name:'Bronze Age',w:'#d49a56',b:'#3a2c22',sw:0.9,sb:0.3,ew:0,eb:0,aw:1,ab:1},
+ silver:{mw:3,mb:3,name:'Silver and Steel',w:'#e6eaf0',b:'#5d6572',sw:1,sb:0.9,ew:0,eb:0,aw:1,ab:1},
+ copper:{mw:3,mb:6,name:'Copper and Slate',w:'#e08a5a',b:'#3b4048',sw:0.9,sb:0.2,ew:0,eb:0,aw:1,ab:1},
+ sakura:{mw:13,mb:10,name:'Sakura',w:'#ffd1e3',b:'#3a1f30',sw:0.8,sb:0.8,ew:0,eb:0,aw:1,ab:1},
+ candy:{mw:13,mb:13,name:'Candy Shop',w:'#ffb3d9',b:'#6fd6ff',sw:0.9,sb:0.9,ew:0,eb:0,aw:1,ab:1},
+ mint:{mw:13,mb:10,name:'Mint Chip',w:'#c8f5e0',b:'#3b2a22',sw:0.8,sb:0.7,ew:0,eb:0,aw:1,ab:1},
+ sunset:{mw:13,mb:13,name:'Sunset',w:'#ffc66b',b:'#c2386a',sw:0.8,sb:0.8,ew:0,eb:0,aw:1,ab:1},
+ ocean:{mw:8,mb:10,name:'Ocean Deep',w:'#bde8ff',b:'#0f3a66',sw:1,sb:0.8,ew:0.05,eb:0,aw:1,ab:1},
+ glacier:{mw:8,mb:8,name:'Glacier',w:'#f4fbff',b:'#4a7fa8',sw:1,sb:1,ew:0,eb:0.05,aw:1,ab:1},
+ lava:{mw:6,mb:7,name:'Magma',w:'#d6c7b0',b:'#3a1008',sw:0.3,sb:0.5,ew:0,eb:0.5,aw:1,ab:1},
+ obsidian:{mw:10,mb:10,name:'Obsidian Duel',w:'#8a8f9c',b:'#0b0c10',sw:0.9,sb:1,ew:0,eb:0,aw:1,ab:1},
+ sand:{mw:5,mb:6,name:'Desert Sand',w:'#f3e1b0',b:'#8a5a2c',sw:0.4,sb:0.3,ew:0,eb:0,aw:1,ab:1},
+ cherry:{mw:1,mb:1,name:'Cherry Wood',w:'#e9b98a',b:'#5a1f16',sw:0.5,sb:0.5,ew:0,eb:0,aw:1,ab:1},
+ walnut:{mw:1,mb:1,name:'Walnut and Maple',w:'#f0d9b0',b:'#4a2f1c',sw:0.5,sb:0.5,ew:0,eb:0,aw:1,ab:1},
+ aurora:{mw:12,mb:12,name:'Aurora',w:'#7dffc4',b:'#9b6bff',sw:0.9,sb:0.9,ew:0.5,eb:0.5,aw:1,ab:1},
+ toxic:{mw:12,mb:10,name:'Toxic Waste',w:'#b6ff3d',b:'#2a1442',sw:0.9,sb:0.8,ew:0.5,eb:0.1,aw:1,ab:1},
+ cyber:{mw:12,mb:12,name:'Cyber Pink',w:'#ff9bf0',b:'#3de0ff',sw:0.9,sb:0.9,ew:0.5,eb:0.5,aw:1,ab:1},
+ royal:{mw:3,mb:10,name:'Royal Purple and Gold',w:'#f0c75a',b:'#4a2a8a',sw:1,sb:0.9,ew:0.08,eb:0,aw:1,ab:1},
+ shadowx:{mw:4,mb:4,name:'Ghost and Shadow',w:'#eaf2ff',b:'#14101e',sw:1,sb:1,ew:0.1,eb:0.1,aw:0.75,ab:0.8}
 };
 var PROF={
  pawn:[[0,0],[.34,0],[.36,.04],[.35,.09],[.27,.15],[.2,.2],[.15,.32],[.13,.42],[.19,.46],[.2,.5],[.14,.54],[0,.54]],

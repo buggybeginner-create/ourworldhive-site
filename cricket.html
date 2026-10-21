@@ -991,11 +991,11 @@ const BT_ROOT=[-0.44,0,0.55];
 const rootX=c=>(c&&c.hand==='L')?0.44:-0.44;
 const newBatter=(card,x,z)=>({card,mir:card.hand==='L',root:[x===undefined?rootX(card):x,0,z===undefined?BT_ROOT[2]:z],state:'stance',swing:null,walk:null,backU:0,outPose:null});
 let bat=newBatter(BAT_CARDS[0]);let outBat=null;let nsBat=null;
-let NS_X=-1.45;const UMP_X=0;const NS_Z=19.6;
+let NS_X=-1.45,UMP_X=-0.95;const NS_Z=19.6;
 /* umpire + non-striker always stand on the side AWAY from the bowler's run-in line, so the bowler's view of the batter is never blocked */
-function placeCrew(line){NS_X=line>0.45?-1.95:-1.45}
-/* umpire always stands right behind the stumps; the bowler runs round him (wider on the side of his line) */
-function bwX(){const dz=G.bowlerZ-21.5,k=Math.max(0,1-dz*dz);return G.bowlerX+(G.bowlerX>=0?1:-1)*0.6*k}
+function placeCrew(line){const sg=line>=0?-1:1;UMP_X=sg*0.95;NS_X=sg*(Math.abs(line)>0.8?1.75:1.45)}
+/* umpire (behind the stumps) and the non-striker always stand on the side OPPOSITE to the bowler's run-in line, so the bowler's view of the batter is never blocked */
+function bwX(){return G.bowlerX}
 function mkNs(){const c=S.nsi>=0?sideBat().bats[S.nsi]:null;nsBat=c?newBatter(c,NS_X,NS_Z):null}
 function bspFor(c){return S.bspM&&S.bspM[c.id]!==undefined?S.bspM[c.id]:c.spN}
 

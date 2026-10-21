@@ -648,7 +648,7 @@ function drawRig(J,S){
   const dk=[34,34,40],metal=[70,74,84];let CURCH=null;
   const fc=J.face||[0,0,1],rt=[fc[2],0,-fc[0]];
   const trim=S.trim||null;
-  const STICK=OPT.gfx==='stick'&&!GLX.collecting;
+  const STICK=OPT.gfx==='stick'&&!GLX.collecting,TN=STICK&&OPT.toon!==false;
   if(STICK){
     const LK=Object.assign(skLook(S.label||'x'),S.lk||{}),Hs=LK.H;
     {const bx=(J.aL[0]+J.aR[0])/2,bz=(J.aL[2]+J.aR[2])/2,sc=q=>[bx+(q[0]-bx)*Hs,q[1]*Hs,bz+(q[2]-bz)*Hs],J2={};
@@ -656,21 +656,21 @@ function drawRig(J,S){
      J=J2}
     const R0=0.042,K=[22,24,34],R=R0*(S.label==='UMPIRE'?1.6:LK.W),hurt=S.hurt||0,jc0=S.jersey||K,jc=hurt>0?mixc(jc0,[236,38,38],Math.min(1,hurt*1.5)):jc0,sw=1+1.0*hurt;
     for(const side of ['L','R']){CURCH='leg'+side;const hp=J['hip'+side],k=J['k'+side],an=J['a'+side],tt=J['t'+side];
-      cap(hp,k,R,K);cap(k,an,R*0.95,K);cap(an,tt,R*0.9,K);
+      {const pn=TN?(S.label==='UMPIRE'?K:(S.pants||[52,96,170])):K,tk=TN?1.35:1;cap(hp,k,R*tk,pn,R*tk*0.95);cap(k,an,R*tk*0.95,pn,R*tk*0.8);cap(an,tt,R*0.9,TN?[110,66,36]:K)}
       if(S.pad){const pc_=S.padC||S.padSk||[238,238,232],pb=S.padBand;cap(vmix(k,an,0.08),vmix(k,an,0.92),R0*1.9,pc_,R0*1.6,pb?{off:0.01,bands:[[0.28,0.4,pb],[0.62,0.74,pb]]}:{off:0.01})}
       /* shoe */
-      {const shc=S.shoeC||(S.label==='UMPIRE'?K:(S.shoe||[240,240,240]));cap(vadd(an,[0,-0.01,0]),tt,R0*1.25,shc,R0*1.0,{off:0.012})}}
+      {const shc=S.shoeC||(S.label==='UMPIRE'?K:(TN?[118,70,38]:(S.shoe||[240,240,240])));cap(vadd(an,[0,-0.01,0]),tt,R0*1.25,shc,R0*1.0,{off:0.012})}}
     CURCH='torso';cap(J.hipL,J.hipR,R,K);cap(J.pel,J.neck,R*1.15,K);cap(J.sL,J.sR,R,K);
     {const jb=S.jdes?(()=>{const lm=jc[0]*.3+jc[1]*.59+jc[2]*.11,ac=S.trim&&Math.abs((S.trim[0]*.3+S.trim[1]*.59+S.trim[2]*.11)-lm)>60?S.trim:(lm>150?[30,34,48]:[250,250,250]);return S.jdes===1?[[0.18,0.3,ac],[0.42,0.54,ac],[0.66,0.78,ac]]:S.jdes===2?[[0.38,0.62,ac]]:[[0.82,0.98,ac]]})():null;
     cap(vmix(J.pel,J.neck,0.12),vmix(J.pel,J.neck,0.88),R*2.7*sw,jc,R*2.3*sw,jb?{off:0.012,bands:jb}:{off:0.012})}
     if(hurt>0){const mp=vmix(J.pel,J.neck,0.5);sph(vadd(mp,vsc(fc,0.04)),0.13*hurt*(1+0.08*Math.sin(G.clock*20)),[255,58,50],0.03)}
     for(const side of ['L','R']){CURCH='arm'+side;const s_=J['s'+side],e_=J['e'+side],h_=J['h'+side];
-      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(S.glove){const gcl=S.gloveC||S.gloveSk||S.glove;sph(h_,R0*1.8,gcl,0.02);if(S.gloveS===1)cap(vmix(e_,h_,0.55),h_,R0*1.5,S.gloveTrim||shade(gcl,0.7),R0*1.4,{off:0.022});else if(S.gloveTrim)sph(vmix(e_,h_,0.9),R0*1.0,S.gloveTrim,0.03)}else sph(h_,R*1.2,S.skinC||K)}
+      cap(s_,e_,R,K);cap(e_,h_,R*0.9,K);if(!S.glove&&TN)sph(h_,R0*1.7,[255,255,255],0.02);if(S.glove){const gcl=S.gloveC||S.gloveSk||S.glove;sph(h_,R0*1.8,gcl,0.02);if(S.gloveS===1)cap(vmix(e_,h_,0.55),h_,R0*1.5,S.gloveTrim||shade(gcl,0.7),R0*1.4,{off:0.022});else if(S.gloveTrim)sph(vmix(e_,h_,0.9),R0*1.0,S.gloveTrim,0.03)}else sph(h_,R*1.2,S.skinC||K)}
     CURCH=null;cap(J.neck,J.head,R*(S.skinC?1.1:1),S.skinC||K);
     const hr=0.1*(0.92+0.16*(LK.W-0.8)/0.75);
     const c0=cs(J.head[0],J.head[1],J.head[2]),c1=cs(J.head[0]+fc[0]*0.12,J.head[1],J.head[2]+fc[2]*0.12);
     const front=c0[2]>NEAR&&c1[2]>NEAR&&c1[2]<c0[2]-0.015,sgn=front?1:-1;
-    sph(J.head,hr,S.skinC||[246,224,196],0.0);
+    sph(J.head,hr*(TN?1.12:1),TN?mixc(S.skinC||[246,224,196],[255,255,255],0.72):(S.skinC||[246,224,196]),0.0);
     {const cst=S.capStyle,cc=S.capCol||jc0,up=(y)=>[0,hr*y,0];
      if(!cst||cst==='band'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.12),up(0.88))),hr*0.8,[[22,16,14],[44,28,20],[18,18,22],[70,46,28]][(LK.h>>>0)%4],0.03);cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.45)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.45)),0.017,S.helmet||S.cap||jc0,0.017,{off:0.04})}
      else if(cst==='cap'){sph(vadd(J.head,vadd(vsc(fc,-hr*0.1),up(0.9))),hr*0.82,cc,0.04);cap(vadd(vadd(J.head,vsc(fc,hr*0.55)),up(0.5)),vadd(vadd(J.head,vsc(fc,hr*1.55)),up(0.42)),0.03,shade(cc,0.8),0.03,{off:0.05})}
@@ -679,7 +679,9 @@ function drawRig(J,S){
      else if(cst==='cowboy'){cap(vadd(vadd(J.head,vsc(rt,-hr*1.8)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*1.8)),up(0.62)),hr*0.16,cc,hr*0.16,{off:0.04});cap(vadd(vadd(J.head,vsc(fc,-hr*1.5)),up(0.62)),vadd(vadd(J.head,vsc(fc,hr*1.7)),up(0.6)),hr*0.16,cc,hr*0.16,{off:0.04});sph(vadd(J.head,up(1.1)),hr*0.66,shade(cc,0.9),0.05)}
      else if(cst==='crown'){cap(vadd(vadd(J.head,vsc(rt,-hr*0.97)),up(0.62)),vadd(vadd(J.head,vsc(rt,hr*0.97)),up(0.62)),0.024,cc,0.024,{off:0.04});for(const sx of [-0.7,0,0.7])sph(vadd(vadd(J.head,vsc(rt,hr*sx)),up(1.05)),hr*0.2,cc,0.05)}}
     if(front){const fb=vadd(J.head,vsc(fc,hr*0.96));
-      for(const sd of [-1,1])sph(vadd(fb,vadd(vsc(rt,sd*0.04),[0,0.012,0])),0.011,[25,25,30],0.06);
+      if(TN){const ey=0.026;for(const sd of [-1,1]){sph(vadd(fb,vadd(vsc(rt,sd*0.05),[0,0.014,0])),0.016,[255,255,255],0.06);sph(vadd(fb,vadd(vsc(rt,sd*0.05+sd*0.004),[0,0.012,0])),0.009,[20,20,26],0.07)}
+        const m0=vadd(fb,[0,-0.052,0]),sd_=S.mood==='sad'?-1:1,ml=vadd(vadd(m0,vsc(rt,-0.045)),[0,0.012*sd_,0]),mc_=vadd(m0,[0,-0.01*sd_,0]),mr=vadd(vadd(m0,vsc(rt,0.045)),[0,0.012*sd_,0]);cap(ml,mc_,0.006,[20,20,26],0.006,{off:0.08});cap(mc_,mr,0.006,[20,20,26],0.006,{off:0.08})}
+      else for(const sd of [-1,1])sph(vadd(fb,vadd(vsc(rt,sd*0.04),[0,0.012,0])),0.011,[25,25,30],0.06);
       const mp=vadd(fb,[0,-0.034,0]),MUS=[null,[0.048,0.022,0.009],[0.078,0,0.016],[0.074,-0.026,0.011]],mu_=LK.ms!=null?MUS[LK.ms]:[[0.062,0.008,0.011],[0.048,0.022,0.009],[0.078,0.0,0.016]][LK.mu],mc=[28,18,14];
       if(mu_){const mw=mu_[0],dr=mu_[1],th=mu_[2];cap(vadd(mp,vadd(vsc(rt,-mw),[0,-dr,0])),mp,th,mc,th,{off:0.08});cap(mp,vadd(mp,vadd(vsc(rt,mw),[0,-dr,0])),th,mc,th,{off:0.08})}
       {const bdn=LK.beard|0,ch=vadd(fb,[0,-0.088,0]);
@@ -837,7 +839,7 @@ function drawRig(J,S){
     }
     if(p.t===1){
       const rr=Math.max(1,p.r*A[2]);
-      if(doO){ctx.fillStyle=rgba(shade(p.col,0.66),0.8);ctx.beginPath();ctx.arc(A[0],A[1],rr+0.7,0,TAU);ctx.fill()}
+      if(doO){ctx.fillStyle=TN?'#0c0c12':rgba(shade(p.col,0.66),0.8);ctx.beginPath();ctx.arc(A[0],A[1],rr+(TN?Math.max(1.3,rr*0.17):0.7),0,TAU);ctx.fill()}
       if(doF){ctx.fillStyle=rgba(p.col);ctx.beginPath();ctx.arc(A[0],A[1],rr,0,TAU);ctx.fill()}
     }else{
       const B=scr(p.cb);
@@ -854,13 +856,13 @@ function drawRig(J,S){
         rect(0.7);ctx.fillStyle=ctx.strokeStyle=rgba(shade(p.col,0.66),0.8);ctx.fill();ctx.stroke();
         rect(0);ctx.fillStyle=ctx.strokeStyle=rgba(p.col);ctx.fill();ctx.stroke();
       }else{
-        if(doO){ctx.fillStyle=rgba(shade(p.col,0.66),0.8);
-        poly(A,B,ra+0.6,rb+0.6,nx,ny,0,1);ctx.fill();
-        ctx.beginPath();ctx.arc(A[0],A[1],ra+0.6,0,TAU);ctx.arc(B[0],B[1],rb+0.6,0,TAU);ctx.fill()}
+        if(doO){ctx.fillStyle=TN?'#0c0c12':rgba(shade(p.col,0.66),0.8);const oa=TN?Math.max(1.2,ra*0.17):0.6,ob=TN?Math.max(1.2,rb*0.17):0.6;
+        poly(A,B,ra+oa,rb+ob,nx,ny,0,1);ctx.fill();
+        ctx.beginPath();ctx.arc(A[0],A[1],ra+oa,0,TAU);ctx.arc(B[0],B[1],rb+ob,0,TAU);ctx.fill()}
         if(doF){ctx.fillStyle=rgba(p.col);
         poly(A,B,ra,rb,nx,ny,0,1);ctx.fill();
         ctx.beginPath();ctx.arc(A[0],A[1],ra,0,TAU);ctx.arc(B[0],B[1],rb,0,TAU);ctx.fill()}
-        if(doF&&Math.min(ra,rb)>2.2){
+        if(doF&&!TN&&Math.min(ra,rb)>2.2){
           ctx.fillStyle=rgba(shade(p.col,0.7),0.34);
           ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.lineTo(B[0]-nx*rb,B[1]-ny*rb);ctx.lineTo(A[0]-nx*ra,A[1]-ny*ra);ctx.closePath();ctx.fill();
           ctx.fillStyle=rgba(shade(p.col,1.4),0.3);
@@ -3188,6 +3190,7 @@ CH.drawMain=function(setCommon,setLight){
    all players as lit 3D capsules/spheres.  Sky, stands and HUD stay 2D.
    If anything fails the game drops back to the CLASSIC look by itself.
    ===================================================================== */
+try{OPT.toon=localStorage.getItem('wh_cricket_toon')!=='10'}catch(e){}
 try{OPT.gfx=localStorage.getItem('wh_cricket_gfx3')||'stick'}catch(e){OPT.gfx='stick'}
 if(!OWNER||(OPT.gfx!=='classic'&&OPT.gfx!=='stick'&&OPT.gfx!=='art'))OPT.gfx='stick';
 OPT.gl=false;
@@ -4162,7 +4165,8 @@ function _drawPause(){
   btn('sound',90,362,300,48,OPT.sound?'SOUND: ON':'SOUND: OFF',{size:15});
   btn('radar',90,420,300,48,OPT.radar?'FIELD RADAR: ON':'FIELD RADAR: OFF',{size:15});
   btn('runmode',90,478,300,48,OPT.runMan===false?'BATTING RUNS: AUTO':'BATTING RUNS: MANUAL (RUN BUTTON)',{size:13,on:OPT.runMan!==false,col:'#f97316',tc:'#1b1000'});
-  btn('quit',90,536,300,52,'QUIT TO MENU',{size:16});
+  btn('toon',90,536,300,48,OPT.toon===false?'CARTOON LOOK: OFF':'CARTOON LOOK: ON',{size:14,on:OPT.toon!==false,col:'#4cc9f0',tc:'#04121c'});
+  btn('quit',90,594,300,52,'QUIT TO MENU',{size:16});
 }
 /* ---------- end card ---------- */
 function drawEnd(T){
@@ -5367,6 +5371,7 @@ function handleUI(id,r,x,y){
       else if(res==='poor')toast('Need '+(c.price-PR().stars)+' more stars');
       break}
     /* in-match */
+    case 'toon':OPT.toon=OPT.toon===false;try{localStorage.setItem('wh_cricket_toon','1'+(OPT.toon===false?'0':'1'))}catch(e){}break;
     case 'gl3d':if(!OWNER)break;OPT.gfx=OPT.gfx==='art'?'classic':OPT.gfx==='classic'?'stick':'art';OPT.gl=false;try{localStorage.setItem('wh_cricket_gfx3',OPT.gfx)}catch(e){}break;
     case 'fx':OPT.fx=!OPT.fx;try{localStorage.setItem('wh_cricket_fx',OPT.fx?'1':'0')}catch(e){}break;
     case 'pace':if(G.mode==='aim')G.pace=d;break;

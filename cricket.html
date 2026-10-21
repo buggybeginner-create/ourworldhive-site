@@ -4018,7 +4018,7 @@ function drawRadar(cx,cy,r,o){
   ctx.fillStyle='rgba(220,197,144,0.95)';ctx.fillRect(cx-1.6*s*1.6,p1[1],3.2*s*1.6,p0[1]-p1[1]);
   const M=(bat&&bat.mir)?-1:1;
   for(let i=0;i<FLD.length;i++){
-    const f=FLD[i],q=radarXY(cx,cy,r,f.hx,f.hz);
+    const f=FLD[i],live=!o.big&&typeof f.x==='number'&&typeof f.z==='number',q=radarXY(cx,cy,r,live?f.x:f.hx,live?f.z:f.hz);
     const selF=o.sel===i;
     ctx.fillStyle=selF?'#ffffff':'#ffd23f';ctx.strokeStyle='#1a1a1a';ctx.lineWidth=1;
     ctx.beginPath();ctx.arc(q[0],q[1],o.big?6:3.2,0,TAU);ctx.fill();ctx.stroke();

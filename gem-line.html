@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Gem Line | Ourworldhive</title>
-<meta name="description" content="Gem Line: connect four online game. Free to play, host a room, share the code, climb from Novice to Mythic Legend."><meta name="theme-color" content="#070b1a"><meta name="referrer" content="strict-origin-when-cross-origin">
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Connect 4 | Ourworldhive</title>
+<meta name="description" content="Connect 4: connect four online game. Free to play, host a room, share the code, climb from Novice to Mythic Legend."><meta name="theme-color" content="#070b1a"><meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="canonical" href="https://ourworldhive.com/gem-line.html"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%92%8E%3C/text%3E%3C/svg%3E">
-<meta property="og:type" content="website"><meta property="og:title" content="Gem Line | Ourworldhive"><meta property="og:description" content="Gem Line: connect four online game. Free to play, host a room, share the code, climb from Novice to Mythic Legend."><meta property="og:url" content="https://ourworldhive.com/gem-line.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="website"><meta property="og:title" content="Connect 4 | Ourworldhive"><meta property="og:description" content="Connect 4: connect four online game. Free to play, host a room, share the code, climb from Novice to Mythic Legend."><meta property="og:url" content="https://ourworldhive.com/gem-line.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png"><meta name="twitter:card" content="summary_large_image">
 <style>html{color-scheme:dark}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
@@ -195,7 +195,7 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
 
 
 <div class="wrap">
-<header class="top"><div class="brand"><i></i>💎 Gem Line</div>
+<header class="top"><div class="brand"><i></i>💎 Connect 4</div>
 <nav class="tabs" aria-label="Sections"><button class="btn" data-go="home" aria-current="true">🏠 Home</button><button class="btn" data-go="setup">🎮 Play</button><button class="btn" data-go="how">📖 How to play</button></nav></header>
 
 <main>
@@ -328,7 +328,7 @@ function botPick(s,seat,lvl){
  C.forEach(function(m){var t=clone(s);applyMove(t,seat,m);var v=lvl===1?evalS(t,seat):minimax(t,1,-1e9,1e9,seat);v+=Math.random()*(lvl===1?3:.6);if(v>bv){bv=v;best=m}});
  return best}
 /* ---------------- rankings ---------------- */
-var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Gem Line',i:'💎'},{id:'chess',n:'Royal Duel',i:'♞'},{id:'ludo',n:'Home Dash',i:'🎲'},{id:'carrom',n:'Disc Flick',i:'🎯'},{id:'uttt',n:'Nine Grids',i:'❌'}];
+var GAMES=[{id:'blockade',n:'Gate Rush',i:'🧱'},{id:'clash',n:'Crown Rush',i:'👑'},{id:'hen',n:'Hen Hunt',i:'🐔'},{id:'four',n:'Connect 4',i:'💎'},{id:'chess',n:'Chess',i:'♞'},{id:'ludo',n:'Ludo',i:'🎲'},{id:'carrom',n:'Carrom',i:'🎯'},{id:'uttt',n:'Ultimate Tic Tac Toe',i:'❌'}];
 var KINDS=[{id:'pts',n:'⭐ Points'},{id:'wins',n:'🏅 Wins'},{id:'streak',n:'🔥 Best streak'},{id:'fast',n:'⚡ Fastest win'}];
 var PERS=[{id:'d',n:'Today',ms:864e5},{id:'w',n:'This week',ms:6048e5},{id:'a',n:'All time',ms:0}];
 var SAMPLE=[['Aarav','🐯',.8],['Diya','🦄',.7],['Kabir','🐲',.62],['Meera','🐼',.55],['Rohan','🦁',.5],['Sana','🐧',.42],['Vikram','👾',.36],['Zoya','🧙',.3]];
@@ -415,12 +415,12 @@ $('#rkList').addEventListener('click',function(e){var li=e.target.closest('li[da
 function baseUrl(){var b=LS.get('cb_base','');if(b)return b;try{return location.href.split('#')[0]}catch(e){return''}}
 function openInvite(gid,link,roomMsg){
  var D=gid&&DEFS[gid]?DEFS[gid]:null,l=lvl(prof.name),ai=Math.min(9,Math.floor(l.lvl)),
-  msg=function(url){return prof.name+' ('+TIERS[ai][2]+' '+TIERS[ai][1]+') is challenging you in Gem Line'+(D?': '+D.i+' '+D.n:'')+'! '+(roomMsg||'Can you beat me?')+' 👉 '+url},
+  msg=function(url){return prof.name+' ('+TIERS[ai][2]+' '+TIERS[ai][1]+') is challenging you in Connect 4'+(D?': '+D.i+' '+D.n:'')+'! '+(roomMsg||'Can you beat me?')+' 👉 '+url},
   o=modal('<h2>📲 Invite friends</h2><div class="muted" style="font-size:13.5px;margin-top:2px">Share the link. Your friend taps it and plays '+(D?'<b>'+D.n+'</b>':'any game')+' with you.</div><div class="lbl" style="margin-top:12px">Link</div><input class="linkin" id="invU" aria-label="Invite link" autocomplete="off"><div class="lbl" style="margin-top:12px">Message</div><div class="grow" id="invM" style="white-space:pre-wrap;user-select:all"></div><div class="sh2" id="invB"></div>');
  var inp=$('#invU',o);inp.value=link||(baseUrl()+(D?'#'+gid:''));
  function url(){return inp.value.trim()}
  function paint(){var u=url(),m=msg(u),e=encodeURIComponent;$('#invM',o).textContent=m;
-  $('#invB',o).innerHTML='<a target="_blank" rel="noopener" href="https://wa.me/?text='+e(m)+'">💬 WhatsApp</a><a target="_blank" rel="noopener" href="https://t.me/share/url?url='+e(u)+'&text='+e(m.replace(' 👉 '+u,''))+'">✈️ Telegram</a><a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u='+e(u)+'">📘 Facebook</a><a target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text='+e(m)+'">✖ X</a><a target="_blank" rel="noopener" href="mailto:?subject='+e('Play Gem Line with me')+'&body='+e(m)+'">✉️ Email</a><button type="button" id="invC">📋 Copy</button>';
+  $('#invB',o).innerHTML='<a target="_blank" rel="noopener" href="https://wa.me/?text='+e(m)+'">💬 WhatsApp</a><a target="_blank" rel="noopener" href="https://t.me/share/url?url='+e(u)+'&text='+e(m.replace(' 👉 '+u,''))+'">✈️ Telegram</a><a target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u='+e(u)+'">📘 Facebook</a><a target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text='+e(m)+'">✖ X</a><a target="_blank" rel="noopener" href="mailto:?subject='+e('Play Connect 4 with me')+'&body='+e(m)+'">✉️ Email</a><button type="button" id="invC">📋 Copy</button>';
   $('#invC',o).onclick=function(){var t=m,b=this;function ok(){b.textContent='✅ Copied';setTimeout(function(){b.textContent='📋 Copy'},1500)}function fb(){var r=document.createRange();r.selectNodeContents($('#invM',o));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('Message selected. Press copy.')}try{navigator.clipboard.writeText(t).then(ok,fb)}catch(x){fb()}}}
  inp.addEventListener('input',function(){if(!link){var v=url().split('#')[0];LS.set('cb_base',v)}paint()});paint()}
 document.addEventListener('click',function(e){var p=e.target.closest('[data-play]');if(p){setGame(p.dataset.play);show('setup');return}var v=e.target.closest('[data-inv]');if(v)openInvite(v.dataset.inv||null)});
@@ -692,7 +692,7 @@ var CLD={id:'clash',n:'Crown Rush',i:'👑',bars:true,multi:true,maxP:4,desc:'2 
  score:function(i){var d=ckDist(G.s,i);return[['Steps to crown',d>=99?'-':d],['Bars left',G.s.wl[i]]]},
  after:function(m,seat){var l=G.s.last;if(m.t==='w'){SFX.wall();sysMsg('🧱 '+G.names[seat]+' placed a bar')}else{SFX.move();if(l.sh>=0){SFX.wall();sysMsg('💥 '+G.names[seat]+' shoved '+G.names[l.sh])}}
   if(G.bot&&G.bots[l.seat]&&Math.random()<.18)later(function(){say(l.seat,pick(['Mine! 👑','Out of my way 😎','Try me 😈']))},400)}};
-/* ===== Gem Line ===== */
+/* ===== Connect 4 ===== */
 var F4={X0:6.25,Y0:13.5,C:14.5};
 function f4New(){var g=[];for(var r=0;r<6;r++)g.push([-1,-1,-1,-1,-1,-1,-1]);return{g:g,turn:0,n:0,last:null,win:-1,why:'',line:null}}
 function f4Clone(s){return{g:s.g.map(function(r){return r.slice()}),turn:s.turn,n:s.n,last:s.last,win:s.win,why:s.why,line:s.line}}
@@ -836,7 +836,7 @@ var HHD={id:'hen',n:'Hen Hunt',i:'🐔',bars:true,multi:false,maxP:2,roles:true,
  after:function(m,seat){var l=G.s.last;if(m.t==='w'){SFX.wall();sysMsg('🧱 '+G.names[seat]+' fenced a bar')}else if(l.egg){SFX.good&&SFX.good();sysMsg('🥚 '+G.names[seat]+' got an egg ('+G.s.got+'/'+HH.EGGS+')')}else if(m.t==='t'){SFX.wall();sysMsg('🪤 '+G.names[seat]+' set a trap')}else SFX.move();
   if(G.bot&&G.bots[seat]&&Math.random()<.15)later(function(){say(seat,pick(seat===G.s.ch?['Cluck cluck 🐔','Catch me! 😜']:['I am coming 😈','Nowhere to run 🪤']))},400)}};
 
-var F4D={id:'four',n:'Gem Line',i:'💎',bars:false,desc:'Drop gems into columns. First to connect four in any direction wins.',act:'tap a column to drop a gem',
+var F4D={id:'four',n:'Connect 4',i:'💎',bars:false,desc:'Drop gems into columns. First to connect four in any direction wins.',act:'tap a column to drop a gem',
  newState:f4New,clone:f4Clone,valid:function(s,seat,m){return f4Moves(s).some(function(x){return x.c===m.c})},apply:f4Apply,winner:function(s){return s.win},bot:f4Bot,build:f4Build,draw:f4Draw,
  anchor:function(seat){return seat?{x:15,y:8}:{x:15,y:107}},
  sub:function(i){return(i?'Pink':'Blue')+' · '+f4Count(G.s,i)+' gems'},pips:function(){return''},
@@ -850,7 +850,7 @@ function renderHow(){
  '<h3 style="margin-top:14px">🧱 Gate Rush</h3>'+rule(['<b>Goal:</b> reach the opposite edge first. Blue goes up, pink goes down.','<b>Your turn:</b> step one tile, or throw one bar. You have 10 bars: pick <b>Flat</b> or <b>Upright</b>, then tap a spot. It flies from your avatar and lands there.','<b>Fair rule:</b> you may never close the last path.','<b>Jumping:</b> if the rival is next to you, jump over. If a bar is behind them, step diagonally.'])+
  '<h3 style="margin-top:14px">👑 Crown Rush (2 to 4 players)</h3>'+rule(['Each player starts at the middle of one side, in their own colour. The golden tile in the middle is the <b>crown</b>.','<b>Goal:</b> be the <b>first to step on the crown</b>.','<b>Maps:</b> 2 players use a 7x7 map. 3 or 4 players use a bigger 9x9 map. Every player has 6 bars, and the map always has room for all of them.','<b>Your turn:</b> step one tile, or throw one of your 6 bars to block a rival (same bars as Gate Rush). A bar can never close the last road: every player always keeps at least one way to the crown.','<b>Shove:</b> step into a rival next to you and they slide one tile back, if that tile is free and no bar is in the way.','<b>Time out or resign:</b> that player leaves and the rest play on.'])+
  '<h3 style="margin-top:14px">🐔 Hen Hunt (2 players)</h3>'+rule(['One player is the <b>hen</b>, the other the <b>hunter</b>. Roles are picked at random and swap on every rematch.','<b>Hen wins:</b> walk onto all '+HH.EGGS+' 🥚 eggs before the 🌇 daylight bar runs out and before the hunter catches her.','<b>Hunter wins:</b> step onto the hen, or run out the daylight.','<b>Hen power:</b> instead of moving, throw a fence bar ('+HH.B+' in total). Bars block both players, but the hunter can never be walled in and every egg always keeps an open side.','<b>Hunter power:</b> instead of moving, set a 🪤 trap ('+HH.T+' in total) within '+HH.REACH+' steps. The hen cannot step on traps. Traps can never go on an egg or seal an egg off.','Both sides get one action per turn, so the powers are balanced.'])+
- '<h3 style="margin-top:14px">💎 Gem Line</h3>'+rule(['Tap a column to drop a gem. It falls to the lowest free slot.','First to connect <b>four</b> in a row (across, up or diagonal) wins. A full board is a draw.'])+
+ '<h3 style="margin-top:14px">💎 Connect 4</h3>'+rule(['Tap a column to drop a gem. It falls to the lowest free slot.','First to connect <b>four</b> in a row (across, up or diagonal) wins. A full board is a draw.'])+
  '<h3 style="margin-top:14px">🏅 Points and ranks</h3>'+rule(['Win against the computer: <b>10 / 20 / 35</b> points (Easy / Medium / Hard). Lose: 2. Draw: 5. Pass and play: win 15, lose 3.','Every game has its own rank ladder. Your <b>all-round rank</b> is the average level across all games, so play them all.'])+
  '<div class="ladder" style="gap:6px;margin-top:6px">'+TIERS.map(function(t,i){return tierHtml(i)+'<span style="border:0;padding:0;color:var(--mute)">'+t[0]+'+</span>'}).join('')+'</div>'+
  '<p class="muted" style="font-size:13px;margin-top:10px"><b>Keys:</b> W bar mode, R switch flat/upright, H hint, Esc cancel.</p><div class="cta"><button class="btn go" data-go="setup">▶ Play now</button><button class="btn" data-inv="">📲 Invite friends</button></div>'}

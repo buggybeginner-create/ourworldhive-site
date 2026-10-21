@@ -995,7 +995,7 @@ const newBatter=(card,x,z)=>({card,mir:card.hand==='L',root:[x===undefined?rootX
 let bat=newBatter(BAT_CARDS[0]);let outBat=null;let nsBat=null;
 let NS_X=-1.45,UMP_X=-0.95;const NS_Z=19.6;
 /* umpire + non-striker always stand on the side AWAY from the bowler's run-in line, so the bowler's view of the batter is never blocked */
-function placeCrew(line){const sg=line>=0?-1:1;UMP_X=sg*0.95;NS_X=sg*(Math.abs(line)>0.8?1.75:1.45)}
+function placeCrew(body){const sg=body>=0?-1:1;UMP_X=sg*0.95;NS_X=sg*1.45}
 /* umpire (behind the stumps) and the non-striker always stand on the side OPPOSITE to the bowler's run-in line, so the bowler's view of the batter is never blocked */
 function bwX(){return G.bowlerX}
 function mkNs(){const c=S.nsi>=0?sideBat().bats[S.nsi]:null;nsBat=c?newBatter(c,NS_X,NS_Z):null}
@@ -1296,9 +1296,9 @@ function aiChooseBall(c){
   for(const k in w){if((r-=w[k])<0)return k}
   return K.list[0];
 }
-function setBowlSide(bsd,c){c=c||S.bowler;if(!c)return;const L=c.arm==='L',ov=L?0.54:0.16;
-  /* round the wicket: the bowler runs in from the other side of the stumps, clearly wider than over the wicket */
-  REL[0]=bsd==='round'?ov+(L?-1:1)*0.9:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd;placeCrew(REL[0])}
+function setBowlSide(bsd,c){c=c||S.bowler;if(!c)return;const L=c.arm==='L',sg=L?-1:1,bodyX=sg*(bsd==='round'?-0.45:0.45);
+  /* over the wicket: the bowling arm is next to the stumps (R-arm bowler stands left of them from his own view); round the wicket: he runs in from the other side */
+  REL[0]=bodyX-sg*0.19;G.bowlerX=bodyX;G.curSide=bsd;placeCrew(G.bowlerX);return;}
 function beginDelivery(nm){
   const c=S.bowler;let key,aim=null,rq,seed=null,pace=1;
   RU=KINDS[c.kind].ru;BZ0=KINDS[c.kind].z0;
@@ -4065,12 +4065,12 @@ function drawPitchMap(){
   UI.pmap={px,pw,py,ph};
 }
 function groundToAim(ax,ay){
-  /* invert pj() for the ground plane (y=0): screen -> pitch x,z */
+  /* screen -> pitch x,z. Length follows the finger linearly on screen (a raw perspective inversion makes the far end jump by metres per pixel) */
   ay-=64;/* marker sits above the finger so it never hides under it */
-  const s=(ay-HOR0-cam.hy-cam.sy)/CAMH;if(!(s>0.05))return;
-  const rz=F/s,rx=(ax-CX-cam.sx)/s;
-  const x=rx*cyw+rz*syw,dz=-rx*syw+rz*cyw;
-  let wx=x,wz=dz+CAMZ;if(VF){wx=-wx;wz=VFZ-wz}
+  if(!pj(0,0,0.8))return;const y0=PY;if(!pj(0,0,10.5))return;const y1=PY;if(Math.abs(y1-y0)<4)return;
+  const t=clamp((ay-y0)/(y1-y0),0,1),wz=0.8+t*9.7;
+  if(!pj(0,0,wz)||!(PS>0.05))return;
+  const xs=(ax-PX)/PS,wx=VF?-xs:xs;
   G.aimT={x:clamp(wx,-1.3,1.3),z:clamp(wz,0.8,10.5)};
 }
 function pmapToAim(ax,ay){
@@ -4088,7 +4088,7 @@ function drawAimHint(){
 function drawAimReticle(){
   if(G.mode!=='aim'&&!(G.mode==='runup'&&humanBowl()))return;
   if(!humanBowl())return;
-  if(G.aimT&&G.mode==='aim'){G.sel.x+=(G.aimT.x-G.sel.x)*0.3;G.sel.z+=(G.aimT.z-G.sel.z)*0.3}
+  if(G.aimT&&G.mode==='aim'){const nw=performance.now(),dtt=Math.min(0.1,(nw-(G._aimTs||nw))/1000);G._aimTs=nw;const kk=1-Math.exp(-dtt/0.07);G.sel.x+=(G.aimT.x-G.sel.x)*kk;G.sel.z+=(G.aimT.z-G.sel.z)*kk}else G._aimTs=0
   const pts=[];for(let i=0;i<20;i++){const a=i/20*TAU;pts.push([G.sel.x+Math.cos(a)*0.42,0.03,G.sel.z+Math.sin(a)*0.55])}
   const pul=0.5+0.5*Math.sin(G.RT*6);
   poly3(pts,'rgba(255,77,109,'+(0.4+0.3*pul)+')','rgba(255,255,255,0.95)',3);

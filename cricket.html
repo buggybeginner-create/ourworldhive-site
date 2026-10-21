@@ -1554,7 +1554,7 @@ function finishBall(res){
   S.runs+=res.runs;bs.r+=bR;cb.r+=bR;cw.br+=res.runs;bw.r+=res.runs;S.overRuns+=res.runs;
   cw.bowl=1;
   if(bR===4){bs.f++;S.fours++;cb.f++}
-  if(bR===6){bs.s++;S.sixes++;cb.s++}
+  if(bR===6){bs.s++;S.sixes++;cb.s++;if(res.dist&&res.dist>(cb.maxSix||0))cb.maxSix=res.dist}
   if(cb.r>=50&&!cb.b50)cb.b50=cb.b;if(cb.r>=100&&!cb.b100)cb.b100=cb.b;
   if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;cb.how=res.wicket==='RUN OUT'?'run out':String(res.wicket).toLowerCase()+(res.wicket==='RUN OUT'?'':' b '+wc.name);if(res.wicket!=='RUN OUT'){cw.w++;bw.w++}}
   if(res.wide||res.noball)S.extras++;
@@ -1576,7 +1576,7 @@ function finishBall(res){
   if(S.hist.length>6)S.hist.shift();
   let dur=2.5,txt=res.txt,col=[255,255,255],cm='';
   if(res.wicket){G.celT=G.clock;dur=3.4;col=[255,90,90];G.excite=Math.max(G.excite,0.8);sfx.groan();G.umpSig=3;G.umpT=2.4;cm=pick(COMM.wicket);G.flash=0.5;G.flashCol=[255,60,60];G.shake=1.0;G.slow=0.4;G.slowT=0.5;setBoard('OUT!',[200,20,40],2.6)}
-  else if(res.runs===6){dur=3.8;col=[255,225,90];G.excite=1;sfx.cheer(1);G.umpSig=2;G.umpT=2.4;cm=pick(COMM.six);G.flash=0.7;G.flashCol=[255,230,150];burst('six');setBoard('SIX!',[255,160,0],3);G.shake=Math.max(G.shake,0.6)}
+  else if(res.runs===6){dur=3.8;col=[255,225,90];G.excite=1;sfx.cheer(1);G.umpSig=2;G.umpT=2.4;cm=pick(COMM.six);G.flash=0.7;G.flashCol=[255,230,150];burst('six');setBoard(res.dist?'SIX! '+res.dist+' M':'SIX!',[255,160,0],3);if(res.dist)txt=txt||('SIX! '+res.dist+' METRES');G.shake=Math.max(G.shake,0.6)}
   else if(res.runs===4){dur=3.1;col=[120,230,255];G.excite=0.85;sfx.cheer(0.8);G.umpSig=1;G.umpT=2.0;cm=pick(COMM.four);burst('four');setBoard('FOUR!',[20,150,230],2.5)}
   else if(res.wide){dur=2.2;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8;G.chk={t:0,a:'CHECKING WIDE LINE...',v:'WIDE - CONFIRMED',c:[255,255,255]}}
   else if(res.runs>0){G.excite=Math.max(G.excite,0.25);sfx.cheer(0.25);cm=pick(COMM.run);col=[190,255,200]}
@@ -1585,7 +1585,7 @@ function finishBall(res){
   cm=richComm(cm,res,bc,wc);
   if(res.wicket)buzz([70,40,140]);else if(res.runs===6)buzz([90,30,90]);else if(res.runs===4)buzz(55);
   if(!txt)txt=res.runs===0?'DOT BALL':res.runs+' RUN'+(res.runs>1?'S':'');
-  if(res.runs>=4&&!res.txt)txt=res.runs===6?'SIX!':'FOUR!';
+  if(res.runs>=4&&!res.txt)txt=res.runs===6?(res.dist?'SIX! '+res.dist+' M':'SIX!'):'FOUR!';
   const big=(res.runs>=4||res.wicket)?1:0;
   showPopup(txt,col,dur-0.2,0,big);
   /* milestones */
@@ -1669,8 +1669,9 @@ async function rkFlush(){
 /* ---- Hive Records: shared with the site (hive_records) through OWHG.record ---- */
 function hiveRecords(m,si,p,cs,sixes,total,overs){
   const R=(k,l,v,o)=>{try{if(OWHG.record(k,l,v,o))setTimeout(()=>toast('NEW PERSONAL BEST: '+l.toUpperCase()),2600)}catch(e){}};
-  let f50=null,f100=null,hs=null,bowl=null,econ=null;
+  let f50=null,f100=null,hs=null,bowl=null,econ=null,lsx=null;
   for(const id in cs){const c=cs[id];
+    if(c.maxSix&&(!lsx||c.maxSix>lsx.d))lsx={d:c.maxSix,n:c.c.name};
     if(c.b50&&(!f50||c.b50<f50.b))f50={b:c.b50,n:c.c.name};
     if(c.b100&&(!f100||c.b100<f100.b))f100={b:c.b100,n:c.c.name};
     if(c.r>0&&(!hs||c.r>hs.r))hs={r:c.r,b:c.b,n:c.c.name};
@@ -1680,6 +1681,7 @@ function hiveRecords(m,si,p,cs,sixes,total,overs){
   if(f100)R('fast100','Fastest 100',f100.b,{low:1,unit:'balls',detail:f100.n+' ('+overs+' ov match)',icon:'💯',ord:2});
   if(hs)R('hs','Highest individual score',hs.r,{unit:'runs',detail:hs.n+' off '+hs.b+' balls',icon:'🏏',ord:3});
   R('total'+overs,'Highest team total ('+overs+' overs)',total,{unit:'runs',detail:p.team||p.name,icon:'📈',ord:4});
+  if(lsx)R('longsix','Longest six',lsx.d,{unit:'m',detail:lsx.n+' ('+overs+' ov match)',icon:'🚀',ord:5.5});
   R('sixes','Most sixes in a match',sixes,{unit:'sixes',detail:overs+' ov match',icon:'💥',ord:5});
   if(bowl)R('bowl','Best bowling figures',bowl.v,{disp:bowl.w+'/'+bowl.r,detail:bowl.n,icon:'🎯',ord:6});
   if(econ)R('econ','Best economy (2+ overs)',+econ.e.toFixed(2),{low:1,disp:econ.e.toFixed(2)+' rpo',detail:econ.n+' ('+econ.o+' ov)',icon:'🧊',ord:7});
@@ -2055,9 +2057,10 @@ function hitChecks(){
   /* boundary */
   const dd=Math.hypot(p[0],p[2]-CZ);
   if(dd>=RB){
-    const six=!b.bounced;
+    const six=!b.bounced;let dist=0;
+    if(six){const g_=GRAV,vy=b.v[1],y0=Math.max(0,p[1]),tl=(vy+Math.sqrt(Math.max(0,vy*vy+2*g_*y0)))/g_,lx=p[0]+b.v[0]*tl*0.92,lz=p[2]+b.v[2]*tl*0.92;dist=Math.round(Math.max(Math.hypot(p[0],p[2]),Math.hypot(lx,lz)))}
     b.mode='hit';
-    finishBall({runs:six?6:4,legal:true,kind:six?'six':'four',shot:G.swing&&G.swing.name?G.swing.name:''});
+    finishBall({runs:six?6:4,dist:dist,legal:true,kind:six?'six':'four',shot:G.swing&&G.swing.name?G.swing.name:''});
     G.followT=1.3;return;
   }
   /* fielder stops ground ball */

@@ -991,7 +991,9 @@ const BT_ROOT=[-0.44,0,0.55];
 const rootX=c=>(c&&c.hand==='L')?0.44:-0.44;
 const newBatter=(card,x,z)=>({card,mir:card.hand==='L',root:[x===undefined?rootX(card):x,0,z===undefined?BT_ROOT[2]:z],state:'stance',swing:null,walk:null,backU:0,outPose:null});
 let bat=newBatter(BAT_CARDS[0]);let outBat=null;let nsBat=null;
-const NS_X=-1.45,NS_Z=19.6;
+let NS_X=-1.45,UMP_X=0.95;const NS_Z=19.6;
+/* umpire + non-striker always stand on the side AWAY from the bowler's run-in line, so the bowler's view of the batter is never blocked */
+function placeCrew(line){if(line>0.45){UMP_X=-0.95;NS_X=-1.95}else{UMP_X=0.95;NS_X=-1.45}}
 function mkNs(){const c=S.nsi>=0?sideBat().bats[S.nsi]:null;nsBat=c?newBatter(c,NS_X,NS_Z):null}
 function bspFor(c){return S.bspM&&S.bspM[c.id]!==undefined?S.bspM[c.id]:c.spN}
 
@@ -1292,7 +1294,7 @@ function aiChooseBall(c){
 }
 function setBowlSide(bsd,c){c=c||S.bowler;if(!c)return;const L=c.arm==='L',ov=L?0.54:0.16;
   /* round the wicket: the bowler runs in from the other side of the stumps, clearly wider than over the wicket */
-  REL[0]=bsd==='round'?ov+(L?-1:1)*0.9:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd}
+  REL[0]=bsd==='round'?ov+(L?-1:1)*0.9:ov;G.bowlerX=REL[0]+(L?-0.19:0.19);G.curSide=bsd;placeCrew(REL[0])}
 function beginDelivery(nm){
   const c=S.bowler;let key,aim=null,rq,seed=null,pace=1;
   RU=KINDS[c.kind].ru;BZ0=KINDS[c.kind].z0;
@@ -2103,7 +2105,7 @@ function bowlerJ(){
   return(S.bowler&&S.bowler.arm==='L')?mirrorJ(J,x):J;
 }
 function umpireJ(){
-  const x=0.95,z=21.5,hd=Math.PI;let o={};
+  const x=UMP_X,z=21.5,hd=Math.PI;let o={};
   const sig=(G.chk&&G.chk.t<1.1)?7:G.umpSig;
   if(sig===7){o.handR=[x-0.2,1.75,z-0.25];o.handL=[x+0.2,1.75,z-0.25]}
   else if(sig===2){o.handR=[x-0.24,2.05,z];o.handL=[x+0.24,2.05,z]}
@@ -2146,7 +2148,7 @@ function autoProv(){try{
 function manProv(n){const xr=G.xrun;if(xr&&xr.prov){xr.n=n;return}if(!bat||!nsBat||S.nsi<0)return;G.xrun={t0:G.clock+0.15,dur:1.3,n:n,a:bat.card,b:nsBat.card,prov:true}}
 function runnerPos(xr){
   const n=xr.n||1,p=runnerP(xr),leg=Math.min(n-1,Math.floor(p)),u=sm(p-leg>=1?1:p-leg),mv=p>0&&p<n&&(p-leg)>0&&(p-leg)<1,amp=mv?1:0.15,odd=leg%2===1;
-  const ax=rootX(xr.a),bx=rootX(xr.b),aS=[ax,BT_ROOT[2]],aE=[NS_X+0.5,NS_Z],bS=[NS_X,NS_Z],bE=[bx,BT_ROOT[2]];
+  const ax=rootX(xr.a),bx=rootX(xr.b),aS=[ax,BT_ROOT[2]],aE=[NS_X+(NS_X<0?0.5:-0.5),NS_Z],bS=[NS_X,NS_Z],bE=[bx,BT_ROOT[2]];
   const A0=odd?aE:aS,A1=odd?aS:aE,B0=odd?bE:bS,B1=odd?bS:bE;
   return[{card:xr.a,x:lerp(A0[0],A1[0],u),z:lerp(A0[1],A1[1],u),hd:odd?Math.PI:0,amp:amp},{card:xr.b,x:lerp(B0[0],B1[0],u),z:lerp(B0[1],B1[1],u),hd:odd?0:Math.PI,amp:amp}]}
 function nsJ(){return poseWalk(NS_X,NS_Z,Math.PI,0,0,{batDir:[0.12,-0.98,-0.05]})}
@@ -2169,7 +2171,7 @@ function drawActors(T){
   if(nsBat&&!crossing())shadow(NS_X,NS_Z,1.55,0.2);
   {const xr=G.xrun;if(xr&&crossing()){for(const r of runnerPos(xr))shadow(r.x,r.z,1.55,0.2)}}
   for(const f of FLD)shadow(f.x,f.z,1.7,0.17);
-  shadow(G.bowlerX,G.bowlerZ,1.8,0.17);shadow(0.95,21.5,1.75,0.17);
+  shadow(G.bowlerX,G.bowlerZ,1.8,0.17);shadow(UMP_X,21.5,1.75,0.17);
   if(VF){const kp=keeperPos();shadow(kp[0],kp[1],1.7,0.17)}
   }
   /* actors sorted by depth */
@@ -2179,7 +2181,7 @@ function drawActors(T){
   items.push({d:dep(0,0)-0.2,f:()=>drawStumpSet(stumpsBat)});}
   const keepN=items.length;
   const ART_ON=!GLX.collecting&&OPT.gfx==='art'&&artReady();
-  items.push({d:dep(0.95,21.5),f:()=>{if(ART_ON&&artHas(VF?'umpB':'ump'))artDrawUmp();else drawRig(umpireJ(),Object.assign({},UMP_STYLE,{label:'UMPIRE'}))}});
+  items.push({d:dep(UMP_X,21.5),f:()=>{if(ART_ON&&artHas(VF?'umpB':'ump'))artDrawUmp();else drawRig(umpireJ(),Object.assign({},UMP_STYLE,{label:'UMPIRE'}))}});
   items.push({d:dep(G.bowlerX,G.bowlerZ),f:()=>{const bk=S.bowler?S.bowler.kit:null,st=Object.assign({},FIELD_STYLE,{jersey:MT?sideBowl().col:(bk?bk.jersey:hx('#e63946')),skin:bk?bk.skin:BOWL_SK,ballCol:ballCol(),trim:bk?bk.trim:null,cap:bk?bk.helmet:FIELD_STYLE.cap,vid:'bowl',label:((S.bowler&&(S.bowler.name||(S.bowler.card&&S.bowler.card.name)))||'BOWLER')});try{if(MT&&humanBowl()){const pr=sideBowl().prof;if(pr)Object.assign(st,modelStyle(pr,bk||{}))}}catch(e){}if(ART_ON)artDrawBowler(st);else drawRig(bowlerJ(),Object.assign(st,{eqs:'bowl'},lkpFor(S.bowler&&(S.bowler.card||S.bowler),'bowl')))}});
   for(const f of FLD){
     items.push({d:dep(f.x,f.z),f:()=>{
@@ -2545,7 +2547,7 @@ function artDrawNs(){
 function artDrawUmp(){
   const kd=VF&&artHas('umpB')?'umpB':'ump',sg=G.umpSig,fr=sg===3?2:sg===1?3:sg===2?4:sg===4?5:sg===5?6:((G.RT/7)%3>2?1:0),mo={};
   if(!sg)mo.sy=1+0.008*Math.sin(G.RT*1.3);
-  artDraw(kd,fr,0.95,21.5,false,null,null,null,0,'ump',mo)}
+  artDraw(kd,fr,UMP_X,21.5,false,null,null,null,0,'ump',mo)}
 function artDrawRunner(r,i){
   const front=VF?(r.hd===0):(r.hd!==0),k=front?'ns':'nsB';
   if(!artHas(k)||!artHas('ns'))return false;

@@ -1554,7 +1554,7 @@ function finishBall(res){
   if(bR===4){bs.f++;S.fours++;cb.f++}
   if(bR===6){bs.s++;S.sixes++;cb.s++}
   if(cb.r>=50&&!cb.b50)cb.b50=cb.b;if(cb.r>=100&&!cb.b100)cb.b100=cb.b;
-  if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;if(res.wicket!=='RUN OUT'){cw.w++;bw.w++}}
+  if(res.wicket){S.wk++;bs.out=res.wicket;bs.by=wc.name;cb.out=1;cb.how=res.wicket==='RUN OUT'?'run out':String(res.wicket).toLowerCase()+(res.wicket==='RUN OUT'?'':' b '+wc.name);if(res.wicket!=='RUN OUT'){cw.w++;bw.w++}}
   if(res.wide||res.noball)S.extras++;
   {const Dd=G.deliv||{};(S.ovLog||(S.ovLog=[])).push({bx:Dd.bx,bz:Dd.bz,ty:Dd.type||'',kph:Dd.kph||0,runs:res.runs||0,wk:!!res.wicket,wd:!!res.wide,nb:!!res.noball,tm:(G.swing&&G.swing.tm)||'',rq:Dd.tight?'T':Dd.loose?'L':''})}
   {const base=res.runs-((res.wide||res.noball)?1:0),rot=!res.wicket&&!res.wide&&base%2===1,ovEnd=res.legal!==false&&S.balls%6===0&&S.balls<S.maxBalls;
@@ -1753,7 +1753,12 @@ function endMatch(){
   saveProfiles();
   const anyWin=humanSides.some(i=>win===i)||(m.mode==='two'&&!tie);
   G.mode='end';G.stT=0;
-  G.endCard={win:anyWin,tie,title,sub,awards,scores:r.map(x=>({name:nm(x.side),runs:x.runs,wk:x.wk,balls:x.balls})),mode:m.mode,overs};
+  const scTeam=si=>{const bat=Object.values(m.cs[si]).filter(c=>c.bat).map(c=>({n:c.c.name,r:c.r,b:c.b,f:c.f,s:c.s,how:c.out?(c.how||'out'):'not out'}));
+    const bowl=Object.values(m.cs[1-si]).filter(c=>c.bowl).map(c=>({n:c.c.name,o:Math.floor(c.bb/6)+'.'+(c.bb%6),r:c.br,w:c.w,e:c.bb?(c.br*6/c.bb).toFixed(1):'-'}));
+    const x=r.filter(q=>q.side===si).reduce((a,q)=>({runs:a.runs+q.runs,wk:a.wk+q.wk,balls:a.balls+q.balls}),{runs:0,wk:0,balls:0});
+    return{team:nm(si),runs:x.runs,wk:x.wk,balls:x.balls,bat,bowl}};
+  G.scView=null;
+  G.endCard={win:anyWin,tie,title,sub,awards,card:[scTeam(0),scTeam(1)],scores:r.map(x=>({name:nm(x.side),runs:x.runs,wk:x.wk,balls:x.balls})),mode:m.mode,overs};
   if(anyWin){for(let i=0;i<3;i++)setTimeout(()=>burst('six'),i*500);sfx.cheer(1)}else sfx.groan();
   G.excite=anyWin?1:0.1;
 }
@@ -4161,7 +4166,27 @@ function _drawPause(){
 }
 /* ---------- end card ---------- */
 function drawEnd(T){
-  UI.rects.length=0;UI.oy=(H-720)/2;ctx.save();ctx.translate(0,UI.oy);_drawEnd(T);ctx.restore();UI.oy=0}
+  UI.rects.length=0;UI.oy=(H-720)/2;ctx.save();ctx.translate(0,UI.oy);if(G.scView!=null&&G.endCard&&G.endCard.card)_drawCard();else _drawEnd(T);ctx.restore();UI.oy=0}
+function _drawCard(){
+  const c=G.endCard,t=c.card[G.scView]||c.card[0],i=c.card.indexOf(t);
+  ctx.fillStyle='rgba(2,5,14,0.9)';ctx.fillRect(0,0,W,H);
+  tx(c.title+'  -  '+c.sub,W/2,34,12.5,'#bcd0f5','center','700',440);
+  c.card.forEach((q,k)=>btn('sct'+k,16+k*226,52,222,42,q.team,{size:13,r:12,on:k===i,col:'#22c55e',tc:'#04210f'}));
+  rr(16,102,448,56,14);ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fill();
+  tx(t.team,30,122,12.5,'#9fb3d9','left','700',230);tx(t.runs+'/'+t.wk,30,146,26,'#fff','left','900');
+  tx(Math.floor(t.balls/6)+'.'+(t.balls%6)+' OVERS',450,138,12,'#9fb3d9','right','700');
+  let y=176;
+  tx('BATTING',24,y,11,'#ffd23f','left','900');tx('R',286,y,11,'#ffd23f','right','900');tx('B',326,y,11,'#ffd23f','right','900');tx('4s',360,y,11,'#ffd23f','right','900');tx('6s',394,y,11,'#ffd23f','right','900');tx('SR',446,y,11,'#ffd23f','right','900');
+  y+=8;const rh=t.bat.length>9?30:34;
+  t.bat.forEach((b,k)=>{y+=rh;if(k%2){ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(16,y-rh+8,448,rh)}
+    tx(b.n,24,y-5,12.5,'#fff','left','800',150);tx(b.how,24,y+9,9.5,b.how==='not out'?'#7cf29a':'#ff9b9b','left','600',200);
+    tx(String(b.r),286,y,15,'#fff','right','900');tx(String(b.b),326,y,12,'#cfe0ff','right','700');tx(String(b.f),360,y,12,'#cfe0ff','right','700');tx(String(b.s),394,y,12,'#cfe0ff','right','700');tx(b.b?(b.r*100/b.b).toFixed(0):'-',446,y,12,'#9fb3d9','right','700')});
+  y+=34;tx('BOWLING',24,y,11,'#ffd23f','left','900');tx('O',270,y,11,'#ffd23f','right','900');tx('R',320,y,11,'#ffd23f','right','900');tx('W',370,y,11,'#ffd23f','right','900');tx('ECON',446,y,11,'#ffd23f','right','900');
+  t.bowl.forEach((b,k)=>{y+=rh-6;if(k%2){ctx.fillStyle='rgba(255,255,255,0.05)';ctx.fillRect(16,y-rh+14,448,rh-6)}
+    tx(b.n,24,y,12.5,'#fff','left','800',170);tx(b.o,270,y,12,'#cfe0ff','right','700');tx(String(b.r),320,y,12,'#cfe0ff','right','700');tx(String(b.w),370,y,15,b.w?'#7cf29a':'#fff','right','900');tx(b.e,446,y,12,'#9fb3d9','right','700')});
+  btn('scx',150,H-110,180,46,'BACK',{size:16,r:14,on:true,col:'#22c55e',tc:'#04210f'});
+  tx(BRAND,W/2,H-20,11,'rgba(255,255,255,0.45)','center','700');
+}
 function _drawEnd(T){
   const c=G.endCard;if(!c)return;
   ctx.fillStyle='rgba(2,5,14,0.68)';ctx.fillRect(0,0,W,H);
@@ -4193,7 +4218,7 @@ function _drawEnd(T){
   btn('again',46,by,230,50,(MT&&MT.online)?'FIND NEW MATCH':'PLAY AGAIN',{on:true,col:'#22c55e',size:18,r:16});
   btn('market',284,by,150,50,'MARKET',{size:15,r:16,on:false});
   ctx.restore();
-  btn('menu',150,top+hh+20,180,42,'MENU',{size:14});
+  btn('sc',46,top+hh+20,230,42,'FULL SCORECARD',{size:14,on:true,col:'#ffd23f',tc:'#2a1800',r:14});btn('menu',284,top+hh+20,150,42,'MENU',{size:14});
   tx(BRAND,W/2,H-20,11,'rgba(255,255,255,0.45)','center','700');
 }
 /* =====================  MENU SCREENS  ===================== */
@@ -5326,6 +5351,7 @@ function handleUI(id,r,x,y){
     case 'mode':OPT.mode=d;saveOpt();break;
     case 'overs':OPT.overs=d;saveOpt();break;
     case 'start':startMatch();break;
+    case 'sc':G.scView=0;break;case 'scx':G.scView=null;break;case 'sct0':G.scView=0;break;case 'sct1':G.scView=1;break;
     case 'again':if(MT&&MT.online){if(NETX)NETX.close();toMenu();G.screen='online';NETM.state='idle';break}startMatch();break;
     case 'lookedit':G.lookId=d;G.screen='look';G.sc.look=0;break;
     case 'lk':{const [k,v]=String(d).split(':'),o=lookEdit(G.lookId);o[k]=+v;saveProfiles();break}

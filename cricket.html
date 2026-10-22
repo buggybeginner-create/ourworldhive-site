@@ -1306,9 +1306,9 @@ function beginDelivery(nm){
   const bsd=(nm&&nm.bs)?nm.bs:(humanBowl()?G.bwSide:G.cpuSide||'over');
   setBowlSide(bsd,c);
   if(nm){key=nm.key;aim=nm.aim;rq=0.5;seed=nm.seed;pace=nm.pace}
-  else if(humanBowl()){if(G.aimT){G.sel.x=G.aimT.x;G.sel.z=G.aimT.z}key=G.sel.key;aim={x:G.sel.x,z:G.sel.z};rq=0.5;pace=G.pace;if(MT.online)seed=(Math.random()*2147483647)|0;RU=Math.max(RU,2.0)}
+  else if(humanBowl()){if(G.aimT){G.sel.x=G.aimT.x;G.sel.z=G.aimT.z}if(G.sel.key===c.spb&&!spOK(c)){G.sel.key=ballList(c)[0];G.sel.z=bz_default(G.sel.key)}key=G.sel.key;aim={x:G.sel.x,z:G.sel.z};rq=0.5;pace=G.pace;if(MT.online)seed=(Math.random()*2147483647)|0;RU=Math.max(RU,2.0)}
   else key=aiChooseBall(c);
-  if(key===c.spb){S.spUsed[c.id]=(S.spUsed[c.id]||0)+1;const ov=Math.floor(S.balls/6);if(S.spOver===ov&&S.spBonus>0)S.spBonus--;else S.spOver=ov}
+  if(key===c.spb){S.spUsed[c.id]=(S.spUsed[c.id]||0)+1;const ov=Math.floor(S.balls/6);if(S.spOver===ov&&S.spBonus>0)S.spBonus--;else S.spOver=ov;if(humanBowl()&&!nm){G.sel.key=ballList(c)[0];G.sel.z=bz_default(G.sel.key);G.aimT=null}}
   G.pend={key,aim,seed,pace,human:aim!==null};
   G.deliv=seed!==null?withSeed(seed,()=>makeDelivery(c,key,aim,rq,pace)):makeDelivery(c,key,aim,rq,pace);G.swing=null;G.mode='runup';G.tRun=(MT.online&&humanBowl()&&NETX&&NETX.lat)?-NETX.lat:0;G.bowlerAct='run';G.bowlerZ=BZ0;G.aiPlan=null;
   G.noBallNow=false;G.bodyHit=false;G.dropped=false;G.relIn=null;
@@ -1575,7 +1575,7 @@ function finishBall(res){
   S.hist.push({t:res.wicket?'W':res.wide?'Wd':res.runs===0?'•':String(res.runs)});
   if(S.hist.length>6)S.hist.shift();
   let dur=2.5,txt=res.txt,col=[255,255,255],cm='';
-  if(res.wicket){G.celT=G.clock;dur=3.4;col=[255,90,90];G.excite=Math.max(G.excite,0.8);sfx.groan();G.umpSig=3;G.umpT=2.4;cm=pick(COMM.wicket);G.flash=0.5;G.flashCol=[255,60,60];G.shake=1.0;G.slow=0.4;G.slowT=0.5;setBoard('OUT!',[200,20,40],2.6)}
+  if(res.wicket){G.celT=G.clock;dur=3.4;col=[255,90,90];G.excite=Math.max(G.excite,0.8);sfx.wicket();G.umpSig=3;G.umpT=2.4;cm=pick(COMM.wicket);G.flash=0.5;G.flashCol=[255,60,60];G.shake=1.0;G.slow=0.4;G.slowT=0.5;setBoard('OUT!',[200,20,40],2.6)}
   else if(res.runs===6){dur=3.8;col=[255,225,90];G.excite=1;sfx.cheer(1);G.umpSig=2;G.umpT=2.4;cm=pick(COMM.six);G.flash=0.7;G.flashCol=[255,230,150];burst('six');setBoard(res.dist?'SIX! '+res.dist+' M':'SIX!',[255,160,0],3);if(res.dist)txt=txt||('SIX! '+res.dist+' METRES');G.shake=Math.max(G.shake,0.6)}
   else if(res.runs===4){dur=3.1;col=[120,230,255];G.excite=0.85;sfx.cheer(0.8);G.umpSig=1;G.umpT=2.0;cm=pick(COMM.four);burst('four');setBoard('FOUR!',[20,150,230],2.5)}
   else if(res.wide){dur=2.2;col=[255,255,255];cm='Wide ball. Extra run!';G.umpSig=4;G.umpT=1.8;G.chk={t:0,a:'CHECKING WIDE LINE...',v:'WIDE - CONFIRMED',c:[255,255,255]}}
@@ -3775,7 +3775,7 @@ function drawHUD(T){
   ctx.fillStyle=rgba(c.kit.jersey);ctx.beginPath();ctx.arc(24,95,7,0,TAU);ctx.fill();
   tx(c.name+' ('+c.hand+')  '+st.r+' ('+st.b+')',38,94,12.5,'#fff','left','bold',150);
   const sr=st.b?Math.round(st.r*100/st.b):0;tx('SR '+sr,224,94,10.5,'#9fb3d9','right','600');
-  try{drawTag(38,106.5,'left',sideTag(S.bside),186)}catch(e){}
+  try{drawTag(38,106,'left',sideTag(S.bside),190)}catch(e){}
   if(S.nsi>=0){const nc=sideBat().bats[S.nsi],ns=S.stats[S.nsi]||{r:0,b:0};tx('NON-STRIKER  '+nc.name+'  '+ns.r+' ('+ns.b+')',16,124,9.5,'#9fb3d9','left','700',216)}
   /* bowler pill */
   const bw=S.bowler;
@@ -3785,7 +3785,7 @@ function drawHUD(T){
     const bs=S.bstat[bw.id]||{b:0,r:0,w:0};
     tx(bw.name+'  '+bs.w+'-'+bs.r+' ('+Math.floor(bs.b/6)+'.'+(bs.b%6)+')',270,94,12.5,'#fff','left','bold',150);
     tx(KINDS[bw.kind].n,466,94,9.5,'#ffd23f','right','700');
-    try{drawTag(270,106.5,'left',sideTag(S.wside),196)}catch(e){}
+    try{drawTag(270,106,'left',sideTag(S.wside),198)}catch(e){}
   }
   if(G.infoT>0){const a=clamp(G.infoT/0.4,0,1);rr(W/2-100,132,200,24,12);ctx.fillStyle='rgba(6,10,22,'+0.7*a+')';ctx.fill();tx(G.info,W/2,145,12,'rgba(255,214,90,'+a+')','center')}
 }
@@ -3797,11 +3797,17 @@ function sideTag(si){
   if(sd.human){let rk=null;try{rk=OWHG.rankInfo()}catch(e){}return{n:(sd.prof&&sd.prof.name)||'',rk:rk}}
   return{n:'COMPUTER',bot:1}}
 function drawTag(x,y,al,t,maxW){
-  if(!t)return;let s='',col='#9fb3d9';
-  if(t.rk&&t.rk.tier){s=(t.rk.icon||'')+' '+t.rk.tier.toUpperCase();col=TIER_COL[t.rk.tier]||col}
-  if(t.n)s+=(s?'  \u00B7  ':'')+String(t.n).toUpperCase().slice(0,16);
-  else if(t.bot)s='\uD83E\uDD16 COMPUTER';
-  if(s)tx(s,x,y,8.5,col,al,'700',maxW||200)}
+  /* pill chips like the Rankings page: coloured text, coloured outline, soft tinted fill; title and player name share one design */
+  if(!t)return;const col=hx((t.rk&&TIER_COL[t.rk.tier])||'#9fb3d9'),chips=[];
+  if(t.rk&&t.rk.tier)chips.push((t.rk.icon||'')+' '+t.rk.tier);
+  if(t.n)chips.push(String(t.n).slice(0,14));else if(t.bot)chips.push('\uD83E\uDD16 Computer');
+  if(!chips.length)return;
+  ctx.save();ctx.font='700 9.5px "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';
+  let cx=x,room=maxW||200;
+  for(const c of chips){const w=ctx.measureText(c).width+13;if(cx-x+w>room)break;
+    rr(cx,y-7.5,w,15,7.5);ctx.fillStyle=rgba(col,0.16);ctx.fill();ctx.strokeStyle=rgba(col,0.6);ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=rgba(col);ctx.fillText(c,cx+6.5,y+0.5);cx+=w+4}
+  ctx.restore()}
 function drawChk(){
   const c=G.chk;if(!c)return;
   const fin=c.t>=1.1,a=c.t>2.3?clamp((2.8-c.t)/0.5,0,1):clamp(c.t/0.2,0,1);
@@ -4092,9 +4098,9 @@ function drawPitchMap(){
   hot('pmap',px-6,py-4,pw+12,ph+10);
   UI.pmap={px,pw,py,ph};
 }
-function groundToAim(ax,ay){
+function groundToAim(ax,ay,off){
   /* screen -> pitch x,z. Length follows the finger linearly on screen (a raw perspective inversion makes the far end jump by metres per pixel) */
-  ay-=64;/* marker sits above the finger so it never hides under it */
+  ay-=(off===undefined?64:off);/* marker sits above the finger so it never hides under it */
   if(!pj(0,0,0.8))return;const y0=PY;if(!pj(0,0,10.5))return;const y1=PY;if(Math.abs(y1-y0)<4)return;
   const t=clamp((ay-y0)/(y1-y0),0,1),wz=0.8+t*9.7;
   if(!pj(0,0,wz)||!(PS>0.05))return;
@@ -4105,8 +4111,24 @@ function pmapToAim(ax,ay){
   /* ax,ay are logical screen coords (already without oy) */
   const m=UI.pmap;if(!m)return;
   const wx=(VF?-1:1)*((ax-(m.px+m.pw/2))/(m.pw/2))*1.3,t=(ay-m.py-4)/(m.ph*0.98);
-  G.sel.x=clamp(wx,-1.3,1.3);G.sel.z=clamp(t*11,0.8,10.5);
+  G.sel.x=clamp(wx,-1.3,1.3);G.sel.z=clamp(t*11,0.8,10.5);G.aimT={x:G.sel.x,z:G.sel.z};
 }
+/* relative drag: touch anywhere, the marker follows the finger's movement from where it already is */
+function aimBegin(x,y){
+  const cx=G.aimT?G.aimT.x:G.sel.x,cz=G.aimT?G.aimT.z:G.sel.z;
+  let dz=-1;if(pj(0,0,0.8)){const a=PY;if(pj(0,0,10.5))dz=PY>a?1:-1}
+  aimDrag={rel:1,x0:x,y0:y,sx:cx,sz:cz,dz:dz,dx:VF?-1:1}}
+function aimMove(x,y){
+  const a=aimDrag;if(!a||!a.rel)return;
+  /* finger movement is scaled to the whole pitch (not to the tiny far end of it): half a screen of drag = the full length */
+  G.aimT={x:clamp(a.sx+a.dx*(x-a.x0)/(W*0.5)*2.6,-1.3,1.3),z:clamp(a.sz+a.dz*(y-a.y0)/360*9.7,0.8,10.5)}}
+function pmapToAim(ax,ay){
+  /* ax,ay are logical screen coords (already without oy) */
+  const m=UI.pmap;if(!m)return;
+  const wx=(VF?-1:1)*((ax-(m.px+m.pw/2))/(m.pw/2))*1.3,t=(ay-m.py-4)/(m.ph*0.98);
+  G.sel.x=clamp(wx,-1.3,1.3);G.sel.z=clamp(t*11,0.8,10.5);G.aimT={x:G.sel.x,z:G.sel.z};
+}
+/* relative drag: touch anywhere, the marker follows the finger's movement from where it already is */
 function drawAimHint(){
   const z=G.sel.z,n=z<1.6?'YORKER':z<3.8?'FULL':z<6.6?'GOOD LENGTH':'SHORT';
   rr(W/2-150,196,300,26,13);ctx.fillStyle='rgba(6,10,22,0.7)';ctx.fill();
@@ -5263,6 +5285,22 @@ const sfx=(function(){
     const o=ac.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);
     const g=ac.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+0.02);
   }
+  /* slow swell of filtered noise = a crowd roar */
+  function swell(dur,f0,f1,vol,q,delay){
+    if(!ok())return;const t=ac.currentTime+(delay||0);
+    const s=ac.createBufferSource();s.buffer=nb;s.loop=true;
+    const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.setValueAtTime(f0,t);f.frequency.linearRampToValueAtTime(f1,t+dur*0.4);f.frequency.linearRampToValueAtTime(f0,t+dur);f.Q.value=q||0.6;
+    const g=ac.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.35,dur*0.25));g.gain.setValueAtTime(vol,t+dur*0.55);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    s.connect(f);f.connect(g);g.connect(master);s.start(t,Math.random()*1.5);s.stop(t+dur+0.05);
+  }
+  /* applause: lots of tiny, soft claps, thick at first and thinning out */
+  function clap(dur,vol,delay){
+    if(!ok())return;const n=Math.round(dur*34);
+    for(let i=0;i<n;i++){const u=Math.pow(Math.random(),1.5),t=(delay||0)+u*dur,v=vol*(1-u*0.55)*(0.35+Math.random()*0.65);
+      noise(0.03+Math.random()*0.02,'bandpass',1100+Math.random()*1900,700,v,0.8,t)}
+  }
+  /* a couple of short whoops from the stands */
+  function whoop(delay,f){tone(f,f*1.5,0.28,0.035,'triangle',delay)}
   return{
     init,setMute(){if(master)master.gain.value=OPT.sound?0.85:0},
     amb(v){if(ambG&&ac)ambG.gain.value=v},
@@ -5271,10 +5309,13 @@ const sfx=(function(){
     swing(){noise(0.16,'bandpass',500,2800,0.28,0.9)},
     whoosh(v){noise(0.35,'bandpass',300,1400,0.1*v,0.7)},
     bounce(v){tone(150,55,0.09,0.32*v,'sine');noise(0.05,'lowpass',700,200,0.2*v,0.7)},
-    stumps(){for(let i=0;i<4;i++)noise(0.06,'bandpass',3000-i*350,1800,0.5,3,i*0.035);tone(160,60,0.2,0.3,'triangle')},
+    /* stumps and bails: dry wooden clatter, no ringing */
+    stumps(){for(let i=0;i<5;i++){noise(0.05,'bandpass',950+i*110,520,0.6,1.4,i*0.05);tone(250-i*18,110,0.09,0.22,'triangle',i*0.05)}noise(0.22,'lowpass',500,150,0.5,0.7,0.02);tone(120,48,0.28,0.32,'sine',0.02)},
     edge(){noise(0.04,'bandpass',3200,1800,0.7,3);tone(300,150,0.06,0.3,'square')},
     catchKeeper(){tone(170,70,0.08,0.4,'sine');noise(0.07,'lowpass',900,300,0.45,0.8)},
-    cheer(l){noise(0.7+l*1.8,'bandpass',900,1500,0.22+0.28*l,0.6);noise(0.5+l*1.4,'bandpass',1800,2600,0.1+0.15*l,0.5,0.05);if(ambG&&ac){ambG.gain.setTargetAtTime(0.05+0.17*l,ac.currentTime,0.05)}},
+    cheer(l){const d=1.2+l*2.2;swell(d,600,1000,0.14+0.2*l,0.7);swell(d*0.9,1300,1900,0.05+0.08*l,0.5,0.05);clap(1.3+l*2.4,0.32+0.3*l,0.1);if(l>0.7){whoop(0.2,900);whoop(0.55,1100)}if(ambG&&ac){ambG.gain.setTargetAtTime(0.05+0.17*l,ac.currentTime,0.05)}},
+    /* wicket: celebration roar + applause (the wooden clatter comes from stumps()) */
+    wicket(){swell(2.6,550,950,0.34,0.7,0.05);swell(2.2,1200,1800,0.1,0.5,0.1);clap(3.0,0.5,0.25);whoop(0.3,800);whoop(0.7,1000);whoop(1.1,900);if(ambG&&ac){ambG.gain.setTargetAtTime(0.2,ac.currentTime,0.05)}},
     groan(){tone(260,110,0.7,0.12,'sawtooth');noise(0.8,'bandpass',500,300,0.16,0.6)},
     pop(){noise(0.25,'lowpass',1800,300,0.4,0.8);tone(900,300,0.18,0.12,'sine')}
   };
@@ -5451,7 +5492,7 @@ cv.addEventListener('pointerdown',e=>{
     try{cv.setPointerCapture(e.pointerId)}catch(_){}
     mdrag={id:e.pointerId,x0:x,y0:y,sc0:G.sc[UI.listKey]||0,key:UI.listKey,moved:false,hit:r};return;
   }
-  if(G.mode==='aim'&&humanBowl()&&!G.paused&&(!r||r.id==='pmap')){aimDrag=true;groundToAim(x,y);try{cv.setPointerCapture(e.pointerId)}catch(_){}return}
+  if(G.mode==='aim'&&humanBowl()&&!G.paused&&(!r||r.id==='pmap')){if(r&&r.id==='pmap'){aimDrag=true;pmapToAim(x,y)}else aimBegin(x,y);try{cv.setPointerCapture(e.pointerId)}catch(_){}return}
   if(G.mode==='runup'&&humanBowl()&&!humanBat()&&!G.relTapped&&!G.paused&&!(r&&r.id==='pause')){handleUI('bowlgo');return}
   if(r){handleUI(r.id,r,x,y);if(r.id==='pmap')try{cv.setPointerCapture(e.pointerId)}catch(_){};return}
   if(G.paused||G.mode==='toss'||G.mode==='menu'||G.mode==='end'||G.mode==='setup'||G.mode==='break'||!humanBat())return;
@@ -5468,7 +5509,7 @@ cv.addEventListener('pointermove',e=>{
     if(mdrag.moved&&mdrag.key){G.sc[mdrag.key]=clamp(mdrag.sc0-(y-mdrag.y0),0,UI.maxSc)}
     return;
   }
-  if(aimDrag){groundToAim(x,y);return}
+  if(aimDrag){if(aimDrag===true)pmapToAim(x,y);else aimMove(x,y);return}
   if(!drag||e.pointerId!==drag.id)return;e.preventDefault();
   const now=performance.now();
   drag.path+=Math.hypot(x-drag.last[0],y-drag.last[1]);

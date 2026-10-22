@@ -1,6 +1,9 @@
 /* Hive Apps showcase: auto-playing app screens, story style progress, tilt, rotating headline */
 (function(){
 var APPS=[
+{id:'home',icon:'🏠',name:'Home Planner 3D',tag:'Plan your home in 2D, walk through it in 3D.',def:'d',href:'home-planner.html',cta:'Plan my home',ac:'#f59e0b',url:'ourworldhive.com/home-planner',
+ fl:['🧱 Walls, doors, windows, pillars','🛋️ 40 furniture items to drag in','📏 Feet, inches or metres'],
+ s:[['Draw it flat, see it in 3D','Draw walls and rooms in a plan view and the 3D house builds itself, with measurements for anything you tap.'],['Paint, floor and furnish','Colour every wall side, pick floors, drop in furniture, change the sun and walk through the rooms.']]},
 {id:'pm',icon:'🛠️',name:'PM Tracker',tag:'Never miss a calibration or PM again.',def:'m',href:'pm.html',cta:'Open PM Tracker',price:'pm',ac:'#14b8a6',url:'ourworldhive.com/pm',
  fl:['⏰ Alerts before it is overdue','✅ OK / NOT OK checklists','📊 Reports to WhatsApp'],
  s:[['Today at a glance','Target, done, pending and your monthly compliance on one phone screen.'],['Every instrument and job','Search, filter, import from Excel and scan a QR code to open any instrument.'],['Calibration due dates','See what is overdue and what is due in the next 30 days.'],['Compliance statistics','By section, person and type, ready to share in Excel, PDF and WhatsApp.']]},

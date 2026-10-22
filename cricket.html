@@ -3771,22 +3771,37 @@ function drawHUD(T){
   tx('THIS OVER',352+51,64,9,'#8fa6d4','center','600');
   /* batter pill */
   const c=curCard(),st=S.stats[S.bi]||{r:0,b:0};
-  rr(8,82,224,26,13);ctx.fillStyle='rgba(6,10,22,0.62)';ctx.fill();
+  rr(8,82,224,33,12);ctx.fillStyle='rgba(6,10,22,0.62)';ctx.fill();
   ctx.fillStyle=rgba(c.kit.jersey);ctx.beginPath();ctx.arc(24,95,7,0,TAU);ctx.fill();
-  tx(c.name+' ('+c.hand+')  '+st.r+' ('+st.b+')',38,96,12.5,'#fff','left','bold',150);
-  const sr=st.b?Math.round(st.r*100/st.b):0;tx('SR '+sr,224,96,10.5,'#9fb3d9','right','600');
-  if(S.nsi>=0){const nc=sideBat().bats[S.nsi],ns=S.stats[S.nsi]||{r:0,b:0};tx('NON-STRIKER  '+nc.name+'  '+ns.r+' ('+ns.b+')',16,119,9.5,'#9fb3d9','left','700',216)}
+  tx(c.name+' ('+c.hand+')  '+st.r+' ('+st.b+')',38,94,12.5,'#fff','left','bold',150);
+  const sr=st.b?Math.round(st.r*100/st.b):0;tx('SR '+sr,224,94,10.5,'#9fb3d9','right','600');
+  try{drawTag(38,106.5,'left',sideTag(S.bside),186)}catch(e){}
+  if(S.nsi>=0){const nc=sideBat().bats[S.nsi],ns=S.stats[S.nsi]||{r:0,b:0};tx('NON-STRIKER  '+nc.name+'  '+ns.r+' ('+ns.b+')',16,124,9.5,'#9fb3d9','left','700',216)}
   /* bowler pill */
   const bw=S.bowler;
   if(bw){
-    rr(240,82,232,26,13);ctx.fillStyle='rgba(6,10,22,0.62)';ctx.fill();
+    rr(240,82,232,33,12);ctx.fillStyle='rgba(6,10,22,0.62)';ctx.fill();
     ctx.fillStyle=rgba(bw.kit.jersey);ctx.beginPath();ctx.arc(256,95,7,0,TAU);ctx.fill();
     const bs=S.bstat[bw.id]||{b:0,r:0,w:0};
-    tx(bw.name+'  '+bs.w+'-'+bs.r+' ('+Math.floor(bs.b/6)+'.'+(bs.b%6)+')',270,96,12.5,'#fff','left','bold',150);
-    tx(KINDS[bw.kind].n,466,96,9.5,'#ffd23f','right','700');
+    tx(bw.name+'  '+bs.w+'-'+bs.r+' ('+Math.floor(bs.b/6)+'.'+(bs.b%6)+')',270,94,12.5,'#fff','left','bold',150);
+    tx(KINDS[bw.kind].n,466,94,9.5,'#ffd23f','right','700');
+    try{drawTag(270,106.5,'left',sideTag(S.wside),196)}catch(e){}
   }
-  if(G.infoT>0){const a=clamp(G.infoT/0.4,0,1);rr(W/2-100,126,200,24,12);ctx.fillStyle='rgba(6,10,22,'+0.7*a+')';ctx.fill();tx(G.info,W/2,139,12,'rgba(255,214,90,'+a+')','center')}
+  if(G.infoT>0){const a=clamp(G.infoT/0.4,0,1);rr(W/2-100,132,200,24,12);ctx.fillStyle='rgba(6,10,22,'+0.7*a+')';ctx.fill();tx(G.info,W/2,145,12,'rgba(255,214,90,'+a+')','center')}
 }
+const TIER_COL={'Novice':'#b6c6e8','Beginner':'#8fe3a0','Apprentice':'#e0a46a','Challenger':'#d9e3f2','Skilled':'#ffd36a','Expert':'#3fd8ff','Master':'#b48bff','Grandmaster':'#ffc94d','Legend':'#ff7a45','Mythic Legend':'#ff6fb4'};
+/* real player name + ladder title (Novice ... Mythic Legend), the same names and colours as the Rankings page */
+function sideTag(si){
+  const sd=MT&&MT.sides?MT.sides[si]:null;if(!sd)return null;
+  if(sd.remote){const o=NETX&&NETX.opp;return o?{n:o.name||sd.pname||'',rk:o.rk||null}:{n:sd.pname||'',rk:null}}
+  if(sd.human){let rk=null;try{rk=OWHG.rankInfo()}catch(e){}return{n:(sd.prof&&sd.prof.name)||'',rk:rk}}
+  return{n:'COMPUTER',bot:1}}
+function drawTag(x,y,al,t,maxW){
+  if(!t)return;let s='',col='#9fb3d9';
+  if(t.rk&&t.rk.tier){s=(t.rk.icon||'')+' '+t.rk.tier.toUpperCase();col=TIER_COL[t.rk.tier]||col}
+  if(t.n)s+=(s?'  \u00B7  ':'')+String(t.n).toUpperCase().slice(0,16);
+  else if(t.bot)s='\uD83E\uDD16 COMPUTER';
+  if(s)tx(s,x,y,8.5,col,al,'700',maxW||200)}
 function drawChk(){
   const c=G.chk;if(!c)return;
   const fin=c.t>=1.1,a=c.t>2.3?clamp((2.8-c.t)/0.5,0,1):clamp(c.t/0.2,0,1);
@@ -3799,14 +3814,24 @@ function drawChk(){
 function drawPopup(){
   drawChk();
   const p=G.popup;if(!p)return;
-  const k=p.t/p.dur,pop=k<0.14?1+0.55*(1-k/0.14):1,a=k>0.75?clamp((1-k)/0.25,0,1):1;
-  const size=(p.big?58:34)*pop;
-  ctx.save();ctx.globalAlpha=a;
-  const y=(p.big?232:262)+p.y+(HOR0-300)*0.7;
-  ctx.font='900 '+size+'px "Arial Black","Segoe UI",Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  let fs=size;const mw=ctx.measureText(p.txt).width;if(mw>W-30){fs=size*(W-30)/mw;ctx.font='900 '+fs+'px "Arial Black","Segoe UI",Arial,sans-serif'}
-  ctx.lineJoin='round';ctx.lineWidth=Math.max(4,fs*0.14);ctx.strokeStyle='rgba(0,0,0,0.75)';ctx.strokeText(p.txt,W/2,y);
-  ctx.shadowColor=rgba(p.col,0.9);ctx.shadowBlur=p.big?24:12;ctx.fillStyle=rgba(p.col);ctx.fillText(p.txt,W/2,y);
+  const k=p.t/p.dur,a=k>0.78?clamp((1-k)/0.22,0,1):clamp(k/0.08,0,1),slide=(1-clamp(k/0.12,0,1))*18;
+  const FONT='"Segoe UI","Roboto","Helvetica Neue",Arial,sans-serif';
+  let main=String(p.txt).toUpperCase(),sub='';
+  const m6=main.match(/^(SIX)!?\s+(\d+)\s*M(?:ETRES)?$/);
+  if(m6){main='SIX';sub=m6[2]+' m'}
+  else{const q=main.match(/^([^.!:]+)[.!:]\s+(.+)$/);if(q&&q[1].length<=18){main=q[1];sub=q[2]}}
+  const ms=p.big?24:15,ss=p.big?15:11;
+  ctx.save();ctx.globalAlpha=a;ctx.textBaseline='middle';
+  try{ctx.letterSpacing=(p.big?'1.5px':'1px')}catch(e){}
+  ctx.font='800 '+ms+'px '+FONT;let mw=ctx.measureText(main).width;
+  ctx.font='600 '+ss+'px '+FONT;let sw=sub?ctx.measureText(sub).width:0;
+  const padX=14,gap=sub?10:0,bw=Math.min(W-24,mw+sw+gap+padX*2+8),bh=p.big?40:28;
+  const x0=W/2-bw/2,y0=(p.big?236:266)+p.y+(HOR0-300)*0.7-bh/2+slide;
+  rr(x0,y0,bw,bh,6);ctx.fillStyle='rgba(8,12,26,0.84)';ctx.fill();
+  ctx.fillStyle=rgba(p.col);ctx.fillRect(x0,y0+4,4,bh-8);
+  ctx.textAlign='left';
+  ctx.font='800 '+ms+'px '+FONT;ctx.fillStyle='#fff';ctx.fillText(main,x0+padX+4,y0+bh/2+1);
+  if(sub){ctx.font='600 '+ss+'px '+FONT;ctx.fillStyle=rgba(p.col);ctx.fillText(sub,x0+padX+4+mw+gap,y0+bh/2+1)}
   ctx.restore();
 }
 function drawComm(){
@@ -5204,7 +5229,7 @@ function netBegin(ad,r){
   ad.open(r.id,X.recv);
   /* say hello with our squad */
   const p=PR(),sq=humanSquad(p,TEAM_N[OPT.overs]);
-  X.send('hello',{eq:(window.OWHSTORE?OWHSTORE.eq():{}),name:p.name,team:p.team,rating:myRating(p),level:levelOf(p.xp),bats:sq.bats,bowls:sq.bowls});
+  X.send('hello',{rk:(()=>{try{const r=OWHG.rankInfo();return{tier:r.tier,icon:r.icon}}catch(e){return null}})(),eq:(window.OWHSTORE?OWHSTORE.eq():{}),name:p.name,team:p.team,rating:myRating(p),level:levelOf(p.xp),bats:sq.bats,bowls:sq.bowls});
   X.helloSent=true;X.tryBuild();
   /* the toss quiz hooks into the same channel */
   TOSSNET.emit=function(type,d){if(NETX&&MT&&MT.online){if(type==='qwin'&&!TS.host)return;X.send(type,d)}};

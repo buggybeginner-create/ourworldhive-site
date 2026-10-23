@@ -146,7 +146,8 @@ html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-user-select
   </div>
   <div id="v3"><canvas id="c3"></canvas><div id="lbl3"></div>
    <div id="hud3">
-    <div style="display:flex;gap:6px"><button class="btn" id="hudT" title="Sun, roof, wall height">☀</button><div class="seg" id="camSeg"><button data-c="orbit" class="on">Orbit</button><button data-c="top">Top</button><button data-c="walk">Walk</button></div></div>
+    <div id="tourBar" style="display:none;position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:60;background:#101a3c;border:1px solid var(--gold);border-radius:14px;padding:8px 12px;align-items:center;gap:10px;box-shadow:0 6px 24px #0008"><span id="tourTxt" style="font-weight:700;font-size:13px"></span><div style="width:90px;height:6px;background:#334;border-radius:4px;overflow:hidden"><div id="tourPrg" style="height:100%;width:0;background:var(--gold)"></div></div><button class="btn" id="tourEnd" style="height:34px">Finish</button><button class="btn" id="tourStop" style="height:34px">Cancel</button></div>
+    <div style="display:flex;gap:6px"><button class="btn" id="hudT" title="Sun, roof, wall height">☀</button><button class="btn" id="tourBtn" title="Walkthrough video">🎬</button><div class="seg" id="camSeg"><button data-c="orbit" class="on">Orbit</button><button data-c="top">Top</button><button data-c="walk">Walk</button></div></div>
     <div class="box"><label>Sun / time <input type="range" id="sunR" min="6" max="19" step="0.25" value="14"></label><label>Roof <input type="checkbox" id="roofC"></label><label>Wall height <input type="range" id="wallR" min="0.2" max="1" step="0.05" value="1"></label><label>Walls see-through <input type="range" id="wallOp" min="0.1" max="1" step="0.05" value="1"></label><label>Roof see-through <input type="range" id="roofOp" min="0.1" max="1" step="0.05" value="1"></label></div>
    </div>
    <div id="pad"><span></span><button data-k="f">▲</button><span></span><button data-k="l">◀</button><button data-k="b">▼</button><button data-k="r">▶</button></div>
@@ -936,6 +937,34 @@ $('#photoIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.v
    const sf=img.width>760?760/img.width:1;UL={img,ox:-r.bx0/sf*(r.s*sf)*1,oy:-r.by0/sf*(r.s*sf)*1,s:r.s/sf,a:.0};UL.ox=-r.bx0*r.s;UL.oy=-r.by0*r.s;UL.s=r.s*(sf<1?1/sf:1)/(sf<1?1:1);UL.a=0;commit();fit2();fitCam();toast(r.walls.length+' walls and '+r.rooms.length+' rooms made. Check and fix, then add doors, windows and furniture. Undo goes back.')}catch(err){console.error(err);toast('Could not read this picture')}},60)};
   $('#phGo').onclick=()=>run('plan');$('#phTr').onclick=()=>run('trace');$('#phX').onclick=closeDlg};img.onerror=()=>toast('Could not open that picture');img.src=url});
 function fit2UL(){if(!UL)return;V.x=UL.ox+UL.img.width*UL.s/2;V.y=UL.oy+UL.img.height*UL.s/2;V.s=clamp(Math.min(W2/(UL.img.width*UL.s*1.1),H2/(UL.img.height*UL.s*1.1)),1.5,160);draw2()}
+
+/* ================= WALKTHROUGH VIDEO ================= */
+let TOUR=null;
+function tourPlan(style){const kf=[];const bb=bounds();
+ if(style==='orbit'){return{style,dur:16,from:{th:CAM.th,ph:.85,d:CAM.d}}}
+ const rooms=M.rooms.map(r=>{const b=roomBox(r);return{r,x:(b.x0+b.x1)/2,y:(b.y0+b.y1)/2,b}});
+ if(!rooms.length)rooms.push({x:(bb.x0+bb.x1)/2,y:(bb.y0+bb.y1)/2,b:bb});
+ let cur=rooms.reduce((a,r)=>(r.x+r.y<a.x+a.y?r:a),rooms[0]);const order=[cur];const left=rooms.filter(r=>r!==cur);
+ while(left.length){let bi=0,bd=1e9;left.forEach((r,i)=>{const d=Math.hypot(r.x-cur.x,r.y-cur.y);if(d<bd){bd=d;bi=i}});cur=left.splice(bi,1)[0];order.push(cur)}
+ const inB=(x,y,b)=>x>=b.x0-.3&&x<=b.x1+.3&&y>=b.y0-.3&&y<=b.y1+.3;const doorBetween=(A,B)=>{let best=null;for(const o of M.ops){if(!isDoorT(o.type))continue;const w=WBY(o.wall);if(!w)continue;const L=wLen(w),t=o.d/L;const px=w.a.x+(w.b.x-w.a.x)*t,py=w.a.y+(w.b.y-w.a.y)*t;if(!inB(px,py,A.b)||!inB(px,py,B.b))continue;const s=Math.hypot(px-A.x,py-A.y)+Math.hypot(px-B.x,py-B.y);if(!best||s<best.s)best={s,x:px,y:py,w}}return best};
+ const pts=[];order.forEach((r,i)=>{if(i){const dp=doorBetween(order[i-1],r);if(dp){const w=dp.w,dx=w.b.x-w.a.x,dy=w.b.y-w.a.y,L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;const pa=order[i-1];const side=Math.sign((pa.x-dp.x)*nx+(pa.y-dp.y)*ny)||1;pts.push({x:dp.x+nx*side*.7,y:dp.y+ny*side*.7});pts.push({x:dp.x-nx*side*.7,y:dp.y-ny*side*.7})}}pts.push({x:r.x,y:r.y,look:1})});
+ const segs=[];let t=0;for(let i=0;i<pts.length;i++){const p=pts[i];if(i){const q=pts[i-1],L=Math.hypot(p.x-q.x,p.y-q.y),d=Math.max(.3,L/1.1);segs.push({k:'move',t0:t,d,a:q,b:p});t+=d}if(p.look){segs.push({k:'look',t0:t,d:2.4,p});t+=2.4}}
+ return{style,dur:Math.max(6,t),segs,start:pts[0]}}
+function tourAt(T,t){if(T.style==='orbit'){const k=clamp(t/T.dur,0,1);CAM.mode='orbit';CAM.th=T.from.th+k*2*PI;CAM.ph=T.from.ph;CAM.d=T.from.d;applyCam();return}
+ let s=T.segs.find(s=>t>=s.t0&&t<s.t0+s.d)||T.segs[T.segs.length-1];const u=clamp((t-s.t0)/s.d,0,1),e=u*u*(3-2*u);CAM.mode='walk';
+ if(s.k==='move'){CAM.wx=s.a.x+(s.b.x-s.a.x)*u;CAM.wz=s.a.y+(s.b.y-s.a.y)*u;const target=Math.atan2(-(s.b.x-s.a.x),-(s.b.y-s.a.y));const nu=Math.min(1,u+.25),lx=s.a.x+(s.b.x-s.a.x)*nu,lz=s.a.y+(s.b.y-s.a.y)*nu;const tg=(Math.hypot(lx-CAM.wx,lz-CAM.wz)>.05)?Math.atan2(-(lx-CAM.wx),-(lz-CAM.wz)):target;let dy=tg-T.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));const dt=Math.min(.1,Math.max(0,t-(T.lt||t)));T.yaw+=dy*(1-Math.exp(-dt*7));CAM.yaw=T.yaw;CAM.pitch=-.04}
+ else{CAM.wx=s.p.x;CAM.wz=s.p.y;if(s.y0==null)s.y0=T.yaw;CAM.yaw=s.y0+Math.sin(u*PI*2)*.7;T.yaw=CAM.yaw;CAM.pitch=-.05}
+ T.lt=t;applyCam()}
+function tourRun(style,rec){if(TOUR)tourStop(true);if(view==='2d'||view==='plan')setView('3d');const T=tourPlan(style);T.yaw=CAM.yaw;T.sv={...CAM};if(style==='walk'){T.yaw=0;if(T.start){CAM.wx=T.start.x;CAM.wz=T.start.y}}
+ T.t0=performance.now();T.rec=null;T.chunks=[];
+ if(rec&&window.MediaRecorder&&C3.captureStream){try{const types=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];const mt=types.find(t=>MediaRecorder.isTypeSupported(t))||'';const st=C3.captureStream(30);T.rec=new MediaRecorder(st,mt?{mimeType:mt,videoBitsPerSecond:7e6}:{videoBitsPerSecond:7e6});T.mt=T.rec.mimeType||mt||'video/webm';T.rec.ondataavailable=e=>{if(e.data&&e.data.size)T.chunks.push(e.data)};T.rec.start(500)}catch(err){console.error(err);T.rec=null;toast('This browser cannot record video. Showing the tour only.')}}
+ else if(rec)toast('This browser cannot record video. Showing the tour only.');
+ TOUR=T;const bar=$('#tourBar');bar.style.display='flex';$('#tourTxt').textContent=T.rec?'● Recording walkthrough':'▶ Walkthrough preview';
+ const step=now=>{if(TOUR!==T)return;const t=(now-T.t0)/1000;$('#tourPrg').style.width=clamp(t/T.dur*100,0,100)+'%';tourAt(T,t);need=true;if(t>=T.dur+.6)tourStop(false);else requestAnimationFrame(step)};requestAnimationFrame(step)}
+function tourStop(cancel){const T=TOUR;if(!T)return;TOUR=null;$('#tourBar').style.display='none';Object.assign(CAM,T.sv);applyCam();
+ if(T.rec){const fin=()=>{if(cancel||!T.chunks.length)return;const ext=/mp4/.test(T.mt)?'mp4':'webm';const bl=new Blob(T.chunks,{type:T.mt.split(';')[0]});download('home-walkthrough.'+ext,bl);toast('Video saved ('+ext.toUpperCase()+'). Check your Downloads.')};T.rec.onstop=fin;try{T.rec.state!=='inactive'&&T.rec.stop()}catch(e){}}}
+function tourDlg(){openDlg(`<h4>🎬 Walkthrough video</h4><p class="note">The camera walks through your rooms through the doors, like a house tour, and saves a video. Or pick a fly-around of the whole house. Set the sun, roof and see-through sliders first, they show in the video.</p><div class="two"><button class="btn gold" data-tr="walk1">🚶 Walk-through + save video</button><button class="btn gold" data-tr="orb1">🔄 Fly-around + save video</button></div><div class="two" style="margin-top:8px"><button class="btn" data-tr="walk0">Preview walk only</button><button class="btn" data-tr="orb0">Preview fly-around</button></div><p class="note">Video is recorded live in your browser, so it takes as long as the tour (about 15 to 60 seconds). Do not switch tabs while recording. Saved as MP4 or WebM depending on your browser.</p><button class="btn" id="phX" style="width:100%;margin-top:8px">Close</button>`);$('#phX').onclick=closeDlg;$$('#dlg [data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr;closeDlg();setTimeout(()=>tourRun(k.startsWith('walk')?'walk':'orbit',k.endsWith('1')),120)})}
+$('#tourBtn').onclick=tourDlg;$('#tourStop').onclick=()=>tourStop(true);$('#tourEnd').onclick=()=>tourStop(false);
 
 /* init */
 function init(){buildTools();buildTabs();$('#bUnit').textContent=U;renderLib();new ResizeObserver(()=>{size2();sizeR()}).observe($('#stage'));

@@ -99,7 +99,7 @@ h4{margin:12px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercas
 #toast{position:fixed;left:50%;bottom:70px;transform:translate(-50%,20px);padding:9px 16px;border-radius:99px;background:#111a3a;border:1px solid var(--gold);color:#fff;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #collapse{display:none}
-@media (max-width:860px){#fb2{top:auto;bottom:44px;left:10px;right:auto;flex-direction:row}
+@media (max-width:860px){
  #work{flex-direction:column}
  #tools{width:auto;flex-direction:row;border-right:0;border-bottom:1px solid var(--ln);overflow-x:auto;overflow-y:hidden;padding:5px 6px;order:1}
  .tool{width:48px;height:46px}.tsep{width:1px;height:30px;margin:8px 3px}
@@ -127,6 +127,7 @@ html,body{touch-action:manipulation;overscroll-behavior:none;-webkit-user-select
 #wlen{flex-wrap:nowrap;gap:4px;justify-content:center;max-width:calc(100% - 12px)}#wlen .btn{height:38px;min-width:36px;padding:0 7px;font-size:16px}#wlen .wd{background:#1c2a5c;font-weight:800}
 @media (max-width:480px){#wlen input{width:62px}#wlen .btn{min-width:33px;padding:0 5px;height:36px}}
 #wEnter{position:absolute;z-index:8;display:none;gap:6px;padding:5px;border-radius:12px;background:rgba(10,16,40,.94);border:1px solid var(--gold);box-shadow:0 4px 14px #0008}#wEnter .btn{height:42px;font-size:15px;font-weight:800;padding:0 14px}
+#fb2{pointer-events:none;width:auto;height:auto}#fb2 .chip,#fb3 .chip{pointer-events:auto}@media (max-width:860px){body #fb2{top:auto;bottom:46px;left:10px;right:auto;flex-direction:row;align-items:center}}
 </style></head><body data-view="split">
 <div id="app">
 <header id="top">
@@ -465,7 +466,7 @@ function snapItemToWall(it,rot,loose){if(LIBBY[it.k].ns&&!loose)return;let best=
 function rayWall(px,py,dx,dy){let m=1e9;for(const w of M.walls){const sx=w.b.x-w.a.x,sy=w.b.y-w.a.y;const den=dx*sy-dy*sx;if(Math.abs(den)<1e-9)continue;const t=((w.a.x-px)*sy-(w.a.y-py)*sx)/den,u=((w.a.x-px)*dy-(w.a.y-py)*dx)/den;if(t>0&&u>=0&&u<=1){const d=t-w.t/2;if(d<m)m=d}}return m<1e8?m:null}
 /* ---- hit test ---- */
 function handlesOf(o){const hs=[];if(!sel)return hs;if(sel.t==='wall'){hs.push({h:'a',x:o.a.x,y:o.a.y},{h:'b',x:o.b.x,y:o.b.y})}else if(sel.t==='item'){const r=fromLocal(o,0,-o.d/2-30/V.s),s=fromLocal(o,o.w/2,o.d/2);hs.push({h:'rot',x:r.x,y:r.y},{h:'sc',x:s.x,y:s.y})}else if(sel.t==='pil'){hs.push({h:'sc',x:o.x+o.s/2,y:o.y+o.s/2})}else if(sel.t==='room'){const b=roomBox(o);hs.push({h:'sc',x:b.x1,y:b.y1})}else if(sel.t==='dim'){hs.push({h:'a',x:o.a.x,y:o.a.y},{h:'b',x:o.b.x,y:o.b.y})}return hs}
-function hitTest(p){const tol=TOLPX/V.s;const o=getObj(sel);if(o){for(const h of handlesOf(o))if(Math.hypot(h.x-p.x,h.y-p.y)<tol*1.2)return{t:sel.t,id:sel.id,h:h.h}}
+function hitTest(p){const tol=TOLPX/V.s;const o=getObj(sel);if(o){const ext=sel.t==='wall'?wLen(o):sel.t==='item'?Math.min(o.w,o.d):sel.t==='room'?Math.min(roomBox(o).w,roomBox(o).h):99;const hr=Math.max(7/V.s,Math.min(tol,ext*.2));for(const h of handlesOf(o))if(Math.hypot(h.x-p.x,h.y-p.y)<hr)return{t:sel.t,id:sel.id,h:h.h}}
  if(L_vis('label')&&!L_lock('label'))for(let i=M.labels.length-1;i>=0;i--){const l=M.labels[i];if(Math.abs(p.x-l.x)<l.text.length*l.s*.3+.2&&Math.abs(p.y-l.y)<l.s*.6+.1)return{t:'label',id:l.id}}
  if(L_vis('wall')&&!L_lock('wall'))for(const w of M.walls){if(segDist(p,w.a,w.b).d<=w.t/2&&!(L_vis('open')&&M.ops.some(o=>{if(o.wall!==w.id)return false;const g=opGeo(o);return Math.abs((p.x-g.w.a.x)*g.ux+(p.y-g.w.a.y)*g.uy-o.d)<=o.w/2})))return{t:'wall',id:w.id}}
  if(L_vis('item')&&!L_lock('item'))for(let i=M.items.length-1;i>=0;i--){const it=M.items[i];const q=toLocal(it,p);if(Math.abs(q.x)<=it.w/2+tol*.15&&Math.abs(q.y)<=it.d/2+tol*.15)return{t:'item',id:it.id}}
@@ -1097,7 +1098,7 @@ function init(){buildTools();buildTabs();$('#bUnit').textContent=U;renderLib();n
  setView(innerWidth<=860?'split':'split');renderHint();setSun(14);applyCam();requestAnimationFrame(loop);
  setTimeout(()=>{size2();sizeR();fit2();fitCam();need=true},120)}
 init();
-window.__hp={get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField};
+window.__hp={get ctxOpen(){return ctxOpen},get tool(){return tool},get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField};
 
 </script>
 </body></html>

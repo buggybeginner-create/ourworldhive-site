@@ -1058,6 +1058,9 @@ function buildFloor3(f,FLS,topVis){const H=M.s.h;const fg=new THREE.Group();fg.p
 }
  if(M.lay.wall.v)for(const w of M.walls)buildWall(w,wallsG);wallsG.scale.y=wallScale;
  if(M.s.roof&&topVis)buildRoof(fg,H);
+ else if(!topVis&&f<FLS.length-1){const cm=mat('#cfcac0',.9,0,roofOp<1&&M.s.roof?{transparent:true,opacity:Math.max(.15,roofOp),depthWrite:false}:{});const add=g=>{const e=new THREE.Mesh(g,cm);e.castShadow=e.receiveShadow=true;e.userData.pk={t:'roof',id:0};return e};
+  if(M.rooms.length){for(const r of M.rooms){const sh=new THREE.Shape(r.pts.map(q=>new THREE.Vector2(q.x,-q.y)));const e=add(new THREE.ExtrudeGeometry(sh,{depth:SLAB,bevelEnabled:false}));e.rotation.x=-PI/2;e.position.y=H-.003;fg.add(e)}}
+  else{const bb=roofBBox();if(bb){const e=add(new THREE.BoxGeometry(bb.x1-bb.x0,SLAB,bb.y1-bb.y0));e.position.set((bb.x0+bb.x1)/2,H+SLAB/2-.003,(bb.y0+bb.y1)/2);fg.add(e)}}}
  if(M.lay.item.v){fg.add(itemsG);for(const it of M.items){buildItem(it,itemsG);const l=LIBBY[it.k];if(lightsOn&&l&&l.lt&&nLights<10){nLights++;const pl=new THREE.PointLight(0xffd9a0,10,10,1.6);pl.position.set(it.x,(it.e||0)+Math.max(.1,it.h*.8)-(l.cat==='Lights'&&it.e>1?.15:0),it.y);fg.add(pl)}}}
  if(M.lay.pil.v)for(const p of M.pil){const m=mat(p.c,.8);const o=p.shape==='rd'?new THREE.Mesh(new THREE.CylinderGeometry(p.s/2,p.s/2,p.h,28),m):new THREE.Mesh(new THREE.BoxGeometry(p.s,p.h,p.s),m);o.position.set(p.x,p.h/2,p.y);o.castShadow=o.receiveShadow=true;o.userData.pk={t:'pil',id:p.id};fg.add(o)}
  /* labels */
@@ -1532,7 +1535,7 @@ function init(){buildTools();buildTabs();$('#bUnit').textContent=U;renderLib();n
  setView(innerWidth<=860?'split':'split');renderHint();setSun(14);applyCam();requestAnimationFrame(loop);
  setTimeout(()=>{size2();sizeR();fit2();fitCam();need=true},120)}
 init();
-window.__hp={get ctxOpen(){return ctxOpen},get tool(){return tool},get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField,addWall,healWalls,get msel(){return msel},w2s};
+window.__hp={get ctxOpen(){return ctxOpen},get tool(){return tool},get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField,addFloor,addWall,healWalls,get msel(){return msel},w2s};
 
 </script>
 </body></html>

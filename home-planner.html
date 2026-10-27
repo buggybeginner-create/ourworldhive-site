@@ -1700,6 +1700,7 @@ function parseBrief(raw){
  if(!o.bhk&&(m=t.match(/(\d|one|two|three|four|five|ek|do|teen|char)\s*[- ]?\s*(?:bed ?rooms?|beds?\b|br\b|kamre|kamra|bedroom)/)))o.bhk=num(m[1]);
  if(!o.bhk&&/studio/.test(t))o.bhk=1;
  if((m=t.match(/(\d|one|two|three|four|five|ek|do|teen|char)\s*[- ]?\s*(?:bath ?rooms?|baths?\b|toilets?|washrooms?|wc\b)/)))o.baths=num(m[1]);
+ {const mm=t.match(/\b(bed ?room|master bedroom|living room|drawing room|hall|kitchen|office|study room|study|shop|room)\b/);o.single=(mm&&!o.bhk&&!o.floors&&!/\bhome|house|flat|apartment|villa|plot|bhk\b/.test(t))?mm[1].replace(/\s/g,''):null}
  o.pooja=/pooja|puja|mandir|prayer|temple/.test(t);
  o.study=/study|home office|work ?room|office room|wfh|library/.test(t);
  o.balcony=/balcon|sit-?out|veranda|terrace/.test(t);
@@ -1915,13 +1916,13 @@ function furnishFloor(F,S,I,W,D){
    I('basin',r.x1-WT-bs.d/2-.02,r.y0+Math.min(d*.38,1.4),PI/2)}
  }
 }
-function briefSummary(S,res){
+function briefSummary(S,res){if(S.single)return S.single+' · '+((x)=>(U==='m'||U==='cm')?x.toFixed(1)+' m':(x/.3048).toFixed(0)+' ft')(S.W)+' × '+((x)=>(U==='m'||U==='cm')?x.toFixed(1)+' m':(x/.3048).toFixed(0)+' ft')(S.D);
  const u=(U==='m'||U==='cm')?(x=>x.toFixed(1)+' m'):(x=>(x/.3048).toFixed(0)+' ft');
  return u(S.W)+' × '+u(S.D)+' per floor · '+S.floors+' floor'+(S.floors>1?'s':'')+' · '+S.bhk+' BHK · '+S.baths+' bath'+(S.baths>1?'s':'')}
 function runBrief(text){
  const o=parseBrief(text);
  if(!text||!text.trim()){toast('Pehle likho: area, floors, BHK...');return}
- let res;try{res=genPlan(o)}catch(e){console.error(e);toast('Plan nahi ban paya. Thoda alag likh ke try karo.');return}
+ let res;try{res=o.single?genSingle(o):genPlan(o)}catch(e){console.error(e);toast('Plan nahi ban paya. Thoda alag likh ke try karo.');return}
  const S=res.S;curName='Plan from description';
  commit();fit2();fitCam();
  let warn='';const perM2=S.W*S.D;const need=14+S.bhk*13;
@@ -1929,6 +1930,28 @@ function runBrief(text){
  const nc=nConf();
  toast(briefSummary(S,res)+warn+(nc?' · '+nc+' red item':'')+'. Undo se wapas.');
  renderPlan()}
+
+function genSingle(o){
+ let W=o.W,D=o.D;if(!W){const A=o.area||13.5;W=Math.sqrt(A*1.15);D=A/W}
+ W=Math.round(Math.max(2.4,Math.min(30,W))*20)/20;D=Math.round(Math.max(2.4,Math.min(30,D))*20)/20;
+ const ty=o.single,I=(k,x,y,r)=>addItem(k,x,y,r||0),WT=.13,LB=k=>LIBBY[k]||{w:1,d:1};
+ M=blank();sel=null;
+ const kind=/living|drawing|hall/.test(ty)?'living':/kitchen/.test(ty)?'kitchen':/office|study|shop/.test(ty)?'office':'bed';
+ const nm={living:'Living Room',kitchen:'Kitchen',office:/shop/.test(ty)?'Shop':'Office / Study',bed:/master/.test(ty)?'Master Bedroom':'Bedroom'}[kind];
+ rectsToWalls([[0,0,W,D]],.23,.12);addRoom(0,0,W,D,nm,kind==='kitchen'?'tile1':kind==='office'?'wood2':'wood1');
+ const cx=W/2,cy=D/2;
+ openAt(Math.min(1.0,W*.25),0,'door',.9);
+ if(W>=3)openAt(W-1.2,0,'window',1.2);
+ openAt(0,D/2,'window',Math.min(1.5,D-.8));openAt(W,D/2,'window',Math.min(1.5,D-.8));
+ if(kind==='bed'){const bk=W>=4?'bedK':'bed2',L=LB(bk),nw=LB('night').w,wd=LB('ward');
+  const bx=Math.max(W/2,WT+wd.d+nw+.15+L.w/2);I(bk,Math.min(bx,W-WT-nw-.1-L.w/2),D-WT-L.d/2-.02,PI);const bxx=Math.min(bx,W-WT-nw-.1-L.w/2);
+  I('night',bxx-L.w/2-nw/2-.03,D-WT-.22,PI);I('night',bxx+L.w/2+nw/2+.03,D-WT-.22,PI);
+  I('ward',WT+wd.d/2+.02,WT+.15+wd.w/2+.3,-PI/2);if(W>=3.6)I('dress',W-WT-.3,WT+1.0,PI/2);I('rug',bxx,D-L.d-.6,0)}
+ else if(kind==='living'){const sy=Math.min(D-1.0,D*.68);I('rug',cx,cy,0);I('tvu',cx,WT+.22,0);if(W>=5.5)I('lsofa',cx,sy,PI);else I('sofa3',cx,sy,PI);I('coffee',cx,sy-1.1,0);if(W>=4.2){I('arm',WT+.5,cy,PI/2);I('arm',W-WT-.5,cy,-PI/2)}I('plant',W-.45,.5);I('plant',.45,D-.45);if(W>=4)I('shelf',W-WT-.2,D*.6,-PI/2)}
+ else if(kind==='kitchen'){let x=WT+.1;for(const k of['sinkc','stove','fridge']){const l=LB(k);if(x+l.w>W-WT)break;I(k,x+l.w/2,WT+.3+.02,0);x+=l.w+.05}if(W>=3&&D>=3.6){I('island',cx,cy+.5,0)}else I('round',cx,cy+.7,0)}
+ else{I('desk',cx,WT+.35,0);I('ochair',cx,WT+1.05,PI);if(W>=3.4){I('desk',cx-1.4,D-WT-.35,PI);I('ochair',cx-1.4,D-WT-1.05,0)}I('shelf',W-WT-.2,D/2,-PI/2);I('plant',W-.45,D-.45)}
+ M.s.wc='#f1ebdd';for(const w of M.walls)w.c1=w.c2=M.s.wc;
+ autoFit();return{S:{W,D,floors:1,bhk:0,baths:0,single:nm}}}
 
 </script>
 </body></html>

@@ -1201,7 +1201,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.1,(now-lastT)/
 /* 3D pointer controls */
 const p3=new Map();let tap3=null,pinch3=null;const rc=new THREE.Raycaster();
 function ndc(e){const r=C3.getBoundingClientRect();return new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1)}
-function pick3(e){rc.setFromCamera(ndc(e),cam);const hits=rc.intersectObject(house,true);for(const h of hits){const pk=h.object.userData.pk;if(pk&&tool==='select'&&((pk.t==='wall'&&(wallOp<.95||wallScale<.95))||(pk.t==='roof'&&roofOp<.95)))continue;if(pk)return{pk,face:h.face?h.face.materialIndex:null,pt:h.point}}return null}
+function pick3(e){rc.setFromCamera(ndc(e),cam);const hits=rc.intersectObject(house,true);for(const h of hits){const pk=h.object.userData.pk;if(pk&&tool==='select'&&((pk.t==='wall'&&(wallOp<.95||wallScale<.95))||(pk.t==='roof'&&roofOp<.95)))continue;if(pk){if(pk.t==='wall'||pk.t==='roof'){const it2=hits.find(q=>q.distance<=h.distance+.5&&q.object.userData.pk&&q.object.userData.pk.t==='item');if(it2)return{pk:it2.object.userData.pk,face:it2.face?it2.face.materialIndex:null,pt:it2.point}}return{pk,face:h.face?h.face.materialIndex:null,pt:h.point}}}return null}
 function ground3s(e){rc.setFromCamera(ndc(e),cam);const H=M.s.h+SLAB,FL=floorsOf(),nF=FL.length;
  for(const h of rc.intersectObject(house,true)){const o=h.object,pk=o.userData&&o.userData.pk;if(!pk||!h.face)continue;const nrm=h.face.normal.clone().transformDirection(o.matrixWorld);if(nrm.y<.5)continue;
   let ok=pk.t==='room'||pk.t==='roof';if(pk.t==='item'&&pk.f!=null&&FL[pk.f]){const it=FL[pk.f].items.find(q=>q.id===pk.id);const l=it&&LIBBY[it.k];ok=!!(l&&l.sf!=null)}
@@ -1274,7 +1274,7 @@ function regModel(r){const ex=LIBBY['glb_'+r.id];if(ex&&!ex.hidden)return;const 
 const glbIn=document.createElement('input');glbIn.type='file';glbIn.accept='.glb,model/gltf-binary';glbIn.style.display='none';glbIn.id='glbIn';document.body.appendChild(glbIn);
 glbIn.onchange=async()=>{const f=glbIn.files[0];glbIn.value='';if(!f)return;if(f.size>25e6){toast('This model is bigger than 25 MB. Please pick a lighter one.');return}try{const buf=await f.arrayBuffer();const g=await glbParse(buf);glbPending={buf,scene:g.scene,name:f.name.replace(/\.glb$/i,'').replace(/[_-]+/g,' ').slice(0,40),m:glbMeasure(g.scene)};glbDlg()}catch(e){toast('Could not read this file. Please use a single .glb file.')}};
 function glbDlg(){const p=glbPending,m=p.m;let H=m.sz.y;if(H>30)H=H/1000;else if(H>6)H=H/100;H=Math.min(4,Math.max(.1,H));openDlg(`<h4>Add 3D model</h4><p class="note">Give it a name and its real height. Width and depth follow the model's shape. You can resize it later in Edit.</p><div class="row"><label>Name</label><input type="text" id="gmN" value="${esc(p.name)}"></div><div class="row"><label>Height</label><input type="text" id="gmH" value="${esc(fmt(H))}"></div><div class="two" style="margin-top:12px"><button class="btn" id="gmC">Cancel</button><button class="btn gold" id="gmOk">Add to my models</button></div>`);$('#gmC').onclick=()=>{glbPending=null;closeDlg()};$('#gmOk').onclick=async()=>{let h=parseLen($('#gmH').value);if(!(h>=.05&&h<=10))h=H;const id='m'+Date.now().toString(36);const r={id,name:($('#gmN').value||'My model').trim().slice(0,40),w:r2(m.sz.x*h/m.sz.y),d:r2(m.sz.z*h/m.sz.y),h:r2(h)};try{await idbDo('readwrite',s=>s.put(Object.assign({buf:p.buf},r)))}catch(e){toast('Could not save the model on this device (private mode?). It works only until you close the page.')}regModel(r);GLBC[id]=Object.assign({scene:p.scene},m);glbPending=null;closeDlg();libCat='My models';renderLib();toast('Model added. Drag it onto your plan.')}}
-$('#pans').addEventListener('click',e=>{const gd=e.target.closest('[data-gdel]');if(!gd)return;e.stopPropagation();e.preventDefault();const id=gd.dataset.gdel,l=LIBBY['glb_'+id];if(l){l.hidden=1;l.glb=null}delete GLBC[id];idbDo('readwrite',s=>s.delete(id)).catch(()=>{});renderLib();toast('Model removed. Items already on the plan stay as grey boxes.')},true);
+$('#pans').addEventListener('click',e=>{const bx=e.target.closest('[data-brx]');if(bx){$('#brTxt').value=bx.dataset.brx;return}if(e.target.id==='brGo'){const tx=$('#brTxt').value;ls.set('owh_hp_brief',tx);runBrief(tx);return}const gd=e.target.closest('[data-gdel]');if(!gd)return;e.stopPropagation();e.preventDefault();const id=gd.dataset.gdel,l=LIBBY['glb_'+id];if(l){l.hidden=1;l.glb=null}delete GLBC[id];idbDo('readwrite',s=>s.delete(id)).catch(()=>{});renderLib();toast('Model removed. Items already on the plan stay as grey boxes.')},true);
 $('#pans').addEventListener('pointerdown',e=>{if(e.target.closest('[data-gdel]'))e.stopPropagation()},true);
 idbDo('readonly',s=>s.getAll()).then(rs=>{(rs||[]).forEach(r=>regModel(r));renderLib()}).catch(()=>{});
 
@@ -1394,6 +1394,7 @@ function renderPlan(){const el=$('#pn-plan');const b=bounds(),fl=M.rooms.reduce(
  ${M.rooms.length?'<h4>Rooms</h4>'+M.rooms.map(r=>{const bb=roomBox(r);return`<div class="kv"><span>${esc(r.name)}</span><b>${fmt(bb.w)} × ${fmt(bb.h)} · ${fmtA(roomArea(r))}</b></div>`}).join(''):''}
  <h4>Units</h4>${chips('unit',[['ft','Feet & inches'],['m','Metres'],['cm','Centimetres']],U)}<h4>Floors</h4><div class="kv"><span>Floors in this building</span><b>${floorsOf().length}</b></div><div class="kv"><span>Floor to floor height</span><b>${fmt(M.s.h+SLAB)}</b></div><div class="kv"><span>Total floor area, all floors</span><b>${fmtA2(floorsOf().reduce((s,F)=>s+F.rooms.reduce((q,r)=>q+roomArea(r),0),0))}</b></div><div class="two" style="margin-top:8px"><button class="btn" data-x="addF0">＋ New blank floor</button><button class="btn" data-x="addF1">⧉ New floor, copy layout</button></div>${floorsOf().length>1?'<button class="btn" data-x="delF" style="width:100%;margin-top:8px;color:#ff8f8f">🗑 Delete this floor</button>':''}<p class="note">Switch floors with the G, 1, 2 buttons on the plan or in 3D. The floor below shows faintly on the plan. Put stairs on the lower floor: the upper floor gets an opening above them automatically.</p><h4>Grid</h4>${chips('gsize',U==='ft'?[[.0762,'3 in'],[.1524,'6 in'],[.3048,'1 ft'],[.6096,'2 ft'],[1.524,'5 ft']]:[[.1,'10 cm'],[.25,'25 cm'],[.5,'50 cm'],[1,'1 m'],[5,'5 m']],GR.size)}<div style="height:6px"></div>${chips('gsnap',[[1,'Snap on'],[0,'Snap off']],GR.snap)}<div style="height:6px"></div>${chips('gshow',[[1,'Grid shown'],[0,'Grid hidden']],GR.show)}${UL?`<h4>Trace photo</h4><div class="row"><label>See-through</label><input type="range" min=".1" max="1" step=".05" value="${UL.a}" id="ulA"></div><button class="btn" id="ulX" style="width:100%">Remove photo</button>`:''}<h4>Show measurements</h4>${chips('dimMode',[['off','Off'],['sel','Selected'],['all','Everything']],dimMode)}<h4>When items overlap walls or other items</h4>${chips('afit',[[1,'Auto-fit while placing'],[0,'Only warn in red']],AFIT?1:0)}
  ${estHtml()}
+ <h4>✨ Plan from description</h4><textarea id="brTxt" rows="4" placeholder="Example: 1200 sq ft plot, 2 floors, 3 BHK, 3 bathrooms, pooja room, balcony, parking" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;background:#0f1215;color:inherit;border:1px solid #333;font:inherit">${esc(ls.get('owh_hp_brief')||'')}</textarea><div class="chips" style="margin-top:6px">${['30x40 ft, 2 BHK, pooja','1500 sq ft, 3 BHK, 2 floors, balcony','800 sq ft 1 BHK','20x50 ft duplex 4 BHK, parking, study'].map(t=>`<button class="chip" data-brx="${esc(t)}">${esc(t)}</button>`).join('')}</div><button class="btn gold" id="brGo" style="width:100%;margin-top:8px">Generate plan</button><p class="note">Yeh simple rule-based planner hai (AI nahi): aapke area, floors, BHK se ek starting layout banata hai. Isse plan khud edit karna hoga, aur final design architect se check karwayen. Current plan replace hoga; Undo se wapas aa jata hai.</p>
  <h4>Start from a template</h4><div class="chips">${[['2bhk','2 BHK home'],['1bhk','1 BHK flat'],['villa','3 BHK villa'],['studio','Studio'],['office','Office'],['blank','Blank plot']].map(t=>`<button class="chip" data-tpl="${t[0]}">${t[1]}</button>`).join('')}</div>
  <h4>My projects</h4><div class="row"><input type="text" id="pjName" placeholder="Project name" value="${esc(curName)}"><button class="btn gold" id="pjSave">Save</button></div>${projs.length?projs.map(p=>`<div class="pj"><div><b>${esc(p.n)}</b><small>${new Date(p.t).toLocaleString()}</small></div><button class="btn" data-pl="${esc(p.n)}">Open</button><button class="btn" data-pd="${esc(p.n)}">✕</button></div>`).join(''):'<p class="note">Saved plans stay in this browser. Use File → Export to keep a copy or move it to another phone.</p>'}
  <div class="copy">© ${new Date().getFullYear()} DUKEKRRISH. All rights reserved.<br>Planning aid only. Check sizes with an architect or engineer before building.</div>`}
@@ -1673,7 +1674,261 @@ function init(){buildTools();buildTabs();$('#bUnit').textContent=U;renderLib();n
  setView(innerWidth<=860?'split':'split');renderHint();setSun(14);applyCam();requestAnimationFrame(loop);
  setTimeout(()=>{size2();sizeR();fit2();fitCam();need=true},120)}
 init();
-window.__hp={fit:()=>autoFit(),conf:()=>JSON.stringify([...calcConf()]),get ctxOpen(){return ctxOpen},get tool(){return tool},get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField,addFloor,setFloor,get ghost(){return gh3},proj:(x,y,z)=>{const v=new THREE.Vector3(x,y,z).project(cam);const r=C3.getBoundingClientRect();return[r.left+(v.x+1)/2*r.width,r.top+(1-v.y)/2*r.height]},addWall,healWalls,get msel(){return msel},w2s};
+window.__hp={runBrief:t=>runBrief(t),parseBrief:t=>JSON.stringify(parseBrief(t)),dbg:(x,y)=>{const e={clientX:x,clientY:y};rc.setFromCamera(ndc(e),cam);return rc.intersectObject(house,true).map(h=>[h.distance.toFixed(2),JSON.stringify(h.object.userData.pk||null),h.object.type])},fit:()=>autoFit(),conf:()=>JSON.stringify([...calcConf()]),get ctxOpen(){return ctxOpen},get tool(){return tool},get M(){return M},get sel(){return sel},set sel(v){sel=v},V,CAM,setTool,setView,loadTemplate,commit,placeLib,fit2,rebuild3,get R(){return R},renderer:()=>R,setCamMode,undo,redo,applyField,addFloor,setFloor,get ghost(){return gh3},proj:(x,y,z)=>{const v=new THREE.Vector3(x,y,z).project(cam);const r=C3.getBoundingClientRect();return[r.left+(v.x+1)/2*r.width,r.top+(1-v.y)/2*r.height]},addWall,healWalls,get msel(){return msel},w2s};
+
+/* ===== Plan from description (rule-based, runs in the browser) ===== */
+const WORDN={one:1,two:2,three:3,four:4,five:5,six:6,ek:1,do:2,teen:3,char:4,single:1,double:2,triple:3};
+function parseBrief(raw){
+ let t=' '+String(raw||'').toLowerCase().replace(/(\d),(\d{3})/g,'$1$2').replace(/[,;]/g,' ').replace(/\s+/g,' ')+' ';
+ const num=s=>{s=String(s||'').trim();return /^\d+$/.test(s)?+s:(WORDN[s]||0)};
+ const o={notes:[]};
+ let m;
+ if((m=t.match(/(\d+(?:\.\d+)?)\s*(?:'|ft|feet|foot|m|mtr|meters?|metres?)?\s*(?:x|×|\*|by)\s*(\d+(?:\.\d+)?)\s*(ft|feet|foot|'|m\b|mtr|meters?|metres?)?(?!\s*(?:sq|sft|bhk))/))){
+  const isM=/\d\s*(m|mtr|meters?|metres?)\b/.test(m[0]);const k=isM?1:.3048;const a=+m[1]*k,b=+m[2]*k;
+  if(a>=2&&b>=2&&!/bhk|bed/.test(t.slice(m.index+m[0].length,m.index+m[0].length+5))){o.W=a;o.D=b;o.dimTxt=m[1]+' × '+m[2]+(isM?' m':' ft')}
+ }
+ if(!o.W){
+  if((m=t.match(/(\d+(?:\.\d+)?)\s*(?:sq\.?\s*ft|sqft|sq\.?\s*feet|sq\.?\s*foot|square\s*(?:feet|foot|ft)|sft|ft2|ft²)/)))o.area=+m[1]*.092903;
+  else if((m=t.match(/(\d+(?:\.\d+)?)\s*(?:sq\.?\s*m\b|sqm|sq\.?\s*met\w+|square\s*met\w+|m2|m²)/)))o.area=+m[1];
+  else if((m=t.match(/(\d+(?:\.\d+)?)\s*(?:sq\.?\s*yd|sqyd|gaj|square\s*yards?)/)))o.area=+m[1]*.836127;
+ }
+ if((m=t.match(/(\d)\s*\+\s*(\d)\s*(?:floors?|storey|story)?/))&&/g\s*\+/.test(t)===false&&/floor|storey|story/.test(m[0]))o.floors=+m[1]+ +m[2];
+ if(!o.floors&&(m=t.match(/\bg\s*\+\s*(\d)/)))o.floors=1+ +m[1];
+ if(!o.floors&&(m=t.match(/(\d|one|two|three|four|ek|do|teen|char|single|double|triple)\s*[- ]?\s*(?:floors?|storey|storeys|story|stories|manzil|mazil|tala|level)/)))o.floors=num(m[1]);
+ if(!o.floors){if(/triplex/.test(t))o.floors=3;else if(/duplex/.test(t))o.floors=2}
+ if((m=t.match(/(\d|one|two|three|four|five|ek|do|teen|char)\s*[- ]?\s*bhk/)))o.bhk=num(m[1]);
+ if(!o.bhk&&(m=t.match(/(\d|one|two|three|four|five|ek|do|teen|char)\s*[- ]?\s*(?:bed ?rooms?|beds?\b|br\b|kamre|kamra|bedroom)/)))o.bhk=num(m[1]);
+ if(!o.bhk&&/studio/.test(t))o.bhk=1;
+ if((m=t.match(/(\d|one|two|three|four|five|ek|do|teen|char)\s*[- ]?\s*(?:bath ?rooms?|baths?\b|toilets?|washrooms?|wc\b)/)))o.baths=num(m[1]);
+ o.pooja=/pooja|puja|mandir|prayer|temple/.test(t);
+ o.study=/study|home office|work ?room|office room|wfh|library/.test(t);
+ o.balcony=/balcon|sit-?out|veranda|terrace/.test(t);
+ o.parking=/parking|garage|car porch|carport/.test(t);
+ o.guest=/guest/.test(t);
+ o.openK=/open kitchen/.test(t);
+ o.noDining=/no dining/.test(t);
+ o.totalArea=/total|built.?up|combined|all floors/.test(t);
+ return o}
+function genSpec(o){
+ const s={...o};
+ s.floors=Math.max(1,Math.min(4,s.floors||1));
+ let aFt=s.area?s.area/.092903:0;
+ if(!s.bhk){const per=aFt?(s.totalArea?aFt:aFt*s.floors):(s.W?s.W*s.D*s.floors/.092903:900);s.bhk=per<450?1:per<1000?2:per<1800?3:4}
+ s.bhk=Math.max(1,Math.min(6,s.bhk));
+ if(!s.W){
+  let A=s.area;if(!A){const base={1:520,2:900,3:1400,4:2000,5:2600,6:3200}[s.bhk];A=base*.092903/(s.floors>1?s.floors*.8:1)}
+  else if(s.totalArea&&s.floors>1)A=A/s.floors;
+  s.W=Math.sqrt(A*1.3);s.D=A/s.W;s.fromArea=true}
+ s.W=Math.round(Math.max(4,Math.min(45,s.W))*20)/20;s.D=Math.round(Math.max(4,Math.min(45,s.D))*20)/20;
+ s.baths=Math.max(1,Math.min(8,s.baths||s.bhk));
+ return s}
+const MINW={living:3,dining:2.2,kitchen:2.2,study:2.2,lounge:3,stairs:1.5,bed:2.8,master:3.2,bath:1.5,toilet:1.2,guest:2.8};
+function layoutRow(list,x0,x1){/* list: [{t,wt,fix}] -> widths */
+ const tot=x1-x0;let fixed=0,wsum=0;for(const r of list){if(r.fix)fixed+=r.fix;else wsum+=r.wt}
+ let flex=tot-fixed;const ws=list.map(r=>r.fix||0);
+ let free=list.map((r,i)=>r.fix?null:i),guard=0;
+ while(free.some(i=>i!=null)&&guard++<10){let fs=0;for(const i of free)if(i!=null)fs+=list[i].wt;let ok=true;
+  for(const i of free){if(i==null)continue;const w=flex*list[i].wt/fs;const mn=MINW[list[i].t]||2;if(w<mn){ws[i]=mn;flex-=mn;free[free.indexOf(i)]=null;ok=false;break}}
+  if(ok){for(const i of free)if(i!=null)ws[i]=flex*list[i].wt/fs;break}}
+ {const sum=ws.reduce((a,b)=>a+b,0);if(Math.abs(sum-tot)>.01){const fx=list.reduce((s,r)=>s+(r.fix||0),0),av=Math.max(.5,tot-fx),fw=list.reduce((s,r)=>s+(r.fix?0:r.wt),0)||1;for(let i=0;i<ws.length;i++)if(!list[i].fix)ws[i]=av*list[i].wt/fw}}
+ let x=x0;return list.map((r,i)=>{const a=x;x+=ws[i];return{...r,x0:a,x1:(i===list.length-1?x1:x)}})}
+function genPlan(spec){
+ const S=genSpec(spec),W=S.W,D=S.D,NF=S.floors,rep=[];
+ const px=S.parking?3:0,bx0=px;
+ /* beds/baths per floor */
+ const bedsF=[],bathsF=[];let left=S.bhk;
+ if(NF===1)bedsF.push(S.bhk);else{const g=Math.max(1,Math.ceil(S.bhk/NF));bedsF.push(g);left-=g;for(let f=1;f<NF;f++){const q=Math.ceil(left/(NF-f));bedsF.push(Math.max(0,q));left-=q}}
+ let bl=S.baths;for(let f=0;f<NF;f++){const b=Math.min(bedsF[f],bl);bathsF.push(b);bl-=b}
+ bathsF[0]+=Math.max(0,bl);
+ if(NF>1&&bathsF[0]<bedsF[0]+1&&S.baths>S.bhk)bathsF[0]=bedsF[0]+1;
+ M=blank();sel=null;
+ const wide=(W-px)>=9.5;
+ M=blank();sel=null;
+ const floorsData=[];let bedNo=1;
+ for(let f=0;f<NF;f++){
+  const top=f===NF-1;const stairs=NF>1;
+  const nb=bedsF[f]+(f===0&&S.guest?1:0),nbt=bathsF[f];
+  const rooms=[];/* {t,name,x0,y0,x1,y1,fl} */
+  /* strip for balcony */
+  let y0=0;const bal=S.balcony&&(f>0||NF===1);
+  if(bal){const bd=1.5;rooms.push({t:'balcony',name:f>0?'Balcony':'Sit-out',x0:bx0,y0:0,x1:W,y1:bd,fl:'pave'});y0=bd}
+  const Drem=D-y0;
+  /* row B list */
+  const seqB=[];let bathsLeft=nbt;
+  for(let i=0;i<nb;i++){const isG=(f===0&&S.guest&&i===nb-1);seqB.push({t:i===0&&!isG?'master':'bed',wt:1,name:isG?'Guest Bedroom':(f===0&&i===0?'Master Bedroom':'Bedroom '+(++bedNo)),att:true});
+   if(bathsLeft>0&&(i<nb)){seqB.push({t:'bath',wt:.45,name:(bathsLeft>0&&nb>1||nbt>=nb)?'Bath '+(i+1):'Bathroom',of:i});bathsLeft--}}
+  while(bathsLeft>0){seqB.push({t:f===0?'toilet':'bath',wt:.38,name:f===0?'Common Toilet':'Bathroom'});bathsLeft--}
+  if(f===0&&NF>1&&!seqB.some(r=>r.t==='toilet')&&bedsF[0]===0)seqB.push({t:'toilet',wt:.38,name:'Common Toilet'});
+  /* row A list */
+  let A=[];
+  if(f===0){
+   const dineSep=!S.noDining&&wide&&(W>=10);
+   A.push({t:'living',wt:dineSep?2.6:3.4,name:dineSep?'Living Room':'Living & Dining',fl:'wood1'});
+   if(dineSep)A.push({t:'dining',wt:2,name:'Dining',fl:'beige'});
+   A.push({t:'kitchen',wt:2,name:'Kitchen',fl:'tile1'});
+   if(S.study)A.push({t:'study',wt:1.6,name:'Study',fl:'wood2'});
+  }else{
+   A.push({t:'lounge',wt:3,name:'Family Lounge',fl:'wood1'});
+   if(S.study&&f===1)A.push({t:'study',wt:1.8,name:'Study',fl:'wood2'});
+  }
+  if(stairs)A.push({t:'stairs',fix:Math.min(1.6,Math.max(1.2,(W-px)*.22)),name:top?'Stair Lobby':'Stairs',fl:'beige'});
+  /* row B chunks */
+  const chunks=[];{let cur=[],cw=0;const W2=W-px;for(const r of seqB){const mn=MINW[r.t]||2;if(cur.length&&cw+mn>W2+.001){chunks.push(cur);cur=[];cw=0}cur.push(r);cw+=mn}if(cur.length)chunks.push(cur)}
+  /* fix: a bath should stay with its bedroom */
+  for(let c=1;c<chunks.length;c++){if(chunks[c][0]&&chunks[c][0].t==='bath'){const b=chunks[c].shift();chunks[c-1].push(b)}}
+  /* merge too-narrow row A */
+  const minA=A.reduce((s,r)=>s+(r.fix||MINW[r.t]||2),0);
+  if(minA>W-px&&A.some(r=>r.t==='dining')){A=A.filter(r=>r.t!=='dining');A[0].name='Living & Dining'}
+  const minA2=A.reduce((s,r)=>s+(r.fix||MINW[r.t]||2),0);
+  if(minA2>W-px&&A.some(r=>r.t==='study')){A=A.filter(r=>r.t!=='study');rep.push('study')}
+  const nCh=Math.max(1,chunks.length);
+  let dA=Drem*(nCh===1?.47:.3);if(stairs)dA=Math.max(dA,3.7);dA=Math.min(dA,Drem-2.4*nCh>2.5?Drem-2.4*nCh:Drem*.5);
+  const dB=(Drem-dA)/nCh;
+  const ra=layoutRow(A,bx0,W);for(const r of ra)rooms.push({...r,x0:r.x0,y0:y0,x1:r.x1,y1:y0+dA,row:0});
+  chunks.forEach((ch,ci)=>{const rb=layoutRow(ch,bx0,W);const yy0=y0+dA+dB*ci,yy1=y0+dA+dB*(ci+1);for(const r of rb)rooms.push({...r,y0:yy0,y1:yy1,row:1+ci,fl:r.t==='bath'||r.t==='toilet'?'tile2':(r.t==='master'?'wood3':'wood1')})});
+  floorsData.push({f,rooms,top,stairs,y0,dA,bal});
+ }
+ if(S.parking)floorsData[0].rooms.push({t:'parking',name:'Parking',x0:0,y0:0,x1:px,y1:D,fl:'pave'});
+ /* build each floor */
+ const I=(k,x,y,r)=>addItem(k,x,y,r||0);
+ floorsData.forEach(F=>{
+  if(F.f>0){addFloor(false)}
+  const rr=F.rooms;
+  rectsToWalls(rr.map(r=>[r.x0,r.y0,r.x1,r.y1]),.23,.12);
+  for(const r of rr)addRoom(r.x0,r.y0,r.x1,r.y1,r.name,r.fl);
+  furnishFloor(F,S,I,W,D);
+ });
+ if(NF>1)setFloor(0);
+ M.s.wc='#f1ebdd';for(const w of M.walls)w.c1=w.c2=M.s.wc;
+ for(let f=1;f<NF;f++){const FL=floorsOf()[f];if(FL)for(const w of FL.walls)w.c1=w.c2='#f1ebdd'}
+ const moved=autoFit();
+ return{S,bedsF,bathsF,moved}}
+function furnishFloor(F,S,I,W,D){
+ const rr=F.rooms,E=.001;
+ const share=(a,b)=>{ /* shared edge between rooms a,b: returns {o:'v'|'h',pos,lo,hi} */
+  if(Math.abs(a.x1-b.x0)<E||Math.abs(b.x1-a.x0)<E){const x=Math.abs(a.x1-b.x0)<E?a.x1:a.x0;const lo=Math.max(a.y0,b.y0),hi=Math.min(a.y1,b.y1);if(hi-lo>.5)return{o:'v',pos:x,lo,hi}}
+  if(Math.abs(a.y1-b.y0)<E||Math.abs(b.y1-a.y0)<E){const y=Math.abs(a.y1-b.y0)<E?a.y1:a.y0;const lo=Math.max(a.x0,b.x0),hi=Math.min(a.x1,b.x1);if(hi-lo>.5)return{o:'h',pos:y,lo,hi}}
+  return null};
+ const ext=(r,side)=>{ /* is that side exterior (no room across it) */
+  for(const q of rr){if(q===r)continue;
+   if(side==='t'&&Math.abs(q.y1-r.y0)<E&&Math.min(q.x1,r.x1)-Math.max(q.x0,r.x0)>.3)return false;
+   if(side==='b'&&Math.abs(q.y0-r.y1)<E&&Math.min(q.x1,r.x1)-Math.max(q.x0,r.x0)>.3)return false;
+   if(side==='l'&&Math.abs(q.x1-r.x0)<E&&Math.min(q.y1,r.y1)-Math.max(q.y0,r.y0)>.3)return false;
+   if(side==='r'&&Math.abs(q.x0-r.x1)<E&&Math.min(q.y1,r.y1)-Math.max(q.y0,r.y0)>.3)return false}
+  return true};
+ const LB=k=>LIBBY[k]||{w:1,d:1};
+ const WT=.13;
+ const used=new Map();const useSide=(r,s)=>{used.set(r,(used.get(r)||'')+s)};
+ const win=(r,side,w,opt)=>{if(!ext(r,side)||(used.get(r)||'').includes(side))return;const len=(side==='t'||side==='b')?r.x1-r.x0:r.y1-r.y0;w=Math.min(w,len-.8);if(w<.5)return;
+  const cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2;
+  if(side==='t')openAt(cx,r.y0,'window',w,opt);else if(side==='b')openAt(cx,r.y1,'window',w,opt);else if(side==='l')openAt(r.x0,cy,'window',w,opt);else openAt(r.x1,cy,'window',w,opt)};
+ const vent={sill:1.4,h:.6};
+ const byT=t=>rr.filter(r=>r.t===t);
+ const pub=rr.filter(r=>['living','dining','lounge'].includes(r.t));
+ /* ---- doors ---- */
+ const liv=byT('living')[0]||byT('lounge')[0];
+ const door=(r,r2,w,type)=>{const e=share(r,r2);if(!e)return null;const mid=(e.lo+e.hi)/2;type=type||'door';w=Math.min(w,e.hi-e.lo-.4);if(e.o==='v')openAt(e.pos,mid,type,w);else openAt(mid,e.pos,type,w);return e};
+ if(F.f===0){
+  const front=byT('balcony')[0];
+  if(front&&liv){openAt(front.x0+Math.min(1.1,(front.x1-front.x0)/3),front.y0,'door',1);door(front,liv,1.2,'arch')}
+  else if(liv)openAt(liv.x0+Math.min(1.0,(liv.x1-liv.x0)*.28),liv.y0,'door',1);
+  const pk=byT('parking')[0];if(pk){openAt((pk.x0+pk.x1)/2,pk.y0,'arch',2.6);if(liv)door(pk,liv,.9)}
+ }
+ /* row A links */
+ const A=rr.filter(r=>r.row===0).sort((a,b)=>a.x0-b.x0);
+ for(let i=0;i<A.length-1;i++){const a=A[i],b=A[i+1];const t=(a.t==='stairs'||b.t==='stairs')?'door':((a.t==='study'||b.t==='study')?'door':'arch');door(a,b,t==='arch'?(S.openK?2:1.3):.9,t)}
+ /* row B doors */
+ const B=rr.filter(r=>r.row>=1);
+ const kidOf=new Map();
+ for(const r of B){
+  if(r.of!=null){const mate=B.find(q=>q.t!=='bath'&&q.t!=='toilet'&&Math.abs(q.x1-r.x0)<E&&Math.abs(q.y0-r.y0)<E);if(mate){kidOf.set(r,mate);const e=share(mate,r);if(e)openAt(e.pos,Math.min(e.hi-.6,e.lo+1.0),'door',.75);continue}}
+  /* door to row above */
+  const above=rr.filter(q=>q!==r&&Math.abs(q.y1-r.y0)<E&&Math.min(q.x1,r.x1)-Math.max(q.x0,r.x0)>.6);
+  if(!above.length)continue;
+  const isBath=r.t==='bath'||r.t==='toilet';
+  let best=null,bw=0;for(const q of above){const lo=Math.max(q.x0,r.x0),hi=Math.min(q.x1,r.x1);const pref=pub.includes(q)?1.5:1;if((hi-lo)*pref>bw){bw=(hi-lo)*pref;best={q,lo,hi}}}
+  const wd=isBath?.75:.9;let x=(best.lo+best.hi)/2;
+  /* keep door away from the corner so furniture fits */
+  r.doorX=x;openAt(x,r.y0,'door',wd);
+ }
+ /* ---- per room: windows + furniture ---- */
+ for(const r of rr){
+  const w=r.x1-r.x0,d=r.y1-r.y0,cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2;
+  if(r.t==='living'||r.t==='lounge'){
+   const dx=r.x0+Math.min(1.0,w*.28);
+   if(r.t==='living'&&F.f===0&&!byT('balcony')[0])useSide(r,'');
+   if(w>=4.4){openAt(r.x1-1.0,r.y0,'window',1.2)}
+   win(r,'l',1.5);win(r,'r',1.2);if(r.t==='lounge'){win(r,'t',1.8);}
+   /* furniture */
+   const tvx=Math.min(r.x1-.9-(w>=4.4?1.2:.2),Math.max(cx+.3,r.x0+2.2));
+   I('rug',cx,cy+.1,0);I('tvu',Math.min(r.x1-.9,Math.max(tvx,r.x0+1.8)),r.y0+WT+.2+.02,0);
+   const sy=Math.min(r.y1-1.15,r.y0+d*.68);
+   if(w>=6)I('lsofa',cx-.3,sy-.2,PI);else I('sofa3',cx,sy,PI);
+   I('coffee',cx,sy-1.15,0);
+   if(w>=4.8)I('arm',r.x0+.65,cy,PI/2);
+   I('plant',r.x1-.45,r.y1-.45);
+   if(S.pooja&&F.f===0&&r.t==='living')I('mandir',r.x1-WT-.225,r.y0+1.3,PI/2);
+   if(S.pooja&&r.t==='lounge'&&F.f===1)I('mandir',r.x1-WT-.225,r.y0+1.3,PI/2);
+   if(r.name==='Living & Dining'&&w>=5.5&&d>=3.6){const dxm=r.x1-1.6;I('dine',dxm,cy-.1,PI/2);I('chair',dxm-.58,cy-.45,PI/2);I('chair',dxm-.58,cy+.25,PI/2);I('chair',dxm+.58,cy-.45,-PI/2);I('chair',dxm+.58,cy+.25,-PI/2)}
+  }
+  else if(r.t==='dining'){
+   win(r,'t',1.2);
+   I('dine',cx,cy,0);I('chair',cx-.5,cy-.58,0);I('chair',cx+.5,cy-.58,0);I('chair',cx-.5,cy+.58,PI);I('chair',cx+.5,cy+.58,PI);
+  }
+  else if(r.t==='kitchen'){
+   win(r,'t',1.1);win(r,'r',1.1);
+   let x=r.x0+WT+.1;const y=r.y0+WT+.3+.02;const seq=['sinkc','stove','fridge'];
+   for(const k of seq){const l=LB(k);if(x+l.w>r.x1-WT+.02)break;I(k,x+l.w/2,y+(l.d-.6)/2-.0,0);x+=l.w+.05}
+   if(w>=3.4&&d>=3.6)I('island',cx,cy+.7,0);
+   I('wcab',r.x0+WT+.3,r.y0+.15,0)}
+  else if(r.t==='study'){
+   win(r,'t',1.1);win(r,'r',1.1);
+   I('desk',cx,r.y0+WT+.3+.02,0);I('ochair',cx,r.y0+WT+1.0,PI);I('shelf',r.x0+WT+.15+.0,cy+.5,-PI/2);if(w>=2.8)I('plant',r.x1-.4,r.y1-.4)}
+  else if(r.t==='stairs'&&F.stairs&&!F.top){
+   I('stair',cx,(r.y0+r.y1)/2,0)}
+  else if(r.t==='balcony'){I('plant',r.x0+.5,r.y1-.35);I('plant',r.x1-.5,r.y1-.35);if(w>=3.5)I('round',cx,cy,0)}
+  else if(r.t==='master'||r.t==='bed'){
+   const L=LB(w>=4.2?'bedK':'bed2'),bk=w>=4.2?'bedK':'bed2';
+   const by=r.y1-WT-L.d/2-.02;
+   const hasMate=B.some(q=>kidOf.get(q)===r);
+   const wardLeft=!hasMate||true;
+   const wL=LB('ward');
+   /* wardrobe on left wall */
+   const wy=r.y0+WT+.15+wL.w/2;
+   if(d>=wL.w+L.d+.7){I('ward',r.x0+WT+wL.d/2+.02,wy,-PI/2);useSide(r,'l')}
+   else {I('sward',r.x1-WT-.35,r.y0+WT+.45,PI/2);useSide(r,'r')}
+   /* bed shifted away from the wardrobe if needed */
+   let bx=cx;const nw=LB('night').w;
+   const minx=r.x0+WT+(((used.get(r)||'').includes('l'))?wL.d+.05:0)+nw+.1+L.w/2;
+   bx=Math.max(bx,minx);bx=Math.min(bx,r.x1-WT-nw-.1-L.w/2);
+   if(w<L.w+2*nw+.4)bx=cx;
+   I(bk,bx,by,PI);I('night',bx-L.w/2-nw/2-.03,r.y1-WT-.22,PI);I('night',bx+L.w/2+nw/2+.03,r.y1-WT-.22,PI);
+   win(r,'b',1.4);win(r,'l',1.3);win(r,'r',1.3);
+   if(!(used.get(r)||'').includes('b'))useSide(r,'');
+   if(w>=3.8&&d>=4.4)I('dress',cx+.2,r.y0+WT+.3,0)}
+  else if(r.t==='bath'||r.t==='toilet'){
+   win(r,'b',.6,vent);win(r,'l',.6,vent);win(r,'r',.6,vent);
+   const sw=LB('shower'),wc=LB('wc'),bs=LB('basin');
+   let x=r.x0+WT+.05;const yb=r.y1-WT-.02;
+   if(r.t==='bath'&&w>=sw.w+wc.w+.3){I('shower',x+sw.w/2,yb-sw.d/2,0);x+=sw.w+.1;I('wc',x+wc.w/2+.02,yb-wc.d/2,PI)}
+   else I('wc',cx,yb-wc.d/2,PI);
+   I('basin',r.x1-WT-bs.d/2-.02,r.y0+Math.min(d*.38,1.4),PI/2)}
+ }
+}
+function briefSummary(S,res){
+ const u=(U==='m'||U==='cm')?(x=>x.toFixed(1)+' m'):(x=>(x/.3048).toFixed(0)+' ft');
+ return u(S.W)+' × '+u(S.D)+' per floor · '+S.floors+' floor'+(S.floors>1?'s':'')+' · '+S.bhk+' BHK · '+S.baths+' bath'+(S.baths>1?'s':'')}
+function runBrief(text){
+ const o=parseBrief(text);
+ if(!text||!text.trim()){toast('Pehle likho: area, floors, BHK...');return}
+ let res;try{res=genPlan(o)}catch(e){console.error(e);toast('Plan nahi ban paya. Thoda alag likh ke try karo.');return}
+ const S=res.S;curName='Plan from description';
+ commit();fit2();fitCam();
+ let warn='';const perM2=S.W*S.D;const need=14+S.bhk*13;
+ if(perM2<need*.85)warn=' · Plot chhota lag raha hai, rooms tight honge';
+ const nc=nConf();
+ toast(briefSummary(S,res)+warn+(nc?' · '+nc+' red item':'')+'. Undo se wapas.');
+ renderPlan()}
 
 </script>
 </body></html>

@@ -30,20 +30,44 @@ CC.ROSTER=[
 CC.BY={};CC.ROSTER.forEach(function(r,i){r.n=i;CC.BY[r.id]=r});
 CC.MULT=[0,1,1.35,1.8,2.65,5];   /* stat multiplier by stars */
 CC.qty=function(stars){return 6-stars};
-CC.STAR_LO=[1,1,2,2,3];CC.STAR_HI=[3,4,4,5,5];
 CC.ROUNDS=5;CC.LIVES=3;
 function rng(seed){var a=seed|0;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 CC.rng=rng;
 CC.card=function(c){var r=CC.BY[c.cid],m=CC.MULT[c.stars];return{cid:c.cid,stars:c.stars,name:r.name,e:r.e,kind:r.kind,ab:r.ab,txt:r.txt,atk:Math.max(1,Math.round(r.atk*m)),hp:Math.max(1,Math.round(r.hp*m)),spd:r.spd,qty:CC.qty(c.stars)}};
-/* the 5 cards both players see in a round (same for both, decided by the match seed) */
-CC.offers=function(seed,round){
- var R=rng(seed*31+round*977+7),n=CC.ROSTER.length,lo=CC.STAR_LO[round],hi=CC.STAR_HI[round],used={},out=[];
- while(out.length<5){var i=Math.floor(R()*n);if(used[i])continue;used[i]=1;
-  var s=out.length===0?lo:out.length===1?hi:lo+Math.floor(R()*(hi-lo+1));
-  out.push({cid:CC.ROSTER[i].id,stars:s})}
- /* shuffle so the order does not hint at stars */
- for(var k=out.length-1;k>0;k--){var j=Math.floor(R()*(k+1)),t=out[k];out[k]=out[j];out[j]=t}
- return out};
+/* ---------- rarity, decks, shop ---------- */
+CC.rarity=function(stars){return stars>=5?'U':stars>=3?'R':'C'};
+CC.RNAME={C:'Common',R:'Rare',U:'Unique'};
+CC.DECK={size:5,maxU:1,maxR:2,maxStars:15};
+CC.PRICE=[0,20,45,100,220,500];
+CC.sellValue=function(stars){return Math.floor(CC.PRICE[stars]*.6)};   /* 40% penalty */
+CC.deckCheck=function(deck){
+ if(!Array.isArray(deck)||deck.length!==CC.DECK.size)return'A deck needs exactly '+CC.DECK.size+' cards';
+ var u=0,r=0,st=0;
+ for(var i=0;i<deck.length;i++){var c=deck[i];if(!c||!CC.BY[c.cid]||!Number.isInteger(c.stars)||c.stars<1||c.stars>5)return'Unknown card';var q=CC.rarity(c.stars);if(q==='U')u++;else if(q==='R')r++;st+=c.stars}
+ if(u>CC.DECK.maxU)return'Only '+CC.DECK.maxU+' Unique (5★) card allowed';
+ if(r>CC.DECK.maxR)return'Only '+CC.DECK.maxR+' Rare (3-4★) cards allowed';
+ if(st>CC.DECK.maxStars)return'Total stars '+st+' is over the limit of '+CC.DECK.maxStars;
+ return null};
+CC.deckStars=function(deck){var t=0;deck.forEach(function(c){t+=c.stars});return t};
+function pickStars(R,w){var x=R()*100;return x<w[0]?1+Math.floor(R()*2):x<w[0]+w[1]?3+Math.floor(R()*2):5}
+/* start pack: 5 common cards */
+CC.starter=function(seed){var R=rng(seed*17+3),o=[],used={};while(o.length<5){var i=Math.floor(R()*CC.ROSTER.length);if(used[i]&&Object.keys(used).length<CC.ROSTER.length)continue;used[i]=1;o.push({cid:CC.ROSTER[i].id,stars:1+Math.floor(R()*2)})}return o};
+/* shop stock: mostly common, some rare, rarely unique */
+CC.shopStock=function(seed,n){var R=rng(seed*29+11),o=[],used={};n=n||6;while(o.length<n){var i=Math.floor(R()*CC.ROSTER.length);if(used[i])continue;used[i]=1;o.push({cid:CC.ROSTER[i].id,stars:pickStars(R,[58,34])})}
+ o.sort(function(a,b){return a.stars-b.stars});return o};
+/* a valid deck for a bot; level decides how strong */
+CC.botDeck=function(level,seed){var R=seed==null?Math.random:rng(seed),used={},deck=[],plan=level<=0?[1,2,1,2,1]:level===1?[3,2,2,1,2]:[5,4,3,1,2],tries=0;
+ if(level>=2){var pool=[];while(pool.length<14){var i=Math.floor(R()*CC.ROSTER.length),st=plan[pool.length%5]+(pool.length>=5?0:0);if(used[i+':'+st])continue;used[i+':'+st]=1;pool.push({cid:CC.ROSTER[i].id,stars:1+Math.floor(R()*5)})}
+  var ix=CC.autoDeck(pool);if(ix){var d2=ix.map(function(k){return pool[k]});if(!CC.deckCheck(d2))return d2}}
+ while(deck.length<5&&tries++<200){var st2=plan[deck.length],j=Math.floor(R()*CC.ROSTER.length);if(used[j])continue;used[j]=1;deck.push({cid:CC.ROSTER[j].id,stars:st2})}
+ return deck.length===5&&!CC.deckCheck(deck)?deck:CC.starter(7)};
+/* best valid deck out of a collection (for the Auto button) */
+CC.autoDeck=function(col){
+ var items=col.map(function(c,i){var k=CC.card(c);return{i:i,c:c,p:k.qty*k.atk*k.hp+k.qty*20}}).sort(function(a,b){return b.p-a.p}),best=null,bp=-1;
+ function go(from,pick,u,r,st,pw){if(pick.length===5){if(pw>bp){bp=pw;best=pick.slice()}return}
+  for(var j=from;j<items.length&&j<from+30;j++){var it=items[j],q=CC.rarity(it.c.stars);if(q==='U'&&u>=CC.DECK.maxU)continue;if(q==='R'&&r>=CC.DECK.maxR)continue;if(st+it.c.stars>CC.DECK.maxStars-(4-pick.length))continue;
+   pick.push(it.i);go(j+1,pick,u+(q==='U'?1:0),r+(q==='R'?1:0),st+it.c.stars,pw+it.p);pick.pop()}}
+ go(0,[],0,0,0,0);return best};
 /* ---------- battle ---------- */
 function mkUnits(army,side){var us=[];army.forEach(function(c,ci){var k=CC.card(c);for(var q=0;q<k.qty;q++)us.push({side:side,ci:ci,e:k.e,name:k.name,ab:k.ab,atk:k.atk,atk0:k.atk,hp:k.hp,max:k.hp,spd:k.spd,alive:true,pois:[],stun:0,dived:false,webbed:false,revived:false,grow:1,id:0})});return us}
 CC.battle=function(armyA,armyB,seed,wantLog){
@@ -88,15 +112,14 @@ CC.battle=function(armyA,armyB,seed,wantLog){
 /* a single pick is a card index 0..4 */
 CC.armyPower=function(army){var p=0;army.forEach(function(c){var k=CC.card(c);p+=k.qty*(k.atk*k.hp)/10});return p};
 /* ---------- bot ---------- */
-CC.botPick=function(level,offer,myArmy,enemyArmy,seed,round){
- var n=offer.length;if(level<=0)return Math.floor(Math.random()*n);
+/* options: cards the bot may still play now. Returns an index into options. */
+CC.botPick=function(level,options,myArmy,enemyArmy,enemyLeft,seed,round){
+ var n=options.length;if(n<=1||level<=0)return Math.floor(Math.random()*n);
  var best=-1,bs=-1e9,R=Math.random;
  for(var i=0;i<n;i++){
-  var mine=myArmy.concat([offer[i]]),sc=0,cnt=0;
+  var mine=myArmy.concat([options[i]]),sc=0;
   if(level===1){sc=CC.armyPower(mine)+R()*4}
-  else{
-   for(var j=0;j<n;j++){var their=enemyArmy.concat([offer[j]]);var r=CC.battle(mine,their,seed*13+round*101+i*7+j,false);sc+=r.winner===0?1:r.winner<0?.5:0;cnt++}
-   sc=sc/cnt+R()*.05}
+  else{var m=Math.max(1,enemyLeft.length);for(var j=0;j<enemyLeft.length||j===0;j++){var their=enemyLeft.length?enemyArmy.concat([enemyLeft[j]]):enemyArmy;var r=CC.battle(mine,their,seed*13+round*101+i*7+j,false);sc+=r.winner===0?1:r.winner<0?.5:0}sc=sc/m+R()*.05}
   if(sc>bs){bs=sc;best=i}}
  return best};
 if(typeof module!=='undefined'&&module.exports)module.exports=CC;else root.CC=CC;

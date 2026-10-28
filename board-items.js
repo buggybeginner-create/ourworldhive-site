@@ -29,6 +29,14 @@ window.BX_CATALOG={
   badges:[['Cross','❌','coins',15],['Circle','⭕','coins',15],['Brain','🧠','coins',25],['Fire','🔥','coins',25],['Ninja','🥷','gems',5],['Crown','👑','gems',10]],
   arenas:[['Blueprint','linear-gradient(160deg,#0a2a5a,#02081a)','coins',30],['Neon Pink','linear-gradient(160deg,#6a0a4a,#14020f)','coins',30],['Slate','linear-gradient(160deg,#2a3040,#07090e)','coins',40],['Forest','linear-gradient(160deg,#0b4a2a,#02120a)','coins',40],['Aurora','linear-gradient(160deg,#0a6a5a,#2a0a6a)','gems',6]],
   taunts:[['Trapped','🪤','YOU ARE TRAPPED!','#f43f5e','coins',20],['Big brain','🧠','BIG BRAIN MOVE','#60a5fa','coins',20],['Three in a row','✅','THREE IN A ROW!','#4ade80','coins',25],['Nice try','😏','NICE TRY...','#a78bfa','coins',25],['Unbeatable','🔥','UNBEATABLE!','#ff7a1a','gems',5]],
-  chat:[['Smart move!',10],['Where now?',10],['You sent me there!',15],['Kya dimaag hai',15],['GG',10],['One more?',10]]})
+  chat:[['Smart move!',10],['Where now?',10],['You sent me there!',15],['Kya dimaag hai',15],['GG',10],['One more?',10]]}),
+ critter:(function(){var c=mk({game:'critter',name:'Critter Clash',icon:'🐝',scale:320,
+  badges:[['Bee','🐝','coins',15],['Eagle','🦅','coins',25],['Beetle','🪲','coins',25],['Scorpion','🦂','coins',30],['Phoenix','🔥','gems',6],['Crown','👑','gems',10]],
+  arenas:[['Swamp Ruins','linear-gradient(160deg,#1c3a30,#050e0b)','coins',30],['Sunset Meadow','linear-gradient(160deg,#7a3a1a,#1a0b06)','coins',30],['Frozen Pond','linear-gradient(160deg,#16506a,#04101a)','coins',40],['Neon Hive','linear-gradient(160deg,#5a0a6a,#0f0218)','coins',40],['Golden Nest','linear-gradient(160deg,#8a6a10,#1a1203)','gems',6]],
+  taunts:[['Swarm time','🐜','SWARM TIME!','#f43f5e','coins',20],['Too slow','🐌','TOO SLOW!','#60a5fa','coins',20],['Feel the sting','🐝','FEEL THE STING!','#ffc857','coins',25],['Fly away','🕊️','FLY AWAY, LITTLE ONE','#4ade80','coins',25],['Apex predator','🦅','APEX PREDATOR','#a78bfa','gems',5]],
+  chat:[['Nice pick!',10],['Big army!',10],['Tough round',15],['Kya creature hai!',15],['GG',10],['Rematch?',10]]});
+  c.items.push({id:'sk_std',t:'skin',n:'Natural',free:1,e:'🌿',sw:'background:#1d2547',css:'',d:'The normal look of your creatures.'});
+  [['Golden','✨','filter:drop-shadow(0 0 7px #ffd36a) saturate(1.5)','linear-gradient(135deg,#ffd36a,#b8860b)','coins',40],['Frost','❄️','filter:hue-rotate(165deg) drop-shadow(0 0 7px #8fe3ff)','linear-gradient(135deg,#bfefff,#3a8fd6)','coins',40],['Ember','🔥','filter:hue-rotate(-30deg) saturate(1.8) drop-shadow(0 0 7px #ff7a1a)','linear-gradient(135deg,#ffb36a,#c2331a)','coins',50],['Neon','💜','filter:hue-rotate(250deg) saturate(2) drop-shadow(0 0 8px #d86bff)','linear-gradient(135deg,#d86bff,#5b2bd6)','coins',50],['Shadow','🌑','filter:brightness(.45) contrast(1.4) drop-shadow(0 0 6px #7a5cff)','linear-gradient(135deg,#3a3a52,#08080f)','gems',6]].forEach(function(a,i){c.items.push({id:'sk_'+i,t:'skin',n:a[0],e:a[1],cur:a[4],p:a[5],css:a[2],sw:'background:'+a[3],d:'Your creatures get this look on your side of the arena.'})});
+  c.types.push({t:'skin',n:'Creature skins'});return c})()
 };
 })();

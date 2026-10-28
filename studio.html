@@ -476,7 +476,7 @@ $('hSave').onclick=function(){
   say('hMsg','Saving\u2026'); db.collection('config').doc('hidden').set({mk:mk,gm:gm}).then(function(){ hid={mk:mk,gm:gm}; say('hMsg','Saved. '+(mk||gm?'Hidden items show to you only (with an orange label). Visitors do not see them.':'Everything is visible to everyone.'),'ok'); }).catch(function(e){ say('hMsg',friendly(e),'err'); });
 };
 
-var BGL=[['cricket','Cricket 3D'],['arena','3D multiplayer games (Games page)'],['chess','Chess'],['ludo','Ludo'],['carrom','Carrom'],['uttt','Ultimate Tic-Tac-Toe'],['hen','Hen Hunt'],['blockade','Gate Rush'],['clash','Crown Rush'],['four','Connect 4']],bcfg={on:false,tag:false,off:''};
+var BGL=[['cricket','Cricket 3D'],['arena','3D multiplayer games (Games page)'],['chess','Chess'],['ludo','Ludo'],['carrom','Carrom'],['uttt','Ultimate Tic-Tac-Toe'],['critter','Critter Clash'],['hen','Hen Hunt'],['blockade','Gate Rush'],['clash','Crown Rush'],['four','Connect 4']],bcfg={on:false,tag:false,off:''};
 function renderBots(){ $('botOn').checked=!!bcfg.on; $('botTag').checked=!!bcfg.tag; $('botG').innerHTML=BGL.map(function(x){ return '<label class="chk"><input type="checkbox" data-bg="'+x[0]+'"'+(hasH(bcfg.off,x[0])?'':' checked')+'> '+esc(x[1])+'</label>'; }).join(''); }
 function loadBots(){ db.collection('config').doc('bots').get().then(function(d){ if(d.exists){ var o=d.data(); bcfg={on:!!o.on,tag:!!o.tag,off:String(o.off||'')}; } renderBots(); }).catch(function(){ renderBots(); }); }
 $('botSave').onclick=function(){

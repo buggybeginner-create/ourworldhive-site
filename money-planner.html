@@ -1195,7 +1195,7 @@ label.ckr{cursor:pointer}
     $('owhIn').addEventListener('click',open);
     $('owhX').addEventListener('click',function(){$('owhBox').hidden=true});
     $('owhBox').addEventListener('click',function(e){if(e.target===this) this.hidden=true});
-    $('owhG').addEventListener('click',function(){go(function(a){return a.signInWithPopup(new firebase.auth.GoogleAuthProvider())})});
+    $('owhG').addEventListener('click',function(){go(function(a){return a.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})())})});
     $('owhSi').addEventListener('click',function(){go(function(a){return a.signInWithEmailAndPassword($('owhE').value.trim(),$('owhP').value)})});
     $('owhNew').addEventListener('click',function(){go(function(a){return a.createUserWithEmailAndPassword($('owhE').value.trim(),$('owhP').value)})});
     $('owhRs').addEventListener('click',function(){

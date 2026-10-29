@@ -299,7 +299,7 @@ function FirebaseAdapter(cfg){
     init:function(){ return Promise.resolve(); },
     me:cur,
     onAuth:function(fn){ auth.onAuthStateChanged(function(){ fn(cur()); }); },
-    signInGoogle:function(){ return auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); },
+    signInGoogle:function(){ return auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()); },
     signInEmail:function(e,p){ return auth.signInWithEmailAndPassword(e,p); },
     register:function(e,p,name){ return auth.createUserWithEmailAndPassword(e,p).then(function(c){ return c.user.updateProfile({displayName:name}); }); },
     signOut:function(){ return auth.signOut(); },

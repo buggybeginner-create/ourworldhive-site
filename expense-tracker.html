@@ -215,7 +215,7 @@ const run=p=>Promise.resolve(p).catch(e=>toast((e&&e.message)||'Something went w
 function sheet(h){const s=$('sheet');s.innerHTML='<div>'+h+'</div>';s.hidden=false}function closeSheet(){$('sheet').hidden=true;$('sheet').innerHTML=''}
 const opt=(arr,v)=>arr.map(c=>`<option ${c===v?'selected':''}>${esc(c)}</option>`).join('');
 Object.assign(A,{
- login(){CL.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>toast(e.message||'Sign-in failed',4000))},logout(){CL.auth.signOut()},
+ login(){CL.auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).catch(e=>toast(e.message||'Sign-in failed',4000))},logout(){CL.auth.signOut()},
  tab(d){S.tab=d.v;S.lim=0;render();scrollTo(0,0)},mprev(){S.month=addM(S.month,-1);S.lim=0;render()},mnext(){S.month=addM(S.month,1);S.lim=0;render()},more(){S.lim=(S.lim||60)+60;render()},
  goreview(){S.f.rv=true;S.f.type='';S.f.cat='';S.tab='txs';render()},tf(d){S.f.type=d.v;S.f.rv=false;render()},tfcat(el){S.f.cat=el.value;S.f.rv=false;$('txl').innerHTML=txList()},tq(el){S.f.q=el.value;$('txl').innerHTML=txList()},
  tadd(){A.tedit({id:''})},

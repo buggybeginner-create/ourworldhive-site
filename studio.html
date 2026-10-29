@@ -419,7 +419,7 @@ function gate(){
     if(!ok){ $('uidBox').textContent=me.uid; } else { try{ localStorage.setItem('owh_owner','1'); }catch(e){} $('whoName').textContent=me.displayName||me.email||''; loadAll(); }
   }).catch(function(e){ show('sNo',true); $('uidBox').textContent=me.uid; say('uMsg',friendly(e),'err'); });
 }
-$('gG').onclick=function(){ say('gErr',''); auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){ say('gErr',friendly(e),'err'); }); };
+$('gG').onclick=function(){ say('gErr',''); auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).catch(function(e){ say('gErr',friendly(e),'err'); }); };
 $('gGo').onclick=function(){ say('gErr',''); var e=$('gE').value.trim(), p=$('gP').value; if(!e||!p){ say('gErr','Enter your email and password.','err'); return; } auth.signInWithEmailAndPassword(e,p).catch(function(x){ say('gErr',friendly(x),'err'); }); };
 $('gP').addEventListener('keydown',function(e){ if(e.key==='Enter') $('gGo').click(); });
 $('uCopy').onclick=function(){ var t=$('uidBox').textContent; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){ say('uMsg','Copied.','ok'); }).catch(function(){ var r=document.createRange(); r.selectNodeContents($('uidBox')); var s=getSelection(); s.removeAllRanges(); s.addRange(r); say('uMsg','Selected. Now tap Copy in your phone menu.'); }); };

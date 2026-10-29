@@ -1151,7 +1151,7 @@ function openSignIn(after){
   const err=e=>{$('siErr').textContent=AUERR[e&&e.code]||'Something went wrong. Please try again.'};
   $('siX').onclick=closeSheet; $('siS').querySelectorAll('button').forEach(b=>b.onclick=()=>{SIMODE=b.dataset.m;openSignIn(after)});
   const done=m=>{if($('siGo'))closeSheet();toast(m)};
-  $('siG').onclick=()=>AUTH.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(()=>done('Signed in.')).catch(err);
+  $('siG').onclick=()=>AUTH.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).then(()=>done('Signed in.')).catch(err);
   $('siGo').onclick=()=>{const em=$('siE').value.trim(),pw=$('siP').value;$('siErr').textContent='';
     if(up){const n=$('siN').value.trim();if(n.length<2){$('siErr').textContent='Please enter a player name (2 to 20 characters).';return}
       AUTH.createUserWithEmailAndPassword(em,pw).then(c=>c.user.updateProfile({displayName:n})).then(()=>done('Account created.')).catch(err)}

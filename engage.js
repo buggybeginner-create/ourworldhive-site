@@ -82,7 +82,7 @@
       var k = a.dataset.a;
       if (k === 'x') closeModal();
       else if (k === 'reg') { reg = !reg; modal.querySelector('#owheN').hidden = !reg; modal.querySelector('[data-a=go]').textContent = reg ? 'Create account' : 'Sign in'; a.textContent = reg ? 'Have an account? Sign in' : 'New here? Create an account'; }
-      else if (k === 'g') sdk().then(function () { return AU.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }).then(closeModal).catch(fail);
+      else if (k === 'g') sdk().then(function () { return AU.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()); }).then(closeModal).catch(fail);
       else if (k === 'go') {
         var em = modal.querySelector('#owheE').value.trim(), pw = modal.querySelector('#owheP').value, nm = modal.querySelector('#owheN').value.trim();
         if (!em || !pw) { er.textContent = 'Enter your email and password.'; return; }

@@ -4343,7 +4343,7 @@ function Fire(cfg){
   return {
     mode:'firebase', db:db,
     onAuth:function(f){ auth.onAuthStateChanged(function(){ f(cur()); }); },
-    signInGoogle:function(){ return auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); },
+    signInGoogle:function(){ return auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()); },
     signInEmail:function(e,p){ return auth.signInWithEmailAndPassword(e,p); },
     register:function(e,p,n){ return auth.createUserWithEmailAndPassword(e,p).then(function(c){ return c.user.updateProfile({displayName:n||String(e).split('@')[0]}); }); },
     signOut:function(){ return auth.signOut(); }

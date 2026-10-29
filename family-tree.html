@@ -2813,7 +2813,7 @@ async function cloudStart(){
     if(!window.firebase){const b='https://www.gstatic.com/firebasejs/10.12.2/';await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
     if(!firebase.apps.length) firebase.initializeApp(window.OWH_FIREBASE);
     const auth=firebase.auth(),fs=firebase.firestore();CL.fs=fs;CL.auth=auth;
-    $('gGo').onclick=()=>{gErr.textContent='';auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{gErr.textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
+    $('gGo').onclick=()=>{gErr.textContent='';auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).catch(e=>{gErr.textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
     $('bOut').onclick=()=>{try{persist()}catch(e){}try{sessionStorage.removeItem('owh_ft_open')}catch(e){}auth.signOut().then(()=>{try{localStorage.removeItem(KEY);localStorage.removeItem('owh_ft_uid')}catch(e){}location.reload()})};
     auth.onAuthStateChanged(u=>{
       if(!u){gate.hidden=false;$('bOut').hidden=true;$('bCollab').hidden=true;dbDoc=null;return}

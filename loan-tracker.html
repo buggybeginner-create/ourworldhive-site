@@ -280,7 +280,7 @@ async function boot(){
     if(!window.firebase){const b='https://www.gstatic.com/firebasejs/10.12.2/';await loadJs(b+'firebase-app-compat.js');await loadJs(b+'firebase-auth-compat.js');await loadJs(b+'firebase-firestore-compat.js')}
     if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
     const auth=firebase.auth(),fs=firebase.firestore();
-    $('gGo').onclick=()=>{$('gErr').textContent='';auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e=>{$('gErr').textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
+    $('gGo').onclick=()=>{$('gErr').textContent='';auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).catch(e=>{$('gErr').textContent=(e&&e.code==='auth/popup-closed-by-user')?'Sign-in was cancelled.':'Sign-in failed. Please try again.'})};
     $('bOut').onclick=()=>auth.signOut().then(()=>location.reload());
     auth.onAuthStateChanged(u=>{if(!u){$('gate').hidden=false;$('app').hidden=true;return}startApp({uid:u.uid,email:u.email},fs.collection('loan_data').doc(u.uid))});
   }catch(e){$('gErr').textContent='Cannot connect to sign-in right now. Check your internet and reload.'}

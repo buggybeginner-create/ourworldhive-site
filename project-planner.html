@@ -1172,7 +1172,7 @@ function showLanding(){detach();chrome('home');MODE='local';
  '<p class="mut sm" style="margin-top:12px">Free for 30 days on a new project. Nothing renews by itself.</p></div>'}
 const cerr=e=>{const x=$('er');if(x){x.className='err';x.textContent=cerrMsg(e)}else toast(cerrMsg(e))};
 H.trydemo=()=>{startLocal()};
-H.cgoogle=()=>{CLOUD.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(cerr)};
+H.cgoogle=()=>{CLOUD.auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()).catch(cerr)};
 H.cmode=(d,el,e)=>{if(e&&e.preventDefault)e.preventDefault();cmode=d.v;showLanding()};
 async function authBoth(name){const e=$('ce').value.trim(),p=$('cp').value;if(!e||!p){cerr({});return false}
  try{await CLOUD.auth.createUserWithEmailAndPassword(e,p);const u=CLOUD.auth.currentUser;if(name&&u&&u.updateProfile){await u.updateProfile({displayName:name});if(CLOUD.user)CLOUD.user.name=name}return true}

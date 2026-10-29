@@ -2319,17 +2319,18 @@ function relOptions(x){
 }
 function openAdd(xid,rel,keep){
   const x=P(xid);if(!x) return;
-  AD={x:xid,rel:rel||'son',keep:keep||{}};if(!keep) PHOTO_NEW='';
+  AD={x:xid,rel:rel||'',keep:keep||{}};if(!keep) PHOTO_NEW='';
   const groups=relOptions(x);
   const flat=groups.flatMap(g=>g[1]);
-  if(!flat.find(o=>o.v===AD.rel&&!o.dis)) AD.rel=(flat.find(o=>!o.dis)||flat[0]).v;
+  if(AD.rel&&!flat.find(o=>o.v===AD.rel&&!o.dis)) AD.rel='';
   drawAdd();
 }
 function drawAdd(){
   const x=P(AD.x),rel=AD.rel,k=AD.keep||{};
   const groups=relOptions(x);
   let h=mh('Add a relative of '+nm(x));
-  h+='<label class="fld" style="margin-bottom:10px"><span>Who are you adding?</span><select id="a_rel" autofocus>'+groups.map(g=>'<optgroup label="'+esc(g[0])+'">'+g[1].map(o=>'<option value="'+o.v+'"'+(o.v===rel?' selected':'')+(o.dis?' disabled':'')+'>'+esc(o.t)+'</option>').join('')+'</optgroup>').join('')+'</select></label>';
+  h+='<label class="fld" style="margin-bottom:10px"><span>Who are you adding?</span><select id="a_rel" autofocus>'+(rel?'':'<option value="" selected disabled>— Choose the relation —</option>')+groups.map(g=>'<optgroup label="'+esc(g[0])+'">'+g[1].map(o=>'<option value="'+o.v+'"'+(o.v===rel?' selected':'')+(o.dis?' disabled':'')+'>'+esc(o.t)+'</option>').join('')+'</optgroup>').join('')+'</select></label>';
+  if(!rel){h+='<p class="muted" style="margin:0">Pick the relation first. The other fields appear after that.</p>';openModal(h);return}
   const gender=k.gender||relGender(rel,x);
   h+='<div class="form">';
   h+='<label class="fld"><span>First name</span><input id="a_first" value="'+esc(k.first||'')+'" autocomplete="off"></label>';
@@ -2395,7 +2396,7 @@ function saveAdd(more){
   if(!d.first&&!d.last){toast('Please type a name.');return}
   const x=AD.x,rel=AD.rel;let nid='';
   edit(()=>{const n=applyAdd(d);if(PHOTO_NEW) n.photo=PHOTO_NEW;nid=n.id},'Added '+(d.first||d.last));PHOTO_NEW='';
-  if(more){toast('Added '+(d.first||d.last)+'. Add the next one for '+nm(P(x)));openAdd(x,rel,{last:d.last,place:d.place});}
+  if(more){toast('Added '+(d.first||d.last)+'. Add the next one for '+nm(P(x)));openAdd(x,'',{last:d.last,place:d.place});}
   else{closeModal();selectPerson(x);}
 }
 
@@ -2630,7 +2631,7 @@ document.addEventListener('change',ev=>{
   else if(t.id==='pFil'){S.pFilter=t.value;render()}
   else if(t.id==='rfA'||t.id==='rfB'){S.rfA=$('rfA').value;S.rfB=$('rfB').value;$('rfOut').innerHTML=relFinderText(S.rfB,S.rfA)}
   else if(t.id==='a_rel'){
-    const k=AD.keep||{};k.first=$('a_first').value.trim();k.born=readDate('a_b');k.place=$('a_place').value.trim();k.alive=segVal('a_st')==='a';k.died=readDate('a_d');
+    const k=AD.keep||{};if($('a_first')){k.first=$('a_first').value.trim();k.born=readDate('a_b');k.place=$('a_place').value.trim();k.alive=segVal('a_st')==='a';k.died=readDate('a_d')}
     delete k.last;delete k.gender;
     AD.rel=t.value;AD.keep=k;drawAdd();
   }

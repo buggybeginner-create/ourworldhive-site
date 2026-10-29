@@ -2832,12 +2832,32 @@ async function cloudStart(){
       try{localStorage.setItem('owh_ft_uid',u.uid)}catch(e){}
       const ref=fs.collection('family_trees').doc(u.uid);CL.ref=ref;
       dbDoc={get:()=>ref.get(),set:d=>ref.set(Object.assign({},d,{email:u.email||'',upd:Date.now()}),{merge:true})};
-      watchTree(ref);
+      watchTree(ref);watchRequests(fs,u.uid);handleJoin(u);
     });
     gate.hidden=false;
   }catch(e){gate.hidden=false;gErr.textContent='Cannot connect to sign-in right now. Check your internet and reload.'}
 }
 const okEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+const inviteLink=()=>location.href.split('#')[0]+'#/join/'+encodeURIComponent(CL.user?CL.user.uid:'');
+const inviteMsg=()=>'Join our family tree "'+(T&&T.name||'Vansh Family Tree')+'" on Vansh as a contributor.\nOpen this link, sign in with Google and send your request. I will approve it:\n'+inviteLink();
+function updateInviteBtn(){const b=$('bCollab'),n=(CL.reqs||[]).length;if(b)b.textContent=n?'Invite ('+n+')':'Invite'}
+function watchRequests(fs,uid){
+  if(CL.unsubReq){try{CL.unsubReq()}catch(e){}CL.unsubReq=null}CL.reqs=[];
+  try{CL.unsubReq=fs.collection('family_trees').doc(uid).collection('requests').onSnapshot(sn=>{const a=[];sn.forEach(d=>a.push(d.data()));CL.reqs=a;updateInviteBtn();if($('collabBox')&&!$('modal').hidden&&!SHARED)openCollab()},()=>{})}catch(e){}
+}
+/* someone opens an invite link: ask to join, or open the tree if already approved */
+async function handleJoin(u){
+  let id=null;try{const m=/^#\/join\/([^\/]+)/.exec(location.hash||'');if(m){id=decodeURIComponent(m[1]);sessionStorage.setItem('owh_ft_join',id)}else id=sessionStorage.getItem('owh_ft_join')||localStorage.getItem('owh_ft_pendjoin')}catch(e){}
+  if(!id||id===u.uid||SHARED)return;
+  const ref=CL.fs.collection('family_trees').doc(id),me=(u.email||'').toLowerCase();
+  try{
+    const sn=await ref.get();
+    if(sn.exists){const d=sn.data(),role=(d.editors||[]).includes(me)?'edit':'view';try{sessionStorage.removeItem('owh_ft_join');localStorage.removeItem('owh_ft_pendjoin');sessionStorage.setItem('owh_ft_open',JSON.stringify({uid:id,role:role,email:d.email||''}))}catch(e){}history.replaceState(null,'',location.href.split('#')[0]);location.reload();return}
+  }catch(e){/* not a member yet */}
+  let sent=false;try{sent=!!localStorage.getItem('owh_ft_pendjoin')}catch(e){}
+  history.replaceState(null,'',location.href.split('#')[0]);
+  openModal(mh('Join a family tree')+(sent?'<p>Your request is waiting for the owner to approve it. When it is approved, open this page again and the tree opens for you.</p><div class="row2"><button class="btn" data-act="joinAgain">Send the request again</button><button class="btn pri" data-act="joinClose">OK</button></div>':'<p>You were invited to help build a family tree as a <b>contributor</b>. The owner has to approve your request. After that you can add and change people.</p><div class="form"><label class="fld w"><span>Your name</span><input id="jn" maxlength="40" value="'+esc(u.displayName||'')+'"></label></div><div id="jerr" class="muted" style="color:var(--err)"></div><div class="row2" style="margin-top:10px"><button class="btn pri" data-act="joinSend" data-id="'+esc(id)+'">Send request</button><button class="btn" data-act="joinClose">Not now</button></div>'))
+}
 async function openCollab(){
   if(!CL.user){toast('Please sign in first.');return}
   const me=(CL.user.email||'').toLowerCase();
@@ -2846,7 +2866,12 @@ async function openCollab(){
     h+='<p>You are viewing another person\u2019s tree ('+(RO?'view only':'you can edit')+').</p><div class="row2"><button class="btn pri" data-act="backMine">Back to my tree</button></div>';
   }else{
     const ed=CL.meta.editors||[],vw=CL.meta.viewers||[];
-    h+='<p class="muted" style="margin-top:0">Add the Google email of a family member. <b>View</b> = can only see. <b>Edit</b> = can add and change people. Only you can add or remove people here.</p>';
+    const link=inviteLink(),on=!!CL.meta.inviteOn,rq=CL.reqs||[];
+    h+='<div class="sec"><h3>Invite link for contributors</h3><p class="muted" style="margin:0 0 6px;font-size:13.5px">Send this link on WhatsApp. People who open it sign in with Google and ask to join. <b>You approve each person</b>, then they can add and change people.</p>';
+    h+='<div style="word-break:break-all;user-select:all;padding:7px 9px;border-radius:8px;background:rgba(127,127,127,.12);font-size:13px">'+(on?esc(link):'<span class="muted">The link is switched off.</span>')+'</div>';
+    h+='<div class="row2" style="margin-top:8px">'+(on?'<button class="btn pri" data-act="inviteWa">WhatsApp</button><button class="btn" data-act="inviteShare">Share</button><button class="btn" data-act="inviteCopy">Copy link</button><button class="btn dng" data-act="inviteOff">Switch off</button>':'<button class="btn pri" data-act="inviteOn">Switch on the invite link</button>')+'</div>';
+    h+='<h3 style="margin-top:14px">Waiting for your approval'+(rq.length?' ('+rq.length+')':'')+'</h3><div class="clist">'+(rq.length?rq.map(r=>'<div class="crow"><span><b>'+esc(r.name||'Someone')+'</b><br><small class="muted">'+esc(r.email||'')+'</small></span><span><button class="btn sm pri" data-act="reqOk" data-uid="'+esc(r.uid)+'" data-email="'+esc(r.email||'')+'">Approve</button> <button class="btn sm dng" data-act="reqNo" data-uid="'+esc(r.uid)+'">Reject</button></span></div>').join(''):'<div class="muted">No requests yet.</div>')+'</div></div>';
+    h+='<p class="muted" style="margin-top:10px">Or add the Google email of a family member yourself. <b>View</b> = can only see. <b>Edit</b> = can add and change people. Only you can add or remove people here.</p>';
     h+='<div class="form"><label class="fld w"><span>Email</span><input id="cb_email" type="email" inputmode="email" placeholder="name@gmail.com" autocomplete="off"></label><div class="fld"><span>Can</span>'+seg('cb_role',[['view','View'],['edit','Edit']],'view')+'</div></div>';
     h+='<div class="row2" style="margin-top:10px"><button class="btn pri" data-act="collabAdd">Give access</button></div><div id="cb_err" class="muted" style="color:var(--err)"></div>';
     h+='<div class="clist">'+(ed.length+vw.length?ed.map(e=>crow(e,'edit')).concat(vw.map(e=>crow(e,'view'))).join(''):'<div class="muted">Nobody added yet.</div>')+'</div>';
@@ -2866,6 +2891,20 @@ async function saveShare(ed,vw){
   await CL.ref.set({editors:ed,viewers:vw,members:members,email:CL.user.email||'',upd:Date.now()},{merge:true});
 }
 Object.assign(ACT,{
+  async inviteOn(){try{if(!CL.meta.json&&lastLocalTs===0)persist();await CL.ref.set({inviteOn:true,email:CL.user.email||'',upd:Date.now()},{merge:true});CL.meta=Object.assign({},CL.meta,{inviteOn:true});openCollab()}catch(e){toast(e&&e.code==='permission-denied'?'Blocked by Firestore rules. Publish the new rules first.':'Could not save. Try again.')}},
+  async inviteOff(){try{await CL.ref.set({inviteOn:false},{merge:true});CL.meta=Object.assign({},CL.meta,{inviteOn:false});openCollab()}catch(e){toast('Could not save. Try again.')}},
+  inviteWa(){window.open('https://wa.me/?text='+encodeURIComponent(inviteMsg()),'_blank','noopener')},
+  async inviteShare(){try{if(navigator.share){await navigator.share({text:inviteMsg()});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(inviteMsg());toast('Sharing is not supported here. Invite text copied.')}catch(e){toast('Sharing is not supported here.')}},
+  async inviteCopy(){try{await navigator.clipboard.writeText(inviteLink());toast('Invite link copied.')}catch(e){toast('Could not copy. Press and hold the link to copy it.')}},
+  async reqOk(el){const em=(el.dataset.email||'').toLowerCase();if(!okEmail(em)){toast('This request has no valid email.');return}
+    const ed=(CL.meta.editors||[]).filter(x=>x!==em).concat([em]),vw=(CL.meta.viewers||[]).filter(x=>x!==em);
+    try{await saveShare(ed,vw);CL.meta=Object.assign({},CL.meta,{editors:ed,viewers:vw});await CL.ref.collection('requests').doc(el.dataset.uid).delete();toast(em+' can now edit')}catch(e){toast('Could not approve. Try again.')}},
+  async reqNo(el){try{await CL.ref.collection('requests').doc(el.dataset.uid).delete();toast('Request removed')}catch(e){toast('Could not remove. Try again.')}},
+  async joinSend(el){const u=CL.user,id=el.dataset.id,nm=($('jn').value||'').trim()||(u.displayName||''),er=$('jerr');
+    try{await CL.fs.collection('family_trees').doc(id).collection('requests').doc(u.uid).set({uid:u.uid,email:(u.email||'').toLowerCase(),name:nm,ts:Date.now()});try{localStorage.setItem('owh_ft_pendjoin',id);sessionStorage.removeItem('owh_ft_join')}catch(e){}closeModal&&closeModal();toast('Request sent. The owner has to approve it.')}
+    catch(e){er.textContent=e&&e.code==='permission-denied'?'This invite link is switched off or not valid. Ask the owner for a new link.':'Could not send. Try again.'}},
+  joinAgain(){try{localStorage.removeItem('owh_ft_pendjoin')}catch(e){}location.reload()},
+  joinClose(){try{sessionStorage.removeItem('owh_ft_join')}catch(e){}closeModal&&closeModal()},
   async collabAdd(){
     const em=($('cb_email').value||'').trim().toLowerCase(),role=segVal('cb_role'),er=$('cb_err');
     if(!okEmail(em)){er.textContent='Type a correct email address.';return}

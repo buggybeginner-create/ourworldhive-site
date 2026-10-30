@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Safety Observation: log, track and close unsafe acts and conditions</title><meta name="theme-color" content="#c2410c"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com"><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin><link rel="manifest" href="safety-manifest.webmanifest"><link rel="apple-touch-icon" href="safety-icon-192.png"><link rel="icon" href="safety-icon-192.png">
+<script src="firebase-config.js"></script>
+<style>
+
+:root{--p:#c2410c;--p2:#f97316;--bg:#f7f2ee;--card:#fff;--ink:#2a1a10;--mut:#7a6455;--line:#e8ddd3;--red:#dc2626;--amb:#d97706;--yel:#ca8a04;--grn:#16a34a;--blu:#2563eb;--pur:#7c3aed;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.top{flex:none;display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 14px 8px;background:var(--p);color:#fff;min-height:52px}
+.top b{font-size:16px;line-height:1.15;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top small{opacity:.85;font-size:12px}
+.top .tt{flex:1;min-width:0}.ib{position:relative;background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:12px;width:40px;height:40px;font-size:18px}
+.ib i{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-style:normal;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
+#view{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}#view>*{flex:none}
+.nav{flex:none;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);overflow-x:auto}
+.nav button{flex:1 0 auto;min-width:42px;border:0;background:none;padding:7px 1px 6px;color:var(--mut);font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.nav button span{font-size:20px;line-height:1.1}.nav button.on{color:var(--p);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tile{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}
+.tile{display:flex;align-items:center;justify-content:space-between;gap:6px}.tile>div{min-width:0}.tshare{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#f0fdf4;color:#15803d;font-size:16px;line-height:1;cursor:pointer;padding:0}.tile[data-a]{cursor:pointer}.tile.sel{outline:2px solid var(--pri,#c2410c)}.tile b{font-size:24px;line-height:1.1;display:block}.tile small{color:var(--mut);font-size:12px}
+.tile.red b{color:var(--red)}.tile.grn b{color:var(--grn)}.tile.blu b{color:var(--blu)}.tile.amb b{color:var(--amb)}
+.h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;margin:2px 0}.h small{font-weight:500;color:var(--mut)}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-left:5px solid var(--grn);border-radius:12px;padding:8px 10px;min-height:54px;text-align:left;width:100%}
+.row.red{border-left-color:var(--red)}.row.amber{border-left-color:var(--amb)}.row.yellow{border-left-color:var(--yel)}.row.green{border-left-color:var(--grn)}
+.row .m{flex:1;min-width:0}.row .m b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}.row .m small{display:block;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.row .s{font-size:12px;font-weight:700;text-align:right;white-space:nowrap}.row .s.red{color:var(--red)}.row .s.amber{color:var(--amb)}.row .s.yellow{color:var(--yel)}.row .s.green{color:var(--grn)}
+.bd{display:inline-block;font-size:10.5px;font-weight:800;border-radius:6px;padding:1px 6px;margin-right:4px;color:#fff;background:#64748b;vertical-align:1px}.bd.c{background:var(--blu)}.bd.p{background:var(--pur)}
+.btn{background:var(--p);color:#fff;border:0;border-radius:12px;padding:0 14px;min-height:42px;font-weight:700}.btn.s{min-height:34px;padding:0 12px;font-size:13.5px;border-radius:10px}.btn.g{background:#fff;color:var(--p);border:1px solid var(--p)}.btn.r{background:var(--red)}.btn.w{background:#e7eeee;color:var(--ink)}.btn:disabled{opacity:.5}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;color:var(--mut)}.chip.on{background:var(--p);color:#fff;border-color:var(--p);font-weight:700}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 11px;min-height:40px}input:focus,select:focus,textarea:focus{outline:2px solid var(--p2);outline-offset:0}
+label{display:block;font-size:12.5px;color:var(--mut);font-weight:600}label>*:not(span){margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pager{flex:none;display:flex;align-items:center;justify-content:space-between;color:var(--mut);font-size:13px;min-height:34px}.pager button{border:1px solid var(--line);background:#fff;border-radius:10px;width:42px;height:32px;font-size:16px}.pager button:disabled{opacity:.35}
+.sheet{position:fixed;inset:0;background:rgba(10,30,30,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center}.sheet[hidden]{display:none}
+.sin{background:#fff;width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));max-height:92dvh;overflow:auto;animation:up .2s both}@keyframes up{from{transform:translateY(30px);opacity:0}}
+.sin h2{margin:0 0 8px;font-size:18px}.sin .f{display:flex;flex-direction:column;gap:9px}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:#12302f;color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;z-index:80;max-width:90vw;opacity:0;pointer-events:none;transition:.2s}.toast.on{opacity:1}
+.bar{height:7px;border-radius:5px;background:#e3ecec;overflow:hidden;min-width:44px}.bar i{display:block;height:100%;background:var(--grn)}.bar i.m{background:var(--amb)}.bar i.l{background:var(--red)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}.tbl th,.tbl td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}.tbl th:first-child,.tbl td:first-child{text-align:left;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tbl th{color:var(--mut);font-size:11.5px}
+.login{flex:1;min-height:0;overflow:auto;padding:22px 18px;display:flex;flex-direction:column;gap:12px;max-width:460px;margin:0 auto;width:100%}
+.login h1{margin:6px 0 0;font-size:28px}.login p{margin:0;color:var(--mut)}.note{font-size:12.5px;color:var(--mut);line-height:1.45}.ribbon{background:#fff7e0;border:1px solid #f1d98a;border-radius:10px;padding:7px 10px;font-size:12.5px;color:#7a5b00}
+.err{color:var(--red);font-size:13.5px;min-height:18px}.ok{color:var(--grn)}.empty{color:var(--mut);text-align:center;padding:18px 8px}.sp{flex:1}
+.sc{display:flex;flex-direction:column;gap:8px}
+.warnbar{flex:none;background:#fde2e2;color:#8a1c1c;font-size:12.5px;padding:6px 14px;line-height:1.35}
+.bd.s{background:#c2410c}.card.hl{border-color:var(--p2);box-shadow:0 0 0 2px #f9731633}
+.pb{height:8px;border-radius:5px;background:#e3ecec;overflow:hidden}.pb i{display:block;height:100%;background:var(--p2)}
+.qrbox{display:grid;place-items:center;padding:6px}.qrbox svg{width:min(62vw,240px);height:auto}
+.bd.k{background:#0891b2}
+.ci{border:1px solid var(--line);border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:7px;background:#fff}.cq{font-weight:600;font-size:14.5px}.cq small{color:var(--mut);font-weight:500}
+.seg{display:flex;gap:6px}.sg{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;min-height:40px;font-weight:700;color:var(--mut)}.sg.on{color:#fff}.sg.on[data-v=OK]{background:var(--grn);border-color:var(--grn)}.sg.on[data-v=NOK]{background:var(--red);border-color:var(--red)}.sg.on[data-v=NA]{background:#64748b;border-color:#64748b}
+.ck{display:flex;gap:10px;align-items:center;margin:0;font-size:14.5px;color:var(--ink)}.ck input{width:24px;height:24px;min-height:0;flex:none;margin:0}
+.irow{display:grid;grid-template-columns:20px 1fr 96px 38px;gap:6px;align-items:center}.irow .inn{color:var(--mut);font-size:12.5px;text-align:center}.irow select{padding:8px 4px;font-size:13px}
+.ci2{border:1px solid var(--line);border-radius:10px;padding:7px 9px}.ci2.bad{border-color:var(--red);background:#fff1f1}
+#pa{display:none}@media print{body>*:not(#pa){display:none!important}#pa{display:block!important}body{overflow:visible;height:auto;display:block;background:#fff}.lab{display:inline-block;width:38.1mm;height:38.1mm;box-sizing:border-box;border:1px dashed #999;margin:0;padding:1.5mm;text-align:center;vertical-align:top;page-break-inside:avoid;overflow:hidden;font-family:system-ui,sans-serif}.lab svg{width:28mm;height:28mm}.lab b{display:block;font-size:9pt;line-height:1.1}.lab small{display:none}}
+video#cam{width:100%;max-height:48dvh;border-radius:12px;background:#000}
+[hidden]{display:none!important}
+.sdh1{margin:10px 0 4px;padding:7px 10px;border-radius:9px;background:#c2410c;color:#fff;font-weight:800;font-size:13.5px;letter-spacing:.2px}.sdh1.sdt{display:flex;align-items:center;justify-content:space-between;gap:8px}.sdh1.sdt>span{flex:1;min-width:0}.sdh1.sdt>small{flex:none;display:flex;align-items:center;gap:8px;white-space:nowrap}.rcal{touch-action:none;user-select:none;-webkit-user-select:none;margin:6px 0;border:1px solid #cbd5d1;border-radius:10px;padding:6px}.rch{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}.rgd{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.rgd i{font-style:normal;font-size:11px;opacity:.6}.rd{border:0;background:transparent;border-radius:8px;height:34px;font-size:13px;color:inherit;cursor:pointer}.rd.off{opacity:.3;line-height:34px;cursor:default}.rd.on{background:#99d6cf}.rd.end{background:#c2410c;color:#fff}.crw{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.msel{border:1.5px solid var(--line,#d5dbe0);border-radius:12px;background:var(--card,#fff);margin:4px 0}.msel summary{list-style:none;cursor:pointer;padding:12px 38px 12px 14px;position:relative;min-height:44px;font-size:15px;display:flex;align-items:center}.msel summary::-webkit-details-marker{display:none}.msel summary::after{content:'\25BE';position:absolute;right:14px;top:50%;transform:translateY(-50%)}.msel[open] summary::after{content:'\25B4'}.msb{border-top:1px solid var(--line,#d5dbe0);max-height:220px;overflow:auto;padding:4px 6px}.msb label{display:flex;align-items:center;gap:10px;padding:9px 8px;margin:0;font-size:15px}.msb input[type=checkbox]{width:20px;height:20px;min-height:0;flex:none}
+.crw input[type=checkbox]{width:18px;height:18px;min-height:0;flex:none;margin:0;padding:0}.crw label{display:flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #cbd5d1;border-radius:16px;font-size:13px}.gsh{margin-left:8px;border:0;border-radius:8px;background:rgba(255,255,255,.2);color:inherit;font-size:14px;padding:3px 8px;cursor:pointer}.dn{opacity:.8}.dnt{background:var(--grn);cursor:default;pointer-events:none}.sdt{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer}.sdt small{font-weight:600;opacity:.9;font-size:11.5px}.sdg{margin-bottom:2px}.sdh2{margin:6px 0 3px 8px;padding:5px 10px;border-radius:8px;background:#fde68a;color:#5a3b00;font-weight:700;font-size:12.5px}.hero .hl{font-weight:800;color:var(--p);letter-spacing:.2px}.hero h1{margin:6px 0 6px;font-size:27px;line-height:1.15}.hero p{margin:0 0 12px}.feat{display:grid;grid-template-columns:1fr 1fr;gap:8px}.feat div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 10px;font-size:12.5px;line-height:1.4;color:var(--mut)}.feat b{display:block;color:var(--ink);font-size:13.5px;margin-bottom:2px}.pricebar{margin-top:10px;background:linear-gradient(135deg,#c2410c,#f97316);color:#fff;border-radius:14px;padding:11px 13px;font-weight:700;line-height:1.35}
+.cb{position:relative}.cb input{padding-right:40px}.cbx{position:absolute;right:4px;top:3px;width:36px;height:34px;border:0;background:none;font-size:16px;color:var(--mut)}.cbl{position:absolute;left:0;right:0;top:100%;z-index:60;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 26px #0003;max-height:215px;overflow:auto;margin-top:3px}.cbl button{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 12px;font-size:15px;color:var(--ink);border-bottom:1px solid #eef3f3}.cbl button:last-child{border:0}.cbl button.add{color:var(--p);font-weight:700}
+:focus-visible{outline:3px solid var(--p2);outline-offset:2px}@media (prefers-reduced-motion:reduce){.sin{animation:none}}
+
+.row.gray{border-left-color:#94a3b8}.row.blue{border-left-color:var(--blu)}.row .s.gray{color:#64748b}.row .s.blue{color:var(--blu)}
+.ty{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ty button{border:2px solid var(--line);background:#fff;border-radius:12px;min-height:58px;font-weight:700;font-size:13.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink)}.ty button span{font-size:20px}.ty button.on.red{border-color:var(--red);background:#fef2f2}.ty button.on.amber{border-color:var(--amb);background:#fffbeb}.ty button.on.green{border-color:var(--grn);background:#f0fdf4}
+.bd.UA{background:var(--red)}.bd.UC{background:var(--amb)}.bd.SA{background:var(--grn)}.bd.SC{background:#0d9488}
+.rsp{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.5}
+.tl{border-left:3px solid var(--line);margin:6px 0 0 6px;padding-left:12px;display:flex;flex-direction:column;gap:8px}.tl div{font-size:13px;position:relative}.tl div:before{content:"";position:absolute;left:-18px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--p2)}.tl small{color:var(--mut);display:block}
+.ph{max-width:100%;max-height:260px;border-radius:12px;border:1px solid var(--line);display:block;margin:4px 0}
+.hb{display:flex;align-items:center;gap:6px;font-size:12px}.hb b{width:112px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hb .bar{flex:1}.hb span{width:30px;text-align:right;color:var(--mut)}
+.stk{display:flex;height:16px;border-radius:5px;overflow:hidden;background:#eee}.stk i{display:block;height:100%}
+.tbl.w{display:block;overflow-x:auto;white-space:nowrap}.tbl td:first-child,.tbl th:first-child{max-width:130px}
+.tree{display:flex;flex-direction:column;gap:6px}.tu{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.td{margin:6px 0 0 10px;padding:6px 8px;border-left:3px solid var(--p2);background:#fffaf5;border-radius:0 8px 8px 0}.ts{margin:3px 0 0 12px;font-size:13px;display:flex;align-items:center;gap:6px}.ts .sp{min-width:0}
+.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:2px 8px;font-size:12px;color:var(--p)}
+.cr{font-size:11.5px;color:var(--mut);text-align:center;padding:10px 0 4px}
+
+</style></head><body><div id="app" style="display:contents"></div><div class="sheet" id="sheet" hidden><div class="sin" id="sin"></div></div><div class="toast" id="toast" role="status"></div>
+<script>
+'use strict';
+/* ================= helpers ================= */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY=()=>window.__SF_TODAY||ymd(new Date());
+const pd=s=>{const p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2]||1)};
+const addD=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return ymd(d)};
+const diffDays=(a,b)=>Math.round((pd(a)-pd(b))/864e5);
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt=s=>{if(!s)return'';const d=pd(s);return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear()};
+const fmtTs=ms=>{if(!ms)return'';const d=new Date(ms);return fmt(ymd(d))+', '+pad(d.getHours())+':'+pad(d.getMinutes())};
+const uid=p=>p+Math.random().toString(36).slice(2,9);
+const nrm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const emailOk=e=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e||'');
+const lc=e=>String(e||'').trim().toLowerCase();
+let _tt;function toast(m,ms){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),ms||2600)}
+function openSheet(h){$('sin').innerHTML=h;$('sheet').hidden=false}
+function closeSheet(){$('sheet').hidden=true;$('sin').innerHTML=''}
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type||'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+const csvCell=v=>{v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+const toCsv=rows=>'﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+let _rt=0;function scheduleRender(){if(_rt)return;_rt=requestAnimationFrame(()=>{_rt=0;if(S.cid&&S.ready)view()})}
+
+/* ================= phone-only storage for the demo (same calls as Firestore) ================= */
+const LocalFS=(function(){const KEY='sf_demo_v1';let mem=null,subs=[];
+ const load=()=>{if(mem)return mem;try{mem=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){mem={}}return mem};
+ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){toast('Phone storage is full.',4000)}};
+ const parts=p=>p.split('/'),cp=v=>JSON.parse(JSON.stringify(v)),emit=()=>subs.slice().forEach(f=>f());
+ const dsnap=p=>{const d=load()[p];return{exists:d!==undefined,id:parts(p).pop(),data:()=>d===undefined?undefined:cp(d)}};
+ const cdocs=p=>{const pre=p+'/',n=parts(p).length+1;return Object.keys(load()).filter(k=>k.indexOf(pre)===0&&parts(k).length===n).map(dsnap)};
+ const setD=(p,v,o)=>{const m=load();m[p]=o&&o.merge&&m[p]?Object.assign({},m[p],cp(v)):cp(v)};
+ const updD=(p,v)=>{const m=load();if(m[p]===undefined)throw Object.assign(new Error('Not found'),{code:'not-found'});Object.assign(m[p],cp(v))};
+ const watch=fn=>{subs.push(fn);setTimeout(fn,0);return()=>{subs=subs.filter(x=>x!==fn)}};
+ return{doc:p=>({path:p,set:(v,o)=>{setD(p,v,o);persist();emit();return Promise.resolve()},update:v=>{try{updD(p,v);persist();emit();return Promise.resolve()}catch(e){return Promise.reject(e)}},delete:()=>{delete load()[p];persist();emit();return Promise.resolve()},get:()=>Promise.resolve(dsnap(p)),onSnapshot:(cb)=>watch(()=>cb(dsnap(p)))}),
+  collection:p=>({path:p,onSnapshot:cb=>watch(()=>{const docs=cdocs(p);cb({docs,size:docs.length,forEach:f=>docs.forEach(f)})}),get:()=>Promise.resolve((()=>{const docs=cdocs(p);return{docs,size:docs.length,forEach:f=>docs.forEach(f)}})())}),
+  batch:()=>{const ops=[];return{set:(r,v,o)=>{ops.push(()=>setD(r.path,v,o))},update:(r,v)=>{ops.push(()=>updD(r.path,v))},delete:r=>{ops.push(()=>{delete load()[r.path]})},commit:()=>{try{ops.forEach(f=>f());persist();emit();return Promise.resolve()}catch(e){return Promise.reject(e)}}}},
+  has:p=>load()[p]!==undefined,reset:()=>{mem={};try{localStorage.removeItem(KEY)}catch(e){}emit()}}})();
+
+/* ================= constants ================= */
+const TYPES={UA:{n:'Unsafe act',c:'red',bad:1,ic:'⚠️'},UC:{n:'Unsafe condition',c:'amber',bad:1,ic:'🚧'},SA:{n:'Safe act',c:'green',ic:'👍'},SC:{n:'Safe condition',c:'green',ic:'✅'}};
+const TCOL={UA:'#dc2626',UC:'#d97706',SA:'#16a34a',SC:'#0d9488'};
+const SEV={H:'High',M:'Medium',L:'Low'},SEVD={H:3,M:7,L:15};
+const CATS=['PPE','Housekeeping','Electrical','Working at height','Fire safety','Material handling','Machine guarding','Confined space','Vehicle and traffic','Chemical handling','Hot work','Ergonomics','Other'];
+const LVL=['Section incharge','Department head','Unit head','Company admin'];
+
+/* ================= state ================= */
+const S={mode:'',user:null,cid:'',co:null,units:[],depts:[],secs:[],mem:[],obs:[],tab:'home',ready:false};
+const ui={f:{unit:'',type:'',st:'',dept:'',q:''},sp:'month',from:'',to:'',gb:'month',more:0,lt:'',ph:'',cph:''};
+const A={};let DB=null,UNS=[];
+const P=p=>'sf_companies/'+S.cid+(p?'/'+p:'');
+const unitOf=id=>S.units.find(x=>x.id===id),deptOf=id=>S.depts.find(x=>x.id===id),secOf=id=>S.secs.find(x=>x.id===id);
+const ME=()=>S.mem.find(m=>m.id===(S.user&&S.user.uid))||null;
+const myMail=()=>lc(S.user&&S.user.email);
+const isAdmin=()=>{const m=ME();return !!m&&m.status==='active'&&m.role==='admin'};
+const isMod=()=>{const m=ME();return !!m&&m.status==='active'&&(m.role==='admin'||m.role==='moderator')};
+const modFor=unitId=>{const m=ME();return isAdmin()||(isMod()&&!(m.unitIds&&m.unitIds.length)||isMod()&&m.unitIds.indexOf(unitId)>=0)};
+const pName=p=>p&&(p.n||p.e)||'';
+const person=(n,e)=>({n:String(n||'').trim().slice(0,60),e:lc(e)});
+
+/* who is responsible for an observation: snapshot taken when it was logged */
+function chainOf(o){const r=o.resp||{};return[r.inc,r.hd,r.uh,r.ad].map((p,i)=>({lv:i,l:LVL[i],n:p&&p.n||'',e:p&&p.e||''}))}
+function curResp(o){const c=chainOf(o);let l=Math.min(o.esc||0,3);for(let i=l;i>=0;i--)if(c[i].n||c[i].e)return c[i];for(let i=l+1;i<4;i++)if(c[i].n||c[i].e)return c[i];return{lv:0,l:LVL[0],n:'',e:''}}
+function inChain(o){const m=myMail();if(!m)return false;const r=o.resp||{};return[r.inc,r.hd,r.uh,r.of,r.ad].some(p=>p&&lc(p.e)===m)}
+const canAct=o=>isMod()||inChain(o)||(!!S.user&&o.by&&o.by.uid===S.user.uid&&false);
+
+/* status of one observation */
+function stOf(o){const t=TODAY();
+ if(o.st==='rejected')return{k:'rej',l:'Rejected',c:'gray'};
+ if(o.st==='closed')return TYPES[o.type]&&TYPES[o.type].bad?{k:'closed',l:'Closed',c:'green'}:{k:'safe',l:'Safe',c:'green'};
+ const d=diffDays(t,o.target||t);
+ if(d>0)return{k:'over',l:'Overdue '+d+'d',c:'red'};
+ if(d===0)return{k:'today',l:'Due today',c:'amber'};
+ if(d>=-2)return{k:'soon',l:'Due in '+(-d)+'d',c:'yellow'};
+ return{k:'open',l:'Open',c:'blue'}}
+const isOpen=o=>o.st==='open';
+const isUnsafe=o=>!!(TYPES[o.type]&&TYPES[o.type].bad);
+
+/* ================= demo company ================= */
+function seedDemo(){const C='DEMO01',b='sf_companies/'+C+'/',now=Date.now(),t=TODAY(),W=(p,v)=>DB.doc(p?b+p:b.slice(0,-1)).set(v);
+ const ps=[];const set=(p,v)=>ps.push(W(p,v));
+ set('',{name:'Demo Cement Works',ownerUid:'d-admin',ownerEmail:'admin@demo.com',escDays:3,mailOn:true,created:t});
+ set('units/u1',{name:'Plant 1 (Kiln line)',code:'P1',head:person('R K Sharma','rk.sharma@demo.com'),officer:person('Anita Roy','anita.roy@demo.com')});
+ set('units/u2',{name:'Plant 2 (Grinding)',code:'P2',head:person('S Bora','s.bora@demo.com'),officer:person('Anita Roy','anita.roy@demo.com')});
+ set('depts/d1',{unitId:'u1',name:'Mechanical',head:person('Deepak Mishra','deepak.mishra@demo.com')});
+ set('depts/d2',{unitId:'u1',name:'Electrical',head:person('Brajesh Upadhyay','brajesh@demo.com')});
+ set('depts/d3',{unitId:'u1',name:'Production',head:person('Imran Khan','imran@demo.com')});
+ set('depts/d4',{unitId:'u2',name:'Mechanical',head:person('P Das','p.das@demo.com')});
+ set('secs/s1',{deptId:'d1',unitId:'u1',name:'Kiln mechanical',incharge:person('Rambabu Singh','rambabu@demo.com')});
+ set('secs/s2',{deptId:'d1',unitId:'u1',name:'Crusher mechanical',incharge:person('Mohan Lal','mohan@demo.com')});
+ set('secs/s3',{deptId:'d2',unitId:'u1',name:'HT panel',incharge:person('Neha Verma','neha@demo.com')});
+ set('secs/s4',{deptId:'d3',unitId:'u1',name:'Kiln operation',incharge:person('Suresh Das','suresh@demo.com')});
+ set('secs/s5',{deptId:'d4',unitId:'u2',name:'Cement mill',incharge:person('Ravi Teja','ravi@demo.com')});
+ const M=(id,n,e,role,units)=>set('members/'+id,{email:e,name:n,role,status:'active',unitIds:units||[],created:t});
+ M('d-admin','Company Admin','admin@demo.com','admin');M('d-mod','Plant Moderator','mod@demo.com','moderator',['u1']);M('d-so','Anita Roy','anita.roy@demo.com','user');M('d-inc','Rambabu Singh','rambabu@demo.com','user');M('d-hd','Deepak Mishra','deepak.mishra@demo.com','user');M('d-u1','Observer One','observer1@demo.com','user');M('d-u2','Observer Two','observer2@demo.com','user');
+ const O=(i,type,u,d,s,days,desc,by,sev,state,tgtOff,cat)=>{const U=unitOf0(u),D=deptOf0(d),Sx=s?secOf0(s):null,ts=now-days*864e5,date=ymd(new Date(ts)),bad=TYPES[type].bad;
+  const o={id:'o'+i,no:'OB-'+date.slice(2).replace(/-/g,'')+'-'+(1000+i),type,unitId:u,deptId:d,secId:s||'',uname:U.name,dname:D.name,sname:Sx?Sx.name:'',loc:['Kiln deck','Crusher hopper','HT room','Raw mill','Cooler'][i%5],desc,cat:cat||'PPE',sev:bad?sev:'',imm:'',target:bad?addD(date,tgtOff):'',photo:'',
+   st:bad?state:'closed',by:{uid:by[0],name:by[1],email:by[2]},ts,date,resp:respOf(U,D,Sx),esc:0,hist:[{ts,by:by[1],act:'Logged'}]};
+  if(bad&&state==='closed'){o.closeAt=ts+2*864e5;o.closeDate=ymd(new Date(o.closeAt));o.closeBy='Rambabu Singh';o.closeNote='Guard fixed and area cleaned.';o.hist.push({ts:o.closeAt,by:'Rambabu Singh',act:'Closed',note:o.closeNote})}
+  if(bad&&state==='rejected'){o.rejAt=ts+864e5;o.rejDate=ymd(new Date(o.rejAt));o.rejBy='Anita Roy';o.rejNote='Duplicate of an earlier observation.';o.hist.push({ts:o.rejAt,by:'Anita Roy',act:'Rejected',note:o.rejNote})}
+  if(!bad){o.closeAt=ts;o.closeDate=date}
+  set('obs/o'+i,o)};
+ const U1=['d-u1','Observer One','observer1@demo.com'],U2=['d-u2','Observer Two','observer2@demo.com'];
+ const unitOf0=id=>({u1:{id:'u1',name:'Plant 1 (Kiln line)',head:person('R K Sharma','rk.sharma@demo.com'),officer:person('Anita Roy','anita.roy@demo.com')},u2:{id:'u2',name:'Plant 2 (Grinding)',head:person('S Bora','s.bora@demo.com'),officer:person('Anita Roy','anita.roy@demo.com')}})[id];
+ const deptOf0=id=>({d1:{name:'Mechanical',head:person('Deepak Mishra','deepak.mishra@demo.com')},d2:{name:'Electrical',head:person('Brajesh Upadhyay','brajesh@demo.com')},d3:{name:'Production',head:person('Imran Khan','imran@demo.com')},d4:{name:'Mechanical',head:person('P Das','p.das@demo.com')}})[id];
+ const secOf0=id=>({s1:{name:'Kiln mechanical',incharge:person('Rambabu Singh','rambabu@demo.com')},s2:{name:'Crusher mechanical',incharge:person('Mohan Lal','mohan@demo.com')},s3:{name:'HT panel',incharge:person('Neha Verma','neha@demo.com')},s4:{name:'Kiln operation',incharge:person('Suresh Das','suresh@demo.com')},s5:{name:'Cement mill',incharge:person('Ravi Teja','ravi@demo.com')}})[id];
+ const respOf=(U,D,Sx)=>({inc:Sx?Sx.incharge:person('',''),hd:D.head,uh:U.head,of:U.officer,ad:person('Company Admin','admin@demo.com')});
+ O(1,'UC','u1','d1','s1',40,'Guard missing on kiln drive coupling',U1,'H','closed',3);
+ O(2,'UA','u1','d1','s2',33,'Worker cleaning conveyor without lock-out',U2,'H','closed',3,'Machine guarding');
+ O(3,'UC','u1','d2','s3',27,'Oil leakage near HT panel floor',U1,'M','closed',7,'Housekeeping');
+ O(4,'SA','u1','d3','s4',22,'Operator wore full PPE and used a permit for hot work',U2,'','closed',0,'Hot work');
+ O(5,'UA','u1','d1','s1',18,'Working at height without full body harness',U1,'H','closed',3,'Working at height');
+ O(6,'UC','u2','d4','s5',14,'Damaged handrail at cement mill platform',U2,'M','closed',7,'Housekeeping');
+ O(7,'UA','u1','d2','s3',12,'Wrong size spanner used on live panel',U1,'M','rejected',7,'Electrical');
+ O(8,'UC','u1','d1','s2',9,'Loose floor plate near crusher hopper',U2,'H','open',3,'Housekeeping');
+ O(9,'UA','u1','d3','s4',6,'Two-wheeler overspeeding in plant road',U1,'L','open',15,'Vehicle and traffic');
+ O(10,'UC','u1','d2','s3',5,'Cable tray open and cables hanging low',U2,'M','open',7,'Electrical');
+ O(11,'SC','u1','d1','s1',4,'Housekeeping very good around kiln deck',U1,'','closed',0,'Housekeeping');
+ O(12,'UC','u2','d4','s5',3,'Fire extinguisher pressure low in mill area',U1,'H','open',3,'Fire safety');
+ O(13,'UA','u1','d1','s1',1,'Hand tools left on walkway',U2,'L','open',15,'Housekeeping');
+ return Promise.all(ps)}
+
+/* ================= e-mail queue =================
+   The app writes one document per mail into the sf_mail collection.
+   The Firebase "Trigger Email from Firestore" extension (collection name: sf_mail) sends them. */
+const APPURL=()=>location.origin+location.pathname;
+function mailHtml(o,head,extra){const R=o.resp||{},row=(k,v)=>v?`<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${esc(v)}</b></td></tr>`:'';
+ return`<div style="font-family:Arial,sans-serif;font-size:14px;color:#222"><h3 style="margin:0 0 8px;color:#c2410c">${esc(head)}</h3><table style="border-collapse:collapse">${row('Observation',o.no)}${row('Type',TYPES[o.type].n)}${row('Unit',o.uname)}${row('Responsible department',o.dname)}${row('Section',o.sname)}${row('Location',o.loc)}${row('Category',o.cat)}${row('Severity',SEV[o.sev]||'')}${row('Description',o.desc)}${row('Logged by',(o.by&&o.by.name||'')+' on '+fmt(o.date))}${o.target?row('Target date',fmt(o.target)):''}${row('Responsible now',pName(curResp(o)))}${row('Safety officer',pName(R.of))}${extra||''}</table><p style="margin-top:12px"><a href="${esc(APPURL()+'#/o/'+S.cid+'/'+o.id)}" style="background:#c2410c;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none">Open in Safety Observation</a></p><p style="color:#888;font-size:12px">${esc(S.co&&S.co.name||'')} - sent automatically</p></div>`}
+function recips(o,kind){const R=o.resp||{},c=chainOf(o),cur=curResp(o),obs=o.by&&o.by.email?{n:o.by.name,e:o.by.email}:null;let to=[],cc=[];
+ if(kind==='logged'){to=[cur];cc=[R.hd,R.of,obs]}
+ else if(kind==='closed'||kind==='rejected'){to=[obs];cc=[R.inc,R.hd,R.of]}
+ else if(kind==='escalated'){to=[cur];cc=[R.inc,R.hd,R.uh,R.of].filter(p=>p&&p.e!==cur.e)}
+ const seen={},ok=L=>L.filter(p=>p&&emailOk(p.e)&&!seen[p.e]&&(seen[p.e]=1)).map(p=>p.e);
+ const T=ok(to),C=ok(cc);return T.length?{to:T,cc:C}:C.length?{to:C,cc:[]}:null}
+function qmail(o,kind,note){try{if(!S.co||S.co.mailOn===false)return;const r=recips(o,kind);if(!r)return;
+ const ty=TYPES[o.type].n,sub={logged:'['+(S.co.name||'Safety')+'] '+ty+' logged: '+o.no+' - '+o.dname,closed:'['+(S.co.name||'Safety')+'] Observation closed: '+o.no,rejected:'['+(S.co.name||'Safety')+'] Observation rejected: '+o.no,escalated:'['+(S.co.name||'Safety')+'] ESCALATED, action pending: '+o.no}[kind];
+ const head={logged:ty+' logged',closed:'Observation closed',rejected:'Observation rejected',escalated:'Escalated to '+curResp(o).l+': target date missed'}[kind];
+ const extra=note?`<tr><td style="padding:4px 10px;color:#666">${kind==='rejected'?'Reason':'Remark'}</td><td style="padding:4px 10px"><b>${esc(note)}</b></td></tr>`:'';
+ return DB.doc('sf_mail/'+uid('m')).set({to:r.to,cc:r.cc,message:{subject:sub,html:mailHtml(o,head,extra)},cid:S.cid,oid:o.id,kind,ts:Date.now(),by:S.user.uid}).catch(()=>{})}catch(e){}}
+
+/* ================= actions on observations ================= */
+function histAdd(o,act,note){return(o.hist||[]).concat([{ts:Date.now(),by:S.user.name||S.user.email||'',act,note:note||''}])}
+function respSnap(u,d,s){return{inc:s?person(s.incharge&&s.incharge.n,s.incharge&&s.incharge.e):person('',''),hd:d?person(d.head&&d.head.n,d.head&&d.head.e):person('',''),uh:u?person(u.head&&u.head.n,u.head&&u.head.e):person('',''),of:u?person(u.officer&&u.officer.n,u.officer&&u.officer.e):person('',''),ad:person(S.co&&S.co.ownerEmail?'Company admin':'',S.co&&S.co.ownerEmail)}}
+function newNo(){const d=new Date(),a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<4;i++)r+=a[Math.floor(Math.random()*a.length)];return'OB-'+String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)+pad(d.getDate())+'-'+r}
+async function logSave(){const g=id=>$(id)?$(id).value.trim():'',er=m=>{$('er').textContent=m},type=ui.lt;
+ if(!type)return er('Choose the type of observation.');
+ const unitId=g('lu'),deptId=g('ld'),secId=g('ls'),desc=g('lde');if(!unitId)return er('Choose the unit.');if(!deptId)return er('Choose the responsible department.');if(desc.length<5)return er('Describe what you saw (at least a few words).');
+ const bad=!!TYPES[type].bad,sev=bad?g('lsv')||'M':'',target=bad?g('ltd'):'';
+ if(bad){if(!/^\d{4}-\d{2}-\d{2}$/.test(target))return er('Choose a target date.');if(target<TODAY())return er('The target date cannot be in the past.')}
+ const u=unitOf(unitId),d=deptOf(deptId),s=secId?secOf(secId):null,ts=Date.now(),id=uid('o');
+ const o={id,no:newNo(),type,unitId,deptId,secId:secId||'',uname:u.name,dname:d.name,sname:s?s.name:'',loc:g('llo'),desc,cat:g('lct')||'Other',sev,imm:g('lim'),target,photo:ui.ph||'',st:bad?'open':'closed',by:{uid:S.user.uid,name:S.user.name||S.user.email||'',email:myMail()},ts,date:TODAY(),resp:respSnap(u,d,s),esc:0,hist:[{ts,by:S.user.name||S.user.email||'',act:'Logged'}]};
+ if(!bad){o.closeAt=ts;o.closeDate=o.date}
+ try{await DB.doc(P('obs/'+id)).set(o)}catch(e){return er(e&&e.code==='permission-denied'?'You do not have permission to log here.':'Could not save. Check the internet and try again.')}
+ try{localStorage.setItem('sf_lastunit',unitId)}catch(e){}
+ qmail(o,'logged');ui.ph='';closeSheet();toast(bad?'Logged. '+(pName(curResp(o))||'The responsible person')+' will be notified.':'Thank you. Safe observation recorded.',3500)}
+async function closeObs(id,reject){const o=S.obs.find(x=>x.id===id);if(!o)return;if(!canAct(o))return toast('Only the responsible persons or a moderator can do this.');
+ const note=$('cn')?$('cn').value.trim():'';if(reject&&note.length<3)return $('er').textContent='Write the reason for rejecting.';if(!reject&&note.length<3)return $('er').textContent='Write what action was taken.';
+ const now=Date.now(),up=reject?{st:'rejected',rejNote:note,rejBy:S.user.name||S.user.email,rejAt:now,rejDate:ymd(new Date(now)),hist:histAdd(o,'Rejected',note)}:{st:'closed',closeNote:note,closeBy:S.user.name||S.user.email,closeAt:now,closeDate:ymd(new Date(now)),closePhoto:ui.cph||'',hist:histAdd(o,'Closed',note)};
+ try{await DB.doc(P('obs/'+id)).update(up)}catch(e){return $('er').textContent='Could not save: '+(e&&e.code==='permission-denied'?'no permission.':'check internet.')}
+ qmail(Object.assign({},o,up),reject?'rejected':'closed',note);ui.cph='';closeSheet();toast(reject?'Rejected. Mail sent.':'Closed. Mail sent to observer, department head, section incharge and safety officer.',3500)}
+async function reopenObs(id){const o=S.obs.find(x=>x.id===id);if(!o||!isMod())return;await DB.doc(P('obs/'+id)).update({st:'open',hist:histAdd(o,'Re-opened'),target:o.target&&o.target>=TODAY()?o.target:addD(TODAY(),3)});closeSheet();toast('Re-opened.')}
+async function escRun(){if(!S.user||!S.co||ui._esc)return;ui._esc=1;try{const t=TODAY(),step=Math.max(1,+S.co.escDays||3);
+ for(const o of S.obs){if(!isOpen(o)||!isUnsafe(o)||!o.target||o.target>=t)continue;const d=diffDays(t,o.target),want=Math.min(3,1+Math.floor((d-1)/step));if(want<=(o.esc||0))continue;
+  const o2=Object.assign({},o,{esc:want}),cur=curResp(o2);if(!cur.e&&!cur.n&&want<3)continue;
+  try{await DB.doc(P('obs/'+o.id)).update({esc:want,escAt:Date.now(),hist:(o.hist||[]).concat([{ts:Date.now(),by:'System',act:'Escalated to '+cur.l,note:'Target date '+fmt(o.target)+' missed'}])});qmail(o2,'escalated')}catch(e){}}}finally{ui._esc=0}}
+
+/* ================= statistics ================= */
+const wk=s=>{const d=pd(s),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return ymd(d)};
+function bucketKey(date,gb){return gb==='day'?date:gb==='week'?wk(date):gb==='month'?date.slice(0,7):date.slice(0,4)}
+function bucketNext(k,gb){if(gb==='day')return addD(k,1);if(gb==='week')return addD(k,7);if(gb==='month'){const d=pd(k+'-01');d.setMonth(d.getMonth()+1);return ymd(d).slice(0,7)}return String(+k+1)}
+function bucketLabel(k,gb){if(gb==='day')return fmt(k).slice(0,-5);if(gb==='week')return fmt(k).slice(0,-5)+' wk';if(gb==='month')return MON[+k.slice(5,7)-1]+' '+k.slice(2,4);return k}
+function rangeOf(){const t=TODAY(),sp=ui.sp;let a,b=t;
+ if(sp==='today')a=t;else if(sp==='week')a=wk(t);else if(sp==='month')a=t.slice(0,8)+'01';else if(sp==='year')a=t.slice(0,5)+'01-01';else if(sp==='custom'){a=ui.from||t.slice(0,8)+'01';b=ui.to||t}else{const ds=S.obs.map(o=>o.date).sort();a=ds[0]||t}
+ return{a,b}}
+function scope(){const f=ui.f;return S.obs.filter(o=>(!f.unit||o.unitId===f.unit))}
+function statsData(){const r=rangeOf(),sc=scope(),L=sc.filter(o=>o.date>=r.a&&o.date<=r.b),t=TODAY();
+ const cnt=(arr,fn)=>arr.filter(fn).length,uns=L.filter(isUnsafe);
+ const T={total:L.length,unsafe:uns.length,safe:L.length-uns.length,open:cnt(uns,isOpen),closed:cnt(uns,o=>o.st==='closed'),rej:cnt(L,o=>o.st==='rejected'),over:cnt(uns,o=>isOpen(o)&&o.target<t),esc:cnt(uns,o=>isOpen(o)&&(o.esc||0)>0)};
+ T.rate=(T.closed+T.open)?Math.round(T.closed*100/(T.closed+T.open)):0;
+ const byT={};Object.keys(TYPES).forEach(k=>byT[k]=cnt(L,o=>o.type===k));
+ const dm={};L.forEach(o=>{const k=o.unitId+'|'+o.deptId,x=dm[k]=dm[k]||{unit:o.uname,dept:o.dname,total:0,unsafe:0,safe:0,open:0,closed:0,rej:0,over:0};x.total++;if(isUnsafe(o)){x.unsafe++;if(isOpen(o)){x.open++;if(o.target<t)x.over++}else if(o.st==='closed')x.closed++}else x.safe++;if(o.st==='rejected')x.rej++});
+ const om={};L.forEach(o=>{const k=o.by&&(o.by.uid||o.by.email)||'?',x=om[k]=om[k]||{name:o.by&&o.by.name||'?',total:0,unsafe:0,safe:0,d:{}};x.total++;isUnsafe(o)?x.unsafe++:x.safe++;x.d[o.dname]=(x.d[o.dname]||0)+1});
+ const sm={};L.filter(o=>o.sname).forEach(o=>{const k=o.deptId+'|'+o.secId,x=sm[k]=sm[k]||{name:o.sname+' ('+o.dname+')',total:0,open:0};x.total++;if(isOpen(o))x.open++});
+ const cm={};L.forEach(o=>{cm[o.cat||'Other']=(cm[o.cat||'Other']||0)+1});
+ const gb=ui.gb,B={};let k=bucketKey(r.a,gb);const kend=bucketKey(r.b,gb);let n=0;while(k<=kend&&n++<400){B[k]={k,logged:0,unsafe:0,closed:0,open:0};k=bucketNext(k,gb)}
+ sc.forEach(o=>{const lk=bucketKey(o.date,gb);if(B[lk]&&o.date>=r.a&&o.date<=r.b){B[lk].logged++;if(isUnsafe(o)){B[lk].unsafe++;if(isOpen(o))B[lk].open++}}if(o.st==='closed'&&isUnsafe(o)&&o.closeDate){const ck=bucketKey(o.closeDate,gb);if(B[ck])B[ck].closed++}});
+ const bk=Object.values(B);return{r,L,T,byT,dept:Object.values(dm).sort((a,b)=>b.total-a.total),obs:Object.values(om).sort((a,b)=>b.total-a.total),sec:Object.values(sm).sort((a,b)=>b.total-a.total).slice(0,10),cat:Object.entries(cm).sort((a,b)=>b[1]-a[1]),bk:bk.slice(-36)}}
+function logsCsv(L){return toCsv([['No','Date','Type','Unit','Responsible department','Section','Location','Category','Severity','Description','Logged by','Target date','Status','Responsible now','Closed or rejected on','Closing remark']].concat(L.map(o=>[o.no,o.date,TYPES[o.type].n,o.uname,o.dname,o.sname,o.loc,o.cat,SEV[o.sev]||'',o.desc,o.by&&o.by.name,o.target,stOf(o).l,isOpen(o)?pName(curResp(o)):'',o.closeDate||o.rejDate||'',o.closeNote||o.rejNote||''])))}
+
+/* ================= views ================= */
+const sel=(id,opts,val,attr)=>`<select id="${id}" ${attr||''}>${opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(val)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+function shell(){const m=ME(),n=pendingMine().length,tabs=[['home','🏠','Home'],['logs','📋','Logs'],['new','➕','Log'],['stats','📊','Stats']];if(isMod())tabs.push(['manage','⚙️','Manage']);tabs.push(['more','👤','More']);
+ $('app').innerHTML=`<div class="top"><div class="tt"><b>${esc(S.co.name)}</b><small>${esc(S.user.name||S.user.email)} • ${m.role==='admin'?'Admin':m.role==='moderator'?'Moderator':'User'}${S.mode==='demo'?' • demo':' • <span id="syn">synced</span>'}</small></div><button class="ib" data-a="bell" aria-label="Pending actions">🔔${n?'<i>'+(n>99?'99+':n)+'</i>':''}</button></div><div id="view"></div>
+ <nav class="nav" aria-label="Main">${tabs.map(t=>`<button class="${S.tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('')}</nav>`;view()}
+function view(){if(!$('view'))return shell();({home:vHome,logs:vLogs,stats:vStats,manage:vManage,more:vMore,new:vHome})[S.tab]()}
+const myLvl=o=>{const m=myMail(),r=o.resp||{},L=[r.inc,r.hd,r.uh,r.ad];for(let i=0;i<4;i++)if(L[i]&&m&&lc(L[i].e)===m)return i;return -1};
+const needsMe=o=>{if(!isOpen(o)||!isUnsafe(o))return false;const m=myMail(),of=o.resp&&o.resp.of,l=myLvl(o);return !!m&&((of&&lc(of.e)===m)||(l>=0&&l<=(o.esc||0)))};
+const pendingMine=()=>S.obs.filter(needsMe).sort((a,b)=>(a.target||'')<(b.target||'')?-1:1);
+function unitSelHTML(id,all){return sel(id,(all?[['','All units']]:[]).concat(S.units.map(u=>[u.id,u.name])),ui.f.unit,'data-ch="fch" data-k="unit"')}
+function obsRow(o){const s=stOf(o),cur=curResp(o);return`<div class="row ${s.c}" data-a="odet" data-id="${esc(o.id)}" role="button" tabindex="0"><div class="m"><b><span class="bd ${o.type}">${o.type}</span>${esc(o.desc)}</b><small>${esc(o.dname)}${o.sname?' · '+esc(o.sname):''} · ${esc(o.by&&o.by.name||'')} · ${fmt(o.date)}${isOpen(o)&&cur.n?' · <b>'+esc(cur.n)+'</b>':''}</small></div><div class="s ${s.c}">${esc(s.l)}${(o.esc||0)>0&&isOpen(o)?'<br>⬆ Escalated':''}</div></div>`}
+function vHome(){if(S.tab==='new'){S.tab='home';logForm();}
+ const L=scope(),t=TODAY(),mo=t.slice(0,7),uns=L.filter(isUnsafe),open=uns.filter(isOpen),over=open.filter(o=>o.target<t),mine=pendingMine().filter(o=>!ui.f.unit||o.unitId===ui.f.unit),recent=L.slice().sort((a,b)=>b.ts-a.ts).slice(0,8);
+ const tile=(c,n,l,f)=>`<div class="tile ${c}" data-a="tflt" data-v="${f}" role="button" tabindex="0"><div><b>${n}</b><small>${l}</small></div></div>`;
+ $('view').innerHTML=`<div>${unitSelHTML('hu',true)}</div><div class="tiles">${tile('amb',open.length,'Open','open')}${tile(over.length?'red':'grn',over.length,'Overdue','over')}${tile('grn',uns.filter(o=>o.st==='closed'&&(o.closeDate||'').slice(0,7)===mo).length,'Closed this month','closed')}${tile('blu',L.filter(o=>o.date.slice(0,7)===mo).length,'Logged this month','all')}</div>
+ <button class="btn" style="min-height:50px;font-size:16px" data-a="newlog">➕ Log an observation</button>
+ <div class="h"><span>Needs your action</span><small>${mine.length}</small></div><div class="list">${mine.slice(0,8).map(obsRow).join('')||'<div class="empty card">Nothing is waiting for you.</div>'}</div>
+ <div class="h"><span>Recent observations</span><small><button class="chip" data-a="tflt" data-v="all">See all</button></small></div><div class="list">${recent.map(obsRow).join('')||'<div class="empty card">No observation yet. Tap Log an observation.</div>'}</div><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div>`}
+function listFiltered(){const f=ui.f,q=nrm(f.q);return scope().filter(o=>(!f.type||o.type===f.type)&&(!f.dept||nrm(o.dname)===nrm(f.dept))&&(!f.st||(f.st==='open'?isOpen(o):f.st==='over'?isOpen(o)&&isUnsafe(o)&&o.target<TODAY():f.st==='esc'?isOpen(o)&&(o.esc||0)>0:f.st==='closed'?o.st==='closed'&&isUnsafe(o):f.st==='safe'?!isUnsafe(o):f.st==='rej'?o.st==='rejected':f.st==='mine'?needsMe(o):true))&&(!q||nrm([o.no,o.desc,o.dname,o.sname,o.loc,o.by&&o.by.name,o.cat].join(' ')).indexOf(q)>=0)).sort((a,b)=>b.ts-a.ts)}
+function vLogs(){const f=ui.f,L=listFiltered(),n=40*(1+ui.more),dn=[...new Set(S.depts.map(d=>d.name))].sort();
+ const chip=(k,l)=>`<button class="chip ${(f.st||'all')===k?'on':''}" data-a="fst" data-v="${k}">${l}</button>`;
+ $('view').innerHTML=`<div class="g2">${unitSelHTML('lfu',true)}${sel('lft',[['','All types']].concat(Object.keys(TYPES).map(k=>[k,TYPES[k].n])),f.type,'data-ch="fch" data-k="type"')}</div><div class="g2">${sel('lfd',[['','All departments']].concat(dn.map(x=>[x,x])),f.dept,'data-ch="fch" data-k="dept"')}<input id="lfq" placeholder="Search" value="${esc(f.q)}" data-ch="fch" data-k="q"></div>
+ <div class="chips">${chip('all','All')}${chip('open','Open')}${chip('over','Overdue')}${chip('esc','Escalated')}${chip('closed','Closed')}${chip('safe','Safe')}${chip('rej','Rejected')}${chip('mine','Mine to act')}</div>
+ <div class="h"><span>${L.length} observation${L.length===1?'':'s'}</span><small><button class="chip" data-a="exlogs">Export CSV</button></small></div><div class="list">${L.slice(0,n).map(obsRow).join('')||'<div class="empty card">No observation matches.</div>'}</div>${L.length>n?`<button class="btn w" data-a="moreb">Show more (${L.length-n} left)</button>`:''}`}
+function odet(id){const o=S.obs.find(x=>x.id===id);if(!o)return toast('Observation not found.');const s=stOf(o),R=o.resp||{},cur=curResp(o),can=canAct(o)&&isOpen(o),pr=(l,p)=>p&&(p.n||p.e)?`<br>${l}: <b>${esc(p.n||p.e)}</b>${p.e&&p.n?' <small>('+esc(p.e)+')</small>':''}`:'';
+ openSheet(`<h2><span class="bd ${o.type}">${o.type}</span>${esc(TYPES[o.type].n)} <small style="font-weight:500;color:var(--mut)">${esc(o.no)}</small></h2><div class="note" style="margin-bottom:8px;color:var(--ink);font-size:14.5px">${esc(o.desc)}</div>
+ <div class="card" style="font-size:13.5px;line-height:1.6">Status: <b class="${s.c==='red'?'':''}" style="color:var(--${s.c==='red'?'red':s.c==='amber'?'amb':s.c==='green'?'grn':'mut'})">${esc(s.l)}</b>${(o.esc||0)>0&&isOpen(o)?' • ⬆ Escalated to '+LVL[Math.min(3,o.esc)]:''}<br>Unit: <b>${esc(o.uname)}</b><br>Responsible department: <b>${esc(o.dname)}</b>${o.sname?'<br>Section: <b>'+esc(o.sname)+'</b>':''}${o.loc?'<br>Location: <b>'+esc(o.loc)+'</b>':''}<br>Category: <b>${esc(o.cat||'')}</b>${o.sev?' • Severity: <b>'+SEV[o.sev]+'</b>':''}<br>Logged by <b>${esc(o.by&&o.by.name||'')}</b> on ${fmtTs(o.ts)}${o.target?'<br>Target date: <b>'+fmt(o.target)+'</b>':''}${o.imm?'<br>Immediate action: '+esc(o.imm):''}</div>
+ <div class="rsp" style="margin-top:8px"><b>Who is responsible</b>${isOpen(o)&&cur.n?'<br>Now with: <b>'+esc(cur.n)+'</b> ('+esc(cur.l)+')':''}${pr('Section incharge',R.inc)}${pr('Department head',R.hd)}${pr('Unit head',R.uh)}${pr('Safety officer',R.of)}</div>
+ ${o.photo?`<img class="ph" alt="Observation photo" src="${esc(o.photo)}">`:''}${o.closeNote?`<div class="card" style="margin-top:8px"><b>Closed</b> by ${esc(o.closeBy||'')}<br>${esc(o.closeNote)}${o.closePhoto?`<img class="ph" alt="Closing photo" src="${esc(o.closePhoto)}">`:''}</div>`:''}${o.rejNote?`<div class="card" style="margin-top:8px"><b>Rejected</b> by ${esc(o.rejBy||'')}<br>${esc(o.rejNote)}</div>`:''}
+ <div class="h" style="margin-top:10px">History</div><div class="tl">${(o.hist||[]).slice().reverse().map(h=>`<div><b>${esc(h.act)}</b> <small>${esc(h.by)} • ${fmtTs(h.ts)}</small>${h.note?esc(h.note):''}</div>`).join('')}</div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${can?`<button class="btn" data-a="oclose" data-id="${o.id}">Close with action taken</button><button class="btn r" data-a="oreject" data-id="${o.id}">Reject</button>`:''}${isMod()&&!isOpen(o)&&o.st!=='closed'||isMod()&&o.st==='closed'&&isUnsafe(o)?`<button class="btn g" data-a="oreopen" data-id="${o.id}">Re-open</button>`:''}${isMod()&&isOpen(o)&&isUnsafe(o)?`<button class="btn g" data-a="otarget" data-id="${o.id}">Change target date</button>`:''}<button class="btn g" data-a="oshare" data-id="${o.id}">Share</button><button class="btn w" data-a="cs">Close window</button></div>`)}
+function closeForm(id,reject){const o=S.obs.find(x=>x.id===id);if(!o)return;ui.cph='';openSheet(`<h2>${reject?'Reject observation':'Close observation'}</h2><div class="note" style="margin-bottom:8px">${esc(o.no)} • ${esc(o.desc)}</div><div class="f"><label><span>${reject?'Reason for rejecting (the observer and all responsible persons will get this)':'Action taken (the observer, department head, section incharge and safety officer will get a mail)'}</span><textarea id="cn" rows="3" maxlength="500"></textarea></label>${reject?'':'<label><span>Photo after the action (optional)</span><input type="file" id="cph" accept="image/*" data-ch="cphoto"></label><img id="cpv" class="ph" alt="" hidden>'}<div class="err" id="er"></div><button class="btn ${reject?'r':''}" data-a="${reject?'orejok':'ocloseok'}" data-id="${o.id}">${reject?'Reject and send mail':'Close and send mail'}</button><button class="btn w" data-a="odetback" data-id="${o.id}">Back</button></div>`)}
+/* ---- log form ---- */
+function logForm(keep){const d=ui.d=ui.d||{};if(!keep){ui.d=d;if(!ui.d.lu){let lu='';try{lu=localStorage.getItem('sf_lastunit')||''}catch(e){}ui.d.lu=unitOf(lu)?lu:(S.units[0]&&S.units[0].id)||''}}
+ const D=ui.d,type=ui.lt,bad=type&&TYPES[type].bad,deps=S.depts.filter(x=>x.unitId===D.lu),secs=S.secs.filter(x=>x.deptId===D.ld),dep=deptOf(D.ld),sec=secOf(D.ls),un=unitOf(D.lu);
+ if(D.ld&&!deps.some(x=>x.id===D.ld))D.ld='';const tdef=D.ltd||addD(TODAY(),SEVD[D.lsv||'M']);
+ const rsp=D.ld?`<div class="rsp"><b>Responsible</b><br>Section incharge: <b>${esc(sec&&pName(sec.incharge)||'Not set')}</b><br>Department head: <b>${esc(dep&&pName(dep.head)||'Not set')}</b><br>Unit head: <b>${esc(un&&pName(un.head)||'Not set')}</b> • Safety officer: <b>${esc(un&&pName(un.officer)||'Not set')}</b></div>`:'';
+ openSheet(`<h2>Log an observation</h2><div class="f"><div class="ty">${Object.keys(TYPES).map(k=>`<button class="${TYPES[k].c} ${type===k?'on':''}" data-a="ltype" data-v="${k}"><span>${TYPES[k].ic}</span>${TYPES[k].n}</button>`).join('')}</div>
+ <div class="g2"><label><span>Unit *</span>${sel('lu',[['','Choose']].concat(S.units.map(u=>[u.id,u.name])),D.lu,'data-ch="lchg"')}</label><label><span>Responsible department *</span>${sel('ld',[['','Choose']].concat(deps.map(x=>[x.id,x.name])),D.ld,'data-ch="lchg"')}</label></div>
+ <label><span>Section (the incharge gets the mail)</span>${sel('ls',[['','Not sure / whole department']].concat(secs.map(x=>[x.id,x.name])),D.ls&&secs.some(x=>x.id===D.ls)?D.ls:'','data-ch="lchg"')}</label>${rsp}
+ <label><span>Location</span><input id="llo" maxlength="80" value="${esc(D.llo||'')}" placeholder="for example Kiln deck, near feeder"></label>
+ <div class="g2"><label><span>Category</span>${sel('lct',CATS.map(c=>[c,c]),D.lct||'PPE')}</label>${bad?`<label><span>Severity</span>${sel('lsv',[['H','High'],['M','Medium'],['L','Low']],D.lsv||'M','data-ch="lchg"')}</label>`:'<div></div>'}</div>
+ <label><span>What did you see? *</span><textarea id="lde" rows="3" maxlength="500" placeholder="${bad?'Describe the unsafe act or condition':'Describe the good practice you noticed'}">${esc(D.lde||'')}</textarea></label>
+ ${bad?`<div class="g2"><label><span>Target date to close *</span><input id="ltd" type="date" min="${TODAY()}" value="${esc(tdef)}"></label><label><span>Immediate action (optional)</span><input id="lim" maxlength="120" value="${esc(D.lim||'')}"></label></div>`:''}
+ <label><span>Photo (optional)</span><input type="file" id="lph" accept="image/*" data-ch="lphoto"></label>${ui.ph?`<img class="ph" alt="Photo" src="${ui.ph}">`:''}
+ <div class="err" id="er"></div><button class="btn" data-a="lsave">Submit observation</button><button class="btn w" data-a="cs">Cancel</button></div>`)}
+function logRead(){['lu','ld','ls','llo','lct','lsv','lde','ltd','lim'].forEach(id=>{if($(id))ui.d[id]=$(id).value});if($('ltd')&&ui.d.lsv)ui.d.ltd=$('ltd').value}
+
+/* ---- statistics ---- */
+function vStats(){const D=statsData(),T=D.T,mx=Math.max(1,...D.bk.map(b=>Math.max(b.logged,b.closed))),tl=ui.sp==='today'?'today':ui.sp;
+ const tile=(c,n,l)=>`<div class="tile ${c}"><div><b>${n}</b><small>${l}</small></div></div>`,tcell=(v,c)=>`<td style="${c&&v?'color:'+c+';font-weight:700':''}">${v}</td>`;
+ $('view').innerHTML=`<div class="g2">${unitSelHTML('su',true)}${sel('sp',[['today','Today'],['week','This week'],['month','This month'],['year','This year'],['all','All time'],['custom','Custom dates']],ui.sp,'data-ch="spch"')}</div>
+ ${ui.sp==='custom'?`<div class="g2"><label><span>From</span><input type="date" id="sfr" value="${esc(D.r.a)}" data-ch="spd"></label><label><span>To</span><input type="date" id="sto" value="${esc(D.r.b)}" data-ch="spd"></label></div>`:''}
+ <div class="note">${fmt(D.r.a)} to ${fmt(D.r.b)}</div>
+ <div class="tiles">${tile('blu',T.total,'Observations')}${tile('red',T.unsafe,'Unsafe (act + condition)')}${tile('grn',T.safe,'Safe (act + condition)')}${tile('amb',T.open,'Open')}${tile('grn',T.closed,'Closed')}${tile(T.over?'red':'grn',T.over,'Overdue')}${tile('amb',T.esc,'Escalated')}${tile(T.rate<80?'amb':'grn',T.rate+'%','Closure rate')}</div>
+ <div class="card"><div class="h"><span>By type</span></div>${Object.keys(TYPES).map(k=>`<div class="hb"><b>${TYPES[k].n}</b><div class="bar"><i style="width:${T.total?Math.round(D.byT[k]*100/T.total):0}%;background:${TCOL[k]}"></i></div><span>${D.byT[k]}</span></div>`).join('')}</div>
+ <div class="card"><div class="h"><span>Department wise</span><small>${D.dept.length}</small></div><div style="overflow-x:auto"><table class="tbl"><tr><th>Department</th><th>Total</th><th>Unsafe</th><th>Safe</th><th>Open</th><th>Closed</th><th>Overdue</th></tr>${D.dept.map(d=>`<tr><td>${esc(d.dept)}${!ui.f.unit?'<br><small style="color:var(--mut)">'+esc(d.unit)+'</small>':''}</td><td><b>${d.total}</b></td>${tcell(d.unsafe,'#dc2626')}${tcell(d.safe,'#16a34a')}${tcell(d.open,'#d97706')}${tcell(d.closed,'#16a34a')}${tcell(d.over,'#dc2626')}</tr>`).join('')||'<tr><td colspan="7" class="empty">No data</td></tr>'}</table></div></div>
+ <div class="card"><div class="h"><span>Who logged how many</span><small>${D.obs.length} people</small></div><div style="overflow-x:auto"><table class="tbl"><tr><th>Name</th><th>Total</th><th>Unsafe</th><th>Safe</th><th>Departments</th></tr>${D.obs.slice(0,30).map(x=>`<tr><td>${esc(x.name)}</td><td><b>${x.total}</b></td><td>${x.unsafe}</td><td>${x.safe}</td><td style="text-align:left;font-size:11.5px;white-space:normal">${Object.entries(x.d).map(e=>esc(e[0])+' '+e[1]).join(', ')}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">No data</td></tr>'}</table></div></div>
+ <div class="card"><div class="h"><span>Trend</span><span style="display:flex;gap:4px">${[['day','Daily'],['week','Weekly'],['month','Monthly'],['year','Yearly']].map(g=>`<button class="chip ${ui.gb===g[0]?'on':''}" data-a="gb" data-v="${g[0]}">${g[1]}</button>`).join('')}</span></div>
+ ${D.bk.map(b=>`<div class="hb"><b>${bucketLabel(b.k,ui.gb)}</b><div class="bar" title="Logged"><i style="width:${Math.round(b.logged*100/mx)}%;background:#f97316"></i></div><span>${b.logged}</span></div><div class="hb"><b></b><div class="bar" title="Closed"><i style="width:${Math.round(b.closed*100/mx)}%;background:#16a34a"></i></div><span>${b.closed}</span></div>`).join('')||'<div class="empty">No data</div>'}<div class="note">Orange: logged. Green: closed in that period.</div>
+ <div style="overflow-x:auto;margin-top:6px"><table class="tbl"><tr><th>Period</th><th>Logged</th><th>Unsafe</th><th>Closed</th><th>Still open</th></tr>${D.bk.slice().reverse().map(b=>`<tr><td>${bucketLabel(b.k,ui.gb)}</td><td>${b.logged}</td><td>${b.unsafe}</td><td>${b.closed}</td><td>${b.open}</td></tr>`).join('')}</table></div></div>
+ <div class="card"><div class="h"><span>By category</span></div>${D.cat.map(c=>`<div class="hb"><b>${esc(c[0])}</b><div class="bar"><i style="width:${Math.round(c[1]*100/Math.max(1,T.total))}%"></i></div><span>${c[1]}</span></div>`).join('')||'<div class="empty">No data</div>'}</div>
+ <div class="card"><div class="h"><span>Top sections</span></div>${D.sec.map(c=>`<div class="hb"><b>${esc(c.name)}</b><div class="bar"><i style="width:${Math.round(c.total*100/Math.max(1,D.sec[0].total))}%"></i></div><span>${c.total}</span></div>`).join('')||'<div class="empty">No data</div>'}</div>
+ <div style="display:flex;gap:8px"><button class="btn g s" data-a="exstats">Export CSV</button><button class="btn g s" data-a="stshare">Share summary</button></div>`}
+function statsText(){const D=statsData(),T=D.T;return'*Safety observations*\n'+S.co.name+(ui.f.unit?' - '+(unitOf(ui.f.unit)||{}).name:'')+'\n'+fmt(D.r.a)+' to '+fmt(D.r.b)+'\n\nTotal '+T.total+' | Unsafe '+T.unsafe+' | Safe '+T.safe+'\nOpen '+T.open+' | Closed '+T.closed+' | Overdue '+T.over+' | Escalated '+T.esc+'\nClosure rate '+T.rate+'%\n\n*By department*\n'+D.dept.slice(0,12).map(d=>d.dept+': '+d.total+' (open '+d.open+', closed '+d.closed+')').join('\n')}
+
+/* ---- manage ---- */
+function vManage(){const mods=isAdmin(),pend=S.mem.filter(m=>m.status==='pending'),own=u=>modFor(u.id);
+ $('view').innerHTML=`${pend.length?`<div class="card hl"><div class="h"><span>Waiting for approval</span><small>${pend.length}</small></div>${pend.map(m=>`<div class="row amber" style="margin-bottom:6px"><div class="m"><b>${esc(m.name||m.email)}</b><small>${esc(m.email)}</small></div><button class="btn s" data-a="mok" data-id="${m.id}">Approve</button><button class="btn r s" data-a="mno" data-id="${m.id}">No</button></div>`).join('')}</div>`:''}
+ <div class="h"><span>Units, departments and sections</span>${mods?'<button class="btn s" data-a="uadd">+ Unit</button>':''}</div>
+ <div class="note">Each department has a head. Each section has an incharge. When an observation is logged, the incharge of the chosen section gets the mail and sees it first. If the target date is missed it goes up to the department head, then the unit head, then the company admin.</div>
+ <div class="tree">${S.units.map(u=>`<div class="tu"><div class="h"><span>${esc(u.name)}</span>${own(u)?`<span style="display:flex;gap:4px"><button class="mini" data-a="uedit" data-id="${u.id}">Edit</button><button class="mini" data-a="dadd" data-id="${u.id}">+ Dept</button></span>`:''}</div><div class="note">Unit head: <b>${esc(pName(u.head)||'not set')}</b> • Safety officer: <b>${esc(pName(u.officer)||'not set')}</b></div>
+ ${S.depts.filter(d=>d.unitId===u.id).map(d=>`<div class="td"><div class="h"><span>${esc(d.name)} <small>Head: ${esc(pName(d.head)||'not set')}</small></span>${own(u)?`<span style="display:flex;gap:4px"><button class="mini" data-a="dedit" data-id="${d.id}">Edit</button><button class="mini" data-a="sadd" data-id="${d.id}">+ Section</button></span>`:''}</div>${S.secs.filter(s=>s.deptId===d.id).map(s=>`<div class="ts"><span class="sp">▸ ${esc(s.name)} <small style="color:var(--mut)">${esc(pName(s.incharge)||'incharge not set')}</small></span>${own(u)?`<button class="mini" data-a="sedit" data-id="${s.id}">Edit</button>`:''}</div>`).join('')||'<div class="note" style="margin-left:12px">No section yet.</div>'}</div>`).join('')||'<div class="note" style="margin:6px 0 0 10px">No department yet.</div>'}</div>`).join('')||'<div class="empty card">Add your first unit.</div>'}</div>
+ <div class="h" style="margin-top:6px"><span>Members</span><small>${S.mem.filter(m=>m.status==='active').length}</small></div>${S.mem.filter(m=>m.status==='active').map(m=>`<div class="row" style="margin-bottom:6px"><div class="m"><b>${esc(m.name||m.email)}</b><small>${esc(m.email)} • ${m.role==='admin'?'Admin':m.role==='moderator'?'Moderator':'User'}</small></div>${mods&&m.role!=='admin'?`<button class="mini" data-a="medit" data-id="${m.id}">Edit</button>`:''}</div>`).join('')}
+ ${mods?`<div class="h" style="margin-top:6px"><span>Company settings</span></div><div class="card"><div class="f" style="display:flex;flex-direction:column;gap:8px"><label><span>Company name</span><input id="cnm" maxlength="60" value="${esc(S.co.name)}"></label><label><span>Escalate to the next level after every (days late)</span>${sel('cesc',[1,2,3,5,7].map(x=>[x,x+' day'+(x>1?'s':'')]),S.co.escDays||3)}</label><label class="ck"><input type="checkbox" id="cml" ${S.co.mailOn===false?'':'checked'}>Send e-mails automatically</label><div class="note">Company code for new users: <b style="font-size:16px;letter-spacing:1px">${esc(S.cid)}</b></div><button class="btn s" data-a="cosave">Save settings</button></div></div>`:''}`}
+function personFields(p,k,l){return`<div class="g2"><label><span>${l} name</span><input id="${k}n" maxlength="60" value="${esc(p&&p.n||'')}"></label><label><span>${l} e-mail</span><input id="${k}e" type="email" maxlength="80" value="${esc(p&&p.e||'')}"></label></div>`}
+const pRead=k=>person($(k+'n').value,$(k+'e').value);
+function pCheck(p,l){if(p.e&&!emailOk(p.e)){$('er').textContent=l+': the e-mail does not look right.';return false}return true}
+function unitForm(id){const u=id?unitOf(id):{};openSheet(`<h2>${id?'Edit unit':'Add a unit'}</h2><div class="f"><label><span>Unit name *</span><input id="un" maxlength="60" value="${esc(u.name||'')}" placeholder="for example Plant 1"></label>${personFields(u.head,'uh','Unit head')}${personFields(u.officer,'uo','Safety officer')}<div class="note">The safety officer is copied on every observation of this unit.</div><div class="err" id="er"></div><button class="btn" data-a="usave" data-id="${id||''}">Save</button>${id?`<button class="btn r" data-a="udel" data-id="${id}">Delete unit</button>`:''}<button class="btn w" data-a="cs">Cancel</button></div>`)}
+function deptForm(id,unitId){const d=id?deptOf(id):{unitId};openSheet(`<h2>${id?'Edit department':'Add a department'}</h2><div class="note" style="margin-bottom:6px">${esc((unitOf(d.unitId)||{}).name||'')}</div><div class="f"><label><span>Department name *</span><input id="dn" maxlength="60" value="${esc(d.name||'')}" placeholder="for example Mechanical"></label>${personFields(d.head,'dh','Department head')}<div class="err" id="er"></div><button class="btn" data-a="dsave" data-id="${id||''}" data-u="${esc(d.unitId)}">Save</button>${id?`<button class="btn r" data-a="ddel" data-id="${id}">Delete department</button>`:''}<button class="btn w" data-a="cs">Cancel</button></div>`)}
+function secForm(id,deptId){const s=id?secOf(id):{deptId},d=deptOf(s.deptId)||{};openSheet(`<h2>${id?'Edit section':'Add a section'}</h2><div class="note" style="margin-bottom:6px">${esc(d.name||'')} • ${esc((unitOf(d.unitId)||{}).name||'')}</div><div class="f"><label><span>Section name *</span><input id="sn" maxlength="60" value="${esc(s.name||'')}" placeholder="for example Kiln mechanical"></label>${personFields(s.incharge,'ic','Section incharge')}<div class="err" id="er"></div><button class="btn" data-a="ssave" data-id="${id||''}" data-d="${esc(s.deptId)}">Save</button>${id?`<button class="btn r" data-a="sdel" data-id="${id}">Delete section</button>`:''}<button class="btn w" data-a="cs">Cancel</button></div>`)}
+function memForm(id){const m=S.mem.find(x=>x.id===id);if(!m)return;openSheet(`<h2>${esc(m.name||m.email)}</h2><div class="note" style="margin-bottom:6px">${esc(m.email)}</div><div class="f"><label><span>Role</span>${sel('mr',[['user','User (can log and view all)'],['moderator','Plant moderator (manages departments and sections)']],m.role)}</label><label><span>Moderator for units (hold Ctrl or tick; empty means all units)</span><div class="crw">${S.units.map(u=>`<label><input type="checkbox" class="mu" value="${u.id}" ${(m.unitIds||[]).includes(u.id)?'checked':''}>${esc(u.name)}</label>`).join('')}</div></label><button class="btn" data-a="msave" data-id="${id}">Save</button><button class="btn r" data-a="mdel" data-id="${id}">Remove from company</button><button class="btn w" data-a="cs">Cancel</button></div>`)}
+
+/* ---- more ---- */
+function vMore(){const m=ME();$('view').innerHTML=`<div class="card"><b>${esc(S.user.name||'')}</b><div class="note">${esc(S.user.email||'')} • ${m.role==='admin'?'Company admin':m.role==='moderator'?'Plant moderator':'User'}</div></div>
+ <button class="btn g" data-a="notifon">Enable phone notifications for my pending actions</button><div class="note">${window.Notification?'Permission: '+Notification.permission:'Not supported in this browser'}. E-mails are sent automatically when an observation is logged, closed, rejected or escalated.</div>
+ <button class="btn g" data-a="exlogs">Export all observations (CSV)</button>
+ ${S.mode==='demo'?`<div class="card"><div class="h"><span>Demo</span></div><label><span>Act as</span>${sel('dua',S.mem.filter(x=>x.status==='active').map(x=>[x.id,x.name+' ('+x.role+')']),S.user.uid,'data-ch="demoas"')}</label><div class="note">Switch the person to test what each role sees. Everything is stored only on this phone.</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn g s" data-a="outbox">Mail outbox</button><button class="btn r s" data-a="demoreset">Reset demo</button><button class="btn w s" data-a="demoexit">Leave demo</button></div></div>`:`<button class="btn w" data-a="switchco">Switch or join another company</button><button class="btn w" data-a="logout">Sign out</button>`}
+ <div class="note" style="text-align:center">Safety Observation • <a href="https://ourworldhive.com" style="color:var(--p)">ourworldhive.com</a></div><div class="cr">&copy; DUKEKRRISH. All rights reserved. The design, code and content of this app may not be copied or reused without permission.</div>`}
+function bell(){const L=pendingMine();openSheet(`<h2>Needs your action</h2>${L.length?`<div class="note" style="margin-bottom:8px">${L.filter(o=>stOf(o).k==='over').length} overdue • ${L.length} open</div><div class="list">${L.slice(0,10).map(obsRow).join('')}</div>${L.length>10?'<div class="note">and '+(L.length-10)+' more in Logs, Mine to act.</div>':''}`:'<div class="empty">Nothing is waiting for you.</div>'}<button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
+
+/* ================= photos ================= */
+function shrink(file,max,q){return new Promise((ok,no)=>{const r=new FileReader();r.onerror=()=>no();r.onload=()=>{const im=new Image();im.onerror=()=>no();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',q))};im.src=r.result};r.readAsDataURL(file)})}
+
+/* ================= actions ================= */
+const CH={
+ fch(e){const el=e.target;ui.f[el.dataset.k]=el.value;ui.more=0;view()},
+ spch(e){ui.sp=e.target.value;view()},spd(){ui.from=$('sfr').value;ui.to=$('sto').value;ui.sp='custom';view()},
+ lchg(e){logRead();const id=e.target.id;if(id==='lu'){ui.d.ld='';ui.d.ls=''}if(id==='ld')ui.d.ls='';if(id==='lsv')ui.d.ltd=addD(TODAY(),SEVD[ui.d.lsv||'M']);logForm(true)},
+ async lphoto(e){const f=e.target.files&&e.target.files[0];if(!f)return;logRead();try{ui.ph=await shrink(f,1000,.6)}catch(x){toast('Could not read that photo.')}logForm(true)},
+ async cphoto(e){const f=e.target.files&&e.target.files[0];if(!f)return;try{ui.cph=await shrink(f,1000,.6);const p=$('cpv');p.src=ui.cph;p.hidden=false}catch(x){toast('Could not read that photo.')}},
+ async demoas(e){try{localStorage.setItem('sf_demo_as',e.target.value)}catch(x){}location.reload()}};
+Object.assign(A,{
+ tab(d){if(d.v==='new'){return A.newlog()}S.tab=d.v;ui.more=0;shell()},
+ newlog(){ui.lt='';ui.ph='';ui.d=null;logForm()},ltype(d){logRead();ui.lt=d.v;logForm(true)},lsave:logSave,cs:closeSheet,bell,
+ odet(d){odet(d.id)},odetback(d){odet(d.id)},oclose(d){closeForm(d.id,false)},oreject(d){closeForm(d.id,true)},ocloseok(d){closeObs(d.id,false)},orejok(d){closeObs(d.id,true)},oreopen(d){reopenObs(d.id)},
+ otarget(d){const o=S.obs.find(x=>x.id===d.id);openSheet(`<h2>Change target date</h2><div class="f"><label><span>New target date</span><input id="nt" type="date" value="${esc(o.target)}"></label><div class="err" id="er"></div><button class="btn" data-a="otsave" data-id="${o.id}">Save</button><button class="btn w" data-a="odetback" data-id="${o.id}">Back</button></div>`)},
+ async otsave(d){const o=S.obs.find(x=>x.id===d.id),v=$('nt').value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return $('er').textContent='Choose a date.';await DB.doc(P('obs/'+o.id)).update({target:v,esc:0,hist:histAdd(o,'Target date changed',fmt(o.target)+' to '+fmt(v))});odet(o.id);toast('Target date changed.')},
+ async oshare(d){const o=S.obs.find(x=>x.id===d.id),tx='*Safety observation '+o.no+'*\n'+TYPES[o.type].n+' - '+o.uname+'\n'+o.dname+(o.sname?' / '+o.sname:'')+'\n'+o.desc+'\nStatus: '+stOf(o).l+(o.target?'\nTarget: '+fmt(o.target):'')+'\n'+APPURL()+'#/o/'+S.cid+'/'+o.id;if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
+ tflt(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;S.tab='logs';shell()},fst(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;view()},moreb(){ui.more++;view()},gb(d){ui.gb=d.v;view()},
+ exlogs(){download('safety-observations-'+TODAY()+'.csv',logsCsv(listFiltered().length||ui.f.st||ui.f.type||ui.f.q||ui.f.unit||ui.f.dept?listFiltered():S.obs.slice().sort((a,b)=>b.ts-a.ts)))},
+ exstats(){download('safety-stats-'+TODAY()+'.csv',logsCsv(statsData().L.slice().sort((a,b)=>b.ts-a.ts)))},
+ async stshare(){const tx=statsText();if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
+ /* manage */
+ uadd(){unitForm('')},uedit(d){unitForm(d.id)},
+ async usave(d){const n=$('un').value.trim(),h=pRead('uh'),o=pRead('uo');if(!n)return $('er').textContent='Enter the unit name.';if(!pCheck(h,'Unit head')||!pCheck(o,'Safety officer'))return;const id=d.id||uid('u');await DB.doc(P('units/'+id)).set({name:n,head:h,officer:o,code:n.slice(0,3).toUpperCase()},{merge:true});closeSheet();toast('Saved.')},
+ async udel(d){if(S.depts.some(x=>x.unitId===d.id))return $('er').textContent='Delete or move its departments first.';if(!confirm('Delete this unit?'))return;await DB.doc(P('units/'+d.id)).delete();closeSheet()},
+ dadd(d){deptForm('',d.id)},dedit(d){deptForm(d.id)},
+ async dsave(d){const n=$('dn').value.trim(),h=pRead('dh');if(!n)return $('er').textContent='Enter the department name.';if(!pCheck(h,'Department head'))return;const id=d.id||uid('d');await DB.doc(P('depts/'+id)).set({unitId:d.u,name:n,head:h},{merge:true});closeSheet();toast('Saved.')},
+ async ddel(d){if(S.secs.some(x=>x.deptId===d.id))return $('er').textContent='Delete its sections first.';if(!confirm('Delete this department? Old observations keep its name.'))return;await DB.doc(P('depts/'+d.id)).delete();closeSheet()},
+ sadd(d){secForm('',d.id)},sedit(d){secForm(d.id)},
+ async ssave(d){const n=$('sn').value.trim(),p=pRead('ic');if(!n)return $('er').textContent='Enter the section name.';if(!pCheck(p,'Section incharge'))return;const dp=deptOf(d.d);const id=d.id||uid('s');await DB.doc(P('secs/'+id)).set({deptId:d.d,unitId:dp.unitId,name:n,incharge:p},{merge:true});closeSheet();toast('Saved.')},
+ async sdel(d){if(!confirm('Delete this section? Old observations keep its name.'))return;await DB.doc(P('secs/'+d.id)).delete();closeSheet()},
+ medit(d){memForm(d.id)},
+ async msave(d){const ids=[...document.querySelectorAll('.mu:checked')].map(x=>x.value);await DB.doc(P('members/'+d.id)).update({role:$('mr').value,unitIds:ids});closeSheet();toast('Saved.')},
+ async mdel(d){if(!confirm('Remove this person from the company?'))return;await DB.doc(P('members/'+d.id)).delete();closeSheet()},
+ async mok(d){await DB.doc(P('members/'+d.id)).update({status:'active'});toast('Approved.')},async mno(d){if(!confirm('Reject this request?'))return;await DB.doc(P('members/'+d.id)).delete()},
+ async cosave(){const n=$('cnm').value.trim();if(!n)return toast('Enter the company name.');await DB.doc(P('')).update({name:n,escDays:+$('cesc').value||3,mailOn:$('cml').checked});toast('Saved.')},
+ /* more */
+ notifon(){if(!window.Notification)return toast('This browser cannot show notifications.');Notification.requestPermission().then(p=>{toast(p==='granted'?'Notifications are on.':'Notifications are blocked.');checkNotif(true);vMore()})},
+ outbox(){DB.collection('sf_mail').get().then(q=>{const L=q.docs.map(d=>d.data()).sort((a,b)=>b.ts-a.ts);openSheet(`<h2>Mail outbox (demo)</h2><div class="note" style="margin-bottom:8px">These are the mails the app would send. In the real app they go out through the mail extension.</div>${L.map(m=>`<div class="card" style="margin-bottom:6px;font-size:13px"><b>${esc(m.message.subject)}</b><br>To: ${esc(m.to.join(', '))}${m.cc&&m.cc.length?'<br>Cc: '+esc(m.cc.join(', ')):''}</div>`).join('')||'<div class="empty">No mail yet.</div>'}<button class="btn w" style="width:100%" data-a="cs">Close</button>`)})},
+ async demoreset(){if(!confirm('Delete all demo data and start again?'))return;LocalFS.reset();location.reload()},
+ demoexit(){try{localStorage.removeItem('sf_demo')}catch(e){}location.href=location.pathname}});
+
+/* ================= phone alerts ================= */
+function checkNotif(force){try{if(!('Notification' in window)||Notification.permission!=='granted'||!S.cid)return;const L=pendingMine(),o=L.filter(x=>stOf(x).k==='over').length,k='sf_n_'+S.cid+TODAY();if(L.length&&(force||!localStorage.getItem(k))){localStorage.setItem(k,'1');new Notification('Safety Observation',{body:L.length+' observation'+(L.length>1?'s':'')+' waiting for you'+(o?', '+o+' overdue':'')+'.'})}}catch(e){}}
+
+/* ================= open a company ================= */
+function detach(){UNS.forEach(f=>{try{f()}catch(e){}});UNS=[];S.ready=false}
+function openCompany(cid){detach();S.cid=cid;S.co=null;S.units=[];S.depts=[];S.secs=[];S.mem=[];S.obs=[];S.tab=S.tab||'home';try{localStorage.setItem('sf_last',cid)}catch(e){}
+ const got={co:0,u:0,d:0,s:0,m:0,o:0};let shown=false;const ready=()=>{if(shown||!Object.values(got).every(Boolean))return;shown=true;const me=ME();
+  if(!me||me.status!=='active'){detach();S.cid='';return cloudChooser(me?'Your request is waiting for approval by the company admin or moderator.':'You are not a member of this company.')}
+  S.ready=true;shell();escRun();checkNotif();routeHash()};
+ const err=()=>{if(!shown){detach();S.cid='';cloudChooser('Could not open this company. You may not have access.')}};
+ UNS.push(DB.doc(P('')).onSnapshot(s=>{if(!s.exists)return err();S.co=s.data();got.co=1;ready();if(shown)scheduleRender()},err));
+ const lst=(path,key,flag,srt)=>UNS.push(DB.collection(P(path)).onSnapshot(q=>{S[key]=q.docs.map(d=>Object.assign({id:d.id},d.data()));if(srt)S[key].sort(srt);got[flag]=1;ready();if(shown){if(key==='obs')escRun();scheduleRender()}},err));
+ const byN=(a,b)=>String(a.name).localeCompare(String(b.name));
+ lst('units','units','u',byN);lst('depts','depts','d',byN);lst('secs','secs','s',byN);lst('members','mem','m');lst('obs','obs','o')}
+function routeHash(){const m=/^#\/o\/([^\/]+)\/([^\/]+)/.exec(location.hash||'');if(m&&m[1]===S.cid){const o=S.obs.find(x=>x.id===m[2]);if(o){history.replaceState(null,'',location.pathname);odet(o.id)}}}
+
+/* ================= demo start ================= */
+async function startDemo(){DB=LocalFS;S.mode='demo';try{localStorage.setItem('sf_demo','1')}catch(e){}if(!LocalFS.has('sf_companies/DEMO01'))await seedDemo();
+ const U={'d-admin':['Company Admin','admin@demo.com'],'d-mod':['Plant Moderator','mod@demo.com'],'d-so':['Anita Roy','anita.roy@demo.com'],'d-inc':['Rambabu Singh','rambabu@demo.com'],'d-hd':['Deepak Mishra','deepak.mishra@demo.com'],'d-u1':['Observer One','observer1@demo.com'],'d-u2':['Observer Two','observer2@demo.com']};let as='d-admin';try{as=localStorage.getItem('sf_demo_as')||as}catch(e){}if(!U[as])as='d-admin';
+ S.user={uid:as,name:U[as][0],email:U[as][1]};openCompany('DEMO01')}
+
+/* ================= cloud: sign-in, companies ================= */
+const CL={ready:false,auth:null,fs:null,user:null,hooked:false};let cmode='in',pendingJoin='';
+function loadJsOrdered(L){return Promise.all(L.map(src=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.async=false;e.onload=ok;e.onerror=()=>no(new Error('load'));document.head.appendChild(e)})))}
+async function cloudInit(){if(CL.ready)return;const b='https://www.gstatic.com/firebasejs/10.12.2/';if(!window.firebase)await loadJsOrdered([b+'firebase-app-compat.js',b+'firebase-auth-compat.js',b+'firebase-firestore-compat.js']);
+ if(!firebase.apps||!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);CL.auth=firebase.auth();CL.fs=firebase.firestore();try{CL.fs.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}CL.ready=true}
+function heroHtml(){return`<div class="hero"><div style="font-size:42px">🦺</div><h1>Safety Observation</h1><p>Log unsafe acts, unsafe conditions, safe acts and safe conditions. The right section incharge is told at once, and nothing is forgotten: if the target date is missed it goes up the line.</p></div><div class="feat"><div><b>📍 Right person, first time</b>Pick the department and section. The incharge and head are filled in for you.</div><div><b>✉️ Automatic e-mail</b>Logged, closed, rejected and escalated: everyone concerned is told.</div><div><b>⬆ Escalation</b>Target date missed? It moves to the department head, then the unit head.</div><div><b>📊 Statistics</b>Daily, weekly, monthly and yearly by department and by person.</div></div>`}
+const CE={'auth/invalid-credential':'Email or password is not right.','auth/wrong-password':'Email or password is not right.','auth/user-not-found':'Email or password is not right.','auth/email-already-in-use':'That email already has an account. Sign in instead.','auth/weak-password':'Use a password with at least 6 characters.','auth/invalid-email':'That email does not look right.','auth/popup-closed-by-user':'Sign-in was cancelled.','auth/unauthorized-domain':'This website address is not allowed in Firebase yet.','auth/network-request-failed':'No internet connection.','permission-denied':'You do not have permission for that.'};
+function cerr(e){const m=CE[e&&e.code]||'Something went wrong. Please try again.';const x=$('er');if(x)x.textContent=m;else toast(m)}
+function showLogin(msg){S.cid='';$('app').innerHTML=`<div class="login">${heroHtml()}<div class="card"><div class="f" style="display:flex;flex-direction:column;gap:9px"><button class="btn" data-a="cgoogle">Continue with Google</button><div class="note" style="text-align:center">or use your email</div>
+ <div class="chips"><button class="chip ${cmode==='in'?'on':''}" data-a="cmode" data-v="in">Sign in</button><button class="chip ${cmode==='up'?'on':''}" data-a="cmode" data-v="up">Register</button></div>
+ ${cmode==='up'?'<label><span>Your name</span><input id="cnm" autocomplete="name" maxlength="60"></label>':''}<label><span>Email</span><input id="ce" type="email" autocomplete="email"></label><label><span>Password</span><input id="cp" type="password" autocomplete="${cmode==='up'?'new-password':'current-password'}" placeholder="At least 6 characters"></label><div class="err" id="er" role="alert">${esc(msg||'')}</div>${cmode==='in'?'<button class="chip" style="align-self:flex-start" data-a="cforgot">Forgot password?</button>':''}<button class="btn g" data-a="cemail">${cmode==='up'?'Create account':'Sign in'}</button></div></div>
+ <button class="btn w" data-a="demo">Try the demo (this device only)</button><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div></div>`}
+async function cloudBoot(){$('app').innerHTML='<div class="login"><div class="empty">Loading…</div></div>';S.mode='cloud';
+ try{await cloudInit()}catch(e){return showLogin('Could not reach the server. You can still try the demo on this device.')}
+ DB=CL.fs;if(!CL.hooked){CL.hooked=true;CL.auth.onAuthStateChanged(u=>{CL.user=u?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;if(!u){detach();S.user=null;showLogin()}else{S.user=Object.assign({},CL.user);cloudChooser()}})}}
+async function cloudChooser(msg){detach();S.cid='';const u=S.user;let last='';const hm=/^#\/o\/([^\/]+)/.exec(location.hash||'');try{last=(hm&&hm[1])||localStorage.getItem('sf_last')||''}catch(e){}
+ if(!msg&&last&&!pendingJoin){return openCompany(last)}
+ $('app').innerHTML='<div class="login"><div class="empty">Loading your companies…</div></div>';
+ let doc={};try{const s=await DB.doc('sf_users/'+u.uid).get();doc=s.exists?s.data():{}}catch(e){}const cids=Object.keys(doc.cids||{});
+ const rows=await Promise.all(cids.map(async c=>{let st='?',nm=c;try{const m=await DB.doc('sf_companies/'+c+'/members/'+u.uid).get();st=m.exists?m.data().status:'removed';const p=await DB.doc('sf_companies/'+c).get();if(p.exists)nm=p.data().name}catch(e){}return{c,st,nm}}));
+ $('app').innerHTML=`<div class="login"><div><h1 style="font-size:24px">Your companies</h1><p>${esc(u.email||u.name)}</p></div>${msg?`<div class="ribbon">${esc(msg)}</div>`:''}
+ ${rows.length?rows.map(r=>`<button class="row ${r.st==='active'?'green':r.st==='pending'?'amber':'red'}" data-a="cpick" data-id="${esc(r.c)}" ${r.st==='active'?'':'disabled'}><div class="m"><b>${esc(r.nm)}</b><small>Company code ${esc(r.c)}</small></div><div class="s ${r.st==='active'?'green':r.st==='pending'?'amber':'red'}">${r.st==='active'?'Open':r.st==='pending'?'Waiting for approval':'Removed'}</div></button>`).join(''):'<div class="empty card">You are not in any company yet.</div>'}
+ <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" style="flex:1" data-a="cjoin">Join a company</button><button class="btn g" style="flex:1" data-a="cnew">Enroll my company</button></div>
+ <div style="display:flex;gap:8px"><button class="btn w" style="flex:1" data-a="crefresh">Refresh</button><button class="btn w" style="flex:1" data-a="clogout">Sign out</button></div><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div></div>`}
+const genCode=()=>{const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<6;i++)r+=a[Math.floor(Math.random()*a.length)];return r};
+Object.assign(A,{
+ demo(){startDemo()},cmode(d){cmode=d.v;showLogin()},
+ cgoogle(){const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});CL.auth.signInWithPopup(p).catch(cerr)},
+ async cemail(){const e=$('ce').value.trim(),p=$('cp').value;if(!emailOk(e))return $('er').textContent='Enter a valid email.';if(p.length<6)return $('er').textContent='Use a password with at least 6 characters.';try{if(cmode==='up'){const nm=($('cnm').value||'').trim();const r=await CL.auth.createUserWithEmailAndPassword(e,p);if(nm)await r.user.updateProfile({displayName:nm})}else await CL.auth.signInWithEmailAndPassword(e,p)}catch(x){cerr(x)}},
+ cforgot(){const e=($('ce').value||'').trim();if(!emailOk(e))return $('er').textContent='Type your email above first.';CL.auth.sendPasswordResetEmail(e).then(()=>toast('Reset mail sent. Check your inbox.')).catch(cerr)},
+ clogout(){try{localStorage.removeItem('sf_last')}catch(e){}CL.auth.signOut()},logout(){A.clogout()},crefresh(){cloudChooser()},switchco(){try{localStorage.removeItem('sf_last')}catch(e){}cloudChooser('')},
+ cpick(d){openCompany(d.id)},
+ cjoin(){openSheet(`<h2>Join a company</h2><div class="f"><label><span>Company code (ask your safety moderator)</span><input id="jc" maxlength="10" style="text-transform:uppercase" value="${esc(pendingJoin)}"></label><label><span>Your name</span><input id="jn" maxlength="60" value="${esc(S.user.name||'')}"></label><div class="err" id="er"></div><button class="btn" data-a="cjoinok">Send request</button><button class="btn w" data-a="cs">Cancel</button></div>`)},
+ async cjoinok(){const c=$('jc').value.trim().toUpperCase(),n=$('jn').value.trim();if(c.length<4)return $('er').textContent='Enter the company code.';if(!n)return $('er').textContent='Enter your name.';
+  try{const s=await DB.doc('sf_companies/'+c).get();if(!s.exists)return $('er').textContent='No company with this code.';const u=S.user;const m=await DB.doc('sf_companies/'+c+'/members/'+u.uid).get();if(!m.exists)await DB.doc('sf_companies/'+c+'/members/'+u.uid).set({email:lc(u.email),name:n,role:'user',status:'pending',unitIds:[],created:TODAY()});await DB.doc('sf_users/'+u.uid).set({email:lc(u.email),name:n,cids:{[c]:true}},{merge:true});closeSheet();pendingJoin='';try{localStorage.removeItem('sf_last')}catch(e){}cloudChooser('Request sent. The company admin or moderator will approve you.')}catch(e){$('er').textContent=CE[e&&e.code]||'Could not send the request.'}},
+ cnew(){openSheet(`<h2>Enroll your company</h2><div class="f"><label><span>Company name *</span><input id="nc" maxlength="60"></label><label><span>First unit (plant) name *</span><input id="nu" maxlength="60" placeholder="for example Plant 1"></label><label><span>Your name *</span><input id="nn" maxlength="60" value="${esc(S.user.name||'')}"></label><div class="note">You become the company admin. You can add more units, departments, sections, moderators and safety officers after this.</div><div class="err" id="er"></div><button class="btn" data-a="cnewok">Enroll company</button><button class="btn w" data-a="cs">Cancel</button></div>`)},
+ async cnewok(){const nm=$('nc').value.trim(),un=$('nu').value.trim(),me=$('nn').value.trim();if(!nm||!un||!me)return $('er').textContent='Fill all three boxes.';
+  try{const u=S.user,c=genCode(),b=DB.batch(),e=lc(u.email);b.set(DB.doc('sf_companies/'+c),{name:nm,ownerUid:u.uid,ownerEmail:e,escDays:3,mailOn:true,created:TODAY()});b.set(DB.doc('sf_companies/'+c+'/units/u1'),{name:un,code:un.slice(0,3).toUpperCase(),head:person('',''),officer:person('','')});b.set(DB.doc('sf_companies/'+c+'/members/'+u.uid),{email:e,name:me,role:'admin',status:'active',unitIds:[],created:TODAY()});b.set(DB.doc('sf_users/'+u.uid),{email:e,name:me,cids:{[c]:true}},{merge:true});await b.commit();closeSheet();S.user.name=me;toast('Company enrolled. Your company code is '+c,6000);openCompany(c)}catch(x){$('er').textContent=CE[x&&x.code]||'Could not enroll. Try again.'}}});
+
+/* ================= events ================= */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b){if(e.target.id==='sheet')closeSheet();return}const f=A[b.dataset.a];if(f){e.preventDefault();Promise.resolve().then(()=>f(b.dataset,b)).catch(x=>{console.error(x);toast('Something went wrong. Try again.')})}});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.getAttribute&&e.target.getAttribute('role')==='button'){e.preventDefault();e.target.click()}});
+document.addEventListener('change',e=>{const k=e.target&&e.target.dataset&&e.target.dataset.ch;if(k&&CH[k])CH[k](e)});
+addEventListener('online',()=>{const s=$('syn');if(s)s.textContent='synced'});
+(function(){const b=document.createElement('div');b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#b45309;color:#fff;font-size:13px;text-align:center;padding:6px 10px;display:none';b.textContent='Offline: your changes are saved on this phone and will sync when the internet is back.';document.body.appendChild(b);const f=()=>{b.style.display=navigator.onLine?'none':'block'};addEventListener('online',f);addEventListener('offline',f);f();
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('safety-sw.js').catch(()=>{})})();
+function boot(){const hm=/^#\/join\/([^\/]+)/.exec(location.hash||'');if(hm)pendingJoin=hm[1].toUpperCase();let demo=false;try{demo=localStorage.getItem('sf_demo')==='1'}catch(e){}if(demo||!window.OWH_FIREBASE)return startDemo();cloudBoot()}
+boot();
+</script></body></html>

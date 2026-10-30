@@ -129,7 +129,7 @@ const srcOk=(x,s)=>{if(!s||s==='all')return true;const k=catOf(x);return s==='r'
 function firstMgrId(){const P=PL();return CLOUDON()?P.ownerUid:(P.firstMgr||(P.members.find(m=>m.role==='manager')||{}).id)}
 function isFirstMgr(){return firstMgrId()===S.session.member}
 function occ(from,to,src){src=src||'all';const P=PL(),td=TODAY(),o=[];const mk=(x,st)=>({sec:x.sec,type:x.type,assignee:x.assignee,kind:x.kind,cat:x.cat,st});
- P.logs.forEach(l=>{if(srcOk(l,src)&&l.due>=from&&l.due<=to)o.push(mk(l,l.done<=l.due?'ok':'late'))});
+ P.logs.forEach(l=>{const d=l.cat==='SD'?l.done:l.due;if(srcOk(l,src)&&d>=from&&d<=to)o.push(mk(l,l.done<=l.due?'ok':'late'))});
  openTasks().forEach(t=>{if(srcOk(t,src)&&t.due>=from&&t.due<=to)o.push(mk(t,t.due<=td?'pend':'up'))});return o}
 function todayOcc(src){src=src||'all';const P=PL(),td=TODAY(),o=[];const mk=(x,st)=>({sec:x.sec,type:x.type,assignee:x.assignee,kind:x.kind,cat:x.cat,st});
  P.logs.forEach(l=>{if(srcOk(l,src)&&l.done===td)o.push(mk(l,l.done<=l.due?'ok':'late'))});openTasks().forEach(t=>{if(srcOk(t,src)&&t.due<=td)o.push(mk(t,'pend'))});return o}

@@ -1,5 +1,5 @@
 /* ZeroHarm service worker: keeps the app files on the phone so the app opens fast and works offline. */
-var C='safety-app-v3';
+var C='safety-app-v4';
 self.addEventListener('install',function(){self.skipWaiting()});self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim())});
 self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com';
  if(!same&&!ext)return;if(same&&!/\/(safety\.html|firebase-config\.js|zeroharm-export\.js|safety-manifest\.webmanifest|safety-icon-\d+\.png)$/.test(u.pathname))return;

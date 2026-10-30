@@ -337,7 +337,7 @@ function statsText(){const D=statsData(),T=D.T;return'*Safety observations*\n'+S
 /* ---- manage ---- */
 function vManage(){const mods=isAdmin(),pend=S.mem.filter(m=>m.status==='pending'),own=u=>modFor(u.id);
  $('view').innerHTML=`${pend.length?`<div class="card hl"><div class="h"><span>Waiting for approval</span><small>${pend.length}</small></div>${pend.map(m=>`<div class="row amber" style="margin-bottom:6px"><div class="m"><b>${esc(m.name||m.email)}</b><small>${esc(m.email)}</small></div><button class="btn s" data-a="mok" data-id="${m.id}">Approve</button><button class="btn r s" data-a="mno" data-id="${m.id}">No</button></div>`).join('')}</div>`:''}
- <div class="h"><span>Units, departments and sections</span>${mods?'<button class="btn s" data-a="uadd">+ Unit</button>':''}</div>
+ <div class="h"><span>Units, departments and sections</span><span style="display:flex;gap:4px"><button class="btn g s" data-a="stsheet">CSV</button>${mods?'<button class="btn s" data-a="uadd">+ Unit</button>':''}</span></div>
  <div class="note">Each department has a head. Each section has an incharge. When an observation is logged, the incharge of the chosen section gets the mail and sees it first. If the target date is missed it goes up to the department head, then the unit head, then the company admin.</div>
  <div class="tree">${S.units.map(u=>`<div class="tu"><div class="h"><span>${esc(u.name)}</span>${own(u)?`<span style="display:flex;gap:4px"><button class="mini" data-a="uedit" data-id="${u.id}">Edit</button><button class="mini" data-a="dadd" data-id="${u.id}">+ Dept</button></span>`:''}</div><div class="note">Unit head: <b>${esc(pName(u.head)||'not set')}</b> • Safety officer: <b>${esc(pName(u.officer)||'not set')}</b></div>
  ${S.depts.filter(d=>d.unitId===u.id).map(d=>`<div class="td"><div class="h"><span>${esc(d.name)} <small>Head: ${esc(pName(d.head)||'not set')}</small></span>${own(u)?`<span style="display:flex;gap:4px"><button class="mini" data-a="dedit" data-id="${d.id}">Edit</button><button class="mini" data-a="sadd" data-id="${d.id}">+ Section</button></span>`:''}</div>${S.secs.filter(s=>s.deptId===d.id).map(s=>`<div class="ts"><span class="sp">▸ ${esc(s.name)} <small style="color:var(--mut)">${esc(pName(s.incharge)||'incharge not set')}</small></span>${own(u)?`<button class="mini" data-a="sedit" data-id="${s.id}">Edit</button>`:''}</div>`).join('')||'<div class="note" style="margin-left:12px">No section yet.</div>'}</div>`).join('')||'<div class="note" style="margin:6px 0 0 10px">No department yet.</div>'}</div>`).join('')||'<div class="empty card">Add your first unit.</div>'}</div>
@@ -361,6 +361,35 @@ function vMore(){const m=ME();$('view').innerHTML=`<div class="card"><b>${esc(S.
  <div class="note" style="text-align:center">ZeroHarm • <a href="https://ourworldhive.com" style="color:var(--p)">ourworldhive.com</a></div><div class="cr">&copy; DUKEKRRISH. All rights reserved. The design, code and content of this app may not be copied or reused without permission.</div>`}
 function bell(){const L=pendingMine();openSheet(`<h2>Needs your action</h2>${L.length?`<div class="note" style="margin-bottom:8px">${L.filter(o=>stOf(o).k==='over').length} overdue • ${L.length} open</div><div class="list">${L.slice(0,10).map(obsRow).join('')}</div>${L.length>10?'<div class="note">and '+(L.length-10)+' more in Logs, Mine to act.</div>':''}`:'<div class="empty">Nothing is waiting for you.</div>'}<button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
 
+
+
+/* ================= CSV import / export of structure ================= */
+const STH=['Unit','Department','Department head name','Department head email','Section','Section incharge name','Section incharge email'];
+function parseCsv(t){t=t.replace(/^﻿/,'');const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===','){r.push(c);c=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()!==''))rows.push(r);r=[]}else c+=ch}
+ r.push(c);if(r.some(x=>x.trim()!==''))rows.push(r);return rows}
+function structCsv(tpl){const rows=[STH];if(tpl){rows.push(['Plant 1','Mechanical','A K Sharma','ak.sharma@example.com','Crusher','R K Singh','rk.singh@example.com']);rows.push(['Plant 1','Mechanical','A K Sharma','ak.sharma@example.com','Kiln','S Das','s.das@example.com']);rows.push(['Plant 1','Electrical','P Roy','p.roy@example.com','HT panel','M Khan','m.khan@example.com'])}
+ else S.units.forEach(u=>{const ds=S.depts.filter(d=>d.unitId===u.id);if(!ds.length)rows.push([u.name,'','','','','','']);ds.forEach(d=>{const ss=S.secs.filter(x=>x.deptId===d.id),h=d.head||{};if(!ss.length)rows.push([u.name,d.name,h.n||'',h.e||'','','','']);ss.forEach(x=>{const p=x.incharge||{};rows.push([u.name,d.name,h.n||'',h.e||'',x.name,p.n||'',p.e||''])})})});
+ return toCsv(rows)}
+function structSheet(){openSheet(`<h2>Import / export structure</h2><div class="note" style="margin-bottom:8px">One CSV with columns: ${STH.join(', ')}. Open it in Excel or Google Sheets, edit, and import it back. Existing departments and sections are matched by name and updated, new ones are added. Nothing is deleted.</div>
+ <div class="list"><button class="btn g" data-a="stexp">⬇ Export current structure (CSV)</button><button class="btn g" data-a="sttpl" style="margin-top:8px">⬇ Download blank template with examples</button></div>
+ <label style="display:block;margin-top:12px"><span style="font-weight:700">Import a CSV file</span><input type="file" id="stf" accept=".csv,text/csv" data-ch="stfile"></label><div id="stp" class="note" style="margin-top:8px"></div>
+ <button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
+function structPlan(rows){const hd=rows[0].map(x=>x.trim().toLowerCase()),ix=n=>hd.indexOf(n.toLowerCase());const I=STH.map(ix);if(I.slice(0,5).some(i=>i<0))return{err:'Columns not found. Use the template: '+STH.join(', ')+'.'};
+ const g=(r,k)=>I[k]<0?'':String(r[I[k]]||'').trim(),ops=[],bad=[],nu=n=>nrm(n);const uMap={},dMap={},sMap={};
+ S.units.forEach(u=>uMap[nu(u.name)]={id:u.id,name:u.name});S.depts.forEach(d=>dMap[d.unitId+'|'+nu(d.name)]={id:d.id,unitId:d.unitId,ex:1});S.secs.forEach(x=>sMap[x.deptId+'|'+nu(x.name)]={id:x.id,ex:1});
+ let nd=0,ns=0,ud=0,us=0,nun=0;
+ rows.slice(1).forEach((r,i)=>{const un=g(r,0),dn=g(r,1),sn=g(r,4),line=i+2;if(!un&&!dn&&!sn)return;
+  const U=uMap[nu(un)];if(!U){bad.push('Row '+line+': unit "'+un+'" not found. Add the unit first.');return}
+  if(!modFor(U.id)){bad.push('Row '+line+': you cannot change unit "'+un+'".');return}
+  if(!dn){return}
+  const hn=g(r,2),he=g(r,3),sin=g(r,5),sie=g(r,6);if(he&&!emailOk(lc(he))){bad.push('Row '+line+': head e-mail "'+he+'" is not valid.');return}if(sie&&!emailOk(lc(sie))){bad.push('Row '+line+': incharge e-mail "'+sie+'" is not valid.');return}
+  const dk=U.id+'|'+nu(dn);let D=dMap[dk];
+  if(!D){D=dMap[dk]={id:uid('d'),unitId:U.id,ex:0};ops.push({p:'depts/'+D.id,v:{unitId:U.id,name:dn,head:person(hn,he)}});nd++}
+  else if((hn||he)&&!D.done){D.done=1;ops.push({p:'depts/'+D.id,v:{head:person(hn,he)},m:1});ud++}
+  if(sn){const sk=D.id+'|'+nu(sn);let X=sMap[sk];if(!X){X=sMap[sk]={id:uid('s'),ex:0};ops.push({p:'secs/'+X.id,v:{deptId:D.id,unitId:U.id,name:sn,incharge:person(sin,sie)}});ns++}
+   else if((sin||sie)&&!X.done){X.done=1;ops.push({p:'secs/'+X.id,v:{incharge:person(sin,sie)},m:1});us++}}});
+ return{ops,bad,nd,ns,ud,us}}
+let _stPlan=null;
 
 /* ================= export (PDF / Excel / PowerPoint) ================= */
 function loadExp(){return window.zxPdf?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='zeroharm-export.js?v=1';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
@@ -388,7 +417,7 @@ function shrinkLogo(file){return new Promise((ok,no)=>{const r=new FileReader();
 const logoOf=()=>{const u=ui.f.unit&&unitOf(ui.f.unit);return(u&&u.logo)||(S.co&&S.co.logo)||''};
 
 /* ================= actions ================= */
-const CH={
+const CH={stfile(e){const f=e.target.files&&e.target.files[0],o=$('stp');if(!f)return;_stPlan=null;const r=new FileReader();r.onload=()=>{const rows=parseCsv(String(r.result||''));if(rows.length<2){o.textContent='The file is empty.';return}const p=structPlan(rows);if(p.err){o.textContent=p.err;return}_stPlan=p;o.innerHTML='<b>'+p.nd+'</b> new departments, <b>'+p.ns+'</b> new sections, <b>'+p.ud+'</b> department heads and <b>'+p.us+'</b> incharges to update.'+(p.bad.length?'<div class="err" style="margin-top:6px">'+p.bad.length+' rows skipped:<br>'+p.bad.slice(0,6).map(esc).join('<br>')+(p.bad.length>6?'<br>and more':'')+'</div>':'')+(p.ops.length?'<button class="btn" id="stgo" data-a="stgo" style="margin-top:8px;width:100%">Import now</button>':'<div>Nothing to import.</div>')};r.readAsText(f)},
  fch(e){const el=e.target;ui.f[el.dataset.k]=el.value;ui.more=0;el.dataset.k==='unit'?shell():view()},
  spch(e){ui.sp=e.target.value;view()},spd(){ui.from=$('sfr').value;ui.to=$('sto').value;ui.sp='custom';view()},
  lchg(e){logRead();const id=e.target.id;if(id==='lu'){ui.d.ld='';ui.d.ls=''}if(id==='ld')ui.d.ls='';if(id==='lsv')ui.d.ltd=addD(TODAY(),SEVD[ui.d.lsv||'M']);logForm(true)},
@@ -407,6 +436,8 @@ Object.assign(A,{
  async oshare(d){const o=S.obs.find(x=>x.id===d.id),tx='*Safety observation '+o.no+'*\n'+TYPES[o.type].n+' - '+o.uname+'\n'+o.dname+(o.sname?' / '+o.sname:'')+'\n'+o.desc+'\nStatus: '+stOf(o).l+(o.target?'\nTarget: '+fmt(o.target):'')+'\n'+APPURL()+'#/o/'+S.cid+'/'+o.id;if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
  tflt(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;S.tab='logs';shell()},fst(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;view()},moreb(){ui.more++;view()},gb(d){ui.gb=d.v;view()},
  exlogs(){download('safety-observations-'+TODAY()+'.csv',logsCsv(listFiltered().length||ui.f.st||ui.f.type||ui.f.q||ui.f.unit||ui.f.dept?listFiltered():S.obs.slice().sort((a,b)=>b.ts-a.ts)))},
+ stsheet:structSheet,stexp(){download('safety-structure-'+TODAY()+'.csv',structCsv())},sttpl(){download('safety-structure-template.csv',structCsv(1))},
+ async stgo(){if(!_stPlan||!_stPlan.ops.length)return;const b=$('stgo');b.disabled=true;b.textContent='Importing…';try{for(let i=0;i<_stPlan.ops.length;i+=300){const bt=DB.batch();_stPlan.ops.slice(i,i+300).forEach(o=>bt.set(DB.doc(P(o.p)),o.v,{merge:true}));await bt.commit()}toast('Imported.');closeSheet();_stPlan=null}catch(e){b.disabled=false;b.textContent='Import now';$('stp').textContent='Import failed. You may not have permission. Nothing partial is guaranteed, check Manage and try again.'}},
  exsheet:exSheet,exgo:exGo,help:helpSheet,exstats(){download('safety-stats-'+TODAY()+'.csv',logsCsv(statsData().L.slice().sort((a,b)=>b.ts-a.ts)))},
  async stshare(){const tx=statsText();if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
  /* manage */

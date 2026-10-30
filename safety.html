@@ -282,6 +282,7 @@ function vHome(){if(S.tab==='new'){S.tab='home';logForm();}
  const L=scope(),t=TODAY(),mo=t.slice(0,7),uns=L.filter(isUnsafe),open=uns.filter(isOpen),over=open.filter(o=>o.target<t),mine=pendingMine().filter(o=>!ui.f.unit||o.unitId===ui.f.unit),recent=L.slice().sort((a,b)=>b.ts-a.ts).slice(0,8);
  const tile=(c,n,l,f)=>`<div class="tile ${c}" data-a="tflt" data-v="${f}" role="button" tabindex="0"><div><b>${n}</b><small>${l}</small></div></div>`;
  $('view').innerHTML=`<div>${unitSelHTML('hu',true)}</div><div class="tiles">${tile('amb',open.length,'Open','open')}${tile(over.length?'red':'grn',over.length,'Overdue','over')}${tile('grn',uns.filter(o=>o.st==='closed'&&(o.closeDate||'').slice(0,7)===mo).length,'Closed this month','closed')}${tile('blu',L.filter(o=>o.date.slice(0,7)===mo).length,'Logged this month','all')}</div>
+ ${(()=>{const m=ME();if(!m||m.role==='user')return'';const st=[['Add a unit (plant)',S.units.length],['Add departments',S.depts.length],['Add sections with incharge',S.secs.length],['Invite users (share the app link)',S.mem.length>1]];if(st.every(x=>x[1]))return'';return`<div class="card"><div class="h"><span>Set up ZeroHarm</span><small>${st.filter(x=>x[1]).length}/4</small></div>${st.map(x=>`<div class="note">${x[1]?'✅':'⬜'} ${x[0]}</div>`).join('')}<button class="btn s" style="margin-top:8px" data-a="tab" data-v="manage">Open Manage</button></div>`})()}
  <button class="btn" style="min-height:50px;font-size:16px" data-a="newlog">➕ Log an observation</button>
  <div class="h"><span>Needs your action</span><small>${mine.length}</small></div><div class="list">${mine.slice(0,8).map(obsRow).join('')||'<div class="empty card">Nothing is waiting for you.</div>'}</div>
  <div class="h"><span>Recent observations</span><small><button class="chip" data-a="tflt" data-v="all">See all</button></small></div><div class="list">${recent.map(obsRow).join('')||'<div class="empty card">No observation yet. Tap Log an observation.</div>'}</div><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div>`}
@@ -330,7 +331,7 @@ function vStats(){const D=statsData(),T=D.T,mx=Math.max(1,...D.bk.map(b=>Math.ma
  <div style="overflow-x:auto;margin-top:6px"><table class="tbl"><tr><th>Period</th><th>Logged</th><th>Unsafe</th><th>Closed</th><th>Still open</th></tr>${D.bk.slice().reverse().map(b=>`<tr><td>${bucketLabel(b.k,ui.gb)}</td><td>${b.logged}</td><td>${b.unsafe}</td><td>${b.closed}</td><td>${b.open}</td></tr>`).join('')}</table></div></div>
  <div class="card"><div class="h"><span>By category</span></div>${D.cat.map(c=>`<div class="hb"><b>${esc(c[0])}</b><div class="bar"><i style="width:${Math.round(c[1]*100/Math.max(1,T.total))}%"></i></div><span>${c[1]}</span></div>`).join('')||'<div class="empty">No data</div>'}</div>
  <div class="card"><div class="h"><span>Top sections</span></div>${D.sec.map(c=>`<div class="hb"><b>${esc(c.name)}</b><div class="bar"><i style="width:${Math.round(c.total*100/Math.max(1,D.sec[0].total))}%"></i></div><span>${c.total}</span></div>`).join('')||'<div class="empty">No data</div>'}</div>
- <div style="display:flex;gap:8px"><button class="btn g s" data-a="exstats">Export CSV</button><button class="btn g s" data-a="stshare">Share summary</button></div>`}
+ <div style="display:flex;gap:8px"><button class="btn s" data-a="exsheet">⬇ Export PDF / Excel / PPT</button><button class="btn g s" data-a="stshare">Share summary</button></div>`}
 function statsText(){const D=statsData(),T=D.T;return'*Safety observations*\n'+S.co.name+(ui.f.unit?' - '+(unitOf(ui.f.unit)||{}).name:'')+'\n'+fmt(D.r.a)+' to '+fmt(D.r.b)+'\n\nTotal '+T.total+' | Unsafe '+T.unsafe+' | Safe '+T.safe+'\nOpen '+T.open+' | Closed '+T.closed+' | Overdue '+T.over+' | Escalated '+T.esc+'\nClosure rate '+T.rate+'%\n\n*By department*\n'+D.dept.slice(0,12).map(d=>d.dept+': '+d.total+' (open '+d.open+', closed '+d.closed+')').join('\n')}
 
 /* ---- manage ---- */
@@ -353,10 +354,32 @@ function memForm(id){const m=S.mem.find(x=>x.id===id);if(!m)return;openSheet(`<h
 /* ---- more ---- */
 function vMore(){const m=ME();$('view').innerHTML=`<div class="card"><b>${esc(S.user.name||'')}</b><div class="note">${esc(S.user.email||'')} • ${m.role==='admin'?'Company admin':m.role==='moderator'?'Plant moderator':'User'}</div></div>
  <button class="btn g" data-a="notifon">Enable phone notifications for my pending actions</button><div class="note">${window.Notification?'Permission: '+Notification.permission:'Not supported in this browser'}. E-mails are sent automatically when an observation is logged, closed, rejected or escalated.</div>
+ <button class="btn" data-a="exsheet">⬇ Export report (PDF, Excel, PowerPoint)</button>
+ <button class="btn g" data-a="help">How ZeroHarm works</button>
  <button class="btn g" data-a="exlogs">Export all observations (CSV)</button>
  ${S.mode==='demo'?`<div class="card"><div class="h"><span>Demo</span></div><label><span>Act as</span>${sel('dua',S.mem.filter(x=>x.status==='active').map(x=>[x.id,x.name+' ('+x.role+')']),S.user.uid,'data-ch="demoas"')}</label><div class="note">Switch the person to test what each role sees. Everything is stored only on this phone.</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn g s" data-a="outbox">Mail outbox</button><button class="btn r s" data-a="demoreset">Reset demo</button><button class="btn w s" data-a="demoexit">Leave demo</button></div></div>`:`<button class="btn w" data-a="switchco">Switch or join another company</button><button class="btn w" data-a="logout">Sign out</button>`}
  <div class="note" style="text-align:center">ZeroHarm • <a href="https://ourworldhive.com" style="color:var(--p)">ourworldhive.com</a></div><div class="cr">&copy; DUKEKRRISH. All rights reserved. The design, code and content of this app may not be copied or reused without permission.</div>`}
 function bell(){const L=pendingMine();openSheet(`<h2>Needs your action</h2>${L.length?`<div class="note" style="margin-bottom:8px">${L.filter(o=>stOf(o).k==='over').length} overdue • ${L.length} open</div><div class="list">${L.slice(0,10).map(obsRow).join('')}</div>${L.length>10?'<div class="note">and '+(L.length-10)+' more in Logs, Mine to act.</div>':''}`:'<div class="empty">Nothing is waiting for you.</div>'}<button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
+
+
+/* ================= export (PDF / Excel / PowerPoint) ================= */
+function loadExp(){return window.zxPdf?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='zeroharm-export.js?v=1';s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+function exSheet(){const D=statsData();openSheet(`<h2>Export report</h2><div class="note" style="margin-bottom:10px">${D.L.length} observations • ${esc(ui.f.unit?(unitOf(ui.f.unit)||{}).name||'':'All units')} • period: ${esc(String(ui.sp))}. Change the period or unit in Stats first if you need a different one.</div>
+ <div class="list"><button class="btn" data-a="exgo" data-v="pdf">📄 PDF report<br><small>Cover, contents with links, charts, tables</small></button>
+ <button class="btn" data-a="exgo" data-v="xlsx" style="margin-top:8px">📊 Excel workbook<br><small>Index sheet, charts, trend, filters, all observations</small></button>
+ <button class="btn" data-a="exgo" data-v="pptx" style="margin-top:8px">🖥️ PowerPoint deck<br><small>10 slides with agenda links and navigation</small></button>
+ <button class="btn g" data-a="exstats" style="margin-top:8px">CSV (raw data)</button></div>
+ <div id="exmsg" class="note" style="margin-top:8px"></div><button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
+async function exGo(d){const m=$('exmsg');const say=t=>{if(m)m.textContent=t};say('Preparing the report… please wait.');
+ try{await loadExp();const R=zxData(),lg=await zimg(logoOf(),d.v==='pdf');let bl;
+  if(d.v==='pdf')bl=await zxPdf(R,lg);else if(d.v==='xlsx')bl=await zxBook(R);else bl=await zxPptx(R,await zimg(logoOf(),false));
+  zdl(bl,zfile(R,d.v));say('Done. The file is in your downloads.');toast('Report ready')}
+ catch(e){say('Could not make the report. Check your internet once (first time it loads the export module) and try again.')}}
+function helpSheet(){openSheet(`<h2>How ZeroHarm works</h2><div class="card"><b>1. Log</b><div class="note">Tap Log. Choose Unsafe act, Unsafe condition, Safe act or Safe condition, pick unit, department and section, add a photo and a target date. The section incharge is filled in automatically and gets an e-mail.</div></div>
+ <div class="card"><b>2. Act</b><div class="note">The responsible person closes it with a note before the target date. If not, it moves up: section incharge, department head, unit head, safety officer.</div></div>
+ <div class="card"><b>3. Track</b><div class="note">Stats shows department, observer, trend and categories. Export gives PDF, Excel and PowerPoint.</div></div>
+ <div class="card"><b>Setting up (admin / moderator)</b><div class="note">More, then Manage: add units, then departments, then sections with incharge, then invite users.</div></div>
+ <button class="btn w" style="margin-top:10px;width:100%" data-a="cs">Close</button>`)}
 
 /* ================= photos ================= */
 function shrink(file,max,q){return new Promise((ok,no)=>{const r=new FileReader();r.onerror=()=>no();r.onload=()=>{const im=new Image();im.onerror=()=>no();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',q))};im.src=r.result};r.readAsDataURL(file)})}
@@ -384,7 +407,7 @@ Object.assign(A,{
  async oshare(d){const o=S.obs.find(x=>x.id===d.id),tx='*Safety observation '+o.no+'*\n'+TYPES[o.type].n+' - '+o.uname+'\n'+o.dname+(o.sname?' / '+o.sname:'')+'\n'+o.desc+'\nStatus: '+stOf(o).l+(o.target?'\nTarget: '+fmt(o.target):'')+'\n'+APPURL()+'#/o/'+S.cid+'/'+o.id;if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
  tflt(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;S.tab='logs';shell()},fst(d){ui.f.st=d.v==='all'?'':d.v;ui.more=0;view()},moreb(){ui.more++;view()},gb(d){ui.gb=d.v;view()},
  exlogs(){download('safety-observations-'+TODAY()+'.csv',logsCsv(listFiltered().length||ui.f.st||ui.f.type||ui.f.q||ui.f.unit||ui.f.dept?listFiltered():S.obs.slice().sort((a,b)=>b.ts-a.ts)))},
- exstats(){download('safety-stats-'+TODAY()+'.csv',logsCsv(statsData().L.slice().sort((a,b)=>b.ts-a.ts)))},
+ exsheet:exSheet,exgo:exGo,help:helpSheet,exstats(){download('safety-stats-'+TODAY()+'.csv',logsCsv(statsData().L.slice().sort((a,b)=>b.ts-a.ts)))},
  async stshare(){const tx=statsText();if(navigator.share){try{await navigator.share({text:tx});return}catch(e){}}window.open('https://wa.me/?text='+encodeURIComponent(tx),'_blank')},
  /* manage */
  uadd(){unitForm('')},uedit(d){unitForm(d.id)},

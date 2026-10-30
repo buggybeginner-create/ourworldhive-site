@@ -1,4 +1,4 @@
-/* Hive Guard service worker: keeps the app files on the phone so the app opens fast and works offline. */
+/* ZeroHarm service worker: keeps the app files on the phone so the app opens fast and works offline. */
 var C='safety-app-v1';
 self.addEventListener('install',function(){self.skipWaiting()});self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim())});
 self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com';

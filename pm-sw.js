@@ -6,7 +6,7 @@ messaging.onBackgroundMessage(function(p){var d=(p&&p.data)||{};return self.regi
 self.addEventListener('notificationclick',function(e){e.notification.close();var url=(e.notification.data&&e.notification.data.url)||'pm.html';e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(function(l){for(var i=0;i<l.length;i++){if(l[i].url.indexOf('pm.html')>=0&&'focus' in l[i])return l[i].focus()}return clients.openWindow(url)}))});
 self.addEventListener('install',function(){self.skipWaiting()});self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim())});
 /* Keeps the app files on the phone so PM Tracker opens without internet. The newest file is used from the next open. */
-var PMC='pm-app-v3';
+var PMC='pm-app-v4';
 /* Firebase files have a fixed version number, so the phone keeps them and uses them straight away (fast start).
    The app files open from the saved copy at once and update in the background. */
 self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com'||u.hostname==='cdnjs.cloudflare.com';

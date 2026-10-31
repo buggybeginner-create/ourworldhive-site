@@ -4,15 +4,15 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js
 firebase.initializeApp(self.OWH_FIREBASE);const messaging=firebase.messaging();
 messaging.onBackgroundMessage(function(p){var d=(p&&p.data)||{};return self.registration.showNotification(d.title||'PM Tracker',{body:d.body||'',icon:'pm-icon-192.png',badge:'pm-icon-192.png',tag:d.tag||'pm',data:{url:d.url||'pm.html'}})});
 self.addEventListener('notificationclick',function(e){e.notification.close();var url=(e.notification.data&&e.notification.data.url)||'pm.html';e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(function(l){for(var i=0;i<l.length;i++){if(l[i].url.indexOf('pm.html')>=0&&'focus' in l[i])return l[i].focus()}return clients.openWindow(url)}))});
-self.addEventListener('install',function(){self.skipWaiting()});self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim())});
+self.addEventListener('install',function(){self.skipWaiting()});self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return /^pm-app-/.test(n)&&n!==PMC}).map(function(n){return caches.delete(n)}))}).then(function(){return self.clients.claim()}))});
 /* Keeps the app files on the phone so PM Tracker opens without internet. The newest file is used from the next open. */
-var PMC='pm-app-v4';
+var PMC='pm-app-v5';
 /* Firebase files have a fixed version number, so the phone keeps them and uses them straight away (fast start).
    The app files open from the saved copy at once and update in the background. */
 self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com'||u.hostname==='cdnjs.cloudflare.com';
  if(!same&&!ext)return;if(same&&!/\/(pm\.html|pm-config\.js|firebase-config\.js|pm-manifest\.webmanifest|pm-icon-\d+\.png)$/.test(u.pathname))return;
  var keep=function(res){if(res&&(res.ok||res.type==='opaque')){var c=res.clone();caches.open(PMC).then(function(x){x.put(r,c)}).catch(function(){})}return res};
- var cached=function(){return caches.match(r,{ignoreSearch:true})};
+ var cached=function(){return caches.open(PMC).then(function(c){return c.match(r,{ignoreSearch:true})})};
  if(ext){e.respondWith(cached().then(function(m){return m||fetch(r).then(keep)}));return}
  /* App files: open the saved copy at once and refresh it in the background (new version shows on the next open). First visit uses the network. */
- e.respondWith(cached().then(function(m){var net=fetch(r).then(keep).catch(function(){return null});if(m){e.waitUntil(net);return m}return net.then(function(res){return res||Response.error()})}))});
+ e.respondWith(cached().then(function(m){var net=fetch(r,{cache:'no-cache'}).then(keep).catch(function(){return null});if(m){e.waitUntil(net);return m}return net.then(function(res){return res||Response.error()})}))});

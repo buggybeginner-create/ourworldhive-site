@@ -1207,7 +1207,7 @@ function reportImage(o){const W=1080,P=56,IW=W-2*P,F=(sz,w)=>(w||400)+' '+sz+'px
 
 function sdStatRows(o,all){
  const H={},L=o.filter(x=>x.cat==='SD');L.forEach(x=>{const h=x.hs||'Other jobs',g=H[h]||(H[h]={all:[],S:{}});g.all.push(x);if(x.hb)(g.S[x.hb]=g.S[x.hb]||[]).push(x)});
- const rows=[];Object.keys(H).forEach(h=>{const g=H[h];rows.push({name:h,lv:1,t:sdTal(g.all)});Object.keys(g.S).forEach(b=>rows.push({name:b,lv:2,t:sdTal(g.S[b])}))});
+ const rows=[];Object.keys(H).forEach(h=>{const g=H[h];rows.push({name:h,lv:1,t:sdTal(g.all)})});
  return{rows:rows,tot:sdTal(L)};
 }
 function sdSum(o){const t=sdTal(o.filter(x=>x.cat==='SD'));return`<div class="card" style="display:grid;grid-template-columns:repeat(5,1fr);text-align:center;gap:2px;padding:8px 4px"><div><b style="font-size:20px">${t.total}</b><br><small class="note">Total task</small></div><div><b style="font-size:20px;color:var(--grn)">${t.done}</b><br><small class="note">Completed</small></div><div><b style="font-size:20px;color:var(--amb)">${t.pend}</b><br><small class="note">Pending</small></div><div><b style="font-size:20px;color:var(--red)">${t.od}</b><br><small class="note">Overdue</small></div><div><b style="font-size:20px;color:var(--p)">${t.pct}%</b><br><small class="note">Compliance</small></div></div>`}

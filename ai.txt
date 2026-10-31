@@ -1,0 +1,4 @@
+# ourworldhive.com
+# No AI training, scraping or AI-assisted data collection of this site's content, code or data without the owner's written approval.
+User-Agent: *
+Disallow: /

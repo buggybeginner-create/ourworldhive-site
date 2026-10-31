@@ -366,6 +366,9 @@ label.ckr{cursor:pointer}
       <button type="button" class="btn" id="bXls">Export Excel</button>
       <button type="button" class="btn" id="bPdf">Export PDF</button>
       <button type="button" class="btn" id="bReset">Reset to examples</button>
+      <button type="button" class="btn" id="bBak">Save backup file</button>
+      <button type="button" class="btn" id="bRes">Restore backup</button>
+      <input type="file" id="bFile" accept=".json,application/json" hidden>
     </div>
     <p class="msg" id="bMsg" role="status" aria-live="polite"></p>
     <p id="bSave"></p>
@@ -960,6 +963,37 @@ label.ckr{cursor:pointer}
       <div class="sec-h"><h2 id="j-h3">3. Income and projected expenses, year by year</h2><p>Each bar is one year of spending, split by what it goes to. The line is the money coming in.</p></div>
       <div class="cbox" id="j_c2"></div>
       <p class="fine" id="j_c2n"></p>
+    </section>
+
+    <section class="sec" aria-labelledby="j-hd">
+      <div class="sec-h"><h2 id="j-hd">3A. Deposits and savings: put in, growth and my suggestions</h2><p>RD, FD, PPF, NPS, gold and other investments you added in the Salary tab, section 5. Compound interest is worked out month by month.</p></div>
+      <div class="l-tiles" id="j_dTiles"></div>
+      <div class="tw" style="margin-top:12px"><table class="wide" style="min-width:980px">
+        <thead><tr><th>Investment</th><th class="n">Put in so far</th><th class="n">Value now</th><th class="n">Adds each month</th><th class="n">Rate a year</th><th class="n">Comes back in</th><th class="n">Value then</th><th class="n">Interest earned</th><th class="n">Value then, in today's money</th><th>Rating</th></tr></thead>
+        <tbody id="j_dRows"></tbody>
+        <tfoot id="j_dFoot"></tfoot>
+      </table></div>
+      <div class="cbox" id="j_cd" style="margin-top:14px"></div>
+      <p class="fine" id="j_cdn"></p>
+      <h3 class="sub-h">How the compound interest is worked out</h3>
+      <p class="formula">Each month: new value = (old value + deposit) × (1 + monthly rate)<br>Monthly rate = (1 + yearly rate) ^ (1/12) − 1</p>
+      <div id="j_dHow"></div>
+      <h3 class="sub-h">My suggestions for these</h3>
+      <div id="j_dSug"></div>
+      <div class="btn-row"><button type="button" class="btn" id="j_dEdit">Add or change an investment in the Salary tab</button></div>
+    </section>
+
+    <section class="sec" aria-labelledby="j-he">
+      <div class="sec-h"><h2 id="j-he">3B. All earnings and debits, year by year</h2><p>Money coming in against money going out, with the growth your savings earn on top. Follows the "today's money" box above.</p></div>
+      <div class="tw"><table class="wide" style="min-width:1180px">
+        <thead>
+          <tr><th colspan="2"></th><th colspan="4" style="text-align:center;border-left:1px solid var(--line)">Earnings (cash in)</th><th colspan="6" style="text-align:center;border-left:1px solid var(--line)">Debits (cash out)</th><th class="n" style="border-left:1px solid var(--line)"></th><th class="n" style="border-left:1px solid var(--line)">Not cash</th></tr>
+          <tr><th>Year</th><th class="n">Age</th><th class="n" style="border-left:1px solid var(--line)">Take-home salary</th><th class="n">Bonus and PLI</th><th class="n">Payouts received</th><th class="n">Total earnings</th><th class="n" style="border-left:1px solid var(--line)">Living cost</th><th class="n">EMIs</th><th class="n">Premiums and deposits</th><th class="n">SIP invested</th><th class="n">Goals and fees</th><th class="n">Total debits</th><th class="n" style="border-left:1px solid var(--line)">Earnings minus debits</th><th class="n" style="border-left:1px solid var(--line)">Growth earned on savings</th></tr>
+        </thead>
+        <tbody id="j_eRows"></tbody>
+        <tfoot id="j_eFoot"></tfoot>
+      </table></div>
+      <p class="fine" id="j_eNote"></p>
     </section>
 
     <section class="sec" aria-labelledby="j-h4">
@@ -1699,7 +1733,7 @@ var GP={
   other:['Other goal',5,5]
 };
 var LOANT={home:['Home loan',8.7],car:['Car loan',9.5],edu:['Education loan',9.5],personal:['Personal loan',14],card:['Credit card dues',36],other:['Other loan',11]};
-var POLT={ppf:['PPF',7.1],fd:['FD or RD',6.8],nps:['NPS',9.5],gold:['Gold',8],re:['Land or property for investment',7],other:['Other investment',7]};
+var POLT={ppf:['PPF',7.1],fd:['FD (fixed deposit)',6.8],rd:['RD (recurring deposit)',6.5],nps:['NPS',9.5],gold:['Gold',8],re:['Land or property for investment',7],other:['Other investment',7]};
 /* assumed yearly return and equity share by risk level and years to goal: up to 2, 3-5, 6-10, over 10 */
 /* policy register: [label, default expected return, group] ; pro = protection only, sav = savings or income type */
 var PT={
@@ -1740,7 +1774,7 @@ var M={
 };
 var TPL={
   loan:{t:'home',bal:0,emi:0,rate:8.7,left:0,val:0,extra:0,on:true},
-  pol:{t:'ppf',val:0,mo:0,ret:7.1,guar:0,pay:Y+15,mat:Y+15,on:true},
+  pol:{t:'ppf',val:0,inv:0,mo:0,ret:7.1,guar:0,pay:Y+15,mat:Y+15,on:true},
   goal:{k:'other',amt:5,year:Y+5,basis:'today',on:true},
   reg:{t:'term',name:'',ins:'',no:'',prem:0,freq:'y',sum:0,pay:0,val:0,guar:0,ret:6,mat:0,inc:0,incFrom:0,incTo:0,paid:0,status:'act',note:'',on:true}
 };
@@ -1753,7 +1787,7 @@ var NUM={m_inhand:['inhand',0,1e7],m_pfE:['pfE',0,1e6],m_pfR:['pfR',0,1e6],m_pfB
   m_term:['term',0,1e5],m_health:['health',0,1e4],m_sip:['sip',0,1e7],m_mf:['mf',0,1e10]};
 var SEL={m_pfRate:'pfRate',m_hike:'hike',m_infl:'infl',m_mfRate:'mfRate',m_risk:'risk'};
 var FL={bal:[0,1e9],emi:[0,1e8],rate:[0,60],left:[0,600],extra:[0,1e7],val:[0,1e5]};
-var FP={val:[0,1e10],mo:[0,1e7],ret:[0,30],guar:[0,1e6],pay:[Y,Y+70],mat:[Y,Y+70]};
+var FP={val:[0,1e10],inv:[0,1e10],mo:[0,1e7],ret:[0,30],guar:[0,1e6],pay:[Y,Y+70],mat:[Y,Y+70]};
 var FG={amt:[0,1e6],year:[Y,Y+70]};
 var FR={prem:[0,1e8],sum:[0,1e6],pay:[0,Y+80],val:[0,1e10],guar:[0,1e6],ret:[0,30],mat:[0,Y+80],inc:[0,1e9],incFrom:[0,Y+80],incTo:[0,Y+80],paid:[0,1e9],name:'s',ins:'s',no:'s',note:'s'};
 var ROUND={left:1,pay:1,mat:1,year:1,incFrom:1,incTo:1};
@@ -2029,6 +2063,7 @@ function polHTML(q,i){
     '<label class="f f-c"><span>Type</span><select id="'+p+'t" data-k="t">'+opts(POLT,q.t)+'</select></label>'+
     fld(p+'g','Guaranteed maturity amount (₹ lakh, optional)','guar',q.guar,0.5,'f-t')+
     fld(p+'v','Value now (₹)','val',q.val,10000)+
+    fld(p+'n','Total you have put in so far (₹, optional)','inv',q.inv,10000)+
     fld(p+'m','You put in per month (₹)','mo',q.mo,500)+
     fld(p+'r','Expected return (% a year)','ret',q.ret,0.1)+
     fld(p+'a','Pay premiums until (year)','pay',q.pay,1,'f-h')+
@@ -2569,7 +2604,7 @@ function init(){
     renderLoans('l'+(M.loans.length-1)+'t');update();
   });
   $('m_addPol').addEventListener('click',function(){
-    M.pols.push({t:'ppf',val:0,mo:5000,ret:7.1,guar:0,pay:Y+15,mat:Y+15,on:true});
+    M.pols.push({t:'ppf',val:0,inv:0,mo:5000,ret:7.1,guar:0,pay:Y+15,mat:Y+15,on:true});
     renderPols('p'+(M.pols.length-1)+'t');update();
   });
   $('m_addGoal').addEventListener('click',function(){
@@ -2617,9 +2652,46 @@ function init(){
   try{st=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){st=null}
   if(st&&applyState(st)){lastLocalTs=st.ts||0;localTs0=lastLocalTs;savedAt=st.ts||0;saveMode='local'}
   ready=true;
+  bindSafety();
   showTab(st&&st.tab&&{e:1,m:1,p:1,f:1,j:1,i:1,l:1}[st.tab]?st.tab:'e');
   dbInit();
 }
+/* ---- extra safety for saving: save when the page is hidden, catch every edit, and a backup file ---- */
+function flushNow(){
+  if(!ready||syncing||applying) return;
+  clearTimeout(saveTimer);persist();clearTimeout(dbTimer);flushDb();
+}
+function backupSave(){
+  var cl=window.claude;
+  if(!cl||typeof cl.use!=='function'){showMsg('Saving files is not available in this view.');return}
+  var st=exportState(),name='family-money-backup-'+fileStamp()+'.json';
+  cl.use('downloads').then(function(dl){
+    if(!dl){showMsg('Saving files is not available in this view.');return}
+    return dl.save({filename:name,data:new Blob([JSON.stringify(st)],{type:'application/json'})}).then(function(){showMsg('Saved '+name+'. Keep it safe. "Restore backup" loads it back.')});
+  }).catch(function(e){showMsg((e&&e.code)==='declined'?'Backup cancelled.':'Could not save the backup file.')});
+}
+function backupLoad(file){
+  if(!file) return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    var st=null;
+    try{st=JSON.parse(String(fr.result||''))}catch(e){}
+    if(!st||st.v!==3||!st.M){showMsg('That file is not a Family Money Planner backup.');return}
+    if(!applyState(st)){showMsg('That backup could not be loaded.');return}
+    update();persist();showMsg('Backup loaded and saved.');
+  };
+  fr.onerror=function(){showMsg('Could not read that file.')};
+  fr.readAsText(file);
+}
+function bindSafety(){
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden') flushNow()});
+  window.addEventListener('pagehide',flushNow);
+  ['input','change'].forEach(function(ev){document.addEventListener(ev,function(){scheduleSave()})});
+  $('bBak').addEventListener('click',backupSave);
+  $('bRes').addEventListener('click',function(){$('bFile').value='';$('bFile').click()});
+  $('bFile').addEventListener('change',function(e){backupLoad(e.target.files&&e.target.files[0])});
+}
+/* v7: save fixes, backup file, deposits card, earnings and debits */
 /* ================= My policies tab ================= */
 function escA(s){return esc(s).replace(/"/g,'&quot;')}
 function txt(id,label,key,val,cls){return '<label class="f'+(cls?' '+cls:'')+'"><span>'+label+'</span><input id="'+id+'" type="text" data-k="'+key+'" value="'+escA(val==null?'':val)+'" autocomplete="off"></label>'}
@@ -2733,7 +2805,7 @@ function renderPolLink(c){
 
 /* ================= saving, memory and the top bar ================= */
 var KEY='fmp.v3.'+(window.OWH_UID||'guest'),curTab='e',lastC=null,lastG=null,checkpoint=null,ready=false,applying=false;
-var DEFAULT_M='',DEFAULT_E='',saveTimer=null,dbTimer=null,dbDoc=null,dbBusy=false,dbPending=false,lastWritten='',saveMode='',savedAt=0,msgTimer=null,lastLocalTs=0,localTs0=0,syncing=false,needSave=false,syncTimer=null;
+var dbErr=false,retryT=null,DEFAULT_M='',DEFAULT_E='',saveTimer=null,dbTimer=null,dbDoc=null,dbBusy=false,dbPending=false,lastWritten='',saveMode='',savedAt=0,msgTimer=null,lastLocalTs=0,localTs0=0,syncing=false,needSave=false,syncTimer=null;
 
 function mergeItem(tpl,it,fix){
   var o={};
@@ -2761,16 +2833,6 @@ function mergeM(s){
   list('pols','pol',function(o){if(!POLT[o.t]) o.t='other'});
   list('goals','goal',function(o){if(!GP[o.k]) o.k='other';if(o.basis!=='future') o.basis='today'});
   list('reg','reg',function(o){if(!PT[o.t]) o.t='gen';if(!FREQ[o.freq]) o.freq='y';if(!STAT[o.status]) o.status='act'});
-  if(Array.isArray(s.reg)){
-    var DR=JSON.parse(DEFAULT_M).reg;
-    out.reg.forEach(function(q){
-      if(!q.no||!(q.mat===0&&q.inc===0&&q.guar===0&&!(q.paid>0))) return;
-      DR.forEach(function(x){
-        if(x.no!==q.no) return;
-        ['sum','pay','guar','mat','inc','incFrom','incTo','paid','status','note'].forEach(function(k){if(k==='sum'&&q.sum>0) return;q[k]=x[k]});
-      });
-    });
-  }
   if(Array.isArray(s.funds)){
     out.funds=s.funds.slice(0,40).map(function(it){
       it=it||{};
@@ -2817,7 +2879,7 @@ function renderSave(){
   if(!savedAt){el.textContent='Changes are saved automatically.';return}
   var t=new Date(savedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   el.textContent=saveMode==='none'?'Could not save here. Export a file to keep your work.':
-    (dbDoc?'Saved to your account and this device at ':'Saved on this device at ')+t+'.';
+    (dbDoc?(dbErr?'Saved on this device at '+t+'. Saving to your account failed, trying again.':'Saved to your account and this device at '+t+'.'):'Saved on this device only at '+t+' (no account link in this view). Press Save backup file now and then.');
 }
 function persist(){
   var st=exportState();
@@ -2832,7 +2894,7 @@ function scheduleSave(){
 }
 function scheduleDb(){
   if(!dbDoc) return;
-  clearTimeout(dbTimer);dbTimer=setTimeout(flushDb,1800);
+  clearTimeout(dbTimer);dbTimer=setTimeout(flushDb,700);
 }
 function flushDb(){
   if(!dbDoc) return;
@@ -2841,8 +2903,8 @@ function flushDb(){
   if(dbBusy){dbPending=true;return}
   dbBusy=true;
   var st=exportState();
-  dbDoc.set({json:JSON.stringify(st),ts:st.ts}).then(function(){lastWritten=key}).catch(function(){}).then(function(){
-    dbBusy=false;
+  dbDoc.set({json:JSON.stringify(st),ts:st.ts}).then(function(){lastWritten=key;dbErr=false}).catch(function(){dbErr=true;clearTimeout(retryT);retryT=setTimeout(function(){lastWritten='';scheduleDb()},8000)}).then(function(){
+    dbBusy=false;renderSave();
     if(dbPending){dbPending=false;flushDb()}
   });
 }
@@ -2869,7 +2931,7 @@ function dbInit(){
     if(snap&&snap.exists){
       var d=snap.data(),remote=null;
       try{remote=JSON.parse(d.json)}catch(e){}
-      if(remote&&remote.v===3&&remote.ts>localTs0){
+      if(remote&&remote.v===3&&remote.ts>localTs0&&!needSave){
         applyState(remote);
         lastWritten=stateKey();
         showMsg('Loaded your saved plan from your account.');
@@ -3794,7 +3856,7 @@ function simulate(c,key,xtra){
   var mf=M.mf,pf=M.pfBal,cash=M.ef,put=M.mf+M.pfBal+M.ef,prop=c.prop;
   var o={P:P,sc:sc,g:g,hk:hk,mr:mr,rr:rr,pr:pr,yrs:[Y],ages:[P.age],mf:[mf],pf:[pf],cash:[cash],pol:[polV[0]],prop:[prop],loan:[loanB[0]],
     sav:[mf+pf+cash],nw:[mf+pf+cash+polV[0]+prop-loanB[0]],put:[put],
-    inc:[],left:[],live:[],emi:[],prem:[],goal:[],inv:[],get:[],net:[],runOut:null,firstShort:null,unmet:0,goalOut:goal,getA:get,emiA:emi};
+    inc:[],intr:[],sipA:[],pfA:[],left:[],live:[],emi:[],prem:[],goal:[],inv:[],get:[],net:[],runOut:null,firstShort:null,unmet:0,goalOut:goal,getA:get,emiA:emi};
   for(h=0;h<N;h++){
     var ret=h>=retN,gk=powk(1+hk,h),ik=powk(1+g,h);
     var salary=ret?0:(c.T*12+c.lump)*gk;
@@ -3802,10 +3864,12 @@ function simulate(c,key,xtra){
     var sip=ret?0:(M.sip+xtra)*12*gk,pfIn=ret?0:(M.pfE+M.pfR)*12*gk;
     var r=ret?rr:mr;
     if(h===2&&sc[4]<0) mf*=1+sc[4]/100;
+    var gM=mf*r+sip*r/2,gP=pf*pr+pfIn*pr/2;
     mf=mf*(1+r)+sip*(1+r/2);
     pf=pf*(1+pr)+pfIn*(1+pr/2);
     var net=salary+get[h]-live-emi[h]-prem[h]-sip;
     var free=Math.max(0,net),netK=net>0?free*M.keep/100:net;
+    var gC=Math.max(0,cash*cr+Math.max(0,netK)*cr/2);
     cash=cash*(1+cr)+netK*(1+cr/2);
     var go=goal[h],take=Math.min(mf,go);
     mf-=take;cash-=go-take;
@@ -3825,7 +3889,7 @@ function simulate(c,key,xtra){
     o.yrs.push(Y+h+1);o.ages.push(P.age+h+1);
     o.mf.push(mf);o.pf.push(pf);o.cash.push(cash);o.pol.push(pvv);o.prop.push(prop);o.loan.push(loanB[h+1]);
     o.sav.push(mf+pf+cash);o.nw.push(mf+pf+cash+pvv+prop-loanB[h+1]);o.put.push(put);
-    o.inc.push(salary+get[h]);o.live.push(live);o.emi.push(emi[h]);o.prem.push(prem[h]);o.goal.push(go);o.inv.push(sip+pfIn);o.get.push(get[h]);o.net.push(net);o.left.push(free);
+    o.inc.push(salary+get[h]);o.live.push(live);o.emi.push(emi[h]);o.prem.push(prem[h]);o.goal.push(go);o.inv.push(sip+pfIn);o.get.push(get[h]);o.net.push(net);o.left.push(free);o.intr.push(gM+gP+gC);o.sipA.push(sip);o.pfA.push(pfIn);
   }
   o.savRet=o.sav[retN];o.nwRet=o.nw[retN];
   /* need on the day of retirement */
@@ -4028,7 +4092,7 @@ function drawChart(id,cfg){
   box.innerHTML=lg+'<div class="cw">'+sv+'<div class="ctip" hidden></div></div>';
   cfg._g={W:W,ml:ml,iw:iw,n:n,slot:slot,x:x};
 }
-var CHART_IDS=['f_chart','j_c1','j_c2','j_c3','l_c1'];
+var CHART_IDS=['f_chart','j_c1','j_c2','j_c3','j_cd','l_c1'];
 
 /* ---- rendering ---- */
 function yAges(o){return o.yrs.map(function(y,i){return y+' (age '+o.ages[i]+')'})}
@@ -4164,6 +4228,7 @@ function renderProj(c){
     th+='<tr'+(h===retN?' class="cur-r"':'')+'><td>'+sim.yrs[h]+'</td><td class="n">'+sim.ages[h]+'</td><td class="n">'+short(d2(sim.inc)[h])+'</td><td class="n">'+short(d2(sim.live)[h])+'</td><td class="n">'+short(d2(sim.emi)[h])+'</td><td class="n">'+short(d2(sim.prem)[h])+'</td><td class="n">'+short(d2(sim.goal)[h])+'</td><td class="n">'+short(d2(sim.inv)[h])+'</td><td class="n">'+short(dv(sim,h+1,sim.sav[h+1]))+'</td><td class="n">'+short(dv(sim,h+1,sim.nw[h+1]))+'</td></tr>';
   }
   $('j_tbl').innerHTML=th;
+  renderDeposits(c,sim);renderEarn(c,sim);
 }
 
 function homeLoans(c){return c.loanD.filter(function(d){return d.on&&d.l.t==='home'})}
@@ -4209,6 +4274,7 @@ function initProj(){
     else if(id==='j_hOn'){M.homeOn=e.target.checked;renderLoans();update()}
     else if(e.target.getAttribute('data-ck')){M[e.target.getAttribute('data-ck')]=e.target.checked;update()}
   });
+  $('j_dEdit').addEventListener('click',function(){showTab('m');var e=$('m_pols');if(e&&e.scrollIntoView) e.scrollIntoView({block:'start'})});
   $('j_sugg').addEventListener('click',function(){
     var c=lastC||calc(),sugg=Math.max(0,Math.round((investPlan(c).invest-M.sip)/500)*500);
     M.xtra=sugg;$('j_xtra').value=sugg;update();
@@ -4251,6 +4317,19 @@ function extraReport(R){
     ['Taxable income',rd(tx.tiN),rd(tx.tiO)],['Tax with 4% cess',rd(tx.tn),rd(tx.to)]
   ];
   R.ck=ckRows(c,sim,fd,tx).map(function(r){return [r.done?'Done':'Open',r.t,r.d]});
+  R.earn=[];R.dep=[];
+  (function(){
+    var depG=[],h;
+    for(h=0;h<P.N;h++){var gs=0;c.polD.forEach(function(d){if(!d.on||d.p.reg||!d.vals) return;var a=d.vals[Math.min(h,d.vals.length-1)],b=d.vals[Math.min(h+1,d.vals.length-1)],put=d.stillPays?d.p.mo*Math.max(0,Math.min(12,d.pm-12*h)):0;gs+=Math.max(0,b-a-put)});depG.push(gs)}
+    for(h=0;h<P.N;h++){
+      var ret=h>=P.retN,gk=powk(1+sim.hk,h),th=ret?0:c.T*12*gk,bo=ret?0:c.lump*gk,pay=sim.get[h]||0,te=th+bo+pay,td=sim.live[h]+sim.emi[h]+sim.prem[h]+sim.sipA[h]+sim.goal[h];
+      R.earn.push([sim.yrs[h],sim.ages[h],th,bo,pay,te,sim.live[h],sim.emi[h],sim.prem[h],sim.sipA[h],sim.goal[h],td,te-td,sim.intr[h]+depG[h]]);
+    }
+    M.pols.forEach(function(q,i){
+      var d=c.polD[i],ok=d&&d.has&&!d.missing;
+      R.dep.push([POLT[q.t][0],q.on?'Yes':'No',q.inv>0?q.inv:q.val,q.val,q.mo,q.guar>0&&ok?d.annual*100:q.ret,q.mat>=Y?q.mat:'',ok?d.payout:'',ok?d.gain:'']);
+    });
+  })();
   R.key.push(['Savings at retirement (age '+P.retAge+')',sim.savRet]);
   R.key.push(['Savings needed at retirement',sim.need]);
   R.key.push(['Money health score out of 100',sc.score]);
@@ -4278,7 +4357,13 @@ function extraSheets(R){
   s.push([R.tx.better==='new'?'New regime is better by (Rs)':'Old regime is better by (Rs)',rd(R.tx.save)]);
   s.push([],[{v:'Checklist',s:'b'}],H(['Status','Item','Detail']));
   R.ck.forEach(function(r){s.push(r)});
+  var ea=[H(['Year','Age','Take-home salary (Rs)','Bonus and PLI (Rs)','Payouts received (Rs)','Total earnings (Rs)','Living cost (Rs)','EMIs (Rs)','Premiums and deposits (Rs)','SIP invested (Rs)','Goals and fees (Rs)','Total debits (Rs)','Earnings minus debits (Rs)','Growth earned on savings (Rs, not cash)'])];
+  R.earn.forEach(function(r){ea.push([r[0],r[1]].concat(r.slice(2).map(rd)))});
+  var dp=[H(['Investment','Counted','Put in so far (Rs)','Value now (Rs)','Adds each month (Rs)','Rate % a year','Comes back in','Value then (Rs)','Interest earned (Rs)'])];
+  R.dep.forEach(function(r){dp.push([r[0],r[1],rd(r[2]),rd(r[3]),rd(r[4]),Math.round(r[5]*100)/100,r[6],r[7]===''?'':rd(r[7]),r[8]===''?'':rd(r[8])])});
   return [
+    {name:'Earnings and debits',widths:[8,6,16,16,16,16,16,14,18,16,16,16,18,24],rows:ea},
+    {name:'Deposits',widths:[28,9,18,16,18,12,14,16,18],rows:dp},
     {name:'Mutual funds',widths:[56,30,28,10,14,14,12,12,12,14,14,16,14],rows:f},
     {name:'Projection',widths:[8,6,16,16,14,16,16,14,20,16,22],rows:p},
     {name:'Retirement and score',widths:[56,22,16,10,22],rows:s}
@@ -4293,6 +4378,12 @@ function extraPdf(R,b){
   b.push({t:'kv',rows:R.retKV.map(function(r){return [String(r[0]),typeof r[1]==='number'&&r[1]>999?short(r[1]):String(r[1])]}),w:[0.62,0.38]});
   b.push({t:'h',x:'What if things go differently'});
   b.push({t:'table',head:['Situation','Savings at retirement','Needed','Ready','Money lasts till'],rows:R.scn.map(function(r){return [r[0],short(r[1]),short(r[2]),r[3]+'%',r[4]]}),w:[3,1.3,1.1,0.7,1.2],r:[1,2,3]});
+  b.push({t:'h',x:'Earnings and debits, year by year'});
+  b.push({t:'table',head:['Year','Age','Earnings','Living','EMIs','Premiums','SIP','Goals','Debits','Net','Growth'],rows:R.earn.map(function(r){return [r[0],r[1],short(r[5]),short(r[6]),short(r[7]),short(r[8]),short(r[9]),short(r[10]),short(r[11]),short(r[12]),short(r[13])]}),w:[0.55,0.45,0.95,0.9,0.8,0.9,0.85,0.9,0.95,0.9,0.9],r:[1,2,3,4,5,6,7,8,9,10]});
+  if(R.dep.length){
+    b.push({t:'h',x:'Deposits and other investments'});
+    b.push({t:'table',head:['Investment','Put in','Value now','Per month','Rate','Back in','Value then','Interest'],rows:R.dep.map(function(r){return [r[0]+(r[1]==='Yes'?'':' (not counted)'),short(r[2]),short(r[3]),r[4]>0?short(r[4]):'-',trim(r[5])+'%',r[6]===''?'-':r[6],r[7]===''?'-':short(r[7]),r[8]===''?'-':short(r[8])]}),w:[2.2,1,1,0.9,0.7,0.7,1.1,1],r:[1,2,3,4,5,6,7]});
+  }
   b.push({t:'h',x:'Year by year'});
   b.push({t:'table',head:['Year','Age','Income','Living cost','EMIs','Invested','Savings','Net worth'],rows:R.proj.map(function(r){return [r[0],r[1],short(r[2]),short(r[3]),short(r[4]),short(r[7]),short(r[8]),short(r[9])]}),w:[0.6,0.5,1,1,0.9,1,1.1,1.1],r:[1,2,3,4,5,6,7]});
   b.push({t:'h',x:'Money health score: '+R.sc.score+' out of 100 ('+R.sc.label+')'});
@@ -4615,6 +4706,7 @@ function rateFund(c,i){
 }
 var INVR={ppf:[4.5,'Safe, tax free and government backed. Best for the safe part of your money. Limit ₹1.5 lakh a year, 15 year lock-in.'],
   nps:[4,'Low cost and gives an extra ₹50,000 tax deduction. Money is locked till 60, so use it only for retirement.'],
+  rd:[3,'Safe and simple for saving a fixed amount each month, but the interest is taxed and often lags inflation. For goals over 5 years an index fund SIP can grow more, though it can fall in the short run.'],
   fd:[3,'Safe, but the interest is taxed and often lags inflation. Use it for the emergency fund and goals within 3 years, not for long-term growth.'],
   gold:[3.5,'Protects against bad times. Keep it to about 10% of your money. Gold funds or sovereign bonds are cheaper than jewellery.'],
   re:[3,'Hard to sell and costly to hold. Good only if the rent and price growth beat a PPF.'],
@@ -4779,7 +4871,7 @@ function sugFund(c,i){
 function sugPol(c,i){
   var q=M.pols[i],out=[];if(!q||!q.on) return out;
   var yrs=q.mat>Y?q.mat-Y:null;
-  if(q.t==='fd'&&(yrs===null||yrs>3)) out.push({t:'Use PPF or a debt fund for money you will not need soon',d:'FD interest is taxed at your slab, so after tax it is often 5 to 5.5%. PPF gives 7.1% tax free. Keep FD for the emergency fund and goals within 3 years.'});
+  if((q.t==='fd'||q.t==='rd')&&(yrs===null||yrs>3)) out.push({t:'Use PPF or a debt fund for money you will not need soon',d:'FD interest is taxed at your slab, so after tax it is often 5 to 5.5%. PPF gives 7.1% tax free. Keep FD for the emergency fund and goals within 3 years.'});
   if(q.t==='gold'&&c.assets>0&&q.val/c.assets>0.15) out.push({t:'Cut gold to about 10%',d:'Gold is '+Math.round(q.val/c.assets*100)+'% of your assets. It protects in bad times but does not grow like equity. Add new money to funds or PPF instead.'});
   if(q.t==='re'&&q.ret<7) out.push({t:'Compare with PPF',d:'Your expected return of '+trim(q.ret)+'% is below PPF at 7.1%, and property is hard to sell. Check the real rent and price growth before adding more.'});
   if(q.t==='other'&&q.ret>0&&q.ret<6.5) out.push({t:'Compare with PPF',d:'At '+trim(q.ret)+'% a year this earns less than PPF (7.1%, tax free, safe).'});
@@ -4888,7 +4980,132 @@ function lockSalary(c){
   var n=$('m_fundNote');
   if(n) n.textContent=on?'These three boxes are filled from the Mutual funds tab, so they are locked. Untick "Use this list" there to type your own.':'';
 }
-window.__fmp={calc:calc,simulate:simulate,taxCalc:taxCalc,scoreCalc:scoreCalc,parseSipMail:parseSipMail,importCsv:importCsv,xirr:xirr,applyMails:applyMails,
+
+/* ================= Deposits card and earnings/debits table (Projection tab) ================= */
+function depSchedule(d){
+  var p=d.p;
+  if(!d.has||d.missing||d.m<=0) return null;
+  var i=p.guar>0?Math.pow(1+Math.max(-0.5,d.annual),1/12)-1:mrate(p.ret/100),v=p.val,rows=[],yrsN=Math.ceil(d.m/12),y,k;
+  for(y=0;y<yrsN;y++){
+    var op=v,dep=0,it=0;
+    for(k=y*12;k<Math.min(d.m,(y+1)*12);k++){
+      if(k<d.pm){v+=p.mo;dep+=p.mo}
+      var g=v*i;v+=g;it+=g;
+    }
+    rows.push([y+1,Y+y,op,dep,it,v]);
+  }
+  return rows;
+}
+function postTaxRate(q){
+  if(q.t!=='fd'&&q.t!=='rd') return null;
+  var m=Math.min(0.45,Math.max(0,(INC&&INC.m)||0.2)*1.04);
+  return q.ret*(1-m);
+}
+function depAdvice(c){
+  var out=[],fd=0,rdv=0,rdMo=0,all=0,ppf=0,ppfMo=0,gold=0,big=0,longFd=0,i;
+  M.pols.forEach(function(q){
+    if(!q.on) return;
+    all+=q.val;
+    if(q.t==='fd'){fd+=q.val;if(q.val>big) big=q.val;if(q.mat-Y>3) longFd+=q.val}
+    if(q.t==='rd'){rdv+=q.val;rdMo+=q.mo}
+    if(q.t==='ppf'){ppf+=q.val;ppfMo+=q.mo}
+    if(q.t==='gold') gold+=q.val;
+  });
+  var dep=fd+rdv,infl=M.infl,m=Math.min(0.45,Math.max(0,(INC&&INC.m)||0.2)*1.04);
+  M.pols.forEach(function(q){
+    if(!q.on||(q.t!=='fd'&&q.t!=='rd')) return;
+    var pt=postTaxRate(q);
+    if(pt<infl) out.push({k:'fix',t:(POLT[q.t][0]+' at '+trim(q.ret)+'% earns about '+trim(Math.round(pt*10)/10)+'% after tax'),d:'That is below '+infl+'% inflation, so every ₹100 loses buying power. Use it only for money you may need soon. Interest is taxed at your slab (about '+Math.round(m*100)+'% for you).'});
+  });
+  if(dep>0&&M.ef<c.efTarget) out.push({k:'watch',t:'Check your emergency fund first',d:'Your emergency fund target is '+short(c.efTarget)+' and you hold '+short(M.ef)+'. FD and RD are the right place for it. Fill that gap before locking money for long.'});
+  if(longFd>0) out.push({k:'watch',t:'Long FDs: compare with PPF',d:short(longFd)+' sits in FDs running more than 3 years. PPF gives 7.1% tax free, which beats most FDs after tax. A short-duration debt fund is another option for 3 to 5 years.'});
+  if(rdMo>0){
+    var n=5,f6=rdMo*factor(n,0.065,0),f11=rdMo*factor(n,0.11,0);
+    out.push({k:'watch',t:'RD or SIP for the monthly deposit?',d:'Your RDs take '+inr(rdMo)+' a month. Over 5 years that grows to about '+short(f6)+' at 6.5%. In a Nifty 50 index fund at about 11% (not guaranteed, can fall in the short run) it could be about '+short(f11)+'. Keep RD for goals within 3 years and use a SIP for anything longer.'});
+  }
+  if(fd>0&&big>0&&fd>0&&big/fd>0.5&&M.pols.filter(function(q){return q.on&&q.t==='fd'}).length<=2&&fd>=200000) out.push({k:'watch',t:'Spread FDs over different dates',d:'One FD is more than half of your FD money. Split it into 3 or 4 FDs maturing in different years (a ladder), so you can break a small one without losing interest on the rest.'});
+  if(ppfMo*12>150000) out.push({k:'fix',t:'PPF limit crossed',d:'You put '+short(ppfMo*12)+' a year into PPF but only ₹1.5 lakh a year is allowed. The extra earns nothing. Move it elsewhere.'});
+  if(!ppf&&!M.pols.some(function(q){return q.on&&q.t==='ppf'})) out.push({k:'ok',t:'Consider a PPF',d:'There is no PPF here. It is safe, tax free at 7.1% and counts under 80C (old regime). A good base for money you will not touch for 15 years.'});
+  if(all>0&&gold/all>0.15) out.push({k:'watch',t:'Gold is '+Math.round(gold/all*100)+'% of these investments',d:'Around 10% is the usual limit. Gold protects in bad times but does not grow like equity.'});
+  var tx=taxCalc(c);
+  if(tx.room80c>0&&tx.better==='old') out.push({k:'ok',t:'80C room left: '+short(tx.room80c),d:'On the old regime, a 5-year tax-saver FD, PPF or ELSS can use this. A tax-saver FD is locked for 5 years.'});
+  if(!out.length) out.push({k:'ok',t:'Nothing urgent',d:'Your deposits and investments look reasonable for what you have entered. Review once a year.'});
+  return out;
+}
+function renderDeposits(c,sim){
+  var rows='',tot={inv:0,val:0,mo:0,then:0,gain:0,tdy:0},grp={},order=[],any=false;
+  M.pols.forEach(function(q,i){
+    var d=c.polD[i],invS=q.inv>0?q.inv:q.val,ok=d&&d.has&&!d.missing,on=q.on;
+    var pay=ok?d.payout:0,tdy=ok?pay/Math.pow(1+M.infl/100,Math.max(0,q.mat-Y)):0,gain=ok?d.gain:0;
+    var rt=ratePol(c,i),vv=rt&&VERD[rt.v]?VERD[rt.v]:null;
+    rows+='<tr'+(on?'':' style="opacity:.5"')+'><td>'+esc(POLT[q.t][0])+(on?'':' <small>not counted</small>')+(postTaxRate(q)!==null?'<small>after tax about '+trim(Math.round(postTaxRate(q)*10)/10)+'% a year</small>':'')+'</td>'+
+      '<td class="n">'+short(invS)+'</td><td class="n">'+short(q.val)+'</td><td class="n">'+(q.mo>0?short(q.mo):'-')+'</td>'+
+      '<td class="n">'+(q.guar>0&&ok?trim(d.annual*100)+'%<small>from guaranteed amount</small>':trim(q.ret)+'%')+'</td>'+
+      '<td class="n">'+(q.mat>=Y?q.mat+'<small>in '+(q.mat-Y)+' yr</small>':'-')+'</td>'+
+      '<td class="n">'+(ok?short(pay):'-')+'</td><td class="n">'+(ok?short(gain):'-')+'</td><td class="n">'+(ok?short(tdy):'-')+'</td>'+
+      '<td>'+(on&&rt&&vv?'<span class="rt-st rt-sm" aria-hidden="true">'+stars(rt.s)+'</span> <span class="chip '+vv[1]+'">'+vv[0]+'</span>':'')+'</td></tr>';
+    if(on){
+      any=true;tot.inv+=invS;tot.val+=q.val;tot.mo+=q.mo;
+      if(ok){tot.then+=pay;tot.gain+=gain;tot.tdy+=tdy}
+      var key=q.t;if(!grp[key]){grp[key]={n:POLT[q.t][0],vals:null};order.push(key)}
+      var vs=d?d.vals:[];if(!grp[key].vals) grp[key].vals=vs.map(function(){return 0});
+      vs.forEach(function(v,h){if(h<grp[key].vals.length) grp[key].vals[h]+=v});
+    }
+  });
+  $('j_dRows').innerHTML=any||rows?rows:'<tr><td colspan="10">No investments added yet. Add an RD, FD, PPF or other investment in the Salary tab, section 5, and it appears here.</td></tr>';
+  $('j_dFoot').innerHTML=any?'<tr><td>Total counted</td><td class="n">'+short(tot.inv)+'</td><td class="n">'+short(tot.val)+'</td><td class="n">'+short(tot.mo)+'</td><td></td><td></td><td class="n">'+short(tot.then)+'</td><td class="n">'+short(tot.gain)+'</td><td class="n">'+short(tot.tdy)+'</td><td></td></tr>':'';
+  $('j_dTiles').innerHTML=any?[['Put in so far',short(tot.inv),'Money you have already invested in these'],['Worth now',short(tot.val),tot.val>tot.inv?'A gain of '+short(tot.val-tot.inv)+' so far':'Same as put in'],['Adding each month',short(tot.mo),short(tot.mo*12)+' a year'],['Worth when they come back',short(tot.then),'Interest to be earned: '+short(tot.gain)]].map(function(x){return '<div class="l-tile"><small>'+x[0]+'</small><b>'+x[1]+'</b><span>'+x[2]+'</span></div>'}).join(''):'';
+  /* chart */
+  var cols=['var(--k-ef)','var(--k-ins)','var(--k-edu)','var(--k-goal)','var(--k-pol)','var(--k-emi)','var(--k-want)'];
+  if(any&&order.length){
+    var H=grp[order[0]].vals.length-1,labs=[],tips=[],h;
+    for(h=0;h<=H;h++){labs.push(String(Y+h));tips.push(Y+h+' (age '+(plan().age+h)+')')}
+    drawChart('j_cd',{x:labs,tips:tips,label:'Value of each investment from '+Y+' to '+(Y+H),
+      series:order.map(function(k,ix){return {k:'d'+k,l:grp[k].n,type:'area',color:cols[ix%cols.length],vals:grp[k].vals.map(function(v,hh){return dv(sim,hh,v)})}})});
+    $('j_cdn').textContent='Stacked value of what you hold in deposits and other investments'+(M.real?" in today's money":'')+'. After an investment comes back, the money is assumed to sit in savings at 6.5% a year. Tap a name to hide it.';
+  }else{$('j_cd').innerHTML='';CH.j_cd=null;$('j_cdn').textContent=''}
+  /* how it works: one year-by-year table for each investment that has a plan */
+  var how='';
+  M.pols.forEach(function(q,i){
+    if(!q.on) return;
+    var d=c.polD[i],sch=d&&depSchedule(d);
+    if(!sch){how+='<p class="fine"><b>'+esc(POLT[q.t][0])+'</b>: add the value now or a monthly amount, and the year where the money comes back, to see the working.</p>';return}
+    var rate=q.guar>0?trim(d.annual*100)+'% a year (worked out from the guaranteed amount)':trim(q.ret)+'% a year';
+    how+='<details><summary>'+esc(POLT[q.t][0])+' at '+rate+', '+sch.length+' years</summary><div class="tw" style="margin-top:8px"><table><thead><tr><th>Year</th><th class="n">Start</th><th class="n">You add</th><th class="n">Interest</th><th class="n">End</th></tr></thead><tbody>'+
+      sch.map(function(r){return '<tr><td>'+r[0]+'<small>'+r[1]+'</small></td><td class="n">'+short(r[2])+'</td><td class="n">'+(r[3]>0?short(r[3]):'-')+'</td><td class="n">'+short(r[4])+'</td><td class="n">'+short(r[5])+'</td></tr>'}).join('')+
+      '</tbody></table></div><p class="fine">FD and RD interest from banks is usually added every 3 months. A bank rate of 7% added quarterly is about 7.19% over a full year, so enter 7.19 here if you want the exact figure.</p></details>';
+  });
+  $('j_dHow').innerHTML=how||'<p class="fine">Add an investment to see the year-by-year working.</p>';
+  var adv=depAdvice(c),VK={ok:'ok',watch:'watch',fix:'fix'},VL={ok:'Good',watch:'Watch',fix:'Fix'};
+  $('j_dSug').innerHTML=adv.map(function(a){return '<div class="sg"><small><span class="chip '+VK[a.k]+'">'+VL[a.k]+'</span></small><b>'+esc(a.t)+'</b><p>'+esc(a.d)+'</p></div>'}).join('');
+}
+function renderEarn(c,sim){
+  var P=sim.P,N=P.N,retN=P.retN,rows='',T={a:0,b:0,g:0,te:0,l:0,e:0,p:0,s:0,go:0,td:0,n:0,gr:0},h;
+  var depG=[];
+  for(h=0;h<N;h++){
+    var gsum=0;
+    c.polD.forEach(function(d){
+      if(!d.on||d.p.reg||!d.vals) return;
+      var a=d.vals[Math.min(h,d.vals.length-1)],b=d.vals[Math.min(h+1,d.vals.length-1)];
+      var put=d.stillPays?d.p.mo*Math.max(0,Math.min(12,d.pm-12*h)):0;
+      gsum+=Math.max(0,b-a-put);
+    });
+    depG.push(gsum);
+  }
+  for(h=0;h<N;h++){
+    var ret=h>=retN,gk=powk(1+sim.hk,h),th=ret?0:c.T*12*gk,bo=ret?0:c.lump*gk,pay=sim.get[h]||0;
+    var te=th+bo+pay,lv=sim.live[h],em=sim.emi[h],pr=sim.prem[h],sp=sim.sipA[h],go=sim.goal[h],td=lv+em+pr+sp+go,gr=sim.intr[h]+depG[h];
+    var f=function(v){return dv(sim,h,v)};
+    T.a+=f(th);T.b+=f(bo);T.g+=f(pay);T.te+=f(te);T.l+=f(lv);T.e+=f(em);T.p+=f(pr);T.s+=f(sp);T.go+=f(go);T.td+=f(td);T.n+=f(te-td);T.gr+=f(gr);
+    var net=f(te-td);
+    rows+='<tr'+(h===retN?' class="cur-r"':'')+'><td>'+sim.yrs[h]+'</td><td class="n">'+sim.ages[h]+'</td><td class="n">'+(th?short(f(th)):'-')+'</td><td class="n">'+(bo?short(f(bo)):'-')+'</td><td class="n">'+(pay?short(f(pay)):'-')+'</td><td class="n"><b>'+short(f(te))+'</b></td><td class="n">'+short(f(lv))+'</td><td class="n">'+(em?short(f(em)):'-')+'</td><td class="n">'+(pr?short(f(pr)):'-')+'</td><td class="n">'+(sp?short(f(sp)):'-')+'</td><td class="n">'+(go?short(f(go)):'-')+'</td><td class="n"><b>'+short(f(td))+'</b></td><td class="n'+(net<0?' neg':'')+'"><b>'+short(net)+'</b></td><td class="n">'+short(f(gr))+'</td></tr>';
+  }
+  $('j_eRows').innerHTML=rows;
+  $('j_eFoot').innerHTML='<tr class="tt"><td colspan="2">Total over '+N+' years</td><td class="n">'+short(T.a)+'</td><td class="n">'+short(T.b)+'</td><td class="n">'+short(T.g)+'</td><td class="n">'+short(T.te)+'</td><td class="n">'+short(T.l)+'</td><td class="n">'+short(T.e)+'</td><td class="n">'+short(T.p)+'</td><td class="n">'+short(T.s)+'</td><td class="n">'+short(T.go)+'</td><td class="n">'+short(T.td)+'</td><td class="n">'+short(T.n)+'</td><td class="n">'+short(T.gr)+'</td></tr>';
+  $('j_eNote').textContent='Earnings are your take-home salary (it rises with your hike), bonus and PLI after tax, and money received from policies and investments when they come back. Debits include rent and food (living cost), EMIs, policy premiums and RD or deposit instalments, and the SIP you invest. Goals and fees such as education are paid out of your savings, so a large goal year can show a negative figure. After you retire, salary stops and the gap between earnings and debits is paid from your savings, which is why the later years go negative. PF is cut before your take-home, so it is not in the debits. Growth earned is the interest and returns on your funds, PF, bank savings and deposits. It stays inside those savings and is not cash in hand.';
+}
+
+window.__fmp={depSchedule:depSchedule,depAdvice:depAdvice,calc:calc,simulate:simulate,taxCalc:taxCalc,scoreCalc:scoreCalc,parseSipMail:parseSipMail,importCsv:importCsv,xirr:xirr,applyMails:applyMails,
   get M(){return M},set M(v){M=v},plan:plan,fundsDerive:fundsDerive,fundCheck:fundCheck,drawChart:drawChart,buildReport:buildReport,xlsxSheets:xlsxSheets,pdfBlocks:pdfBlocks,makeXlsx:makeXlsx,makePdf:makePdf};
 
 (window.OWH_READY||Promise.resolve()).then(init);

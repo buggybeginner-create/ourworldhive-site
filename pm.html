@@ -1595,9 +1595,15 @@ function pdfReport(scope){const P=PL(),W=842,H=595,M=28,doc=PdfDoc(W,H),td=TODAY
  const over=P.tasks.filter(t=>t.active!==false&&!t.closed&&!isCont(t)&&!kDone(t)&&status(t).k==='over').length,sdJ=plans.reduce((a,pl)=>a+pl.jobs.filter(t=>!isCont(t)&&!t.nc).length,0);
  const sdAll=[].concat.apply([],plans.map(pl=>pl.jobs.filter(t=>!isCont(t)&&!t.nc))),sdDone=sdAll.filter(kDone).length,sdUP=sdAll.filter(t=>!kDone(t)&&pctOf(t)>0).length,sdOver=sdAll.filter(t=>!kDone(t)&&status(t).k==='over').length;
  const tiles=(scope==='sd'||scope==='sdplan')?[['Shutdown jobs',sdAll.length,PC.teal],['Done',sdDone,PC.grn],['Under progress',sdUP,PC.blu],['Overdue now',sdOver,sdOver?PC.red:PC.grn]]:[['PM tasks',pmL.length,PC.blu],['Calibration',calL.length,PC.pur],['Shutdown jobs',sdJ,PC.teal],['Overdue now',over,over?PC.red:PC.grn]],tw=(W-2*M-30)/4;
- tiles.forEach((t,i)=>{const x=M+i*(tw+10);cover.rect(x,238,tw,74,'#f1f7f6');cover.rect(x,238,5,74,t[2]);cover.text(x+18,282,String(t[1]),28,{bold:1,color:t[2]});cover.text(x+18,302,t[0],10,{color:PC.mut})});
- cover.text(M+4,350,'Contents',15,{bold:1,color:PC.ink});cover.line(M+4,358,W-M,358,PC.teal,1.2);
- toc.forEach((e,i)=>{const y=384+i*30;if(y>H-70)return;cover.rect(M+4,y-16,W-2*M-4,26,i%2?'#ffffff':PC.zeb);cover.text(M+14,y,e.t,11.5,{bold:1,color:PC.blu,maxW:W-2*M-220});cover.text(W-M-80,y,e.n,10,{color:PC.mut,align:'right'});cover.text(W-M-10,y,'Page '+(e.p+1),10,{bold:1,color:PC.ink,align:'right'});cover.link(M+4,y-16,W-2*M-4,26,{page:e.p})});
+ let dy=0;
+ if(scope==='sd'||scope==='sdplan'){const SM={};plans.forEach(pl=>sdGroups(pl.jobs.filter(t=>!isSubT(t))).forEach(e=>{const k=e.k||'General',o=SM[k]||(SM[k]={n:0,d:0,o:0});e.subs.forEach(b=>b.jobs.forEach(t=>{o.n++;if(kDone(t))o.d++;else if(status(t).k==='over')o.o++}))}));
+  cover.text(M+10,198,sdAll.length+' jobs   •   '+sdDone+' done   •   '+sdUP+' under progress   •   '+sdOver+' overdue',10.5,{bold:1,color:'#ffc857'});
+  const ks=Object.keys(SM).slice(0,8),sw=(W-2*M-30)/4;
+  ks.forEach((k,i)=>{const o=SM[k],x=M+(i%4)*(sw+10),y=232+Math.floor(i/4)*84,c=o.o?PC.red:(o.d===o.n?PC.grn:PC.teal);cover.rect(x,y,sw,74,'#f1f7f6');cover.rect(x,y,5,74,c);pdfWrap(k,sw-28,9,1,2).forEach((ln,j)=>cover.text(x+16,y+17+j*11,ln,9,{bold:1,color:PC.ink}));cover.text(x+16,y+56,String(o.n),22,{bold:1,color:c});cover.text(x+16+pdfW(String(o.n),22,1)+8,y+56,'jobs • '+o.d+' done'+(o.o?' • '+o.o+' overdue':''),8.5,{color:PC.mut})});
+  dy=Math.ceil(ks.length/4)*84-70}
+ else tiles.forEach((t,i)=>{const x=M+i*(tw+10);cover.rect(x,238,tw,74,'#f1f7f6');cover.rect(x,238,5,74,t[2]);cover.text(x+18,282,String(t[1]),28,{bold:1,color:t[2]});cover.text(x+18,302,t[0],10,{color:PC.mut})});
+ cover.text(M+4,350+dy,'Contents',15,{bold:1,color:PC.ink});cover.line(M+4,358+dy,W-M,358+dy,PC.teal,1.2);
+ toc.forEach((e,i)=>{const y=384+dy+i*30;if(y>H-50)return;cover.rect(M+4,y-16,W-2*M-4,26,i%2?'#ffffff':PC.zeb);cover.text(M+14,y,e.t,11.5,{bold:1,color:PC.blu,maxW:W-2*M-220});cover.text(W-M-80,y,e.n,10,{color:PC.mut,align:'right'});cover.text(W-M-10,y,'Page '+(e.p+1),10,{bold:1,color:PC.ink,align:'right'});cover.link(M+4,y-16,W-2*M-4,26,{page:e.p})});
  if(!toc.length)cover.text(M+14,390,'Nothing to export yet.',11,{color:PC.mut});
  doc.marks.unshift({t:'Cover and contents',p:0});
  doc.pages.forEach((p,i)=>{p.line(M,H-30,W-M,H-30,PC.line,.6);if(i>0){p.text(M,H-16,'< Contents',9,{bold:1,color:PC.blu});p.link(M,H-28,70,18,{page:0})}p.text(W/2,H-16,'© DUKEKRRISH • PM Tracker • ourworldhive.com/pm.html',8,{color:PC.mut,align:'center'});p.text(W-M,H-16,'Page '+(i+1)+' of '+doc.pages.length,9,{color:PC.mut,align:'right'})});

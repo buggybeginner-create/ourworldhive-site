@@ -1533,6 +1533,7 @@ const HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,55
 function pdfClean(s){return String(s==null?'':s).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/•|·/g,'\u0095').replace(/[–—]/g,'-').replace(/₹/g,'Rs ').replace(/[✓✔]/g,'').replace(/…/g,'...').replace(/[^\x20-\x7E\u0095 -ÿ]/g,'?')}
 function pdfW(s,sz,b){let w=0;s=pdfClean(s);for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);w+=(c>=32&&c<127?HW[c-32]:c===149?350:556)}return w*sz/1000*(b?1.06:1)}
 function pdfFit(s,mw,sz,b){s=pdfClean(s);if(pdfW(s,sz,b)<=mw)return s;while(s.length>1&&pdfW(s+'...',sz,b)>mw)s=s.slice(0,-1);return s+'...'}
+function pdfWrap(s,mw,sz,b,mx){s=pdfClean(String(s==null?'':s));const ws=s.split(' '),L=[];let cur='';ws.forEach(w=>{const t=cur?cur+' '+w:w;if(pdfW(t,sz,b)<=mw||!cur)cur=t;else{L.push(cur);cur=w}});if(cur)L.push(cur);let o=L.slice(0,mx||3);if(L.length>o.length)o[o.length-1]=pdfFit(o[o.length-1]+' '+L[o.length],mw,sz,b);return o.map(x=>pdfW(x,sz,b)>mw?pdfFit(x,mw,sz,b):x)}
 function pdfEsc(s){return pdfClean(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
 const pdfRGB=h=>{h=h.replace('#','');return[0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(' ')};
 function PdfDoc(W,H){const pages=[],self={W:W,H:H,pages:pages,marks:[]};
@@ -1570,18 +1571,19 @@ function pdfReport(scope){const P=PL(),W=842,H=595,M=28,doc=PdfDoc(W,H),td=TODAY
  const newPage=(title,sub,cols)=>{const p=header(title,sub);return{p:p,y:tableHead(p,cols,sub?74:60)}};
  const ROW=22,LIM=H-44;
  const rowsOut=(title,sub,cols,rows,after)=>{let c=newPage(title,sub,cols),first=c.p,i=0;rows.forEach(r=>{if(r.band){if(c.y+ROW*2>LIM){c=newPage(title+' (cont.)','',cols)}const bc=r.sub?'#fde68a':PC.teal;c.p.rect(M,c.y,W-2*M,ROW-2,bc);c.p.text(M+8,c.y+14,r.band,r.sub?9:10,{bold:1,color:r.sub?'#5a3b00':'#ffffff',maxW:W-2*M-120});if(r.right)c.p.text(W-M-8,c.y+14,r.right,8.5,{bold:1,color:r.sub?'#5a3b00':'#d6ecea',align:'right'});c.y+=ROW;return}
-   if(c.y+ROW>LIM){c=newPage(title+' (cont.)','',cols)}
-   if(i%2===0)c.p.rect(M,c.y,W-2*M,ROW,PC.zeb);i++;let x=M+6;
-   cols.forEach((cl,k)=>{const v=r.v[k],o=(r.o&&r.o[k])||{};c.p.text(cl.r?x+cl.w-12:x+(r.ind&&k===cl.ind?10:0),c.y+14,v==null?'':v,cl.fs||8.5,{bold:o.b,color:o.c||PC.ink,align:cl.r?'right':'left',maxW:cl.w-8-(r.ind&&k===cl.ind?10:0)});x+=cl.w});
-   if(r.url){c.p.link(M+6+cols[0].w*0,c.y,cols[0].w+cols[1].w,ROW,{uri:r.url})}
-   c.p.line(M,c.y+ROW,W-M,c.y+ROW,PC.line,.4);c.y+=ROW});
+   const wr=cols.map((cl,k)=>{const v=r.v[k],o=(r.o&&r.o[k])||{},ind=(r.ind&&k===cl.ind?10:0);return pdfWrap(v==null?'':v,cl.w-10-ind,cl.fs||8.5,o.b,3)}),RH=Math.max(ROW,Math.max.apply(null,wr.map(a=>a.length))*10.5+11);
+   if(c.y+RH>LIM){c=newPage(title+' (cont.)','',cols)}
+   if(i%2===0)c.p.rect(M,c.y,W-2*M,RH,PC.zeb);i++;let x=M+6;
+   cols.forEach((cl,k)=>{const o=(r.o&&r.o[k])||{},ind=(r.ind&&k===cl.ind?10:0);wr[k].forEach((ln,j)=>{c.p.text(cl.r?x+cl.w-12:x+ind,c.y+14+j*10.5,ln,cl.fs||8.5,{bold:o.b,color:o.c||PC.ink,align:cl.r?'right':'left'})});x+=cl.w});
+   if(r.url){c.p.link(M+6+cols[0].w*0,c.y,cols[0].w+cols[1].w,RH,{uri:r.url})}
+   c.p.line(M,c.y+RH,W-M,c.y+RH,PC.line,.4);c.y+=RH});
   if(!rows.length){c.p.text(M+6,c.y+20,'Nothing to show.',10,{color:PC.mut})}
   if(after)after(c);return first};
  const toc=[];
  const tasksTable=(name,L,key)=>{const cols=[{h:'Tag',w:80},{h:'Name',w:230,ind:1},{h:'Section',w:100},{h:'Type',w:90},{h:'Frequency',w:80},{h:'Next due',w:68},{h:'Assigned to',w:80},{h:'Status',w:W-2*M-728}];
   const rows=L.slice().sort((a,b)=>(a.due<b.due?-1:1)).map(t=>{const st=pdfStatus(t);return{url:link(t),v:[t.tag,cap1(t.name),secName(t.sec),t.type?typeName(t.type):'',freqText(t.freq),fmt(t.due),mName(t.assignee),st.l],o:[{c:link(t)?PC.blu:PC.ink,b:1},{b:1},0,0,0,0,0,{c:st.c,b:1}]}});
   const pg=rowsOut(name,L.length+' item'+(L.length===1?'':'s')+' • tap a tag to open it in the app',cols,rows);toc.push({t:name,p:pg.n,n:L.length+' items'});doc.marks.push({t:name,p:pg.n})};
- if(want('sd')||want('sdplan')||scope==='full'){plans.forEach(pl=>{const pt=planTally(pl),G=sdGroups(pl.jobs.filter(t=>!isSubT(t))),cols=[{h:'Job',w:300,ind:0},{h:'Tag',w:70},{h:'Section',w:80},{h:'Assigned to',w:100},{h:'Deadline',w:62},{h:'Status',w:84},{h:'Dependency / Material',w:W-2*M-696}],rows=[];
+ if(want('sd')||want('sdplan')||scope==='full'){plans.forEach(pl=>{const pt=planTally(pl),G=sdGroups(pl.jobs.filter(t=>!isSubT(t))),cols=[{h:'Job',w:250,ind:0},{h:'Tag',w:62},{h:'Section',w:70},{h:'Assigned to',w:100},{h:'Deadline',w:62},{h:'Status',w:100},{h:'Dependency / Material',w:W-2*M-644}],rows=[];
    const jobRow=(t,ind)=>{const st=pdfStatus(t),u=pctOf(t),x=[];if(t.dep)x.push(t.dep+(t.depOk?' (cleared)':' (pending)'));if(t.mat)x.push('Mat: '+MATL[t.mat]);const w=sdWin(t);const sts=kDone(t)?'Done':(u>0?'U/P '+u+'% • '+st.l:st.l);const done=kDone(t);
     rows.push({ind:ind,url:link(t),v:[(ind?'- ':'')+cap1(t.name),/^SD-\d+$/i.test(t.tag||'')?'':t.tag,secName(t.sec),mName(t.assignee),fmt(w[1]),sts,x.join(' • ')],o:[{b:!ind},{c:link(t)?PC.blu:PC.mut,b:1},0,0,0,{c:done?PC.grn:u>0?'#15803d':st.c,b:1},{c:PC.mut}]})};
    G.forEach(e=>{if(e.k)rows.push({band:e.k,right:e.n+' jobs'});e.subs.forEach(b=>{if(b.k)rows.push({band:b.k,sub:1,right:b.jobs.length+' jobs'});b.jobs.forEach(t=>{jobRow(t,0);kidsOfId(t.id).forEach(k=>jobRow(k,1))})})});
@@ -1591,7 +1593,8 @@ function pdfReport(scope){const P=PL(),W=842,H=595,M=28,doc=PdfDoc(W,H),td=TODAY
  // cover + contents
  cover.rect(0,0,W,210,PC.dk);cover.rect(0,210,W,6,'#ffc857');cover.text(M+10,64,'PM TRACKER',13,{bold:1,color:'#ffc857'});cover.text(M+10,112,P.name||'Plant',34,{bold:1,color:'#ffffff',maxW:W-2*M-20});cover.text(M+10,146,(scope==='full'?'Maintenance report':scope==='sd'||scope==='sdplan'?'Shutdown report':scope==='pm'?'PM tasks report':'Calibration report'),16,{color:'#d6ecea'});cover.text(M+10,176,fmt(td)+'   •   Plant code '+code+'   •   '+(ME()?mName(ME().id):''),10.5,{color:'#a7d3cf'});
  const over=P.tasks.filter(t=>t.active!==false&&!t.closed&&!isCont(t)&&!kDone(t)&&status(t).k==='over').length,sdJ=plans.reduce((a,pl)=>a+pl.jobs.filter(t=>!isCont(t)&&!t.nc).length,0);
- const tiles=[['PM tasks',pmL.length,PC.blu],['Calibration',calL.length,PC.pur],['Shutdown jobs',sdJ,PC.teal],['Overdue now',over,over?PC.red:PC.grn]],tw=(W-2*M-30)/4;
+ const sdAll=[].concat.apply([],plans.map(pl=>pl.jobs.filter(t=>!isCont(t)&&!t.nc))),sdDone=sdAll.filter(kDone).length,sdUP=sdAll.filter(t=>!kDone(t)&&pctOf(t)>0).length,sdOver=sdAll.filter(t=>!kDone(t)&&status(t).k==='over').length;
+ const tiles=(scope==='sd'||scope==='sdplan')?[['Shutdown jobs',sdAll.length,PC.teal],['Done',sdDone,PC.grn],['Under progress',sdUP,PC.blu],['Overdue now',sdOver,sdOver?PC.red:PC.grn]]:[['PM tasks',pmL.length,PC.blu],['Calibration',calL.length,PC.pur],['Shutdown jobs',sdJ,PC.teal],['Overdue now',over,over?PC.red:PC.grn]],tw=(W-2*M-30)/4;
  tiles.forEach((t,i)=>{const x=M+i*(tw+10);cover.rect(x,238,tw,74,'#f1f7f6');cover.rect(x,238,5,74,t[2]);cover.text(x+18,282,String(t[1]),28,{bold:1,color:t[2]});cover.text(x+18,302,t[0],10,{color:PC.mut})});
  cover.text(M+4,350,'Contents',15,{bold:1,color:PC.ink});cover.line(M+4,358,W-M,358,PC.teal,1.2);
  toc.forEach((e,i)=>{const y=384+i*30;if(y>H-70)return;cover.rect(M+4,y-16,W-2*M-4,26,i%2?'#ffffff':PC.zeb);cover.text(M+14,y,e.t,11.5,{bold:1,color:PC.blu,maxW:W-2*M-220});cover.text(W-M-80,y,e.n,10,{color:PC.mut,align:'right'});cover.text(W-M-10,y,'Page '+(e.p+1),10,{bold:1,color:PC.ink,align:'right'});cover.link(M+4,y-16,W-2*M-4,26,{page:e.p})});

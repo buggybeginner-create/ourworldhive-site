@@ -1084,7 +1084,7 @@ CLOUD.setPlan=(code,patch)=>CLOUD.fs.collection('pm_plants').doc(code).update(pa
 async function enablePush(){if(!CLOUDON())return notif();if(!('serviceWorker' in navigator)||!('Notification' in window))return toast('This browser cannot show push alerts. On iPhone, add the app to the Home Screen first (Share, then Add to Home Screen).',6000);
  if(!CLOUD.vapid)return toast('Push alerts are not switched on by the owner yet.',4000);
  const perm=await Notification.requestPermission();if(perm!=='granted')return toast('Alerts were not allowed on this phone.',3500);
- try{await loadJs('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');const reg=await navigator.serviceWorker.register('pm-sw.js'),m=firebase.messaging(),tok=await m.getToken({vapidKey:CLOUD.vapid,serviceWorkerRegistration:reg});if(!tok)throw new Error('no token');
+ try{await loadJs('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');const reg=await navigator.serviceWorker.register('pm-sw.js',{scope:'./pm.html'}),m=firebase.messaging(),tok=await m.getToken({vapidKey:CLOUD.vapid,serviceWorkerRegistration:reg});if(!tok)throw new Error('no token');
   const P=PL(),me=ME(),mref=pmBase(P.code).collection('members').doc(me.id),cur=(await mref.get()).data()||{},t=(cur.tokens||[]).filter(x=>x!==tok);t.push(tok);await mref.update({tokens:t.slice(-5)});toast('Phone alerts are on for this phone.',3500);m.onMessage(p=>{const d=(p&&p.data)||{};try{new Notification(d.title||'PM Tracker',{body:d.body||''})}catch(e){}})}catch(e){toast('Could not turn on alerts: '+String(e&&e.message||e).slice(0,80),5000)}}
 /* ---- wiring ---- */
 const _boot=boot;boot=function(){if(CLOUD.available&&!CLOUD.local)return cloudBoot();_boot();if(S.session&&S.plants[S.session.plant]){afterLogin();routeHash()}};
@@ -1185,7 +1185,7 @@ function groupStats(o){const P=PL();return (P.groups||[]).map(g=>{const mem=g.me
 
 /* ---- offline: banner, app files kept on the phone ---- */
 (function(){const b=document.createElement('div');b.id='offb';b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#b45309;color:#fff;font-size:13px;text-align:center;padding:6px 10px;display:none';b.textContent='Offline: your changes are saved on this phone and will sync when the internet is back.';document.body.appendChild(b);const f=()=>{b.style.display=navigator.onLine?'none':'block'};addEventListener('online',()=>{f();const s=document.getElementById('syn');if(s)s.textContent='Synced'});addEventListener('offline',f);f();
- if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('pm-sw.js').catch(()=>{})})();
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('pm-sw.js',{scope:'./pm.html'}).catch(()=>{})})();
 
 /* ---- material consumption and breakdown ---- */
 const MT=()=>{const P=PL();P.mats=P.mats||[];P.bds=P.bds||[];return P};

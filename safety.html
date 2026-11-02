@@ -543,7 +543,7 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 document.addEventListener('change',e=>{const k=e.target&&e.target.dataset&&e.target.dataset.ch;if(k&&CH[k])CH[k](e)});
 addEventListener('online',()=>{const s=$('syn');if(s)s.textContent='synced'});
 (function(){const b=document.createElement('div');b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#b45309;color:#fff;font-size:13px;text-align:center;padding:6px 10px;display:none';b.textContent='Offline: your changes are saved on this phone and will sync when the internet is back.';document.body.appendChild(b);const f=()=>{b.style.display=navigator.onLine?'none':'block'};addEventListener('online',f);addEventListener('offline',f);f();
- if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('safety-sw.js').catch(()=>{})})();
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('safety-sw.js',{scope:'./safety.html'}).catch(()=>{})})();
 function boot(){const hm=/^#\/join\/([^\/]+)/.exec(location.hash||'');if(hm)pendingJoin=hm[1].toUpperCase();let demo=false;try{demo=localStorage.getItem('sf_demo')==='1'}catch(e){}if(demo||!window.OWH_FIREBASE)return startDemo();cloudBoot()}
 boot();
 </script></body></html>

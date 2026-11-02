@@ -2,8 +2,8 @@
 <html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Grocery Cart | Ourworldhive</title>
 <meta name="description" content="Grocery Cart: a shopping list for fruits, vegetables, rice, Surf Excel and more. Tick items when bought, save price and date, and see price trends.">
-<meta name="theme-color" content="#1f7a4d"><meta name="robots" content="noindex">
-<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="icon" type="image/png" href="/favicon-48.png" sizes="48x48"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#1f7a4d"><link rel="manifest" href="grocery-manifest.webmanifest"><link rel="apple-touch-icon" href="grocery-icon-192.png"><meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="icon" type="image/png" href="/favicon-48.png" sizes="48x48">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
 <style>
 :root{--bg:#f4f7ef;--panel:#ffffff;--ink:#17261d;--ink2:#5d6e63;--line:#dfe6d8;--soft:#eaf1e2;--brand:#1f7a4d;--brand2:#2f9a66;--on:#fff;--gold:#f0a30a;--good:#16794d;--bad:#c0392b;--bad-bg:#fbe3df;--good-bg:#dcf2e5;--shadow:0 1px 2px rgba(20,40,25,.06),0 6px 18px rgba(20,40,25,.07);--fb:"Segoe UI",system-ui,-apple-system,Roboto,"Noto Sans Devanagari",sans-serif}
@@ -284,4 +284,4 @@ FP=JSON.stringify(payload());
 $('#bMore').onclick=sheetMore;
 render();
 })();
-</script></body></html>
+</script><script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('grocery-sw.js',{scope:'./grocery-cart.html'}).catch(function(){});</script></body></html>

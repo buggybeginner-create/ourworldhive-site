@@ -27,13 +27,13 @@ var st=D.createElement('style');st.id='owhld-css';st.textContent=css;
 var el=D.createElement('div');el.id='owhld';el.setAttribute('role','status');el.setAttribute('aria-label','Loading');
 el.innerHTML=(MODE==='hive'?hive():gears())+'<div class="owhn"></div><div class="owhb"><i></i></div><div class="owhp">0%</div><div class="owht"></div>';
 var bar=el.querySelector('.owhb i'),pc=el.querySelector('.owhp'),tt=el.querySelector('.owht'),nm=el.querySelector('.owhn');
-(D.head||root).appendChild(st);root.appendChild(el);
+(D.head||root).appendChild(st);root.appendChild(el);root.className+=' owh-on';
 var t0=Date.now(),pct=0,fin=false,gone=false,ti=0,loaded=false;
 function set(p){pct=Math.max(pct,Math.min(100,p));bar.style.width=pct+'%';pc.textContent=Math.round(pct)+'%'}
 function name(){var n=NAME;if(!n){n=(D.title||'').split(/\s[-|–—:]\s|:\s|,\s/)[0]}nm.textContent=(n||'Loading').slice(0,34);var m=D.querySelector('meta[name=theme-color]'),c=COL||(m&&m.content);if(c&&/^#[0-9a-f]{3,8}$/i.test(c)){var l=parseInt(c.slice(1,3),16)||0;if(c.length>=7&&l+(parseInt(c.slice(3,5),16)||0)+(parseInt(c.slice(5,7),16)||0)>150)el.style.setProperty('--owhc',c)}}
 function tick(){if(gone)return;/* climbs fast, then slows down and waits at 92% until the page is really ready */
  var s=(Date.now()-t0)/1000,target=92*(1-Math.exp(-s/1.6));if(WAIT)target=92+6*(1-Math.exp(-s/15));if(!fin)set(Math.min(target,WAIT?98:92));tt.textContent=TIPS[Math.min(TIPS.length-1,Math.floor(s/1.1))];ti=setTimeout(tick,120)}
-function finish(){if(fin)return;fin=true;var wait=Math.max(0,700-(Date.now()-t0));setTimeout(function(){set(100);setTimeout(function(){el.className='out';setTimeout(function(){gone=true;clearTimeout(ti);if(el.parentNode)el.parentNode.removeChild(el)},520)},260)},wait)}
+function finish(){if(fin)return;fin=true;var wait=Math.max(0,700-(Date.now()-t0));setTimeout(function(){set(100);setTimeout(function(){el.className='out';setTimeout(function(){gone=true;clearTimeout(ti);root.className=root.className.replace(' owh-on','');if(el.parentNode)el.parentNode.removeChild(el)},520)},260)},wait)}
 D.addEventListener('DOMContentLoaded',name);if(D.readyState!=='loading')name();
 if(!WAIT){if(D.readyState==='complete')finish();else window.addEventListener('load',function(){loaded=true;finish()})}
 window.addEventListener('pageshow',function(e){if(e.persisted)finish()});

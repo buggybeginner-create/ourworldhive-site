@@ -581,7 +581,7 @@ function human(txt){var seat=G.online?G.online.seat:G.bot?0:G.s.turn,bs=botSeat(
 $('#quick').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&G&&!G.over!==undefined)human(QUICK[+b.dataset.i])});
 $('#emo').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||!G)return;var em=b.textContent,seat=G.online?G.online.seat:G.bot?0:G.s.turn,bs=botSeat();if(G.online&&HRH)HRH.chat(em,1);react(seat,em);addMsg('m'+seat,G.names[seat],em);SFX.msg();if(G.bot&&bs>=0&&Math.random()<.6)later(function(){var r=pick(['😎','😂','👍','🤔','🔥']);addMsg('m'+bs,G.names[bs],r);react(bs,r)},600+Math.random()*500)});
 $('#sayF').addEventListener('submit',function(e){e.preventDefault();var i=$('#sayI'),v=i.value.trim();if(!v||!G)return;i.value='';human(v)});
-function toast(m){var t=$('#toast');t.textContent=m;t.className='on';clearTimeout(toast._t);toast._t=setTimeout(function(){t.className=''},2400)}
+function toast(m){var t=$('#toast');t.textContent=m;t.className='on';clearTimeout(toast._t);toast._t=setTimeout(function(){t.className=''},6000)}
 /* ---------------- hero art ---------------- */
 (function(){var t=$('#heroTiles'),w=$('#heroWalls'),NSx='http://www.w3.org/2000/svg';
  for(var r=0;r<9;r++)for(var c=0;c<9;c++){var e=document.createElementNS(NSx,'rect');e.setAttribute('x',PAD+c*U);e.setAttribute('y',PAD+r*U);e.setAttribute('width',10);e.setAttribute('height',10);e.setAttribute('rx',2);e.setAttribute('fill','url(#hT)');e.setAttribute('stroke','rgba(200,230,255,.3)');e.setAttribute('stroke-width','.25');t.appendChild(e)}
@@ -934,7 +934,7 @@ function fsRT(){
 }
 
 function boot(){if(inited)return inited;inited=(async function(){
-  if(window.OWH_FIREBASE){RT=fsRT();try{uid=await RT.init()}catch(e){inited=null;RT=null;throw new Error('Could not reach the game server. Check your internet and try again.')}demo=false;return true}
+  if(window.OWH_FIREBASE){RT=fsRT();try{uid=await RT.init()}catch(e){inited=null;RT=null;throw new Error('Could not reach the game server ('+((e&&(e.code||e.message))||'?')+'). Tap the Guest tag at the bottom to check.')}demo=false;return true}
   RT=demoRT();uid=RT.uid;demo=true;return true})();return inited}
 
 /* ---------------- helpers ---------------- */
@@ -964,7 +964,7 @@ function roomLink(){var b;try{b=location.href.split('#')[0].split('?')[0]}catch(
 async function hostRoom(){try{await boot()}catch(e){toast(errMsg(e));return}var g=H.SET.game;if(GAMES.indexOf(g)<0){toast('Online rooms are not available for this game.');return}
  var D=defOf(g),mx=D.multi?Math.max(2,Math.min(D.maxP||4,+H.SET.np||4)):2,p=profile(),t=now(),c=rcode();
  var room={code:c,game:g,max:mx,host:uid,seats:[{u:uid,n:p.n,a:p.a,r:1}],us:[uid],st:'lobby',cr:t,exp:t+TTL,hb:{},gn:0,sw:0,rm:[],av:[],res:null,why:''};
- try{await RT.create(c,room)}catch(e){toast(errMsg(e));return}enterRoom(c)}
+ try{await Promise.race([RT.create(c,room),new Promise(function(_,rj){setTimeout(function(){rj(new Error('No answer from the server. Tap the Guest tag at the bottom to check the connection.'))},12000)})])}catch(e){toast(errMsg(e));return}enterRoom(c)}
 async function joinRoom(c){try{await boot()}catch(e){toast(errMsg(e));return}c=String(c||'').toUpperCase().trim();var p=profile();
  try{await RT.tx(c,function(r){if(r.us.indexOf(uid)>=0)return null;if(r.st!=='lobby')throw new Error('That match has already started.');if(r.exp<=now())throw new Error('That room has expired.');if(r.us.length>=r.max)throw new Error('That room is full.');
   var s=r.seats.concat([{u:uid,n:p.n,a:p.a,r:0}]);return{seats:s,us:r.us.concat([uid])}})}catch(e){toast(/not found/i.test(e.message)?'Room not found. Check the code.':errMsg(e));return}enterRoom(c)}
@@ -1094,4 +1094,4 @@ wireSetup();
 })();
 
 </script>
-</body></html>
+<script src="owh-who.js" defer></script></body></html>

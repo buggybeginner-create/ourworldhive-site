@@ -423,4 +423,4 @@ OWHG.setHelp({keys:[
  OWHG.mount({top:'auto',bottom:'8px',left:'8px',right:'auto'});
  setTimeout(function(){try{var k=localStorage.getItem('owh_name_key'),g=localStorage.getItem('owh_bx_name');if(k&&g&&SAVE.name!==g){SAVE.name=g;persist()}else if(!k&&SAVE.name){OWHG.claimName(SAVE.name).then(function(r){if(!r.ok)OWHG.ensureName().then(function(n){SAVE.name=n;persist()})})}}catch(e){}},2500);
 })();
-</script></body></html>
+</script><script src="owh-who.js" defer></script></body></html>

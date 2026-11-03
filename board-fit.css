@@ -19,5 +19,4 @@ html.bf-ig .bf-nav{display:none}
 #bfRules button.bf-k{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:inherit;font:700 14px inherit;font-family:inherit;cursor:pointer}
 #bfRules .bf-c{font-size:12px;opacity:.75;margin-top:14px}
 .bf-sw{animation:bfsw .22s ease-out}@keyframes bfsw{from{opacity:.4;transform:translateX(var(--sw,0))}to{opacity:1;transform:none}}
-html.bf #owhwho{top:auto;bottom:calc(78px + env(safe-area-inset-bottom,0px));right:10px}
-html.bf.bf-ig #owhwho{bottom:auto;top:max(60px,env(safe-area-inset-top,0px))}
+html.bf #owhwho{top:62px;right:12px}

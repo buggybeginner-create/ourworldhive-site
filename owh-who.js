@@ -8,7 +8,7 @@ var LBL='';
 function who(u){return u?(u.isAnonymous?'GUEST (anonymous)':'SIGNED IN as '+(u.displayName||u.email||'your account')):'GUEST (not connected)'}
 function paint(u,ready){if(!el)return;var c;
  if(u&&!u.isAnonymous)c='in';else if(u)c='gs';else if(ready)c='off';else c='gs';
- LBL=who(u);el.className=c;el.setAttribute('aria-label',LBL)}
+ LBL=who(u);if(pill)pill.hidden=!!(u&&!u.isAnonymous);el.className=c;el.setAttribute('aria-label',LBL)}
 function watch(){var tries=0,t=setInterval(function(){tries++;
  try{if(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.auth){clearInterval(t);var a=firebase.auth();paint(a.currentUser,true);a.onAuthStateChanged(function(u){lastU=u;paint(u,true)});return}}catch(e){}
  if(tries>400)clearInterval(t)},800)}
@@ -31,6 +31,16 @@ async function check(){if(panel){panel.remove();panel=null;return}
   catch(e){say('ROOMS READ FAILED: '+(e.code||e.message)+'\n'+(/permission/.test(e.code||e.message||'')?'Fix: publish the Firestore rules (Rules tab > Publish).':''));return}
   say('All good. If a room still does not open, tell Claude exactly what you saw.')
  }catch(e){say('Check failed: '+(e.code||e.message||e))}}
-function init(){if(!D.body)return;css();el=D.createElement('div');el.id='owhwho';el.setAttribute('role','button');el.addEventListener('click',check);D.body.appendChild(el);paint(null,false);watch()}
+
+var pill=null;
+function pillCss(){var s=D.createElement('style');s.textContent='#owhsi{position:fixed;right:calc(max(12px,env(safe-area-inset-right,0px)) + 34px);top:max(10px,env(safe-area-inset-top,0px));z-index:2147482000;height:30px;padding:0 12px;border-radius:15px;border:1px solid #ffffffa0;background:#1a73e8;color:#fff;font:700 12px system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 8px #0008}#owhsi[hidden]{display:none}html.bf #owhsi{top:58px;right:46px}';D.head.appendChild(s)}
+async function pillGo(){if(!window.OWH_FIREBASE){return}
+ try{var b='https://www.gstatic.com/firebasejs/10.12.2/';if(!window.firebase)await load(b+'firebase-app-compat.js');if(!firebase.auth)await load(b+'firebase-auth-compat.js');if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE)}catch(e){return}
+ var a=firebase.auth(),pr=new firebase.auth.GoogleAuthProvider(),u=a.currentUser;
+ try{try{if(u&&u.isAnonymous)await u.linkWithPopup(pr);else await a.signInWithPopup(pr)}catch(e){if(e.code==='auth/credential-already-in-use'&&e.credential)await a.signInWithCredential(e.credential);else throw e}
+  var n=a.currentUser;try{if(n&&n.displayName&&!localStorage.getItem('owh_bx_name'))localStorage.setItem('owh_bx_name',n.displayName.split(' ').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()}).join(' '))}catch(e){}
+ }catch(e){if(!panel)await check();if(panel)panel.firstChild.textContent+='\nSIGN IN FAILED: '+(e.code||e.message)+'\n'+(/unauthorized-domain/.test(e.code||'')?'Fix: Firebase Console > Authentication > Settings > Authorized domains > add ourworldhive.com.':/operation-not-allowed/.test(e.code||'')?'Fix: Firebase Console > Authentication > Sign-in method > turn ON Google.':/popup/.test(e.code||'')?'Allow popups for this site and try again.':'')}}
+function pillInit(){pillCss();pill=D.createElement('button');pill.id='owhsi';pill.type='button';pill.textContent='SIGN IN';pill.onclick=pillGo;D.body.appendChild(pill)}
+function init(){if(!D.body)return;pillInit();css();el=D.createElement('div');el.id='owhwho';el.setAttribute('role','button');el.addEventListener('click',check);D.body.appendChild(el);paint(null,false);watch()}
 if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',init);else init();
 })();

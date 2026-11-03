@@ -3,19 +3,18 @@
 (function(){
 if(window.__owhWho)return;window.__owhWho=1;
 var D=document,el=null,panel=null,lastU=undefined;
-function css(){var s=D.createElement('style');s.textContent='#owhwho{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:max(8px,env(safe-area-inset-bottom,0px));z-index:2147482000;font:700 11.5px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff;background:#0b1d2ccc;border:1px solid #ffffff40;border-radius:999px;padding:7px 11px;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 2px 8px #0006}#owhwho.in{background:#0f5132e6;border-color:#4ade80aa}#owhwho.gs{background:#5a3b00e6;border-color:#ffc857aa}#owhwhop{position:fixed;left:8px;right:8px;bottom:48px;z-index:2147482001;background:#0b1d2cf2;color:#e6f4f2;border:1px solid #ffffff40;border-radius:14px;padding:12px;font:13px/1.45 system-ui,-apple-system,sans-serif;max-height:55vh;overflow:auto;white-space:pre-wrap;word-break:break-word}';(D.head||D.documentElement).appendChild(s)}
-function paint(u,ready){if(!el)return;var t,c='';
- if(u&&!u.isAnonymous){t='✅ '+String(u.displayName||u.email||'Signed in').slice(0,24)+' · signed in';c='in'}
- else if(u){t='👤 Guest · online';c='gs'}
- else if(ready){t='👤 Guest · not connected';c='gs'}
- else{t='👤 Guest · tap to check';c='gs'}
- el.textContent=t;el.className=c}
+function css(){var s=D.createElement('style');s.textContent='#owhwho{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:2147482000;width:22px;height:22px;border-radius:50%;background:#7a8794;border:2px solid #ffffffd9;box-shadow:0 0 0 3px #0008,0 2px 8px #0008;cursor:pointer;padding:0}#owhwho:before{content:"";position:absolute;inset:-12px}#owhwho.in{background:#22c55e}#owhwho.gs{background:#f59e0b}#owhwho.off{background:#ef4444}#owhwhop{position:fixed;left:8px;right:8px;bottom:48px;z-index:2147482001;background:#0b1d2cf2;color:#e6f4f2;border:1px solid #ffffff40;border-radius:14px;padding:12px;font:13px/1.45 system-ui,-apple-system,sans-serif;max-height:55vh;overflow:auto;white-space:pre-wrap;word-break:break-word}';(D.head||D.documentElement).appendChild(s)}
+var LBL='';
+function who(u){return u?(u.isAnonymous?'GUEST (anonymous)':'SIGNED IN as '+(u.displayName||u.email||'your account')):'GUEST (not connected)'}
+function paint(u,ready){if(!el)return;var c;
+ if(u&&!u.isAnonymous)c='in';else if(u)c='gs';else if(ready)c='off';else c='gs';
+ LBL=who(u);el.className=c;el.setAttribute('aria-label',LBL)}
 function watch(){var tries=0,t=setInterval(function(){tries++;
  try{if(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.auth){clearInterval(t);var a=firebase.auth();paint(a.currentUser,true);a.onAuthStateChanged(function(u){lastU=u;paint(u,true)});return}}catch(e){}
  if(tries>400)clearInterval(t)},800)}
 function load(u){return new Promise(function(res,rej){var s=D.createElement('script');s.src=u;s.onload=res;s.onerror=function(){rej(new Error('Could not load '+u))};D.head.appendChild(s)})}
 async function check(){if(panel){panel.remove();panel=null;return}
- panel=D.createElement('div');panel.id='owhwhop';D.body.appendChild(panel);var out=[];function say(x){out.push(x);panel.textContent=out.join('\n')}
+ panel=D.createElement('div');panel.id='owhwhop';D.body.appendChild(panel);var out=[];var gn='';try{gn=localStorage.getItem('owh_bx_name')||''}catch(e){}out.push('\uD83D\uDFE2 green = signed in   \uD83D\uDFE1 yellow = guest   \uD83D\uDD34 red = not connected\nPlayer name: '+(gn||'(not set yet)')+'\nStatus: '+(LBL||'GUEST (not connected)')+'\n');function say(x){out.push(x);panel.textContent=out.join('\n')}
  say('Checking the connection...');
  try{
   if(!window.OWH_FIREBASE){say('No Firebase config on this page (offline-only game).');return}

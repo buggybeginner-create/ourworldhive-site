@@ -30,7 +30,7 @@ function init(){
  D.addEventListener('keydown',function(e){if(root.classList.contains('bf-ig')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;if(e.key==='ArrowRight')step(1);else if(e.key==='ArrowLeft')step(-1)});
  function sync(){var lob=!!app.querySelector('.bx-lob');root.classList.toggle('bf-ig',!lob);if(lob)mark()}
  new MutationObserver(sync).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
- new MutationObserver(function(){var s=!!(window.OWHG&&OWHG.items&&OWHG.items().length);if(s!==hasStore){hasStore=s;draw()}else mark()}).observe(D.body,{childList:true});
- setTimeout(function(){var s=!!(window.OWHG&&OWHG.items&&OWHG.items().length);if(s!==hasStore){hasStore=s;draw()}},1500);
+ new MutationObserver(function(){var s=!!D.getElementById('ogBs');if(s!==hasStore){hasStore=s;draw()}else mark()}).observe(D.body,{childList:true});
+ setTimeout(function(){var s=!!D.getElementById('ogBs');if(s!==hasStore){hasStore=s;draw()}},1500);
  draw();sync()}
 if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',init);else init()})();

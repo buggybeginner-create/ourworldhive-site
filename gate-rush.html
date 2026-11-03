@@ -191,12 +191,37 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:#10183e;border:1px solid var(--gold);padding:10px 18px;border-radius:99px;z-index:80;transition:all .3s;pointer-events:none;font-weight:600;max-width:90vw;text-align:center}#toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
-</head><body>
+<style id="owhfit">
+html,body{height:100%;overflow:hidden}
+body{padding-block:0 !important}
+.wrap{height:100dvh;display:flex;flex-direction:column;max-width:1080px}
+.top{flex:none;flex-wrap:nowrap;padding-block:8px 6px !important;gap:10px}
+.brand{font-size:19px}
+#hExit{display:none;margin-left:auto}
+body.ig #hExit{display:inline-flex;margin-right:34px}
+main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.bn{flex:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:6px 0 max(6px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.bn .btn{flex-direction:column;gap:1px;min-height:52px;padding:4px 1px;border-radius:12px;font-size:11px;line-height:1.1;font-weight:700}
+.bn .btn b{font-size:21px;line-height:1;font-weight:400}
+.bn .btn[aria-current=true]{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45)}
+body.ig .bn{display:none}
+#sHome{min-height:100%;display:flex;flex-direction:column;justify-content:center}
+.hero{padding-block:2px !important;gap:12px !important}
+.hero h1{font-size:clamp(26px,5.2vh,64px) !important;margin:0 !important}
+.hero p{font-size:clamp(12.5px,1.9vh,17px) !important;margin-block:6px !important;line-height:1.4}
+.hero .btn{min-height:40px}.hero svg{max-height:34dvh;width:auto !important;max-width:100% !important}
+.hero .cta{gap:8px}
+@media (max-width:760px){.hero{grid-template-columns:1fr !important}.hero svg{max-height:23dvh}}
+.setup{gap:8px !important}.setup .card{padding:10px 12px}
+#sProf .sec,#sRank .sec{margin-top:10px}
+@media (min-width:900px){.bn{max-width:640px;width:100%;margin-inline:auto}}
+.swp{animation:owhsw .22s ease-out}@keyframes owhsw{from{opacity:.4;transform:translateX(var(--sw,0))}to{opacity:1;transform:none}}
+</style></head><body>
 
 
 <div class="wrap">
 <header class="top"><div class="brand"><i></i>🧱 Gate Rush</div>
-<nav class="tabs" aria-label="Sections"><button class="btn" data-go="home" aria-current="true">🏠 Home</button><button class="btn" data-go="setup">🎮 Play</button><button class="btn" data-go="how">📖 How to play</button></nav></header>
+<button class="btn sm" id="hExit" data-go="home" type="button">✕ Exit</button></header>
 
 <main>
 <section id="sHome">
@@ -204,9 +229,13 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
  <div class="cta"><button class="btn go" data-go="setup">▶ Play now</button><button class="btn" data-inv="">📲 Invite friends</button><button class="btn" data-go="how">Rules</button><a class="btn" href="rankings.html" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center">🌍 World rankings</a><a class="btn" href="index.html" style="text-decoration:none;color:var(--ink);display:inline-flex;align-items:center">← Ourworldhive</a></div></div>
  <svg viewBox="0 0 114 114" aria-hidden="true"><defs><linearGradient id="hT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8f6ff" stop-opacity=".30"/><stop offset="1" stop-color="#7aa8ff" stop-opacity=".08"/></linearGradient><linearGradient id="hW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#9fe6ff"/><stop offset="1" stop-color="#5a8bff"/></linearGradient></defs><rect width="114" height="114" rx="10" fill="#0b1236"/><g id="heroTiles"></g><g id="heroWalls"></g><circle cx="57" cy="91" r="4.6" fill="#3fd8ff"/><circle cx="57" cy="23" r="4.6" fill="#ff6fb4"/><text x="57" y="92.8" font-size="6" text-anchor="middle">🦊</text><text x="57" y="24.8" font-size="6" text-anchor="middle">🐉</text></svg></div>
 
+</section>
+<section id="sProf" hidden>
  <div class="card sec" style="margin-top:6px"><div class="prof"><div><div class="lbl">Your name</div><input id="pName" maxlength="14" aria-label="Your name" autocomplete="off"></div><div><div class="lbl">Your avatar</div><div class="avs" id="avPick"></div></div></div>
  <div class="stats" id="myStats"></div><div id="myTier" style="margin-top:12px"></div></div>
 
+</section>
+<section id="sRank" hidden>
  <div class="sec"><h2>🎮 Pick a game</h2><div class="gcards" id="gCards"></div></div>
  <div class="sec"><h2>🏆 Rankings</h2>
  <div class="card"><div class="rk-ctl"><div class="seg" id="rkGame" role="group" aria-label="Game"></div></div>
@@ -255,7 +284,7 @@ body.ig .top{padding-block:0 6px;gap:8px}body.ig .brand{font-size:17px}body.ig .
  <div class="card chat" id="chat"><div class="chh"><span class="lbl">Chat</span><button class="btn sm" id="chX" type="button" aria-label="Close chat">✕</button></div><div class="log" id="log" aria-live="polite"></div><div class="quick" id="quick"></div><div><div class="emo" id="emo"></div><form class="say" id="sayF" style="margin-top:8px"><input id="sayI" maxlength="60" placeholder="Say something nice…" autocomplete="off" aria-label="Chat message"><button class="btn sm go" type="submit">Send</button></form></div></div>
  </div>
 </section>
-</main></div>
+</main><nav class="bn" id="bnav" aria-label="Sections"><button class="btn" data-go="home" aria-current="true"><b>🏠</b><span>Home</span></button><button class="btn" data-go="setup"><b>🎮</b><span>Play</span></button><button class="btn" data-go="online"><b>🌐</b><span>Online</span></button><button class="btn" data-go="how"><b>📖</b><span>Rules</span></button><button class="btn" data-go="rank"><b>🏆</b><span>Ranks</span></button><button class="btn" data-go="prof"><b>👤</b><span>Profile</span></button></nav></div>
 <div id="cbg" hidden></div>
 <div id="toast" role="status"></div>
 
@@ -427,8 +456,19 @@ function openInvite(gid,link,roomMsg){
  inp.addEventListener('input',function(){if(!link){var v=url().split('#')[0];LS.set('cb_base',v)}paint()});paint()}
 document.addEventListener('click',function(e){var p=e.target.closest('[data-play]');if(p){setGame(p.dataset.play);show('setup');return}var v=e.target.closest('[data-inv]');if(v)openInvite(v.dataset.inv||null)});
 /* ---------------- navigation ---------------- */
-function show(n){['home','setup','how','game','room'].forEach(function(x){$('#s'+x.charAt(0).toUpperCase()+x.slice(1)).hidden=x!==n});$$('.tabs .btn').forEach(function(b){b.setAttribute('aria-current',b.dataset.go===n)});document.body.classList.toggle('ig',n==='game');closeModal();openChat(false);window.scrollTo(0,0);if(n==='game')requestAnimationFrame(fit);if(n==='home'){renderRank();renderMine();renderCards()}if(n==='setup')drawSetup()}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(b){e.preventDefault();if(G&&!G.over&&$('#sGame').hidden===false&&b.dataset.go!=='game'){G.over=1;clearInterval(G.iv)}show(b.dataset.go)}});
+function show(n){['home','setup','how','game','room','prof','rank'].forEach(function(x){$('#s'+x.charAt(0).toUpperCase()+x.slice(1)).hidden=x!==n});markTab();document.body.classList.toggle('ig',n==='game');closeModal();openChat(false);window.scrollTo(0,0);if(n==='game')requestAnimationFrame(fit);if(n==='home'||n==='rank'||n==='prof'){renderRank();renderMine();renderCards()}if(n==='setup')drawSetup()}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(b){e.preventDefault();if(G&&!G.over&&$('#sGame').hidden===false&&b.dataset.go!=='game'){G.over=1;clearInterval(G.iv)}var go=b.dataset.go,on=go==='online';show(on?'setup':go);if(go==='setup'&&SET.mode==='online'){var bb=$('#mMode [data-v=bot]');if(bb)bb.click()}if(on){var mb=$('#mMode [data-v=online]');if(mb)mb.click()}markTab()}});
+
+/* ---- one-screen layout: bottom tabs and swipe ---- */
+var TABS=['home','setup','online','how','rank','prof'];
+function curTab(){var n='home';['home','setup','how','prof','rank'].forEach(function(x){var e=$('#s'+x.charAt(0).toUpperCase()+x.slice(1));if(e&&!e.hidden)n=x});if(n==='setup'&&SET&&SET.mode==='online')n='online';return n}
+function markTab(){var c=curTab();$$('.bn .btn').forEach(function(b){b.setAttribute('aria-current',b.dataset.go===c)})}
+document.addEventListener('click',function(e){if(e.target.closest('#mMode'))setTimeout(markTab,0)});
+function goTab(t,dir){var b=$('.bn [data-go="'+t+'"]');if(!b)return;b.click();var m=$('main');if(m){m.style.setProperty('--sw',(dir>0?'40px':'-40px'));m.classList.remove('swp');void m.offsetWidth;m.classList.add('swp')}}
+(function(){var x0=0,y0=0,t0=0,ok=false,m=$('main');if(!m)return;
+ m.addEventListener('touchstart',function(e){var t=e.target;ok=e.touches.length===1&&!document.body.classList.contains('ig')&&!(t.closest&&t.closest('input,textarea,select,.chat'));x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now()},{passive:true});
+ m.addEventListener('touchend',function(e){if(!ok)return;ok=false;var c=e.changedTouches[0],dx=c.clientX-x0,dy=c.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-t0>800)return;var i=TABS.indexOf(curTab()),j=i+(dx<0?1:-1);if(j>=0&&j<TABS.length)goTab(TABS[j],dx<0?1:-1)},{passive:true});
+ document.addEventListener('keydown',function(e){if(document.body.classList.contains('ig')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;var i=TABS.indexOf(curTab()),j=i+(e.key==='ArrowRight'?1:-1);if(j>=0&&j<TABS.length)goTab(TABS[j],e.key==='ArrowRight'?1:-1)})})();
 /* ---------------- setup ---------------- */
 var SET={mode:'bot',lvl:1,tm:0,game:window.HR_LOCK||'blockade',np:4,role:2,seed:0};
 function syncSetup(){var D=DEFS[SET.game];var onl=SET.mode==='online';$('#rowLvl').hidden=SET.mode!=='bot';$('#rowOnline').hidden=!onl;$('#rowTime').hidden=onl;$('#goStart').hidden=onl;if(onl&&window.HRO&&HRO.setupOpen)HRO.setupOpen();$('#rowNP').hidden=!D.multi;$('#rowRole').hidden=!D.roles||onl;$$('#mRole button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v==SET.role)});var np=D.multi?+SET.np:2;$('#rowName2').hidden=SET.mode!=='local';var l=$('#p2List'),cur=$$('.p2n',l).map(function(i){return i.value}),h='';for(var k=1;k<np;k++)h+='<input class="p2n linkin" maxlength="14" aria-label="Player '+(k+1)+' name" value="'+esc(cur[k-1]||('Friend'+(np>2?' '+k:'')))+'" style="margin:0">';l.innerHTML=h;$$('#mNP button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v==SET.np)})}

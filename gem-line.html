@@ -271,6 +271,8 @@ function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttr
 var AVS=['🦊','🐯','🐼','🦄','🐲','🦁','🐧','🤖','👾','🧙'];
 var BOTS=[{n:'Sprout',av:'🐣'},{n:'Owl',av:'🦉'},{n:'Dragon',av:'🐉'}];
 var prof=LS.get('cb_prof',{name:'Player'+(100+Math.floor(Math.random()*900)),av:'🦊'});
+/* one name for every game: use the shared name (owh_bx_name) until the player changes it */
+try{var _gn=localStorage.getItem('owh_bx_name');if(_gn){prof.name=_gn.slice(0,14)}else{localStorage.setItem('owh_bx_name',prof.name)}}catch(e){}
 var COL=['var(--p0)','var(--p1)','var(--p2)','var(--p3)'];
 /* ---------------- sound ---------------- */
 var AC=null,snd=true;
@@ -388,7 +390,7 @@ function record(rec){var a=matches();a.push(rec);if(a.length>300)a=a.slice(-300)
 function drawProf(){$('#pName').value=prof.name;$('#avPick').innerHTML=AVS.map(function(a){return'<button type="button" data-a="'+a+'" aria-pressed="'+(a===prof.av)+'" aria-label="Avatar '+a+'">'+a+'</button>'}).join('')}
 $('#pName').addEventListener('change',function(){var el=this,v=el.value.trim().slice(0,14)||'Player',old=prof.name;
   if(window.OWHG)OWHG.claimName(v).then(function(r){if(r.ok){prof.name=r.name;el.value=r.name;LS.set('cb_prof',prof);renderRank();renderMine();toast('Name saved. Your scores moved to the new name.')}else{el.value=old;toast(r.msg)}});
-  else{prof.name=v;LS.set('cb_prof',prof);renderRank();renderMine()}});
+  else{prof.name=v;try{localStorage.setItem('owh_bx_name',v)}catch(e){}LS.set('cb_prof',prof);renderRank();renderMine()}});
 $('#avPick').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;prof.av=b.dataset.a;LS.set('cb_prof',prof);drawProf()});
 $('#rkSample').addEventListener('change',function(){RK.sample=this.checked;renderRank()});
 /* ---------------- modals ---------------- */

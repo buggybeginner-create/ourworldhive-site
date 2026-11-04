@@ -8,6 +8,8 @@
 <style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.backlink{display:block;margin-bottom:3px;color:#ffc857!important}</style>
 
 <meta name="claude:viewport-fit-sides" content="cover">
+
+<meta name="claude:viewport-fit-sides" content="cover">
 </head><body><!--app-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
@@ -171,7 +173,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .mirror{background:var(--win);border-radius:6px;padding:6px 10px;width:150px;flex:none}
 .mirror svg{display:block;width:100%;height:auto}
 .simtop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-canvas{display:block;width:100%;height:300px}
+canvas{display:block;width:100%;height:330px}
 .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink2);margin-top:6px}
 .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .slider{display:flex;align-items:center;gap:10px;margin-top:10px}
@@ -263,6 +265,8 @@ body.sheet-open .sheet{transform:none}
 .dcsl .st.on{background:#1f4a2e;color:#c9f2d5}
 .mainsvg text{font-family:var(--f-key)}
 @media (max-width:420px){.hdr .brand{font-size:13.5px}.hdr .brand small{font-size:10px}.lang span{display:none}}
+.dcsn{margin:0 0 10px;padding:8px 10px;border-radius:8px;background:#1d2226;border-left:3px solid var(--accent)}
+.disc{margin:0;text-align:center;font-size:11.5px;color:var(--ink3)}
 </style>
 
 <header class="hdr">
@@ -318,7 +322,8 @@ body.sheet-open .sheet{transform:none}
 
   <div class="hintline"><span data-t="tapDisp">Tap the display for details</span><span data-t="swipe">Swipe left or right to change tabs</span></div>
   <div class="card" id="guide" aria-live="polite"></div>
-  <div class="foot">© 2026 DUKEKRRISH · ourworldhive.com. All rights reserved.</div>
+  <p class="disc" data-t="disc">Training purpose only. Not affiliated with the equipment manufacturer or supplier.</p>
+  <div class="foot">© 2026 DUKEKRRISH · ourworldhive.com. All rights reserved. <a href="terms.html#training" style="color:inherit">Terms</a></div>
 </div></section>
 
 <section class="pane" id="p-sim" role="tabpanel"><div class="col">
@@ -337,6 +342,7 @@ body.sheet-open .sheet{transform:none}
   </div>
   <div class="card">
     <h3 data-t="dcs">DCS / remote commands</h3>
+    <p class="note dcsn" id="dcsNote"></p>
     <div class="grid3">
       <button class="btn go" id="dFwd" data-t="dFwd">Start FWD (S1)</button>
       <button class="btn go" id="dRev" data-t="dRev">Start REV (S2)</button>
@@ -348,7 +354,6 @@ body.sheet-open .sheet{transform:none}
     </div>
     <div class="slider"><label for="dSp" data-t="dSp">Speed ref A1</label><input type="range" id="dSp" min="0" max="100" step="0.5" value="0"><output id="dSpO">0.0 V</output></div>
     <div class="chips" id="tChips"></div>
-    <p class="note" id="dcsNote"></p>
   </div>
   <div class="card">
     <h3 data-t="plant">Plant</h3>
@@ -1054,6 +1059,9 @@ const UI={
  hLocal:['LOCAL: the keypad now controls RUN/STOP and speed (SEQ/REF LEDs off).','LOCAL: अब कीपैड से RUN/STOP और स्पीड (SEQ/REF LED बंद)।','LOCAL: ab keypad se RUN/STOP aur speed (SEQ/REF LED off).'],
  hRem:['REMOTE: commands now come from the terminals / DCS (SEQ/REF LEDs on).','REMOTE: अब कमांड टर्मिनल / DCS से (SEQ/REF LED जलेंगी)।','REMOTE: ab command terminal / DCS se (SEQ/REF LED on).'],
  brk1:['Braking unit','ब्रेकिंग यूनिट','Braking unit'],brk2:['(option) ⊕3 · (−)','(ऑप्शन) ⊕3 · (−)','(option) ⊕3 · (−)'],
+ disc:['Training purpose only. Not affiliated with the equipment manufacturer or supplier.','केवल प्रशिक्षण के लिए। उपकरण निर्माता या सप्लायर से संबद्ध नहीं।','Sirf training ke liye. Equipment manufacturer ya supplier se juda nahi.'],
+ nA1:['Speed reference A1 is 0 V, so the motor will not turn. Move the Speed ref A1 slider up.','स्पीड रेफ़ A1 = 0 V है, मोटर नहीं घूमेगी। Speed ref A1 स्लाइडर बढ़ाएँ।','Speed ref A1 = 0 V hai, motor nahi ghoomegi. Speed ref A1 slider badhao.'],
+ tSpd:['Speed (Hz)','स्पीड (Hz)','Speed (Hz)'],tCur:['Current (A)','करंट (A)','Current (A)'],tDc:['DC bus (V)','DC बस (V)','DC bus (V)'],
  back:['Training Hub','ट्रेनिंग हब','Training Hub'],
  // guide
  mDRIVE:['Operation (DRIVE): run the drive and watch monitors','ऑपरेशन (DRIVE): ड्राइव चलाएँ और मॉनिटर देखें','Operation (DRIVE): drive chalao aur monitors dekho'],
@@ -1611,8 +1619,9 @@ function renderSim(){
   if(U.power&&D.mode==='REMOTE'&&V['b1-01']!=1)n+=' '+t('nRef');
   $('dcsNote').textContent=n;
 }
-$('dFwd').addEventListener('click',()=>{TM.S1=true;TM.S2=false});
-$('dRev').addEventListener('click',()=>{TM.S2=true;TM.S1=false});
+function dcsCheck(){setTimeout(()=>{if(!(TM.S1||TM.S2))return;if(!D.run){hintText($('dcsNote').textContent)}else if(V['b1-01']==1&&TM.A1<0.05)hintText(t('nA1'))},450)}
+$('dFwd').addEventListener('click',()=>{TM.S1=true;TM.S2=false;renderSim();dcsCheck()});
+$('dRev').addEventListener('click',()=>{TM.S2=true;TM.S1=false;renderSim();dcsCheck()});
 $('dStop').addEventListener('click',()=>{TM.S1=false;TM.S2=false});
 $('dRst').addEventListener('click',()=>{TM.S4=true;setTimeout(()=>{TM.S4=false},500)});
 $('dEf').addEventListener('click',()=>{TM.S3=!TM.S3});
@@ -1623,22 +1632,23 @@ $('loadSel').addEventListener('click',e=>{const b=e.target.closest('button');if(
 $('mains').addEventListener('click',()=>{PL.mains=!PL.mains;$('mains').classList.toggle('on',PL.mains);$('mains').textContent=t(PL.mains?'mainsOn':'mainsOff')});
 
 /* ---- trend ---- */
-const TRD=[];let trT=0;const cv=$('trend');let ctx=cv.getContext('2d'),cw=0,chh=300;
+const TRD=[];let trT=0;const cv=$('trend');let ctx=cv.getContext('2d'),cw=0,chh=330;
 function sizeCanvas(){const r=cv.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;cw=r.width;cv.width=Math.round(r.width*d);cv.height=Math.round(chh*d);ctx.setTransform(d,0,0,d,0,0);drawTrend()}
 window.addEventListener('resize',()=>{if(curTab===1)sizeCanvas()});
 function sample(){TRD.push({f:Math.abs(D.f),r:D.run&&!D.stopping||D.jog?fref():0,i:U.power?D.I:0,v:D.Vdc});if(TRD.length>300)TRD.shift()}
 function drawTrend(){
   if(!cw)return;const W=cw,H=chh,L=44,Rr=8;ctx.clearRect(0,0,W,H);
   const cs=getComputedStyle(document.documentElement);const col=k=>cs.getPropertyValue(k).trim();
-  const bands=[{top:8,h:76,max:Math.max(10,V['E1-04']*1.05),min:0,u:'Hz',lines:[['r','--t-ref',[5,4]],['f','--t-freq',null]]},
-    {top:110,h:76,max:Math.ceil(DR.rated*1.6/100)*100,min:0,u:'A',lines:[['i','--t-cur',null]]},
-    {top:208,h:76,max:900,min:400,u:'V',lines:[['v','--t-dc',null]],marks:[[820,'OV'],[760,'StallP']]}];
+  const bands=[{top:24,h:66,ttl:'tSpd',max:Math.max(10,V['E1-04']*1.05),min:0,u:'Hz',lines:[['r','--t-ref',[5,4]],['f','--t-freq',null]]},
+    {top:132,h:66,ttl:'tCur',max:Math.ceil(DR.rated*1.6/100)*100,min:0,u:'A',lines:[['i','--t-cur',null]]},
+    {top:240,h:66,ttl:'tDc',max:900,min:400,u:'V',lines:[['v','--t-dc',null]],marks:[[820,'OV'],[760,'StallP']]}];
   ctx.font='10px JetBrains Mono, monospace';ctx.textBaseline='middle';
   bands.forEach(b=>{
+    ctx.fillStyle=col('--ink2');ctx.textAlign='left';ctx.font='600 11px Barlow, sans-serif';ctx.fillText(t(b.ttl),L,b.top-13);ctx.font='10px JetBrains Mono, monospace';
     const y=v=>b.top+b.h-(Math.min(b.max,Math.max(b.min,v))-b.min)/(b.max-b.min)*b.h;
     ctx.strokeStyle=col('--line');ctx.lineWidth=1;ctx.setLineDash([]);
-    for(let k=0;k<=2;k++){const v=b.min+(b.max-b.min)*k/2,yy=y(v);ctx.beginPath();ctx.moveTo(L,yy+.5);ctx.lineTo(W-Rr,yy+.5);ctx.stroke();ctx.fillStyle=col('--ink3');ctx.textAlign='right';ctx.fillText(Math.round(v)+(k===2?' '+b.u:''),L-5,yy)}
-    (b.marks||[]).forEach(m=>{const yy=y(m[0]);ctx.strokeStyle=m[0]>800?col('--bad'):col('--warn');ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-Rr,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.textAlign='left';ctx.fillText(m[1],m[0]>800?L+4:L+34,yy-6)});
+    for(let k=0;k<=2;k++){const v=b.min+(b.max-b.min)*k/2,yy=y(v);ctx.beginPath();ctx.moveTo(L,yy+.5);ctx.lineTo(W-Rr,yy+.5);ctx.stroke();ctx.fillStyle=col('--ink3');ctx.textAlign='right';ctx.fillText(Math.round(v),L-5,yy)}
+    (b.marks||[]).forEach(m=>{const yy=y(m[0]);ctx.strokeStyle=m[0]>800?col('--bad'):col('--warn');ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-Rr,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.textAlign='left';ctx.textAlign='right';ctx.fillText(m[1],W-Rr-4,m[0]>800?yy-6:yy+7)});
     b.lines.forEach(([k,c,dash])=>{if(TRD.length<2)return;ctx.strokeStyle=col(c);ctx.lineWidth=2;ctx.setLineDash(dash||[]);ctx.beginPath();
       TRD.forEach((s,i)=>{const x=L+(W-L-Rr)*(i+300-TRD.length)/299;i?ctx.lineTo(x,y(s[k])):ctx.moveTo(x,y(s[k]))});ctx.stroke();ctx.setLineDash([]);
       const s=TRD[TRD.length-1];ctx.fillStyle=col(c);ctx.beginPath();ctx.arc(W-Rr,y(s[k]),3,0,7);ctx.fill()});
@@ -1737,6 +1747,7 @@ function fitKeypad(){
 window.addEventListener('resize',()=>{fitKeypad()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitKeypad);
 let hintTO=null;
+function hintText(txt){const el=$('toast');el.textContent=txt;el.className='toast show';clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'},5200)}
 function hint(key,kind){const el=$('toast');if(!el)return;el.textContent=t(key);el.className='toast show'+(kind==='info'?' info':'');clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'+(kind==='info'?' info':'')},kind==='info'?2600:5200)}
 const NEXT={
  runL:[['On U1-01 press DATA/ENTER to edit the speed reference.','U1-01 पर DATA/ENTER दबाकर स्पीड रेफ़ बदलें।','U1-01 par DATA/ENTER dabakar speed ref badlo.'],['Use >/RESET to pick a digit and ∧/∨ to change it (for example 30.00 Hz), then DATA/ENTER.','>/RESET से अंक चुनें, ∧/∨ से बदलें (जैसे 30.00 Hz), फिर DATA/ENTER।','>/RESET se digit chuno, ∧/∨ se badlo (jaise 30.00 Hz), phir DATA/ENTER.'],['Press RUN to start and STOP to stop. FWD/REV changes direction.','RUN से चालू, STOP से बंद। FWD/REV से दिशा बदलें।','RUN se start, STOP se stop. FWD/REV se direction badlo.']],

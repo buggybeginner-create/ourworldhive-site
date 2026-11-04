@@ -12,6 +12,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 
 <meta name="claude:viewport-fit-sides" content="cover">
+
+<meta name="claude:viewport-fit-sides" content="cover">
 </head><body><!--app-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
@@ -272,6 +274,13 @@ body.sheet-open .sheet{transform:none}
 html,body{height:100%;height:100dvh}
 body{max-height:100dvh}
 #p-key{padding-top:8px}
+.lastmsg{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:55;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line);background:#2b4a68;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.lastmsg svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lastmsg.new::after{content:"";position:absolute;top:6px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--warn);border:2px solid #2b4a68}
+.lastmsg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+body.sheet-open .lastmsg{display:none}
+.toast{bottom:calc(66px + env(safe-area-inset-bottom,0px))!important}
 </style>
 
 <header class="hdr">
@@ -399,6 +408,7 @@ body{max-height:100dvh}
   <div class="shd"><div class="mirror"><svg id="seg3" viewBox="0 0 250 78"></svg></div><h2 id="shT" data-t="shTitle">Display details</h2><button class="x" id="shX" aria-label="Close">×</button></div>
   <div id="shBody"></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="lastmsg" id="lastmsg" hidden aria-label="Show last message"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
 
 <script>
 (function(){
@@ -1752,8 +1762,10 @@ function fitKeypad(){
 window.addEventListener('resize',()=>{fitKeypad()});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitKeypad);
 let hintTO=null;
-function hintText(txt){const el=$('toast');el.textContent=txt;el.className='toast show';clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'},5200)}
-function hint(key,kind){const el=$('toast');if(!el)return;el.textContent=t(key);el.className='toast show'+(kind==='info'?' info':'');clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'+(kind==='info'?' info':'')},kind==='info'?2600:5200)}
+let lastMsg=null;
+function noteMsg(m){lastMsg=m;const b=$('lastmsg');if(b){b.hidden=false;b.classList.remove('new')}}
+function hintText(txt){noteMsg({txt});const el=$('toast');el.textContent=txt;el.className='toast show';clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'},5200)}
+function hint(key,kind){const el=$('toast');if(!el)return;noteMsg({key,kind});el.textContent=t(key);el.className='toast show'+(kind==='info'?' info':'');clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'+(kind==='info'?' info':'')},kind==='info'?2600:5200)}
 const NEXT={
  runL:[['On U1-01 press DATA/ENTER to edit the speed reference.','U1-01 पर DATA/ENTER दबाकर स्पीड रेफ़ बदलें।','U1-01 par DATA/ENTER dabakar speed ref badlo.'],['Use >/RESET to pick a digit and ∧/∨ to change it (for example 30.00 Hz), then DATA/ENTER.','>/RESET से अंक चुनें, ∧/∨ से बदलें (जैसे 30.00 Hz), फिर DATA/ENTER।','>/RESET se digit chuno, ∧/∨ se badlo (jaise 30.00 Hz), phir DATA/ENTER.'],['Press RUN to start and STOP to stop. FWD/REV changes direction.','RUN से चालू, STOP से बंद। FWD/REV से दिशा बदलें।','RUN se start, STOP se stop. FWD/REV se direction badlo.']],
  runR:[['REMOTE: run comes from S1/S2 and speed from A1 (your DCS).','REMOTE: रन S1/S2 से और स्पीड A1 से (DCS)।','REMOTE: run S1/S2 se aur speed A1 se (DCS).'],['In the Simulate tab move the A1 slider and press Start FWD.','सिमुलेशन टैब में A1 स्लाइडर हिलाएँ और Start FWD दबाएँ।','Simulate tab me A1 slider badhao aur Start FWD dabao.'],['To run from the keypad, press LOCAL/REMOTE (SEQ/REF LEDs go off).','कीपैड से चलाने के लिए LOCAL/REMOTE दबाएँ (SEQ/REF LED बंद)।','Keypad se chalane ke liye LOCAL/REMOTE dabao (SEQ/REF LED off).']],
@@ -1813,6 +1825,7 @@ function appTick(){
   if(curTab===2&&appN%3===0)renderWire();
   if(curTab===3&&appN%5===0)renderTrb(false);
 }
+$('lastmsg').addEventListener('click',()=>{if(!lastMsg)return;if(lastMsg.key)hint(lastMsg.key,lastMsg.kind);else hintText(lastMsg.txt)});
 applyLang();updSp();termInfo(null);fitKeypad();setTimeout(fitKeypad,300);
 {const i=HASH.indexOf(location.hash.slice(1));setTab(i>=0?i:0,false)}
 })();

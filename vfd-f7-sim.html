@@ -14,6 +14,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 
 <meta name="claude:viewport-fit-sides" content="cover">
+
+<meta name="claude:viewport-fit-sides" content="cover">
 </head><body><!--app-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
@@ -889,6 +891,7 @@ function key(k,phase){
   if(U.menu==='DRIVE'){
     const o=ope();
     if(o&&!U.opeView){if(k==='ENTER'){U.opeView=true;U.view='num';U.mon=MONS.findIndex(x=>x[0]==='U1-34')}render();return}
+    if((k==='UP'||k==='DOWN')&&U.view==='val'&&U.mon===0)hint(refOp()?'hMonScroll':'hMonScrollR','info');
     if(k==='UP'){U.mon=(U.mon+1)%MONS.length;U.view='num'}
     if(k==='DOWN'){U.mon=(U.mon-1+MONS.length)%MONS.length;U.view='num'}
     if(k==='ESC'){U.view='num'}
@@ -1077,6 +1080,8 @@ const UI={
  disc:['Training purpose only. Not affiliated with the equipment manufacturer or supplier.','केवल प्रशिक्षण के लिए। उपकरण निर्माता या सप्लायर से संबद्ध नहीं।','Sirf training ke liye. Equipment manufacturer ya supplier se juda nahi.'],
  nA1:['Speed reference A1 is 0 V, so the motor will not turn. Move the Speed ref A1 slider up.','स्पीड रेफ़ A1 = 0 V है, मोटर नहीं घूमेगी। Speed ref A1 स्लाइडर बढ़ाएँ।','Speed ref A1 = 0 V hai, motor nahi ghoomegi. Speed ref A1 slider badhao.'],
  tSpd:['Speed (Hz)','स्पीड (Hz)','Speed (Hz)'],tCur:['Current (A)','करंट (A)','Current (A)'],tDc:['DC bus (V)','DC बस (V)','DC bus (V)'],
+ hMonScroll:['∧/∨ here selects the next monitor (U1-02, U1-03 …), not the speed. To change the speed: on U1-01 press DATA/ENTER first, so a digit blinks, then use ∧/∨ and DATA/ENTER. Press ∨ to come back to U1-01, then DATA/ENTER to see its value.','यहाँ ∧/∨ से अगला मॉनिटर (U1-02, U1-03 …) आता है, स्पीड नहीं बदलती। स्पीड बदलने के लिए: U1-01 पर पहले DATA/ENTER दबाएँ ताकि अंक ब्लिंक करे, फिर ∧/∨ और DATA/ENTER। वापस U1-01 के लिए ∨ दबाएँ, फिर DATA/ENTER से उसकी वैल्यू।','Yahan ∧/∨ se agla monitor (U1-02, U1-03 …) aata hai, speed nahi badalti. Speed badalne ke liye: U1-01 par pehle DATA/ENTER dabao taaki digit blink kare, phir ∧/∨ aur DATA/ENTER. Wapas U1-01 ke liye ∨ dabao, phir DATA/ENTER se uski value.'],
+ hMonScrollR:['∧/∨ here selects the next monitor (U1-02, U1-03 …). In REMOTE the speed comes from terminal A1; press LOCAL/REMOTE to set it from the keypad.','यहाँ ∧/∨ से अगला मॉनिटर आता है। REMOTE में स्पीड टर्मिनल A1 से आती है; कीपैड से सेट करने के लिए LOCAL/REMOTE दबाएँ।','Yahan ∧/∨ se agla monitor aata hai. REMOTE me speed terminal A1 se aati hai; keypad se set karne ke liye LOCAL/REMOTE dabao.'],
  back:['Training Hub','ट्रेनिंग हब','Training Hub'],
  // guide
  mDRIVE:['Operation (DRIVE): run the drive and watch monitors','ऑपरेशन (DRIVE): ड्राइव चलाएँ और मॉनिटर देखें','Operation (DRIVE): drive chalao aur monitors dekho'],

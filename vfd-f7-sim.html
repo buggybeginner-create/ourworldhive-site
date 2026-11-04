@@ -1,0 +1,1805 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<title>Yaskawa F7 VFD Simulator (CIMR-F7A4220) | Ourworldhive Training Hub</title>
+<meta name="description" content="Interactive F7 drive training: JVOP-161 keypad with parameter guide, motor simulation with trend, DCS start/stop, wiring and fault troubleshooting from manual TM.F7.01.">
+<meta name="theme-color" content="#1b1f23"><link rel="canonical" href="https://ourworldhive.com/vfd-f7-sim.html">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="F7 VFD Simulator | Ourworldhive Training Hub"><meta property="og:url" content="https://ourworldhive.com/vfd-f7-sim.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png">
+<style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}body{margin:0;font-size:14px;font-family:system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}.backlink{display:block;margin-bottom:3px;color:#ffc857!important}</style>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+</head><body><!--app-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+
+/* Layout: one JVOP-161 LED keypad centred on a dark cabinet backplate; nothing else on screen. Single deliberate look. */
+:root{
+  --cabinet:#22262a; --cabinet2:#16191c;
+  --case:#e4e1d6; --case-edge:#bdb9ad;
+  --face:#5b7590; --face-dark:#4a627c; --face-ink:#f3f4f2;
+  --win:#140707;
+  --seg-on:#ff3322; --seg-off:#3a1310;
+  --led-off:#2c1f22; --led-on:#ff2f2a;
+  --navy:#2f4b6e; --navy-key:#3f5b7e; --key-white:#f8f8f4;
+  --stop:#e3322b;
+  --fine:#8b8f93;
+  --f-key:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:radial-gradient(120% 90% at 50% 20%,var(--cabinet),var(--cabinet2));color:var(--face-ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px;
+  box-sizing:border-box;min-height:100%;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.op{font-size:clamp(11px,4.1vw,16px);width:21em;max-width:100%;background:linear-gradient(180deg,#ecebe3,var(--case) 50%,#d9d6ca);
+  border-radius:.5em;padding:.75em .75em 1em;box-sizing:border-box;
+  box-shadow:0 0 0 1px var(--case-edge),0 0 0 .35em #cfccc0,0 0 0 calc(.35em + 1px) #a9a598,0 1.4em 2.6em rgba(0,0,0,.6)}
+.face{background:linear-gradient(180deg,var(--face),var(--face-dark));border-radius:.25em .25em 0 0;padding:.7em .8em .55em;
+  font-family:var(--f-key);font-weight:500;color:var(--face-ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+.ind{display:flex;justify-content:space-between;align-items:flex-start;font-size:.78em;letter-spacing:.03em;padding:0 .2em}
+.pairled{display:flex;flex-direction:column;align-items:center}
+.pairled .dots{display:flex;align-items:center}
+.pairled .lbl{display:flex;gap:1.35em;margin-top:.15em;line-height:1}
+.pairled .lbl2{font-size:.95em;line-height:1;margin-top:.05em}
+.bar{display:block;width:2.1em;height:.22em;background:#f1f1ec;border-radius:.1em;margin:0 -.05em}
+.dot{display:block;width:.68em;height:.68em;border-radius:50%;background:var(--led-off);box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.25)}
+.dot.on{background:radial-gradient(circle at 40% 35%,#ffd3c8,var(--led-on) 45%,#b3120e);box-shadow:0 0 .45em var(--led-on),0 0 1em rgba(255,47,42,.6)}
+.dot.blink{animation:dotb .5s steps(1) infinite}
+@keyframes dotb{0%{background:radial-gradient(circle at 40% 35%,#ffd3c8,var(--led-on) 45%,#b3120e);box-shadow:0 0 .45em var(--led-on)}50%{background:var(--led-off);box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}}
+.single{display:flex;flex-direction:column;align-items:center;gap:.15em;line-height:1}
+.win{margin:.75em 0 .8em;background:var(--win);border-radius:.15em;padding:.55em .7em;box-shadow:inset 0 0 0 .18em #0b0b0b,inset 0 .3em .8em rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.12)}
+.win svg{display:block;width:100%;height:auto}
+.seg{fill:var(--seg-off)}
+.seg.on{fill:var(--seg-on)}
+.lit{filter:drop-shadow(0 0 1.6px rgba(255,60,40,.9)) drop-shadow(0 0 5px rgba(255,40,20,.45))}
+.blk{animation:segb .6s steps(1) infinite}
+@keyframes segb{50%{opacity:0}}
+.modes{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;font-size:.74em;letter-spacing:.02em;text-align:center;line-height:1;align-items:start}
+.m{display:flex;flex-direction:column;align-items:center;gap:.25em;position:relative}
+.m i{display:block;width:.62em;height:.62em;background:#1e1b1c;box-shadow:inset 0 1px 1px rgba(0,0,0,.7)}
+.m.on i{background:#ff3a2c;box-shadow:0 0 .4em #ff3a2c,0 0 .9em rgba(255,58,44,.6)}
+.modes{position:relative}
+.prgm{position:absolute;left:20%;width:40%;top:0;height:0}
+.prgm b{position:absolute;left:calc(25% + .55em);right:calc(25% + .55em);top:.21em;height:.2em;background:#f1f1ec;border-radius:.1em}
+.prgm span{position:absolute;left:0;right:0;top:1.95em;text-align:center}
+.mrow{display:contents}
+.model{font-family:var(--f-key);font-size:.6em;letter-spacing:.06em;text-align:right;color:#2f3540;padding:.45em .3em 0;font-weight:500}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:.55em .55em;padding:.85em .4em 0}
+.k{appearance:none;font-family:var(--f-key);font-weight:500;cursor:pointer;height:2.9em;border-radius:.3em;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.02;padding:0;
+  transition:transform .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent}
+.k.w{background:linear-gradient(180deg,#fff,var(--key-white));color:var(--navy);border:.2em solid var(--navy);
+  box-shadow:0 .16em 0 #b9b6aa,0 .25em .4em rgba(0,0,0,.18)}
+.k.n{background:linear-gradient(180deg,#4a6789,var(--navy-key) 60%,#34506f);color:#f4f6f8;border:0;
+  box-shadow:0 .16em 0 #243a55,0 .25em .4em rgba(0,0,0,.25)}
+.k.down{transform:translateY(.14em);box-shadow:0 .02em 0 #b9b6aa}
+.k.n.down{box-shadow:0 .02em 0 #243a55}
+.k:focus-visible{outline:2px solid #ffb15c;outline-offset:2px}
+.k .t{font-size:1.02em;letter-spacing:.02em}
+.k .t2{font-size:1.02em;letter-spacing:.02em;border-top:1.5px solid currentColor;padding-top:.08em;margin-top:.06em}
+.k .ul{border-bottom:1.5px solid currentColor;padding-bottom:.04em}
+.k svg{width:1.9em;height:1.9em}
+.k.menu svg{width:1.6em;height:.95em;margin-top:.05em}
+.rs{grid-column:span 3;display:grid;grid-template-columns:1fr 1fr;margin-top:.25em;border-radius:.35em;overflow:hidden;box-shadow:0 .16em 0 #243a55,0 .25em .4em rgba(0,0,0,.25)}
+.k.big{height:3.1em;border-radius:0;box-shadow:none}
+.k.big .t{font-size:1.45em;letter-spacing:.04em}
+.k.run{background:linear-gradient(180deg,#4a6789,var(--navy-key) 60%,#34506f)}
+.k.stop{background:linear-gradient(180deg,#f04a42,var(--stop) 60%,#c9241e);color:#fff}
+.k.big.down{transform:none;filter:brightness(.88)}
+.k .kd{position:absolute;top:.4em;left:.55em;width:.5em;height:.5em;border-radius:50%;background:#4b1714;box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
+.k.stop .kd{background:#8f1712}
+.k .kd.on{background:radial-gradient(circle at 40% 35%,#ffd3c8,var(--led-on) 50%,#b3120e);box-shadow:0 0 .45em #ff6a5c}
+.k .kd.blink{animation:dotb .5s steps(1) infinite}
+.foot{font-family:var(--f-key);font-size:11px;letter-spacing:.08em;color:var(--fine);text-align:center}
+@media (prefers-reduced-motion:reduce){.k{transition:none}}
+
+/* ---- app shell: header + tabs + 4 swipeable panes (Keypad · Simulation · Wiring · Troubleshoot) ---- */
+:root{
+  --ink:#e8ecef; --ink2:#a9b3bc; --ink3:#77828c;
+  --card:#2b3137; --card2:#323a42; --line:#3f4851;
+  --accent:#6fa8dc; --ok:#57c27a; --warn:#f0b84a; --bad:#ff5b4a;
+  --t-freq:#6fa8dc; --t-ref:#c7d3dd; --t-cur:#f0b84a; --t-dc:#c08bf0;
+  --f-ui:"Barlow","Noto Sans Devanagari",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+html,body{height:100%}
+body{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;padding:0;min-height:0;overflow:hidden;font-family:var(--f-ui);color:var(--ink);
+  background:radial-gradient(120% 70% at 50% 0%,var(--cabinet),var(--cabinet2))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#1b1f23}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:8px 6px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:#1b1f23;border-bottom:1px solid #2c3238}
+.brand{font-family:var(--f-key);font-weight:700;letter-spacing:.08em;font-size:15px;line-height:1.1}
+.brand small{display:block;font-weight:500;letter-spacing:.04em;font-size:11px;color:var(--ink3)}
+.lang{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
+.lang select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:#1b1f23;position:relative;
+  padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tab{appearance:none;background:none;border:0;color:var(--ink3);font:600 12px/1 var(--f-key);letter-spacing:.06em;text-transform:uppercase;padding:7px 2px 8px;cursor:pointer;border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.tab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.viewport{flex:1;min-height:0;overflow:hidden;overflow:clip;position:relative}
+.track{display:flex;width:400%;height:100%;transition:transform .32s cubic-bezier(.2,.7,.2,1)}
+.pane{width:25%;height:100%;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch;
+  padding-block:12px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.col{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+#p-key .op{margin:2px auto 0}
+.swipehint{text-align:center;font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.card h3{margin:0 0 8px;font:700 12px/1.2 var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.g-id{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.g-id b{font:500 18px/1 var(--f-mono);color:var(--seg-on)}
+.g-id span{font-weight:600;font-size:16px}
+.g-mode{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.g-txt{font-size:14px;line-height:1.5;color:var(--ink);margin:8px 0 0;text-wrap:pretty}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin-top:10px}
+.kv dt{color:var(--ink3)}
+.kv dd{margin:0;font-family:var(--f-mono);font-size:12.5px;min-width:0;overflow-wrap:anywhere}
+.opts{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.opts li{display:flex;gap:10px;padding:4px 8px;border-radius:6px}
+.opts li code{font-family:var(--f-mono);min-width:2.6em;color:var(--ink2)}
+.opts li.cur{background:#3a2422;color:#ffd9d4}
+.opts li.cur code{color:var(--seg-on)}
+.opts li.def::after{content:attr(data-def);margin-left:auto;font-size:11px;color:var(--ink3)}
+.tip{margin-top:10px;font-size:12.5px;color:var(--ink2);border-top:1px dashed var(--line);padding-top:8px;line-height:1.45}
+.pill{display:inline-flex;align-items:center;gap:5px;font:600 11px/1 var(--f-key);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);background:var(--card2)}
+.pill.ok{color:#c9f2d5;border-color:#2f6b45;background:#1f3a29}
+.pill.warn{color:#ffe7b3;border-color:#7a5a1d;background:#3a2c12}
+.pill.bad{color:#ffd2cc;border-color:#7d2a22;background:#3d1714}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card2);color:var(--ink);font:600 13px/1.1 var(--f-key);letter-spacing:.05em;text-transform:uppercase;border-radius:8px;padding:11px 8px;cursor:pointer;min-height:44px}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.go{background:#1f4a2e;border-color:#2f7a48;color:#d7f7e1}
+.btn.go.on{background:#2f8a50;box-shadow:0 0 0 2px #57c27a inset}
+.btn.st{background:#5a1f1a;border-color:#94342b;color:#ffe0db}
+.btn.amb{background:#4a3a14;border-color:#8a6a1e;color:#ffeec5}
+.btn.on.amb{background:#a8781a;color:#1b1206}
+.btn.link{background:none;border-color:var(--accent);color:var(--accent);min-height:36px;padding:8px 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.read{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rd{background:var(--card2);border-radius:8px;padding:8px 9px;min-width:0}
+.rd small{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd b{display:block;font:500 16px/1.25 var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rd b i{font-style:normal;font-size:11px;color:var(--ink3);margin-left:2px}
+@media (max-width:460px){.read{grid-template-columns:repeat(2,1fr)}}
+.motorbox{display:grid;grid-template-columns:1fr;gap:8px}
+.motorsvg{width:100%;height:auto;display:block}
+.mirror{background:var(--win);border-radius:6px;padding:6px 10px;width:150px;flex:none}
+.mirror svg{display:block;width:100%;height:auto}
+.simtop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+canvas{display:block;width:100%;height:300px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink2);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.slider{display:flex;align-items:center;gap:10px;margin-top:10px}
+.slider input{flex:1;accent-color:var(--accent);min-width:0}
+.slider output{font:500 13px var(--f-mono);min-width:7.5em;text-align:right}
+.note{font-size:12.5px;line-height:1.45;color:var(--ink2);margin:8px 0 0}
+.note b{color:var(--ink)}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg3 button{appearance:none;background:var(--card2);color:var(--ink2);border:0;border-right:1px solid var(--line);font:600 12px var(--f-key);letter-spacing:.05em;text-transform:uppercase;padding:10px 4px;cursor:pointer}
+.seg3 button:last-child{border-right:0}
+.seg3 button[aria-pressed="true"]{background:#2b4a68;color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font:500 11px var(--f-mono);padding:3px 6px;border-radius:4px;background:#22282d;color:var(--ink3);border:1px solid var(--line)}
+.chip.on{background:#1f4a2e;color:#c9f2d5;border-color:#2f7a48}
+.wirewrap{overflow-x:auto;border-radius:8px;background:#1d2226;border:1px solid var(--line)}
+.wirewrap svg{display:block;width:100%;min-width:620px;height:auto}
+.term{cursor:pointer}
+.term rect{stroke:#0e1113;stroke-width:1}
+.term:hover rect,.term:focus rect{stroke:#fff;stroke-width:1.5}
+.term text{font:600 9.5px var(--f-key);fill:#0e1113;pointer-events:none}
+.w-lbl{font:500 10.5px var(--f-ui);fill:var(--ink2)}
+.w-ttl{font:700 11px var(--f-key);letter-spacing:.08em;fill:var(--ink)}
+.w-live{font:500 10px var(--f-mono);fill:var(--warn)}
+.wire{fill:none;stroke-width:2}
+.wire.on{stroke-dasharray:6 4;animation:flow .6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-10}}
+.tlegend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink2);margin-top:8px}
+.tlegend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-2px}
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;background:#1d2226;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:500 16px var(--f-mono);padding:10px 12px;text-transform:uppercase}
+.search input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.quick button{appearance:none;background:#1d2226;border:1px solid var(--line);color:var(--ink2);border-radius:6px;font:500 12px var(--f-mono);padding:6px 8px;cursor:pointer}
+.quick button.act{border-color:var(--bad);color:#ffd2cc}
+.fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fcode{font:500 26px/1 var(--f-mono);color:var(--seg-on);text-shadow:0 0 8px rgba(255,51,34,.5)}
+.steps{margin:8px 0 0;padding-left:20px;font-size:14px;line-height:1.5}
+.steps li{margin:3px 0}
+.sub{font:700 11.5px var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+details{border-top:1px solid var(--line);padding:9px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:600;font-size:14px;line-height:1.35;list-style:none;display:flex;gap:8px}
+summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:1em}
+details[open] summary::before{content:"−"}
+.empty{color:var(--ink3);font-size:13.5px}
+.foot{padding-block:4px 0}
+
+/* ---- v4: fit, sheet, toast, wiring cards ---- */
+#p-key{padding-top:8px}
+#p-key .op{font-size:var(--kpf,clamp(11px,4.1vw,16px))}
+.k{touch-action:none;-webkit-user-select:none;user-select:none}
+.win{cursor:pointer;position:relative}
+.win::after{content:"";position:absolute;right:.35em;bottom:.3em;width:1.15em;height:1.15em;border-radius:50%;background:rgba(255,255,255,.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 7v4M8 4.6v.4' stroke='%23ff8a78' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center/80% no-repeat}
+.hintline{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);letter-spacing:.03em;text-align:center}
+.hintline b{color:var(--ink2);font-weight:600}
+.toast{box-sizing:border-box;position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:60;
+  width:min(calc(100vw - 32px),440px);background:#14181c;border:1px solid var(--warn);border-left-width:4px;border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.45;color:var(--ink);
+  box-shadow:0 10px 30px rgba(0,0,0,.5);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.info{border-color:var(--accent)}
+.sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:78%;overflow-y:auto;background:var(--card);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+  padding:8px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.7,.2,1);box-sizing:border-box}
+body.sheet-open .sheetbg{opacity:1;pointer-events:auto}
+body.sheet-open .sheet{transform:none}
+.sheet .grab{width:42px;height:4px;border-radius:2px;background:var(--line);margin:2px auto 10px}
+.sheet .shd{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sheet .shd .mirror{width:130px}
+.sheet .shd h2{margin:0;font:700 13px/1.2 var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);flex:1}
+.sheet .x{appearance:none;background:var(--card2);border:1px solid var(--line);color:var(--ink);width:40px;height:40px;border-radius:10px;font-size:20px;line-height:1;cursor:pointer}
+.sheet .inner{max-width:560px;margin:0 auto}
+.nextsteps{margin:10px 0 0;padding-left:20px;font-size:14px;line-height:1.5}
+.nextsteps li{margin:3px 0}
+.backlink{color:var(--ink2);text-decoration:none;font:600 12px var(--f-key);letter-spacing:.06em;white-space:nowrap}
+.mainsvg{display:block;width:100%;height:auto;max-width:420px;margin:0 auto}
+.tgroups{display:flex;flex-direction:column;gap:12px}
+.tg h4{margin:0 0 6px;font:700 11px var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+.tchip{appearance:none;border:2px solid transparent;border-radius:7px;padding:6px 4px 5px;cursor:pointer;color:#0e1113;text-align:center;font:700 13px/1.1 var(--f-key);min-width:0}
+.tchip small{display:block;font:500 10px/1.2 var(--f-ui);opacity:.75;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tchip.lit{border-color:#57c27a;box-shadow:0 0 0 2px rgba(87,194,122,.35),0 0 10px rgba(87,194,122,.5)}
+.tchip.sel{outline:2px solid #fff;outline-offset:1px}
+.tchip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dcsl{display:grid;grid-template-columns:minmax(0,1.1fr) auto minmax(0,.9fr) auto;gap:6px 8px;align-items:center;font-size:13px}
+.dcsl .h{font:700 10.5px var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.dcsl .ar{color:var(--ink3);font-family:var(--f-mono)}
+.dcsl code{font-family:var(--f-mono);font-size:12.5px;color:var(--ink)}
+.dcsl .st{font:500 11px var(--f-mono);padding:2px 6px;border-radius:4px;background:#22282d;color:var(--ink3);text-align:center;min-width:4.6em}
+.dcsl .st.on{background:#1f4a2e;color:#c9f2d5}
+.mainsvg text{font-family:var(--f-key)}
+@media (max-width:420px){.hdr .brand{font-size:13.5px}.hdr .brand small{font-size:10px}.lang span{display:none}}
+</style>
+
+<header class="hdr">
+  <div class="brand"><a class="backlink" href="training.html">‹ TRAINING HUB</a><span style="display:block">F7 DRIVE SIMULATOR</span><small>CIMR-F7A4220 · 400V 220kW · TM.F7.01</small></div>
+  <label class="lang"><span data-t="lang">Language</span>
+    <select id="lang"><option value="en">English</option><option value="hi">हिंदी</option><option value="hg">Hinglish</option></select></label>
+</header>
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t0" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx=".6"/><path d="M8.5 13h1M11.5 13h1M14.5 13h1M8.5 16h1M11.5 16h1M14.5 16h1"/></svg><span data-t="tKey">Keypad</span></button>
+  <button class="tab" role="tab" id="t1" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 12 16.5 7.5"/><path d="M7 15.5h2.5M14.5 15.5H17"/></svg><span data-t="tSim">Simulate</span></button>
+  <button class="tab" role="tab" id="t2" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 7h6l3 5h9M3 17h6l3-5"/><circle cx="21" cy="12" r="0.6"/></svg><span data-t="tWire">Wiring</span></button>
+  <button class="tab" role="tab" id="t3" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.2v.3"/></svg><span data-t="tTrb">Faults</span></button>
+</nav>
+<main class="viewport" id="vp"><div class="track" id="track">
+
+<section class="pane" id="p-key" role="tabpanel"><div class="col">
+<div class="op" id="op">
+  <div class="face">
+    <div class="ind">
+      <div class="pairled"><div class="dots"><i class="dot" id="L-fwd"></i><i class="bar"></i><i class="dot" id="L-rev"></i></div><div class="lbl"><span>FWD</span><span>REV</span></div></div>
+      <div class="pairled"><div class="dots"><i class="dot" id="L-seq"></i><i class="bar"></i><i class="dot" id="L-ref"></i></div><div class="lbl"><span>SEQ</span><span>REF</span></div><div class="lbl2">REMOTE</div></div>
+      <div class="single"><i class="dot" id="L-alm"></i><span>ALARM</span></div>
+    </div>
+    <div class="win"><svg id="seg" viewBox="0 0 250 78" aria-label="Display"></svg></div>
+    <div class="modes">
+      <div class="m" id="M-DRIVE"><i></i>DRIVE</div>
+      <div class="m" id="M-QUICK"><i></i>QUICK</div>
+      <div class="m" id="M-ADV"><i></i>ADV</div>
+      <div class="m" id="M-VERIFY"><i></i>VERIFY</div>
+      <div class="m" id="M-A.TUNE"><i></i>A.TUNE</div>
+      <div class="prgm"><b></b><span>PRGM</span></div>
+    </div>
+    <div style="height:1.05em"></div>
+  </div>
+  <div class="model">DIGITAL OPERATOR JVOP-161</div>
+  <div class="keys">
+    <button class="k n" data-k="LR" id="k-lr" aria-label="Local / Remote"><span class="t ul">LOCAL</span><span class="t">REMOTE</span></button>
+    <button class="k w menu" data-k="MENU" id="k-menu" aria-label="Menu"><span class="t">MENU</span>
+      <svg viewBox="0 0 30 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h2M12 2.5h2M17 2.5h2"/><path d="M25 3v5.5a2 2 0 0 1-2 2H6"/><path d="M10 6.5 6 10.5l4 4"/></svg></button>
+    <button class="k w" data-k="ESC" id="k-esc"><span class="t">ESC</span></button>
+    <button class="k n" data-k="JOG" id="k-jog"><span class="t">JOG</span></button>
+    <button class="k w" data-k="UP" id="k-up" aria-label="Increase"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="miter"><path d="M5 19 12 4l7 15"/></svg></button>
+    <button class="k w" data-k="ENTER" id="k-enter" aria-label="Data / Enter"><span class="t ul">DATA</span><span class="t">ENTER</span></button>
+    <button class="k n" data-k="FR" id="k-fr" aria-label="Forward / Reverse"><span class="t ul">FWD</span><span class="t">REV</span></button>
+    <button class="k w" data-k="DOWN" id="k-down" aria-label="Decrease"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="miter"><path d="M5 5l7 15 7-15"/></svg></button>
+    <button class="k w" data-k="SHIFT" id="k-shift" aria-label="Shift / Reset"><svg viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="miter" style="height:1.05em"><path d="M6 2l12 6-12 6"/></svg><span class="t">RESET</span></button>
+    <div class="rs">
+      <button class="k n big run" data-k="RUN" id="k-run"><i class="kd" id="D-run"></i><span class="t">RUN</span></button>
+      <button class="k big stop" data-k="STOP" id="k-stop"><i class="kd" id="D-stop"></i><span class="t">STOP</span></button>
+    </div>
+  </div>
+</div>
+
+  <div class="hintline"><span data-t="tapDisp">Tap the display for details</span><span data-t="swipe">Swipe left or right to change tabs</span></div>
+  <div class="card" id="guide" aria-live="polite"></div>
+  <div class="foot">© 2026 DUKEKRRISH · ourworldhive.com. All rights reserved.</div>
+</div></section>
+
+<section class="pane" id="p-sim" role="tabpanel"><div class="col">
+  <div class="card">
+    <div class="simtop">
+      <div class="pills" id="simPills"></div>
+      <div class="mirror"><svg id="seg2" viewBox="0 0 250 78"></svg></div>
+    </div>
+    <svg class="motorsvg" id="motor" viewBox="0 0 520 210" aria-label="Motor"></svg>
+    <div class="read" id="readouts"></div>
+  </div>
+  <div class="card">
+    <h3 data-t="trend">Trend (last 60 s)</h3>
+    <canvas id="trend"></canvas>
+    <div class="legend"><span><i style="background:var(--t-freq)"></i><span data-t="lgFreq">Output freq</span></span><span><i style="background:var(--t-ref)"></i><span data-t="lgRef">Freq ref</span></span><span><i style="background:var(--t-cur)"></i><span data-t="lgCur">Output current</span></span><span><i style="background:var(--t-dc)"></i><span data-t="lgDc">DC bus</span></span></div>
+  </div>
+  <div class="card">
+    <h3 data-t="dcs">DCS / remote commands</h3>
+    <div class="grid3">
+      <button class="btn go" id="dFwd" data-t="dFwd">Start FWD (S1)</button>
+      <button class="btn go" id="dRev" data-t="dRev">Start REV (S2)</button>
+      <button class="btn st" id="dStop" data-t="dStop">Stop</button>
+    </div>
+    <div class="grid2" style="margin-top:8px">
+      <button class="btn amb" id="dRst" data-t="dRst">Fault reset (S4)</button>
+      <button class="btn amb" id="dEf" data-t="dEf">External fault (S3)</button>
+    </div>
+    <div class="slider"><label for="dSp" data-t="dSp">Speed ref A1</label><input type="range" id="dSp" min="0" max="100" step="0.5" value="0"><output id="dSpO">0.0 V</output></div>
+    <div class="chips" id="tChips"></div>
+    <p class="note" id="dcsNote"></p>
+  </div>
+  <div class="card">
+    <h3 data-t="plant">Plant</h3>
+    <div class="sub" style="margin-top:0" data-t="loadT">Load on motor</div>
+    <div class="seg3" id="loadSel" style="margin-top:6px">
+      <button data-v="0" data-t="ldL">Light</button><button data-v="1" data-t="ldN" aria-pressed="true">Normal</button><button data-v="2" data-t="ldH">Heavy</button>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <button class="btn go on" id="mains" data-t="mainsOn">Mains ON</button>
+      <button class="btn link" id="toTrb" data-t="openTrb">Open troubleshooting</button>
+    </div>
+    <p class="note" data-t="plantNote"></p>
+  </div>
+</div></section>
+
+<section class="pane" id="p-wire" role="tabpanel"><div class="col">
+  <div class="card"><h3 data-t="wMainT">Main circuit (Table 2.4)</h3><svg class="mainsvg" id="wmain" viewBox="0 0 360 410"></svg></div>
+  <div class="card"><h3 data-t="wCtlT">Control circuit terminals (Table 2.11)</h3><div class="tgroups" id="wterms"></div></div>
+  <div class="card" id="tinfo"></div>
+  <div class="card"><h3 data-t="wDcsT">DCS ↔ drive wiring (2-wire, Fig 2.9)</h3><div class="dcsl" id="wdcs"></div></div>
+  <p class="note" data-t="wireNote"></p>
+</div></section>
+
+<section class="pane" id="p-trb" role="tabpanel"><div class="col">
+  <div class="card">
+    <h3 data-t="fcT">Fault / alarm code</h3>
+    <div class="search"><input id="fq" list="fcodes" autocomplete="off" spellcheck="false" placeholder="OC, OV, UV1, OPE10, Er-03…"><datalist id="fcodes"></datalist></div>
+    <div class="quick" id="fquick"></div>
+  </div>
+  <div class="card" id="fres"></div>
+  <div class="card"><h3 data-t="symT">Symptoms (Chapter 6)</h3><div id="sym"></div></div>
+</div></section>
+
+</div></main>
+
+<div class="sheetbg" id="sheetbg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT"><div class="inner"><div class="grab"></div>
+  <div class="shd"><div class="mirror"><svg id="seg3" viewBox="0 0 250 78"></svg></div><h2 id="shT" data-t="shTitle">Display details</h2><button class="x" id="shX" aria-label="Close">×</button></div>
+  <div id="shBody"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------------- PARAMETERS (from TM.F7.01, CIMR-F7A4220, 400V 220kW) ---------------- */
+const P=[],PM={};
+function S(id,name,def,opts,o){const p=Object.assign({id,name,def,opts,type:'sel'},o||{});P.push(p);PM[id]=p}
+function N(id,name,def,min,max,dec,unit,o){const p=Object.assign({id,name,def,min,max,dec,unit,type:'num'},o||{});P.push(p);PM[id]=p}
+const R={run:true};
+S('A1-00','Select Language',0,[[0,'English'],[1,'Japanese'],[2,'Deutsch'],[3,'Francais'],[4,'Italiano'],[5,'Espanol'],[6,'Portugues']],R);
+S('A1-01','Access Level',2,[[0,'Operation Only'],[1,'User Level'],[2,'Advanced Level']]);
+S('A1-02','Control Method',2,[[0,'V/F Control'],[1,'V/F w/PG'],[2,'Open Loop Vector'],[3,'Flux Vector']]);
+S('A1-03','Init Parameters',0,[[0,'No Initialize'],[1110,'User Initialize'],[2220,'2-Wire Initial'],[3330,'3-Wire Initial']],{w:4});
+N('A1-04','Enter Password',0,0,9999,0,'');
+S('b1-01','Reference Source',1,[[0,'Operator'],[1,'Terminals'],[2,'Communication'],[3,'Option PCB'],[4,'Pulse Input']]);
+S('b1-02','Run Source',1,[[0,'Operator'],[1,'Terminals'],[2,'Communication'],[3,'Option PCB']]);
+S('b1-03','Stopping Method',0,[[0,'Ramp to Stop'],[1,'Coast to Stop'],[2,'DCInj to Stop'],[3,'Coast w/Timer']]);
+S('b1-04','Reverse Oper',0,[[0,'Reverse Enabled'],[1,'Reverse Disabled'],[2,'Exchange Phase']]);
+S('b1-06','Cntl Input Scans',1,[[0,'2ms-2 Scans'],[1,'5ms-2 Scans']]);
+S('b1-07','LOC/REM RUN Sel',0,[[0,'Cycle Extern RUN'],[1,'Accept Extrn RUN']]);
+S('b1-08','RUN CMD at PRG',0,[[0,'Disabled'],[1,'Enabled']]);
+N('b2-01','DCInj Start Freq',0.5,0,10,1,'Hz');
+N('b2-02','DCInj Current',50,0,100,0,'%');
+N('b2-03','DCInj Time@Start',0,0,10,2,'sec');
+N('b2-04','DCInj Time@Stop',0,0,10,2,'sec');
+S('b3-01','SpdSrch at Start',2,[[0,'SpdsrchF Disable'],[1,'SpdsrchF Enable'],[2,'SpdsrchI Disable'],[3,'SpdsrchI Enable']]);
+N('b3-02','SpdSrch Current',120,0,200,0,'%');
+N('b3-03','SpdSrch Dec Time',2.0,0.1,10,1,'sec');
+N('b4-01','Delay-ON Timer',0,0,3000,1,'sec');
+N('b4-02','Delay-OFF Timer',0,0,3000,1,'sec');
+S('b5-01','PID Mode',0,[[0,'Disabled'],[1,'Enabled D=Fdbk'],[2,'Enabled D=Fref'],[3,'Fref+PID D=Fdbk'],[4,'Fref+PID D=Fref']]);
+N('b5-02','PID Gain',1.00,0,25,2,'',R);
+N('b5-03','PID I Time',1.0,0,360,1,'sec',R);
+N('b5-05','PID D Time',0,0,10,2,'sec',R);
+N('b5-06','PID Limit',100.0,0,100,1,'%',R);
+N('C1-01','Accel Time 1',10.0,0,6000,1,'sec',R);
+N('C1-02','Decel Time 1',10.0,0,6000,1,'sec',R);
+N('C1-03','Accel Time 2',10.0,0,6000,1,'sec',R);
+N('C1-04','Decel Time 2',10.0,0,6000,1,'sec',R);
+N('C1-05','Accel Time 3',10.0,0,6000,1,'sec',R);
+N('C1-06','Decel Time 3',10.0,0,6000,1,'sec',R);
+N('C1-07','Accel Time 4',10.0,0,6000,1,'sec',R);
+N('C1-08','Decel Time 4',10.0,0,6000,1,'sec',R);
+N('C1-09','Fast Stop Time',10.0,0,6000,1,'sec');
+N('C1-11','Acc/Dec SW Freq',0.0,0,300,1,'Hz');
+N('C2-01','SCrv Acc @ Start',0.20,0,2.5,2,'sec');
+N('C2-02','SCrv Acc @ End',0.20,0,2.5,2,'sec');
+N('C2-03','SCrv Dec @ Start',0.20,0,2.5,2,'sec');
+N('C2-04','SCrv Dec @ End',0.00,0,2.5,2,'sec');
+N('C3-01','Slip Comp Gain',1.0,0,2.5,1,'',R);
+N('C3-02','Slip Comp Time',200,0,10000,0,'ms');
+N('C4-01','Torq Comp Gain',1.00,0,2.5,2,'',R);
+N('C4-02','Torq Comp Time',20,0,10000,0,'ms');
+S('C6-01','Heavy/Normal Duty',0,[[0,'Heavy Duty'],[1,'Normal Duty 1'],[2,'Normal Duty 2']]);
+S('C6-02','CarrierFreq Sel',1,[[0,'Low Noise'],[1,'Fc=2.0 kHz'],[2,'Fc=5.0 kHz'],[3,'Fc=8.0 kHz'],[4,'Fc=10.0 kHz'],[5,'Fc=12.5 kHz'],[6,'Fc=15.0 kHz'],['F','Program']]);
+for(let i=1;i<=8;i++)N('d1-0'+i,'Reference '+i,0,0,300,2,'Hz',{run:true,maxf:'E1-04'});
+N('d1-17','Jog Reference',6.00,0,300,2,'Hz',{run:true,maxf:'E1-04'});
+N('d2-01','Ref Upper Limit',100.0,0,110,1,'%');
+N('d2-02','Ref Lower Limit',0.0,0,110,1,'%');
+N('d3-01','Jump Freq 1',0.0,0,400,1,'Hz');
+N('d3-02','Jump Freq 2',0.0,0,400,1,'Hz');
+N('d3-03','Jump Freq 3',0.0,0,400,1,'Hz');
+N('d3-04','Jump Bandwidth',1.0,0,20,1,'Hz');
+N('E1-01','Input Voltage',400.0,310,510,1,'VAC');
+S('E1-03','V/F Selection','F',[['0','50Hz'],['1','60Hz Saturation'],['2','50Hz Saturation'],['3','72Hz'],['4','50Hz VT1'],['5','50Hz VT2'],['6','60Hz VT1'],['7','60Hz VT2'],['8','50Hz HST1'],['9','50Hz HST2'],['A','60Hz HST1'],['B','60Hz HST2'],['C','90Hz'],['D','120Hz'],['E','180Hz'],['F','Custom V/F'],['FF','Custom w/o limit']],{vis:()=>V['A1-02']<=1});
+N('E1-04','Max Frequency',60.0,40,300,1,'Hz');
+N('E1-05','Max Voltage',400.0,0,510,1,'VAC');
+N('E1-06','Base Frequency',60.0,0,200,1,'Hz');
+N('E1-07','Mid Frequency A',3.0,0,200,1,'Hz');
+N('E1-08','Mid Voltage A',28.7,0,510,1,'VAC');
+N('E1-09','Min Frequency',1.5,0,200,1,'Hz');
+N('E1-10','Min Voltage',17.2,0,510,1,'VAC');
+N('E1-11','Mid Frequency B',0.0,0,200,1,'Hz');
+N('E1-12','Mid Voltage B',0.0,0,510,1,'VAC');
+N('E1-13','Base Voltage',0.0,0,510,1,'VAC');
+N('E2-01','Motor Rated FLA',380.0,41.4,828,1,'A');
+N('E2-02','Motor Rated Slip',0.80,0,20,2,'Hz');
+N('E2-03','No-Load Current',110.0,0,828,1,'A');
+N('E2-04','Number of Poles',4,2,48,0,'');
+N('E2-05','Term Resistance',0.020,0,65,3,'Ohm');
+N('E2-06','Leak Inductance',19.6,0,40,1,'%');
+N('E2-11','Mtr Rated Power',220.00,0,650,2,'kW');
+const H1O=[['0','3-Wire Control'],['1','Local/Remote Sel'],['2','Option/Inv Sel'],['3','Multi-Step Ref 1'],['4','Multi-Step Ref 2'],['5','Multi-Step Ref 3'],['6','Jog Freq Ref'],['7','Multi-Acc/Dec 1'],['8','Ext BaseBlk N.O.'],['9','Ext BaseBlk N.C.'],['A','Acc/Dec RampHold'],['F','Term Not Used'],['10','MOP Increase'],['11','MOP Decrease'],['12','Forward Jog'],['13','Reverse Jog'],['14','Fault Reset'],['15','Fast-Stop N.O.'],['19','PID Disable'],['24','External Fault']];
+[['H1-01','Terminal S3 Sel','24'],['H1-02','Terminal S4 Sel','14'],['H1-03','Terminal S5 Sel','3'],['H1-04','Terminal S6 Sel','4'],['H1-05','Terminal S7 Sel','6'],['H1-06','Terminal S8 Sel','8']].forEach(a=>S(a[0],a[1],a[2],H1O));
+const H2O=[['0','During RUN 1'],['1','Zero Speed'],['2','Fref/Fout Agree1'],['3','Fref/Set Agree 1'],['4','Freq Detect 1'],['5','Freq Detect 2'],['6','Inverter Ready'],['7','DC Bus Undervolt'],['8','Base Blk 1'],['9','Operator Ref'],['A','Remote/Auto Oper'],['B','Trq Det 1 N.O.'],['E','Fault'],['F','Not Used'],['10','Minor Fault']];
+[['H2-01','Term M1-M2 Sel','0'],['H2-02','Term M3-M4 Sel','1'],['H2-03','Term M5-M6 Sel','2']].forEach(a=>S(a[0],a[1],a[2],H2O));
+S('H3-01','Term A1 Signal',0,[[0,'0 to 10VDC'],[1,'-10 to +10VDC']]);
+N('H3-02','Terminal A1 Gain',100.0,0,1000,1,'%',R);
+S('H3-08','Term A2 Signal',2,[[0,'0 to 10VDC'],[1,'-10 to +10VDC'],[2,'4 to 20 mA']]);
+N('H4-01','Terminal FM Sel',2,1,99,0,'');
+N('H4-02','Terminal FM Gain',100.0,0,1000,1,'%',R);
+N('H4-04','Terminal AM Sel',3,1,99,0,'');
+N('H4-05','Terminal AM Gain',50.0,0,1000,1,'%',R);
+S('L1-01','MOL Fault Select',1,[[0,'Disabled'],[1,'Std Fan Cooled'],[2,'Std Blower Cool'],[3,'Vector Motor']]);
+N('L1-02','MOL Time Const',1.0,0.1,5,1,'min');
+S('L2-01','PwrL Selection',0,[[0,'Disabled'],[1,'PwrL Ridethru t'],[2,'CPU Power Active']]);
+S('L3-01','StallP Accel Sel',1,[[0,'Disabled'],[1,'General Purpose'],[2,'Intelligent']]);
+N('L3-02','StallP Accel Lvl',150,0,200,0,'%');
+S('L3-04','StallP Decel Sel',1,[[0,'Disabled'],[1,'General Purpose'],[2,'Intelligent'],[3,'Stall w/ DB']]);
+S('L3-05','StallP Run Sel',1,[[0,'Disabled'],[1,'Decel Time 1'],[2,'Decel Time 2']]);
+N('L3-06','StallP Run Level',150,30,200,0,'%');
+N('L5-01','Num of Restarts',0,0,10,0,'');
+S('L8-01','DB Resistor Prot',0,[[0,'Not Provided'],[1,'Provided']]);
+N('o1-01','User Monitor Sel',6,4,45,0,'',R);
+S('o1-02','Power-On Monitor',1,[[1,'Frequency Ref'],[2,'Output Freq'],[3,'Output Current'],[4,'User Monitor']],R);
+S('o2-01','Local/Remote Key',1,[[0,'Disabled'],[1,'Enabled']]);
+S('o2-02','Oper STOP Key',1,[[0,'Disabled'],[1,'Enabled']]);
+S('o2-03','User Defaults',0,[[0,'No Change'],[1,'Set Defaults'],[2,'Clear All']]);
+S('o2-05','Operator M.O.P.',0,[[0,'Disabled'],[1,'Enabled']]);
+N('o2-07','Elapsed Time Set',0,0,65535,0,'H');
+S('o3-01','Copy Function Sel',0,[[0,'COPY SELECT'],[1,'INV->OP READ'],[2,'OP->INV WRITE'],[3,'OP<-->INV VERIFY']]);
+S('o3-02','Read Allowable',0,[[0,'Disabled'],[1,'Enabled']]);
+// Auto-tuning (A.TUNE menu only)
+S('T1-01','Tuning Mode Sel',0,[[0,'Standard Tuning'],[1,'Tune-No Rotate'],[2,'Term Resistance']],{tune:1,vis:()=>true});
+N('T1-02','Mtr Rated Power',220.00,0,650,2,'kW',{tune:1});
+N('T1-03','Rated Voltage',400.0,0,510,1,'VAC',{tune:1,vis:()=>V['A1-02']>=2});
+N('T1-04','Rated Current',380.0,41.4,828,1,'A',{tune:1});
+N('T1-05','Rated Frequency',60.0,0,300,1,'Hz',{tune:1,vis:()=>V['A1-02']>=2});
+N('T1-06','Number of Poles',4,2,48,0,'',{tune:1,vis:()=>V['A1-02']>=2});
+N('T1-07','Rated Speed',1780,0,24000,0,'RPM',{tune:1,vis:()=>V['A1-02']>=2});
+N('T1-08','PG Pulses/Rev',1024,0,60000,0,'',{tune:1,vis:()=>V['A1-02']==3});
+
+const GROUPS=[['A1','Initialization'],['b1','Sequence'],['b2','DC Braking'],['b3','Speed Search'],['b4','Delay Timers'],['b5','PID Control'],['C1','Accel/Decel'],['C2','S-Curve Acc/Dec'],['C3','Motor-Slip Comp'],['C4','Torque Comp'],['C6','Carrier Freq'],['d1','Preset Reference'],['d2','Reference Limits'],['d3','Jump Frequencies'],['E1','V/F Pattern'],['E2','Motor Setup'],['H1','Digital Inputs'],['H2','Digital Outputs'],['H3','Analog Inputs'],['H4','Analog Outputs'],['L1','Motor Overload'],['L2','PwrLoss Ridethru'],['L3','Stall Prevention'],['L5','Fault Restart'],['L8','Hdwe Protection'],['o1','Monitor Select'],['o2','Key Selections'],['o3','COPY Function']];
+const QUICK=['A1-02','b1-01','b1-02','b1-03','C1-01','C1-02','C6-02','d1-01','d1-02','d1-03','d1-04','d1-17','E1-01','E1-03','E1-04','E1-05','E1-06','E1-09','E1-13','E2-01','E2-04','E2-11','H4-02','H4-05','L1-01','L3-04'];
+
+const V={};
+function factory(keep){P.forEach(p=>{if(keep&&keep.includes(p.id))return;V[p.id]=p.def})}
+factory();
+let userSet=null, copyMem=null;
+
+/* ---------------- DRIVE STATE ---------------- */
+const DR={rated:414.0,ocLvl:828.0};
+const D={mode:'REMOTE',run:false,stopping:false,coast:false,dcinj:0,jog:false,selDir:1,f:0,motor:0,I:0,It:0,Vdc:565,tau:0,
+  fault:null,showFault:false,ol1:0,hours:0,kwh:0,fanH:0,tune:null,stallA:false,stallD:false,secs:0};
+const TR={cur:'None',prev:'None',snap:null};
+const HIST=[]; // {code,h}
+
+
+const TM={S1:false,S2:false,S3:false,S4:false,S5:false,S6:false,S7:false,S8:false,A1:0,prev:{}};
+const PL={mains:true,boot:true,load:1,inertia:1};
+/* ---------------- HELPERS ---------------- */
+const up=s=>s.toUpperCase();
+function fmtNum(p,v){return v.toFixed(p.dec)+(p.unit||'')}
+function code(p,v){const s=String(v);return p.w?s.padStart(p.w,'0'):s}
+function optText(p,v){const o=p.opts.find(o=>String(o[0])===String(v));return o?o[1]:''}
+function pmax(p){return p.maxf?V[p.maxf]:p.max}
+function visible(p){return p.vis?p.vis():true}
+function groupParams(g){return P.filter(p=>!p.tune&&p.id.slice(0,2)===g&&visible(p)&&(V['A1-01']!=0||g==='A1'))}
+function advGroups(){return GROUPS.filter(g=>groupParams(g[0]).length&&(V['A1-01']!=0||g[0]==='A1'))}
+function quickList(){return QUICK.map(i=>PM[i]).filter(visible)}
+function tuneList(){return P.filter(p=>p.tune&&visible(p))}
+function isMod(p){return !p.tune&&String(V[p.id])!==String(p.def)&&!['A1-00','A1-03'].includes(p.id)}
+function mainItems(){return V['A1-01']==0?[MAIN[0],MAIN[2]]:MAIN}
+function pad16(a,b){const n=Math.max(1,16-a.length-b.length);return a+' '.repeat(n)+b}
+function rpm(hz){return hz*120/V['E2-04']}
+function opSrc(){return D.mode==='LOCAL'||V['b1-02']==0}
+function refOp(){return D.mode==='LOCAL'||V['b1-01']==0}
+
+/* ---------------- OPE CHECK ---------------- */
+function ope(){
+  const e4=V['E1-04'],e6=V['E1-06'],e7=V['E1-07'],e9=V['E1-09'];
+  if(V['b1-01']==3||V['b1-02']==3)return['OPE05','Sequence Select',V['b1-01']==3?'b1-01':'b1-02'];
+  if(V['A1-02']==1||V['A1-02']==3)return['OPE06','PG Opt Missing','A1-02'];
+  const h=['H1-01','H1-02','H1-03','H1-04','H1-05','H1-06'].map(i=>V[i]).filter(x=>x!=='F');
+  if(new Set(h).size!==h.length)return['OPE03','Terminal','H1-01'];
+  if(V['E2-03']>=V['E2-01'])return['OPE02','Limit','E2-03'];
+  if(!(e4>=e6&&e6>e7&&e7>=e9))return['OPE10','V/f Ptrn Setting','E1-04'];
+  return null;
+}
+
+/* ---------------- MONITORS ---------------- */
+function bits(arr){return arr.map(b=>b?'1':'0').join('')}
+function outTerm(){const f=fn=>{const a=Math.abs(D.f),r=Math.abs(fref());switch(fn){case'0':return D.run&&a>0;case'1':return a<0.5;case'2':return D.run&&Math.abs(a-r)<2&&r>0;case'6':return !D.fault&&!ope();case'E':return !!D.fault;default:return false}};return[f(V['H2-01']),f(V['H2-02']),f(V['H2-03'])]}
+function opStat(){return bits([!!D.fault,false,Math.abs(D.f)>0&&Math.abs(D.f-fref()*D.selDir)<0.5,!D.fault&&!ope(),false,D.selDir<0,Math.abs(D.f)<0.5,D.run])}
+function vout(){const a=Math.abs(D.f);if(a<0.01||!outOn())return 0;const vmin=V['E1-10'],vb=V['E1-05'];if(a<=V['E1-09'])return vmin;return Math.min(vb,vmin+(vb-vmin)*(a-V['E1-09'])/Math.max(.1,V['E1-06']-V['E1-09']))}
+function outOn(){return D.run||D.tune&&D.tune.active||D.dcinj>0}
+function kw(){return 1.732*vout()*D.I*0.88*Math.sign(D.tau||1)*Math.min(1,Math.abs(D.It)/Math.max(.1,D.I))/1000}
+function fref(){if(D.jog)return V['d1-17'];let r=refOp()?V['d1-01']:(V['b1-01']==1?Math.max(0,TM.A1)/10*V['H3-02']*V['E1-04']/100:0);r=Math.min(r,V['E1-04']*V['d2-01']/100);r=Math.max(r,V['E1-04']*V['d2-02']/100);return r}
+const MON={
+ U1:[['U1-01','Frequency Ref',()=>fref().toFixed(2)+'Hz'],['U1-02','Output Freq',()=>Math.abs(D.f).toFixed(2)+'Hz'],['U1-03','Output Current',()=>D.I.toFixed(2)+'A'],
+  ['U1-04','Control Method',()=>String(V['A1-02'])],['U1-05','Motor Speed',()=>Math.abs(D.motor).toFixed(2)+'Hz'],['U1-06','Output Voltage',()=>vout().toFixed(1)+'VAC'],
+  ['U1-07','DC Bus Voltage',()=>Math.round(D.Vdc)+'VDC'],['U1-08','Output kWatts',()=>kw().toFixed(1)+'kW'],['U1-09','Torque Reference',()=>(outOn()?D.tau*100:0).toFixed(1)+'%'],
+  ['U1-10','Input Term Sts',()=>bits([TM.S8,TM.S7,TM.S6,TM.S5,TM.S4,TM.S3,TM.S2,TM.S1])],['U1-11','Output Term Sts',()=>bits([0,0,0,0,0,...outTerm().reverse()])],['U1-12','Int Ctl Sts 1',opStat],
+  ['U1-13','Elapsed Time',()=>Math.floor(D.hours)+'H'],['U1-14','FLASH ID',()=>'3020'],['U1-15','Term A1 Level',()=>(TM.A1*10).toFixed(1)+'%'],['U1-16','Term A2 Level',()=>'0.0%'],
+  ['U1-18','Mot SEC Current',()=>(outOn()?D.tau*100:0).toFixed(1)+'%'],['U1-19','Mot EXC Current',()=>(outOn()?V['E2-03']:0).toFixed(2)+'A'],
+  ['U1-20','SFS Output',()=>Math.abs(D.f).toFixed(2)+'Hz'],['U1-24','PI Feedback',()=>'0.0%'],['U1-28','CPU ID',()=>'PRG:1020'],
+  ['U1-29','kWh Lo 4 Digits',()=>(Math.floor(D.kwh)%10000)+'kWh'],['U1-30','MWh Hi 5 Digits',()=>Math.floor(D.kwh/10000)+'MWh'],
+  ['U1-34','OPE Detected',()=>{const o=ope();return o?up(o[2]):'00'}],['U1-40','FAN Elapsed Time',()=>Math.floor(D.fanH)+'H']],
+ U2:[['U2-01','Current Fault',()=>TR.cur],['U2-02','Last Fault',()=>TR.prev],['U2-03','Frequency Ref',()=>sn('fr',2,'Hz')],['U2-04','Output Freq',()=>sn('f',2,'Hz')],
+  ['U2-05','Output Current',()=>sn('I',2,'A')],['U2-06','Motor Speed',()=>sn('m',2,'Hz')],['U2-07','Output Voltage',()=>sn('v',1,'VAC')],['U2-08','DC Bus Voltage',()=>sn('vdc',0,'VDC')],
+  ['U2-09','Output kWatts',()=>sn('kw',1,'kW')],['U2-10','Torque Reference',()=>sn('tq',1,'%')],['U2-11','Input Term Sts',()=>TR.snap?TR.snap.it:'00000000'],
+  ['U2-12','Output Term Sts',()=>TR.snap?TR.snap.ot:'00000000'],['U2-13','Inverter Status',()=>TR.snap?TR.snap.os:'00000000'],['U2-14','Elapsed Time',()=>sn('h',0,'H')]],
+ U3:[1,2,3,4].map(i=>['U3-0'+i,i==1?'Last Fault':'Fault Message '+i,()=>HIST[i-1]?HIST[i-1].code:'None']).concat([1,2,3,4].map(i=>['U3-0'+(i+4),'Elapsed Time '+i,()=>HIST[i-1]?HIST[i-1].h+'H':'0H']))
+};
+function sn(k,d,u){return TR.snap?TR.snap[k].toFixed(d)+u:(0).toFixed(d)+u}
+const MGRP=[['U1','Monitor'],['U2','Fault Trace'],['U3','Fault History']];
+
+/* ---------------- FAULTS ---------------- */
+const FNAME={OC:'Over Current',OV:'DC Bus Overvolt',OL1:'Motor Overloaded',OL2:'Inv Overloaded',UV1:'DC Bus Undervolt',EF3:'Ext Fault S3',EF4:'Ext Fault S4',EF5:'Ext Fault S5',EF6:'Ext Fault S6',EF7:'Ext Fault S7',EF8:'Ext Fault S8'};
+function trip(c){
+  if(D.fault)return;
+  TR.snap={fr:fref(),f:Math.abs(D.f),I:D.I,m:Math.abs(D.motor),v:vout(),vdc:D.Vdc,kw:kw(),tq:D.tau*100,it:'00000000',ot:bits([0,0,0,0,0,...outTerm().reverse()]),os:opStat(),h:Math.floor(D.hours)};
+  TR.prev=TR.cur==='None'?TR.prev:TR.cur;TR.cur=c;
+  HIST.unshift({code:c,h:Math.floor(D.hours)});HIST.length=Math.min(HIST.length,10);
+  D.fault=c;D.showFault=true;D.run=false;D.stopping=false;D.jog=false;D.coast=true;D.f=0;D.I=0;D.It=0;
+  if(D.tune){D.tune=null}
+  U.edit=null;render();
+}
+function resetFault(){if(!D.fault)return false;D.fault=null;D.showFault=false;TR.prev=TR.cur;TR.cur='None';D.ol1=Math.min(D.ol1,.5);return true}
+
+/* ---------------- PHYSICS ---------------- */
+let last=performance.now();
+function tick(){
+  const now=performance.now();let dt=Math.min(.2,(now-last)/1000);last=now;
+  plant(dt);
+  if(!U.power){if(!PL.mains){D.motor-=Math.sign(D.motor)*Math.min(Math.abs(D.motor),3*dt)}return}
+  terminals();
+  D.hours+=dt/3600;D.fanH+=dt/3600;D.secs+=dt;
+  const fmax=V['E1-04'];
+  if(D.tune&&D.tune.active){tuneTick(dt);return}
+  let target=0;
+  const r=fref();
+  const belowMin=D.run&&!D.stopping&&r<V['E1-09'];
+  if(D.run&&!D.stopping&&!belowMin)target=r*D.selDir;
+  const accR=fmax/Math.max(.05,V['C1-01']),decR=fmax/Math.max(.05,V['C1-02']);
+  let df=target-D.f;
+  // stop methods
+  if(D.stopping&&(V['b1-03']==1||V['b1-03']==3)){D.run=false;D.stopping=false;D.coast=true;D.f=0}
+  if(D.stopping&&V['b1-03']==2&&Math.abs(D.f)<=Math.max(V['b2-01'],V['E1-09'])+.01){D.f=0;D.dcinj=Math.max(.5,V['b2-04']*10*1);D.run=false;D.stopping=false}
+  let rate=0,acc=false;
+  if(Math.abs(df)>1e-6){
+    const away=Math.abs(target)>Math.abs(D.f)&&Math.sign(target||1)===Math.sign(D.f||target);
+    acc=away;
+    rate=away?accR:decR;
+    if(D.stopping&&V['b1-03']==2)rate=Math.max(rate,decR);
+    // stall prevention during accel
+    D.stallA=false;
+    if(away&&V['L3-01']!=0&&D.I>DR.rated*V['L3-02']/100){rate=V['L3-01']==2?rate*.4:0;D.stallA=true}
+    // stall prevention during decel
+    D.stallD=false;
+    if(!away){const l=V['L3-04'];if((l==1||l==3)&&D.Vdc>760){rate=0;D.stallD=true}
+      if(l==2){const lim=(Math.max(0,(750-565)/220/Math.max(.05,Math.abs(D.f)/fmax))+ (0.05+0.25*Math.pow(Math.abs(D.f)/fmax,2)))*12;rate=Math.min(rate,Math.max(lim,1))}}
+    const step=Math.sign(df)*Math.min(Math.abs(df),rate*dt);
+    D.f+=step;
+  }
+  const actRate=dt>0?rate:0;
+  if(D.run&&!D.stopping&&Math.abs(D.f-target)<1e-6&&target===0&&belowMin){}
+  if(D.stopping&&Math.abs(D.f)<1e-6){D.run=false;D.stopping=false;D.jog=false;D.f=0;if(V['b2-04']>0)D.dcinj=V['b2-04']}
+  // load + torque
+  const frac=Math.abs(D.f)/fmax;
+  const tl=(0.05+0.25*frac*frac+0.05*frac)*PL.load;
+  let ta=0;
+  if(Math.abs(df)>1e-6)ta=(acc?1:-1)*actRate/12*PL.inertia;
+  const on=D.run||D.dcinj>0;
+  let tau=on&&(Math.abs(D.f)>0.01||D.run)?tl+ta:0;
+  if(D.dcinj>0){D.dcinj-=dt;tau=0}
+  D.tau+= (tau-D.tau)*Math.min(1,dt/0.08);
+  // current
+  const E21=V['E2-01'],E23=V['E2-03'];
+  let I=0,It=0;
+  if(on){It=E21*D.tau;I=Math.sqrt(E23*E23*(Math.abs(D.f)>0.01||D.dcinj>0?1:0.6)+It*It);if(D.dcinj>0)I=DR.rated*V['b2-02']/100}
+  I*=1+(Math.random()-.5)*.012;
+  D.I=I;D.It=It;
+  // motor speed
+  if(on&&D.dcinj<=0)D.motor=D.f-Math.sign(D.f||1)*V['E2-02']*Math.max(-1.5,Math.min(1.5,D.tau))*(Math.abs(D.f)>0.01?1:0);
+  else if(D.dcinj>0)D.motor*=Math.max(0,1-dt*4);
+  else{const s=Math.sign(D.motor);const dec=(0.08+0.35*Math.pow(Math.abs(D.motor)/fmax,2))*12*PL.load/PL.inertia;D.motor-=s*Math.min(Math.abs(D.motor),dec*dt);}
+  if(!on)D.coast=Math.abs(D.motor)>0.05;
+  // DC bus
+  const regen=on?Math.max(0,-D.tau)*frac:0;
+  const vt=565+regen*220+(on?-D.I/DR.rated*20:0);
+  if(PL.mains){D.Vdc+=(vt-D.Vdc)*Math.min(1,dt/0.18);D.Vdc+=(Math.random()-.5)*0.6}
+  // energy
+  if(on)D.kwh+=Math.max(0,kw())*dt/3600;
+  // protections
+  if(on&&D.I>DR.ocLvl)trip('OC');
+  else if(D.Vdc>820)trip('OV');
+  else{
+    if(V['L1-01']!=0&&on){const x=D.I/E21;D.ol1+=x>1?(x*x-1)*dt/(75*V['L1-02']):-dt/300}else D.ol1-=dt/300;
+    D.ol1=Math.max(0,D.ol1);if(D.ol1>=1)trip('OL1');
+  }
+}
+/* ---------------- AUTO-TUNING ---------------- */
+function tuneStart(){
+  const mode=V['T1-01'];
+  if(V['A1-02']>=2){const sync=120*V['T1-05']/V['T1-06'];if(V['T1-07']>=sync||V['T1-07']<sync*0.7){U.msg={k:'tunefail',code:'Er - 08',txt:'Rated Slip'};render();return}}
+  if(V['T1-04']>DR.rated*2||V['T1-04']<DR.rated*0.1){U.msg={k:'tunefail',code:'Er - 01',txt:'Fault'};render();return}
+  const dur=mode==0?14:mode==1?9:4;
+  D.tune={active:true,t:0,dur,mode};render();
+}
+function tuneTick(dt){
+  const T=D.tune;T.t+=dt;const p=T.t/T.dur;const fmax=V['T1-05']||60;
+  let f=0;
+  if(T.mode==0){if(p<.25)f=0;else if(p<.45)f=(p-.25)/.2*fmax*.8;else if(p<.8)f=fmax*.8;else f=Math.max(0,(1-p)/.2*fmax*.8)}
+  D.f=f*D.selDir;D.motor=D.f;D.tau=f>0?0.05:0;
+  const E=V['T1-04'];D.I=(p<.25||T.mode!=0?E*0.6:E*0.33)*(1+(Math.random()-.5)*.03);D.Vdc=565+(Math.random()-.5);
+  if(T.t>=T.dur){D.f=0;D.motor=0;D.I=0;D.tune=null;
+    const poles=V['T1-06']||4,fr=V['T1-05']||60;
+    V['E2-11']=V['T1-02'];V['E2-01']=V['T1-04'];
+    if(V['A1-02']>=2){V['E2-04']=poles;V['E2-02']=+(fr-V['T1-07']*poles/120).toFixed(2);V['E1-04']=fr;V['E1-06']=fr;V['E1-05']=V['T1-03'];V['E1-13']=V['T1-03']}
+    if(T.mode!==1)V['E2-03']=+(V['T1-04']*(T.mode==0?0.33:0.35)).toFixed(2);
+    V['E2-05']=+(0.38+Math.random()*0.12).toFixed(3);
+    U.msg={k:'tuneok'};}
+  render();
+}
+
+
+/* ---------------- PLANT: mains + control terminals ---------------- */
+function plant(dt){
+  if(!PL.mains){
+    D.Vdc=Math.max(0,D.Vdc-D.Vdc*dt*0.7-(D.run?60*dt:0));
+    if(D.Vdc<380&&U.power&&(D.run||D.stopping)&&!D.fault)trip('UV1');
+    if(D.Vdc<200&&U.power)powerOff();
+  }else if(!U.power&&!PL.boot){PL.boot=true;D.Vdc=565;powerUp()}
+}
+function terminals(){
+  for(let i=3;i<=8;i++){
+    const fn=V['H1-0'+(i-2)],on=TM['S'+i],was=TM.prev['S'+i];
+    if(fn==='24'&&on)trip('EF'+i);
+    if(fn==='14'&&on&&!was&&!(TM.S1||TM.S2)&&!D.run)resetFault();
+  }
+  const seq=D.mode==='REMOTE'&&V['b1-02']==1;
+  D.alarm=null;
+  if(seq){
+    const f=TM.S1,r=TM.S2;
+    if(!f&&!r)D.stopLatch=false;
+    if(f&&r){D.alarm='EF';if(D.run&&!D.stopping)D.stopping=true}
+    else if((f||r)&&!D.stopLatch&&!D.fault&&!ope()&&canRunHere()&&!D.tune){
+      const dir=f?1:-1;
+      if(!(dir===-1&&V['b1-04']==1)){D.selDir=dir;if(!D.run||D.stopping){D.run=true;D.stopping=false;D.jog=false}}
+    }else if(!f&&!r&&D.run&&!D.stopping&&!D.jog)D.stopping=true;
+  }
+  TM.prev=Object.assign({},TM);
+}
+
+/* ---------------- UI STATE (JVOP-161 LED operator) ---------------- */
+const MODES=['DRIVE','QUICK','ADV','VERIFY','A.TUNE'];
+const MAIN=MODES.map(m=>[m,m]);
+const U={menu:'DRIVE',view:'val',mon:0,grp:0,idx:0,fld:1,edit:null,msg:null,vlist:[],power:false,tuneIdx:0,opeView:false};
+const MONS=[...MON.U1,...MON.U2,...MON.U3];
+function modes(){return V['A1-01']==0?['DRIVE','ADV']:MODES}
+function inDrive(){return U.menu==='DRIVE'}
+
+/* ---------------- 7-SEGMENT ---------------- */
+const SEGS={'0':'abcdef','1':'bc','2':'abdeg','3':'abcdg','4':'bcfg','5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg',
+ A:'abcefg',b:'cdefg',B:'cdefg',C:'adef',c:'deg',d:'bcdeg',D:'bcdeg',E:'adefg',F:'aefg',G:'acdef',H:'bcefg',h:'cefg',i:'c',I:'bc',J:'bcde',
+ L:'def',n:'ceg',N:'ceg',o:'cdeg',O:'cdeg',P:'abefg',r:'eg',R:'eg',S:'acdfg',t:'defg',T:'defg',U:'bcdef',u:'cde',V:'cde',v:'cde',y:'bcdfg',Y:'bcdfg','-':'g','_':'d',' ':''};
+const W=34,HH=62,T=7.5,G=1.6;
+function hs(x,y,l){const t=T/2;return`${x},${y} ${x+t},${y-t} ${x+l-t},${y-t} ${x+l},${y} ${x+l-t},${y+t} ${x+t},${y+t}`}
+function vs(x,y,l){const t=T/2;return`${x},${y} ${x+t},${y+t} ${x+t},${y+l-t} ${x},${y+l} ${x-t},${y+l-t} ${x-t},${y+t}`}
+const SG={a:hs(G,0,W-2*G),g:hs(G,HH/2,W-2*G),d:hs(G,HH,W-2*G),f:vs(0,G,HH/2-2*G),b:vs(W,G,HH/2-2*G),e:vs(0,HH/2+G,HH/2-2*G),c:vs(W,HH/2+G,HH/2-2*G)};
+function parse(str){const out=[];for(const ch of String(str)){if(ch==='.'&&out.length&&!out[out.length-1].dp){out[out.length-1].dp=true}else out.push({ch,dp:false})}return out}
+// d = {text, align:'l'|'r', blink:index|'all'|null}
+function svgFor(d){
+  let cells=parse(d.text);
+  if(cells.length>5)cells=cells.slice(cells.length-5);
+  const padN=5-cells.length;
+  const pad=Array.from({length:padN},()=>({ch:' ',dp:false}));
+  let bl=d.blink;
+  if(d.align==='l'){cells=cells.concat(pad)}else{cells=pad.concat(cells);if(typeof bl==='number')bl+=padN}
+  let s='';
+  cells.forEach((c,i)=>{
+    const on=SEGS[c.ch]!==undefined?SEGS[c.ch]:'';
+    const x=14+i*47,y=8;
+    const blink=bl==='all'||bl===i;
+    let off='',lit='';
+    for(const k of 'abcdefg'){const pl=`<polygon points="${SG[k]}"/>`;if(on.includes(k))lit+=pl;else off+=pl}
+    const dp=`<circle cx="${W+7}" cy="${HH+1}" r="3.6"/>`;
+    s+=`<g transform="translate(${x},${y}) skewX(-7)"><g class="seg">${off}${c.dp?'':dp}</g><g class="seg on lit${blink?' blk':''}">${lit}${c.dp?dp:''}</g></g>`;
+  });
+  return s;
+}
+
+/* ---------------- VALUE FORMATTING ---------------- */
+const FC={None:'nonE',OC:'oC',OV:'ou',OL1:'oL1',OL2:'oL2'};
+function fit(s){let n=s.replace('.','').length;while(n>5&&s.includes('.')){s=s.slice(0,-1);if(s.endsWith('.'))s=s.slice(0,-1);n=s.replace('.','').length}return s}
+function ledVal(s){
+  if(/^[01]{8}$/.test(s))return parseInt(s,2).toString(16).toUpperCase().padStart(2,'0');
+  if(FC[s])return FC[s];
+  if(s.startsWith('PRG'))return '1020';
+  if(/^[A-Za-z]\d-\d\d$/.test(s))return s;
+  return fit(s.replace(/[A-Za-z%]+$/,''));
+}
+function idTxt(id){return id[0]==='T'?'t'+id.slice(1):id}
+function numDisp(p,v){return fit(v.toFixed(p.dec))}
+
+/* ---------------- EDITING ---------------- */
+function tuneModes(){return V['A1-02']<=1?PM['T1-01'].opts.filter(o=>o[0]==2):PM['T1-01'].opts}
+function beginEdit(p){
+  if((D.run||D.tune)&&!p.run){U.edit={p,ro:true};hint('tipRo');return}
+  if(p.type==='sel'){let opts=p.opts;if(p.id==='T1-01')opts=tuneModes();U.edit={p,i:Math.max(0,opts.findIndex(o=>String(o[0])===String(V[p.id]))),opts}}
+  else{const sc=Math.pow(10,p.dec);const max=Math.round(pmax(p)*sc);const Wd=Math.min(5,Math.max(String(Math.round(p.max*sc)).length,p.dec+1));U.edit={p,v:Math.round(V[p.id]*sc),sc,W:Wd,pos:0,min:Math.round(p.min*sc),max}}
+}
+function editKey(k){
+  const e=U.edit;
+  if(k==='ESC'){U.edit=null;return}
+  if(e.ro){if(k==='ENTER')U.edit=null;return}
+  if(e.p.type==='sel'){
+    if(k==='UP')e.i=(e.i+1)%e.opts.length;
+    if(k==='DOWN')e.i=(e.i-1+e.opts.length)%e.opts.length;
+    if(k==='ENTER')commit(e.p,e.opts[e.i][0]);
+  }else{
+    const step=Math.pow(10,e.W-1-e.pos);
+    if(k==='UP')e.v=Math.min(e.max,e.v+step);
+    if(k==='DOWN')e.v=Math.max(e.min,e.v-step);
+    if(k==='SHIFT')e.pos=(e.pos+1)%e.W;
+    if(e.p.id==='d1-01'&&V['o2-05']==1&&(k==='UP'||k==='DOWN'))V['d1-01']=e.v/e.sc;
+    if(k==='ENTER')commit(e.p,e.v/e.sc);
+  }
+}
+function editDisp(){
+  const e=U.edit,p=e.p;
+  if(e.ro)return{text:p.type==='sel'?code(p,V[p.id]):numDisp(p,V[p.id]),align:'r'};
+  if(p.type==='sel')return{text:code(p,e.opts[e.i][0]),align:'r',blink:'all'};
+  const s=String(e.v).padStart(e.W,'0');
+  const txt=p.dec?s.slice(0,e.W-p.dec)+'.'+s.slice(e.W-p.dec):s;
+  return{text:txt,align:'r',blink:e.pos};
+}
+function commit(p,val){
+  U.edit=null;
+  if(p.id==='A1-03'){
+    if(val==2220||val==3330){factory(['A1-00','A1-02']);if(val==3330)V['H1-01']='0';flash('End');return}
+    if(val==1110){if(userSet){Object.assign(V,userSet);flash('End')}else flash('Err');return}
+    return;
+  }
+  if(p.id==='o2-03'){if(val==1)userSet=Object.assign({},V);if(val==2)userSet=null;V['o2-03']=0;flash('End');return}
+  if(p.id==='o3-01'&&val!=0){copyFn(val);return}
+  if(p.id==='o2-07')D.hours=val;
+  V[p.id]=val;
+  if(p.id==='E2-01')V['T1-04']=val;
+  flash('End');
+}
+function copyFn(m){
+  if(D.run){flash('Err');return}
+  if(m==1&&V['o3-02']==0){U.msg={k:'copy',t:'PrE'};render();return}
+  if((m==2||m==3)&&!copyMem){U.msg={k:'copy',t:'idE'};render();return}
+  const busy=m==1?'rEd':m==2?'CPy':'uFy';
+  let bad=false;if(m==3)bad=Object.keys(copyMem).some(k=>String(copyMem[k])!==String(V[k]));
+  U.msg={k:'copy',t:busy,busy:true};render();
+  setTimeout(()=>{if(m==1)copyMem=Object.assign({},V);if(m==2)Object.assign(V,copyMem);U.msg={k:'copy',t:bad?'uyE':'End'};render()},m==3?1400:2600);
+}
+let flashTO=null;
+function flash(t){U.msg={k:'flash',t};render();clearTimeout(flashTO);flashTO=setTimeout(()=>{if(U.msg&&U.msg.k==='flash'){U.msg=null;render()}},900)}
+
+/* ---------------- NAVIGATION ---------------- */
+function curList(){
+  if(U.menu==='QUICK')return quickList();
+  if(U.menu==='ADV'){const g=advGroups()[U.grp];return g?groupParams(g[0]):[]}
+  if(U.menu==='VERIFY')return U.vlist;
+  if(U.menu==='A.TUNE')return tuneList();
+  return[];
+}
+function enterMenu(m){
+  U.menu=m;U.edit=null;U.idx=0;U.opeView=false;
+  if(m==='DRIVE'){U.view='val';const o=V['o1-02'];U.mon=o==4?Math.max(0,MONS.findIndex(x=>x[0]==='U1-'+String(V['o1-01']).padStart(2,'0'))):o-1}
+  if(m==='ADV'){U.grp=0;U.fld=1}
+  if(m==='VERIFY')U.vlist=P.filter(isMod);
+  if(m==='A.TUNE'){U.tuneIdx=0;const t=tuneModes();if(!t.some(o=>o[0]==V['T1-01']))V['T1-01']=t[0][0]}
+}
+function key(k,phase){
+  if(!U.power)return;
+  if(k==='JOG'){jog(phase);return}
+  if(phase==='up')return;
+  if(U.msg){
+    if(U.msg.k==='flash')return;
+    if(U.msg.k==='copy'){if(U.msg.busy)return;U.msg=null;V['o3-01']=0;if(k!=='MENU'){render();return}}
+    else if(['tuneok','tuneabort','tunefail'].includes(U.msg.k)){U.msg=null;if(k!=='MENU'&&k!=='RUN'){render();return}}
+  }
+  if(k==='STOP'){stopKey();render();return}
+  if(k==='RUN'){runKey();render();return}
+  if(k==='LR'){lrKey();render();return}
+  if(k==='FR'){frKey();render();return}
+  if(D.tune&&D.tune.active)return;
+  if(k==='MENU'){U.edit=null;D.showFault=false;const ms=modes();enterMenu(ms[(ms.indexOf(U.menu)+1)%ms.length]);render();return}
+  if(k==='SHIFT'&&!U.edit&&D.fault){if(!D.run)resetFault();render();return}
+  if(D.fault&&D.showFault){if(k==='ESC'||k==='ENTER'){D.showFault=false;enterMenu('DRIVE');U.view='num'}render();return}
+  if(U.edit){editKey(k);render();return}
+  if(U.menu==='DRIVE'){
+    const o=ope();
+    if(o&&!U.opeView){if(k==='ENTER'){U.opeView=true;U.view='num';U.mon=MONS.findIndex(x=>x[0]==='U1-34')}render();return}
+    if(k==='UP'){U.mon=(U.mon+1)%MONS.length;U.view='num'}
+    if(k==='DOWN'){U.mon=(U.mon-1+MONS.length)%MONS.length;U.view='num'}
+    if(k==='ESC'){U.view='num'}
+    if(k==='ENTER'){if(U.view==='num')U.view='val';else if(U.mon===0){if(refOp())beginEdit(PM[D.jog?'d1-17':'d1-01']);else hint('hRefRemote')}}
+    render();return;
+  }
+  if(U.menu==='ADV'){
+    const gs=advGroups(),list=curList();
+    if(k==='SHIFT')U.fld=U.fld?0:1;
+    if(U.fld===0){
+      if(k==='UP'){U.grp=(U.grp+1)%gs.length;U.idx=0}
+      if(k==='DOWN'){U.grp=(U.grp-1+gs.length)%gs.length;U.idx=0}
+    }else{
+      if(k==='UP'){U.idx++;if(U.idx>=list.length){U.grp=(U.grp+1)%gs.length;U.idx=0}}
+      if(k==='DOWN'){U.idx--;if(U.idx<0){U.grp=(U.grp-1+gs.length)%gs.length;U.idx=curList().length-1}}
+    }
+    if(k==='ENTER')beginEdit(curList()[U.idx]);
+    render();return;
+  }
+  if(U.menu==='A.TUNE'){
+    const list=tuneList(),n=list.length;
+    if(k==='UP')U.tuneIdx=(U.tuneIdx+1)%(n+1);
+    if(k==='DOWN')U.tuneIdx=(U.tuneIdx-1+n+1)%(n+1);
+    if(k==='ENTER'&&U.tuneIdx<n)beginEdit(list[U.tuneIdx]);
+    render();return;
+  }
+  const list=curList();
+  if(!list.length){render();return}
+  if(k==='UP')U.idx=(U.idx+1)%list.length;
+  if(k==='DOWN')U.idx=(U.idx-1+list.length)%list.length;
+  if(k==='ENTER')beginEdit(list[U.idx]);
+  render();
+}
+function lrKey(){if(V['o2-01']==0){hint('hLrDis');return}if(D.run||D.tune||Math.abs(D.motor)>0.5){hint('hLrRun');return}D.mode=D.mode==='REMOTE'?'LOCAL':'REMOTE';hint(D.mode==='LOCAL'?'hLocal':'hRem','info');if(D.mode==='REMOTE'&&V['b1-07']==0&&(TM.S1||TM.S2))D.stopLatch=true}
+function frKey(){if(D.tune)return;if(!opSrc()){hint('hRemote2');return}if(D.selDir===1&&V['b1-04']==1){hint('hRevDis');return}D.selDir*=-1}
+function canRunHere(){return inDrive()||V['b1-08']==1}
+function runKey(){
+  if(U.menu==='A.TUNE'&&U.tuneIdx===tuneList().length&&!D.tune&&!D.fault&&!D.run&&!U.edit){tuneStart();return}
+  if(D.tune)return;if(D.fault){hint('hFault');return}if(ope()){hint('hOpe');return}if(!opSrc()){hint('hRemote');return}if(!canRunHere()){hint('hMenu');return}if(U.edit){hint('hEdit');return}
+  if(fref()<V['E1-09'])setTimeout(()=>{if(D.run&&!D.stopping&&fref()<V['E1-09'])hint('hLowRef')},250);
+  D.run=true;D.stopping=false;D.jog=false;D.dcinj=0;
+  if(V['b2-03']>0)D.dcinj=V['b2-03'];
+}
+function stopKey(){
+  if(D.tune&&D.tune.active){D.tune=null;D.f=0;D.I=0;D.coast=true;U.msg={k:'tuneabort'};return}
+  if(!D.run)return;
+  if(!opSrc()&&V['o2-02']==0)return;
+  D.stopping=true;D.jog=false;if(!opSrc())D.stopLatch=true;
+}
+function jog(phase){
+  if(phase==='down'){if(!opSrc()&&!D.run){hint('hRemote2');return}if(D.fault||ope()||D.tune||!opSrc()||D.run||!canRunHere()||U.edit)return;D.jog=true;D.run=true;D.stopping=false}
+  else if(phase==='up'&&D.jog){D.stopping=true}
+  render();
+}
+
+/* ---------------- RENDER ---------------- */
+const segEl=document.getElementById('seg');let lastH='';
+function screen(){
+  const m=U.msg;
+  if(m&&m.k==='flash')return{text:m.t,align:'l'};
+  if(m&&m.k==='copy')return{text:m.t,align:'l',blink:m.busy?'all':null};
+  if(m&&m.k==='tuneok')return{text:'End',align:'l'};
+  if(m&&m.k==='tuneabort')return{text:'Er-03',align:'l'};
+  if(m&&m.k==='tunefail')return{text:m.code.replace(/ /g,''),align:'l'};
+  if(D.tune&&D.tune.active)return{text:'tUn11',align:'l',blink:'all'};
+  if(D.fault&&D.showFault)return{text:FC[D.fault]||D.fault,align:'l'};
+  if(D.alarm&&U.menu==='DRIVE'&&!U.edit)return{text:D.alarm,align:'l',blink:'all'};
+  if(U.edit)return editDisp();
+  if(U.menu==='DRIVE'){
+    const o=ope();
+    if(o&&!U.opeView)return{text:'oPE'+o[0].slice(3),align:'l',blink:'all'};
+    const mm=MONS[U.mon];
+    if(U.view==='num')return{text:mm[0],align:'l'};
+    return{text:ledVal(mm[2]()),align:'r'};
+  }
+  if(U.menu==='ADV'){const p=curList()[U.idx];return{text:idTxt(p.id),align:'l',blink:'fld'}}
+  if(U.menu==='A.TUNE'){const l=tuneList();if(U.tuneIdx===l.length)return{text:'tUn10',align:'l'};return{text:idTxt(l[U.tuneIdx].id),align:'l'}}
+  const l=curList();
+  if(!l.length)return{text:'nonE',align:'l'};
+  U.idx=Math.min(U.idx,l.length-1);
+  return{text:idTxt(l[U.idx].id),align:'l'};
+}
+function render(){
+  if(!U.power)return;
+  const d=screen();
+  let h;
+  if(d.blink==='fld'){ // ADV parameter number: blink selected field (group or number)
+    const id=d.text;const base=svgFor({text:id,align:'l'});
+    h=base;const idx=U.fld===0?[0,1]:[3,4];
+    // mark blink on selected digits by re-rendering with class
+    h=svgFor({text:id,align:'l',blink:null}).split('<g transform').map((g,i)=>i&&idx.includes(i-1)?g.replace('class="seg on lit"','class="seg on lit blk"'):g).join('<g transform');
+  }else h=svgFor(d);
+  if(h!==lastH){lastH=h;segEl.innerHTML=h;const mr=document.getElementById('seg2');if(mr)mr.innerHTML=h}
+  leds();
+}
+function setDot(id,on,blink){const e=document.getElementById(id);e.classList.toggle('on',!!on&&!blink);e.classList.toggle('blink',!!blink)}
+function leds(){
+  if(!U.power)return;
+  const running=D.run||(D.tune&&D.tune.active);
+  const fwd=D.selDir===1;
+  setDot('L-fwd',running&&fwd||!running&&fwd&&opSrc());setDot('L-rev',running&&!fwd||!running&&!fwd&&opSrc());
+  setDot('L-seq',D.mode==='REMOTE'&&V['b1-02']!=0);
+  setDot('L-ref',D.mode==='REMOTE'&&V['b1-01']!=0);
+  const o=ope();
+  setDot('L-alm',!!D.fault||!!o||!!D.alarm,!D.fault&&(!!o||!!D.alarm));
+  const decel=D.stopping;
+  const below=D.run&&!D.stopping&&fref()<V['E1-09'];
+  setDot('D-run',running&&!decel,decel);
+  setDot('D-stop',!running||decel,below);
+  MODES.forEach(m=>document.getElementById('M-'+m).classList.toggle('on',U.menu===m));
+}
+
+/* ---------------- INPUT ---------------- */
+let rep=null;
+function press(btn,phase){
+  const k=btn.dataset.k;
+  if(phase==='down'){btn.classList.add('down');key(k,'down');
+    if(k==='UP'||k==='DOWN'){clearTimeout(rep);rep=setTimeout(function r(){key(k,'down');rep=setTimeout(r,90)},450)}}
+  else{btn.classList.remove('down');clearTimeout(rep);key(k,'up')}
+}
+document.querySelectorAll('.k').forEach(b=>{
+  b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture&&b.setPointerCapture(e.pointerId);press(b,'down')});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,()=>{if(b.classList.contains('down'))press(b,'up')}));
+  b.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();e.stopPropagation();if(!e.repeat)press(b,'down')}});
+  b.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();e.stopPropagation();press(b,'up')}});
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+const KM={ArrowUp:'UP',ArrowDown:'DOWN',ArrowRight:'SHIFT',Enter:'ENTER',Escape:'ESC',m:'MENU',r:'RUN',s:'STOP',j:'JOG',f:'FR',l:'LR'};
+function km(e){return KM[e.key]||KM[(e.key||'').toLowerCase()]}
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,select,textarea'))return;if(curTab!==0&&!['r','s'].includes((e.key||'').toLowerCase()))return;const k=km(e);if(!k)return;e.preventDefault();if(e.repeat&&k!=='UP'&&k!=='DOWN')return;
+  document.querySelector(`.k[data-k="${k}"]`).classList.add('down');key(k,'down')});
+document.addEventListener('keyup',e=>{if(e.target.closest&&e.target.closest('input,select,textarea'))return;const k=km(e);if(!k)return;document.querySelector(`.k[data-k="${k}"]`).classList.remove('down');key(k,'up')});
+
+/* ---------------- POWER-UP ---------------- */
+segEl.innerHTML=svgFor({text:'',align:'l'});
+function powerOff(){U.power=false;D.run=false;D.stopping=false;D.jog=false;D.tune=null;U.edit=null;U.msg=null;D.f=0;D.I=0;
+  ['L-fwd','L-rev','L-seq','L-ref','L-alm','D-run','D-stop'].forEach(i=>setDot(i,false));MODES.forEach(m=>document.getElementById('M-'+m).classList.remove('on'));
+  lastH='';segEl.innerHTML=svgFor({text:'',align:'l'});const mr=document.getElementById('seg2');if(mr)mr.innerHTML=segEl.innerHTML}
+function powerUp(){
+  D.fault=null;D.showFault=false;D.alarm=null;D.ol1=0;D.stopLatch=true;
+  ['L-fwd','L-rev','L-seq','L-ref','L-alm','D-run','D-stop'].forEach(i=>setDot(i,true));
+  MODES.forEach(m=>document.getElementById('M-'+m).classList.add('on'));
+  segEl.innerHTML=svgFor({text:'8.8.8.8.8.',align:'l'});
+  const mr=document.getElementById('seg2');if(mr)mr.innerHTML=segEl.innerHTML;
+  setTimeout(()=>{U.power=true;PL.boot=false;lastH='';enterMenu('DRIVE');render()},1200);
+}
+setTimeout(powerUp,350);
+setInterval(()=>{tick();if(U.power)render();appTick()},100);
+
+/* ================= CONTENT (from TM.F7.01; EN = manual wording, HI/HG = translations) ================= */
+const LI={en:0,hi:1,hg:2};
+const UI={
+ lang:['Language','भाषा','Language'],tKey:['Keypad','कीपैड','Keypad'],tSim:['Simulate','सिमुलेशन','Simulate'],tWire:['Wiring','वायरिंग','Wiring'],tTrb:['Faults','फ़ॉल्ट','Faults'],
+ swipe:['Swipe left or right to change tabs','टैब बदलने के लिए बाएँ या दाएँ स्वाइप करें','Tab badalne ke liye left ya right swipe karein'],
+ trend:['Trend (last 60 s)','ट्रेंड (पिछले 60 सेकंड)','Trend (last 60 sec)'],
+ lgFreq:['Output freq','आउटपुट फ़्रीक्वेंसी','Output freq'],lgRef:['Freq ref','फ़्रीक्वेंसी रेफ','Freq ref'],lgCur:['Output current','आउटपुट करंट','Output current'],lgDc:['DC bus','DC बस','DC bus'],
+ dcs:['DCS / remote commands','DCS / रिमोट कमांड','DCS / remote commands'],
+ dFwd:['Start FWD (S1)','स्टार्ट FWD (S1)','Start FWD (S1)'],dRev:['Start REV (S2)','स्टार्ट REV (S2)','Start REV (S2)'],dStop:['Stop','स्टॉप','Stop'],
+ dRst:['Fault reset (S4)','फ़ॉल्ट रीसेट (S4)','Fault reset (S4)'],dEf:['External fault (S3)','बाहरी फ़ॉल्ट (S3)','External fault (S3)'],dSp:['Speed ref A1','स्पीड रेफ A1','Speed ref A1'],
+ plant:['Plant','प्लांट','Plant'],loadT:['Load on motor','मोटर पर लोड','Motor par load'],ldL:['Light','हल्का','Light'],ldN:['Normal','सामान्य','Normal'],ldH:['Heavy','भारी','Heavy'],
+ mainsOn:['Mains ON','मेन्स चालू','Mains ON'],mainsOff:['Mains OFF','मेन्स बंद','Mains OFF'],openTrb:['Open troubleshooting','समस्या निवारण खोलें','Troubleshooting kholein'],
+ plantNote:['A heavy load draws more current. Fast acceleration can then cause OC or OL1, and fast deceleration can cause OV. Switching mains OFF while running trips UV1 (L2-01 = 0).','भारी लोड ज़्यादा करंट लेता है। तेज़ एक्सेलरेशन पर OC या OL1 और तेज़ डिसेलरेशन पर OV आ सकता है। चलते समय मेन्स बंद करने पर UV1 ट्रिप होता है (L2-01 = 0)।','Heavy load zyada current leta hai. Fast accel par OC ya OL1, aur fast decel par OV aa sakta hai. Chalte waqt mains OFF karne par UV1 trip hota hai (L2-01 = 0).'],
+ wireT:['Standard connection (Fig 2.3, 2.9, Tables 2.4, 2.11)','मानक कनेक्शन (Fig 2.3, 2.9, टेबल 2.4, 2.11)','Standard connection (Fig 2.3, 2.9, Table 2.4, 2.11)'],
+ wireNote:['Terminal layout is taken from the manual (Fig 2.3). Some F7A drives have P1/P2/PC instead of M3–M6, so check the label on your drive. Tap any terminal to see its function. Colours and values update live from the simulation.','टर्मिनल लेआउट मैनुअल (Fig 2.3) से लिया गया है। कुछ F7A ड्राइव में M3–M6 की जगह P1/P2/PC होते हैं, इसलिए अपनी ड्राइव का लेबल देखें। किसी भी टर्मिनल पर टैप करके उसका काम देखें। रंग और वैल्यू सिमुलेशन से लाइव बदलते हैं।','Terminal layout manual (Fig 2.3) se liya hai. Kuch F7A drives me M3–M6 ki jagah P1/P2/PC hote hain, isliye apni drive ka label check karein. Kisi bhi terminal par tap karke uska kaam dekhein. Colour aur values simulation se live update hote hain.'],
+ fcT:['Fault / alarm code','फ़ॉल्ट / अलार्म कोड','Fault / alarm code'],symT:['Symptoms (manual Chapter 6)','लक्षण (मैनुअल अध्याय 6)','Symptoms (manual Chapter 6)'],
+ tapDisp:['Tap the display for details','जानकारी के लिए डिस्प्ले पर टैप करें','Details ke liye display par tap karo'],
+ shTitle:['Display details','डिस्प्ले की जानकारी','Display details'],next:['What to do','क्या करें','Kya karein'],
+ wMainT:['Main circuit (Table 2.4)','मेन सर्किट (टेबल 2.4)','Main circuit (Table 2.4)'],wCtlT:['Control circuit terminals (Table 2.11)','कंट्रोल सर्किट टर्मिनल (टेबल 2.11)','Control circuit terminals (Table 2.11)'],
+ wDcsT:['DCS ↔ drive wiring (2-wire, Fig 2.9)','DCS ↔ ड्राइव वायरिंग (2-वायर, Fig 2.9)','DCS ↔ drive wiring (2-wire, Fig 2.9)'],
+ gDI:['Digital inputs','डिजिटल इनपुट','Digital inputs'],gAI:['Analog inputs & supply','एनालॉग इनपुट और सप्लाई','Analog inputs & supply'],gAO:['Analog outputs','एनालॉग आउटपुट','Analog outputs'],gDO:['Contact outputs','कॉन्टैक्ट आउटपुट','Contact outputs'],gCm:['Comms / pulse / ground','कम्युनिकेशन / पल्स / ग्राउंड','Comms / pulse / ground'],
+ dcsSig:['DCS signal','DCS सिग्नल','DCS signal'],drvT:['Drive','ड्राइव','Drive'],
+ hRemote:['RUN ignored: the drive is in REMOTE (SEQ/REF LEDs on), so it takes commands from the terminals. Press LOCAL/REMOTE to use the keypad, or use DCS Start in the Simulate tab.','RUN नहीं माना: ड्राइव REMOTE में है (SEQ/REF LED जल रही), कमांड टर्मिनल से आएगी। कीपैड के लिए LOCAL/REMOTE दबाएँ, या सिमुलेशन टैब में DCS Start।','RUN ignore hua: drive REMOTE me hai (SEQ/REF LED on), command terminal se aayegi. Keypad ke liye LOCAL/REMOTE dabao, ya Simulate tab me DCS Start.'],
+ hRemote2:['Ignored in REMOTE: direction and jog come from the terminals. Press LOCAL/REMOTE first.','REMOTE में नहीं चलेगा: दिशा और जॉग टर्मिनल से आते हैं। पहले LOCAL/REMOTE दबाएँ।','REMOTE me nahi chalega: direction aur jog terminal se aate hain. Pehle LOCAL/REMOTE dabao.'],
+ hMenu:['RUN ignored: press MENU until the DRIVE LED is lit (b1-08 = 0 allows RUN only in DRIVE mode).','RUN नहीं माना: DRIVE LED जलने तक MENU दबाएँ (b1-08 = 0)।','RUN ignore: DRIVE LED jalne tak MENU dabao (b1-08 = 0).'],
+ hFault:['A fault is active. Press >/RESET first, then RUN.','फ़ॉल्ट सक्रिय है। पहले >/RESET, फिर RUN।','Fault active hai. Pehle >/RESET, phir RUN.'],
+ hOpe:['Programming error (OPE). Correct the setting first; tap the display for details.','प्रोग्रामिंग एरर (OPE)। पहले सेटिंग ठीक करें; जानकारी के लिए डिस्प्ले पर टैप करें।','Programming error (OPE). Pehle setting theek karo; details ke liye display par tap karo.'],
+ hEdit:['Finish editing first (DATA/ENTER to save or ESC to cancel).','पहले एडिट पूरा करें (DATA/ENTER सेव, ESC रद्द)।','Pehle edit poora karo (DATA/ENTER save, ESC cancel).'],
+ hLowRef:['Running, but the speed reference is below E1-09 (minimum frequency), so the motor does not turn. In DRIVE mode press DATA/ENTER on U1-01 and set a speed, for example 30.00 Hz.','चल रही है, पर स्पीड रेफ़ E1-09 से कम है, इसलिए मोटर नहीं घूमती। DRIVE मोड में U1-01 पर DATA/ENTER दबाकर स्पीड सेट करें, जैसे 30.00 Hz।','Run hai, par speed ref E1-09 se kam hai, isliye motor nahi ghoomti. DRIVE mode me U1-01 par DATA/ENTER dabakar speed set karo, jaise 30.00 Hz.'],
+ hLrRun:['LOCAL/REMOTE can only be switched while the drive is stopped.','LOCAL/REMOTE केवल ड्राइव रुकी होने पर बदलता है।','LOCAL/REMOTE sirf drive ruki ho tab badalta hai.'],
+ hLrDis:['LOCAL/REMOTE key is disabled (o2-01 = 0).','LOCAL/REMOTE की बंद है (o2-01 = 0)।','LOCAL/REMOTE key band hai (o2-01 = 0).'],
+ hRevDis:['Reverse is disabled (b1-04 = 1).','रिवर्स बंद है (b1-04 = 1)।','Reverse band hai (b1-04 = 1).'],
+ hRefRemote:['In REMOTE the speed comes from terminal A1 (b1-01 = 1). Switch to LOCAL to set it here, or use the A1 slider in the Simulate tab.','REMOTE में स्पीड टर्मिनल A1 से आती है। यहाँ सेट करने के लिए LOCAL करें, या सिमुलेशन टैब में A1 स्लाइडर।','REMOTE me speed terminal A1 se aati hai. Yahan set karne ke liye LOCAL karo, ya Simulate tab me A1 slider.'],
+ hLocal:['LOCAL: the keypad now controls RUN/STOP and speed (SEQ/REF LEDs off).','LOCAL: अब कीपैड से RUN/STOP और स्पीड (SEQ/REF LED बंद)।','LOCAL: ab keypad se RUN/STOP aur speed (SEQ/REF LED off).'],
+ hRem:['REMOTE: commands now come from the terminals / DCS (SEQ/REF LEDs on).','REMOTE: अब कमांड टर्मिनल / DCS से (SEQ/REF LED जलेंगी)।','REMOTE: ab command terminal / DCS se (SEQ/REF LED on).'],
+ brk1:['Braking unit','ब्रेकिंग यूनिट','Braking unit'],brk2:['(option) ⊕3 · (−)','(ऑप्शन) ⊕3 · (−)','(option) ⊕3 · (−)'],
+ back:['Training Hub','ट्रेनिंग हब','Training Hub'],
+ // guide
+ mDRIVE:['Operation (DRIVE): run the drive and watch monitors','ऑपरेशन (DRIVE): ड्राइव चलाएँ और मॉनिटर देखें','Operation (DRIVE): drive chalao aur monitors dekho'],
+ mQUICK:['Quick Setting: most commonly used parameters','क्विक सेटिंग: सबसे ज़्यादा इस्तेमाल होने वाले पैरामीटर','Quick Setting: sabse common parameters'],
+ mADV:['Programming (ADV): every parameter','प्रोग्रामिंग (ADV): सभी पैरामीटर','Programming (ADV): saare parameters'],
+ mVERIFY:['Modified Constants (VERIFY): parameters changed from factory default','मॉडिफ़ाइड (VERIFY): फ़ैक्ट्री डिफ़ॉल्ट से बदले गए पैरामीटर','Modified (VERIFY): factory default se badle hue parameters'],
+ 'mA.TUNE':['Auto-Tuning: measure motor data automatically','ऑटो-ट्यूनिंग: मोटर डेटा अपने आप मापना','Auto-Tuning: motor data automatic measure karna'],
+ present:['Present value','वर्तमान मान','Abhi ki value'],range:['Setting range','सेटिंग रेंज','Setting range'],def:['Factory default','फ़ैक्ट्री डिफ़ॉल्ट','Factory default'],
+ runChg:['Change while running','चलते समय बदल सकते हैं','Chalte waqt badal sakte'],yes:['Yes','हाँ','Haan'],no:['No','नहीं','Nahi'],
+ defTag:['default','डिफ़ॉल्ट','default'],monitor:['Monitor','मॉनिटर','Monitor'],
+ tipNum:['Press DATA/ENTER to edit. The digit that blinks is the one that changes. Press >/RESET to move to the next digit, ∧/∨ to change it, then DATA/ENTER to save ("End" appears). ESC cancels.','बदलने के लिए DATA/ENTER दबाएँ। जो अंक ब्लिंक करे वही बदलेगा। >/RESET से अगला अंक, ∧/∨ से बदलें, फिर DATA/ENTER से सेव करें ("End" दिखेगा)। ESC से रद्द।','Badalne ke liye DATA/ENTER dabao. Jo digit blink kare wahi badlega. >/RESET se agla digit, ∧/∨ se badlo, phir DATA/ENTER se save ("End" dikhega). ESC se cancel.'],
+ tipSel:['Press DATA/ENTER, choose with ∧/∨, then DATA/ENTER to save ("End"). ESC cancels.','DATA/ENTER दबाएँ, ∧/∨ से चुनें, फिर DATA/ENTER से सेव करें ("End")। ESC से रद्द।','DATA/ENTER dabao, ∧/∨ se chuno, phir DATA/ENTER se save ("End"). ESC se cancel.'],
+ tipAdv:['>/RESET switches the blinking part between group (e.g. C1) and number (e.g. 02). ∧/∨ changes the blinking part.','>/RESET से ब्लिंक होने वाला हिस्सा ग्रुप (जैसे C1) और नंबर (जैसे 02) के बीच बदलता है। ∧/∨ उसी हिस्से को बदलता है।','>/RESET se blink hone wala hissa group (jaise C1) aur number (jaise 02) ke beech badalta hai. ∧/∨ wahi hissa badalta hai.'],
+ tipRo:['Read only now: this parameter cannot be changed while the drive is running. Stop the drive first.','अभी केवल पढ़ सकते हैं: यह पैरामीटर ड्राइव चलते समय नहीं बदलता। पहले ड्राइव रोकें।','Abhi sirf read: yeh parameter drive chalte waqt nahi badalta. Pehle drive roko.'],
+ tipMonN:['Number shown. Press DATA/ENTER to see its value; ∧/∨ selects another monitor.','नंबर दिख रहा है। वैल्यू देखने के लिए DATA/ENTER दबाएँ; ∧/∨ से दूसरा मॉनिटर।','Number dikh raha hai. Value dekhne ke liye DATA/ENTER dabao; ∧/∨ se dusra monitor.'],
+ tipMonV:['Value shown. ESC shows the monitor number; ∧/∨ selects another monitor.','वैल्यू दिख रही है। ESC से मॉनिटर नंबर; ∧/∨ से दूसरा मॉनिटर।','Value dikh rahi hai. ESC se monitor number; ∧/∨ se dusra monitor.'],
+ tipRef:['In LOCAL (SEQ/REF LEDs off) press DATA/ENTER to set the speed, then RUN. In REMOTE the speed comes from terminal A1 (b1-01 = 1).','LOCAL में (SEQ/REF LED बंद) स्पीड सेट करने के लिए DATA/ENTER दबाएँ, फिर RUN। REMOTE में स्पीड टर्मिनल A1 से आती है (b1-01 = 1)।','LOCAL me (SEQ/REF LED off) speed set karne ke liye DATA/ENTER dabao, phir RUN. REMOTE me speed terminal A1 se aati hai (b1-01 = 1).'],
+ tipTune:['Enter motor nameplate data in T1 parameters, go past the last one to "tUn10", then press RUN. STOP aborts (Er-03).','T1 पैरामीटर में मोटर नेमप्लेट डेटा डालें, आख़िरी के बाद "tUn10" तक जाएँ, फिर RUN दबाएँ। STOP से रुकता है (Er-03)।','T1 parameters me motor nameplate data daalo, last ke baad "tUn10" tak jao, phir RUN dabao. STOP se rukta hai (Er-03).'],
+ tuneReady:['Tuning ready. Press RUN to start Auto-Tuning. Ideally uncouple the motor from the load.','ट्यूनिंग तैयार। ऑटो-ट्यूनिंग शुरू करने के लिए RUN दबाएँ। बेहतर है कि मोटर को लोड से अलग करें।','Tuning ready. Auto-Tuning shuru karne ke liye RUN dabao. Behtar hai motor ko load se alag karo.'],
+ tuneRun:['Auto-Tuning in progress. The motor may rotate. STOP aborts.','ऑटो-ट्यूनिंग चल रही है। मोटर घूम सकती है। STOP से रुकेगी।','Auto-Tuning chal rahi hai. Motor ghoom sakti hai. STOP se rukegi.'],
+ tuneOk:['Auto-Tuning finished. Motor parameters (E2, E1) were set automatically.','ऑटो-ट्यूनिंग पूरी। मोटर पैरामीटर (E2, E1) अपने आप सेट हुए।','Auto-Tuning complete. Motor parameters (E2, E1) automatic set ho gaye.'],
+ noneMod:['No parameter has been changed from its factory default.','कोई भी पैरामीटर फ़ैक्ट्री डिफ़ॉल्ट से नहीं बदला गया।','Koi bhi parameter factory default se nahi badla.'],
+ off:['Drive is powered off. Switch Mains ON in the Simulation tab.','ड्राइव बंद है। सिमुलेशन टैब में मेन्स चालू करें।','Drive off hai. Simulation tab me Mains ON karo.'],
+ resetTip:['Remove the run command, then press >/RESET (or DCS S4).','रन कमांड हटाएँ, फिर >/RESET दबाएँ (या DCS S4)।','Run command hatao, phir >/RESET dabao (ya DCS S4).'],
+ // sim
+ sRun:['Running','चल रही','Running'],sStop:['Stopped','रुकी हुई','Stopped'],sDec:['Decelerating','धीमी हो रही','Decel ho rahi'],sFlt:['Fault','फ़ॉल्ट','Fault'],sAlm:['Alarm','अलार्म','Alarm'],sOff:['Power off','पावर बंद','Power off'],
+ sStA:['Stall prev. (accel)','स्टॉल रोक (एक्सेल)','Stall prev. (accel)'],sStD:['Stall prev. (decel)','स्टॉल रोक (डिसेल)','Stall prev. (decel)'],sTune:['Auto-tuning','ऑटो-ट्यूनिंग','Auto-tuning'],
+ rRef:['Freq ref','फ़्रीक. रेफ','Freq ref'],rOut:['Output freq','आउटपुट फ़्रीक.','Output freq'],rSpd:['Motor speed','मोटर स्पीड','Motor speed'],rCur:['Current','करंट','Current'],rVolt:['Output volt','आउटपुट वोल्ट','Output volt'],rDc:['DC bus','DC बस','DC bus'],rKw:['Power','पावर','Power'],rTq:['Torque','टॉर्क','Torque'],
+ nLocal:['Drive is in LOCAL. DCS commands are ignored. Press LOCAL/REMOTE on the keypad so the SEQ and REF LEDs turn ON.','ड्राइव LOCAL में है, DCS कमांड नहीं मानी जाएगी। कीपैड पर LOCAL/REMOTE दबाएँ ताकि SEQ और REF LED जलें।','Drive LOCAL me hai, DCS command ignore hogi. Keypad par LOCAL/REMOTE dabao taaki SEQ aur REF LED ON ho.'],
+ nSeq:['b1-02 is not 1, so the run command does not come from S1/S2.','b1-02, 1 नहीं है, इसलिए रन कमांड S1/S2 से नहीं आएगी।','b1-02 = 1 nahi hai, isliye run command S1/S2 se nahi aayegi.'],
+ nRef:['b1-01 is not 1, so speed comes from d1-01 and the A1 slider is ignored.','b1-01, 1 नहीं है, इसलिए स्पीड d1-01 से आएगी और A1 स्लाइडर नहीं माना जाएगा।','b1-01 = 1 nahi hai, isliye speed d1-01 se aayegi aur A1 slider ignore hoga.'],
+ nLatch:['Run command must be removed and given again (keypad STOP was pressed or LOCAL→REMOTE with b1-07 = 0). Press Stop, then Start.','रन कमांड हटाकर दोबारा देनी होगी (कीपैड STOP दबाया गया या b1-07 = 0 पर LOCAL→REMOTE)। Stop दबाएँ, फिर Start।','Run command hata kar dobara deni hogi (keypad STOP dabaya ya b1-07 = 0 par LOCAL→REMOTE). Stop dabao, phir Start.'],
+ nMenu:['Keypad is not in DRIVE mode and b1-08 = 0, so the drive will not start. Press MENU until the DRIVE LED is lit.','कीपैड DRIVE मोड में नहीं है और b1-08 = 0 है, इसलिए ड्राइव नहीं चलेगी। DRIVE LED जलने तक MENU दबाएँ।','Keypad DRIVE mode me nahi hai aur b1-08 = 0, isliye drive start nahi hogi. DRIVE LED jalne tak MENU dabao.'],
+ nFlt:['A fault is active. Open S1/S2 (Stop), then reset with S4 or the RESET key.','फ़ॉल्ट सक्रिय है। S1/S2 खोलें (Stop), फिर S4 या RESET की से रीसेट करें।','Fault active hai. S1/S2 open karo (Stop), phir S4 ya RESET key se reset karo.'],
+ nOpe:['An OPE (programming error) is present. The drive will not run until the setting is corrected.','OPE (प्रोग्रामिंग एरर) है। सेटिंग ठीक होने तक ड्राइव नहीं चलेगी।','OPE (programming error) hai. Setting theek hone tak drive nahi chalegi.'],
+ nEF:['S1 and S2 are both closed: EF alarm, the motor stops.','S1 और S2 दोनों बंद हैं: EF अलार्म, मोटर रुकती है।','S1 aur S2 dono closed: EF alarm, motor rukti hai.'],
+ nOk:['Ready for DCS commands: REMOTE, b1-02 = 1 (S1/S2), b1-01 = 1 (A1).','DCS कमांड के लिए तैयार: REMOTE, b1-02 = 1 (S1/S2), b1-01 = 1 (A1)।','DCS command ke liye ready: REMOTE, b1-02 = 1 (S1/S2), b1-01 = 1 (A1).'],
+ // trouble
+ tF:['Fault','फ़ॉल्ट','Fault'],tA:['Alarm','अलार्म','Alarm'],tO:['Programming error (OPE)','प्रोग्रामिंग एरर (OPE)','Programming error (OPE)'],tT:['Auto-Tuning fault','ऑटो-ट्यूनिंग फ़ॉल्ट','Auto-Tuning fault'],tC:['COPY function fault','कॉपी फ़ंक्शन फ़ॉल्ट','COPY function fault'],
+ cause:['Possible causes','संभावित कारण','Possible causes'],action:['Corrective action','सुधार के कदम','Kya karein'],active:['Active now on the drive','अभी ड्राइव पर सक्रिय','Abhi drive par active'],
+ notFound:['Code not found. Type the code as shown on the display, for example oC, ou, UV1, oPE10, Er-03.','कोड नहीं मिला। डिस्प्ले जैसा कोड लिखें, जैसे oC, ou, UV1, oPE10, Er-03।','Code nahi mila. Display jaisa code likho, jaise oC, ou, UV1, oPE10, Er-03.'],
+ askCode:['Type a code from the display, or tap one below. The active fault opens here automatically.','डिस्प्ले का कोड लिखें या नीचे से चुनें। सक्रिय फ़ॉल्ट यहाँ अपने आप खुलता है।','Display ka code likho ya neeche se chuno. Active fault yahan automatic khulta hai.'],
+ resetHow:['To restart: remove the run command, then press RESET, close the fault-reset input (H1 = 14), or cycle power.','दोबारा चालू करने के लिए: रन कमांड हटाएँ, फिर RESET दबाएँ, फ़ॉल्ट-रीसेट इनपुट (H1 = 14) बंद करें, या पावर बंद-चालू करें।','Restart ke liye: run command hatao, phir RESET dabao, fault-reset input (H1 = 14) close karo, ya power off-on karo.'],
+ // wiring
+ wPower:['MAIN CIRCUIT','मेन सर्किट','MAIN CIRCUIT'],wCtl:['CONTROL CIRCUIT TERMINALS','कंट्रोल सर्किट टर्मिनल','CONTROL CIRCUIT TERMINALS'],wDcsA:['DCS — AO / DI card','DCS — AO / DI कार्ड','DCS — AO / DI card'],wDcsB:['DCS — DO / AI card','DCS — DO / AI कार्ड','DCS — DO / AI card'],
+ wSup:['3-phase supply 400 V','3-फ़ेज़ सप्लाई 400 V','3-phase supply 400 V'],wBrk:['Braking transistor unit (option)','ब्रेकिंग ट्रांजिस्टर यूनिट (ऑप्शन)','Braking transistor unit (option)'],
+ tapTerm:['Tap a terminal in the drawing to see what it does.','ड्राइंग में किसी टर्मिनल पर टैप करें, उसका काम दिखेगा।','Drawing me kisi terminal par tap karo, uska kaam dikhega.'],
+ lDI:['Digital input','डिजिटल इनपुट','Digital input'],lCom:['Common / supply','कॉमन / सप्लाई','Common / supply'],lAI:['Analog input','एनालॉग इनपुट','Analog input'],lAO:['Analog output','एनालॉग आउटपुट','Analog output'],lDO:['Contact output','कॉन्टैक्ट आउटपुट','Contact output'],lCm:['Comms / pulse','कम्युनिकेशन / पल्स','Comms / pulse'],
+ fn:['Function','फ़ंक्शन','Function'],sig:['Signal level','सिग्नल लेवल','Signal level'],now:['Now','अभी','Abhi'],closed:['CLOSED','बंद (CLOSED)','CLOSED'],open:['OPEN','खुला (OPEN)','OPEN']
+};
+
+/* parameter meanings */
+const PMEAN={
+ 'A1-00':['Language for the digital operator. Not reset by A1-03.','डिजिटल ऑपरेटर की भाषा। A1-03 से रीसेट नहीं होती।','Digital operator ki language. A1-03 se reset nahi hoti.'],
+ 'A1-01':['Selects which parameters are accessible: 0 Operation only, 1 User level (A2), 2 Advanced (all).','कौन से पैरामीटर एक्सेस होंगे: 0 केवल ऑपरेशन, 1 यूज़र लेवल (A2), 2 एडवांस्ड (सभी)।','Kaunse parameters access honge: 0 sirf operation, 1 user level (A2), 2 advanced (sab).'],
+ 'A1-02':['Control method: 0 V/F, 1 V/F with PG, 2 Open Loop Vector, 3 Flux Vector. Methods 1 and 3 need a PG (encoder) card, otherwise OPE06.','कंट्रोल मेथड: 0 V/F, 1 V/F (PG के साथ), 2 ओपन लूप वेक्टर, 3 फ़्लक्स वेक्टर। 1 और 3 के लिए PG (एनकोडर) कार्ड चाहिए, वरना OPE06।','Control method: 0 V/F, 1 V/F with PG, 2 Open Loop Vector, 3 Flux Vector. 1 aur 3 ke liye PG (encoder) card chahiye, warna OPE06.'],
+ 'A1-03':['Returns all parameters to factory (2220 = 2-wire, 3330 = 3-wire) or user (1110) settings, then returns to 0.','सभी पैरामीटर फ़ैक्ट्री (2220 = 2-वायर, 3330 = 3-वायर) या यूज़र (1110) सेटिंग पर लौटाता है, फिर 0 हो जाता है।','Saare parameters factory (2220 = 2-wire, 3330 = 3-wire) ya user (1110) setting par wapas, phir 0 ho jata hai.'],
+ 'A1-04':['Password. If A1-04 does not match A1-05, A1-01 to A1-03 and A2 cannot be changed.','पासवर्ड। A1-04 और A1-05 अलग हों तो A1-01 से A1-03 और A2 नहीं बदलेंगे।','Password. A1-04 aur A1-05 match na hon to A1-01 se A1-03 aur A2 change nahi honge.'],
+ 'b1-01':['Frequency reference source: 0 Operator (d1-01), 1 Terminals (A1/A2), 2 Modbus, 3 Option PCB, 4 Pulse input (RP).','फ़्रीक्वेंसी रेफ़रेंस कहाँ से: 0 ऑपरेटर (d1-01), 1 टर्मिनल (A1/A2), 2 मॉडबस, 3 ऑप्शन PCB, 4 पल्स इनपुट (RP)।','Frequency reference kahan se: 0 Operator (d1-01), 1 Terminals (A1/A2), 2 Modbus, 3 Option PCB, 4 Pulse input (RP).'],
+ 'b1-02':['Run command source: 0 Operator RUN/STOP keys, 1 Terminals S1/S2, 2 Modbus, 3 Option PCB.','रन कमांड कहाँ से: 0 ऑपरेटर RUN/STOP की, 1 टर्मिनल S1/S2, 2 मॉडबस, 3 ऑप्शन PCB।','Run command kahan se: 0 Operator RUN/STOP keys, 1 Terminals S1/S2, 2 Modbus, 3 Option PCB.'],
+ 'b1-03':['Stopping method when the run command is removed: 0 Ramp, 1 Coast, 2 DC injection, 3 Coast with timer.','रन कमांड हटने पर रुकने का तरीका: 0 रैम्प, 1 कोस्ट (अपने आप रुकना), 2 DC इंजेक्शन, 3 टाइमर के साथ कोस्ट।','Run command hatne par rukne ka tarika: 0 Ramp, 1 Coast (khud rukna), 2 DC injection, 3 Coast with timer.'],
+ 'b1-04':['0 Reverse enabled, 1 Reverse disabled, 2 Exchange phase (changes forward direction).','0 रिवर्स चालू, 1 रिवर्स बंद, 2 फ़ेज़ बदलें (फ़ॉरवर्ड दिशा उलट)।','0 Reverse allowed, 1 Reverse band, 2 Exchange phase (forward direction ulta).'],
+ 'b1-06':['Scan rate of S1–S8: 0 = 2 ms (fast response), 1 = 5 ms (noisy environment).','S1–S8 की स्कैन दर: 0 = 2 ms (तेज़), 1 = 5 ms (नॉइज़ वाली जगह)।','S1–S8 scan rate: 0 = 2 ms (fast), 1 = 5 ms (noisy jagah).'],
+ 'b1-07':['0: if the run command is closed when switching LOCAL→REMOTE, the drive will not run. 1: the drive WILL run.','0: LOCAL→REMOTE करते समय रन कमांड बंद हो तो ड्राइव नहीं चलेगी। 1: ड्राइव चल पड़ेगी।','0: LOCAL→REMOTE karte waqt run command closed ho to drive nahi chalegi. 1: drive chal padegi.'],
+ 'b1-08':['0: run command accepted only in the DRIVE (operation) menu. 1: accepted in all menus.','0: रन कमांड केवल DRIVE मेनू में मानी जाएगी। 1: हर मेनू में।','0: Run command sirf DRIVE menu me manegi. 1: har menu me.'],
+ 'b2-01':['Frequency at which DC injection braking starts during ramp to stop.','रैम्प स्टॉप में जिस फ़्रीक्वेंसी पर DC इंजेक्शन ब्रेकिंग शुरू हो।','Ramp stop me jis frequency par DC injection braking shuru ho.'],
+ 'b2-02':['DC injection braking current, % of drive rated current.','DC इंजेक्शन ब्रेकिंग करंट, ड्राइव रेटेड करंट का %।','DC injection braking current, drive rated current ka %.'],
+ 'b2-03':['DC injection braking time at start.','स्टार्ट पर DC इंजेक्शन का समय।','Start par DC injection ka time.'],
+ 'b2-04':['DC injection braking time at stop.','स्टॉप पर DC इंजेक्शन का समय।','Stop par DC injection ka time.'],
+ 'b3-01':['Speed search at start: speed-estimation (0/1) or current-detection (2/3) method, disabled/enabled.','स्टार्ट पर स्पीड सर्च: स्पीड एस्टिमेशन (0/1) या करंट डिटेक्शन (2/3), बंद/चालू।','Start par speed search: speed estimation (0/1) ya current detection (2/3), off/on.'],
+ 'b3-02':['Speed search current, % of drive rated current (b3-01 = 2 or 3).','स्पीड सर्च करंट, ड्राइव रेटेड करंट का % (b3-01 = 2 या 3)।','Speed search current, drive rated current ka % (b3-01 = 2 ya 3).'],
+ 'b3-03':['Deceleration time during speed search (b3-01 = 2 or 3).','स्पीड सर्च के दौरान डिसेलरेशन समय।','Speed search ke dauran decel time.'],
+ 'b4-01':['ON-delay: time between the input closing and the timer output turning on.','ON-डिले: इनपुट बंद होने से आउटपुट चालू होने तक का समय।','ON-delay: input close hone se output on hone tak ka time.'],
+ 'b4-02':['OFF-delay: time the output stays on after the input opens.','OFF-डिले: इनपुट खुलने के बाद आउटपुट कितनी देर चालू रहे।','OFF-delay: input open hone ke baad output kitni der on rahe.'],
+ 'b5-01':['PID function: 0 Disabled; 1–4 enabled (D on feedback or feed-forward, with or without the frequency reference added).','PID फ़ंक्शन: 0 बंद; 1–4 चालू मोड।','PID function: 0 band; 1–4 enabled modes.'],
+ 'b5-02':['Proportional gain of the PID controller.','PID का प्रोपोर्शनल गेन।','PID ka proportional gain.'],
+ 'b5-03':['Integral time of PID. 0 disables integral control.','PID का इंटीग्रल टाइम। 0 पर इंटीग्रल बंद।','PID ka integral time. 0 = integral band.'],
+ 'b5-05':['Derivative time of PID. 0.00 disables derivative control.','PID का डेरिवेटिव टाइम। 0.00 पर बंद।','PID ka derivative time. 0.00 = band.'],
+ 'b5-06':['Maximum output of the PID controller, % of maximum frequency.','PID का अधिकतम आउटपुट, अधिकतम फ़्रीक्वेंसी का %।','PID ka max output, max frequency ka %.'],
+ 'C1-09':['Deceleration time for the multi-function input "Fast Stop".','"फ़ास्ट स्टॉप" इनपुट के लिए डिसेलरेशन समय।','"Fast Stop" input ke liye decel time.'],
+ 'C1-11':['Accel/decel switching frequency: below it Accel/Decel Time 4 is used, above it Time 1.','एक्सेल/डिसेल बदलने की फ़्रीक्वेंसी: इससे नीचे टाइम 4, ऊपर टाइम 1।','Accel/decel switching frequency: isse neeche Time 4, upar Time 1.'],
+ 'C3-01':['Slip compensation gain. If speed is lower than the reference, increase; if higher, decrease.','स्लिप कंपेंसेशन गेन। स्पीड रेफ़ से कम हो तो बढ़ाएँ, ज़्यादा हो तो घटाएँ।','Slip compensation gain. Speed ref se kam ho to badhao, zyada ho to ghatao.'],
+ 'C3-02':['Slip compensation filter time. Increase for stability, decrease for faster response.','स्लिप कंपेंसेशन फ़िल्टर समय। स्थिरता के लिए बढ़ाएँ, तेज़ रिस्पॉन्स के लिए घटाएँ।','Slip comp filter time. Stability ke liye badhao, fast response ke liye ghatao.'],
+ 'C4-01':['Torque compensation (automatic torque boost) gain. Helps starting torque.','टॉर्क कंपेंसेशन (ऑटो टॉर्क बूस्ट) गेन। स्टार्टिंग टॉर्क बढ़ाता है।','Torque compensation (auto torque boost) gain. Starting torque me madad.'],
+ 'C4-02':['Torque compensation filter time. Increase for stability, decrease for faster response.','टॉर्क कंपेंसेशन फ़िल्टर समय। स्थिरता के लिए बढ़ाएँ, तेज़ रिस्पॉन्स के लिए घटाएँ।','Torque comp filter time. Stability ke liye badhao, fast response ke liye ghatao.'],
+ 'C6-01':['Duty rating: 0 Heavy Duty (150% for 1 min, 2 kHz carrier, 300 Hz max), 1/2 Normal Duty (about 110–120%, higher carrier, 400 Hz).','ड्यूटी: 0 हेवी ड्यूटी (1 मिनट 150%, 2 kHz कैरियर, 300 Hz), 1/2 नॉर्मल ड्यूटी (लगभग 110–120%, ज़्यादा कैरियर, 400 Hz)।','Duty: 0 Heavy Duty (150% 1 min, 2 kHz carrier, 300 Hz), 1/2 Normal Duty (approx 110–120%, higher carrier, 400 Hz).'],
+ 'C6-02':['Carrier frequency of the output waveform. Lowering it reduces noise to PLCs and leakage current.','आउटपुट वेवफ़ॉर्म की कैरियर फ़्रीक्वेंसी। कम करने से PLC पर नॉइज़ और लीकेज करंट घटता है।','Output waveform ki carrier frequency. Kam karne se PLC par noise aur leakage current ghatta hai.'],
+ 'd1-17':['Jog frequency, used by the JOG key or a jog input. Has priority over d1-01 to d1-04.','जॉग फ़्रीक्वेंसी, JOG की या जॉग इनपुट से। d1-01 से d1-04 पर प्राथमिकता।','Jog frequency, JOG key ya jog input se. d1-01 se d1-04 par priority.'],
+ 'd2-01':['Upper limit of the frequency reference, % of E1-04.','फ़्रीक्वेंसी रेफ़ की ऊपरी सीमा, E1-04 का %।','Frequency ref ki upper limit, E1-04 ka %.'],
+ 'd2-02':['Lower limit of the frequency reference, % of E1-04.','फ़्रीक्वेंसी रेफ़ की निचली सीमा, E1-04 का %।','Frequency ref ki lower limit, E1-04 ka %.'],
+ 'd3-04':['Width of the jump frequency deadband (± this value).','जंप फ़्रीक्वेंसी डेडबैंड की चौड़ाई (± यह मान)।','Jump frequency deadband ki width (± yeh value).'],
+ 'E1-01':['Set to the nominal incoming line voltage. Sets max/base voltage of preset V/F patterns and protection levels (OV, braking, stall prevention).','आने वाली लाइन वोल्टेज के बराबर सेट करें। V/F पैटर्न और सुरक्षा लेवल (OV, ब्रेकिंग, स्टॉल) इसी से तय होते हैं।','Incoming line voltage ke barabar set karo. V/F pattern aur protection levels (OV, braking, stall) isi se tay hote hain.'],
+ 'E1-03':['Preset V/F pattern (0–E) or custom (F with limit, FF without limit). V/F control only.','पहले से बना V/F पैटर्न (0–E) या कस्टम (F, FF)। केवल V/F कंट्रोल में।','Preset V/F pattern (0–E) ya custom (F, FF). Sirf V/F control me.'],
+ 'E1-04':['Maximum output frequency. Keep E1-04 ≥ E1-06 > E1-07 ≥ E1-09, otherwise OPE10.','अधिकतम आउटपुट फ़्रीक्वेंसी। E1-04 ≥ E1-06 > E1-07 ≥ E1-09 रखें, वरना OPE10।','Max output frequency. E1-04 ≥ E1-06 > E1-07 ≥ E1-09 rakho, warna OPE10.'],
+ 'E1-05':['Maximum output voltage.','अधिकतम आउटपुट वोल्टेज।','Max output voltage.'],
+ 'E1-06':['Base frequency: the frequency at which maximum voltage is reached.','बेस फ़्रीक्वेंसी: जहाँ अधिकतम वोल्टेज मिलता है।','Base frequency: jahan max voltage milta hai.'],
+ 'E1-07':['Middle output frequency (A) of the V/F pattern.','V/F पैटर्न की मध्य फ़्रीक्वेंसी (A)।','V/F pattern ki mid frequency (A).'],
+ 'E1-08':['Middle output voltage (A) of the V/F pattern.','V/F पैटर्न का मध्य वोल्टेज (A)।','V/F pattern ka mid voltage (A).'],
+ 'E1-09':['Minimum output frequency. The drive will not run if the reference is below it.','न्यूनतम आउटपुट फ़्रीक्वेंसी। रेफ़ इससे कम हो तो ड्राइव नहीं चलेगी।','Min output frequency. Ref isse kam ho to drive nahi chalegi.'],
+ 'E1-10':['Minimum output voltage of the V/F pattern.','V/F पैटर्न का न्यूनतम वोल्टेज।','V/F pattern ka min voltage.'],
+ 'E1-11':['Mid frequency B. Only for fine V/F adjustment above base speed; normally not needed.','मध्य फ़्रीक्वेंसी B। केवल बेस स्पीड से ऊपर बारीक V/F बदलाव के लिए; आमतौर पर ज़रूरत नहीं।','Mid frequency B. Sirf base speed ke upar fine V/F adjust ke liye; normally zarurat nahi.'],
+ 'E1-12':['Mid voltage B. Only for fine V/F adjustment above base speed.','मध्य वोल्टेज B। केवल बेस स्पीड से ऊपर बारीक बदलाव के लिए।','Mid voltage B. Sirf base speed ke upar fine adjust ke liye.'],
+ 'E1-13':['Base voltage.','बेस वोल्टेज।','Base voltage.'],
+ 'E2-01':['Motor nameplate full load current (A). Set by Auto-Tuning. OL1 protection is based on it.','मोटर नेमप्लेट फ़ुल लोड करंट (A)। ऑटो-ट्यूनिंग से सेट। OL1 सुरक्षा इसी पर आधारित।','Motor nameplate full load current (A). Auto-Tuning se set. OL1 protection isi par based.'],
+ 'E2-02':['Motor rated slip (Hz). Set by rotational Auto-Tuning.','मोटर रेटेड स्लिप (Hz)। रोटेशनल ऑटो-ट्यूनिंग से सेट।','Motor rated slip (Hz). Rotational Auto-Tuning se set.'],
+ 'E2-03':['Motor no-load (magnetizing) current. Must be less than E2-01, otherwise OPE02.','मोटर नो-लोड (मैग्नेटाइज़िंग) करंट। E2-01 से कम होना चाहिए, वरना OPE02।','Motor no-load (magnetizing) current. E2-01 se kam hona chahiye, warna OPE02.'],
+ 'E2-04':['Number of motor poles. Set by Auto-Tuning.','मोटर पोल की संख्या। ऑटो-ट्यूनिंग से सेट।','Motor poles ki sankhya. Auto-Tuning se set.'],
+ 'E2-05':['Phase-to-phase motor resistance (Ω). Set by Auto-Tuning.','मोटर का फ़ेज़-टू-फ़ेज़ रेज़िस्टेंस (Ω)। ऑटो-ट्यूनिंग से सेट।','Motor phase-to-phase resistance (Ω). Auto-Tuning se set.'],
+ 'E2-06':['Voltage drop due to leakage inductance, % of motor rated voltage. Set by Auto-Tuning.','लीकेज इंडक्टेंस से वोल्टेज ड्रॉप, रेटेड वोल्टेज का %। ऑटो-ट्यूनिंग से सेट।','Leakage inductance se voltage drop, rated voltage ka %. Auto-Tuning se set.'],
+ 'E2-11':['Motor rated power (kW). Set by Auto-Tuning.','मोटर रेटेड पावर (kW)। ऑटो-ट्यूनिंग से सेट।','Motor rated power (kW). Auto-Tuning se set.'],
+ 'H3-01':['Signal level of terminal A1: 0 = 0 to 10 V, 1 = −10 to +10 V.','टर्मिनल A1 का सिग्नल: 0 = 0 से 10 V, 1 = −10 से +10 V।','Terminal A1 signal: 0 = 0 se 10 V, 1 = −10 se +10 V.'],
+ 'H3-02':['A1 gain: output level at 10 V input, % of maximum frequency (E1-04).','A1 गेन: 10 V इनपुट पर आउटपुट, अधिकतम फ़्रीक्वेंसी (E1-04) का %।','A1 gain: 10 V input par output, max frequency (E1-04) ka %.'],
+ 'H3-08':['Signal level of A2: 0 = 0–10 V, 1 = ±10 V (DIP S1-2 OFF), 2 = 4–20 mA (S1-2 ON).','A2 का सिग्नल: 0 = 0–10 V, 1 = ±10 V (DIP S1-2 OFF), 2 = 4–20 mA (S1-2 ON)।','A2 signal: 0 = 0–10 V, 1 = ±10 V (DIP S1-2 OFF), 2 = 4–20 mA (S1-2 ON).'],
+ 'H4-01':['Monitor sent to terminal FM (U1-xx number). Default 2 = output frequency.','टर्मिनल FM पर कौन सा मॉनिटर (U1-xx)। डिफ़ॉल्ट 2 = आउटपुट फ़्रीक्वेंसी।','Terminal FM par kaunsa monitor (U1-xx). Default 2 = output frequency.'],
+ 'H4-02':['FM output level when the selected monitor is at 100%.','चुना मॉनिटर 100% हो तब FM आउटपुट लेवल।','Selected monitor 100% ho tab FM output level.'],
+ 'H4-04':['Monitor sent to terminal AM. Default 3 = output current.','टर्मिनल AM पर कौन सा मॉनिटर। डिफ़ॉल्ट 3 = आउटपुट करंट।','Terminal AM par kaunsa monitor. Default 3 = output current.'],
+ 'H4-05':['AM output voltage (% of 10 V) when the monitor is at 100%.','मॉनिटर 100% पर AM आउटपुट (10 V का %)।','Monitor 100% par AM output (10 V ka %).'],
+ 'L1-01':['Motor overload (OL1) protection by motor cooling type: 0 Disabled, 1 Std fan cooled, 2 Blower cooled, 3 Vector motor. Use 0 only when other protection exists.','मोटर ओवरलोड (OL1) सुरक्षा, कूलिंग के अनुसार: 0 बंद, 1 फ़ैन कूल्ड, 2 ब्लोअर कूल्ड, 3 वेक्टर मोटर।','Motor overload (OL1) protection cooling ke hisaab se: 0 band, 1 fan cooled, 2 blower cooled, 3 vector motor.'],
+ 'L1-02':['OL1 time. A larger value gives more time before OL1 trips.','OL1 समय। बड़ा मान = OL1 आने में ज़्यादा समय।','OL1 time. Badi value = OL1 aane me zyada time.'],
+ 'L2-01':['Momentary power loss: 0 trip on UV1, 1 ride-thru if power returns within L2-02, 2 while control power is active.','क्षणिक पावर लॉस: 0 UV1 पर ट्रिप, 1 L2-02 समय में पावर लौटे तो चलती रहे, 2 कंट्रोल पावर रहने तक।','Momentary power loss: 0 UV1 par trip, 1 L2-02 time me power aaye to chalti rahe, 2 control power rehne tak.'],
+ 'L3-01':['Stall prevention during accel: 0 off (motor may stall / OC), 1 hold acceleration while current > L3-02, 2 intelligent (shortest time).','एक्सेल में स्टॉल रोक: 0 बंद (OC हो सकता है), 1 करंट > L3-02 पर एक्सेल रोकें, 2 इंटेलिजेंट।','Accel me stall prevention: 0 off (OC ho sakta), 1 current > L3-02 par accel hold, 2 intelligent.'],
+ 'L3-02':['Accel stall prevention level, % of drive rated current. Decrease if stalling or excessive current occurs.','एक्सेल स्टॉल लेवल, ड्राइव रेटेड करंट का %। स्टॉल या ज़्यादा करंट हो तो घटाएँ।','Accel stall level, drive rated current ka %. Stall ya zyada current ho to ghatao.'],
+ 'L3-04':['Stall prevention during decel: 0 off (OV may occur), 1 hold decel when DC bus reaches the stall level (760 V on 400 V class), 2 intelligent, 3 with braking resistor. With a braking resistor use 0 or 3.','डिसेल में स्टॉल रोक: 0 बंद (OV आ सकता है), 1 DC बस 760 V पहुँचने पर डिसेल रोकें, 2 इंटेलिजेंट, 3 ब्रेकिंग रेज़िस्टर के साथ। रेज़िस्टर हो तो 0 या 3।','Decel me stall prevention: 0 off (OV aa sakta), 1 DC bus 760 V par decel hold, 2 intelligent, 3 braking resistor ke saath. Resistor ho to 0 ya 3.'],
+ 'L3-05':['Stall prevention during run: if current exceeds L3-06, decelerate (1 = Decel Time 1, 2 = Decel Time 2).','चलते समय स्टॉल रोक: करंट L3-06 से ज़्यादा हो तो धीमा करें।','Run me stall prevention: current L3-06 se zyada ho to decel karo.'],
+ 'L3-06':['Run stall prevention level, % of drive rated current.','रन स्टॉल लेवल, ड्राइव रेटेड करंट का %।','Run stall level, drive rated current ka %.'],
+ 'L5-01':['Number of automatic restart attempts after GF, LF, OC, OV, PF, OL1, OL2, UV1 and similar faults.','GF, LF, OC, OV, PF, OL1, OL2, UV1 जैसे फ़ॉल्ट के बाद ऑटो रीस्टार्ट प्रयास।','GF, LF, OC, OV, PF, OL1, OL2, UV1 jaise faults ke baad auto restart attempts.'],
+ 'L8-01':['Protection for the 3% duty heatsink-mount braking resistor. Does not enable braking itself.','3% ड्यूटी हीटसिंक ब्रेकिंग रेज़िस्टर की सुरक्षा। ब्रेकिंग को चालू नहीं करता।','3% duty heatsink braking resistor ki protection. Braking ko on nahi karta.'],
+ 'o1-01':['Monitor shown at power-up when o1-02 = 4.','o1-02 = 4 हो तो पावर-अप पर यह मॉनिटर दिखेगा।','o1-02 = 4 ho to power-up par yeh monitor dikhega.'],
+ 'o1-02':['Monitor shown at power-up: 1 Frequency ref, 2 Output freq, 3 Output current, 4 o1-01.','पावर-अप पर मॉनिटर: 1 फ़्रीक. रेफ़, 2 आउटपुट फ़्रीक., 3 आउटपुट करंट, 4 o1-01।','Power-up par monitor: 1 Freq ref, 2 Output freq, 3 Output current, 4 o1-01.'],
+ 'o2-01':['Enables or disables the LOCAL/REMOTE key.','LOCAL/REMOTE की चालू/बंद।','LOCAL/REMOTE key on/off.'],
+ 'o2-02':['Whether the STOP key stops the drive when it runs from terminals or communication.','टर्मिनल/कम्युनिकेशन से चलते समय STOP की काम करे या नहीं।','Terminal/comm se chalte waqt STOP key kaam kare ya nahi.'],
+ 'o2-03':['1 saves current settings as user defaults (A1-03 = 1110). 2 clears them.','1 मौजूदा सेटिंग को यूज़र डिफ़ॉल्ट के रूप में सेव करता है (A1-03 = 1110)। 2 मिटाता है।','1 current settings ko user default save karta hai (A1-03 = 1110). 2 clear karta hai.'],
+ 'o2-05':['0: DATA/ENTER needed to accept a keypad frequency reference. 1: ∧/∨ change it directly.','0: कीपैड फ़्रीक. रेफ़ के लिए DATA/ENTER ज़रूरी। 1: ∧/∨ से सीधे बदलता है।','0: Keypad freq ref ke liye DATA/ENTER zaruri. 1: ∧/∨ se seedha badalta hai.'],
+ 'o2-07':['Sets the initial value of the elapsed operation timer U1-13.','चलने के समय U1-13 का शुरुआती मान।','Elapsed time U1-13 ki starting value.'],
+ 'o3-01':['Copy function: 1 Drive → operator (READ), 2 operator → Drive (WRITE), 3 VERIFY. Model, software and A1-02 must match.','कॉपी: 1 ड्राइव → ऑपरेटर (READ), 2 ऑपरेटर → ड्राइव (WRITE), 3 VERIFY। मॉडल, सॉफ़्टवेयर और A1-02 मिलने चाहिए।','Copy: 1 Drive → operator (READ), 2 operator → Drive (WRITE), 3 VERIFY. Model, software aur A1-02 match hone chahiye.'],
+ 'o3-02':['Enables copy READ into the operator. 0 = READ gives PRE.','ऑपरेटर में READ की अनुमति। 0 पर READ से PRE।','Operator me READ allow. 0 par READ se PRE.'],
+ 'T1-01':['Auto-Tuning mode: 0 Rotational, 1 Stationary, 2 Terminal resistance only (the only choice in V/F).','ऑटो-ट्यूनिंग मोड: 0 घूमते हुए, 1 स्थिर, 2 केवल टर्मिनल रेज़िस्टेंस (V/F में यही)।','Auto-Tuning mode: 0 Rotational, 1 Stationary, 2 Sirf terminal resistance (V/F me yahi).'],
+ 'T1-02':['Motor rated power in kW (kW = HP × 0.746).','मोटर रेटेड पावर kW में (kW = HP × 0.746)।','Motor rated power kW me (kW = HP × 0.746).'],
+ 'T1-03':['Motor rated voltage (nameplate).','मोटर रेटेड वोल्टेज (नेमप्लेट)।','Motor rated voltage (nameplate).'],
+ 'T1-04':['Motor rated current (nameplate).','मोटर रेटेड करंट (नेमप्लेट)।','Motor rated current (nameplate).'],
+ 'T1-05':['Motor base frequency (nameplate).','मोटर बेस फ़्रीक्वेंसी (नेमप्लेट)।','Motor base frequency (nameplate).'],
+ 'T1-06':['Number of motor poles.','मोटर पोल की संख्या।','Motor poles ki sankhya.'],
+ 'T1-07':['Motor base speed in RPM (nameplate).','मोटर बेस स्पीड RPM में (नेमप्लेट)।','Motor base speed RPM me (nameplate).'],
+ 'T1-08':['Encoder pulses per revolution (Flux Vector only).','एनकोडर पल्स प्रति चक्कर (केवल फ़्लक्स वेक्टर)।','Encoder pulses per revolution (sirf Flux Vector).']
+};
+function pMean(p){
+  const id=p.id;if(PMEAN[id])return L3(PMEAN[id]);
+  let m;
+  if(m=id.match(/^C1-0([1-8])$/)){const n=Math.ceil(m[1]/2),acc=m[1]%2==1;
+    return acc?L3([`Acceleration time ${n}: time to accelerate from zero to maximum frequency (E1-04).`,`एक्सेलरेशन टाइम ${n}: शून्य से अधिकतम फ़्रीक्वेंसी (E1-04) तक पहुँचने का समय।`,`Accel time ${n}: zero se max frequency (E1-04) tak pahunchne ka time.`])
+      :L3([`Deceleration time ${n}: time to decelerate from maximum frequency to zero. Too short can cause OV.`,`डिसेलरेशन टाइम ${n}: अधिकतम फ़्रीक्वेंसी से शून्य तक का समय। बहुत कम होने पर OV आ सकता है।`,`Decel time ${n}: max frequency se zero tak ka time. Bahut kam ho to OV aa sakta hai.`])}
+  if(m=id.match(/^C2-0([1-4])$/))return L3(['S-curve time. A longer S-curve gives a softer start and stop of the ramp.','S-कर्व समय। लंबा S-कर्व रैम्प को नरम शुरू और ख़त्म करता है।','S-curve time. Lamba S-curve ramp ko soft start aur stop deta hai.']);
+  if(m=id.match(/^d1-0([1-8])$/))return m[1]=='1'?L3(['Frequency reference 1: the keypad speed setting used when b1-01 = 0 or in LOCAL.','फ़्रीक्वेंसी रेफ़ 1: b1-01 = 0 या LOCAL में कीपैड स्पीड।','Frequency ref 1: b1-01 = 0 ya LOCAL me keypad speed.']):L3([`Preset reference ${m[1]}, selected by the multi-step speed inputs.`,`प्रीसेट रेफ़ ${m[1]}, मल्टी-स्टेप स्पीड इनपुट से चुना जाता है।`,`Preset ref ${m[1]}, multi-step speed inputs se select hota hai.`]);
+  if(m=id.match(/^d3-0([1-3])$/))return L3(['Jump (prohibited) frequency to avoid machine resonance. The drive accelerates and decelerates through it but does not run inside the band.','जंप फ़्रीक्वेंसी, मशीन रेज़ोनेंस से बचने के लिए। ड्राइव इसके बीच नहीं रुकती।','Jump frequency, machine resonance se bachne ke liye. Drive is band me nahi chalti.']);
+  if(m=id.match(/^H1-0([1-6])$/)){const t='S'+(+m[1]+2);return L3([`Function of multi-function input ${t}.`,`मल्टी-फ़ंक्शन इनपुट ${t} का काम।`,`Multi-function input ${t} ka function.`])}
+  if(m=id.match(/^H2-0([1-3])$/)){const t=['M1-M2','M3-M4','M5-M6'][m[1]-1];return L3([`Function of contact output ${t}.`,`कॉन्टैक्ट आउटपुट ${t} का काम।`,`Contact output ${t} ka function.`])}
+  return p.name;
+}
+const MMEAN={
+ 'U1-01':['Frequency reference the drive is following.','ड्राइव जिस फ़्रीक्वेंसी रेफ़ को फ़ॉलो कर रही है।','Drive jo frequency ref follow kar rahi hai.'],
+ 'U1-02':['Actual output frequency.','असली आउटपुट फ़्रीक्वेंसी।','Actual output frequency.'],
+ 'U1-03':['Output current to the motor.','मोटर को जा रहा करंट।','Motor ko ja raha current.'],
+ 'U1-04':['Control method (A1-02).','कंट्रोल मेथड (A1-02)।','Control method (A1-02).'],
+ 'U1-05':['Motor speed (Hz).','मोटर स्पीड (Hz)।','Motor speed (Hz).'],
+ 'U1-06':['Output voltage.','आउटपुट वोल्टेज।','Output voltage.'],
+ 'U1-07':['Main DC bus voltage. OV trip at 820 V, stall level 760 V, UV1 at 380 V (400 V class).','मेन DC बस वोल्टेज। 820 V पर OV, 760 V स्टॉल, 380 V पर UV1।','Main DC bus voltage. 820 V par OV, 760 V stall, 380 V par UV1.'],
+ 'U1-08':['Output power (kW).','आउटपुट पावर (kW)।','Output power (kW).'],
+ 'U1-09':['Torque reference, % of motor rated torque.','टॉर्क रेफ़, रेटेड टॉर्क का %।','Torque ref, rated torque ka %.'],
+ 'U1-10':['Input terminal status S1–S8 (shown in hex on the LED display).','इनपुट टर्मिनल S1–S8 की स्थिति (LED पर hex में)।','Input terminals S1–S8 status (LED par hex me).'],
+ 'U1-11':['Output terminal status (contacts).','आउटपुट टर्मिनल की स्थिति।','Output terminals status.'],
+ 'U1-12':['Drive operation status bits.','ड्राइव की स्थिति बिट्स।','Drive operation status bits.'],
+ 'U1-13':['Cumulative operation time (hours).','कुल चलने का समय (घंटे)।','Total operation time (hours).'],
+ 'U1-15':['Terminal A1 input level (%).','टर्मिनल A1 इनपुट (%)।','Terminal A1 input (%).'],
+ 'U1-34':['Parameter causing the OPE error.','OPE एरर देने वाला पैरामीटर।','OPE error dene wala parameter.'],
+ 'U2':['Fault trace: values recorded at the moment of the last fault.','फ़ॉल्ट ट्रेस: आख़िरी फ़ॉल्ट के समय की वैल्यू।','Fault trace: last fault ke time ki values.'],
+ 'U3':['Fault history: last faults and the elapsed time when they occurred.','फ़ॉल्ट हिस्ट्री: पिछले फ़ॉल्ट और उनका समय।','Fault history: pichhle faults aur unka time.']
+};
+/* faults: code -> [type, [name,desc,[causes],[actions]] x3 langs] */
+const FT={};
+function F(c,t,en,hi,hg){FT[c]={c,t,d:[en,hi,hg]}}
+F('OC','F',['Over Current','Output current exceeded the overcurrent level (about 200% of drive rated current).',['Shorted output phase-to-phase, shorted motor or locked rotor','Load too heavy','Accel/decel time too short','Contactor on the drive output opened or closed','Special motor, or motor FLA larger than drive rating'],['Remove the motor and run the drive without it','Check the motor and the drive output for a phase-to-phase short','Verify C1-01 and C1-02 are set correctly','Check load conditions']],
+ ['ओवर करंट','आउटपुट करंट ओवरकरंट लेवल (ड्राइव रेटेड करंट का लगभग 200%) से ज़्यादा हुआ।',['आउटपुट फ़ेज़-टू-फ़ेज़ शॉर्ट, मोटर शॉर्ट या रोटर जाम','लोड बहुत भारी','एक्सेल/डिसेल समय बहुत कम','ड्राइव आउटपुट पर कॉन्टैक्टर खुला या बंद हुआ','विशेष मोटर, या मोटर FLA ड्राइव से ज़्यादा'],['मोटर हटाकर ड्राइव को बिना मोटर चलाएँ','मोटर और ड्राइव आउटपुट में फ़ेज़-टू-फ़ेज़ शॉर्ट जाँचें','C1-01 और C1-02 सही हैं, जाँचें','लोड की स्थिति जाँचें']],
+ ['Over Current','Output current overcurrent level (drive rated ka approx 200%) se zyada hua.',['Output phase-to-phase short, motor short ya rotor jam','Load bahut heavy','Accel/decel time bahut kam','Drive output par contactor open/close hua','Special motor, ya motor FLA drive se zyada'],['Motor hata kar drive bina motor chalao','Motor aur drive output me phase-to-phase short check karo','C1-01 aur C1-02 sahi hain, check karo','Load condition check karo']]);
+F('GF','F',['Ground Fault','Output ground current exceeded 50% of drive rated current (L8-09 = 1).',['Motor lead shorted to ground','Defective DCCT (current sensor)'],['Remove the motor and run the drive without it','Check the motor for a phase-to-ground short','Check the output current with a clamp meter to verify the DCCT reading']],
+ ['ग्राउंड फ़ॉल्ट','आउटपुट ग्राउंड करंट ड्राइव रेटेड करंट के 50% से ज़्यादा (L8-09 = 1)।',['मोटर केबल ग्राउंड से शॉर्ट','DCCT (करंट सेंसर) ख़राब'],['मोटर हटाकर ड्राइव चलाएँ','मोटर में फ़ेज़-टू-ग्राउंड शॉर्ट जाँचें','क्लैम्प मीटर से करंट नापकर DCCT रीडिंग मिलाएँ']],
+ ['Ground Fault','Output ground current drive rated ke 50% se zyada (L8-09 = 1).',['Motor cable ground se short','DCCT (current sensor) kharab'],['Motor hata kar drive chalao','Motor me phase-to-ground short check karo','Clamp meter se current naap kar DCCT reading match karo']]);
+F('OV','F',['DC Bus Overvoltage','DC bus voltage exceeded the trip point (820 Vdc for 400/480 V class). Also shown flashing as an alarm when it happens while stopped.',['High input voltage at R/L1, S/L2, T/L3','Deceleration time too short','Power factor correction capacitors on the input or output'],['Reduce input power to within specifications','Extend C1-02 (or C1-04, C1-06, C1-08, C1-09)','Keep L3-04 = 1 (stall prevention during decel) or add a braking resistor/unit','Remove power factor correction capacitors']],
+ ['DC बस ओवरवोल्टेज','DC बस वोल्टेज ट्रिप पॉइंट (400/480 V क्लास में 820 Vdc) से ऊपर गया। रुकी ड्राइव में यही अलार्म के रूप में ब्लिंक करता है।',['R/L1, S/L2, T/L3 पर इनपुट वोल्टेज ज़्यादा','डिसेलरेशन समय बहुत कम','इनपुट/आउटपुट पर पावर फ़ैक्टर कैपेसिटर'],['इनपुट वोल्टेज स्पेसिफ़िकेशन में लाएँ','C1-02 (या C1-04, C1-06, C1-08, C1-09) बढ़ाएँ','L3-04 = 1 रखें या ब्रेकिंग रेज़िस्टर/यूनिट लगाएँ','पावर फ़ैक्टर कैपेसिटर हटाएँ']],
+ ['DC Bus Overvoltage','DC bus voltage trip point (400/480 V class me 820 Vdc) se upar gaya. Ruki drive me yahi alarm ki tarah blink karta hai.',['R/L1, S/L2, T/L3 par input voltage zyada','Decel time bahut kam','Input/output par power factor capacitor'],['Input voltage spec me lao','C1-02 (ya C1-04, C1-06, C1-08, C1-09) badhao','L3-04 = 1 rakho ya braking resistor/unit lagao','Power factor capacitor hatao']]);
+F('UV1','F',['DC Bus Undervoltage','DC bus voltage fell to or below L2-05 (default 380 Vdc for 400/480 V class) while running.',['Low input voltage at R/L1, S/L2, T/L3','Acceleration time too short','Input voltage fluctuation too large'],['Check the input circuit and bring input power within specifications','Extend C1-01 (or C1-03, C1-05, C1-07)','Check the input voltage']],
+ ['DC बस अंडरवोल्टेज','चलते समय DC बस वोल्टेज L2-05 (डिफ़ॉल्ट 380 Vdc) या उससे नीचे गया।',['R/L1, S/L2, T/L3 पर इनपुट वोल्टेज कम','एक्सेलरेशन समय बहुत कम','इनपुट वोल्टेज में बहुत उतार-चढ़ाव'],['इनपुट सर्किट जाँचें और वोल्टेज सही करें','C1-01 (या C1-03, C1-05, C1-07) बढ़ाएँ','इनपुट वोल्टेज जाँचें']],
+ ['DC Bus Undervoltage','Chalte waqt DC bus voltage L2-05 (default 380 Vdc) ya usse neeche gaya.',['R/L1, S/L2, T/L3 par input voltage kam','Accel time bahut kam','Input voltage me zyada fluctuation'],['Input circuit check karo aur voltage theek karo','C1-01 (ya C1-03, C1-05, C1-07) badhao','Input voltage check karo']]);
+F('UV2','F',['Control Power Supply Undervoltage','Undervoltage of the control circuit while running.',['External load pulling down the drive power supplies','Internal short in the power/gate drive board'],['Cycle power to the drive','Remove all control wiring and test the drive','Repair or replace the Power PCB / Gate Drive PCB']],
+ ['कंट्रोल पावर अंडरवोल्टेज','चलते समय कंट्रोल सर्किट का वोल्टेज कम।',['बाहरी लोड ड्राइव की सप्लाई खींच रहा है','पावर/गेट ड्राइव बोर्ड में अंदरूनी शॉर्ट'],['ड्राइव की पावर बंद-चालू करें','सारी कंट्रोल वायरिंग हटाकर टेस्ट करें','पावर PCB / गेट ड्राइव PCB रिपेयर या बदलें']],
+ ['Control Power Undervoltage','Chalte waqt control circuit ka voltage kam.',['External load drive supply kheench raha','Power/gate drive board me internal short'],['Drive power off-on karo','Saari control wiring hata kar test karo','Power PCB / Gate Drive PCB repair ya replace karo']]);
+F('UV3','F',['Soft Charge Circuit Fault (MC Answerback)','The pre-charge contactor opened while the drive was running.',['Soft charge contactor contacts dirty or not working mechanically'],['Cycle power to the drive','Check the condition of the soft charge contactor','Repair or replace the Power PCB / Gate Drive PCB']],
+ ['सॉफ़्ट चार्ज सर्किट फ़ॉल्ट','चलते समय प्री-चार्ज कॉन्टैक्टर खुल गया।',['सॉफ़्ट चार्ज कॉन्टैक्टर के कॉन्टैक्ट गंदे या ख़राब'],['पावर बंद-चालू करें','सॉफ़्ट चार्ज कॉन्टैक्टर जाँचें','पावर PCB / गेट ड्राइव PCB रिपेयर या बदलें']],
+ ['Soft Charge Circuit Fault','Chalte waqt pre-charge contactor open ho gaya.',['Soft charge contactor contacts gande ya kharab'],['Power off-on karo','Soft charge contactor check karo','Power PCB / Gate Drive PCB repair ya replace karo']]);
+F('PF','F',['Input Phase Loss','Input power has an open phase or large voltage imbalance (L8-05 = 1).',['Open phase on the drive input','Loose terminal screws at R/L1, S/L2, T/L3','Momentary power loss','Input voltage fluctuation too large'],['Check the input voltage','Tighten the terminal screws']],
+ ['इनपुट फ़ेज़ लॉस','इनपुट सप्लाई में एक फ़ेज़ नहीं या वोल्टेज बहुत असंतुलित (L8-05 = 1)।',['ड्राइव इनपुट पर एक फ़ेज़ खुला','R/L1, S/L2, T/L3 के पेंच ढीले','क्षणिक पावर लॉस','इनपुट वोल्टेज में बहुत उतार-चढ़ाव'],['इनपुट वोल्टेज जाँचें','टर्मिनल पेंच कसें']],
+ ['Input Phase Loss','Input supply me ek phase missing ya voltage bahut imbalance (L8-05 = 1).',['Drive input par ek phase open','R/L1, S/L2, T/L3 ke screw dhile','Momentary power loss','Input voltage fluctuation zyada'],['Input voltage check karo','Terminal screw tight karo']]);
+F('LF','F',['Output Phase Loss','An open phase occurred at the drive output (L8-07 = 1).',['Broken wire in the output cable or motor winding','Loose output terminals','Motor capacity less than 5% of drive capacity'],['Check the wiring to the motor','Check the motor for a phase-to-ground short','Check motor and drive capacity']],
+ ['आउटपुट फ़ेज़ लॉस','ड्राइव आउटपुट पर एक फ़ेज़ खुला (L8-07 = 1)।',['आउटपुट केबल या मोटर वाइंडिंग में तार टूटा','आउटपुट टर्मिनल ढीले','मोटर ड्राइव क्षमता के 5% से छोटी'],['मोटर तक वायरिंग जाँचें','मोटर में फ़ेज़-टू-ग्राउंड शॉर्ट जाँचें','मोटर और ड्राइव क्षमता जाँचें']],
+ ['Output Phase Loss','Drive output par ek phase open (L8-07 = 1).',['Output cable ya motor winding me wire toota','Output terminals dhile','Motor drive capacity ke 5% se chhoti'],['Motor tak wiring check karo','Motor me phase-to-ground short check karo','Motor aur drive capacity check karo']]);
+F('OH','F',['Heatsink Overheat','Heatsink temperature exceeded L8-02 (fault when L8-03 = 0–2, flashing alarm when L8-03 = 3).',['Heat source nearby','Ambient temperature too high','Cooling fan(s) stopped','Dirty fans or heatsink'],['Clean dirt from fans and heatsink','Reduce the ambient temperature around the drive','Replace the cooling fan']],
+ ['हीटसिंक ओवरहीट','हीटसिंक तापमान L8-02 से ऊपर।',['पास में गर्मी का स्रोत','आसपास तापमान बहुत ज़्यादा','कूलिंग फ़ैन बंद','फ़ैन या हीटसिंक गंदे'],['फ़ैन और हीटसिंक साफ़ करें','ड्राइव के आसपास तापमान कम करें','कूलिंग फ़ैन बदलें']],
+ ['Heatsink Overheat','Heatsink temperature L8-02 se upar.',['Paas me heat source','Ambient temperature bahut zyada','Cooling fan band','Fan ya heatsink gande'],['Fan aur heatsink saaf karo','Drive ke aas-paas temperature kam karo','Cooling fan badlo']]);
+F('OH1','F',['Heatsink Max Temperature','Heatsink temperature exceeded 105 °C.',['Heat source nearby','Ambient temperature too high','Cooling fan(s) stopped'],['Clean fans and heatsink','Reduce ambient temperature','Replace the cooling fan']],
+ ['हीटसिंक अधिकतम तापमान','हीटसिंक 105 °C से ऊपर।',['पास में गर्मी का स्रोत','आसपास तापमान ज़्यादा','कूलिंग फ़ैन बंद'],['फ़ैन और हीटसिंक साफ़ करें','तापमान कम करें','कूलिंग फ़ैन बदलें']],
+ ['Heatsink Max Temp','Heatsink 105 °C se upar.',['Paas me heat source','Ambient temperature zyada','Cooling fan band'],['Fan aur heatsink saaf karo','Temperature kam karo','Cooling fan badlo']]);
+F('OL1','F',['Motor Overload','Output current exceeded the motor overload curve (L1-01 = 1 to 3). Curve set by E2-01, L1-01, L1-02.',['Load too large, or cycle time / accel-decel time too short','V/F pattern voltage wrong for the application','Motor rated current (E2-01) set wrong'],['Recheck cycle time, load size and C1-01 / C1-02','Review V/F parameters E1-01 to E1-13','Check the motor rated current in E2-01']],
+ ['मोटर ओवरलोड','आउटपुट करंट मोटर ओवरलोड कर्व से ऊपर (L1-01 = 1 से 3)। कर्व E2-01, L1-01, L1-02 से।',['लोड बहुत ज़्यादा, या साइकिल/एक्सेल-डिसेल समय कम','V/F वोल्टेज एप्लिकेशन के लिए ग़लत','मोटर रेटेड करंट (E2-01) ग़लत'],['साइकिल समय, लोड और C1-01 / C1-02 जाँचें','V/F पैरामीटर E1-01 से E1-13 देखें','E2-01 में मोटर रेटेड करंट जाँचें']],
+ ['Motor Overload','Output current motor overload curve se upar (L1-01 = 1 se 3). Curve E2-01, L1-01, L1-02 se.',['Load bahut zyada, ya cycle/accel-decel time kam','V/F voltage application ke liye galat','Motor rated current (E2-01) galat'],['Cycle time, load aur C1-01 / C1-02 check karo','V/F parameters E1-01 se E1-13 dekho','E2-01 me motor rated current check karo']]);
+F('OL2','F',['Drive Overload','Output current exceeded the drive overload curve.',['Load too large or accel/decel too short','V/F pattern voltage wrong','Drive too small'],['Recheck cycle time, load and C1-01 / C1-02','Review E1-01 to E1-13','Change to a larger drive']],
+ ['ड्राइव ओवरलोड','आउटपुट करंट ड्राइव ओवरलोड कर्व से ऊपर।',['लोड ज़्यादा या एक्सेल/डिसेल कम','V/F वोल्टेज ग़लत','ड्राइव छोटी'],['साइकिल, लोड और C1-01 / C1-02 जाँचें','E1-01 से E1-13 देखें','बड़ी ड्राइव लगाएँ']],
+ ['Drive Overload','Output current drive overload curve se upar.',['Load zyada ya accel/decel kam','V/F voltage galat','Drive chhoti'],['Cycle, load aur C1-01 / C1-02 check karo','E1-01 se E1-13 dekho','Badi drive lagao']]);
+F('OL3','F',['Overtorque Detection 1','Output current > L6-02 for longer than L6-03 (L6-01 = 3 or 4). Flashing alarm when L6-01 = 1 or 2.',['Motor overloaded'],['Check L6-02 and L6-03','Check the application / machine status']],
+ ['ओवरटॉर्क डिटेक्शन 1','करंट L6-03 समय से ज़्यादा L6-02 के ऊपर।',['मोटर ओवरलोड'],['L6-02 और L6-03 जाँचें','मशीन की स्थिति जाँचें']],
+ ['Overtorque Detection 1','Current L6-03 time se zyada L6-02 ke upar.',['Motor overload'],['L6-02 aur L6-03 check karo','Machine status check karo']]);
+F('EF3','F',['External Fault (S3–S8)','A terminal programmed as external fault (H1 = 20–2F, default S3 = 24) is closed. EF4–EF8 = terminals S4–S8.',['An external fault condition is present on the multi-function input'],['Eliminate the cause of the external fault (interlock, E-stop, DCS trip)','Open the input, then reset']],
+ ['बाहरी फ़ॉल्ट (S3–S8)','बाहरी फ़ॉल्ट के लिए सेट टर्मिनल (डिफ़ॉल्ट S3 = 24) बंद है। EF4–EF8 = टर्मिनल S4–S8।',['मल्टी-फ़ंक्शन इनपुट पर बाहरी फ़ॉल्ट मौजूद'],['बाहरी फ़ॉल्ट का कारण हटाएँ (इंटरलॉक, E-स्टॉप, DCS ट्रिप)','इनपुट खोलें, फिर रीसेट करें']],
+ ['External Fault (S3–S8)','External fault ke liye set terminal (default S3 = 24) closed hai. EF4–EF8 = terminals S4–S8.',['Multi-function input par external fault present'],['External fault ka cause hatao (interlock, E-stop, DCS trip)','Input open karo, phir reset']]);
+F('EF','A',['Forward/Reverse Command Input','Forward and reverse run commands are both input for 500 ms or more. The motor stops.',['External forward and reverse commands given at the same time'],['Check the external sequence logic so that only one input is received at a time']],
+ ['फ़ॉरवर्ड/रिवर्स दोनों कमांड','फ़ॉरवर्ड और रिवर्स दोनों कमांड 500 ms या ज़्यादा। मोटर रुकती है।',['बाहर से फ़ॉरवर्ड और रिवर्स एक साथ दिए गए'],['बाहरी सीक्वेंस लॉजिक ठीक करें ताकि एक समय में एक ही इनपुट आए']],
+ ['Fwd/Rev dono command','Forward aur reverse dono command 500 ms ya zyada. Motor rukti hai.',['Bahar se forward aur reverse ek saath diye'],['External sequence logic theek karo taaki ek waqt me ek hi input aaye']]);
+F('CF','F',['Control Fault (Out of Control)','Torque limit reached continuously for 3 s or longer during ramp to stop in open-loop vector.',['Motor parameters not set properly'],['Check motor parameters','Perform Auto-Tuning']],
+ ['कंट्रोल फ़ॉल्ट','ओपन-लूप वेक्टर में रैम्प स्टॉप के दौरान 3 s या ज़्यादा टॉर्क लिमिट पर।',['मोटर पैरामीटर ठीक से सेट नहीं'],['मोटर पैरामीटर जाँचें','ऑटो-ट्यूनिंग करें']],
+ ['Control Fault','Open-loop vector me ramp stop ke dauran 3 s ya zyada torque limit par.',['Motor parameters theek set nahi'],['Motor parameters check karo','Auto-Tuning karo']]);
+F('CE','F',['Modbus Communication Error','Control data was not received correctly for 2 seconds (H5-05 = 1, H5-04 = 0 to 2).',['Connection broken or master stopped communicating'],['Check all connections and the user-side software configuration']],
+ ['मॉडबस कम्युनिकेशन एरर','2 सेकंड तक कंट्रोल डेटा सही नहीं मिला।',['कनेक्शन टूटा या मास्टर ने कम्युनिकेशन बंद किया'],['सभी कनेक्शन और मास्टर की सेटिंग जाँचें']],
+ ['Modbus Comm Error','2 sec tak control data sahi nahi mila.',['Connection toota ya master ne comm band kiya'],['Saare connections aur master setting check karo']]);
+F('BUS','F',['Option Communication Error','After communication was established, the connection was lost.',['Connection broken or master controller stopped communicating'],['Check all connections and user-side software configuration']],
+ ['ऑप्शन कम्युनिकेशन एरर','कम्युनिकेशन शुरू होने के बाद कनेक्शन टूट गया।',['कनेक्शन टूटा या मास्टर ने बंद किया'],['सभी कनेक्शन और सॉफ़्टवेयर सेटिंग जाँचें']],
+ ['Option Comm Error','Communication shuru hone ke baad connection toot gaya.',['Connection toota ya master ne band kiya'],['Saare connections aur software setting check karo']]);
+F('CPF00','F',['Operator Communication Fault (CPF00/CPF01)','Communication between the drive and the digital operator failed.',['Operator cable not securely connected','Digital operator or control board defective'],['Remove the digital operator and reinstall it','Cycle power to the drive','Replace the digital operator and/or control board']],
+ ['ऑपरेटर कम्युनिकेशन फ़ॉल्ट','ड्राइव और डिजिटल ऑपरेटर के बीच कम्युनिकेशन नहीं।',['ऑपरेटर ठीक से नहीं लगा','ऑपरेटर या कंट्रोल बोर्ड ख़राब'],['ऑपरेटर निकालकर दोबारा लगाएँ','पावर बंद-चालू करें','ऑपरेटर/कंट्रोल बोर्ड बदलें']],
+ ['Operator Comm Fault','Drive aur digital operator ke beech communication nahi.',['Operator theek se nahi laga','Operator ya control board kharab'],['Operator nikaal kar dobara lagao','Power off-on karo','Operator/control board badlo']]);
+F('OPR','F',['Digital Operator Disconnected','Operator removed while the drive was commanded to run from it (b1-02 = 0).',['Operator not attached or connector broken'],['Attach the digital operator','Check the connector','Verify o2-06']],
+ ['डिजिटल ऑपरेटर डिस्कनेक्ट','ऑपरेटर से चलते समय ऑपरेटर हटाया गया (b1-02 = 0)।',['ऑपरेटर नहीं लगा या कनेक्टर टूटा'],['ऑपरेटर लगाएँ','कनेक्टर जाँचें','o2-06 जाँचें']],
+ ['Operator Disconnected','Operator se chalte waqt operator hataya gaya (b1-02 = 0).',['Operator nahi laga ya connector toota'],['Operator lagao','Connector check karo','o2-06 check karo']]);
+F('PUF','F',['DC Bus Fuse Open','The DC bus fuse has opened. Never run the drive after replacing the fuse without checking for shorted components.',['Shorted output transistor(s) or terminals'],['Remove power and disconnect the motor','Do the no-power checks in Table 6.6','Replace shorted components and the fuse']],
+ ['DC बस फ़्यूज़ उड़ा','DC बस फ़्यूज़ खुल गया। शॉर्ट पुर्ज़े जाँचे बिना फ़्यूज़ बदलकर कभी न चलाएँ।',['आउटपुट ट्रांजिस्टर या टर्मिनल शॉर्ट'],['पावर हटाएँ और मोटर अलग करें','टेबल 6.6 की बिना-पावर जाँच करें','शॉर्ट पुर्ज़े और फ़्यूज़ बदलें']],
+ ['DC Bus Fuse Open','DC bus fuse khul gaya. Short parts check kiye bina fuse badal kar kabhi mat chalao.',['Output transistor ya terminal short'],['Power hatao aur motor disconnect karo','Table 6.6 ke bina-power checks karo','Short parts aur fuse badlo']]);
+F('RR','F',['Dynamic Braking Transistor','The built-in braking transistor is not operating properly.',['Braking transistor started at high DC bus voltage','Defective braking resistor'],['Cycle power','Replace the braking transistor or resistor','Monitor the DC bus voltage']],
+ ['ब्रेकिंग ट्रांजिस्टर फ़ॉल्ट','अंदर का ब्रेकिंग ट्रांजिस्टर ठीक काम नहीं कर रहा।',['ऊँचे DC बस वोल्टेज पर ट्रांजिस्टर चला','ब्रेकिंग रेज़िस्टर ख़राब'],['पावर बंद-चालू करें','ट्रांजिस्टर या रेज़िस्टर बदलें','DC बस वोल्टेज देखें']],
+ ['Braking Transistor Fault','Andar ka braking transistor theek kaam nahi kar raha.',['High DC bus voltage par transistor chala','Braking resistor kharab'],['Power off-on karo','Transistor ya resistor badlo','DC bus voltage dekho']]);
+F('FAN','F',['Cooling Fan Fault','Drive cooling fan fault detected and drive overload protection activated (L8-32 = 1).',['Drive kept running with overload after the fan stopped'],['Replace the cooling fan']],
+ ['कूलिंग फ़ैन फ़ॉल्ट','कूलिंग फ़ैन ख़राब और ड्राइव ओवरलोड सुरक्षा चली (L8-32 = 1)।',['फ़ैन रुकने के बाद भी ड्राइव ओवरलोड पर चली'],['कूलिंग फ़ैन बदलें']],
+ ['Cooling Fan Fault','Cooling fan kharab aur drive overload protection chali (L8-32 = 1).',['Fan rukne ke baad bhi drive overload par chali'],['Cooling fan badlo']]);
+F('OPE01','O',['kVA Selection Error','o2-04 (drive kVA) is set incorrectly, for example after replacing the control board.',['Control board replaced, kVA parameter wrong'],['Enter the correct kVA in o2-04 (Appendix B, Table B.1)']],
+ ['kVA सेटिंग एरर','o2-04 (ड्राइव kVA) ग़लत सेट।',['कंट्रोल बोर्ड बदला, kVA ग़लत'],['o2-04 में सही kVA डालें (परिशिष्ट B, टेबल B.1)']],
+ ['kVA Setting Error','o2-04 (drive kVA) galat set.',['Control board badla, kVA galat'],['o2-04 me sahi kVA daalo (Appendix B, Table B.1)']]);
+F('OPE02','O',['Parameter Setting Out of Range','A parameter is outside its allowed range; some ranges depend on other parameters, for example E2-03 ≥ E2-01.',['Parameter outside the allowable range'],['Press ENTER to see U1-34, then correct that parameter','Verify the parameter settings']],
+ ['पैरामीटर रेंज से बाहर','कोई पैरामीटर अपनी रेंज से बाहर, जैसे E2-03 ≥ E2-01।',['पैरामीटर रेंज से बाहर'],['ENTER दबाकर U1-34 देखें और वह पैरामीटर ठीक करें','सेटिंग जाँचें']],
+ ['Parameter Out of Range','Koi parameter range se bahar, jaise E2-03 ≥ E2-01.',['Parameter range se bahar'],['ENTER dabakar U1-34 dekho aur wo parameter theek karo','Settings check karo']]);
+F('OPE03','O',['Multi-function Input Selection Error','Duplicate functions selected on H1-01 to H1-06, or incompatible input combinations.',['Same function on two terminals','Up/down or trim inputs not set together','N.O. and N.C. fast stop both set'],['Verify H1-01 to H1-06']],
+ ['मल्टी-फ़ंक्शन इनपुट एरर','H1-01 से H1-06 में एक ही फ़ंक्शन दो बार, या मेल न खाने वाले इनपुट।',['दो टर्मिनल पर एक ही फ़ंक्शन','अप/डाउन इनपुट जोड़ी में नहीं'],['H1-01 से H1-06 जाँचें']],
+ ['Multi-function Input Error','H1-01 se H1-06 me same function do baar, ya incompatible inputs.',['Do terminals par same function','Up/down inputs pair me nahi'],['H1-01 se H1-06 check karo']]);
+F('OPE05','O',['Run Command Selection Error','b1-01 or b1-02 is set to 3 (option PCB) but no option board is installed.',['Option board not installed or installed incorrectly'],['Install the option board, or set b1-01/b1-02 to another source']],
+ ['रन कमांड सेलेक्शन एरर','b1-01 या b1-02 = 3 (ऑप्शन PCB) पर कार्ड नहीं लगा।',['ऑप्शन बोर्ड नहीं या ग़लत लगा'],['ऑप्शन बोर्ड लगाएँ, या b1-01/b1-02 बदलें']],
+ ['Run Command Selection Error','b1-01 ya b1-02 = 3 (option PCB) par card nahi laga.',['Option board nahi ya galat laga'],['Option board lagao, ya b1-01/b1-02 badlo']]);
+F('OPE06','O',['Control Method Selection Error','A1-02 = 1 or 3 (with PG feedback) but no PG option board is installed.',['PG option board missing or installed incorrectly'],['Verify A1-02 and/or install the PG option board']],
+ ['कंट्रोल मेथड एरर','A1-02 = 1 या 3 (PG के साथ) पर PG कार्ड नहीं लगा।',['PG ऑप्शन बोर्ड नहीं'],['A1-02 जाँचें या PG बोर्ड लगाएँ']],
+ ['Control Method Error','A1-02 = 1 ya 3 (PG ke saath) par PG card nahi laga.',['PG option board nahi'],['A1-02 check karo ya PG board lagao']]);
+F('OPE07','O',['Multi-function Analog Input Error','Duplicate functions selected for analog inputs A2/A3 or pulse input RP.',['Duplicate analog input functions'],['Check b1-01, H3-05, H3-09 and H6-01']],
+ ['एनालॉग इनपुट एरर','A2/A3 या RP पर एक ही फ़ंक्शन दो बार।',['डुप्लिकेट एनालॉग फ़ंक्शन'],['b1-01, H3-05, H3-09, H6-01 जाँचें']],
+ ['Analog Input Error','A2/A3 ya RP par same function do baar.',['Duplicate analog function'],['b1-01, H3-05, H3-09, H6-01 check karo']]);
+F('OPE08','O',['Function Selection Error','A setting was made that does not apply to the current control method.',['Function used only in another control method'],['Verify the control method and the function']],
+ ['फ़ंक्शन सेलेक्शन एरर','ऐसी सेटिंग जो मौजूदा कंट्रोल मेथड में लागू नहीं।',['दूसरे कंट्रोल मेथड का फ़ंक्शन'],['कंट्रोल मेथड और फ़ंक्शन जाँचें']],
+ ['Function Selection Error','Aisi setting jo current control method me lagu nahi.',['Dusre control method ka function'],['Control method aur function check karo']]);
+F('OPE09','O',['PID Control Setup Error','b5-01 ≠ 0, b5-15 ≠ 0 and b1-03 = 2 or 3 at the same time.',['Incompatible PID / stop method settings'],['Check b5-01, b5-15 and b1-03']],
+ ['PID सेटअप एरर','b5-01 ≠ 0, b5-15 ≠ 0 और b1-03 = 2 या 3 एक साथ।',['PID और स्टॉप मेथड मेल नहीं खाते'],['b5-01, b5-15, b1-03 जाँचें']],
+ ['PID Setup Error','b5-01 ≠ 0, b5-15 ≠ 0 aur b1-03 = 2 ya 3 ek saath.',['PID aur stop method match nahi'],['b5-01, b5-15, b1-03 check karo']]);
+F('OPE10','O',['V/F Parameter Setting Error','V/F parameters are out of range; for example minimum frequency set higher than maximum. Rule: E1-04 ≥ E1-06 > E1-07 ≥ E1-09.',['V/F settings out of order'],['Check E1-04 to E1-11']],
+ ['V/F सेटिंग एरर','V/F पैरामीटर ग़लत क्रम में। नियम: E1-04 ≥ E1-06 > E1-07 ≥ E1-09।',['V/F सेटिंग का क्रम ग़लत'],['E1-04 से E1-11 जाँचें']],
+ ['V/F Setting Error','V/F parameters galat order me. Rule: E1-04 ≥ E1-06 > E1-07 ≥ E1-09.',['V/F setting order galat'],['E1-04 se E1-11 check karo']]);
+F('OPE11','O',['Carrier Frequency Setting Error','Carrier frequency parameters are inconsistent (C6-05 > 6 and C6-04 > C6-03, or C6-01/C6-02 mismatch).',['Incorrect carrier settings'],['Check C6-01 to C6-05']],
+ ['कैरियर फ़्रीक्वेंसी एरर','कैरियर सेटिंग आपस में मेल नहीं खातीं।',['ग़लत कैरियर सेटिंग'],['C6-01 से C6-05 जाँचें']],
+ ['Carrier Frequency Error','Carrier settings aapas me match nahi.',['Galat carrier setting'],['C6-01 se C6-05 check karo']]);
+F('ERR','O',['EEPROM Write Error','NV-RAM data does not match EEPROM data.',['Power turned OFF during a write'],['Cycle power','Do a factory initialization (A1-03)']],
+ ['EEPROM राइट एरर','NV-RAM और EEPROM डेटा मेल नहीं खाते।',['लिखते समय पावर बंद हुई'],['पावर बंद-चालू करें','फ़ैक्ट्री इनिशियलाइज़ (A1-03) करें']],
+ ['EEPROM Write Error','NV-RAM aur EEPROM data match nahi.',['Write ke time power off hui'],['Power off-on karo','Factory initialize (A1-03) karo']]);
+F('Er-01','T',['Motor Data Fault','Error in the Auto-Tuning input data or in the relation between motor output, rated current and no-load current.',['Wrong T1 data','Drive and motor capacity mismatch'],['Check T1 parameters','Check drive and motor capacity','Check E2-03 and T1-04']],
+ ['मोटर डेटा फ़ॉल्ट','ऑटो-ट्यूनिंग डेटा में ग़लती।',['ग़लत T1 डेटा','ड्राइव और मोटर क्षमता मेल नहीं'],['T1 पैरामीटर जाँचें','ड्राइव और मोटर क्षमता जाँचें','E2-03 और T1-04 जाँचें']],
+ ['Motor Data Fault','Auto-Tuning data me galti.',['Galat T1 data','Drive aur motor capacity match nahi'],['T1 parameters check karo','Drive aur motor capacity check karo','E2-03 aur T1-04 check karo']]);
+F('Er-02','T',['Minor Fault (Alarm)','An alarm was detected during Auto-Tuning.',['Alarm during tuning'],['Check T1 data','Check output/motor wiring','Check the load']],
+ ['अलार्म','ऑटो-ट्यूनिंग में अलार्म आया।',['ट्यूनिंग के दौरान अलार्म'],['T1 डेटा जाँचें','आउटपुट/मोटर वायरिंग जाँचें','लोड जाँचें']],
+ ['Alarm','Auto-Tuning me alarm aaya.',['Tuning ke dauran alarm'],['T1 data check karo','Output/motor wiring check karo','Load check karo']]);
+F('Er-03','T',['STOP Key Input','The STOP key was pressed during Auto-Tuning and tuning was interrupted.',['STOP pressed'],['Start Auto-Tuning again']],
+ ['STOP की दबाई','ऑटो-ट्यूनिंग के दौरान STOP दबाया गया।',['STOP दबाया'],['ऑटो-ट्यूनिंग दोबारा शुरू करें']],
+ ['STOP Key Input','Auto-Tuning ke dauran STOP dabaya.',['STOP dabaya'],['Auto-Tuning dobara start karo']]);
+F('Er-04','T',['Line-to-Line Resistance Fault','Resistance measurement failed or result out of range.',['Wrong T1 data','Motor wiring problem'],['Check T1 parameters','Check motor wiring']],
+ ['लाइन-टू-लाइन रेज़िस्टेंस फ़ॉल्ट','रेज़िस्टेंस माप असफल।',['ग़लत T1 डेटा','मोटर वायरिंग'],['T1 जाँचें','मोटर वायरिंग जाँचें']],
+ ['Resistance Fault','Resistance measurement fail.',['Galat T1 data','Motor wiring'],['T1 check karo','Motor wiring check karo']]);
+F('Er-05','T',['No-Load Current Fault','Auto-Tuning not completed in time or result out of range.',['Motor coupled to the machine'],['Disconnect the motor from the machine','Check T1 data']],
+ ['नो-लोड करंट फ़ॉल्ट','ऑटो-ट्यूनिंग समय पर पूरी नहीं।',['मोटर मशीन से जुड़ी'],['मोटर को मशीन से अलग करें','T1 डेटा जाँचें']],
+ ['No-Load Current Fault','Auto-Tuning time par complete nahi.',['Motor machine se judi'],['Motor ko machine se alag karo','T1 data check karo']]);
+F('Er-08','T',['Rated Slip Fault','Result outside the setting range.',['T1-07 rated speed wrong','T1-03 higher than drive input voltage'],['Check T1 data (rated speed, poles, frequency)','If T1-03 > input voltage, change the input voltage setting','Disconnect the motor from the machine']],
+ ['रेटेड स्लिप फ़ॉल्ट','परिणाम रेंज से बाहर।',['T1-07 रेटेड स्पीड ग़लत','T1-03 इनपुट वोल्टेज से ज़्यादा'],['T1 डेटा (स्पीड, पोल, फ़्रीक्वेंसी) जाँचें','T1-03 > इनपुट वोल्टेज हो तो इनपुट वोल्टेज सेटिंग बदलें','मोटर मशीन से अलग करें']],
+ ['Rated Slip Fault','Result range se bahar.',['T1-07 rated speed galat','T1-03 input voltage se zyada'],['T1 data (speed, poles, frequency) check karo','T1-03 > input voltage ho to input voltage setting badlo','Motor machine se alag karo']]);
+F('Er-09','T',['Acceleration Fault','Motor did not accelerate within C1-01 + 10 s (rotational tuning).',['Load connected or torque limit low'],['Increase C1-01','Increase L7-01/L7-02','Disconnect the motor from the load']],
+ ['एक्सेलरेशन फ़ॉल्ट','मोटर C1-01 + 10 s में एक्सेलरेट नहीं हुई।',['लोड जुड़ा या टॉर्क लिमिट कम'],['C1-01 बढ़ाएँ','L7-01/L7-02 बढ़ाएँ','मोटर को लोड से अलग करें']],
+ ['Acceleration Fault','Motor C1-01 + 10 s me accelerate nahi hui.',['Load juda ya torque limit kam'],['C1-01 badhao','L7-01/L7-02 badhao','Motor ko load se alag karo']]);
+F('Er-11','T',['Motor Speed Fault','Torque reference exceeded 100% during acceleration (vector control).',['Load connected, wrong PG pulses or poles'],['Increase C1-01','Check F1-01 and E2-04','Disconnect the motor from the load']],
+ ['मोटर स्पीड फ़ॉल्ट','एक्सेलरेशन में टॉर्क रेफ़ 100% से ऊपर।',['लोड जुड़ा, PG पल्स या पोल ग़लत'],['C1-01 बढ़ाएँ','F1-01 और E2-04 जाँचें','मोटर को लोड से अलग करें']],
+ ['Motor Speed Fault','Accel me torque ref 100% se upar.',['Load juda, PG pulses ya poles galat'],['C1-01 badhao','F1-01 aur E2-04 check karo','Motor ko load se alag karo']]);
+F('Er-12','T',['Current Detection Fault','Current exceeded motor rated current, or one of U/T1, V/T2, W/T3 is open.',['Open output phase','Motor not unloaded'],['Check that the motor is unloaded and brake released','Check drive wiring','Check motor connection continuity']],
+ ['करंट डिटेक्शन फ़ॉल्ट','करंट रेटेड से ज़्यादा या U/T1, V/T2, W/T3 में कोई खुला।',['आउटपुट फ़ेज़ खुला','मोटर पर लोड'],['मोटर बिना लोड और ब्रेक खुला हो','ड्राइव वायरिंग जाँचें','मोटर कनेक्शन की कंटिन्युटी जाँचें']],
+ ['Current Detection Fault','Current rated se zyada ya U/T1, V/T2, W/T3 me koi open.',['Output phase open','Motor par load'],['Motor unloaded aur brake open ho','Drive wiring check karo','Motor connection continuity check karo']]);
+F('Er-13','T',['Leakage Inductance Fault','Auto-Tuning did not finish in time or result out of range.',['Wrong T1 data or wiring'],['Check T1 data','Check motor wiring configuration']],
+ ['लीकेज इंडक्टेंस फ़ॉल्ट','ट्यूनिंग समय पर पूरी नहीं या परिणाम रेंज से बाहर।',['T1 डेटा या वायरिंग ग़लत'],['T1 डेटा जाँचें','मोटर वायरिंग जाँचें']],
+ ['Leakage Inductance Fault','Tuning time par complete nahi ya result range se bahar.',['T1 data ya wiring galat'],['T1 data check karo','Motor wiring check karo']]);
+F('End-1','T',['V/F Settings Alarm','Shown after tuning: torque reference exceeded 100% and no-load current exceeded 70%.',['Motor coupled to load or wrong T1 data'],['Check T1 settings','Disconnect the motor from the load']],
+ ['V/F सेटिंग अलार्म','ट्यूनिंग के बाद: टॉर्क 100% और नो-लोड करंट 70% से ऊपर।',['मोटर लोड से जुड़ी या T1 ग़लत'],['T1 जाँचें','मोटर लोड से अलग करें']],
+ ['V/F Settings Alarm','Tuning ke baad: torque 100% aur no-load current 70% se upar.',['Motor load se judi ya T1 galat'],['T1 check karo','Motor load se alag karo']]);
+F('End-2','T',['Motor Core Saturation','Saturation coefficients E2-07/E2-08 were out of range; temporary values 0.75/0.50 were set.',['Wrong T1 data, wiring or load connected'],['Check T1 data and motor wiring','Disconnect the motor from the load']],
+ ['मोटर कोर सैचुरेशन','E2-07/E2-08 रेंज से बाहर; अस्थायी 0.75/0.50 सेट।',['T1, वायरिंग या लोड'],['T1 और वायरिंग जाँचें','मोटर लोड से अलग करें']],
+ ['Motor Core Saturation','E2-07/E2-08 range se bahar; temporary 0.75/0.50 set.',['T1, wiring ya load'],['T1 aur wiring check karo','Motor load se alag karo']]);
+F('End-3','T',['Rated Current Setting Alarm','Measured motor rated current was greater than the set value.',['E2-01 / T1-04 set too high or low'],['Check the motor rated current value (E2-01)']],
+ ['रेटेड करंट अलार्म','मापा गया रेटेड करंट सेट मान से ज़्यादा।',['E2-01 / T1-04 ग़लत'],['E2-01 जाँचें']],
+ ['Rated Current Alarm','Measured rated current set value se zyada.',['E2-01 / T1-04 galat'],['E2-01 check karo']]);
+F('End-4','T',['Slip Lower Limit','During stationary Auto-Tuning the slip fell to 0.2 Hz or below.',['Stationary tuning limitation'],['Check input data','Perform rotational Auto-Tuning if possible']],
+ ['स्लिप निचली सीमा','स्थिर ट्यूनिंग में स्लिप 0.2 Hz या कम।',['स्थिर ट्यूनिंग की सीमा'],['इनपुट डेटा जाँचें','हो सके तो रोटेशनल ऑटो-ट्यूनिंग करें']],
+ ['Slip Lower Limit','Stationary tuning me slip 0.2 Hz ya kam.',['Stationary tuning ki limit'],['Input data check karo','Ho sake to rotational Auto-Tuning karo']]);
+F('PRE','C',['READ IMPOSSIBLE','o3-01 = 1 (read) while the operator is write-protected (o3-02 = 0).',['o3-02 = 0'],['Set o3-02 = 1']],['READ संभव नहीं','o3-02 = 0 पर READ किया।',['o3-02 = 0'],['o3-02 = 1 करें']],['READ IMPOSSIBLE','o3-02 = 0 par READ kiya.',['o3-02 = 0'],['o3-02 = 1 karo']]);
+F('IFE','C',['READ DATA ERROR','Data file read from the drive had the wrong size (corrupted).',['Corrupted data or cable'],['Retry READ (o3-01 = 1)','Check the operator cable','Replace the operator']],['READ डेटा एरर','पढ़ा गया डेटा ख़राब।',['डेटा या केबल'],['READ दोबारा करें','केबल जाँचें','ऑपरेटर बदलें']],['READ Data Error','Read kiya data kharab.',['Data ya cable'],['READ dobara karo','Cable check karo','Operator badlo']]);
+F('RDE','C',['DATA ERROR','Writing drive data into the operator EEPROM failed.',['Low drive voltage or operator fault'],['Check incoming voltage and wiring','Repeat the read','Replace the operator']],['डेटा एरर','ऑपरेटर EEPROM में लिखना असफल।',['कम वोल्टेज या ऑपरेटर ख़राब'],['वोल्टेज जाँचें','READ दोहराएँ','ऑपरेटर बदलें']],['Data Error','Operator EEPROM me write fail.',['Kam voltage ya operator kharab'],['Voltage check karo','READ dobara karo','Operator badlo']]);
+F('CPE','C',['ID UNMATCHED','Drive type or software number differs from the data stored in the operator.',['Different drive / software'],['Use data stored from an F7 with the same software number (U1-14)']],['ID मेल नहीं','ड्राइव टाइप या सॉफ़्टवेयर अलग।',['अलग ड्राइव / सॉफ़्टवेयर'],['समान सॉफ़्टवेयर (U1-14) वाली F7 का डेटा इस्तेमाल करें']],['ID Unmatched','Drive type ya software alag.',['Alag drive / software'],['Same software (U1-14) wali F7 ka data use karo']]);
+F('VAE','C',['INV. KVA UNMATCH','Drive capacity and stored data capacity are different.',['Different capacity (o2-04)'],['Use data from a drive of the same capacity']],['kVA मेल नहीं','ड्राइव क्षमता अलग।',['अलग क्षमता (o2-04)'],['समान क्षमता वाली ड्राइव का डेटा']],['kVA Unmatch','Drive capacity alag.',['Alag capacity (o2-04)'],['Same capacity wali drive ka data use karo']]);
+F('CRE','C',['CONTROL UNMATCHED','Control method of the drive differs from the stored data.',['Different A1-02'],['Use data with the same control method (A1-02)']],['कंट्रोल मेल नहीं','कंट्रोल मेथड अलग।',['अलग A1-02'],['समान A1-02 वाला डेटा']],['Control Unmatched','Control method alag.',['Alag A1-02'],['Same A1-02 wala data use karo']]);
+F('CYE','C',['COPY ERROR','A written parameter differs from the stored setting.',['Write failure'],['Retry COPY (o3-01 = 2)']],['कॉपी एरर','लिखा पैरामीटर अलग।',['राइट असफल'],['कॉपी दोबारा (o3-01 = 2)']],['Copy Error','Write kiya parameter alag.',['Write fail'],['Copy dobara karo (o3-01 = 2)']]);
+F('CSE','C',['SUM CHECK ERROR','After COPY, the drive checksum differs from the operator checksum.',['Write failure'],['Retry COPY (o3-01 = 2)']],['सम चेक एरर','कॉपी के बाद चेकसम अलग।',['राइट असफल'],['कॉपी दोबारा करें']],['Sum Check Error','Copy ke baad checksum alag.',['Write fail'],['Copy dobara karo']]);
+F('VYE','C',['VERIFY ERROR','Operator settings and drive settings do not match.',['Parameters differ'],['Retry VERIFY (o3-01 = 3), or WRITE if the drive should match']],['वेरिफ़ाई एरर','ऑपरेटर और ड्राइव सेटिंग अलग।',['पैरामीटर अलग'],['VERIFY दोबारा (o3-01 = 3)']],['Verify Error','Operator aur drive setting alag.',['Parameters alag'],['VERIFY dobara karo (o3-01 = 3)']]);
+const FALIAS={OU:'OV',UU1:'UV1',UU2:'UV2',UU3:'UV3',UV:'UV1',EF4:'EF3',EF5:'EF3',EF6:'EF3',EF7:'EF3',EF8:'EF3',CPF01:'CPF00'};
+const SYMS=[
+ [['Motor does not run when RUN is pressed on the keypad','कीपैड पर RUN दबाने पर मोटर नहीं चलती','Keypad par RUN dabane par motor nahi chalti'],
+  [['LOCAL/REMOTE not set properly: SEQ and REF LEDs must be OFF for LOCAL. Press LOCAL/REMOTE.','Not in DRIVE mode: press MENU, then DATA/ENTER.','Speed command below E1-09 (minimum output frequency): raise it.'],
+   ['LOCAL/REMOTE ठीक नहीं: LOCAL के लिए SEQ और REF LED बंद होनी चाहिए। LOCAL/REMOTE दबाएँ।','DRIVE मोड में नहीं: MENU फिर DATA/ENTER दबाएँ।','स्पीड E1-09 (न्यूनतम फ़्रीक.) से कम: बढ़ाएँ।'],
+   ['LOCAL/REMOTE theek nahi: LOCAL ke liye SEQ aur REF LED OFF honi chahiye. LOCAL/REMOTE dabao.','DRIVE mode me nahi: MENU phir DATA/ENTER dabao.','Speed E1-09 (min frequency) se kam: badhao.']]],
+ [['Motor does not run with an external (DCS/terminal) run command','बाहरी (DCS/टर्मिनल) रन कमांड से मोटर नहीं चलती','External (DCS/terminal) run command se motor nahi chalti'],
+  [['Not in DRIVE mode: press MENU, then DATA/ENTER.','SEQ and REF LEDs must be ON (REMOTE). Press LOCAL/REMOTE.','Speed command below E1-09: raise it.'],
+   ['DRIVE मोड में नहीं: MENU फिर DATA/ENTER।','SEQ और REF LED जलनी चाहिए (REMOTE)। LOCAL/REMOTE दबाएँ।','स्पीड E1-09 से कम: बढ़ाएँ।'],
+   ['DRIVE mode me nahi: MENU phir DATA/ENTER.','SEQ aur REF LED ON honi chahiye (REMOTE). LOCAL/REMOTE dabao.','Speed E1-09 se kam: badhao.']]],
+ [['Motor stops during acceleration or when load is connected','एक्सेलरेशन में या लोड लगने पर मोटर रुकती है','Accel me ya load lagne par motor rukti hai'],
+  [['Load may be too large. Increase C1-01 or reduce the load.','Consider a larger motor.'],['लोड बहुत ज़्यादा हो सकता है। C1-01 बढ़ाएँ या लोड कम करें।','बड़ी मोटर पर विचार करें।'],['Load bahut zyada ho sakta hai. C1-01 badhao ya load kam karo.','Badi motor socho.']]],
+ [['Motor rotates in only one direction','मोटर केवल एक दिशा में घूमती है','Motor sirf ek direction me ghoomti hai'],
+  [['Reverse is prohibited: check b1-04 (1 = reverse disabled).'],['रिवर्स बंद है: b1-04 जाँचें (1 = रिवर्स बंद)।'],['Reverse band hai: b1-04 check karo (1 = reverse band).']]],
+ [['Motor rotates in the wrong direction','मोटर उल्टी दिशा में घूमती है','Motor ulti direction me ghoomti hai'],
+  [['Swap any two of U/T1, V/T2, W/T3. With an encoder, also switch its polarity.'],['U/T1, V/T2, W/T3 में से कोई दो तार बदलें। एनकोडर हो तो उसकी पोलैरिटी भी।'],['U/T1, V/T2, W/T3 me se koi do wire swap karo. Encoder ho to uski polarity bhi.']]],
+ [['Motor stalls or acceleration is slow','मोटर स्टॉल होती है या धीरे एक्सेलरेट होती है','Motor stall hoti hai ya dheere accelerate hoti hai'],
+  [['L3-02 (accel stall level) too low.','L3-06 (run stall level) too low.'],['L3-02 (एक्सेल स्टॉल लेवल) बहुत कम।','L3-06 (रन स्टॉल लेवल) बहुत कम।'],['L3-02 (accel stall level) bahut kam.','L3-06 (run stall level) bahut kam.']]],
+ [['Deceleration is slow even with a braking resistor','ब्रेकिंग रेज़िस्टर होते हुए भी डिसेलरेशन धीमा','Braking resistor hote hue bhi decel slow'],
+  [['Set L3-04 to 0 or 3; with 1 stall prevention interferes with the resistor.','Check C1-02, C1-04, C1-06, C1-08.','Check torque limits L7-01 to L7-04.'],['L3-04 को 0 या 3 करें; 1 पर स्टॉल रोक रेज़िस्टर में बाधा डालती है।','C1-02, C1-04, C1-06, C1-08 जाँचें।','टॉर्क लिमिट L7-01 से L7-04 जाँचें।'],['L3-04 ko 0 ya 3 karo; 1 par stall prevention resistor me rukawat.','C1-02, C1-04, C1-06, C1-08 check karo.','Torque limit L7-01 se L7-04 check karo.']]],
+ [['Output frequency does not rise to the reference','आउटपुट फ़्रीक्वेंसी रेफ़ तक नहीं पहुँचती','Output frequency ref tak nahi pahunchti'],
+  [['Reference inside a jump band: check d3-01 to d3-04.','Upper limit reached: E1-04 × d2-01 / 100.'],['रेफ़ जंप बैंड में: d3-01 से d3-04 जाँचें।','ऊपरी सीमा: E1-04 × d2-01 / 100।'],['Ref jump band me: d3-01 se d3-04 check karo.','Upper limit: E1-04 × d2-01 / 100.']]],
+ [['A parameter cannot be set','कोई पैरामीटर सेट नहीं हो रहा','Koi parameter set nahi ho raha'],
+  [['Drive is running: some parameters cannot be changed during operation.','Password mismatch: A1-04 ≠ A1-05.','OPE01 to OPE11 shown: correct the setting (see OPE codes).'],['ड्राइव चल रही है: कुछ पैरामीटर चलते समय नहीं बदलते।','पासवर्ड मेल नहीं: A1-04 ≠ A1-05।','OPE01–OPE11: सेटिंग ठीक करें।'],['Drive chal rahi hai: kuch parameters chalte waqt nahi badalte.','Password match nahi: A1-04 ≠ A1-05.','OPE01–OPE11: setting theek karo.']]],
+ [['PLCs or other devices are disturbed when the drive runs','ड्राइव चलने पर PLC या अन्य उपकरण प्रभावित','Drive chalne par PLC ya dusre devices disturb'],
+  [['Lower the carrier frequency (C6-02).','Install input and output noise filters.','Use conduit or shielded cable; ground the drive and motor.','Separate main circuit wiring from control wiring.'],['कैरियर फ़्रीक्वेंसी (C6-02) कम करें।','इनपुट और आउटपुट नॉइज़ फ़िल्टर लगाएँ।','कंड्यूट/शील्डेड केबल; ड्राइव और मोटर ग्राउंड करें।','मेन और कंट्रोल वायरिंग अलग रखें।'],['Carrier frequency (C6-02) kam karo.','Input aur output noise filter lagao.','Conduit/shielded cable; drive aur motor ground karo.','Main aur control wiring alag rakho.']]]
+];
+/* control terminals (Table 2.11) */
+const TERM={
+ S1:['DI',['Forward run/stop command. Forward run when CLOSED, stop when OPEN.','फ़ॉरवर्ड रन/स्टॉप। बंद = फ़ॉरवर्ड रन, खुला = स्टॉप।','Forward run/stop. CLOSED = forward run, OPEN = stop.'],'24 Vdc, 8 mA'],
+ S2:['DI',['Reverse run/stop command. Reverse run when CLOSED, stop when OPEN.','रिवर्स रन/स्टॉप। बंद = रिवर्स रन, खुला = स्टॉप।','Reverse run/stop. CLOSED = reverse run, OPEN = stop.'],'24 Vdc, 8 mA'],
+ SN:['COM',['Digital input supply common.','डिजिटल इनपुट सप्लाई कॉमन।','Digital input supply common.'],'—'],
+ SC:['COM',['Digital input photocoupler common (sinking/sourcing, Table 2.15).','डिजिटल इनपुट फ़ोटोकपलर कॉमन (टेबल 2.15)।','Digital input photocoupler common (Table 2.15).'],'—'],
+ SP:['COM',['Digital input supply +24 Vdc.','डिजिटल इनपुट सप्लाई +24 Vdc।','Digital input supply +24 Vdc.'],'+24 Vdc'],
+ '+V':['COM',['+15 Vdc power output for analog inputs or transmitters (max 20 mA).','एनालॉग इनपुट/ट्रांसमीटर के लिए +15 Vdc (अधिकतम 20 mA)।','Analog input/transmitter ke liye +15 Vdc (max 20 mA).'],'+15 Vdc'],
+ '-V':['COM',['−15 Vdc power output for analog inputs or transmitters (max 20 mA).','−15 Vdc सप्लाई (अधिकतम 20 mA)।','−15 Vdc supply (max 20 mA).'],'−15 Vdc'],
+ A1:['AI',['Analog frequency reference: 0 to +10 Vdc = 100% (or ±10 V, H3-01).','एनालॉग फ़्रीक्वेंसी रेफ़: 0 से +10 Vdc = 100% (या ±10 V, H3-01)।','Analog frequency ref: 0 se +10 Vdc = 100% (ya ±10 V, H3-01).'],'0–10 V (20 kΩ)'],
+ A2:['AI',['Multi-function analog input 2: 4–20 mA = 100% (H3-08, DIP S1-2). Function set by H3-09; default adds to A1.','मल्टी-फ़ंक्शन एनालॉग इनपुट 2: 4–20 mA (H3-08, DIP S1-2)। फ़ंक्शन H3-09।','Multi-function analog input 2: 4–20 mA (H3-08, DIP S1-2). Function H3-09.'],'4–20 mA (250 Ω)'],
+ A3:['AI',['Multi-function analog input 3 (aux. frequency ref 1), 0–10 V. Function set by H3-05.','मल्टी-फ़ंक्शन एनालॉग इनपुट 3, 0–10 V। फ़ंक्शन H3-05।','Multi-function analog input 3, 0–10 V. Function H3-05.'],'0–10 V (20 kΩ)'],
+ AC:['COM',['Analog common.','एनालॉग कॉमन।','Analog common.'],'—'],
+ 'E(G)':['COM',['Shield wire / optional ground connection point.','शील्ड वायर / ग्राउंड कनेक्शन पॉइंट।','Shield wire / ground connection point.'],'—'],
+ FM:['AO',['Multi-function analog output 1, default output frequency (H4-01). 0–10 V = 100%.','मल्टी-फ़ंक्शन एनालॉग आउटपुट 1, डिफ़ॉल्ट आउटपुट फ़्रीक्वेंसी (H4-01)।','Multi-function analog output 1, default output frequency (H4-01).'],'0–10 V (2 mA) / 4–20 mA'],
+ AM:['AO',['Multi-function analog output 2, default output current (H4-04). 10 V = drive rated current.','मल्टी-फ़ंक्शन एनालॉग आउटपुट 2, डिफ़ॉल्ट आउटपुट करंट (H4-04)।','Multi-function analog output 2, default output current (H4-04).'],'0–10 V (2 mA) / 4–20 mA'],
+ RP:['CM',['Pulse train input, frequency reference (H6-01).','पल्स इनपुट, फ़्रीक्वेंसी रेफ़ (H6-01)।','Pulse input, frequency ref (H6-01).'],'0–32 kHz'],
+ MP:['CM',['Pulse monitor output (H6-06).','पल्स मॉनिटर आउटपुट (H6-06)।','Pulse monitor output (H6-06).'],'0–32 kHz'],
+ 'R+':['CM',['Modbus RS-485/422 receive +. For 2-wire RS-485 jumper R+ to S+.','मॉडबस RS-485/422 रिसीव +।','Modbus RS-485/422 receive +.'],'RS-485/422'],
+ 'R-':['CM',['Modbus RS-485/422 receive −. For 2-wire RS-485 jumper R− to S−.','मॉडबस RS-485/422 रिसीव −।','Modbus RS-485/422 receive −.'],'RS-485/422'],
+ 'S+':['CM',['Modbus RS-485/422 send +.','मॉडबस सेंड +।','Modbus send +.'],'RS-485/422'],
+ 'S-':['CM',['Modbus RS-485/422 send −.','मॉडबस सेंड −।','Modbus send −.'],'RS-485/422'],
+ IG:['CM',['Communication signal common.','कम्युनिकेशन सिग्नल कॉमन।','Communication signal common.'],'—'],
+ MA:['DO',['Fault output (Form C). MA–MC CLOSED during a fault.','फ़ॉल्ट आउटपुट। फ़ॉल्ट पर MA–MC बंद।','Fault output. Fault par MA–MC CLOSED.'],'1 A at 250 Vac / 30 Vdc'],
+ MB:['DO',['Fault output (Form C). MB–MC OPEN during a fault.','फ़ॉल्ट आउटपुट। फ़ॉल्ट पर MB–MC खुला।','Fault output. Fault par MB–MC OPEN.'],'1 A at 250 Vac / 30 Vdc'],
+ MC:['DO',['Fault output common.','फ़ॉल्ट आउटपुट कॉमन।','Fault output common.'],'1 A at 250 Vac / 30 Vdc'],
+ 'R/L1':['PW',['Main circuit power input (also S/L2, T/L3).','मेन सर्किट पावर इनपुट।','Main circuit power input.'],'3φ 380–480 Vac'],
+ 'U/T1':['PW',['Drive output to the motor (also V/T2, W/T3).','मोटर को ड्राइव आउटपुट।','Motor ko drive output.'],'0–input V'],
+ '+1':['PW',['DC power input / DC bus (+). With ⊕3 and (−) used for DC link and braking units.','DC बस (+)। ⊕3 और (−) के साथ।','DC bus (+). ⊕3 aur (−) ke saath.'],'DC bus'],
+ '+3':['PW',['Braking transistor unit connection (⊕3 and (−), models 4022 and larger).','ब्रेकिंग ट्रांजिस्टर यूनिट कनेक्शन (⊕3, (−))।','Braking transistor unit connection (⊕3, (−)).'],'DC bus'],
+ 'GND':['PW',['Ground. Ground the drive and the motor.','ग्राउंड। ड्राइव और मोटर ग्राउंड करें।','Ground. Drive aur motor ground karo.'],'—']
+};
+function L3(a){return a[LI[LANG]]||a[0]}
+function t(k){return UI[k]?L3(UI[k]):k}
+
+/* ================= APP: tabs, guide, simulation, wiring, troubleshooting ================= */
+var LANG='en';try{LANG=localStorage.getItem('f7lang')||'en'}catch(e){}
+if(!LI.hasOwnProperty(LANG))LANG='en';
+var curTab=0;
+const $=id=>document.getElementById(id);
+const esc2=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function applyLang(){
+  document.documentElement.lang=LANG==='hi'?'hi':'en';
+  document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.dataset.t)});
+  $('lang').value=LANG;$('mains').textContent=t(PL.mains?'mainsOn':'mainsOff');
+  lastGuide='';lastTrb='';lastSheet='';buildSym();buildWire();renderTrb(true);termInfo(selTerm);
+}
+$('lang').addEventListener('change',e=>{LANG=e.target.value;try{localStorage.setItem('f7lang',LANG)}catch(x){}applyLang()});
+
+/* ---- tabs + swipe ---- */
+const HASH=['keypad','simulation','wiring','troubleshoot'];
+function setTab(i,push){
+  curTab=Math.max(0,Math.min(3,i));
+  $('track').style.transform=`translateX(${-25*curTab}%)`;
+  for(let k=0;k<4;k++)$('t'+k).setAttribute('aria-selected',k===curTab?'true':'false');
+  if(push){try{history.replaceState(null,'','#'+HASH[curTab])}catch(e){location.hash=HASH[curTab]}}
+  if(curTab===1)sizeCanvas();
+  if(curTab===0)fitKeypad();
+  if(curTab===3)renderTrb(true);
+}
+for(let k=0;k<4;k++)$('t'+k).addEventListener('click',()=>setTab(k,true));
+$('vp').addEventListener('scroll',()=>{if($('vp').scrollLeft)$('vp').scrollLeft=0});
+window.addEventListener('hashchange',()=>{const i=HASH.indexOf(location.hash.slice(1));if(i>=0&&i!==curTab)setTab(i,false)});
+let sx=null,sy=0,st=0;
+$('vp').addEventListener('touchstart',e=>{const tg=e.target;if(tg.closest('input[type=range],.wirewrap'))return sx=null;const p=e.touches[0];sx=p.clientX;sy=p.clientY;st=Date.now()},{passive:true});
+$('vp').addEventListener('touchend',e=>{if(sx==null)return;const p=e.changedTouches[0],dx=p.clientX-sx,dy=p.clientY-sy;sx=null;
+  if(Math.abs(dx)>60&&Math.abs(dx)>1.6*Math.abs(dy)&&Date.now()-st<700)setTab(curTab+(dx<0?1:-1),true)},{passive:true});
+
+/* ---- guide (below keypad) ---- */
+let lastGuide='';
+function optList(p,cur){
+  const opts=p.id==='T1-01'?tuneModes():p.opts;
+  return '<ul class="opts">'+opts.map(o=>{const isC=String(o[0])===String(cur),isD=String(o[0])===String(p.def);
+    return `<li class="${isC?'cur':''}${isD?' def':''}" data-def="${esc2(t('defTag'))}"><code>${esc2(code(p,o[0]))}</code><span>${esc2(o[1])}</span></li>`}).join('')+'</ul>';
+}
+function paramGuide(p,modeKey){
+  const ed=U.edit&&U.edit.p===p,ro=ed&&U.edit.ro;
+  let cur=V[p.id];
+  if(ed&&!ro)cur=p.type==='sel'?U.edit.opts[U.edit.i][0]:U.edit.v/U.edit.sc;
+  let h=`<div class="g-mode">${esc2(t('m'+modeKey))}</div><div class="g-id"><b>${esc2(p.id)}</b><span>${esc2(p.name)}</span></div><p class="g-txt">${esc2(pMean(p))}</p>`;
+  if(p.type==='sel')h+=optList(p,cur);
+  else h+=`<dl class="kv"><dt>${esc2(t('present'))}</dt><dd>${esc2(fmtNum(p,cur))}</dd><dt>${esc2(t('range'))}</dt><dd>${p.min.toFixed(p.dec)} – ${pmax(p).toFixed(p.dec)} ${esc2(p.unit)}</dd><dt>${esc2(t('def'))}</dt><dd>${esc2(fmtNum(p,p.def))}</dd><dt>${esc2(t('runChg'))}</dt><dd>${esc2(t(p.run?'yes':'no'))}</dd></dl>`;
+  if(p.type==='sel')h+=`<dl class="kv"><dt>${esc2(t('runChg'))}</dt><dd>${esc2(t(p.run?'yes':'no'))}</dd></dl>`;
+  h+=`<div class="tip">${esc2(ro?t('tipRo'):(modeKey==='ADV'&&!ed?t('tipAdv')+' ':'')+t(p.type==='sel'?'tipSel':'tipNum'))}</div>`;
+  return h;
+}
+function faultGuide(code,extra){
+  const e=findF(code);
+  let h=`<div class="fhead"><span class="fcode">${esc2(code)}</span>${e?`<span class="pill bad">${esc2(t({F:'tF',A:'tA',O:'tO',T:'tT',C:'tC'}[e.t]))}</span>`:''}</div>`;
+  if(e){const d=L3(e.d);h+=`<p class="g-txt"><b>${esc2(d[0])}</b> — ${esc2(d[1])}</p>`}
+  if(extra)h+=`<div class="tip">${esc2(extra)}</div>`;
+  h+=`<div style="margin-top:10px"><button class="btn link" data-trb="${esc2(code)}">${esc2(t('openTrb'))}</button></div>`;
+  return h;
+}
+function guideHTML(){
+  if(!U.power)return `<p class="empty">${esc2(t('off'))}</p>`;
+  const m=U.msg;
+  if(D.tune&&D.tune.active)return `<div class="g-mode">${esc2(t('mA.TUNE'))}</div><p class="g-txt">${esc2(t('tuneRun'))}</p>`;
+  if(m&&m.k==='tuneok')return `<div class="g-mode">${esc2(t('mA.TUNE'))}</div><p class="g-txt">${esc2(t('tuneOk'))}</p>`;
+  if(m&&m.k==='tuneabort')return faultGuide('Er-03');
+  if(m&&m.k==='tunefail')return faultGuide(m.code.replace(/ /g,''));
+  if(m&&m.k==='copy'&&!m.busy&&m.t!=='End')return faultGuide(m.t.toUpperCase());
+  if(D.fault)return faultGuide(D.fault,t('resetTip'));
+  if(D.alarm&&U.menu==='DRIVE')return faultGuide(D.alarm);
+  const o=ope();
+  if(o&&U.menu==='DRIVE'&&!U.opeView)return faultGuide(o[0],'ENTER → U1-34 = '+o[2]);
+  if(U.edit)return paramGuide(U.edit.p,U.menu);
+  if(U.menu==='DRIVE'){
+    const mm=MONS[U.mon],grp=mm[0].slice(0,2);
+    const mean=MMEAN[mm[0]]?L3(MMEAN[mm[0]]):(MMEAN[grp]?L3(MMEAN[grp]):'');
+    let tip=t(U.view==='num'?'tipMonN':'tipMonV');if(U.mon===0)tip+=' '+t('tipRef');
+    return `<div class="g-mode">${esc2(t('mDRIVE'))}</div><div class="g-id"><b>${mm[0]}</b><span>${esc2(mm[1])}</span></div><p class="g-txt">${esc2(mean)}</p><dl class="kv"><dt>${esc2(t('present'))}</dt><dd>${esc2(mm[2]())}</dd></dl><div class="tip">${esc2(tip)}</div>`;
+  }
+  if(U.menu==='A.TUNE'){const l=tuneList();if(U.tuneIdx===l.length)return `<div class="g-mode">${esc2(t('mA.TUNE'))}</div><div class="g-id"><b>tUn10</b></div><p class="g-txt">${esc2(t('tuneReady'))}</p>`;
+    return paramGuide(l[U.tuneIdx],'A.TUNE')+`<div class="tip">${esc2(t('tipTune'))}</div>`}
+  const l=curList();
+  if(!l.length)return `<div class="g-mode">${esc2(t('m'+U.menu))}</div><p class="g-txt">${esc2(t('noneMod'))}</p>`;
+  return paramGuide(l[Math.min(U.idx,l.length-1)],U.menu);
+}
+function renderGuide(){const h=guideHTML();if(h!==lastGuide){lastGuide=h;$('guide').innerHTML=h}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-trb]');if(b){closeSheet();openTrb(b.dataset.trb)}});
+function openTrb(code){$('fq').value=code||'';renderTrb(true);setTab(3,true)}
+$('toTrb').addEventListener('click',()=>openTrb(D.fault||D.alarm||(ope()||[])[0]||''));
+
+/* ---- simulation: motor drawing ---- */
+const motorEl=$('motor');
+motorEl.innerHTML=`
+<defs><linearGradient id="mb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d7f91"/><stop offset=".5" stop-color="#4b5b6b"/><stop offset="1" stop-color="#34404c"/></linearGradient>
+<linearGradient id="dr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a7a5a"/><stop offset=".5" stop-color="#5e523c"/><stop offset="1" stop-color="#3e3628"/></linearGradient></defs>
+<rect x="20" y="182" width="480" height="6" rx="2" fill="#3a4148"/>
+<rect id="mGlow" x="96" y="44" width="236" height="128" rx="16" fill="none" stroke="#57c27a" stroke-width="3" opacity="0"/>
+<rect x="70" y="70" width="34" height="78" rx="8" fill="#3d4a57"/>
+<g>${Array.from({length:13},(_,i)=>`<rect x="${112+i*16}" y="52" width="8" height="114" rx="3" fill="#5d6e7f"/>`).join('')}</g>
+<rect x="104" y="58" width="220" height="102" rx="12" fill="url(#mb)"/>
+<rect x="180" y="30" width="70" height="30" rx="4" fill="#4b5b6b" stroke="#2e3943"/>
+<text x="215" y="50" text-anchor="middle" font-family="Barlow Semi Condensed,Arial" font-weight="700" font-size="13" fill="#dfe6ec">3~ M</text>
+<rect x="132" y="160" width="20" height="22" fill="#34404c"/><rect x="276" y="160" width="20" height="22" fill="#34404c"/>
+<text id="mPlate" x="214" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#e8ecef"></text>
+<text id="mRpm" x="214" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" font-weight="600" fill="#ffffff"></text>
+<rect x="324" y="102" width="56" height="14" fill="#9aa5ad"/>
+<g id="cpl"><circle cx="392" cy="109" r="30" fill="#2c3238" stroke="#9aa5ad" stroke-width="3"/>
+ <g stroke="#cfd6dc" stroke-width="5" stroke-linecap="round"><line x1="392" y1="83" x2="392" y2="135"/><line x1="366" y1="109" x2="418" y2="109"/></g><circle cx="392" cy="109" r="7" fill="#ff3322"/></g>
+<rect x="422" y="102" width="14" height="14" fill="#9aa5ad"/>
+<rect x="436" y="62" width="64" height="94" rx="6" fill="url(#dr)"/>
+<g id="drum" clip-path="url(#dc)"></g><clipPath id="dc"><rect x="436" y="62" width="64" height="94" rx="6"/></clipPath>
+<text x="468" y="174" text-anchor="middle" font-family="Barlow Semi Condensed,Arial" font-size="11" fill="#a9b3bc">LOAD</text>
+<g id="dirArr" font-family="Barlow Semi Condensed,Arial" font-size="12" font-weight="700"><path id="arrP" d="" fill="none" stroke="#6fa8dc" stroke-width="2.5"/><text id="arrT" x="392" y="26" text-anchor="middle" fill="#6fa8dc"></text></g>`;
+let ang=0,drumOff=0,lastF=performance.now();
+function motorFrame(now){
+  const dt=Math.min(.1,(now-lastF)/1000);lastF=now;
+  const hz=D.motor;ang+=hz*14*dt;drumOff=(drumOff+hz*1.6*dt)%20;
+  if(curTab===1){
+    $('cpl').setAttribute('transform',`rotate(${ang%360} 392 109)`);
+    let s='';for(let y=-20;y<120;y+=20){const yy=62+y+drumOff;s+=`<rect x="436" y="${yy}" width="64" height="6" fill="rgba(0,0,0,.28)"/>`}
+    $('drum').innerHTML=s;
+  }
+  requestAnimationFrame(motorFrame);
+}
+requestAnimationFrame(motorFrame);
+
+/* ---- simulation: readouts + pills + DCS ---- */
+function stateInfo(){
+  if(!U.power)return['sOff',''];
+  if(D.fault)return['sFlt','bad'];
+  if(D.tune&&D.tune.active)return['sTune','warn'];
+  if(D.stopping)return['sDec','warn'];
+  if(D.run)return['sRun','ok'];
+  return['sStop',''];
+}
+function renderSim(){
+  const [sk,cls]=stateInfo();
+  let p=`<span class="pill ${D.mode==='LOCAL'?'warn':'ok'}">${D.mode}</span><span class="pill ${cls}">${esc2(t(sk))}${D.fault?' · '+D.fault:''}</span>`;
+  if(D.run||D.stopping)p+=`<span class="pill">${D.selDir>0?'FWD':'REV'}</span>`;
+  if(D.alarm)p+=`<span class="pill bad">${esc2(t('sAlm'))} · ${D.alarm}</span>`;
+  const o=ope();if(o&&U.power)p+=`<span class="pill bad">${o[0]}</span>`;
+  if(D.stallA)p+=`<span class="pill warn">${esc2(t('sStA'))}</span>`;
+  if(D.stallD)p+=`<span class="pill warn">${esc2(t('sStD'))}</span>`;
+  $('simPills').innerHTML=p;
+  const on=outOn()&&U.power;
+  const R=[['rRef',fref().toFixed(2),'Hz'],['rOut',Math.abs(D.f).toFixed(2),'Hz'],['rSpd',Math.round(Math.abs(rpm(D.motor))),'rpm'],['rCur',(U.power?D.I:0).toFixed(1),'A'],
+    ['rVolt',vout().toFixed(0),'V'],['rDc',Math.round(D.Vdc),'V'],['rKw',(on?kw():0).toFixed(1),'kW'],['rTq',(on?D.tau*100:0).toFixed(0),'%']];
+  $('readouts').innerHTML=R.map(r=>`<div class="rd"><small>${esc2(t(r[0]))}</small><b>${r[1]}<i>${r[2]}</i></b></div>`).join('');
+  $('mPlate').textContent=`${V['E2-11'].toFixed(0)} kW · ${V['E2-01'].toFixed(0)} A · ${V['E2-04']}P`;
+  $('mRpm').textContent=`${Math.round(Math.abs(rpm(D.motor)))} rpm`;
+  const g=$('mGlow');g.setAttribute('opacity',D.fault?1:(D.run?.9:0));g.setAttribute('stroke',D.fault?'#ff5b4a':D.stopping?'#f0b84a':'#57c27a');
+  const moving=Math.abs(D.motor)>0.3;
+  $('arrP').setAttribute('d',moving?(D.motor>0?'M362 30 A36 36 0 0 1 422 30 l-6 -6 m6 6 l-8 2':'M422 30 A36 36 0 0 0 362 30 l6 -6 m-6 6 l8 2'):'');
+  $('arrT').textContent=moving?(D.motor>0?'FWD':'REV'):'';
+  // DCS
+  $('dFwd').classList.toggle('on',TM.S1);$('dRev').classList.toggle('on',TM.S2);$('dEf').classList.toggle('on',TM.S3);
+  $('tChips').innerHTML=['S1','S2','S3','S4'].map(s=>`<span class="chip ${TM[s]?'on':''}">${s} ${TM[s]?'■':'□'}</span>`).join('')+`<span class="chip">A1 ${TM.A1.toFixed(2)} V</span>`;
+  let n;
+  if(!U.power)n=t('off');else if(D.mode!=='REMOTE')n=t('nLocal');else if(V['b1-02']!=1)n=t('nSeq');else if(D.fault)n=t('nFlt');else if(o)n=t('nOpe');else if(D.alarm)n=t('nEF');
+  else if(D.stopLatch&&(TM.S1||TM.S2))n=t('nLatch');else if(!canRunHere())n=t('nMenu');else n=t('nOk');
+  if(U.power&&D.mode==='REMOTE'&&V['b1-01']!=1)n+=' '+t('nRef');
+  $('dcsNote').textContent=n;
+}
+$('dFwd').addEventListener('click',()=>{TM.S1=true;TM.S2=false});
+$('dRev').addEventListener('click',()=>{TM.S2=true;TM.S1=false});
+$('dStop').addEventListener('click',()=>{TM.S1=false;TM.S2=false});
+$('dRst').addEventListener('click',()=>{TM.S4=true;setTimeout(()=>{TM.S4=false},500)});
+$('dEf').addEventListener('click',()=>{TM.S3=!TM.S3});
+$('dSp').addEventListener('input',e=>{TM.A1=+e.target.value/10;updSp()});
+function updSp(){const hz=TM.A1/10*V['H3-02']*V['E1-04']/100;$('dSpO').textContent=`${TM.A1.toFixed(2)} V → ${hz.toFixed(1)} Hz`}
+$('loadSel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=+b.dataset.v;
+  PL.load=[0.5,1,1.7][v];PL.inertia=[0.6,1,1.8][v];$('loadSel').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'))});
+$('mains').addEventListener('click',()=>{PL.mains=!PL.mains;$('mains').classList.toggle('on',PL.mains);$('mains').textContent=t(PL.mains?'mainsOn':'mainsOff')});
+
+/* ---- trend ---- */
+const TRD=[];let trT=0;const cv=$('trend');let ctx=cv.getContext('2d'),cw=0,chh=300;
+function sizeCanvas(){const r=cv.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;cw=r.width;cv.width=Math.round(r.width*d);cv.height=Math.round(chh*d);ctx.setTransform(d,0,0,d,0,0);drawTrend()}
+window.addEventListener('resize',()=>{if(curTab===1)sizeCanvas()});
+function sample(){TRD.push({f:Math.abs(D.f),r:D.run&&!D.stopping||D.jog?fref():0,i:U.power?D.I:0,v:D.Vdc});if(TRD.length>300)TRD.shift()}
+function drawTrend(){
+  if(!cw)return;const W=cw,H=chh,L=44,Rr=8;ctx.clearRect(0,0,W,H);
+  const cs=getComputedStyle(document.documentElement);const col=k=>cs.getPropertyValue(k).trim();
+  const bands=[{top:8,h:76,max:Math.max(10,V['E1-04']*1.05),min:0,u:'Hz',lines:[['r','--t-ref',[5,4]],['f','--t-freq',null]]},
+    {top:110,h:76,max:Math.ceil(DR.rated*1.6/100)*100,min:0,u:'A',lines:[['i','--t-cur',null]]},
+    {top:208,h:76,max:900,min:400,u:'V',lines:[['v','--t-dc',null]],marks:[[820,'OV'],[760,'StallP']]}];
+  ctx.font='10px JetBrains Mono, monospace';ctx.textBaseline='middle';
+  bands.forEach(b=>{
+    const y=v=>b.top+b.h-(Math.min(b.max,Math.max(b.min,v))-b.min)/(b.max-b.min)*b.h;
+    ctx.strokeStyle=col('--line');ctx.lineWidth=1;ctx.setLineDash([]);
+    for(let k=0;k<=2;k++){const v=b.min+(b.max-b.min)*k/2,yy=y(v);ctx.beginPath();ctx.moveTo(L,yy+.5);ctx.lineTo(W-Rr,yy+.5);ctx.stroke();ctx.fillStyle=col('--ink3');ctx.textAlign='right';ctx.fillText(Math.round(v)+(k===2?' '+b.u:''),L-5,yy)}
+    (b.marks||[]).forEach(m=>{const yy=y(m[0]);ctx.strokeStyle=m[0]>800?col('--bad'):col('--warn');ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-Rr,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=ctx.strokeStyle;ctx.textAlign='left';ctx.fillText(m[1],m[0]>800?L+4:L+34,yy-6)});
+    b.lines.forEach(([k,c,dash])=>{if(TRD.length<2)return;ctx.strokeStyle=col(c);ctx.lineWidth=2;ctx.setLineDash(dash||[]);ctx.beginPath();
+      TRD.forEach((s,i)=>{const x=L+(W-L-Rr)*(i+300-TRD.length)/299;i?ctx.lineTo(x,y(s[k])):ctx.moveTo(x,y(s[k]))});ctx.stroke();ctx.setLineDash([]);
+      const s=TRD[TRD.length-1];ctx.fillStyle=col(c);ctx.beginPath();ctx.arc(W-Rr,y(s[k]),3,0,7);ctx.fill()});
+  });
+  ctx.fillStyle=col('--ink3');ctx.textAlign='left';ctx.fillText('-60 s',L,H-3);ctx.textAlign='right';ctx.fillText('now',W-Rr,H-3);
+}
+
+/* ---- wiring (mobile-first: vertical main circuit + grouped terminal chips + DCS list) ---- */
+let selTerm=null;
+const TC={DI:'#9fc5e8',COM:'#d9d9d9',AI:'#b6d7a8',AO:'#ffe599',DO:'#f4cccc',CM:'#d5a6bd',PW:'#f9cb9c'};
+const TGROUPS=[['gDI',['S1','S2','S3','S4','S5','S6','S7','S8','SC','SN','SP']],['gAI',['A1','A2','A3','+V','-V','AC']],['gAO',['FM','AM']],
+  ['gDO',['M1','M2','M3','M4','M5','M6','MA','MB','MC']],['gCm',['R+','R-','S+','S-','IG','RP','MP','E(G)']]];
+function termType(n){if(/^S[3-8]$/.test(n))return'DI';if(/^M[1-6]$/.test(n))return'DO';return(TERM[n]||['COM'])[0]}
+function short(s,n){s=String(s);return s.length>n?s.slice(0,n-1)+'…':s}
+function chipSub(n){
+  if(n==='S1')return'FWD RUN';if(n==='S2')return'REV RUN';
+  if(/^S[3-8]$/.test(n)){const p=PM['H1-0'+(+n[1]-2)];return optText(p,V[p.id])}
+  if(/^M[1-6]$/.test(n)){const p=PM['H2-0'+(Math.floor((+n[1]-1)/2)+1)];return optText(p,V[p.id])}
+  if(n==='A1')return TM.A1.toFixed(2)+' V';if(n==='FM')return fmV().toFixed(2)+' V';if(n==='AM')return amV().toFixed(2)+' V';
+  if(n==='MA')return'Fault N.O.';if(n==='MB')return'Fault N.C.';if(n==='MC')return'Fault COM';
+  return(TERM[n]||['','',''])[2];
+}
+const DCSROWS=[['DO1 · Run FWD','→','S1–SC',()=>TM.S1],['DO2 · Run REV','→','S2–SC',()=>TM.S2],['DO3 · Ext fault','→','S3–SC',()=>TM.S3],['DO4 · Reset','→','S4–SC',()=>TM.S4],
+  ['AO1 · Speed ref','→','A1–AC',()=>TM.A1.toFixed(1)+' V'],['DI1 · Running','←','M1–M2',()=>outTerm()[0]],['DI2 · Fault','←','MA–MC',()=>!!D.fault],
+  ['AI1 · Speed fb','←','FM–AC',()=>fmV().toFixed(1)+' V'],['AI2 · Current','←','AM–AC',()=>amV().toFixed(1)+' V']];
+function tbox(label,x,y,w,key){return `<g class="term" tabindex="0" role="button" data-k="${esc2(key)}" data-n="${esc2(label)}" aria-label="${esc2(label)}"><rect data-tt="${esc2(label)}" x="${x}" y="${y}" width="${w}" height="24" rx="4" fill="${TC.PW}" stroke="#0e1113"/><text x="${x+w/2}" y="${y+16}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0e1113">${esc2(label)}</text></g>`}
+function buildWire(){
+  let s=`<text x="180" y="14" text-anchor="middle" font-size="12" fill="#a9b3bc">${esc2(t('wSup'))}</text>`;
+  [130,180,230].forEach((x,i)=>{s+=`<path class="wire" id="wl${i}" d="M${x} 22 V70 M${x} 100 V134"/><text x="${x+5}" y="44" font-size="11" fill="#a9b3bc">L${i+1}</text>`});
+  s+=`<rect x="104" y="70" width="152" height="30" rx="5" fill="#2b3137" stroke="#77828c"/><text x="180" y="90" text-anchor="middle" font-size="12" fill="#e8ecef">MCCB</text>`;
+  s+=`<rect x="36" y="128" width="288" height="164" rx="10" fill="#26303a" stroke="#6fa8dc" stroke-width="1.5"/>`;
+  ['R/L1','S/L2','T/L3'].forEach((n,i)=>{s+=tbox(n,107+i*50,134,46,'R/L1')});
+  s+=`<text x="196" y="182" text-anchor="middle" font-size="15" font-weight="700" fill="#e8ecef">CIMR-F7A4220</text><text x="196" y="198" text-anchor="middle" font-size="11.5" fill="#a9b3bc">400 V · 220 kW</text>`;
+  s+=`<text id="wDc" x="196" y="222" text-anchor="middle" font-size="12" fill="#f0b84a"></text><text id="wOut" x="196" y="238" text-anchor="middle" font-size="12" fill="#57c27a"></text>`;
+  [['⊕1','+1'],['⊕3','+3'],['(−)','+3']].forEach((a,i)=>{s+=tbox(a[0],44,160+i*30,40,a[1])});
+  ['U/T1','V/T2','W/T3'].forEach((n,i)=>{s+=tbox(n,107+i*50,262,46,'U/T1')});
+  s+=tbox('E(G)',270,262,46,'GND');
+  s+=`<path d="M293 286 V300 M283 300 H303 M287 304 H299 M291 308 H295" stroke="#9aa5ad" fill="none"/>`;
+  s+=`<path class="wire" id="wo0" d="M130 286 V318 L160 334"/><path class="wire" id="wo1" d="M180 286 V318"/><path class="wire" id="wo2" d="M230 286 V318 L200 334"/>`;
+  s+=`<circle cx="180" cy="358" r="38" fill="#3d4a57" stroke="#9aa5ad" stroke-width="2"/><text x="180" y="356" text-anchor="middle" font-size="17" font-weight="700" fill="#e8ecef">M</text><text x="180" y="373" text-anchor="middle" font-size="12" fill="#a9b3bc">3~</text>`;
+  s+=`<path d="M44 202 H18 V378 H28" stroke="#77828c" stroke-dasharray="4 3" fill="none"/><path d="M44 232 H24 V388 H28" stroke="#77828c" stroke-dasharray="4 3" fill="none"/>`;
+  s+=`<rect x="28" y="364" width="104" height="36" rx="5" fill="none" stroke="#77828c" stroke-dasharray="4 3"/><text x="80" y="379" text-anchor="middle" font-size="11" fill="#a9b3bc">${esc2(t('brk1'))}</text><text x="80" y="393" text-anchor="middle" font-size="9.5" fill="#77828c">${esc2(t('brk2'))}</text>`;
+  $('wmain').innerHTML=s;
+  $('wmain').querySelectorAll('.term').forEach(g=>{g.addEventListener('click',()=>termInfo(g.dataset.k,g.dataset.n));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();termInfo(g.dataset.k,g.dataset.n)}})});
+  $('wterms').innerHTML=TGROUPS.map(([gk,list])=>`<div class="tg"><h4>${esc2(t(gk))}</h4><div class="tgrid">${list.map(n=>`<button class="tchip" data-k="${esc2(n)}" style="background:${TC[termType(n)]}">${esc2(n)}<small id="ts_${esc2(n)}">${esc2(chipSub(n))}</small></button>`).join('')}</div></div>`).join('');
+  $('wdcs').innerHTML=`<span class="h">${esc2(t('dcsSig'))}</span><span></span><span class="h">${esc2(t('drvT'))}</span><span class="h">${esc2(t('now'))}</span>`+
+    DCSROWS.map((r,i)=>`<span>${esc2(r[0])}</span><span class="ar">${r[1]}</span><code>${r[2]}</code><span class="st" id="dcs_${i}"></span>`).join('');
+}
+$('wterms').addEventListener('click',e=>{const b=e.target.closest('.tchip');if(b)termInfo(b.dataset.k)});
+function termState(n){
+  const ot=outTerm();
+  if(/^S[1-8]$/.test(n))return TM[n]?t('closed'):t('open');
+  if(n==='A1')return TM.A1.toFixed(2)+' V';
+  if(n==='FM')return fmV().toFixed(2)+' V';if(n==='AM')return amV().toFixed(2)+' V';
+  if(n==='MA'||n==='MC')return 'MA–MC '+(D.fault?t('closed'):t('open'));if(n==='MB')return 'MB–MC '+(D.fault?t('open'):t('closed'));
+  if(n==='M1'||n==='M2')return 'M1–M2 '+(ot[0]?t('closed'):t('open'));if(n==='M3'||n==='M4')return 'M3–M4 '+(ot[1]?t('closed'):t('open'));if(n==='M5'||n==='M6')return 'M5–M6 '+(ot[2]?t('closed'):t('open'));
+  if(n==='R/L1')return PL.mains?'400 V':'0 V';if(n==='U/T1')return (outOn()&&U.power)?vout().toFixed(0)+' V · '+Math.abs(D.f).toFixed(1)+' Hz':'0 V';
+  if(n==='+1'||n==='+3')return Math.round(D.Vdc)+' Vdc';
+  return '';
+}
+function fmV(){return Math.min(11,Math.abs(D.f)/V['E1-04']*10*V['H4-02']/100)}
+function amV(){return Math.min(11,(U.power?D.I:0)/DR.rated*10*V['H4-05']/100)}
+function termInfo(k,n){
+  selTerm=k;const box=$('tinfo');
+  document.querySelectorAll('.tchip').forEach(c=>c.classList.toggle('sel',c.dataset.k===k));
+  if(!k){box.innerHTML=`<p class="empty">${esc2(t('tapTerm'))}</p>`;return}
+  let d=TERM[k],nm=n||k,fn='';
+  if(/^S[3-8]$/.test(k)){const p=PM['H1-0'+(+k[1]-2)];fn=`${p.id} = ${code(p,V[p.id])}: ${optText(p,V[p.id])}`;d=['DI',['Multi-function digital input. Function set by H1-01 to H1-06.','मल्टी-फ़ंक्शन डिजिटल इनपुट। फ़ंक्शन H1-01 से H1-06।','Multi-function digital input. Function H1-01 se H1-06.'],'24 Vdc, 8 mA']}
+  if(/^M[1-6]$/.test(k)){const i=Math.floor((+k[1]-1)/2);const p=PM['H2-0'+(i+1)];fn=`${p.id} = ${code(p,V[p.id])}: ${optText(p,V[p.id])}`;d=['DO',['Multi-function contact output (N.O.), pair M'+(2*i+1)+'–M'+(2*i+2)+'.','मल्टी-फ़ंक्शन कॉन्टैक्ट आउटपुट (N.O.)।','Multi-function contact output (N.O.).'],'1 A at 250 Vac / 30 Vdc']}
+  if(!d){box.innerHTML='';return}
+  const st=termState(k);
+  box.innerHTML=`<div class="g-id"><b>${esc2(nm)}</b><span class="pill" style="border-color:${TC[d[0]]}">${esc2(t({DI:'lDI',COM:'lCom',AI:'lAI',AO:'lAO',DO:'lDO',CM:'lCm',PW:'wPower'}[d[0]]))}</span></div><p class="g-txt">${esc2(L3(d[1]))}</p><dl class="kv">${fn?`<dt>${esc2(t('fn'))}</dt><dd>${esc2(fn)}</dd>`:''}<dt>${esc2(t('sig'))}</dt><dd>${esc2(d[2])}</dd>${st?`<dt>${esc2(t('now'))}</dt><dd id="tNow">${esc2(st)}</dd>`:''}</dl>`;
+}
+function renderWire(){
+  if(!$('wmain').firstChild)return;
+  ['wl0','wl1','wl2'].forEach(id=>$(id).setAttribute('stroke',PL.mains?'#f0b84a':'#4a5560'));
+  const run=outOn()&&U.power&&Math.abs(D.f)>0.01;['wo0','wo1','wo2'].forEach(id=>{const e=$(id);e.setAttribute('stroke',run?'#57c27a':'#4a5560');e.classList.toggle('on',run)});
+  $('wDc').textContent=U.power?`DC bus ${Math.round(D.Vdc)} V`:'';
+  $('wOut').textContent=run?`${Math.abs(D.f).toFixed(1)} Hz · ${D.I.toFixed(0)} A`:'';
+  const ot=outTerm();
+  const lit={S1:TM.S1,S2:TM.S2,S3:TM.S3,S4:TM.S4,A1:TM.A1>0.05,FM:fmV()>0.05,AM:amV()>0.05,MA:!!D.fault,MC:!!D.fault,MB:!D.fault&&U.power,M1:ot[0],M2:ot[0],M3:ot[1],M4:ot[1],M5:ot[2],M6:ot[2]};
+  document.querySelectorAll('.tchip').forEach(c=>{const n=c.dataset.k;c.classList.toggle('lit',!!lit[n]);const sm=c.querySelector('small');const v=chipSub(n);if(sm.textContent!==v)sm.textContent=v});
+  DCSROWS.forEach((r,i)=>{const v=r[3](),e=$('dcs_'+i);const on=typeof v==='boolean'?v:parseFloat(v)>0.05;e.textContent=typeof v==='boolean'?(v?'CLOSED':'open'):v;e.classList.toggle('on',on)});
+  const tn=$('tNow');if(tn&&selTerm)tn.textContent=termState(selTerm);
+}
+
+/* ---- keypad fit, hints, display sheet ---- */
+function fitKeypad(){
+  const pane=$('p-key'),op=pane.querySelector('.op');if(!op||!pane.clientWidth)return;
+  pane.style.setProperty('--kpf','16px');
+  const rh=op.getBoundingClientRect().height/16;
+  const avail=$('vp').clientHeight-8-40,w=pane.clientWidth-32;
+  const f=Math.max(10,Math.min(18,avail/rh,w/21.8));
+  pane.style.setProperty('--kpf',f.toFixed(2)+'px');
+}
+window.addEventListener('resize',()=>{fitKeypad()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitKeypad);
+let hintTO=null;
+function hint(key,kind){const el=$('toast');if(!el)return;el.textContent=t(key);el.className='toast show'+(kind==='info'?' info':'');clearTimeout(hintTO);hintTO=setTimeout(()=>{el.className='toast'+(kind==='info'?' info':'')},kind==='info'?2600:5200)}
+const NEXT={
+ runL:[['On U1-01 press DATA/ENTER to edit the speed reference.','U1-01 पर DATA/ENTER दबाकर स्पीड रेफ़ बदलें।','U1-01 par DATA/ENTER dabakar speed ref badlo.'],['Use >/RESET to pick a digit and ∧/∨ to change it (for example 30.00 Hz), then DATA/ENTER.','>/RESET से अंक चुनें, ∧/∨ से बदलें (जैसे 30.00 Hz), फिर DATA/ENTER।','>/RESET se digit chuno, ∧/∨ se badlo (jaise 30.00 Hz), phir DATA/ENTER.'],['Press RUN to start and STOP to stop. FWD/REV changes direction.','RUN से चालू, STOP से बंद। FWD/REV से दिशा बदलें।','RUN se start, STOP se stop. FWD/REV se direction badlo.']],
+ runR:[['REMOTE: run comes from S1/S2 and speed from A1 (your DCS).','REMOTE: रन S1/S2 से और स्पीड A1 से (DCS)।','REMOTE: run S1/S2 se aur speed A1 se (DCS).'],['In the Simulate tab move the A1 slider and press Start FWD.','सिमुलेशन टैब में A1 स्लाइडर हिलाएँ और Start FWD दबाएँ।','Simulate tab me A1 slider badhao aur Start FWD dabao.'],['To run from the keypad, press LOCAL/REMOTE (SEQ/REF LEDs go off).','कीपैड से चलाने के लिए LOCAL/REMOTE दबाएँ (SEQ/REF LED बंद)।','Keypad se chalane ke liye LOCAL/REMOTE dabao (SEQ/REF LED off).']],
+ flt:[['Remove the run command (STOP, or open S1/S2).','रन कमांड हटाएँ (STOP या S1/S2 खोलें)।','Run command hatao (STOP ya S1/S2 open).'],['Fix the cause (see the Faults tab).','कारण ठीक करें (फ़ॉल्ट टैब देखें)।','Cause theek karo (Faults tab dekho).'],['Press >/RESET. The ALARM LED goes off.','>/RESET दबाएँ। ALARM LED बंद होगी।','>/RESET dabao. ALARM LED off hogi.']]
+};
+function nextSteps(){
+  if(!U.power)return null;
+  if(D.fault)return NEXT.flt;
+  if(U.menu==='DRIVE'&&!U.edit&&!ope()&&!D.alarm&&!(D.tune&&D.tune.active)&&!D.run)return opSrc()?NEXT.runL:NEXT.runR;
+  return null;
+}
+let sheetOpen=false,lastSheet='';
+function sheetHTML(){const ns=nextSteps();return guideHTML()+(ns?`<div class="sub">${esc2(t('next'))}</div><ol class="nextsteps">${ns.map(x=>`<li>${esc2(L3(x))}</li>`).join('')}</ol>`:'')}
+function refreshSheet(){if(!sheetOpen)return;const h=sheetHTML();if(h!==lastSheet){lastSheet=h;$('shBody').innerHTML=h}const m=$('seg').innerHTML;if($('seg3').innerHTML!==m)$('seg3').innerHTML=m}
+function openSheet(){sheetOpen=true;lastSheet='';document.body.classList.add('sheet-open');refreshSheet();$('shX').focus({preventScroll:true})}
+function closeSheet(){sheetOpen=false;document.body.classList.remove('sheet-open')}
+document.querySelector('#p-key .win').addEventListener('click',openSheet);
+$('sheetbg').addEventListener('click',closeSheet);$('shX').addEventListener('click',closeSheet);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen){e.stopPropagation();closeSheet()}},true);
+{let y0=null;const sh=$('sheet');sh.addEventListener('touchstart',e=>{y0=sh.scrollTop<=0?e.touches[0].clientY:null},{passive:true});sh.addEventListener('touchend',e=>{if(y0!=null&&e.changedTouches[0].clientY-y0>70)closeSheet();y0=null},{passive:true})}
+
+/* ---- troubleshooting ---- */
+const norm=s=>String(s||'').toUpperCase().replace(/[\s\-_]/g,'');
+function findF(code){const n=norm(code);const al=FALIAS[n];const key=Object.keys(FT).find(k=>norm(k)===(al?norm(al):n));return key?FT[key]:null}
+$('fcodes').innerHTML=Object.keys(FT).map(k=>`<option value="${k}">`).join('');
+let lastTrb='';
+function renderTrb(force){
+  const act=D.fault||D.alarm||(U.power&&ope()?ope()[0]:'');
+  const qs=['OC','OV','UV1','OL1','EF3','GF','PF','OH','OPE10','Er-03'];if(act&&!qs.includes(act))qs.unshift(act);
+  const qh=qs.map(c=>`<button data-q="${c}" class="${norm(c)===norm(act)?'act':''}">${c}</button>`).join('');
+  if($('fquick').innerHTML!==qh)$('fquick').innerHTML=qh;
+  let q=$('fq').value.trim();
+  if(!q&&act)q=act;
+  const key=LANG+'|'+q+'|'+act;if(!force&&key===lastTrb)return;lastTrb=key;
+  const box=$('fres');
+  if(!q){box.innerHTML=`<p class="empty">${esc2(t('askCode'))}</p>`;return}
+  const e=findF(q);
+  if(!e){box.innerHTML=`<p class="empty">${esc2(t('notFound'))}</p>`;return}
+  const d=L3(e.d);const isAct=act&&norm(findF(act)?findF(act).c:act)===norm(e.c);
+  box.innerHTML=`<div class="fhead"><span class="fcode">${esc2(e.c==='EF3'&&/^EF[4-8]$/i.test(q)?q.toUpperCase():e.c)}</span><span class="pill ${e.t==='F'?'bad':'warn'}">${esc2(t({F:'tF',A:'tA',O:'tO',T:'tT',C:'tC'}[e.t]))}</span>${isAct?`<span class="pill bad">${esc2(t('active'))}</span>`:''}</div>
+   <p class="g-txt"><b>${esc2(d[0])}</b></p><p class="g-txt">${esc2(d[1])}</p>
+   <div class="sub">${esc2(t('cause'))}</div><ul class="steps">${d[2].map(x=>`<li>${esc2(x)}</li>`).join('')}</ul>
+   <div class="sub">${esc2(t('action'))}</div><ol class="steps">${d[3].map(x=>`<li>${esc2(x)}</li>`).join('')}</ol>
+   ${e.t==='F'?`<div class="tip">${esc2(t('resetHow'))}</div>`:''}`;
+}
+$('fq').addEventListener('input',()=>renderTrb(true));
+$('fquick').addEventListener('click',e=>{const b=e.target.closest('button');if(b){$('fq').value=b.dataset.q;renderTrb(true)}});
+function buildSym(){$('sym').innerHTML=SYMS.map(s=>`<details><summary>${esc2(L3(s[0]))}</summary><ol class="steps">${L3(s[1]).map(x=>`<li>${esc2(x)}</li>`).join('')}</ol></details>`).join('')}
+
+/* ---- main tick hook ---- */
+let appN=0;
+function appTick(){
+  appN++;
+  if(appN%2===0){sample();if(curTab===1)drawTrend()}
+  if(curTab===0&&appN%3===0){renderGuide();refreshSheet()}
+  if(curTab===1&&appN%2===0)renderSim();
+  if(curTab===2&&appN%3===0)renderWire();
+  if(curTab===3&&appN%5===0)renderTrb(false);
+}
+applyLang();updSp();termInfo(null);fitKeypad();setTimeout(fitKeypad,300);
+{const i=HASH.indexOf(location.hash.slice(1));setTab(i>=0?i:0,false)}
+})();
+</script>
+
+</body></html>

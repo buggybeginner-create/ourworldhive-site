@@ -142,14 +142,10 @@ h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
   </div>
 </section>
 <section class="wrap"><div class="th-grid" id="thgrid"></div><p class="th-empty" id="thempty" hidden>No training matches that search yet.</p></section>
-<section class="wrap th-models" id="models">
-  <div class="th-mhead"><h2>Yaskawa F7 model numbers</h2><div class="th-seg" role="group" aria-label="Voltage class"><button data-v="4" aria-pressed="true">400 V class</button><button data-v="2" aria-pressed="false">200 V class</button></div></div>
-  <p class="th-note">From manual TM.F7.01, Tables i.2 and i.3. Heavy Duty rating (C6-01 = 0): 150% for 1 minute, 2 kHz carrier, 300 Hz maximum output. Model code: CIMR-F7<b>U</b> (manual) / CIMR-F7<b>A</b>, then voltage class and capacity, for example <b>4220</b> = 400 V, 220 kW.</p>
-  <div class="th-tablewrap"><table class="th-table"><thead><tr><th>Model</th><th>Motor kW</th><th>Rated output current (HD)</th><th></th></tr></thead><tbody id="thmodels"></tbody></table></div>
-</section>
+
 <section class="wrap th-soon">
-  <h2>More trainings are on the way</h2>
-  <p>New manuals are added as interactive simulators in the same format: keypad, parameter guide, live simulation, wiring and troubleshooting.</p>
+  <h2>More trainings coming in future</h2>
+  <p>New trainings will be added in different categories: VFD / Drives, Instruments, and PLC / DCS. Each will follow the same hands-on format.</p>
   <p class="th-disc">Independent training material prepared from the published user manuals. Not affiliated with or endorsed by the equipment manufacturers. Always follow the manufacturer's manual and site safety rules on real equipment.</p>
 </section>
 </main>
@@ -175,12 +171,12 @@ h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
   var T=[
     {cat:'vfd',status:'live',brand:'Yaskawa',title:'F7 Drive (Varispeed F7)',
      text:'Full keypad simulator with the JVOP-161 LED operator, every key and menu, parameter guide, live motor with trend, DCS start/stop, wiring and fault troubleshooting.',
-     dl:[['Simulated model','CIMR-F7A4220 · 400 V · 220 kW'],['Model range','CIMR-F7U/F7A 20P4–2110, 40P4–4300'],['Manual','TM.F7.01 (software 3020)'],['Keypad','JVOP-161 LED (LCD JVOP-160 flow)']],
+     dl:[['Simulated model','CIMR-F7A4220 · 400 V · 220 kW'],['Manual','TM.F7.01 (software 3020)'],['Keypad','JVOP-161 LED (LCD JVOP-160 flow)']],
      feat:['Keypad','Parameter guide','Motor + trend','DCS commands','Wiring','Fault codes','English · हिंदी · Hinglish'],
-     href:'vfd-f7-sim.html',keys:'yaskawa f7 varispeed cimr-f7a4220 cimr-f7u jvop-161 vfd drive inverter 4220 tm.f7.01',art:KEYPAD},
-    {cat:'vfd',status:'soon',title:'More VFD models',text:'Next drives and their manuals will appear here in the same simulator format.',keys:'vfd drive inverter',art:SOON},
-    {cat:'inst',status:'soon',title:'Field instruments',text:'Transmitters, RTDs and other instruments with interactive calibration practice.',keys:'instrument transmitter rtd pressure',art:SOON},
-    {cat:'plc',status:'soon',title:'PLC / DCS',text:'Control system training: I/O, interlocks and start/stop logic.',keys:'plc dcs control',art:SOON}
+     href:'vfd-f7-sim.html',keys:'yaskawa f7 varispeed cimr-f7a4220 jvop-161 vfd drive inverter 4220 tm.f7.01',art:KEYPAD},
+    {cat:'vfd',status:'soon',title:'More VFD / drives',text:'More drive trainings will be added here in future.',keys:'vfd drive inverter',art:SOON},
+    {cat:'inst',status:'soon',title:'Field instruments',text:'Instrument trainings will be added here in future.',keys:'instrument transmitter rtd pressure',art:SOON},
+    {cat:'plc',status:'soon',title:'PLC / DCS',text:'PLC and DCS trainings will be added here in future.',keys:'plc dcs control',art:SOON}
   ];
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   var cat='all',grid=document.getElementById('thgrid'),q=document.getElementById('thq');
@@ -189,7 +185,7 @@ h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
     return '<article class="th-card'+(live?'':' soon')+'"><div class="th-art">'+x.art+'</div><div class="th-body"><div class="th-meta"><span class="'+(live?'live':'')+'">'+(live?'Live simulator':'Coming soon')+'</span>'+(x.brand?'<span>'+esc(x.brand)+'</span>':'')+'</div><h3>'+esc(x.title)+'</h3><p>'+esc(x.text)+'</p>'+
       (x.dl?'<dl class="th-dl">'+x.dl.map(function(d){return '<dt>'+esc(d[0])+'</dt><dd>'+esc(d[1])+'</dd>'}).join('')+'</dl>':'')+
       (x.feat?'<ul class="th-feat">'+x.feat.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>':'')+
-      (live?'<div class="th-actions"><a class="btn gold" href="'+x.href+'">Open simulator</a><a class="btn" href="#models">Model numbers</a></div>':'')+'</div></article>';
+      (live?'<div class="th-actions"><a class="btn gold" href="'+x.href+'">Open simulator</a></div>':'')+'</div></article>';
   }
   function draw(){
     var s=(q.value||'').trim().toLowerCase();
@@ -198,14 +194,6 @@ h1,h2,h3{ font-family:var(--sx-d); letter-spacing:-.025em; margin:0; }
   }
   [].forEach.call(document.querySelectorAll('.th-chip'),function(b){b.addEventListener('click',function(){cat=b.dataset.c;[].forEach.call(document.querySelectorAll('.th-chip'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});draw()})});
   q.addEventListener('input',draw);draw();
-  /* F7 model table (TM.F7.01 Tables i.2 / i.3, Heavy Duty) */
-  var M={2:[['20P4',3.2],['20P7',4.2],['21P5',7.0],['22P2',9.6],['23P7',15.2],['25P5',23],['27P5',31],['2011',45],['2015',58],['2018',71],['2022',85],['2030',115],['2037',145],['2045',180],['2055',215],['2075',283],['2090',346],['2110',360]],
-         4:[['40P4',1.8],['40P7',2.1],['41P5',3.7],['42P2',5.3],['43P7',7.6],['44P0',8.7],['45P5',12.5],['47P5',17],['4011',24],['4015',31],['4018',39],['4022',45],['4030',60],['4037',75],['4045',91],['4055',112],['4075',150],['4090',180],['4110',216],['4132',260],['4160',304],['4185',370],['4220',414],['4300',590]]};
-  function kw(c){var r=c.slice(1);return r.indexOf('P')>=0?parseFloat(r.replace('P','.')):parseInt(r,10)}
-  var tb=document.getElementById('thmodels');
-  function table(v){tb.innerHTML=M[v].map(function(m){var sim=m[0]==='4220';return '<tr class="'+(sim?'sim':'')+'"><td>CIMR-F7A'+m[0]+'</td><td>'+kw(m[0])+'</td><td>'+m[1]+' A</td><td>'+(sim?'<a class="tag" href="vfd-f7-sim.html">Simulator</a>':'')+'</td></tr>'}).join('')}
-  [].forEach.call(document.querySelectorAll('.th-seg button'),function(b){b.addEventListener('click',function(){[].forEach.call(document.querySelectorAll('.th-seg button'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});table(b.dataset.v)})});
-  table('4');
 })();
 </script>
 <script>

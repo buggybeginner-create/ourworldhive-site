@@ -454,7 +454,7 @@ const RAT=[
  ['180A-4',180,90,156,75,'R6'],['195A-4',205,110,162,90,'R6'],['246A-4',246,132,192,110,'R6'],['290A-4',290,160,246,132,'R6']];
 /* other ABB series: shown in the model list, added later (each from its own manual) */
 const SERIES_SOON=['ACS580','ACS800','ACS880'];
-const SERIES_LINK={ACS800:'vfd-acs800-sim.html'};
+const SERIES_LINK={ACS800:'vfd-acs800-sim.html',ACS880:'vfd-acs880-sim.html'};
 let DI_=9;try{const s=localStorage.getItem('acs550drv');const i=RAT.findIndex(r=>r[0]===s);if(i>=0)DI_=i}catch(e){}
 let DRV=RAT[DI_];
 const Ihd=()=>DRV[3],Phd=()=>DRV[4],I2N=()=>DRV[1];

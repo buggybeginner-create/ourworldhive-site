@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><script src="owh-pwa.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<html lang="en"><head><meta charset="utf-8"><script src="owh-pwa.js"></script><script src="vfd-psearch.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
 <title>SINAMICS G120 PM240-2 VFD Simulator (BOP-2) | Ourworldhive Training Hub</title>
 <meta name="description" content="Interactive G120 drive training: PM240-2 Power Module with CU240E-2 and BOP-2 keypad. Menus, basic commissioning, parameter guide, motor simulation with trend, DCS terminals, wiring, model data and fault troubleshooting.">
 <meta name="theme-color" content="#1b1f23"><link rel="canonical" href="https://ourworldhive.com/vfd-g120-sim.html">
@@ -76,7 +76,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .brand small{display:block;font-weight:500;letter-spacing:.04em;font-size:11px;color:var(--ink3)}
 .lang{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
 .lang select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:#1b1f23;position:relative;
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:#1b1f23;position:relative;
   padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
 .tab{appearance:none;background:none;border:0;color:var(--ink3);font:600 12px/1 var(--f-key);letter-spacing:.06em;text-transform:uppercase;padding:7px 2px 8px;cursor:pointer;border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
 .tab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -84,8 +84,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .viewport{flex:1;min-height:0;overflow:hidden;overflow:clip;position:relative}
-.track{display:flex;width:400%;height:100%;transition:transform .32s cubic-bezier(.2,.7,.2,1)}
-.pane{width:25%;height:100%;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch;
+.track{display:flex;width:500%;height:100%;transition:transform .32s cubic-bezier(.2,.7,.2,1)}
+.pane{width:20%;height:100%;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch;
   padding-block:12px calc(110px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .col{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 #p-key .op{margin:2px auto 0}
@@ -305,6 +305,7 @@ body.sheet-open .lastmsg{display:none}
   <button class="tab" role="tab" id="t1" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 12 16.5 7.5"/><path d="M7 15.5h2.5M14.5 15.5H17"/></svg><span data-t="tSim">Simulate</span></button>
   <button class="tab" role="tab" id="t2" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 7h6l3 5h9M3 17h6l3-5"/><circle cx="21" cy="12" r="0.6"/></svg><span data-t="tWire">Wiring</span></button>
   <button class="tab" role="tab" id="t3" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.2v.3"/></svg><span data-t="tTrb">Faults</span></button>
+  <button class="tab" role="tab" id="t4" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span id="psTabL">Search</span></button>
 </nav>
 <main class="viewport" id="vp"><div class="track" id="track">
 
@@ -405,6 +406,8 @@ body.sheet-open .lastmsg{display:none}
   <div class="card f-res" id="fres"></div>
   <div class="card f-sym"><h3 data-t="symT">Symptoms and maintenance</h3><div id="sym"></div></div>
 </div></section>
+
+<section class="pane" id="p-ps" role="tabpanel"><div class="col" id="psBox"></div></section>
 
 </div></main>
 
@@ -1281,18 +1284,18 @@ function applyLang(){
 $('lang').addEventListener('change',e=>{LANG=e.target.value;try{localStorage.setItem('g120lang',LANG)}catch(x){}applyLang()});
 
 /* ---- tabs + swipe ---- */
-const HASH=['keypad','simulation','wiring','troubleshoot'];
+const HASH=['keypad','simulation','wiring','troubleshoot','search'];
 function setTab(i,push){
-  curTab=Math.max(0,Math.min(3,i));
-  $('track').style.transform=`translateX(${-25*curTab}%)`;
-  for(let k=0;k<4;k++)$('t'+k).setAttribute('aria-selected',k===curTab?'true':'false');
+  curTab=Math.max(0,Math.min(4,i));
+  $('track').style.transform=`translateX(${-20*curTab}%)`;
+  for(let k=0;k<5;k++)$('t'+k).setAttribute('aria-selected',k===curTab?'true':'false');
   if(push){try{history.replaceState(null,'','#'+HASH[curTab])}catch(e){location.hash=HASH[curTab]}}
   if(curTab===1)sizeCanvas();
   if(curTab===0)fitKeypad();
   if(curTab===2)buildSpec();
   if(curTab===3)renderTrb(true);
 }
-for(let k=0;k<4;k++)$('t'+k).addEventListener('click',()=>setTab(k,true));
+for(let k=0;k<5;k++)$('t'+k).addEventListener('click',()=>setTab(k,true));
 $('vp').addEventListener('scroll',()=>{if($('vp').scrollLeft)$('vp').scrollLeft=0});
 window.addEventListener('hashchange',()=>{const i=HASH.indexOf(location.hash.slice(1));if(i>=0&&i!==curTab)setTab(i,false)});
 let sx=null,sy=0,st=0;
@@ -1648,6 +1651,7 @@ function appTick(){
 $('lastmsg').addEventListener('click',()=>{if(!lastMsg)return;if(lastMsg.key)hintKey(lastMsg.key,lastMsg.kind);else hintText(lastMsg.txt)});
 factory();D.hs=PL.ta;
 applyLang();updAi();termInfo(null);pmInfo();fitKeypad();setTimeout(fitKeypad,300);
+try{window.VfdSearch&&VfdSearch.mount($('psBox'),{title:'Siemens G120',list:()=>P,val:p=>p.type==='ro'?(p.fn?p.fn():0):pval(p),pid:p=>pidTxt(p),opts:p=>p.type==='sel'?opts(p):null,mean:(p,l)=>PMEAN[p.id]?(l==='en'?PMEAN[p.id][0]:L3(PMEAN[p.id])):'',lang:()=>LANG})}catch(e){}
 {const i=HASH.indexOf(location.hash.slice(1));setTab(i>=0?i:0,false)}
 setInterval(()=>{tick(.1);render();appTick()},100);
 })();

@@ -1416,6 +1416,28 @@ lcd.addEventListener('pointercancel',()=>lt=null);
 /* init */
 {const i=HASH.indexOf(location.hash.slice(1));if(i>0)setTab(i,false)}
 applyLang();powerCycle();ex.render();requestAnimationFrame(t=>{last=t;requestAnimationFrame(loop)});
+window.SimHelpData={KH:KH,KNAME:KNAME};
+})();
+</script>
+<script src="sim-help.js"></script>
+<script>
+/* 505 front panel key / lamp meanings (26839V1, Chapter 1) — key texts are the page's own manual-based key help */
+(function(){
+var D=window.SimHelpData||{KH:{},KNAME:{}},KH=D.KH,KN=D.KNAME;
+var map={ESTOP:'ESTOP',VIEWT:'VIEWT',VIEWA:'VIEWA',MODE:'MODE',START:'START',STOP:'STOP',RESET:'RESET',ESC:'ESC',HOME:'HOME',ENTER:'ENTER',
+ UP:'UP',DOWN:'UP',LEFT:'UP',RIGHT:'UP',ADJUP:'ADJUP',ADJDN:'ADJUP',S1:'S1',S2:'S1',S3:'S1',S4:'S1',SHIFT:'SHIFT',BRT:'BRT',
+ '1':'NUM','2':'NUM','3':'NUM','4':'NUM','5':'NUM','6':'NUM','7':'NUM','8':'NUM','9':'NUM','0':'NUM','.':'NUM',PM:'NUM',BS:'NUM'};
+var items=[];
+Object.keys(map).forEach(function(k){var h=KH[map[k]];if(!h)return;
+  var nm=KN[k]||(/^[0-9.]$/.test(k)?k:k);items.push(['#panel [data-k="'+k+'"]',nm+(/key|keys|trip/i.test(nm)?'':' key'),h])});
+items.push(
+ ['#L-trip','TRIPPED LED (red)',['ON when the turbine is shut down (tripped). Press VIEW under it to see the Shutdown Summary with the first-out trip.','टर्बाइन ट्रिप (बंद) होने पर ON। नीचे VIEW दबाकर शटडाउन सारांश और पहला ट्रिप देखें।','Turbine trip (band) hone par ON. Neeche VIEW dabakar Shutdown Summary aur first-out trip dekho.']],
+ ['#L-cpu','CPU LED (green)',['ON when the 505 processor is running normally. If it is off or the control is faulted, the unit is not controlling.','505 प्रोसेसर सामान्य चलने पर ON। बंद हो या कंट्रोल फ़ॉल्ट हो तो यूनिट कंट्रोल नहीं कर रहा।','505 processor normal chalne par ON. Band ho ya control fault ho to unit control nahi kar raha.']],
+ ['#L-io','IOLOCK LED (red)',['ON when the I/O is locked: all outputs are disabled and relays de-energised (for example in Configuration mode or after a CPU fault).','I/O लॉक होने पर ON: सभी आउटपुट बंद और रिले डी-एनर्जाइज़ (जैसे कॉन्फ़िगरेशन मोड या CPU फ़ॉल्ट)।','I/O lock hone par ON: saare output band aur relay de-energise (jaise Configuration mode ya CPU fault).']],
+ ['#L-alm','ALARM LED (yellow)',['ON when an alarm is active (the turbine keeps running). Press VIEW under it to see the Alarm Summary.','अलार्म सक्रिय होने पर ON (टर्बाइन चलता रहता है)। नीचे VIEW दबाकर अलार्म सारांश देखें।','Alarm active hone par ON (turbine chalta rehta hai). Neeche VIEW dabakar Alarm Summary dekho.']],
+ ['#lcd','Display screen',['Shows the selected screen: home / overview, values, menus and the soft-key labels at the bottom.','चुनी हुई स्क्रीन दिखाता है: होम / ओवरव्यू, मान, मेनू और नीचे सॉफ़्ट-की लेबल।','Chuni hui screen dikhata hai: home / overview, value, menu aur neeche soft-key label.']]
+);
+SimHelp.init(items,{top:true});
 })();
 </script>
 </body></html>

@@ -1653,4 +1653,18 @@ setInterval(()=>{tick(.1);render();appTick()},100);
 })();
 </script>
 
+<script src="sim-help.js"></script>
+<script>
+/* BOP-2 key meanings (SINAMICS G120 / BOP-2 operating instructions) */
+SimHelp.init([
+ ['#p-key .win','BOP-2 display',['Shows the menu (MONITOR, CONTROL, DIAGNOS, PARAMS, SETUP, EXTRAS), values, parameter numbers and fault/alarm codes. Symbols show HAND mode, JOG, a fault or an alarm, and rotation. Tap for details.','मेनू (MONITOR, CONTROL, DIAGNOS, PARAMS, SETUP, EXTRAS), मान, पैरामीटर नंबर और फ़ॉल्ट/अलार्म कोड दिखाता है। सिंबल: HAND, JOG, फ़ॉल्ट/अलार्म, घुमाव। जानकारी के लिए टैप करें।','Menu (MONITOR, CONTROL, DIAGNOS, PARAMS, SETUP, EXTRAS), value, parameter number aur fault/alarm code dikhata hai. Symbol: HAND, JOG, fault/alarm, rotation. Details ke liye tap karo.']],
+ ['#k-up','▲ key',['Moves up in the menu or selects the next parameter, and increases a value or the setpoint. Hold it to change faster.','मेनू में ऊपर / अगला पैरामीटर, और मान या सेटपॉइंट बढ़ाता है। दबाए रखने पर तेज़।','Menu me upar / agla parameter, aur value ya setpoint badhata hai. Dabaye rakhne par tez.']],
+ ['#k-down','▼ key',['Moves down in the menu or selects the previous parameter, and decreases a value or the setpoint. Hold it to change faster.','मेनू में नीचे / पिछला पैरामीटर, और मान या सेटपॉइंट घटाता है। दबाए रखने पर तेज़।','Menu me neeche / pichla parameter, aur value ya setpoint ghatata hai. Dabaye rakhne par tez.']],
+ ['#k-ok','OK key',['Opens the selected menu or parameter and confirms (saves) a changed value. On the status display it opens the menu.','चुना मेनू या पैरामीटर खोलता है और बदला मान पक्का (सेव) करता है। स्टेटस डिस्प्ले पर मेनू खोलता है।','Chuna menu ya parameter kholta hai aur badli value confirm (save) karta hai. Status display par menu kholta hai.']],
+ ['#k-esc','ESC key',['Goes back one level without saving a change. From the top menu it returns to the status display.','बिना सेव किए एक लेवल पीछे। टॉप मेनू से स्टेटस डिस्प्ले पर।','Bina save kiye ek level peeche. Top menu se status display par.']],
+ ['#k-on','ON key (I)',['Switches the motor ON when the BOP-2 is in HAND mode (JOG if selected in CONTROL). In AUTO it has no effect: ON comes from the terminals / fieldbus.','BOP-2 HAND मोड में हो तो मोटर ON (CONTROL में JOG चुना हो तो JOG)। AUTO में असर नहीं: ON टर्मिनल / फ़ील्डबस से।','BOP-2 HAND mode me ho to motor ON (CONTROL me JOG chuna ho to JOG). AUTO me asar nahi: ON terminal / fieldbus se.']],
+ ['#k-off','OFF key (O)',['In HAND mode: OFF1 — the motor ramps down with p1121 and stops. Press twice quickly or hold for 3 s: OFF2 — the motor coasts to a stop.','HAND मोड में: OFF1 — मोटर p1121 रैम्प से रुकती है। दो बार जल्दी या 3 सेकंड दबाएँ: OFF2 — मोटर कोस्ट होकर रुकती है।','HAND mode me: OFF1 — motor p1121 ramp se rukti hai. Do baar jaldi ya 3 sec dabao: OFF2 — motor coast hokar rukti hai.']],
+ ['#k-ha','HAND/AUTO key',['Switches the command source between HAND (ON/OFF and setpoint from the BOP-2) and AUTO (terminals or fieldbus). The hand symbol on the display shows HAND.','कमांड सोर्स HAND (ON/OFF और सेटपॉइंट BOP-2 से) और AUTO (टर्मिनल या फ़ील्डबस) के बीच बदलता है। डिस्प्ले पर हाथ का सिंबल = HAND।','Command source HAND (ON/OFF aur setpoint BOP-2 se) aur AUTO (terminal ya fieldbus) ke beech badalta hai. Display par haath ka symbol = HAND.']]
+]);
+</script>
 </body></html>

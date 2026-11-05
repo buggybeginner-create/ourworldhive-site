@@ -216,6 +216,7 @@ canvas{display:block;width:100%;height:260px}
 .dlg p{margin:0 0 2cqw;font-size:2.7cqw}
 .dlg .row{display:flex;gap:3cqw;justify-content:center}
 .dlg .row .mbtn{min-width:20cqw}
+.lcd [data-f],.lcd .mb span[data-sk]{cursor:pointer}.lcd .mb span.e{cursor:default}
 .entry{font:600 4.6cqw "JetBrains Mono",monospace;background:#000;color:#ffd84a;padding:1.2cqw 2cqw;border-radius:.6cqw;display:inline-block;min-width:34cqw;text-align:right}
 .splash{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font:700 italic 8cqw Arial}
 .splash b{color:#e0202a;font-size:1.3em}
@@ -922,7 +923,7 @@ const ui={
   const sc=SCR[U.scr];
   const soft=sc.soft.map(s=>typeof s==='function'?s():s);
   let h=`<div class="scr ${S.cfg?'cfg':''}" style="filter:brightness(${[1,.8,.62][U.brt]})"><div class="tb"><h1>${sc.t}</h1><div class="cs"><u>Control Status</u><b>${status()}</b><em>User Level: ${LVL[S.lvl]}${U.fast?' · <b style="color:#06c">FAST ⇧</b>':''}</em></div></div><div class="bd">${sc.body()}</div>
-  <div class="mb">${soft.map(s=>`<span class="${s[0]?'':'e'} ${s[2]?'gk':''}">${s[0]}</span>`).join('')}</div>`;
+  <div class="mb">${soft.map((s,i)=>`<span data-sk="S${i+1}" class="${s[0]?'':'e'} ${s[2]?'gk':''}">${s[0]}</span>`).join('')}</div>`;
   if(U.entry)h+=`<div class="dlg"><div class="in"><h2>${U.entry.label}</h2><p><span class="entry">${esc(U.entry.str)||'&nbsp;'}</span> ${U.entry.unit}</p><p style="font-size:2.3cqw">Type with the keypad · ENTER = accept · ESC = cancel</p></div></div>`;
   else if(U.dlg)h+=`<div class="dlg"><div class="in"><h2>${U.dlg.title}</h2><p>${U.dlg.text}</p><div class="row">${U.dlg.btns.map((b,i)=>fb('dlg'+i,b[0],i===0?'gk':'')).join('')}</div></div></div>`;
   if(U.msg)h+=`<div class="msgbar">${esc(U.msg)}</div>`;
@@ -1404,7 +1405,19 @@ document.addEventListener('keydown',e=>{if(curTab!==0||e.target.closest('input,s
 document.addEventListener('keyup',e=>{const k=KM[e.key];if(k==='ADJUP'||k==='ADJDN')key(k,'up')});
 let toT=0;function toast(m,c){const el=$('toast');el.textContent=m;el.className='toast show '+(c||'');clearTimeout(toT);toT=setTimeout(()=>el.className='toast',2600)}
 /* screen-saver style tap on LCD: tap focuses item under finger (helps on phones) */
-lcd.addEventListener('click',e=>{const f=e.target.closest('[data-f]');if(!f||!S.power||S.boot>0)return;U.fid=f.dataset.f;ui.render(true);guide()});
+/* Tap on the LCD. The screen redraws every 0.12 s, so a normal 'click' never fires (press and release land on
+   different elements). Remember what was under the finger on press, act on release if the finger did not move.
+   Tap a button = select + ENTER. Tap a value = select it (tap again = ENTER / edit). Tap menu-bar label = its soft key. */
+let lt=null;
+lcd.addEventListener('pointerdown',e=>{if(!S.power||S.boot>0){lt=null;return}const f=e.target.closest('[data-f]'),sk=e.target.closest('[data-sk]');
+ lt={x:e.clientX,y:e.clientY,f:f&&f.dataset.f,btn:!!(f&&f.classList.contains('mbtn')),sk:sk&&!sk.classList.contains('e')&&sk.dataset.sk,t:Date.now()}});
+lcd.addEventListener('pointerup',e=>{const a=lt;lt=null;if(!a||!S.power||S.boot>0)return;if(Math.hypot(e.clientX-a.x,e.clientY-a.y)>14||Date.now()-a.t>900)return;
+ if(a.sk){key(a.sk,'down');key(a.sk,'up');return}
+ if(!a.f)return;
+ const scope=U.dlg?lcd.querySelector('.dlg'):lcd;if(!scope||!scope.querySelector(`[data-f="${a.f}"]`))return;
+ const again=U.fid===a.f;U.fid=a.f;ui.render(true);
+ if(a.btn||again){key('ENTER','down');key('ENTER','up')}else guide()});
+lcd.addEventListener('pointercancel',()=>lt=null);
 
 /* init */
 {const i=HASH.indexOf(location.hash.slice(1));if(i>0)setTab(i,false)}

@@ -5864,7 +5864,7 @@ requestAnimationFrame(frame);
 (function(){
   try{const q=new URLSearchParams(location.search),c=(q.get('friend')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
     if(c.length===6){const p=PR();p.friends=p.friends||[];if(c!==profCode(p)&&!p.friends.some(f=>f.code===c)){p.friends.push({code:c,name:(q.get('n')||'FRIEND').toUpperCase().slice(0,12)});saveProfiles();setTimeout(()=>toast('Friend added! Open PLAY ONLINE > FRIENDS'),800)}
-    if(c.length===6&&q.get('join')==='1'&&c!==profCode(PR())){setTimeout(()=>{try{if(G.mode==='menu'&&NETM.state==='idle'){G.screen='online';toast('Joining your friend...');netSearch(c)}}catch(e){}},1800)}}}catch(e){}
+    if(c.length===6&&q.get('join')==='1'&&c!==profCode(PR())){{let tr=0;const iv=setInterval(()=>{try{if(++tr>60){clearInterval(iv);return}if(G.mode==='menu'&&NETM.state==='idle'&&!CHEST.open){clearInterval(iv);G.screen='online';toast('Joining your friend...');netSearch(c)}}catch(e){}},700)}}}}catch(e){}
 })();
 </script>
 <script>setTimeout(function(){try{rkFlush()}catch(e){}},4000);try{if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('cricket-sw.js',{scope:'./cricket.html'}).catch(function(){})}catch(e){}</script>

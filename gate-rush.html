@@ -1001,6 +1001,12 @@ function wireSetup(){
  $('#rmCopy').onclick=function(){var t=code||'',b=this;function ok(){b.textContent='✅ Copied';setTimeout(function(){b.textContent='📋 Copy code'},1500)}try{navigator.clipboard.writeText(t).then(ok,function(){toast('Code: '+t)})}catch(e){toast('Code: '+t)}};
  $('#rmInv').onclick=function(){if(!R)return;var D=defOf(R.game);H.openInvite(R.game,roomLink(),'Join my room '+code+'!')}}
 function roomLink(){var b;try{b=location.href.split('#')[0].split('?')[0]}catch(e){b=''}return b+'?room='+code}
+/* invite = host a room first, so the friend's link joins that room by itself */
+document.addEventListener('click',function(e){var v=e.target.closest&&e.target.closest('[data-inv]');if(!v||v.id==='rmInv')return;
+ var g=v.dataset.inv||H.SET.game;if(GAMES.indexOf(g)<0)return;e.stopPropagation();e.preventDefault();
+ (async function(){try{if(!(code&&R&&R.st==='lobby')){H.SET.game=g;H.SET.mode='online';await hostRoom()}
+  for(var i=0;i<40&&!(R&&code);i++)await new Promise(function(r){setTimeout(r,100)});await new Promise(function(r){setTimeout(r,500)});
+  if(code)H.openInvite(R&&R.game||g,roomLink(),'Join my room '+code+'!')}catch(x){toast('Could not open the room: '+(x&&x.message||x))}})()},true);
 
 /* ---------------- room actions ---------------- */
 async function hostRoom(){try{await boot()}catch(e){toast(errMsg(e));return}var g=H.SET.game;if(GAMES.indexOf(g)<0){toast('Online rooms are not available for this game.');return}
@@ -1130,7 +1136,9 @@ function qs(k){try{var m=new RegExp('[?&#]'+k+'=([A-Za-z0-9]+)').exec(location.s
 wireSetup();
 (async function(){
  var link=qs('room'),saved=LSget('hr_room');
- if(link){await boot();H.SET.mode='online';var r0=await RT.get(link.toUpperCase());if(r0){H.SET.game=r0.game}H.show('setup');await joinRoom(link);return}
+ if(link){var LC=link.toUpperCase();toast('Joining room '+LC+'...');try{await boot()}catch(e){toast(errMsg(e));return}H.SET.mode='online';
+  try{var r0=await RT.get(LC);if(r0){H.SET.game=r0.game}else toast('Room '+LC+' not found. Ask your friend to check the code.')}catch(e){toast('Could not read the room: '+errMsg(e))}
+  H.show('setup');try{var oc=$('#olCode');if(oc)oc.value=LC}catch(e){}await joinRoom(LC);return}
  if(saved){await boot();var r=await RT.get(saved).catch(function(){return null});if(r&&r.us.indexOf(uid)>=0&&r.st!=='closed'&&(r.st!=='lobby'||r.exp>now())){H.SET.mode='online';enterRoom(saved);return}LSset('hr_room',null)}
 })().catch(function(e){console.warn(e)});
 })();

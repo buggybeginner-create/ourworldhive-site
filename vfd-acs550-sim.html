@@ -454,6 +454,7 @@ const RAT=[
  ['180A-4',180,90,156,75,'R6'],['195A-4',205,110,162,90,'R6'],['246A-4',246,132,192,110,'R6'],['290A-4',290,160,246,132,'R6']];
 /* other ABB series: shown in the model list, added later (each from its own manual) */
 const SERIES_SOON=['ACS580','ACS800','ACS880'];
+const SERIES_LINK={ACS800:'vfd-acs800-sim.html'};
 let DI_=9;try{const s=localStorage.getItem('acs550drv');const i=RAT.findIndex(r=>r[0]===s);if(i>=0)DI_=i}catch(e){}
 let DRV=RAT[DI_];
 const Ihd=()=>DRV[3],Phd=()=>DRV[4],I2N=()=>DRV[1];
@@ -1706,11 +1707,11 @@ const NEXT={
 /* ================= MODEL SELECT + PANEL CHOICE ================= */
 function buildDrv(){
   let h=`<optgroup label="ACS550-01 · 380…480 V">`+RAT.map((r,i)=>`<option value="${i}">ACS550-01-${r[0]} · ${r[4]} kW HD / ${r[2]} kW · ${r[5]}</option>`).join('')+`</optgroup>`;
-  h+=`<optgroup label="${esc2(t('soon'))}">`+SERIES_SOON.map(s=>`<option disabled>${s} — ${esc2(t('soon'))}</option>`).join('')+`</optgroup>`;
+  h+=`<optgroup label="ABB">`+SERIES_SOON.map(s=>SERIES_LINK[s]?`<option value="go:${SERIES_LINK[s]}">${s} →</option>`:`<option disabled>${s} — ${esc2(t('soon'))}</option>`).join('')+`</optgroup>`;
   $('drv').innerHTML=h;$('drv').value=String(DI_);
 }
 function hdr(){$('hdrS').textContent=`ACS550-01-${DRV[0]} · 400 V ${DRV[4]} kW HD (${DRV[3]} A) / ${DRV[2]} kW (${DRV[1]} A) · ${DRV[5]} · 3AFE64804588 Rev H`}
-$('drv').addEventListener('change',e=>{const i=+e.target.value;if(isNaN(i))return;DI_=i;DRV=RAT[i];try{localStorage.setItem('acs550drv',DRV[0])}catch(x){}
+$('drv').addEventListener('change',e=>{if(String(e.target.value).indexOf('go:')===0){location.href=e.target.value.slice(3);return}const i=+e.target.value;if(isNaN(i))return;DI_=i;DRV=RAT[i];try{localStorage.setItem('acs550drv',DRV[0])}catch(x){}
   setMotor();factory();HIST.length=0;U.backup=null;USERSET[1]=USERSET[2]=null;D.thm=0;D.temp=32;U.kref=0;U.kref2=0;U.loc=false;U.askSA=true;
   powerOff();D.Vdc=0;hdr();hint('hNewDrv','info');lastGuide='';renderSim();buildWire()});
 $('pan').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.dataset.p===U.panel)return;

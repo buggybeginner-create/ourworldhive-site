@@ -11,7 +11,8 @@ var B=window.OWHBOTS={
   cfg:function(db,game){
     try{if(!db)return Promise.resolve(null);
       return db.collection('config').doc('bots').get().then(function(s){
-        if(!s.exists)return null;var d=s.data()||{};if(!d.on)return null;
+        if(!s.exists)return{on:true,tag:false}; /* no setting saved yet: bots are ON for everyone until the owner turns them off in Studio */
+        var d=s.data()||{};if(!d.on)return null;
         var off=String(d.off||'').split(',');if(off.indexOf(game)>=0)return null;
         return{on:true,tag:!!d.tag}}).catch(function(){return null})
     }catch(e){return Promise.resolve(null)}}

@@ -506,6 +506,7 @@ const P=[];const PM={};
 function N(id,name,def,min,max,dec,unit,f,mean){const p={id,name,type:'n',def,min,max,dec,unit,f:f||'',mean};P.push(p);PM[id]=p;return p}
 function S(id,name,def,opts,f,mean){const p={id,name,type:'s',def,opts,f:f||'',mean};P.push(p);PM[id]=p;return p}
 function Rd(id,name,dec,unit,mean){const p={id,name,type:'r',dec,unit,f:'',mean};P.push(p);PM[id]=p;return p}
+const SRC=[[0,'False'],[1,'True'],[2,'DI1'],[3,'DI2'],[4,'DI3'],[5,'DI4'],[6,'DI5'],[7,'DI6'],[8,'DIO1'],[9,'DIO2']];
 const DIL=(zero)=>[[0,zero]].concat([1,2,3,4,5,6].map(i=>[i,'DI'+i]));
 const GROUPS={'01':'Actual values','04':'Warnings and faults','05':'Diagnostics','09':'Spinning actual','10':'Standard DI, RO','12':'Standard AI','13':'Standard AO',
  '20':'Start/stop/direction','21':'Start/stop mode','22':'Speed reference selection','23':'Speed reference ramp','30':'Limits','31':'Fault functions','35':'Motor thermal protection',
@@ -535,10 +536,13 @@ Rd('09.05','Current pattern',0,'',['Pattern that is running now.','अभी च
 Rd('09.06','Future pattern',0,'',['Pattern selected while a pattern is running or paused. It becomes the current pattern when the present one is completed or reset.','पैटर्न चलते या रुके होने पर चुना गया पैटर्न। वर्तमान पैटर्न पूरा या रिसेट होने पर यह चालू पैटर्न बनता है।','Pattern chalte ya pause hone par select kiya gaya pattern. Current pattern complete ya reset hone par ye current pattern banta hai.']);
 Rd('09.07','Shift selected',0,'',['Yes = shift function (74.03) multiplies the pattern speed by 79.07.','Yes = शिफ्ट फ़ंक्शन (74.03) पैटर्न स्पीड को 79.07 से गुणा करता है।','Yes = shift function (74.03) pattern speed ko 79.07 se multiply karta hai.']);
 Rd('09.08','Running section',0,'',['Section (1…16) of the active pattern now running.','सक्रिय पैटर्न का अभी चल रहा सेक्शन (1…16)।','Active pattern ka abhi chal raha section (1…16).']);
+Rd('09.10','Pattern stop time',1,'min',['Total time the active pattern has been paused / stopped.','सक्रिय पैटर्न का कुल रुका / पॉज़ समय।','Active pattern ka total pause / stop time.']);
 Rd('09.11','Pattern completed time',1,'min',['Elapsed time from the beginning of the active pattern.','सक्रिय पैटर्न की शुरुआत से बीता समय।','Active pattern ki shuruaat se beeta time.']);
 Rd('09.12','Remaining pattern time',1,'min',['Remaining time to the end of the active pattern.','सक्रिय पैटर्न के अंत तक बचा समय।','Active pattern ke end tak bacha time.']);
 Rd('09.13','Pattern production Kg',2,'kg',['Production of the active pattern in kilograms.','सक्रिय पैटर्न का उत्पादन (किलो)।','Active pattern ka production (kg).']);
 Rd('09.14','Pattern production hank',2,'',['Production of the active pattern in hanks (1 hank = 840 yards).','सक्रिय पैटर्न का उत्पादन हैंक में (1 हैंक = 840 गज)।','Active pattern ka production hank me (1 hank = 840 yards).']);
+Rd('09.15','Pattern KWH',1,'kWh',['Energy consumed in the current pattern.','वर्तमान पैटर्न में खपत ऊर्जा।','Current pattern me consumed energy.']);
+Rd('09.16','Pattern KWh/Kg',2,'kWh/kg',['Energy consumed per kg production in the current pattern.','वर्तमान पैटर्न में प्रति किलो ऊर्जा।','Current pattern me per kg energy.']);
 Rd('09.17','Current shift production Kg',2,'kg',['Production of the current work shift (completed patterns are added).','वर्तमान शिफ्ट का उत्पादन (पूरे पैटर्न जुड़ते हैं)।','Current shift ka production (complete patterns add hote hain).']);
 Rd('09.18','Current shift production Hank',2,'',['Hanks produced in the current shift.','वर्तमान शिफ्ट के हैंक।','Current shift ke hanks.']);
 Rd('09.19','Current shift run time',2,'h',['Running time of the machine in the current shift.','वर्तमान शिफ्ट में मशीन का चलने का समय।','Current shift me machine ka run time.']);
@@ -552,6 +556,8 @@ Rd('09.36','Delivery length',0,'m',['Delivered yarn length: LD = nRAVG × tED / 
 Rd('09.37','Remaining length',0,'m',['Remaining length = total pattern length − delivered length.','बची लंबाई = कुल पैटर्न लंबाई − डिलीवर लंबाई।','Bachi length = total pattern length − delivered length.']);
 Rd('09.38','Sliding average speed',0,'rpm',['Actual average spindle speed over the program cycles.','प्रोग्राम चक्रों पर वास्तविक औसत स्पिंडल स्पीड।','Program cycles par actual average spindle speed.']);
 Rd('09.41','Spinning status word',0,'',['Bit 0 pattern running, bit 1 pattern finished, bit 2 doff-end alarm, bit 3 manual doff active, bit 4 doff-end alarm (blinking). Bits can be sent to a digital output.','बिट 0 पैटर्न चल रहा, बिट 1 पैटर्न पूरा, बिट 2 डॉफ-एंड अलार्म, बिट 3 मैनुअल डॉफ, बिट 4 डॉफ-एंड अलार्म (ब्लिंक)। बिट डिजिटल आउटपुट पर भेजे जा सकते हैं।','Bit 0 pattern running, bit 1 pattern finished, bit 2 doff-end alarm, bit 3 manual doff, bit 4 doff-end alarm (blink). Bits digital output par bheje ja sakte hain.']);
+Rd('09.43','Spinning reference',0,'rpm',['Spinning speed reference before the gear box (motor side).','गियर बॉक्स से पहले स्पिनिंग स्पीड रेफरेंस (मोटर साइड)।','Gear box se pehle spinning speed reference (motor side).']);
+Rd('09.45','Current shift elapsed time',2,'h',['Elapsed time of the current shift.','वर्तमान शिफ्ट का बीता समय।','Current shift ka beeta time.']);
 /* 10 Standard DI, RO */
 const O_RO=[[0,'Not energized'],[1,'Ready run'],[2,'Running'],[3,'Fault'],[4,'Fault (-1)'],[5,'Warning'],[6,'At setpoint'],[7,'Pattern finished'],[8,'Doff end alarm']];
 S('10.24','RO1 source',1,O_RO,'',['Signal shown by relay output RO1 (XRO1). Spinning default: Ready run.','रिले RO1 (XRO1) पर दिखने वाला सिग्नल। स्पिनिंग डिफ़ॉल्ट: Ready run।','Relay RO1 (XRO1) par dikhne wala signal. Spinning default: Ready run.']);
@@ -606,66 +612,78 @@ N('35.13','Temperature 1 warning limit',110,-60,1000,0,'°C','',['Warning A491 E
 /* 46 */
 N('46.01','Speed scaling',1500,0,30000,0,'rpm','',['Speed that corresponds to 100 % (scale for ramps and signals).','100 % के बराबर स्पीड (रैंप और सिग्नल का पैमाना)।','100 % ke barabar speed (ramps aur signals ka scale).']);
 /* 74 Spinning control */
-S('74.01','Pattern selection',1,[[1,'PATTERN 1'],[2,'PATTERN 2'],[3,'PATTERN 3'],[4,'PATTERN 4']],'',['Pattern to run (when 74.02 = Par 74.01). A change while the pattern runs or is paused goes to 09.06 Future pattern.','चलाने वाला पैटर्न (74.02 = Par 74.01 पर)। पैटर्न चलते/पॉज़ में बदलाव 09.06 Future pattern में जाता है।','Chalane wala pattern (74.02 = Par 74.01 par). Pattern chalte/pause me badlav 09.06 Future pattern me jata hai.']);
-S('74.02','Pattern selection mode',0,[[0,'Par 74.01'],[1,'DI3_4'],[2,'DI5_6']],'',['Par 74.01 = parameter selects the pattern. DI3_4 / DI5_6 = two binary coded digital inputs select pattern 1…4. Make sure these DIs are not used for other functions.','Par 74.01 = पैरामीटर से पैटर्न। DI3_4 / DI5_6 = दो बाइनरी डिजिटल इनपुट से पैटर्न 1…4। ये DI किसी और काम में न हों।','Par 74.01 = parameter se pattern. DI3_4 / DI5_6 = do binary digital inputs se pattern 1…4. Ye DIs kisi aur kaam me na hon.']);
+S('74.01','Pattern selection',1,[[1,'Pattern1'],[2,'Pattern2'],[3,'Pattern3'],[4,'Pattern4']],'',['Pattern to run (when 74.02 = Par 74.01). A change while the pattern runs or is paused goes to 09.06 Future pattern.','चलाने वाला पैटर्न (74.02 = Par 74.01 पर)। पैटर्न चलते/पॉज़ में बदलाव 09.06 Future pattern में जाता है।','Chalane wala pattern (74.02 = Par 74.01 par). Pattern chalte/pause me badlav 09.06 Future pattern me jata hai.']);
+S('74.02','Pattern selection mode',1,[[1,'Par 74.01'],[2,'DI3_4'],[3,'DI5_6']],'',['Par 74.01 = parameter selects the pattern. DI3_4 / DI5_6 = two binary coded digital inputs select pattern 1…4. Make sure these DIs are not used for other functions.','Par 74.01 = पैरामीटर से पैटर्न। DI3_4 / DI5_6 = दो बाइनरी डिजिटल इनपुट से पैटर्न 1…4। ये DI किसी और काम में न हों।','Par 74.01 = parameter se pattern. DI3_4 / DI5_6 = do binary digital inputs se pattern 1…4. Ye DIs kisi aur kaam me na hon.']);
 S('74.03','Shift function sel',0,NOYES,'',['Yes = the pattern speed is multiplied by 79.07 Pattern shift multiple (used when yarn thickness changes). Shown in 09.07.','Yes = पैटर्न स्पीड 79.07 से गुणा (धागे की मोटाई बदलने पर)। 09.07 में दिखता है।','Yes = pattern speed 79.07 se multiply (yarn thickness badalne par). 09.07 me dikhta hai.']);
-S('74.04','Reset active pattern',6,DIL('Not selected'),'',['Digital input that resets the active pattern (start again from the beginning). Works only when the drive is not running. Separate from fault reset so that a fault reset never restarts the doff.','सक्रिय पैटर्न को रिसेट करने वाला डिजिटल इनपुट (शुरू से)। केवल ड्राइव रुकी होने पर। फॉल्ट रिसेट से अलग ताकि फॉल्ट रिसेट से डॉफ दोबारा शुरू न हो।','Active pattern reset karne wala digital input (shuru se). Sirf drive stop ho tab. Fault reset se alag taaki fault reset se doff dobara shuru na ho.']);
-S('74.05','Pattern reset with interlock',0,[[0,'False'],[1,'True']],'',['True = the pattern reset is accepted only after 74.08 time (time mode) or 74.09 length (length modes) has passed.','True = पैटर्न रिसेट तभी जब 74.08 समय (टाइम मोड) या 74.09 लंबाई (लेंथ मोड) पूरी हो।','True = pattern reset tabhi jab 74.08 time (time mode) ya 74.09 length (length mode) poori ho.']);
-S('74.07','Reverse select',0,DIL('Not selected'),'',['Digital input that reverses the spinning direction. Accepted only when the pattern is finished or reset and the drive is not running.','स्पिनिंग दिशा उलटने वाला डिजिटल इनपुट। केवल पैटर्न पूरा/रिसेट और ड्राइव रुकी होने पर।','Spinning direction ulatne wala digital input. Sirf pattern complete/reset aur drive stop ho tab.']);
-N('74.08','Pattern reset time',1,0,1000,1,'min','',['Minimum elapsed pattern time before the reset is accepted (74.05 = True).','रिसेट स्वीकार होने से पहले न्यूनतम पैटर्न समय (74.05 = True)।','Reset accept hone se pehle minimum pattern time (74.05 = True).']);
-N('74.09','Pattern reset length',100,0,100000,0,'m','',['Minimum delivered length before the reset is accepted (74.05 = True).','रिसेट से पहले न्यूनतम डिलीवर लंबाई (74.05 = True)।','Reset se pehle minimum delivered length (74.05 = True).']);
+S('74.04','Reset active pattern',7,SRC,'',['Digital input that resets the active pattern (start again from the beginning). Works only when the drive is not running. Separate from fault reset so that a fault reset never restarts the doff.','सक्रिय पैटर्न को रिसेट करने वाला डिजिटल इनपुट (शुरू से)। केवल ड्राइव रुकी होने पर। फॉल्ट रिसेट से अलग ताकि फॉल्ट रिसेट से डॉफ दोबारा शुरू न हो।','Active pattern reset karne wala digital input (shuru se). Sirf drive stop ho tab. Fault reset se alag taaki fault reset se doff dobara shuru na ho.']);
+S('74.05','Pattern reset with interlock',1,SRC,'',['True = the pattern reset is accepted only after 74.08 time (time mode) or 74.09 length (length modes) has passed.','True = पैटर्न रिसेट तभी जब 74.08 समय (टाइम मोड) या 74.09 लंबाई (लेंथ मोड) पूरी हो।','True = pattern reset tabhi jab 74.08 time (time mode) ya 74.09 length (length mode) poori ho.']);
+S('74.07','Reverse select',0,SRC,'',['Digital input that reverses the spinning direction. Accepted only when the pattern is finished or reset and the drive is not running.','स्पिनिंग दिशा उलटने वाला डिजिटल इनपुट। केवल पैटर्न पूरा/रिसेट और ड्राइव रुकी होने पर।','Spinning direction ulatne wala digital input. Sirf pattern complete/reset aur drive stop ho tab.']);
+N('74.08','Pattern reset time',400,0,1500,0,'min','',['Minimum elapsed pattern time before the reset is accepted (74.05 = True).','रिसेट स्वीकार होने से पहले न्यूनतम पैटर्न समय (74.05 = True)।','Reset accept hone se pehle minimum pattern time (74.05 = True).']);
+N('74.09','Pattern reset length',2000,0,30000,0,'m','',['Minimum delivered length before the reset is accepted (74.05 = True).','रिसेट से पहले न्यूनतम डिलीवर लंबाई (74.05 = True)।','Reset se pehle minimum delivered length (74.05 = True).']);
 S('74.11','Production calculation reset',0,[[0,'No'],[1,'Reset now']],'',['Reset now = clears production and shift values 09.13…09.24. Then set back to No. Use it to synchronise with the work shifts.','Reset now = उत्पादन और शिफ्ट मान 09.13…09.24 साफ़। फिर No करें। शिफ्ट से मिलाने के लिए।','Reset now = production aur shift values 09.13…09.24 clear. Phir No karo. Shift se sync karne ke liye.']);
+S('74.12','Average speed mode',0,[[0,'Calculated avg speed'],[1,'Calculated sliding speed']],'',['Spinning average speed used for the hank / kg calculation: the calculated average spindle speed of the selected pattern (09.01…09.04) or 09.38 Sliding average speed.','हैंक / किलो गणना की औसत स्पीड: चुने गए पैटर्न की गणना की गई औसत (09.01…09.04) या 09.38।','Hank / kg calculation ki average speed: selected pattern ki calculated average (09.01…09.04) ya 09.38.']);
 /* 75…78 Patterns: 16 sections each (speed in % of motor nominal speed, section time / length) */
-const PAT_DEF=[
- {sp:[70,82,92,98,100,100,100,99,97,95,93,91,89,87,85,80],x:[2,3,5,10,15,15,15,15,15,15,15,15,15,10,10,5],mode:0,tpi:20.0},
- {sp:[65,75,85,92,95,95,95,94,93,92,91,90,88,86,84,78],x:[300,400,800,1500,2500,2500,2500,2500,2500,2500,2500,2500,2500,1500,1500,800],mode:1,tpi:22.0},
- {sp:[60,72,84,94,100,100,98,96,94,92,90,88,86,84,82,78],x:[2,3,5,8,8,8,8,8,8,8,8,8,8,5,3,3],mode:2,tpi:18.0},
- {sp:[75,85,95,100,100,100,100,100,98,96,94,92,90,88,86,82],x:[2,3,4,8,12,12,12,12,12,12,12,12,12,8,6,4],mode:0,tpi:24.0}];
+/* Section layout as in the manual: odd index = Section No k.n (time / length / %), even index = Speed No k.n;
+   section 1 ramps from zero speed to Speed No k.1 */
+const PAT_X=[1,10,15,20,25,30,35,40,45,35,30,25,20,15,10,1],PAT_S=[10,20,30,40,50,60,70,80,75,70,60,50,40,30,20,10];
 const XUNIT=m=>m===0?'min':m===1?'m':'%';
 for(let k=1;k<=4;k++){
-  const g=String(74+k),d=PAT_DEF[k-1];
-  for(let s=1;s<=16;s++)N(g+'.'+String(s).padStart(2,'0'),'Speed '+s,d.sp[s-1],0,200,1,'%','',['Speed of section '+s+' in percent of motor nominal speed (100 % = 99.09). The drive ramps from the previous section speed to this speed during the section.','सेक्शन '+s+' की स्पीड, मोटर नॉमिनल स्पीड के % में (100 % = 99.09)। सेक्शन के दौरान ड्राइव पिछली स्पीड से इस स्पीड तक रैंप करती है।','Section '+s+' ki speed, motor nominal speed ke % me (100 % = 99.09). Section ke dauran drive pichhli speed se is speed tak ramp karti hai.']);
-  for(let s=1;s<=16;s++){const p=N(g+'.'+String(16+s),'Section '+s,d.x[s-1],0,100000,1,'','',['Length of section '+s+' on the x-axis: minutes in Time mode, metres in Length [m] mode, percent of total yarn length in Length [%] mode (the 16 percentages must add up to 100 %, otherwise warning D200).','सेक्शन '+s+' की लंबाई: Time मोड में मिनट, Length [m] में मीटर, Length [%] में कुल धागे का % (16 प्रतिशत का योग 100 % होना चाहिए, नहीं तो D200)।','Section '+s+' ki length: Time mode me minute, Length [m] me metre, Length [%] me total yarn ka % (16 percentages ka sum 100 % hona chahiye, warna D200).']);p.pat=k;p.xunit=true}
-  S(g+'.33','Pattern'+k+' mode',d.mode,[[0,'Time'],[1,'Length [m]'],[2,'Length [%]']],'',['Mode of pattern '+k+': Time = sections in minutes; Length [m] = sections in metres of delivered yarn; Length [%] = sections in percent of the total yarn length '+g+'.37.','पैटर्न '+k+' का मोड: Time = सेक्शन मिनट में; Length [m] = डिलीवर धागे के मीटर में; Length [%] = कुल लंबाई '+g+'.37 के % में।','Pattern '+k+' ka mode: Time = sections minute me; Length [m] = delivered yarn ke metre me; Length [%] = total length '+g+'.37 ke % me.']);
-  N(g+'.34','Pattern'+k+' TPI',d.tpi,1,100,1,'','',['Twist per inch used for production and length calculation.','उत्पादन और लंबाई गणना के लिए ट्विस्ट प्रति इंच।','Production aur length calculation ke liye twist per inch.']);
-  Rd(g+'.36','Pattern'+k+' total length',0,'m',['Total yarn delivery length of the pattern (sum of section lengths, Length [m] mode).','पैटर्न की कुल डिलीवरी लंबाई (सेक्शन लंबाई का योग, Length [m])।','Pattern ki total delivery length (section lengths ka sum, Length [m]).']);
-  N(g+'.37','Pattern'+k+' yarn length',25000,0,1000000,0,'m','',['Total yarn length shared by the section percentages in Length [%] mode.','Length [%] मोड में सेक्शन प्रतिशत में बँटने वाली कुल धागा लंबाई।','Length [%] mode me section percentages me batne wali total yarn length.']);
+  const g=String(74+k);
+  for(let s=1;s<=16;s++){
+    const p=N(g+'.'+String(2*s-1).padStart(2,'0'),'Section No '+k+'.'+s,PAT_X[s-1],0,50000,2,'','',['Time, length or proportional percentage preset value for section '+s+' in pattern'+k+': minutes in Time mode, metres in Length [m] mode, percent of the total length '+g+'.37 in Length [%] mode (in length mode the program converts the value into time).','पैटर्न'+k+' के सेक्शन '+s+' का समय, लंबाई या प्रतिशत: Time मोड में मिनट, Length [m] में मीटर, Length [%] में कुल लंबाई '+g+'.37 का %।','Pattern'+k+' ke section '+s+' ka time, length ya percentage: Time mode me minute, Length [m] me metre, Length [%] me total length '+g+'.37 ka %.']);p.pat=k;p.xunit=true;
+    N(g+'.'+String(2*s).padStart(2,'0'),'Speed No '+k+'.'+s,PAT_S[s-1],0.1,200,1,'%','',['Speed preset value (percent of motor nominal speed) to where the speed ramps '+(s===1?'from zero speed':'from Speed No '+k+'.'+(s-1))+' during the time of Section No '+k+'.'+s+'.','स्पीड प्रीसेट (मोटर नॉमिनल स्पीड का %) जहाँ तक स्पीड '+(s===1?'शून्य से':'Speed No '+k+'.'+(s-1)+' से')+' Section No '+k+'.'+s+' के समय में रैंप होती है।','Speed preset (motor nominal speed ka %) jahan tak speed '+(s===1?'zero se':'Speed No '+k+'.'+(s-1)+' se')+' Section No '+k+'.'+s+' ke time me ramp hoti hai.']).pat=k;
+  }
+  S(g+'.33','Pattern'+k+' mode',0,[[0,'Time'],[1,'Length [m]'],[2,'Length [%]']],'',['Mode of pattern'+k+': Time = section values in minutes; Length [m] = in metres; Length [%] = in percent, 100 % = length '+g+'.37.','पैटर्न'+k+' का मोड: Time = मिनट; Length [m] = मीटर; Length [%] = प्रतिशत, 100 % = '+g+'.37।','Pattern'+k+' ka mode: Time = minute; Length [m] = metre; Length [%] = percent, 100 % = '+g+'.37.']);
+  N(g+'.34','Pattern'+k+' TPI',30,0,200,2,'TPI','',['Amount of yarn twisting (twist per inch) = spinning speed / front roller surface speed. Used for length and production.','धागे की ट्विस्ट (ट्विस्ट प्रति इंच) = स्पिनिंग स्पीड / फ्रंट रोलर सतह स्पीड। लंबाई और उत्पादन में उपयोग।','Yarn twisting (twist per inch) = spinning speed / front roller surface speed. Length aur production me use.']);
+  N(g+'.35','Pattern'+k+' count number',30,0,200,0,'','',['Numerical designation of the yarn size (count) used in the kilogram calculation.','धागे के साइज़ (काउंट) का नंबर, किलो गणना में।','Yarn size (count) ka number, kg calculation me.']);
+  Rd(g+'.36','Pattern'+k+' section total',2,'',['Sum of sections '+k+'.1…'+k+'.16 in time, length (m) or % mode. Read-only.','सेक्शन '+k+'.1…'+k+'.16 का योग। केवल पढ़ने के लिए।','Section '+k+'.1…'+k+'.16 ka sum. Read-only.']);
+  N(g+'.37','Pattern'+k+' total length',100,0,99999,1,'m','',['Total length of pattern'+k+' in Length [%] mode. If the sum of section percentages is not 100 %, warning D200 is shown.','Length [%] मोड में पैटर्न'+k+' की कुल लंबाई। सेक्शन % का योग 100 न हो तो D200।','Length [%] mode me pattern'+k+' ki total length. Section % ka sum 100 na ho to D200.']);
 }
 /* 79 Ring frame machine */
-N('79.01','Gear ratio',10,0.01,100,2,'','',['Gear ratio between motor and spindle speed (K1): spindle speed = motor speed × 79.01.','मोटर और स्पिंडल स्पीड का गियर अनुपात (K1): स्पिंडल स्पीड = मोटर स्पीड × 79.01।','Motor aur spindle speed ka gear ratio (K1): spindle speed = motor speed × 79.01.']);
-N('79.07','Pattern shift multiple',90,10,200,1,'%','',['Shift multiplier KS for the pattern speed when 74.03 = Yes.','74.03 = Yes पर पैटर्न स्पीड का शिफ्ट गुणक KS।','74.03 = Yes par pattern speed ka shift multiplier KS.']);
-N('79.11','Work shift time',8,0.1,24,1,'h','',['Length of one work shift. At the end the shift values move to group 83 Shift Report.','एक शिफ्ट की अवधि। अंत में शिफ्ट मान समूह 83 में जाते हैं।','Ek shift ka time. End par shift values group 83 me jati hain.']);
-N('79.12','Number of spindles',1008,1,5000,0,'','',['Number of spindles (NS) used in the kilogram calculation.','किलो गणना में स्पिंडल की संख्या (NS)।','Kg calculation me spindles ki sankhya (NS).']);
-N('79.13','Yarn count',40,1,200,1,'Ne','',['Yarn count number (KCN) used in the kilogram calculation.','किलो गणना में धागे का काउंट (KCN)।','Kg calculation me yarn count (KCN).']);
+N('79.01','Gear ratio',10,0,300,2,'','',['Constant for the average speed calculation (spindle speed / motor speed).','औसत स्पीड गणना का स्थिरांक (स्पिंडल स्पीड / मोटर स्पीड)।','Average speed calculation ka constant (spindle speed / motor speed).']);
+N('79.07','Pattern shift multiple',1,0,2,2,'','',['Factor that multiplies the pattern speed reference when the Shift function (74.03) is active.','शिफ्ट फ़ंक्शन (74.03) चालू होने पर पैटर्न स्पीड का गुणक।','Shift function (74.03) ON hone par pattern speed ka multiplier.']);
+N('79.11','Work shift time',8,0,30,2,'h','',['Shift time for the production and run time calculations. At the end the values move to group 83 Shift Report.','उत्पादन और रन समय गणना के लिए शिफ्ट समय। अंत में मान समूह 83 में।','Production aur run time ke liye shift time. End par values group 83 me.']);
+N('79.12','Number of spindle',100,0,30000,0,'','',['Number of spindles in the ring frame machine (used in the kilogram and GPS calculation).','रिंग फ्रेम मशीन में स्पिंडल की संख्या (किलो और GPS गणना)।','Ring frame machine me spindles ki sankhya (kg aur GPS calculation).']);
+S('79.15','Front roller measurement',0,[[0,'Not selected'],[1,'DIO1 (Frequency input)'],[2,'Encoder 1'],[3,'Encoder 2']],'',['Source for front roller speed measurement. Not selected = delivery length is calculated with the pattern TPI (trainer: measurement not simulated).','फ्रंट रोलर स्पीड माप का स्रोत। Not selected = डिलीवरी लंबाई पैटर्न TPI से (ट्रेनर में माप सिमुलेट नहीं)।','Front roller speed measurement ka source. Not selected = delivery length pattern TPI se (trainer me measurement simulate nahi).']);
+N('79.16','Front roller diameter',50,0,99999,1,'mm','',['Front roller diameter for the yarn length and TPI calculation when measurement is used.','माप होने पर धागा लंबाई और TPI के लिए फ्रंट रोलर व्यास।','Measurement ho to yarn length aur TPI ke liye front roller diameter.']);
 /* 80 Wobbulation */
-S('80.01','Wobbulation up sel',3,DIL('Not selected'),'',['Limit switch input: a rising edge starts wobble up (speed to 80.03 × base speed).','लिमिट स्विच इनपुट: ऊपर जाता किनारा वॉबल अप शुरू करता है (स्पीड 80.03 × बेस)।','Limit switch input: rising edge wobble up shuru karta hai (speed 80.03 × base).']);
-S('80.02','Wobbulation down sel',4,DIL('Not selected'),'',['Limit switch input: a rising edge starts wobble down (speed to 80.04 × base speed).','लिमिट स्विच इनपुट: ऊपर जाता किनारा वॉबल डाउन शुरू करता है (80.04 × बेस)।','Limit switch input: rising edge wobble down shuru karta hai (80.04 × base).']);
-N('80.03','Wobbulation up multiple',105,100,150,1,'%','',['Speed reference multiplier for wobble up.','वॉबल अप के लिए स्पीड गुणक।','Wobble up ke liye speed multiplier.']);
-N('80.04','Wobbulation down multiple',95,50,100,1,'%','',['Speed reference multiplier for wobble down.','वॉबल डाउन के लिए स्पीड गुणक।','Wobble down ke liye speed multiplier.']);
-N('80.05','Wobbulation acc time',2,0.1,60,1,'s','',['Ramp time to wobble up. If no new pulse comes within 4 × this time, the drive ramps back to the base speed.','वॉबल अप का रैंप समय। 4 × इस समय में नया पल्स न आए तो ड्राइव बेस स्पीड पर लौटती है।','Wobble up ka ramp time. 4 × is time me naya pulse na aaye to drive base speed par lautti hai.']);
-N('80.06','Wobbulation dec time',2,0.1,60,1,'s','',['Ramp time to wobble down. Return to base speed after 4 × this time without a pulse.','वॉबल डाउन का रैंप समय। बिना पल्स 4 × समय बाद बेस स्पीड।','Wobble down ka ramp time. Bina pulse 4 × time baad base speed.']);
+S('80.01','Wobbulation up sel',4,SRC,'',['Source for upper wobbulation (ring rail limit switch). A rising edge starts wobble up.','ऊपरी वॉबुलेशन का स्रोत (रिंग रेल लिमिट स्विच)। ऊपर जाता किनारा वॉबल अप शुरू करता है।','Upper wobbulation ka source (ring rail limit switch). Rising edge wobble up shuru karta hai.']);
+S('80.02','Wobbulation down sel',5,SRC,'',['Source for lower wobbulation. A rising edge starts wobble down.','निचले वॉबुलेशन का स्रोत। ऊपर जाता किनारा वॉबल डाउन शुरू करता है।','Lower wobbulation ka source. Rising edge wobble down shuru karta hai.']);
+N('80.03','Wobbulation up multiple',1,1,2,2,'','',['Factor that multiplies the speed reference of the running section for upper wobbulation. Default 1.00 = no change (set e.g. 1.05 to see wobbulation).','ऊपरी वॉबुलेशन के लिए चल रहे सेक्शन की स्पीड का गुणक। डिफ़ॉल्ट 1.00 = कोई बदलाव नहीं (देखने के लिए जैसे 1.05)।','Upper wobbulation ke liye running section speed ka multiplier. Default 1.00 = koi change nahi (dekhne ke liye jaise 1.05).']);
+N('80.04','Wobbulation down multiple',1,0,1,2,'','',['Factor for lower wobbulation speed. Default 1.00 = no change (e.g. 0.95).','निचले वॉबुलेशन का गुणक। डिफ़ॉल्ट 1.00 = कोई बदलाव नहीं (जैसे 0.95)।','Lower wobbulation ka multiplier. Default 1.00 = koi change nahi (jaise 0.95).']);
+N('80.05','Wobbulation acc time',30,0,1000,1,'s','',['Acceleration time from base pattern speed to the upper wobbulation speed. Without a new pulse for 4 × this time the drive ramps back to the base speed.','बेस पैटर्न स्पीड से ऊपरी वॉबुलेशन स्पीड तक का समय। 4 × इस समय तक नया पल्स न आए तो बेस स्पीड।','Base pattern speed se upper wobbulation speed tak ka time. 4 × is time tak naya pulse na aaye to base speed.']);
+N('80.06','Wobbulation dec time',30,0,1000,1,'s','',['Deceleration time from base pattern speed to the lower wobbulation speed.','बेस पैटर्न स्पीड से निचली वॉबुलेशन स्पीड तक का समय।','Base pattern speed se lower wobbulation speed tak ka time.']);
 /* 81 Manual Doff */
-S('81.01','Manual doff selection mode',0,[[0,'Par 81.02'],[1,'Automatic']],'',['Par 81.02 = manual doff is started by the source in 81.02. Automatic = started when the completed pattern time / length exceeds 81.08 percent.','Par 81.02 = मैनुअल डॉफ 81.02 के स्रोत से। Automatic = पूरा समय/लंबाई 81.08 % से अधिक होने पर।','Par 81.02 = manual doff 81.02 ke source se. Automatic = complete time/length 81.08 % se zyada hone par.']);
-S('81.02','Manual doff selection',5,DIL('Not selected'),'',['Digital input that starts the manual doff (ends the doff before the pattern is finished).','मैनुअल डॉफ शुरू करने वाला DI (पैटर्न पूरा होने से पहले डॉफ समाप्त)।','Manual doff shuru karne wala DI (pattern complete hone se pehle doff khatam).']);
-N('81.03','Manual doff speed',60,0,200,1,'%','',['Speed during the manual doff (percent of nominal speed).','मैनुअल डॉफ में स्पीड (नॉमिनल का %)।','Manual doff me speed (nominal ka %).']);
-N('81.04','Manual doff dec time',10,0.1,600,1,'s','',['Ramp time to the manual doff speed.','मैनुअल डॉफ स्पीड तक रैंप समय।','Manual doff speed tak ramp time.']);
-N('81.05','Manual doff time',30,0,3600,0,'s','',['Time at the manual doff speed. Then the drive stops modulating and the pattern is finished.','मैनुअल डॉफ स्पीड पर समय। फिर ड्राइव रुकती है और पैटर्न पूरा।','Manual doff speed par time. Phir drive rukti hai aur pattern complete.']);
-N('81.06','Doff end alarm time',5,0,600,1,'min','',['Time mode: doff-end alarm (09.41 bit 2/4) this long before the pattern end.','टाइम मोड: पैटर्न अंत से इतने पहले डॉफ-एंड अलार्म (09.41 बिट 2/4)।','Time mode: pattern end se itna pehle doff-end alarm (09.41 bit 2/4).']);
-N('81.07','Doff end alarm length',500,0,100000,0,'m','',['Length modes: doff-end alarm this many metres before the end.','लेंथ मोड: अंत से इतने मीटर पहले अलार्म।','Length mode: end se itne metre pehle alarm.']);
-N('81.08','Manual doff activation percent',95,0,100,1,'%','',['Automatic mode: manual doff starts when this percent of the pattern is completed.','Automatic मोड: पैटर्न का इतना % पूरा होने पर मैनुअल डॉफ।','Automatic mode: pattern ka itna % complete hone par manual doff.']);
-/* 83 Shift report */
-for(let s=1;s<=3;s++){Rd('83.'+String(s*8-7).padStart(2,'0'),'Shift'+s+' production Kg',2,'kg',['Production of shift '+s+' (1 = latest finished shift).','शिफ्ट '+s+' का उत्पादन (1 = सबसे नई पूरी शिफ्ट)।','Shift '+s+' ka production (1 = latest finished shift).']);
-  Rd('83.'+String(s*8-6).padStart(2,'0'),'Shift'+s+' production Hank',2,'',['Hanks of shift '+s+'.','शिफ्ट '+s+' के हैंक।','Shift '+s+' ke hanks.']);
-  Rd('83.'+String(s*8-5).padStart(2,'0'),'Shift'+s+' run time',2,'h',['Run time of shift '+s+'.','शिफ्ट '+s+' का रन समय।','Shift '+s+' ka run time.'])}
+S('81.01','Manual doff selection mode',0,[[0,'Par 81.02'],[1,'Automatic']],'',['Par 81.02 = manual doff activated by the source in 81.02. Automatic = activated when the completed time (time mode) or delivered length (length modes) exceeds 81.08 percent.','Par 81.02 = मैनुअल डॉफ 81.02 के स्रोत से। Automatic = पूरा समय / डिलीवर लंबाई 81.08 % से अधिक होने पर।','Par 81.02 = manual doff 81.02 ke source se. Automatic = complete time / delivered length 81.08 % se zyada hone par.']);
+S('81.02','Manual doff selection',6,SRC,'',['Source to activate the manual doff function (ends the doff before the pattern is finished).','मैनुअल डॉफ चालू करने का स्रोत (पैटर्न पूरा होने से पहले डॉफ समाप्त)।','Manual doff chalu karne ka source (pattern complete hone se pehle doff khatam).']);
+N('81.03','Manual doff speed',80,0,200,1,'%','',['Speed preset value to where the speed decelerates from the actual speed during 81.04.','स्पीड प्रीसेट जहाँ तक वास्तविक स्पीड 81.04 में घटती है।','Speed preset jahan tak actual speed 81.04 me ghatti hai.']);
+N('81.04','Manual doff dec time',5,0,1000,1,'s','',['Deceleration time from the actual speed to the manual doff speed.','वास्तविक स्पीड से मैनुअल डॉफ स्पीड तक का समय।','Actual speed se manual doff speed tak ka time.']);
+N('81.05','Manual doff time',180,0,30000,0,'s','',['Time after the manual doff speed is reached. Then the drive stops and the manual doff end status is set in 09.41 bit 3.','मैनुअल डॉफ स्पीड पहुँचने के बाद का समय। फिर ड्राइव रुकती है और 09.41 बिट 3 सेट।','Manual doff speed pahunchne ke baad ka time. Phir drive rukti hai aur 09.41 bit 3 set.']);
+N('81.06','Doff end alarm time',10,0,10000,1,'min','',['Time mode: warning D201 Doff end this long before the end of the active pattern.','टाइम मोड: पैटर्न अंत से इतने पहले चेतावनी D201।','Time mode: pattern end se itna pehle warning D201.']);
+N('81.07','Doff End alarm length',1000,0,32000,0,'m','',['Length / % length mode: warning D201 Doff end this length before the end of the active pattern.','लेंथ / % लेंथ मोड: पैटर्न अंत से इतनी लंबाई पहले चेतावनी D201।','Length / % length mode: pattern end se itni length pehle warning D201.']);
+N('81.08','Manual doff activation percent',70,0,100,1,'%','',['Automatic mode only: manual doff starts when this percent of the pattern time / delivery length is completed.','केवल Automatic: पैटर्न समय / लंबाई का इतना % पूरा होने पर मैनुअल डॉफ।','Sirf Automatic: pattern time / length ka itna % complete hone par manual doff.']);
+S('81.09','Manual doff stop',0,[[0,'Internal'],[1,'External']],'',['Internal = the program stops the drive after the manual doff time. External = stopped through associated devices.','Internal = मैनुअल डॉफ समय के बाद प्रोग्राम ड्राइव रोकता है। External = बाहरी उपकरण से।','Internal = manual doff time ke baad program drive rokta hai. External = external devices se.']);
+/* 82 Slow speed function */
+N('82.01','Slow Speed',100,0,30000,0,'rpm','',['Slow speed reference used when a new pattern is started, after a pause or after a power failure; later the drive continues with the pattern speed.','नया पैटर्न, पॉज़ के बाद या बिजली जाने के बाद स्टार्ट पर धीमी स्पीड; फिर पैटर्न स्पीड।','Naya pattern, pause ke baad ya power failure ke baad start par slow speed; phir pattern speed.']);
+N('82.02','Slow speed run time',1,0,3000,1,'min','',['Time the drive runs with the slow speed (including acceleration), then switches to the pattern speed.','धीमी स्पीड पर चलने का समय (एक्सेलेरेशन सहित), फिर पैटर्न स्पीड।','Slow speed par chalne ka time (acceleration sahit), phir pattern speed.']);
+N('82.03','Slow speed acceleration time1',1,0,30000,0,'s','',['Acceleration time to reach the slow speed.','धीमी स्पीड तक एक्सेलेरेशन समय।','Slow speed tak acceleration time.']);
+N('82.04','Slow speed acceleration time 2',1,0,30000,0,'s','',['Acceleration time from slow speed to the pattern speed.','धीमी स्पीड से पैटर्न स्पीड तक समय।','Slow speed se pattern speed tak time.']);
+/* 83 Shift Report (read-only) and 84 Doff report (read-only) */
+const SHN=[['production Kg',2,'kg'],['production Hank',2,''],['run time',1,'min'],['stop time',1,'min'],['KWh consumption',1,'kWh'],['KWh per Kg',1,'kWh/kg'],['GPS',0,'g'],['pattern count',0,'']];
+for(let s=1;s<=5;s++)SHN.forEach((x,j)=>Rd('83.'+String((s-1)*8+j+1).padStart(2,'0'),'Shift'+s+' '+x[0],x[1],x[2],['Previous shift '+s+' (1 = latest): '+x[0]+'.','पिछली शिफ्ट '+s+' (1 = सबसे नई): '+x[0]+'।','Pichhli shift '+s+' (1 = latest): '+x[0]+'.']));
+const DFN=[['production Kg',2,'kg'],['production hank',2,''],['total run time',1,'min'],['Pattern stop time',1,'min'],['KWh',1,'kWh'],['KWh/Kg',1,'kWh/kg']];
+for(let s=1;s<=10;s++)DFN.forEach((x,j)=>Rd('84.'+String((s-1)*6+j+1).padStart(2,'0'),'Doff'+s+' '+x[0],x[1],x[2],['Previous pattern (doff) '+s+' (1 = latest): '+x[0]+'.','पिछला पैटर्न (डॉफ) '+s+' (1 = सबसे नया): '+x[0]+'।','Pichhla pattern (doff) '+s+' (1 = latest): '+x[0]+'.']));
 /* 88 Traverse */
-N('88.02','Slow acc time',4,0.1,600,1,'s','',['Traverse: acceleration time of the slow ramp towards the maximum traverse speed (phase 1…2).','ट्रैवर्स: अधिकतम ट्रैवर्स स्पीड तक धीमा रैंप समय (फेज़ 1…2)।','Traverse: maximum traverse speed tak slow ramp time (phase 1…2).']);
-N('88.03','Slow dec time',4,0.1,600,1,'s','',['Traverse: deceleration time of the slow ramp towards the minimum traverse speed (phase 3…4).','ट्रैवर्स: न्यूनतम स्पीड तक धीमा रैंप (फेज़ 3…4)।','Traverse: minimum speed tak slow ramp (phase 3…4).']);
-N('88.04','Slow step up',5,0,50,1,'%','',['Height of the slow ramp above the base speed.','बेस स्पीड से ऊपर धीमे रैंप की ऊँचाई।','Base speed se upar slow ramp ki height.']);
-N('88.05','Slow step down',5,0,50,1,'%','',['Depth of the slow ramp below the base speed.','बेस स्पीड से नीचे धीमे रैंप की गहराई।','Base speed se neeche slow ramp ki depth.']);
-N('88.06','Quick step high',2,0,50,1,'%','',['Instantaneous speed drop at the top reversal point (P-jump, avoids layering).','ऊपरी पलट बिंदु पर तुरंत स्पीड गिरावट (P-jump)।','Upper reversal point par turant speed drop (P-jump).']);
-N('88.07','Quick step low',2,0,50,1,'%','',['Instantaneous speed step up at the bottom reversal point.','निचले पलट बिंदु पर तुरंत स्पीड बढ़त।','Neeche reversal point par turant speed step up.']);
+S('88.01','Traverse control',1,[[0,'Disable'],[1,'Enable']],'',['Enables the traverse control program (with 99.200 = Traverse). Works in Local and Remote.','ट्रैवर्स कंट्रोल चालू करता है (99.200 = Traverse के साथ)। लोकल और रिमोट दोनों में।','Traverse control chalu karta hai (99.200 = Traverse ke saath). Local aur Remote dono me.']);
+N('88.02','Slow acc time',10,0,30000,2,'s','',['Acceleration time of the traverse slow ramp (phase 1…2).','ट्रैवर्स धीमे रैंप का एक्सेलेरेशन समय (फेज़ 1…2)।','Traverse slow ramp ka acceleration time (phase 1…2).']);
+N('88.03','Slow dec time',10,0,30000,2,'s','',['Deceleration time of the traverse slow ramp (phase 3…4).','ट्रैवर्स धीमे रैंप का डीसेलेरेशन समय (फेज़ 3…4)।','Traverse slow ramp ka deceleration time (phase 3…4).']);
+N('88.04','Slow step up',300,0,18000,0,'rpm','',['Maximum traverse speed = base speed (22.01) + this value. Unit % of base speed when 88.08 = Selected.','अधिकतम ट्रैवर्स स्पीड = बेस स्पीड (22.01) + यह मान। 88.08 = Selected पर बेस का %।','Maximum traverse speed = base speed (22.01) + ye value. 88.08 = Selected par base ka %.']);
+N('88.05','Slow step down',300,0,18000,0,'rpm','',['Minimum traverse speed = base speed − this value.','न्यूनतम ट्रैवर्स स्पीड = बेस स्पीड − यह मान।','Minimum traverse speed = base speed − ye value.']);
+N('88.06','Quick step high',50,0,7200,0,'rpm','',['Speed step downwards after reaching the maximum traverse speed (P-jump, avoids layering). % of 88.04 when 88.08 = Selected.','अधिकतम ट्रैवर्स स्पीड पर नीचे की ओर स्पीड स्टेप (P-jump)। 88.08 = Selected पर 88.04 का %।','Maximum traverse speed par neeche ki taraf speed step (P-jump). 88.08 = Selected par 88.04 ka %.']);
+N('88.07','Quick step low',50,0,7200,0,'rpm','',['Speed step upwards after reaching the minimum traverse speed.','न्यूनतम ट्रैवर्स स्पीड पर ऊपर की ओर स्टेप।','Minimum traverse speed par upar ki taraf step.']);
+S('88.08','Proportional steps',0,[[0,'Not selected'],[1,'Selected']],'',['Selected = 88.04 / 88.05 in percent of base speed and 88.06 / 88.07 in percent of 88.04 / 88.05.','Selected = 88.04 / 88.05 बेस स्पीड के % में, 88.06 / 88.07, 88.04 / 88.05 के % में।','Selected = 88.04 / 88.05 base speed ke % me, 88.06 / 88.07, 88.04 / 88.05 ke % me.']);
 /* 95 */
-S('95.01','Supply voltage',0,[[0,'Not given'],[1,'208…240 V'],[2,'380…415 V'],[3,'440…480 V'],[4,'500 V']],'s',['Supply voltage range. Must be set at start-up (warning A6A6 Voltage category unselected while Not given).','सप्लाई वोल्टेज रेंज। स्टार्ट-अप में सेट करें (Not given पर चेतावनी A6A6)।','Supply voltage range. Start-up me set karo (Not given par warning A6A6).']);
+S('95.01','Supply voltage',0,[[0,'Not given'],[1,'208…240 V'],[2,'380…415 V'],[3,'440…480 V'],[4,'500 V']],'s',['Supply voltage range. Must be set at start-up (warning A6A6 Supply voltage unselected while Not given).','सप्लाई वोल्टेज रेंज। स्टार्ट-अप में सेट करें (Not given पर चेतावनी A6A6)।','Supply voltage range. Start-up me set karo (Not given par warning A6A6).']);
 /* 96 */
 S('96.06','Parameter restore',0,[[0,'Done'],[8,'Restore defaults']],'s',['Restore defaults = all editable parameters back to default values (motor data and 95.01 kept in this trainer).','Restore defaults = सभी पैरामीटर डिफ़ॉल्ट पर (इस ट्रेनर में मोटर डेटा और 95.01 बने रहते हैं)।','Restore defaults = sab parameters default par (is trainer me motor data aur 95.01 bane rehte hain).']);
 S('96.07','Parameter save manually',0,[[0,'Done'],[1,'Save']],'',['Save = forces a save to permanent memory. Recommended before powering down when an external +24 V supply is used.','Save = स्थायी मेमोरी में सेव। बाहरी +24 V सप्लाई हो तो बंद करने से पहले।','Save = permanent memory me save. External +24 V supply ho to band karne se pehle.']);
@@ -680,7 +698,7 @@ N('99.10','Motor nominal power',0,0,10000,2,'kW','s',['Nominal power from the mo
 N('99.11','Motor nominal cos Φ',0,0,1,2,'','s',['Nominal cos Φ (optional, improves accuracy; 0 = not known).','नॉमिनल cos Φ (वैकल्पिक; 0 = पता नहीं)।','Nominal cos Φ (optional; 0 = pata nahi).']);
 S('99.13','ID run requested',0,[[0,'None'],[1,'Normal'],[2,'Reduced'],[3,'Standstill']],'s',['Motor identification run (DTC only, local control). Normal = motor rotates, load decoupled. Reduced = load cannot be decoupled. Standstill = motor does not rotate. Press Start; when finished the value returns to None.','मोटर पहचान रन (केवल DTC, लोकल)। Normal = मोटर घूमती, लोड अलग। Reduced = लोड अलग न हो। Standstill = मोटर नहीं घूमती। Start दबाएँ; पूरा होने पर None।','Motor identification run (sirf DTC, local). Normal = motor ghoomti, load alag. Reduced = load alag na ho. Standstill = motor nahi ghoomti. Start dabao; complete hone par None.']);
 S('99.16','Motor phase order',0,[[0,'U V W'],[1,'U W V']],'',['Changes the motor rotation direction without changing the cables.','केबल बदले बिना मोटर दिशा बदलता है।','Cable badle bina motor direction badalta hai.']);
-S('99.200','Application select',0,[[0,'None'],[1,'Spinning'],[2,'Traverse']],'s',['Spinning = ring frame spinning pattern control (runs only in Remote). Traverse = saw-tooth traverse speed pattern (Local and Remote). None = normal speed control.','Spinning = रिंग फ्रेम स्पिनिंग पैटर्न (केवल रिमोट में)। Traverse = सॉ-टूथ ट्रैवर्स पैटर्न (लोकल और रिमोट)। None = सामान्य स्पीड कंट्रोल।','Spinning = ring frame spinning pattern (sirf Remote me). Traverse = saw-tooth traverse pattern (Local aur Remote). None = normal speed control.']);
+S('99.200','Application select',0,[[0,'Spinning'],[1,'Traverse'],[2,'Primary']],'s',['Activates the spinning / traverse control software. Spinning = ring frame spinning pattern control (runs only in Remote). Traverse = saw-tooth traverse speed pattern (Local and Remote, 88.01 Enable). Primary = primary control program (normal speed control).','स्पिनिंग / ट्रैवर्स सॉफ़्टवेयर चालू करता है। Spinning = रिंग फ्रेम पैटर्न (केवल रिमोट में)। Traverse = सॉ-टूथ ट्रैवर्स (लोकल और रिमोट, 88.01 Enable)। Primary = सामान्य प्राइमरी प्रोग्राम।','Spinning / traverse software chalu karta hai. Spinning = ring frame pattern (sirf Remote me). Traverse = saw-tooth traverse (Local aur Remote, 88.01 Enable). Primary = normal primary program.']);
 
 const GRPS=[...new Set(P.map(p=>p.id.split('.')[0]))].sort((a,b)=>+a-+b);
 const grpOf=id=>id.split('.')[0];
@@ -700,15 +718,16 @@ const FT={
  '9081':{n:'External fault 1',t:'F',d:[['External fault input (31.01) is active.','Check the external device and the wiring of the selected digital input.'],['बाहरी फॉल्ट इनपुट (31.01) सक्रिय।','बाहरी उपकरण और चुने गए DI की वायरिंग जाँचें।'],['External fault input (31.01) active.','External device aur selected DI ki wiring check karo.']]},
  '5091':{n:'Safe torque off',t:'F',d:[['The Safe torque off circuit (XSTO) opened while the drive was running (31.22).','Check the safety circuit (emergency stop, door switch) and the XSTO wiring; close the circuit and reset.'],['चलते समय सेफ टॉर्क ऑफ सर्किट (XSTO) खुला (31.22)।','सेफ़्टी सर्किट (इमरजेंसी स्टॉप, दरवाज़ा स्विच) और XSTO वायरिंग जाँचें; सर्किट बंद करके रिसेट।'],['Chalte time Safe torque off circuit (XSTO) khula (31.22).','Safety circuit (emergency stop, door switch) aur XSTO wiring check karo; circuit band karke reset.']]},
  '64A5':{n:'Licensing fault',t:'F',d:[['The spinning program is loaded but the license key is missing. Event logger aux code shows the missing license: N8023 (ZMU-02 memory unit key).','Fit the memory unit with license key N8023 MU Interlock key – Spinning, then cycle the power. Check System info → Licenses. Contact ABB if needed.'],['स्पिनिंग प्रोग्राम लोड है पर लाइसेंस की नहीं। इवेंट लॉग में N8023 (ZMU-02 मेमोरी यूनिट की) दिखता है।','लाइसेंस की N8023 वाली मेमोरी यूनिट लगाएँ, फिर पावर बंद-चालू करें। System info → Licenses देखें। ज़रूरत हो तो ABB से संपर्क करें।'],['Spinning program loaded hai par license key nahi. Event log me N8023 (ZMU-02 memory unit key) dikhta hai.','License key N8023 wali memory unit lagao, phir power OFF-ON karo. System info → Licenses dekho. Zaroorat ho to ABB se contact karo.']]},
- 'A4A1':{n:'IGBT overtemperature',t:'W',d:[['Drive temperature is high (warning before trip 4310).','Check the cooling fan, filters and load.'],['ड्राइव तापमान अधिक (4310 ट्रिप से पहले)।','कूलिंग फैन, फ़िल्टर और लोड जाँचें।'],['Drive temperature high (4310 trip se pehle).','Cooling fan, filters aur load check karo.']]},
+ 'A4B0':{n:'Excess temperature',t:'W',d:[['Drive temperature is high (warning before trip 4310).','Check the cooling fan, filters and load.'],['ड्राइव तापमान अधिक (4310 ट्रिप से पहले)।','कूलिंग फैन, फ़िल्टर और लोड जाँचें।'],['Drive temperature high (4310 trip se pehle).','Cooling fan, filters aur load check karo.']]},
  'A491':{n:'External temperature 1',t:'W',d:[['Motor estimated temperature above warning limit 35.13.','Reduce the load and check the motor cooling.'],['मोटर तापमान चेतावनी सीमा 35.13 से ऊपर।','लोड कम करें, मोटर कूलिंग जाँचें।'],['Motor temperature warning limit 35.13 se upar.','Load kam karo, motor cooling check karo.']]},
  'A5A0':{n:'Safe torque off',t:'W',d:[['Safe torque off is active (XSTO open) — the drive cannot start.','Close the safety circuit (emergency stop released, doors closed).'],['सेफ टॉर्क ऑफ सक्रिय (XSTO खुला) — ड्राइव स्टार्ट नहीं होगी।','सेफ़्टी सर्किट बंद करें (इमरजेंसी स्टॉप छोड़ें, दरवाज़े बंद)।'],['Safe torque off active (XSTO khula) — drive start nahi hogi.','Safety circuit band karo (emergency stop release, darwaze band).']]},
  'A6A5':{n:'No motor data',t:'W',d:[['Motor nameplate data is not set (group 99). The drive cannot start.','Enter 99.06…99.10 (Menu → Assistants → Start-up assistant or Parameters → Complete list → 99).'],['मोटर नेमप्लेट डेटा सेट नहीं (समूह 99)। ड्राइव स्टार्ट नहीं होगी।','99.06…99.10 डालें (Menu → Assistants या Parameters → 99)।'],['Motor nameplate data set nahi (group 99). Drive start nahi hogi.','99.06…99.10 daalo (Menu → Assistants ya Parameters → 99).']]},
- 'A6A6':{n:'Voltage category unselected',t:'W',d:[['Supply voltage range 95.01 is Not given.','Set 95.01 Supply voltage.'],['सप्लाई वोल्टेज 95.01 = Not given।','95.01 सेट करें।'],['Supply voltage 95.01 = Not given.','95.01 set karo.']]},
+ 'A6A6':{n:'Supply voltage unselected',t:'W',d:[['Supply voltage range 95.01 is Not given.','Set 95.01 Supply voltage.'],['सप्लाई वोल्टेज 95.01 = Not given।','95.01 सेट करें।'],['Supply voltage 95.01 = Not given.','95.01 set karo.']]},
  'AFF6':{n:'Identification run',t:'W',d:[['Motor identification run is in progress (or requested and waiting for Start).','Wait. Do not stop the drive. 99.13 returns to None when finished.'],['मोटर पहचान रन चल रहा है (या स्टार्ट का इंतज़ार)।','प्रतीक्षा करें, ड्राइव न रोकें। पूरा होने पर 99.13 = None।'],['Motor identification run chal raha hai (ya Start ka intezaar).','Wait karo, drive mat roko. Complete hone par 99.13 = None.']]},
  'AFEB':{n:'Run enable missing',t:'W',d:[['Run enable signal (20.12, DIIL) is off.','Check the run enable / interlock wiring at XD24:1 DIIL.'],['रन इनेबल सिग्नल (20.12, DIIL) बंद।','XD24:1 DIIL पर रन इनेबल / इंटरलॉक वायरिंग जाँचें।'],['Run enable signal (20.12, DIIL) band.','XD24:1 DIIL par run enable / interlock wiring check karo.']]},
  'A780':{n:'Motor stall',t:'W',d:[['Motor at the limit at low speed (31.24 = Warning).','Check the spindles and limits.'],['मोटर कम स्पीड पर सीमा पर (31.24 = Warning)।','स्पिंडल और सीमाएँ जाँचें।'],['Motor kam speed par limit par (31.24 = Warning).','Spindles aur limits check karo.']]},
  'A2B3':{n:'Earth leakage',t:'W',d:[['Earth leakage detected (31.20 = Warning): the drive keeps running.','Megger the motor and cable at the next stop.'],['अर्थ लीकेज (31.20 = Warning): ड्राइव चलती रहती है।','अगले स्टॉप पर मोटर और केबल मेगर करें।'],['Earth leakage (31.20 = Warning): drive chalti rehti hai.','Agle stop par motor aur cable megger karo.']]},
+ 'D201':{n:'Doff end',t:'W',d:[['Indication: the active pattern ends within 81.06 time (time mode) or 81.07 length (length modes), during a normal run or a manual doff.','No action required — prepare the doffing.'],['संकेत: सक्रिय पैटर्न 81.06 समय (टाइम मोड) या 81.07 लंबाई (लेंथ मोड) में समाप्त होगा।','कोई कार्रवाई नहीं — डॉफिंग की तैयारी करें।'],['Indication: active pattern 81.06 time (time mode) ya 81.07 length (length mode) me khatam hoga.','Koi action nahi — doffing ki taiyari karo.']]},
  'D200':{n:'Section sum not 100%',t:'W',d:[['Length [%] mode: the 16 section percentages of the active pattern do not add up to 100 %.','Correct the section values (sections 1…16 of the pattern group) so that the sum is 100 %.'],['Length [%] मोड: सक्रिय पैटर्न के 16 सेक्शन प्रतिशत का योग 100 % नहीं।','सेक्शन मान ठीक करें ताकि योग 100 % हो।'],['Length [%] mode: active pattern ke 16 section percentages ka sum 100 % nahi.','Section values theek karo taaki sum 100 % ho.']]}
 };
 const fName=k=>FT[k]?FT[k].n:k;
@@ -770,12 +789,15 @@ function nScale(){return Math.max(1,+V['46.01'])}
 const di=i=>!!PL.di[i];
 let lastDI=[0,0,0,0,0,0,0];
 const rise=i=>i>0&&i<7&&di(i)&&!lastDI[i];
-const APP=()=>+V['99.200'];
+const APP=()=>{const v=+V['99.200'];return v===0?1:v===1?2:0};
+const srcOn=id=>{const v=+V[id];return v===1||(v>=2&&v<=7&&di(v-1))};
+const SRCPREV={};function srcRise(id){const n=srcOn(id),r=n&&!SRCPREV[id];SRCPREV[id]=n;return r}
+const srcDI=id=>{const v=+V[id];return v>=2&&v<=7?v-1:0};
 
 /* ================= SPINNING STATE (groups 09, 74…84) ================= */
-const SP={cur:1,fut:1,tEl:0,LD:0,done:false,sec:1,wob:0,wobT:0,wm:1,doff:0,doffT:0,dm:1,navgAcc:0,runT:0,stopT:0,kwh:0,shKg:0,shHank:0,shRun:0,shStop:0,shKwh:0,comp:0,shiftT:0,rev:false,trace:[],shifts:[],started:false};
+const SP={doffs:[],patRun:0,patStop:0,patKwh:0,slow:0,wasRun:false,cur:1,fut:1,tEl:0,LD:0,done:false,sec:1,wob:0,wobT:0,wm:1,doff:0,doffT:0,dm:1,navgAcc:0,runT:0,stopT:0,kwh:0,shKg:0,shHank:0,shRun:0,shStop:0,shKwh:0,comp:0,shiftT:0,rev:false,trace:[],shifts:[],started:false};
 function patBase(k){return String(74+k)}
-function patSec(k){const g=patBase(k);const sp=[],x=[];for(let s=1;s<=16;s++){sp.push(+V[g+'.'+String(s).padStart(2,'0')]);x.push(+V[g+'.'+String(16+s)])}return{sp,x,mode:+V[g+'.33'],tpi:+V[g+'.34'],ylen:+V[g+'.37']}}
+function patSec(k){const g=patBase(k);const sp=[],x=[];for(let s=1;s<=16;s++){x.push(+V[g+'.'+String(2*s-1).padStart(2,'0')]);sp.push(+V[g+'.'+String(2*s).padStart(2,'0')])}return{sp,x,mode:+V[g+'.33'],tpi:Math.max(0.01,+V[g+'.34']),cnt:+V[g+'.35'],ylen:+V[g+'.37']}}
 function patTotal(k){const p=patSec(k);const s=p.x.reduce((a,b)=>a+b,0);return p.mode===2?100:s}
 function sumPct(k){return patSec(k).x.reduce((a,b)=>a+b,0)}
 /* x position on the pattern axis (minutes, metres or percent) */
@@ -784,35 +806,35 @@ function patTotLen(k){const p=patSec(k);if(p.mode===1)return p.x.reduce((a,b)=>a
 /* pattern speed (%) at axis position x: ramp from the previous section speed to this section speed */
 function patSpeedAt(k,x){
   const p=patSec(k);let a=0;
-  for(let s=0;s<16;s++){const w=p.x[s];const prev=s?p.sp[s-1]:p.sp[0];
+  for(let s=0;s<16;s++){const w=p.x[s];const prev=s?p.sp[s-1]:0;
     if(x<a+w||s===15){const f=w>0?clamp((x-a)/w,0,1):1;return{pct:prev+(p.sp[s]-prev)*f,sec:s+1}}
     a+=w;}
   return{pct:p.sp[15],sec:16};
 }
-function patAvgPct(k){const p=patSec(k);let a=0,t=0;for(let s=0;s<16;s++){const prev=s?p.sp[s-1]:p.sp[0];a+=(prev+p.sp[s])/2*p.x[s];t+=p.x[s]}return t?a/t:0}
-function shiftMul(){return +V['74.03']===1?+V['79.07']/100:1}
+function patAvgPct(k){const p=patSec(k);let a=0,t=0;for(let s=0;s<16;s++){const prev=s?p.sp[s-1]:0;a+=(prev+p.sp[s])/2*p.x[s];t+=p.x[s]}return t?a/t:0}
+function shiftMul(){return +V['74.03']===1?+V['79.07']:1}
 function avgSpindle(k){return patAvgPct(k)/100*nn()*(+V['79.01'])*shiftMul()}
-function patSelected(){const m=+V['74.02'];if(m===0)return +V['74.01'];const a=m===1?[3,4]:[5,6];return 1+(di(a[0])?1:0)+(di(a[1])?2:0)}
+function patSelected(){const m=+V['74.02'];if(m<=1)return +V['74.01'];const a=m===2?[3,4]:[5,6];return 1+(di(a[0])?1:0)+(di(a[1])?2:0)}
 function spinActive(){return APP()===1&&!U.loc}
 function progressPct(){const tot=patTotal(SP.cur);return tot?clamp(patX()/tot*100,0,100):0}
 function remainTime(){/* time mode exact; length modes estimated from the present speed */
   const p=patSec(SP.cur);if(p.mode===0)return Math.max(0,patTotal(SP.cur)-SP.tEl);
   const rem=Math.max(0,patTotLen(SP.cur)-SP.LD);const v=Math.max(1,Math.abs(sigSpindle()))/(p.tpi*39.37);return rem/v}
 function remainLen(){const p=patSec(SP.cur);if(p.mode===0){const v=avgSpindle(SP.cur)/(p.tpi*39.37);return Math.max(0,(patTotal(SP.cur)-SP.tEl)*v)}return Math.max(0,patTotLen(SP.cur)-SP.LD)}
-function navg(){return SP.tEl>0?SP.navgAcc/SP.tEl:0}
+function navg(){if(+V['74.12']===0)return avgSpindle(SP.cur);return SP.tEl>0?SP.navgAcc/SP.tEl:0}
 function hanks(){const p=patSec(SP.cur);return navg()*SP.tEl/(p.tpi*36*840)}
-function kgOf(h){return h*(+V['79.12'])*0.4536/Math.max(1,+V['79.13'])}
+function kgOf(h){return h*(+V['79.12'])*0.4536/Math.max(1,patSec(SP.cur).cnt)}
 function doffEnd(){if(SP.done||!SP.started&&SP.tEl===0)return false;const p=patSec(SP.cur);return p.mode===0?remainTime()<=+V['81.06']:remainLen()<=+V['81.07']}
 function spWord(){let w=0;if(D.run&&spinActive()&&!SP.done)w|=1;if(SP.done)w|=2;if(doffEnd()&&!SP.done)w|=4;if(SP.doff)w|=8;if(doffEnd()&&!SP.done&&(Date.now()/500|0)%2)w|=16;return w}
 function patReset(src){
   if(D.run){hint('hPatRun');return false}
-  if(+V['74.05']===1&&!SP.done){const p=patSec(SP.cur);const ok=p.mode===0?SP.tEl>+V['74.08']:SP.LD>+V['74.09'];if(!ok){hint('hPatIlk');return false}}
-  SP.cur=SP.fut=patSelected();SP.tEl=0;SP.LD=0;SP.done=false;SP.sec=1;SP.wob=0;SP.wm=1;SP.doff=0;SP.navgAcc=0;SP.trace=[];SP.started=false;
+  if(srcOn('74.05')&&!SP.done){const p=patSec(SP.cur);const ok=p.mode===0?SP.tEl>+V['74.08']:SP.LD>+V['74.09'];if(!ok){hint('hPatIlk');return false}}
+  SP.cur=SP.fut=patSelected();SP.tEl=0;SP.LD=0;SP.patRun=0;SP.patStop=0;SP.patKwh=0;SP.slow=0;SP.done=false;SP.sec=1;SP.wob=0;SP.wm=1;SP.doff=0;SP.navgAcc=0;SP.trace=[];SP.started=false;
   hint('hPatReset','info');return true;
 }
 function patComplete(){
   const h=hanks(),kg=kgOf(h);SP.shKg+=kg;SP.shHank+=h;SP.comp++;
-  SP.lastKg=kg;SP.lastHank=h;SP.done=true;SP.doff=0;SP.cur=SP.fut;D.startLatch=false;D.needEdge=true;
+  SP.doffs.unshift([kg,h,SP.patRun,SP.patStop,SP.patKwh,kg>0?SP.patKwh/kg:0]);if(SP.doffs.length>10)SP.doffs.pop();SP.lastKg=kg;SP.lastHank=h;SP.done=true;SP.doff=0;SP.cur=SP.fut;D.startLatch=false;D.needEdge=true;
   logEv('R','DOFF');hint('hPatDone','info');
 }
 function prodReset(){SP.shKg=SP.shHank=SP.shRun=SP.shStop=SP.shKwh=0;SP.comp=0;SP.navgAcc=SP.navgAcc;hint('hProdReset','info')}
@@ -838,18 +860,20 @@ function runEnabled(){const s=+V['20.12'];if(s===1)return true;if(s===0)return f
 function extFault(){const s=+V['31.01'];return s>0&&!di(s)}
 /* traverse saw-tooth offset (group 88) */
 const TV={o:0,ph:1};
+function travSteps(base){const pr=+V['88.08']===1;const up=pr?Math.abs(base)*V['88.04']/100:+V['88.04'],dn=pr?Math.abs(base)*V['88.05']/100:+V['88.05'];
+  return{up,dn,qh:pr?up*V['88.06']/100:+V['88.06'],ql:pr?dn*V['88.07']/100:+V['88.07']}}
 function travTick(dt){
-  const up=+V['88.04'],dn=+V['88.05'];
-  if(TV.ph===1){TV.o+=(up+dn)/Math.max(.1,+V['88.02'])*dt;if(TV.o>=up){TV.o=up-(+V['88.06']);TV.ph=-1}}
-  else{TV.o-=(up+dn)/Math.max(.1,+V['88.03'])*dt;if(TV.o<=-dn){TV.o=-dn+(+V['88.07']);TV.ph=1}}
+  const st=travSteps(TV.base||0);
+  if(TV.ph===1){TV.o+=(st.up+st.dn)/Math.max(.1,+V['88.02'])*dt;if(TV.o>=st.up){TV.o=st.up-st.qh;TV.ph=-1}}
+  else{TV.o-=(st.up+st.dn)/Math.max(.1,+V['88.03'])*dt;if(TV.o<=-st.dn){TV.o=-st.dn+st.ql;TV.ph=1}}
 }
 function command(){
   let run=false,ref=0,src='',rev=false,info='';
   if(U.loc){run=U.locRun;ref=U.kref;src='LOCAL';info='kref'}
   else{const c=extCmd();run=c.run;rev=c.rev;src='EXT1';
-    if(APP()===1){const sp=patSpeedAt(SP.cur,patX());ref=sp.pct/100*nn()*shiftMul()*SP.wm*SP.dm;if(SP.doff)ref=+V['81.03']/100*nn()*SP.dm;info='pattern'}
+    if(APP()===1){const sp=patSpeedAt(SP.cur,patX());ref=sp.pct/100*nn()*shiftMul()*SP.wm*SP.dm;if(SP.doff)ref=+V['81.03']/100*nn()*SP.dm;info='pattern';if(SP.slow>0){ref=+V['82.01'];info='slow speed (82.01)'}}
     else{ref=c.keypad?U.kref:remoteRef();info='ref'}}
-  if(APP()===2&&run){ref=ref*(1+TV.o/100);info='traverse'}
+  if(APP()===2&&+V['88.01']===1&&run){TV.base=ref;ref=ref+TV.o;info='traverse'}
   if(APP()===1){rev=SP.rev}else if(+V['20.21']===1)rev=false;else if(+V['20.21']===2)rev=true;
   if(APP()===1&&!U.loc&&SP.done)run=false;
   ref=Math.abs(ref)*(rev?-1:1);
@@ -889,11 +913,12 @@ function warnings(){
   if(+V['95.01']===0)w.push('A6A6');
   if(!PL.sto&&!D.fault)w.push('A5A0');
   if(!runEnabled())w.push('AFEB');
-  if(D.temp>100&&!D.fault)w.push('A4A1');
+  if(D.temp>100&&!D.fault)w.push('A4B0');
   if(+V['35.11']===1&&motTemp()>+V['35.13']&&!D.fault)w.push('A491');
   if(+V['31.24']===1&&D.stall>3)w.push('A780');
   if(PL.inj.gf&&+V['31.20']===1&&D.run)w.push('A2B3');
   if(APP()===1&&patSec(SP.cur).mode===2&&Math.abs(sumPct(SP.cur)-100)>0.05)w.push('D200');
+  if(APP()===1&&doffEnd()&&!SP.done)w.push('D201');
   w.forEach(k=>{if(!prevW.has(k)){prevW.add(k);logEv('W',k);U.hidW.delete(k)}});
   [...prevW].forEach(k=>{if(!w.includes(k))prevW.delete(k)});
   return w;
@@ -907,7 +932,7 @@ function tick(){
   /* momentary DI pulses */
   for(let i=1;i<=6;i++)if(PL.pulse[i]&&now>PL.pulse[i]){PL.pulse[i]=0;PL.di[i]=0}
   if(PL.ring&&spinActive()&&D.run&&!SP.done){ /* ring rail limit switches give alternating pulses */
-    SP.ringT=(SP.ringT||0)+dt;if(SP.ringT>5){SP.ringT=0;SP.ringSide=!SP.ringSide;pulseDI(SP.ringSide?+V['80.01']:+V['80.02'])}}
+    SP.ringT=(SP.ringT||0)+dt;if(SP.ringT>5){SP.ringT=0;SP.ringSide=!SP.ringSide;pulseDI(srcDI(SP.ringSide?'80.01':'80.02'))}}
   const Vn=PL.inj.sph?515:540;
   if(PL.mains){if(D.Vdc<Vn-1)D.Vdc+=(Vn-D.Vdc)*0.25}
   else{D.Vdc-=D.run&&+V['30.31']===1&&Math.abs(D.n)>50?3:10;if(D.Vdc<0)D.Vdc=0}
@@ -926,12 +951,13 @@ function tick(){
     const sel_=patSelected();
     if(sel_!==SP.fut)SP.fut=sel_;
     if(SP.tEl===0&&!SP.started&&!D.run)SP.cur=SP.fut;
-    const rs=+V['74.04'];if(rise(rs))patReset();
-    const rv=+V['74.07'];if(rv&&!D.run&&(SP.done||SP.tEl===0)){const r=di(rv);if(r!==SP.rev){SP.rev=r}}
-    if(rise(+V['80.01'])&&D.run&&spinActive()){SP.wob=1;SP.wobT=now}
-    if(rise(+V['80.02'])&&D.run&&spinActive()){SP.wob=-1;SP.wobT=now}
+    const rR=srcRise('74.04'),rU=srcRise('80.01'),rD=srcRise('80.02'),rM=srcRise('81.02');
+    if(rR)patReset();
+    if(!D.run&&(SP.done||SP.tEl===0)){const r=srcOn('74.07');if(r!==SP.rev){SP.rev=r}}
+    if(rU&&D.run&&spinActive()){SP.wob=1;SP.wobT=now}
+    if(rD&&D.run&&spinActive()){SP.wob=-1;SP.wobT=now}
     if(SP.wob&&now-SP.wobT>4000*(+V[SP.wob>0?'80.05':'80.06']))SP.wob=0;
-    const md=+V['81.01']===0?rise(+V['81.02']):progressPct()>=+V['81.08'];
+    const md=+V['81.01']===0?rM:progressPct()>=+V['81.08'];
     if(md&&D.run&&spinActive()&&!SP.doff&&!SP.done){SP.doff=1;SP.doffT=0;logEv('R','MDOFF')}
   }
   /* command */
@@ -969,7 +995,7 @@ function tick(){
   let tA=Math.max(0.05,+V[set2?'23.203':'23.201']),tD=Math.max(0.05,+V[set2?'23.204':'23.202']);
   /* wobbulation / manual doff ramps act on the pattern reference */
   if(APP()===1&&spinActive()){
-    const tgt=SP.wob>0?+V['80.03']/100:SP.wob<0?+V['80.04']/100:1;
+    const tgt=SP.wob>0?+V['80.03']:SP.wob<0?+V['80.04']:1;
     const tr=+V[SP.wob>=0?'80.05':'80.06'];SP.wm+=clamp(tgt-SP.wm,-0.06*dt/Math.max(.1,tr),0.06*dt/Math.max(.1,tr));
   }
   if(D.run){
@@ -1013,10 +1039,14 @@ function spinTick(dt,c){
   const sdt=dt*PL.tx;
   if(D.run)SP.shRun+=sdt/3600;else SP.shStop+=sdt/3600;
   SP.shiftT+=sdt/3600;
-  if(SP.shiftT>=+V['79.11']){SP.shifts.unshift({kg:SP.shKg,hank:SP.shHank,run:SP.shRun});if(SP.shifts.length>3)SP.shifts.pop();SP.shKg=SP.shHank=SP.shRun=SP.shStop=SP.shKwh=0;SP.comp=0;SP.shiftT=0}
+  if(SP.shiftT>=Math.max(0.01,+V['79.11'])){SP.shifts.unshift([SP.shKg,SP.shHank,SP.shRun*60,SP.shStop*60,SP.shKwh,SP.shKg>0?SP.shKwh/SP.shKg:0,SP.shKg*1000/Math.max(1,+V['79.12']),SP.comp]);if(SP.shifts.length>5)SP.shifts.pop();SP.shKg=SP.shHank=SP.shRun=SP.shStop=SP.shKwh=0;SP.comp=0;SP.shiftT=0}
   if(!spinActive()||SP.done)return;
+  if(D.run&&!SP.wasRun&&!D.idState){SP.slow=+V['82.02']}
+  SP.wasRun=D.run&&!D.idState;
+  if(D.run&&!D.idState&&SP.slow>0){SP.slow-=sdt/60;SP.patRun+=sdt/60;return}
+  if(!D.run&&SP.started)SP.patStop+=sdt/60;
   if(D.run&&!D.idState){
-    SP.started=true;
+    SP.started=true;SP.patRun+=sdt/60;
     const p=patSec(SP.cur);const spn=Math.abs(sigSpindle());
     SP.tEl+=sdt/60;SP.LD+=spn*(sdt/60)/(p.tpi*39.37);SP.navgAcc+=spn*sdt/60;
     SP.sec=patSpeedAt(SP.cur,patX()).sec;
@@ -1033,7 +1063,7 @@ function finish(dt,Tm,c){
   if(D.temp>112)trip('4310');
   const ip=D.I/Math.max(1,FLA);D.thm+=(ip*ip-D.thm)*dt/60;
   if(+V['35.11']===1&&motTemp()>+V['35.12'])trip('4981');
-  if(D.run){const e=Math.abs(Tm*D.n/nn())*MOT.kw*dt/3600;D.ophours+=dt/3600;D.kwh+=e;SP.shKwh+=e*PL.tx}
+  if(D.run){const e=Math.abs(Tm*D.n/nn())*MOT.kw*dt/3600;D.ophours+=dt/3600;D.kwh+=e;SP.shKwh+=e*PL.tx;if(spinActive()&&!SP.done)SP.patKwh+=e*PL.tx}
   D.cmd=c;lastDI=PL.di.slice();
 }
 function powerUp(){U.power=true;U.booting=20;U.stack=[];U.msg=null;U.help=null;D.fault=null;U.hidF=null;D.temp=Math.max(D.temp,30);D.needEdge=+V['20.02']!==1;D.startLatch=false}
@@ -1059,11 +1089,13 @@ function sigVal(id){
     case '09.35':return sigSpindle();case '09.36':return SP.LD;case '09.37':return remainLen();case '09.38':return navg();
     case '09.41':return spWord().toString(2).padStart(5,'0')+'b';
     case '35.01':return motTemp();
-    case '75.36':case '76.36':case '77.36':case '78.36':return patTotLen(+id.slice(0,2)-74)||0;
-    case '83.01':case '83.09':case '83.17':{const s=SP.shifts[(+id.slice(3)-1)/8];return s?s.kg:0}
-    case '83.02':case '83.10':case '83.18':{const s=SP.shifts[(+id.slice(3)-2)/8];return s?s.hank:0}
-    case '83.03':case '83.11':case '83.19':{const s=SP.shifts[(+id.slice(3)-3)/8];return s?s.run:0}
+    case '75.36':case '76.36':case '77.36':case '78.36':return patSec(+id.slice(0,2)-74).x.reduce((a,b)=>a+b,0);
+    case '09.08':return SP.started?'Section '+SP.sec:'No section';
+    case '09.10':return SP.patStop;case '09.15':return SP.patKwh;case '09.16':{const k=kgOf(hanks());return k>0?SP.patKwh/k:0}
+    case '09.43':return D.cmd?Math.abs(D.cmd.ref):0;case '09.45':return SP.shiftT;
   }
+  if(/^83\./.test(id)){const n=+id.slice(3)-1;const s=SP.shifts[Math.floor(n/8)];return s?s[n%8]:0}
+  if(/^84\./.test(id)){const n=+id.slice(3)-1;const d=SP.doffs[Math.floor(n/6)];return d?d[n%6]:0}
   return 0;
 }
 function fmtR(p){const v=sigVal(p.id);if(typeof v==='string')return v;return (+v).toFixed(p.dec)+(p.unit?' '+p.unit:'')}
@@ -1114,9 +1146,9 @@ const BYFN=[
  ['Reference and ramps',['22.11','12.19','12.20','23.11','23.201','23.202','23.203','23.204','46.01']],
  ['Limits',['30.11','30.12','30.17','30.20','30.30','30.31']],
  ['Fault functions',['31.01','31.11','31.19','31.20','31.22','31.24','31.28','35.11','35.12','35.13']],
- ['Spinning control',['99.200','74.01','74.02','74.03','74.04','74.05','74.07','74.08','74.09','74.11','79.01','79.07','79.11','79.12','79.13']],
- ['Wobbulation, manual doff',['80.01','80.02','80.03','80.04','80.05','80.06','81.01','81.02','81.03','81.04','81.05','81.06','81.07','81.08']],
- ['Traverse',['99.200','88.02','88.03','88.04','88.05','88.06','88.07']],
+ ['Spinning control',['99.200','74.01','74.02','74.03','74.04','74.05','74.07','74.08','74.09','74.11','74.12','79.01','79.07','79.11','79.12','79.15','79.16']],
+ ['Wobbulation, manual doff',['80.01','80.02','80.03','80.04','80.05','80.06','81.01','81.02','81.03','81.04','81.05','81.06','81.07','81.08','81.09','82.01','82.02','82.03','82.04']],
+ ['Traverse',['99.200','88.01','88.02','88.03','88.04','88.05','88.06','88.07','88.08']],
  ['Motor data',['95.01','99.03','99.04','99.06','99.07','99.08','99.09','99.10','99.11','99.13','99.16']],
  ['I/O',['10.24','10.27','10.30','13.12','13.22']]];
 function menuParams(){return L('Parameters',()=>[
@@ -1127,7 +1159,7 @@ function menuParams(){return L('Parameters',()=>[
 const ASST={
  start:{n:'Start-up assistant',ids:['95.01','99.03','99.04','99.06','99.07','99.08','99.09','99.10','99.11','99.13']},
  spin:{n:'Spinning set-up',ids:['99.200','30.11','30.12','74.01','74.02','23.201','23.202','20.02','74.11']},
- trav:{n:'Traverse set-up',ids:['99.200','88.02','88.03','88.04','88.05','88.06','88.07']}};
+ trav:{n:'Traverse set-up',ids:['99.200','88.01','88.02','88.03','88.04','88.05','88.06','88.07']}};
 function asstStart(k){const a=ASST[k];const p=PM[a.ids[0]];push(edState(p,{asst:k,ai:0}))}
 function evLabel(h){if(h.k==='DOFF')return 'Pattern completed';if(h.k==='MDOFF')return 'Manual doff';if(h.s==='R')return 'Reset '+h.k;return h.k+' '+fName(h.k)}
 function menuEvent(){return L('Event log',()=>HIST.length?HIST.map(h=>({a:(h.s==='F'?'⊗ ':h.s==='W'?'△ ':'· ')+evLabel(h),b:h.t.slice(0,5),go:()=>push({k:'info',title:h.s==='F'?'Fault':h.s==='W'?'Warning':'Event',lines:()=>[evLabel(h),'Time '+h.t,h.k==='64A5'?'Aux code: N8023':'Aux code: 0000'],ev:h})})):[{a:'(event log is empty)'}])}
@@ -1142,9 +1174,9 @@ function ioLines(){
   return L_;
 }
 function diUse(i){const u=[];
-  if(+V['20.03']===i)u.push('Start');if(+V['31.11']===i)u.push('Reset');if(+V['80.01']===i)u.push('Wob up');if(+V['80.02']===i)u.push('Wob dn');
-  if(+V['81.02']===i&&+V['81.01']===0)u.push('Doff');if(+V['74.04']===i)u.push('Pat reset');if(+V['74.07']===i)u.push('Reverse');if(+V['31.01']===i)u.push('Ext flt');
-  if(+V['74.02']===1&&(i===3||i===4)||+V['74.02']===2&&(i===5||i===6))u.push('Pat sel');return u.join(', ')||'-'}
+  if(+V['20.03']===i)u.push('Start');if(+V['31.11']===i)u.push('Reset');if(srcDI('80.01')===i)u.push('Wob up');if(srcDI('80.02')===i)u.push('Wob dn');
+  if(srcDI('81.02')===i&&+V['81.01']===0)u.push('Doff');if(srcDI('74.04')===i)u.push('Pat reset');if(srcDI('74.07')===i)u.push('Reverse');if(+V['31.01']===i)u.push('Ext flt');
+  if(+V['74.02']===2&&(i===3||i===4)||+V['74.02']===3&&(i===5||i===6))u.push('Pat sel');return u.join(', ')||'-'}
 function sumLines(){const c=D.cmd||command();
   return ['Control: '+(U.loc?'Local':'Remote EXT1'),'Command: '+(U.loc?'panel':sel('20.01')),'  → '+(c.run?'START':'STOP'),'Ref source: '+(c.info==='pattern'?'spinning pattern':c.info==='traverse'?'traverse':U.loc||c.info==='kref'?'panel':sel('22.11')),
    'Reference: '+c.ref.toFixed(1)+' rpm','Application: '+sel('99.200'),'Run enable: '+(runEnabled()?'yes':'NO'),'STO: '+(PL.sto?'closed':'OPEN')]}
@@ -1193,7 +1225,7 @@ function setPar(p,v){
   if(!canWrite(p,true))return false;
   const old=V[p.id];V[p.id]=v;
   if(['99.03','99.04','99.06','99.07','99.08','99.09','99.10'].includes(p.id)&&String(old)!==String(v))D.idDone=false;
-  if(p.id==='99.200'&&+old!==+v){SP.tEl=0;SP.LD=0;SP.done=false;SP.trace=[];SP.started=false;SP.navgAcc=0;hint(+v===1?'hAppSpin':+v===2?'hAppTrav':'hAppNone','info')}
+  if(p.id==='99.200'&&+old!==+v){SP.tEl=0;SP.LD=0;SP.done=false;SP.trace=[];SP.started=false;SP.navgAcc=0;hint(APP()===1?'hAppSpin':APP()===2?'hAppTrav':'hAppNone','info')}
   if(p.id==='74.11'&&+v===1){prodReset();V['74.11']=0}
   if(p.id==='96.06'&&+v===8){const keep={};P.forEach(q=>{if(/^99\.|^95/.test(q.id)&&q.type!=='r')keep[q.id]=V[q.id]});factory();Object.assign(V,keep);hint('hRestore','info')}
   if(p.id==='96.07'&&+v===1){V['96.07']=0;hint('hSaved','info')}
@@ -1464,9 +1496,9 @@ const TX={
  /* spinning card */
  spTitle:['Spinning pattern','स्पिनिंग पैटर्न','Spinning pattern'],txT:['Pattern time speed (training)','पैटर्न समय की गति (प्रशिक्षण)','Pattern time speed (training)'],
  ringOff:['Ring rail limit switches: OFF','रिंग रेल लिमिट स्विच: OFF','Ring rail limit switches: OFF'],ringOn:['Ring rail limit switches: ON','रिंग रेल लिमिट स्विच: ON','Ring rail limit switches: ON'],openPat:['Open pattern parameters','पैटर्न पैरामीटर खोलें','Pattern parameters kholo'],
- spNote:['Real patterns take hours: use 60× … 1200× to watch a whole doff. Only the pattern clock is fast — motor ramps stay real. Ring rail switches send DI3 / DI4 pulses (wobbulation).','असली पैटर्न घंटों का होता है: पूरा डॉफ देखने के लिए 60× … 1200× लें। केवल पैटर्न घड़ी तेज़ होती है, मोटर रैंप असली रहते हैं। रिंग रेल स्विच DI3 / DI4 पल्स भेजते हैं (वॉबुलेशन)।','Real pattern ghanton ka hota hai: poora doff dekhne ke liye 60× … 1200× lo. Sirf pattern clock fast hoti hai, motor ramps real rehte hain. Ring rail switch DI3 / DI4 pulse bhejte hain (wobbulation).'],
+ spNote:['Real patterns take hours: use 60× … 1200× to watch a whole doff. Only the pattern clock is fast — motor ramps stay real. Ring rail switches send DI3 / DI4 pulses (wobbulation) — set 80.03 / 80.04 (default 1.00 = no change), e.g. 1.05 / 0.95, to see it.','असली पैटर्न घंटों का होता है: पूरा डॉफ देखने के लिए 60× … 1200× लें। केवल पैटर्न घड़ी तेज़ होती है, मोटर रैंप असली रहते हैं। रिंग रेल स्विच DI3 / DI4 पल्स भेजते हैं (वॉबुलेशन) — देखने के लिए 80.03 / 80.04 बदलें (डिफ़ॉल्ट 1.00), जैसे 1.05 / 0.95।','Real pattern ghanton ka hota hai: poora doff dekhne ke liye 60× … 1200× lo. Sirf pattern clock fast hoti hai, motor ramps real rehte hain. Ring rail switch DI3 / DI4 pulse bhejte hain (wobbulation) — dekhne ke liye 80.03 / 80.04 badlo (default 1.00), jaise 1.05 / 0.95.'],
  sSec:['Section','सेक्शन','Section'],sEl:['Elapsed','बीता','Elapsed'],sRem:['Remaining','बचा','Remaining'],sLen:['Delivered','डिलीवर','Delivered'],sSpn:['Spindle speed','स्पिंडल स्पीड','Spindle speed'],sKg:['Production','उत्पादन','Production'],sHank:['Hanks','हैंक','Hanks'],sShift:['Shift total','शिफ्ट कुल','Shift total'],
- bRun:['Pattern running','पैटर्न चल रहा','Pattern running'],bDone:['Pattern finished','पैटर्न पूरा','Pattern finished'],bAlm:['Doff-end alarm','डॉफ-एंड अलार्म','Doff-end alarm'],bDoff:['Manual doff','मैनुअल डॉफ','Manual doff'],bWob:['Wobble','वॉबल','Wobble'],bShift:['Shift ×','शिफ्ट ×','Shift ×'],bPaused:['Paused','पॉज़','Paused'],bLocal:['Local: pattern not running','लोकल: पैटर्न नहीं चलता','Local: pattern nahi chalta'],bNone:['99.200 is not Spinning','99.200 Spinning नहीं है','99.200 Spinning nahi hai'],bFut:['Future pattern','अगला पैटर्न','Future pattern'],bRev:['Reversed (74.07)','उल्टा (74.07)','Reversed (74.07)'],
+ bRun:['Pattern running','पैटर्न चल रहा','Pattern running'],bDone:['Pattern finished','पैटर्न पूरा','Pattern finished'],bAlm:['Doff-end alarm','डॉफ-एंड अलार्म','Doff-end alarm'],bDoff:['Manual doff','मैनुअल डॉफ','Manual doff'],bWob:['Wobble','वॉबल','Wobble'],bShift:['Shift ×','शिफ्ट ×','Shift ×'],bPaused:['Paused','पॉज़','Paused'],bLocal:['Local: pattern not running','लोकल: पैटर्न नहीं चलता','Local: pattern nahi chalta'],bNone:['99.200 is not Spinning','99.200 Spinning नहीं है','99.200 Spinning nahi hai'],bSlow:['Slow speed (82.01)','धीमी स्पीड (82.01)','Slow speed (82.01)'],bFut:['Future pattern','अगला पैटर्न','Future pattern'],bRev:['Reversed (74.07)','उल्टा (74.07)','Reversed (74.07)'],
  pulse:['PULSE','पल्स','PULSE'],hold:['HOLD','चालू','HOLD'],
  /* toasts */
  hMotData:['Enter the motor nameplate data first: 99.06, 99.07, 99.09, 99.10 (Menu → Assistants → Start-up assistant).','पहले मोटर नेमप्लेट डेटा डालें: 99.06, 99.07, 99.09, 99.10 (Menu → Assistants → Start-up assistant)।','Pehle motor nameplate data daalo: 99.06, 99.07, 99.09, 99.10 (Menu → Assistants → Start-up assistant).'],
@@ -1490,7 +1522,7 @@ const TX={
  hProdReset:['Production values 09.13…09.24 reset.','उत्पादन मान 09.13…09.24 रिसेट।','Production values 09.13…09.24 reset.'],
  hAppSpin:['Spinning selected: switch to Remote and give DI1 start. The pattern of 74.01 runs.','Spinning चुना: रिमोट करें और DI1 स्टार्ट दें। 74.01 का पैटर्न चलेगा।','Spinning select: Remote karo aur DI1 start do. 74.01 ka pattern chalega.'],
  hAppTrav:['Traverse selected: saw-tooth speed around the base speed (local: keypad reference, remote: 22.11).','Traverse चुना: बेस स्पीड के आसपास सॉ-टूथ स्पीड (लोकल: कीपैड, रिमोट: 22.11)।','Traverse select: base speed ke aaspaas saw-tooth speed (local: keypad, remote: 22.11).'],
- hAppNone:['Application None: normal speed control (reference 22.11).','एप्लिकेशन None: सामान्य स्पीड कंट्रोल (22.11)।','Application None: normal speed control (22.11).'],
+ hAppNone:['Application Primary: normal speed control (reference 22.11).','एप्लिकेशन Primary: सामान्य स्पीड कंट्रोल (22.11)।','Application Primary: normal speed control (22.11).'],
  hNewDrv:['New drive type selected: parameters back to default, enter the motor data again.','नया ड्राइव प्रकार: पैरामीटर डिफ़ॉल्ट, मोटर डेटा फिर से डालें।','Naya drive type: parameters default, motor data phir se daalo.'],
  hPanel:['Opening the other drive simulator…','दूसरा ड्राइव सिमुलेटर खुल रहा है…','Dusra drive simulator khul raha hai…'],
  /* simulate */
@@ -1510,7 +1542,7 @@ const TX={
  symOVS:[['30.30 Overvoltage control = Enable.','Increase 23.202 Deceleration time 1 (high inertia of the spindles).','Use a brake chopper / resistor for fast stops.'],['30.30 = Enable।','23.202 बढ़ाएँ (स्पिंडल का भारी जड़त्व)।','तेज़ स्टॉप के लिए ब्रेक चॉपर / रेज़िस्टर।'],['30.30 = Enable.','23.202 badhao (spindles ki heavy inertia).','Fast stop ke liye brake chopper / resistor.']],
  wPower:['Supply','सप्लाई','Supply'],wMotor:['Ring frame motor','रिंग फ्रेम मोटर','Ring frame motor'],live:['live','लाइव','live'],termInfo:['Tap a terminal to see its use and the live value.','टर्मिनल दबाएँ: उपयोग और लाइव मान।','Terminal dabao: use aur live value.'],
  wDcsH1:['Signal','सिग्नल','Signal'],wDcsH2:['Drive terminal','ड्राइव टर्मिनल','Drive terminal'],
- patNote:['Pattern parameters: 16 sections per pattern (speed % and section length) as arranged in this trainer; check group 75…78 numbering against your firmware manual.','पैटर्न पैरामीटर: हर पैटर्न में 16 सेक्शन (स्पीड % और लंबाई) इस ट्रेनर की व्यवस्था में; अपने मैनुअल से समूह 75…78 की क्रमांक जाँचें।','Pattern parameters: har pattern me 16 sections (speed % aur length) is trainer ki vyavastha me; apne manual se group 75…78 numbering check karo.'],
+ patNote:['Each pattern has 16 sections: odd parameters (xx.01, xx.03 … xx.31) = Section No (time / length / %), even parameters (xx.02 … xx.32) = Speed No. Section 1 ramps from zero speed.','हर पैटर्न में 16 सेक्शन: विषम पैरामीटर (xx.01, xx.03 … xx.31) = Section No (समय / लंबाई / %), सम (xx.02 … xx.32) = Speed No। सेक्शन 1 शून्य स्पीड से रैंप।','Har pattern me 16 sections: odd parameters (xx.01, xx.03 … xx.31) = Section No (time / length / %), even (xx.02 … xx.32) = Speed No. Section 1 zero speed se ramp.'],
  dataNote:['Fault codes follow the ACS880 firmware; check them against your drive manual and rating plate.','फॉल्ट कोड ACS880 फ़र्मवेयर अनुसार; अपनी ड्राइव के मैनुअल से मिलाएँ।','Fault codes ACS880 firmware ke hisaab se; apni drive ke manual se milao.']
 };
 const t=k=>L3(TX[k]||[k]);
@@ -1629,7 +1661,7 @@ function motorFrame(now){
   requestAnimationFrame(motorFrame);
 }
 requestAnimationFrame(motorFrame);
-const PULSEDI=i=>i>1&&!(+V['74.02']===1&&(i===3||i===4))&&!(+V['74.02']===2&&(i===5||i===6))&&+V['74.07']!==i;
+const PULSEDI=i=>i>1&&!(+V['74.02']===2&&(i===3||i===4))&&!(+V['74.02']===3&&(i===5||i===6))&&srcDI('74.07')!==i;
 function buildDIs(){
   $('dis').innerHTML=[1,2,3,4,5,6].map(n=>`<button class="dibtn" data-n="${n}">DI${n} <span class="pt" id="dip${n}"></span><small id="dil${n}"></small></button>`).join('');
   $('dis').querySelectorAll('.dibtn').forEach(b=>b.addEventListener('click',()=>{const n=+b.dataset.n;if(PULSEDI(n))pulseDI(n);else PL.di[n]=PL.di[n]?0:1;renderSim()}));
@@ -1672,7 +1704,7 @@ function renderSpin(){
   const X=x=>L_+(W_-L_-R_)*x/tot,Y=v=>T_+(H_-T_-B_)*(1-v/mx);
   let s=`<rect x="${L_}" y="${T_}" width="${W_-L_-R_}" height="${H_-T_-B_}" fill="none" stroke="#3f4851"/>`;
   [0,25,50,75,100].forEach(v=>{s+=`<line x1="${L_}" x2="${W_-R_}" y1="${Y(v)}" y2="${Y(v)}" stroke="#2c343b"/><text x="${L_-5}" y="${Y(v)+3}" text-anchor="end" font-size="10" fill="#77828c">${v}%</text>`});
-  let a=0,pts=[[X(0),Y(p.sp[0])]];
+  let a=0,pts=[[X(0),Y(0)]];
   for(let i=0;i<16;i++){a+=p.x[i];pts.push([X(a),Y(p.sp[i])]);
     if(i<15)s+=`<line x1="${X(a)}" x2="${X(a)}" y1="${T_}" y2="${H_-B_}" stroke="#262d33"/>`;
     s+=`<text x="${X(a-p.x[i]/2)}" y="${H_-B_+12}" text-anchor="middle" font-size="9" fill="${i+1===SP.sec&&SP.started?'#ffc857':'#5f6a73'}">${i+1}</text>`}
@@ -1687,7 +1719,7 @@ function renderSpin(){
   const w=spWord(),b=[];
   if(APP()!==1)b.push([t('bNone'),'warn']);else if(U.loc)b.push([t('bLocal'),'warn']);
   b.push([t('bRun'),w&1?'on':'']);b.push([t('bDone'),w&2?'on':'']);b.push([t('bAlm'),w&4?'on':'']);b.push([t('bDoff'),w&8?'on':'']);
-  if(SP.wob)b.push([t('bWob')+(SP.wob>0?' ▲':' ▼'),'on']);if(+V['74.03']===1)b.push([t('bShift')+' '+V['79.07']+'%','on']);
+  if(SP.slow>0&&D.run)b.push([t('bSlow'),'on']);if(SP.wob)b.push([t('bWob')+(SP.wob>0?' ▲':' ▼'),'on']);if(+V['74.03']===1)b.push([t('bShift')+' '+(+V['79.07']).toFixed(2),'on']);
   if(!D.run&&SP.started&&!SP.done)b.push([t('bPaused'),'on']);if(SP.fut!==SP.cur&&!SP.done)b.push([t('bFut')+' '+SP.fut,'on']);if(SP.rev)b.push([t('bRev'),'on']);
   $('spbits').innerHTML=b.map(x=>`<span class="chip ${x[1]==='on'?'on':''}" style="${x[1]==='warn'?'border-color:#7a5a1d;color:#ffe7b3':''}">${esc(x[0])}</span>`).join('');
 }

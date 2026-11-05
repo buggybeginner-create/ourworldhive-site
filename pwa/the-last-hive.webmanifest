@@ -1,0 +1,30 @@
+{
+ "id": "/the-last-hive.html",
+ "name": "The Last Hive",
+ "short_name": "Last Hive",
+ "start_url": "../the-last-hive.html",
+ "scope": "../the-last-hive.html",
+ "display": "standalone",
+ "background_color": "#13161b",
+ "theme_color": "#13161b",
+ "icons": [
+  {
+   "src": "the-last-hive-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "the-last-hive-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "the-last-hive-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

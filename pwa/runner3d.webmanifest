@@ -1,0 +1,30 @@
+{
+ "id": "/runner3d.html",
+ "name": "Hive Runner 3D",
+ "short_name": "Runner 3D",
+ "start_url": "../runner3d.html",
+ "scope": "../runner3d.html",
+ "display": "standalone",
+ "background_color": "#0b0a1f",
+ "theme_color": "#0b0a1f",
+ "icons": [
+  {
+   "src": "runner3d-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "runner3d-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "runner3d-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

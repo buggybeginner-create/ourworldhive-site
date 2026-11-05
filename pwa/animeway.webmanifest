@@ -1,0 +1,30 @@
+{
+ "id": "/animeway.html",
+ "name": "The Anime Way",
+ "short_name": "Anime Way",
+ "start_url": "../animeway.html",
+ "scope": "../animeway.html",
+ "display": "standalone",
+ "background_color": "#050918",
+ "theme_color": "#050918",
+ "icons": [
+  {
+   "src": "animeway-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "animeway-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "animeway-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

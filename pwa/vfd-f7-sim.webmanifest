@@ -1,0 +1,30 @@
+{
+ "id": "/vfd-f7-sim.html",
+ "name": "Yaskawa F7 VFD Simulator",
+ "short_name": "F7 VFD",
+ "start_url": "../vfd-f7-sim.html",
+ "scope": "../vfd-f7-sim.html",
+ "display": "standalone",
+ "background_color": "#1b1f23",
+ "theme_color": "#1b1f23",
+ "icons": [
+  {
+   "src": "vfd-f7-sim-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "vfd-f7-sim-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "vfd-f7-sim-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

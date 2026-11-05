@@ -1,0 +1,30 @@
+{
+ "id": "/kid-balloons.html",
+ "name": "Balloon Pop ABC",
+ "short_name": "Balloons",
+ "start_url": "../kid-balloons.html",
+ "scope": "../kid-balloons.html",
+ "display": "standalone",
+ "background_color": "#1a0b2e",
+ "theme_color": "#1a0b2e",
+ "icons": [
+  {
+   "src": "kid-balloons-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "kid-balloons-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "kid-balloons-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

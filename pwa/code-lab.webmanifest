@@ -1,0 +1,30 @@
+{
+ "id": "/code-lab.html",
+ "name": "Code Lab",
+ "short_name": "Code Lab",
+ "start_url": "../code-lab.html",
+ "scope": "../code-lab.html",
+ "display": "standalone",
+ "background_color": "#050918",
+ "theme_color": "#050918",
+ "icons": [
+  {
+   "src": "code-lab-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "code-lab-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "code-lab-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

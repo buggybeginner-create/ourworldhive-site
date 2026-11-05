@@ -1,0 +1,30 @@
+{
+ "id": "/news.html",
+ "name": "Worldhive News",
+ "short_name": "News",
+ "start_url": "../news.html",
+ "scope": "../news.html",
+ "display": "standalone",
+ "background_color": "#050918",
+ "theme_color": "#050918",
+ "icons": [
+  {
+   "src": "news-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "news-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "news-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

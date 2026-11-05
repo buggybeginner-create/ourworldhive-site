@@ -1,0 +1,30 @@
+{
+ "id": "/electronics.html",
+ "name": "Spark Bench",
+ "short_name": "Spark Bench",
+ "start_url": "../electronics.html",
+ "scope": "../electronics.html",
+ "display": "standalone",
+ "background_color": "#050918",
+ "theme_color": "#050918",
+ "icons": [
+  {
+   "src": "electronics-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "electronics-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "electronics-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

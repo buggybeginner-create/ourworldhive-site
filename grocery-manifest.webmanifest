@@ -1,6 +1,6 @@
 {
  "id": "grocery-cart.html",
- "name": "Grocery Cart",
+ "name": "Grocery",
  "short_name": "Grocery",
  "start_url": "grocery-cart.html",
  "scope": "./grocery-cart.html",

@@ -1,6 +1,6 @@
 {
  "id": "/news.html",
- "name": "Worldhive News",
+ "name": "News",
  "short_name": "News",
  "start_url": "../news.html",
  "scope": "../news.html",

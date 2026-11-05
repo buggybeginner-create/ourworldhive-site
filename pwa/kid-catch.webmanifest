@@ -1,7 +1,7 @@
 {
  "id": "/kid-catch.html",
- "name": "Fruit Catch",
- "short_name": "Fruit Catch",
+ "name": "Fruits",
+ "short_name": "Fruits",
  "start_url": "../kid-catch.html",
  "scope": "../kid-catch.html",
  "display": "standalone",

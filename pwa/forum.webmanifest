@@ -1,6 +1,6 @@
 {
  "id": "/forum.html",
- "name": "Worldhive Forum",
+ "name": "Forum",
  "short_name": "Forum",
  "start_url": "../forum.html",
  "scope": "../forum.html",

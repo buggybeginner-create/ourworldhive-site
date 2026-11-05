@@ -1,6 +1,6 @@
 {
  "id": "loan-tracker.html",
- "name": "Loan Tracker",
+ "name": "Loans",
  "short_name": "Loans",
  "start_url": "loan-tracker.html",
  "scope": "./loan-tracker.html",

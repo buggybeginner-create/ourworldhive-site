@@ -1,7 +1,7 @@
 {
  "id": "/ultimate-tictactoe.html",
- "name": "Ultimate Tic Tac Toe",
- "short_name": "Tic Tac Toe",
+ "name": "TicTacToe",
+ "short_name": "TicTacToe",
  "start_url": "../ultimate-tictactoe.html",
  "scope": "../ultimate-tictactoe.html",
  "display": "standalone",

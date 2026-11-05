@@ -1,7 +1,7 @@
 {
  "id": "parcel-ledger.html",
- "name": "Parcel Ledger",
- "short_name": "Parcel Ledger",
+ "name": "Parcel",
+ "short_name": "Parcel",
  "description": "Track every online order, budgets, returns and refunds.",
  "start_url": "parcel-ledger.html",
  "scope": "./parcel-ledger.html",

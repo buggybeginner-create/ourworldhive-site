@@ -2011,6 +2011,7 @@ function fieldIt(f,extra){
   if(f&&f.act!=='dive'&&f.act!=='block'&&f.act!=='pickup')startAct(f,'throw',[0,0.5]);else if(f&&f.act==='pickup'||f&&f.act==='block')f.chain='throw';
   let runs=runsForDist(f.x,f.z),txt=null;
   const shot=G.swing&&G.swing.name?G.swing.name:'';
+  {const pv0=G.xrun&&G.xrun.prov?G.xrun:null;if(pv0&&pv0.dur){const dn=Math.floor(clamp((G.clock-pv0.t0)/pv0.dur,0,Math.min(pv0.n,MAXRUN)));if(dn>runs)runs=dn}}
   const man=humanBat()&&OPT.runMan!==false&&G.mode==='hit';
   if(man){
     const want=Math.min(3,G.runReq|0);G.runReq=0;
@@ -4210,8 +4211,8 @@ function drawPause(){
   UI.rects.length=0;UI.oy=(H-720)/2;ctx.save();ctx.translate(0,UI.oy);_drawPause();ctx.restore();UI.oy=0}
 function _drawPause(){
   ctx.fillStyle='rgba(2,5,14,0.72)';ctx.fillRect(0,0,W,H);
-  tx('PAUSED',W/2,230,44,'#ffffff','center','900');
-  btn('resume',90,290,300,60,'RESUME',{on:true,col:'#22c55e',size:22,r:18});
+  tx(G.optMenu&&!G.paused?'OPTIONS':'PAUSED',W/2,230,44,'#ffffff','center','900');
+  btn('resume',90,290,300,60,G.optMenu&&!G.paused?'CLOSE (GAME KEEPS RUNNING)':'RESUME',{on:true,col:'#22c55e',size:22,r:18});
   btn('sound',90,362,300,48,OPT.sound?'SOUND: ON':'SOUND: OFF',{size:15});
   btn('radar',90,420,300,48,OPT.radar?'FIELD RADAR: ON':'FIELD RADAR: OFF',{size:15});
   btn('runmode',90,478,300,48,OPT.runMan===false?'BATTING RUNS: AUTO':'BATTING RUNS: MANUAL (RUN BUTTON)',{size:13,on:OPT.runMan!==false,col:'#f97316',tc:'#1b1000'});
@@ -4558,7 +4559,7 @@ function drawSearchBox(y){
     const el=Math.floor((performance.now()-NETM.t0)/1000);
     const dots='.'.repeat(1+Math.floor(G.RT*2)%3);
     tx(st==='found'?'OPPONENT FOUND!':(NETM.want?'WAITING FOR YOUR FRIEND'+dots:(st==='connecting'?'CONNECTING'+dots:'SEARCHING FOR A PLAYER'+dots)),W/2,y+34,17,'#7cf29a','center','900',420);
-    tx(NETM.want?'Ask your friend to challenge your code '+profCode(PR())+' from their game':'Matching players of similar rating, '+OPT.overs+' overs',W/2,y+62,11.5,'#9fb3d9','center','700',420);
+    tx(NETM.want==='*'?'Waiting for your friend to open the invite link':NETM.want?'Ask your friend to challenge your code '+profCode(PR())+' from their game':'Matching players of similar rating, '+OPT.overs+' overs',W/2,y+62,11.5,'#9fb3d9','center','700',420);
     tx(el+'s',W/2,y+92,22,'#fff','center','900');
     if(st!=='found')btn('netcancel',140,y+104,200,38,'CANCEL',{size:14});
   }else if(st==='error'){
@@ -4972,6 +4973,8 @@ function loadScript(src){return new Promise((res,rej)=>{const s=document.createE
 const rid=()=>Math.random().toString(36).slice(2,10);
 
 /* ---- Firebase transport ---- */
+/* friend matching: '*' = host waiting for anyone who opened my invite link */
+function pairOK(info,d){if(info.want==='*')return d.want===info.code;if(info.want)return d.code===info.want&&(d.want===info.code||d.want==='*');return !d.want}
 const FBA={
   name:'firebase',ready:false,uid:null,
   async init(){
@@ -5007,7 +5010,7 @@ const FBA={
         sn.forEach(doc=>{
           const d=doc.data();if(d.uid===uid)return;
           const age=d.ts&&d.ts.toMillis?now-d.ts.toMillis():0;if(age>50000)return;
-          if(info.want){if(d.code!==info.want||d.want!==info.code)return}else if(d.want)return;
+          if(!pairOK(info,d))return;
           const df=Math.abs((d.rating||0)-info.rating);if(!info.want&&df>win)return;
           if(df<bd){bd=df;best=d}
         });
@@ -5051,7 +5054,7 @@ const LCA={
     const post=()=>ch.postMessage({k:'q',uid:me,name:info.name,team:info.team,rating:info.rating,overs:info.overs,code:info.code||'',want:info.want||''});
     this.onq=ev=>{const d=ev.data;if(this.done)return;
       if(d.k==='q'&&d.uid!==me&&d.overs===info.overs){
-        if(info.want){if(d.code!==info.want||d.want!==info.code)return}else if(d.want)return;
+        if(!pairOK(info,d))return;
         if(me<d.uid){const id='m'+rid();this.done=true;ch.postMessage({k:'m',id:id,host:me,guest:d.uid,names:{[me]:info.name,[d.uid]:d.name}});this.stopQueue();cb({id:id,host:true})}
       }else if(d.k==='m'&&d.guest===me){this.done=true;this.stopQueue();cb({id:d.id,host:false})}
     };
@@ -5079,7 +5082,7 @@ function profCode(p){
 }
 function inviteLink(p){
   let base=location.href.split('#')[0].split('?')[0];
-  return base+'?friend='+profCode(p)+'&n='+encodeURIComponent(p.name);
+  return base+'?friend='+profCode(p)+'&n='+encodeURIComponent(p.name)+'&join=1';
 }
 
 /* ---- matchmaking controller (menu) ---- */
@@ -5366,9 +5369,9 @@ function handleUI(id,r,x,y){
     case 'special':{const c=curCard();if(c.sp&&S.bspLeft>0&&!G.swing)G.armed=G.armed?null:c.sp;break}
     case 'sound':OPT.sound=!OPT.sound;sfx.setMute();saveOpt();break;
     case 'radar':OPT.radar=!OPT.radar;saveOpt();break;
-    case 'pause':if(isPlaying()&&!(MT&&MT.online))G.paused=true;break;
-    case 'resume':G.paused=false;break;
-    case 'quit':case 'menu':G.paused=false;if(MT&&MT.online&&NETX){const wasEnd=G.mode==='end';NETX.forfeit();toMenu();if(wasEnd)G.screen='online';break}toMenu();break;
+    case 'pause':if(isPlaying()){if(MT&&MT.online)G.optMenu=true;else G.paused=true}break;
+    case 'resume':G.paused=false;G.optMenu=false;break;
+    case 'quit':case 'menu':G.paused=false;G.optMenu=false;if(MT&&MT.online&&NETX){const wasEnd=G.mode==='end';NETX.forfeit();toMenu();if(wasEnd)G.screen='online';break}toMenu();break;
     case 'ranks':try{OWHG.openRank()}catch(e){try{location.href='rankings.html#cricket'}catch(e2){}}break;
     case 'records':try{OWHG.openRecords()}catch(e){}break;
     case 'pf_friends':G.from='profile';G.screen='friends';break;
@@ -5383,6 +5386,7 @@ function handleUI(id,r,x,y){
     case 'addfriend':askText('FRIEND PROFILE CODE','',6,v=>{const p=PR();p.friends=p.friends||[];if(v===profCode(p)){toast('That is your own code');return}if(p.friends.some(f=>f.code===v))return;p.friends.push({code:v,name:'FRIEND '+v});saveProfiles()});break;
     case 'invite':{const p=PR(),link=inviteLink(p),txt='Play cricket with me on OurWorldHive! My code: '+profCode(p)+'\n'+link;
       try{if(navigator.share){navigator.share({title:'WorldHive Cricket',text:txt,url:link}).catch(()=>{})}else if(navigator.clipboard){navigator.clipboard.writeText(txt);toast('Invite link copied')}else toast('Code: '+profCode(p))}catch(e){toast('Code: '+profCode(p))}
+      setTimeout(()=>{try{if(NETM.state==='idle'&&G.mode==='menu'){G.screen='online';netSearch('*')}}catch(e){}},400);
       break}
     case 't_day':OPT.time='day';saveOpt();setTodForBalls();break;
     case 't_sunset':OPT.time='sunset';saveOpt();setTodForBalls();break;
@@ -5470,7 +5474,7 @@ function handleUI(id,r,x,y){
   }
 }
 function toMenu(){
-  G.mode='menu';G.paused=false;ball.vis=false;ball.trail.length=0;outBat=null;MT=null;S.bowler=null;G.setup=null;G.brk=null;
+  G.mode='menu';G.paused=false;G.optMenu=false;ball.vis=false;ball.trail.length=0;outBat=null;MT=null;S.bowler=null;G.setup=null;G.brk=null;
   BZ0=31;RU=1.3;G.bowlerZ=31;
   bat=newBatter(CARD_BY_ID[PR().sel.b]);resetStumps();applyField('BALANCED',true);resetFielders();G.excite=0;G.popup=null;G.comm='';UI.trail.length=0;G.endCard=null;
   setTodForBalls();
@@ -5489,14 +5493,14 @@ cv.addEventListener('pointerdown',e=>{
   e.preventDefault();sfx.init();
   const[x,y]=toLogical(e);
   const r=hitUI(x,y);
-  if(scrollMode()&&!G.paused){
+  if(scrollMode()&&!G.paused&&!G.optMenu){
     try{cv.setPointerCapture(e.pointerId)}catch(_){}
     mdrag={id:e.pointerId,x0:x,y0:y,sc0:G.sc[UI.listKey]||0,key:UI.listKey,moved:false,hit:r};return;
   }
-  if(G.mode==='aim'&&humanBowl()&&!G.paused&&(!r||r.id==='pmap')){if(r&&r.id==='pmap'){aimDrag=true;pmapToAim(x,y)}else aimBegin(x,y);try{cv.setPointerCapture(e.pointerId)}catch(_){}return}
-  if(G.mode==='runup'&&humanBowl()&&!humanBat()&&!G.relTapped&&!G.paused&&!(r&&r.id==='pause')){handleUI('bowlgo');return}
+  if(G.mode==='aim'&&humanBowl()&&!G.paused&&!G.optMenu&&(!r||r.id==='pmap')){if(r&&r.id==='pmap'){aimDrag=true;pmapToAim(x,y)}else aimBegin(x,y);try{cv.setPointerCapture(e.pointerId)}catch(_){}return}
+  if(G.mode==='runup'&&humanBowl()&&!humanBat()&&!G.relTapped&&!G.paused&&!G.optMenu&&!(r&&r.id==='pause')){handleUI('bowlgo');return}
   if(r){handleUI(r.id,r,x,y);if(r.id==='pmap')try{cv.setPointerCapture(e.pointerId)}catch(_){};return}
-  if(G.paused||G.mode==='toss'||G.mode==='menu'||G.mode==='end'||G.mode==='setup'||G.mode==='break'||!humanBat())return;
+  if(G.paused||G.optMenu||G.mode==='toss'||G.mode==='menu'||G.mode==='end'||G.mode==='setup'||G.mode==='break'||!humanBat())return;
   const now=performance.now();
   try{cv.setPointerCapture(e.pointerId)}catch(_){}
   drag={id:e.pointerId,x0:x,y0:y,t0:now,tMove0:now,tLast:now,last:[x,y],path:0,fired:false,shot:null,moved:0};
@@ -5542,7 +5546,7 @@ window.addEventListener('keydown',e=>{
   const k=e.key;
   if(OWHG.isKey(e,'mute')){OPT.sound=!OPT.sound;sfx.setMute();return}
   if(OWHG.isKey(e,'help')){if(isPlaying())G.paused=true;OWHG.openHelp();e.preventDefault();return}
-  if(OWHG.isKey(e,'pause')){if(G.paused)G.paused=false;else if(isPlaying())G.paused=true;return}
+  if(OWHG.isKey(e,'pause')){if(G.paused||G.optMenu){G.paused=false;G.optMenu=false}else if(isPlaying()){if(MT&&MT.online)G.optMenu=true;else G.paused=true}return}
   if(OWHG.isKey(e,'chat')&&typeof chatAvail==='function'&&chatAvail()){CHAT.open=!CHAT.open;CHAT2.tab='m';e.preventDefault();return}
   if(OWHG.isKey(e,'taunt')&&typeof chatAvail==='function'&&chatAvail()){CHAT.open=!CHAT.open;CHAT2.tab='t';e.preventDefault();return}
   if(G.mode==='menu'){if((k==='Enter'||k===' ')&&G.screen==='play')startMatch();return}
@@ -5588,8 +5592,8 @@ OWHG.setHelp({keys:[
  {id:'pause',label:'Pause',def:['p','Escape']},{id:'mute',label:'Sound on / off',def:['m']},{id:'help',label:'Show these controls',def:['h']}],
  fixed:[['Enter / Space','Bowl the ball (when you bowl) and continue screens'],['\u2190 \u2192 \u2191 \u2193','Aim the ball (when you bowl)'],['1 - 6','Choose the delivery type (when you bowl)']],
  touch:[['\uD83D\uDC46','Batting: swipe the way you want to hit, tap to defend'],['\uD83C\uDFAF','Bowling: drag on the pitch to aim, tap to release'],['\uD83D\uDCAC','Chat button: emojis, quick lines and taunts']]});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&isPlaying())G.paused=true});
-window.addEventListener('blur',()=>{if(isPlaying())G.paused=true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&isPlaying()&&!(MT&&MT.online))G.paused=true});
+window.addEventListener('blur',()=>{if(isPlaying()&&!(MT&&MT.online))G.paused=true});
 
 
 
@@ -5828,7 +5832,7 @@ function render(){
     else if(G.mode==='end')drawEnd(RT);
     else{drawControls();if(G.mode==='netover'||G.mode==='netbowl')drawNetWait();drawOverCard()}
     if(!G.paused)drawChat();
-    if(G.paused)drawPause();
+    if(G.paused||G.optMenu)drawPause();
   }
   if(VSX.on)drawVS();
   if(CHEST.open)drawChestUI();
@@ -5859,7 +5863,8 @@ requestAnimationFrame(frame);
 
 (function(){
   try{const q=new URLSearchParams(location.search),c=(q.get('friend')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-    if(c.length===6){const p=PR();p.friends=p.friends||[];if(c!==profCode(p)&&!p.friends.some(f=>f.code===c)){p.friends.push({code:c,name:(q.get('n')||'FRIEND').toUpperCase().slice(0,12)});saveProfiles();setTimeout(()=>toast('Friend added! Open PLAY ONLINE > FRIENDS'),800)}}}catch(e){}
+    if(c.length===6){const p=PR();p.friends=p.friends||[];if(c!==profCode(p)&&!p.friends.some(f=>f.code===c)){p.friends.push({code:c,name:(q.get('n')||'FRIEND').toUpperCase().slice(0,12)});saveProfiles();setTimeout(()=>toast('Friend added! Open PLAY ONLINE > FRIENDS'),800)}
+    if(c.length===6&&q.get('join')==='1'&&c!==profCode(PR())){setTimeout(()=>{try{if(G.mode==='menu'&&NETM.state==='idle'){G.screen='online';toast('Joining your friend...');netSearch(c)}}catch(e){}},1800)}}}catch(e){}
 })();
 </script>
 <script>setTimeout(function(){try{rkFlush()}catch(e){}},4000);try{if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('cricket-sw.js',{scope:'./cricket.html'}).catch(function(){})}catch(e){}</script>

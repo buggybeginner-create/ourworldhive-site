@@ -93,7 +93,7 @@ BX.Game.prototype.after=function(){var G=this;if(G.over)return;G.ui.onTurn&&G.ui
 BX.Game.prototype.cheat=function(seat,why){var G=this,s=G.s;if(G.over)return;
  var win=s.mode==='online'&&seat!==s.me?s.me:-1;
  G.finish({winner:win,cheat:true,seat:seat,reason:'Illegal or tampered move detected ('+why+'). The game is void'+(win>=0?' and you are the winner.':'.')})};
-BX.Game.prototype.finish=function(r){var G=this;if(G.over)return;G.over=r;clearInterval(G.hb);
+BX.Game.prototype.finish=function(r){var G=this;if(G.over)return;G.over=r;clearInterval(G.hb);if(G.s.mode==='online'){try{localStorage.removeItem('owh_bx_last')}catch(e){}}
  if(G.s.mode==='online'&&G.room&&G.s.me===0){BX.room.patch(G.s.rid,{status:'done',result:{winner:r.winner,reason:String(r.reason||'').slice(0,80)}}).catch(function(){})}
  G.ui.onOver&&G.ui.onOver(r)};
 BX.Game.prototype.resign=function(){var G=this,s=G.s;if(G.over)return;if(s.mode==='online'){BX.room.patch(s.rid,{resigned:BX.uid}).catch(function(){});G.finish({winner:s.seats.length===2?1-s.me:-1,reason:'You resigned'})}else G.finish(G.def.onResign?G.def.onResign(G.state,G.humanSeat()):{winner:-1,reason:'Game ended'})};
@@ -103,6 +103,15 @@ BX.lobby=function(root,o){BX.closeFs();BX.gameInit(o.game);
  root.innerHTML='<div class="bx-lob"><div class="bx-card"><label class="bx-l">Your name</label><input id="bxN" maxlength="16" class="bx-in" value="'+BX.name()+'">'+
  '<div class="bx-tabs"><button data-t="bot" class="on">🤖 Vs Computer</button>'+(o.noLocal?'':'<button data-t="loc">👥 Pass &amp; play</button>')+'<button data-t="on">🌐 Online</button></div><div id="bxP"></div></div>'+
  '<div class="bx-card bx-note"><b>Fair play.</b> '+(o.note||'')+'</div></div>';
+ (function(){var L=null;try{L=JSON.parse(localStorage.getItem('owh_bx_last')||'null')}catch(e){}
+  if(!L||L.g!==o.game||Date.now()-L.t>6*3600*1000||new URLSearchParams(location.search).get('room'))return;
+  BX.init().then(function(){return BX.db.collection('board_rooms').doc(L.rid).get()}).then(function(sn){
+   var d=sn.exists?sn.data():null;if(!d||d.status!=='playing'||d.players.indexOf(BX.uid)<0||d.result||d.resigned){try{localStorage.removeItem('owh_bx_last')}catch(e){}return}
+   var lob=root.querySelector('.bx-lob');if(!lob||lob.querySelector('.bx-rj'))return;
+   var c=document.createElement('div');c.className='bx-card bx-rj';c.innerHTML='<b>↩ Game in progress</b><p class="bx-p" style="margin:4px 0 8px">You left room '+L.rid+' before it finished.</p><button class="btn gold" id="bxRj">REJOIN LAST GAME</button> <button class="btn" id="bxRx">Dismiss</button>';
+   lob.insertBefore(c,lob.firstChild);
+   c.querySelector('#bxRj').onclick=function(){tab='on';[].forEach.call(root.querySelectorAll('.bx-tabs button'),function(x){x.classList.toggle('on',x.dataset.t==='on')});render();BX.room.join(L.rid).then(function(d){enter(L.rid,d)}).catch(function(e){BX.toast(e.message||'Could not rejoin')})};
+   c.querySelector('#bxRx').onclick=function(){try{localStorage.removeItem('owh_bx_last')}catch(e){}c.remove()}}).catch(function(){})})();
  var TCS=o.timer||null,tcI=0;try{tcI=Math.min((TCS||[]).length-1,+localStorage.getItem('owh_tc')||0)}catch(e){}
  var P=$('#bxP',root),tab='bot',nB=o.maxP?Math.min(o.maxP,o.minP||2):2,lvl=1,unW=null;
  $('#bxN',root).onchange=function(){var el=this,old=BX.name(),v=el.value.trim();BX.need(function(){OWHG.claimName(v).then(function(r){if(r.ok){el.value=r.name;BX.toast('Name saved. Your scores moved to the new name.')}else{el.value=old;BX.toast(r.msg)}})})};
@@ -125,7 +134,7 @@ BX.lobby=function(root,o){BX.closeFs();BX.gameInit(o.game);
  function enter(rid,d){
   var W=$('#bxOn',root);W.innerHTML='<div class="bx-wait"><div class="bx-spin"></div><h3>Room <span class="bx-code">'+rid+'</span></h3><p class="bx-p">Waiting for players ('+d.players.length+'/'+d.max+')… Share this code or link:</p><input class="bx-in" readonly value="'+location.origin+location.pathname+'?room='+rid+'" onclick="this.select()"><button class="btn" id="bxCp">Copy link</button> <button class="btn" id="bxCx">Cancel</button></div>';
   $('#bxCp',root).onclick=function(){try{navigator.clipboard.writeText(location.origin+location.pathname+'?room='+rid);BX.toast('Link copied')}catch(e){}};
-  var done=false;function go(r){if(done)return;done=true;un();var seats=r.players.map(function(u){return{name:(r.names&&r.names[u])||'Player',bot:false}});start({mode:'online',rid:rid,seats:seats,uids:r.players,me:r.players.indexOf(BX.uid),seed:r.seed})}
+  var done=false;function go(r){if(done)return;done=true;un();try{localStorage.setItem('owh_bx_last',JSON.stringify({g:o.game,rid:rid,t:Date.now()}))}catch(e){}var seats=r.players.map(function(u){return{name:(r.names&&r.names[u])||'Player',bot:false}});start({mode:'online',rid:rid,seats:seats,uids:r.players,me:r.players.indexOf(BX.uid),seed:r.seed})}
   var un=BX.room.watch(rid,function(r){if(done)return;W.querySelector('p.bx-p').firstChild.textContent='Waiting for players ('+r.players.length+'/'+r.max+')… Share this code or link:';if(r.status!=='open'&&r.players.length>=r.max)go(r)});
   unW=function(){if(!done){done=true;un();clearTimeout(botT)}};
   /* owner-controlled bots: if nobody joins, fill the room with computer players (set in Studio) */

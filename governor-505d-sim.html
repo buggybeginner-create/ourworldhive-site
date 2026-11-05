@@ -216,7 +216,6 @@ canvas{display:block;width:100%;height:260px}
 .dlg p{margin:0 0 2cqw;font-size:2.7cqw}
 .dlg .row{display:flex;gap:3cqw;justify-content:center}
 .dlg .row .mbtn{min-width:20cqw}
-.lcd [data-f],.lcd .mb span[data-sk]{cursor:pointer}.lcd .mb span.e{cursor:default}
 .entry{font:600 4.6cqw "JetBrains Mono",monospace;background:#000;color:#ffd84a;padding:1.2cqw 2cqw;border-radius:.6cqw;display:inline-block;min-width:34cqw;text-align:right}
 .splash{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font:700 italic 8cqw Arial}
 .splash b{color:#e0202a;font-size:1.3em}
@@ -1015,6 +1014,7 @@ const T={
  kbd:['PC keys: arrows, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset','PC कुंजियाँ: एरो, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset','PC keys: arrows, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset'],
  swipe:['Swipe left or right to change tabs','टैब बदलने के लिए बाएँ या दाएँ स्वाइप करें','Tab badalne ke liye left ya right swipe karein'],
  keysT:['Keys on the 505 (Chapter 1)','505 की कुंजियाँ (अध्याय 1)','505 ki keys (Chapter 1)'],
+ noTouch:['The 505 screen is not a touch screen. Use the arrows ▲▼◀▶ to select, then press ENTER. Menu-bar commands = black keys below the screen.','505 की स्क्रीन टच स्क्रीन नहीं है। ▲▼◀▶ एरो से चुनें, फिर ENTER दबाएँ। मेन्यू बार के कमांड = स्क्रीन के नीचे की काली कुंजियाँ।','505 ki screen touch screen nahi hai. ▲▼◀▶ arrows se select karo, phir ENTER dabao. Menu bar ke command = screen ke neeche ki kaali keys.'],
  wScroll:['Swipe the diagram left / right to see the field devices →','फील्ड डिवाइस देखने के लिए डायग्राम को बाएँ / दाएँ स्वाइप करें →','Field devices dekhne ke liye diagram ko left / right swipe karein →'],
  disc:['Training purpose only. Not affiliated with Woodward or the equipment supplier. Settings are a training example, not your site\'s configuration.','केवल प्रशिक्षण के लिए। Woodward या उपकरण सप्लायर से संबद्ध नहीं। सेटिंग्स प्रशिक्षण उदाहरण हैं, आपकी साइट की कॉन्फ़िगरेशन नहीं।','Sirf training ke liye. Woodward ya supplier se koi sambandh nahi. Settings training example hain, aapki site ki configuration nahi.'],
  trend:['Trend (last 4 min)','ट्रेंड (पिछले 4 मिनट)','Trend (last 4 min)'],lgSpd:['Speed','स्पीड','Speed'],lgSp:['Setpoint','सेटपॉइंट','Setpoint'],lgHp:['HP valve %','HP वाल्व %','HP valve %'],lgMw:['Load MW','लोड MW','Load MW'],
@@ -1405,18 +1405,12 @@ document.addEventListener('keydown',e=>{if(curTab!==0||e.target.closest('input,s
 document.addEventListener('keyup',e=>{const k=KM[e.key];if(k==='ADJUP'||k==='ADJDN')key(k,'up')});
 let toT=0;function toast(m,c){const el=$('toast');el.textContent=m;el.className='toast show '+(c||'');clearTimeout(toT);toT=setTimeout(()=>el.className='toast',2600)}
 /* screen-saver style tap on LCD: tap focuses item under finger (helps on phones) */
-/* Tap on the LCD. The screen redraws every 0.12 s, so a normal 'click' never fires (press and release land on
-   different elements). Remember what was under the finger on press, act on release if the finger did not move.
-   Tap a button = select + ENTER. Tap a value = select it (tap again = ENTER / edit). Tap menu-bar label = its soft key. */
+/* As per manual 26839V1: the 505 display is NOT a touch screen. Items are selected with the navigation cross
+   (arrows) and executed with ENTER; menu-bar commands use the black soft keys below the screen.
+   A tap on the screen therefore does nothing except show this hint. */
 let lt=null;
-lcd.addEventListener('pointerdown',e=>{if(!S.power||S.boot>0){lt=null;return}const f=e.target.closest('[data-f]'),sk=e.target.closest('[data-sk]');
- lt={x:e.clientX,y:e.clientY,f:f&&f.dataset.f,btn:!!(f&&f.classList.contains('mbtn')),sk:sk&&!sk.classList.contains('e')&&sk.dataset.sk,t:Date.now()}});
-lcd.addEventListener('pointerup',e=>{const a=lt;lt=null;if(!a||!S.power||S.boot>0)return;if(Math.hypot(e.clientX-a.x,e.clientY-a.y)>14||Date.now()-a.t>900)return;
- if(a.sk){key(a.sk,'down');key(a.sk,'up');return}
- if(!a.f)return;
- const scope=U.dlg?lcd.querySelector('.dlg'):lcd;if(!scope||!scope.querySelector(`[data-f="${a.f}"]`))return;
- const again=U.fid===a.f;U.fid=a.f;ui.render(true);
- if(a.btn||again){key('ENTER','down');key('ENTER','up')}else guide()});
+lcd.addEventListener('pointerdown',e=>{lt={x:e.clientX,y:e.clientY}});
+lcd.addEventListener('pointerup',e=>{const a=lt;lt=null;if(!a||!S.power||S.boot>0)return;if(Math.hypot(e.clientX-a.x,e.clientY-a.y)>14)return;toast(t('noTouch'))});
 lcd.addEventListener('pointercancel',()=>lt=null);
 
 /* init */

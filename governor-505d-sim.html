@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<title>Woodward 505D Digital Governor Simulator (8200-1300/1301/1302) | Ourworldhive Training Hub</title>
+<meta name="description" content="Interactive 505D steam turbine governor training: front panel keypad and screens, turbine start (manual, semi-auto, automatic), idle/rated, critical band, sync and load, overspeed test, wiring and trip/alarm troubleshooting from manual 26839V1.">
+<meta name="theme-color" content="#1b1f23"><link rel="canonical" href="https://ourworldhive.com/governor-505d-sim.html">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="505D Digital Governor Simulator | Ourworldhive Training Hub"><meta property="og:url" content="https://ourworldhive.com/governor-505d-sim.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+:root{
+  --cab:#22262a;--cab2:#16191c;
+  --ink:#e8ecef;--ink2:#a9b3bc;--ink3:#77828c;
+  --card:#2b3137;--card2:#323a42;--line:#3f4851;
+  --accent:#6fa8dc;--ok:#57c27a;--warn:#f0b84a;--bad:#ff5b4a;
+  --t-spd:#6fa8dc;--t-sp:#c7d3dd;--t-hp:#f0b84a;--t-mw:#c08bf0;
+  --f-key:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --f-ui:"Barlow","Noto Sans Devanagari",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  --maroon:#7a1f2b;--maroon2:#5c1520;--green:#1f7a4a;--green2:#145a35;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+[hidden]{display:none!important}
+body{display:flex;flex-direction:column;overflow:hidden;font:14px var(--f-ui);color:var(--ink);
+  background:radial-gradient(120% 70% at 50% 0%,var(--cab),var(--cab2));-webkit-tap-highlight-color:transparent;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px));background:#1b1f23;border-bottom:1px solid #2c3238}
+.brand{font:700 15px/1.1 var(--f-key);letter-spacing:.08em;min-width:0}
+.brand small{display:block;font-weight:500;letter-spacing:.04em;font-size:11px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.backlink{display:block;margin-bottom:3px;color:#ffc857;text-decoration:none;font-size:12px}
+.lang{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);flex:none}
+.lang select{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 6px;font:inherit;font-size:13px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:#1b1f23;padding:0 max(8px,env(safe-area-inset-right,0px)) 0 max(8px,env(safe-area-inset-left,0px))}
+.tab{appearance:none;background:none;border:0;color:var(--ink3);font:600 12px/1 var(--f-key);letter-spacing:.06em;text-transform:uppercase;padding:7px 2px 8px;cursor:pointer;border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.tab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.viewport{flex:1;min-height:0;overflow:hidden;overflow:clip;position:relative}
+.track{display:flex;width:400%;height:100%;transition:transform .32s cubic-bezier(.2,.7,.2,1)}
+.pane{width:25%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px max(12px,env(safe-area-inset-right,0px)) 28px max(12px,env(safe-area-inset-left,0px))}
+.col{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.col.wide{max-width:1180px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.card h3{margin:0 0 8px;font:700 12px/1.2 var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.note{font-size:12.5px;line-height:1.45;color:var(--ink2);margin:8px 0 0}
+.note b{color:var(--ink)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card2);color:var(--ink);font:600 13px/1.1 var(--f-key);letter-spacing:.05em;text-transform:uppercase;border-radius:8px;padding:10px 8px;cursor:pointer;min-height:44px}
+.btn:active{transform:translateY(1px)}
+.btn.go{background:#1f4a2e;border-color:#2f7a48;color:#d7f7e1}
+.btn.go.on{background:#2f8a50;box-shadow:0 0 0 2px #57c27a inset}
+.btn.st{background:#5a1f1a;border-color:#94342b;color:#ffe0db}
+.btn.st.on{background:#a8342a;box-shadow:0 0 0 2px #ff7a6a inset}
+.btn.amb{background:#4a3a14;border-color:#8a6a1e;color:#ffeec5}
+.btn.amb.on{background:#a8781a;color:#1b1206}
+.btn.link{background:none;border-color:var(--accent);color:var(--accent);min-height:36px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:460px){.grid4{grid-template-columns:repeat(2,1fr)}}
+.read{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.rd{background:var(--card2);border-radius:8px;padding:7px 9px;min-width:0}
+.rd small{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd b{display:block;font:500 15px/1.25 var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rd b i{font-style:normal;font-size:11px;color:var(--ink3);margin-left:2px}
+@media (max-width:460px){.read{grid-template-columns:repeat(2,1fr)}}
+.slider{display:flex;align-items:center;gap:10px;margin-top:10px}
+.slider label{font-size:12.5px;color:var(--ink2);min-width:7.5em}
+.slider input{flex:1;accent-color:var(--accent);min-width:0}
+.slider output{font:500 13px var(--f-mono);min-width:5.5em;text-align:right}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{appearance:none;background:var(--card2);color:var(--ink2);border:0;border-right:1px solid var(--line);font:600 12px var(--f-key);letter-spacing:.05em;text-transform:uppercase;padding:10px 4px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:#2b4a68;color:#fff}
+.sub{font:600 11px var(--f-key);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:10px 0 6px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font:600 11px var(--f-key);letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:20px;background:#22282d;color:var(--ink3);border:1px solid var(--line)}
+.pill.ok{background:#1f4a2e;color:#c9f2d5;border-color:#2f7a48}
+.pill.bad{background:#5a1f1a;color:#ffd6cf;border-color:#94342b}
+.pill.warn{background:#4a3a14;color:#ffeec5;border-color:#8a6a1e}
+.pill.info{background:#1f3550;color:#d5e6f7;border-color:#2f5a86}
+canvas{display:block;width:100%;height:260px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink2);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.disc{font-size:11.5px;color:var(--ink3);text-align:center;margin:4px 0 0;line-height:1.4}
+.foot{font-size:11.5px;color:var(--ink3);text-align:center}
+.hintline{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--ink3);flex-wrap:wrap}
+
+/* ============ 505D FRONT PANEL ============ */
+.pwrap{container-type:inline-size;container-name:panel;width:100%}
+.panel{--u:calc(100cqw/100);background:linear-gradient(180deg,#45494d,#34373a 40%,#2c2f32);border-radius:calc(var(--u)*2.2);padding:calc(var(--u)*1.6);
+  box-shadow:0 0 0 1px #1a1c1e,inset 0 1px 0 rgba(255,255,255,.12),0 1.2em 2.4em rgba(0,0,0,.55);font-family:var(--f-key);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pin{background:linear-gradient(180deg,#e3e3e0,#cfd0cc);border-radius:calc(var(--u)*1.2);padding:calc(var(--u)*1.4);display:grid;
+  grid-template-columns:11% 1fr 21%;grid-template-areas:"head head estop" "leds scr num" "leds soft num" "leds nav adj";column-gap:calc(var(--u)*1.6);row-gap:calc(var(--u)*1.1);
+  box-shadow:inset 0 0 0 1px #a9aaa5}
+.p-head{grid-area:head;display:flex;align-items:baseline;justify-content:space-between;padding:0 1%;color:#2b2e31}
+.p-head .lg{font:700 italic calc(var(--u)*3.4)/1 var(--f-key);letter-spacing:.01em}
+.p-head .lg b{color:#b3141c;font-size:1.25em;margin-right:.15em}
+.p-head .wd{font:700 calc(var(--u)*2)/1 var(--f-key);letter-spacing:.25em;color:#3d4146}
+.p-estop{grid-area:estop;display:flex;justify-content:flex-end;align-items:center;gap:calc(var(--u)*1)}
+.estop{appearance:none;border:0;cursor:pointer;width:calc(var(--u)*7.4);height:calc(var(--u)*7.4);border-radius:50%;background:radial-gradient(circle at 40% 35%,#ff6b5e,#d1170e 55%,#7d0905);
+  box-shadow:0 0 0 calc(var(--u)*.7) #f4d21a,0 0 0 calc(var(--u)*.9) #6b5a06,0 calc(var(--u)*.6) calc(var(--u)*1.2) rgba(0,0,0,.5);color:#fff;font:700 calc(var(--u)*1.25)/1 var(--f-key);letter-spacing:.04em}
+.estop:active{transform:scale(.96)}
+.estl{font:700 calc(var(--u)*1.35)/1.1 var(--f-key);color:#7d0905;text-align:right;letter-spacing:.05em}
+.p-leds{grid-area:leds;background:linear-gradient(180deg,#2e3134,#1f2123);border-radius:calc(var(--u)*1);padding:calc(var(--u)*1.6) calc(var(--u)*.8);display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:calc(var(--u)*1.2)}
+.lgrp{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.6)}
+.lrow{display:flex;gap:calc(var(--u)*1.6)}
+.led{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.35);font:600 calc(var(--u)*1.2)/1 var(--f-key);color:#cfd3d6;letter-spacing:.05em}
+.led i{display:block;width:calc(var(--u)*1.5);height:calc(var(--u)*1.5);border-radius:50%;background:#3b3033;box-shadow:inset 0 1px 2px rgba(0,0,0,.8)}
+.led.r.on i{background:radial-gradient(circle at 40% 35%,#ffd0c8,#ff2d22 50%,#9c0d08);box-shadow:0 0 calc(var(--u)*1) #ff2d22}
+.led.y.on i{background:radial-gradient(circle at 40% 35%,#fff2c0,#ffc21a 50%,#a77a00);box-shadow:0 0 calc(var(--u)*1) #ffc21a}
+.led.g.on i{background:radial-gradient(circle at 40% 35%,#d9ffd8,#2ee05a 50%,#11782a);box-shadow:0 0 calc(var(--u)*1) #2ee05a}
+.led.blink i{animation:lb .6s steps(1) infinite}
+@keyframes lb{50%{background:#3b3033;box-shadow:inset 0 1px 2px rgba(0,0,0,.8)}}
+.k{appearance:none;border:0;cursor:pointer;position:relative;font:700 calc(var(--u)*1.45)/1 var(--f-key);letter-spacing:.05em;color:#fff;border-radius:calc(var(--u)*.7);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;padding:0;min-height:calc(var(--u)*5);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 calc(var(--u)*.35) 0 rgba(0,0,0,.45),0 calc(var(--u)*.5) calc(var(--u)*.9) rgba(0,0,0,.35)}
+.k:active,.k.pr{transform:translateY(calc(var(--u)*.3));box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 calc(var(--u)*.05) 0 rgba(0,0,0,.45)}
+.k.m{background:linear-gradient(180deg,#9b2a38,var(--maroon) 55%,var(--maroon2))}
+.k.g{background:linear-gradient(180deg,#2b9a5f,var(--green) 55%,var(--green2))}
+.k.b{background:linear-gradient(180deg,#3a3d40,#1d1f21);min-height:calc(var(--u)*4.2)}
+.k small{font-weight:500;font-size:.72em;opacity:.85;letter-spacing:.02em;margin-top:.15em;text-transform:lowercase}
+.k:focus-visible{outline:calc(var(--u)*.4) solid #ffc857;outline-offset:2px}
+.k.view,.k.mode{width:calc(var(--u)*7.4)}
+.p-scr{grid-area:scr;background:#0b0c0d;border-radius:calc(var(--u)*.8);padding:calc(var(--u)*.9);box-shadow:inset 0 0 0 calc(var(--u)*.25) #000,0 1px 0 rgba(255,255,255,.4)}
+.lcd{position:relative;aspect-ratio:4/3;container-type:inline-size;overflow:hidden;border-radius:2px;cursor:default;background:#000}
+.p-soft{grid-area:soft;display:grid;grid-template-columns:repeat(4,1fr);gap:4%;padding:0 3%}
+.p-nav{grid-area:nav;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:calc(var(--u)*1.4)}
+.cross{display:grid;grid-template-columns:repeat(3,calc(var(--u)*5.2));grid-template-rows:repeat(3,calc(var(--u)*4.4));gap:calc(var(--u)*.5);background:#1f2123;padding:calc(var(--u)*.7);border-radius:calc(var(--u)*1.6)}
+.cross .k{min-height:0}
+.cross .ent{font-size:calc(var(--u)*1.2)}
+.cmdl,.cmdr{display:flex;gap:calc(var(--u)*1.2);align-self:end}
+.cmdl{justify-content:flex-end}.cmdr{justify-content:flex-start}
+.cmdl .k,.cmdr .k{width:calc(var(--u)*8.4);min-height:calc(var(--u)*4.6)}
+.p-num{grid-area:num;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*.9);align-content:start}
+.p-num .k{min-height:calc(var(--u)*5.2);font-size:calc(var(--u)*1.9)}
+.p-num .k small{font-size:.55em}
+.p-adj{grid-area:adj;display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*1.2)}
+.rocker{display:flex;flex-direction:column;background:#123d26;border-radius:calc(var(--u)*1.2);padding:calc(var(--u)*.5);gap:calc(var(--u)*.4);width:calc(var(--u)*9)}
+.rocker .k{min-height:calc(var(--u)*5.4);font-size:calc(var(--u)*2.2)}
+.rocker span{font:700 calc(var(--u)*1.2)/1 var(--f-key);color:#cfe9d8;text-align:center;letter-spacing:.1em}
+.p-adj .rst{width:calc(var(--u)*9)}
+/* narrow (phone) layout */
+@container panel (max-width:640px){
+  .panel{--u:calc(100cqw/56);padding:calc(var(--u)*1.2)}
+  .pin{grid-template-columns:1fr 1fr;grid-template-areas:"head estop" "leds leds" "scr scr" "soft soft" "nav nav" "adj num";padding:calc(var(--u)*1.2);row-gap:calc(var(--u)*1.6)}
+  .p-leds{flex-direction:row;justify-content:space-between;padding:calc(var(--u)*1.2) calc(var(--u)*1.6)}
+  .lgrp{flex-direction:row;gap:calc(var(--u)*1.2)}
+  .p-head .lg{font-size:calc(var(--u)*3.2)}
+  .estop{width:calc(var(--u)*7.6);height:calc(var(--u)*7.6)}
+  .p-nav{grid-template-columns:1fr auto 1fr;gap:calc(var(--u)*1.2)}
+  .cmdl,.cmdr{flex-direction:column;align-self:center;gap:calc(var(--u)*1.4)}
+  .cmdl .k,.cmdr .k{width:calc(var(--u)*11);min-height:calc(var(--u)*6)}
+  .cross{grid-template-columns:repeat(3,calc(var(--u)*7));grid-template-rows:repeat(3,calc(var(--u)*6))}
+  .p-num{gap:calc(var(--u)*1)}
+  .p-num .k{min-height:calc(var(--u)*6)}
+  .p-adj{justify-content:flex-start}
+  .rocker,.p-adj .rst{width:calc(var(--u)*13)}
+  .pin{grid-template-columns:minmax(0,1fr) auto}
+  .pin>*{min-width:0}
+  .pin .p-leds,.pin .p-scr,.pin .p-soft,.pin .p-nav{grid-column:1 / -1}
+  .pin .p-adj{grid-column:1}.pin .p-num{grid-column:2;width:calc(var(--u)*27)}
+  .p-head{flex-direction:column;align-items:flex-start;gap:calc(var(--u)*.8)}
+  .p-head .wd{font-size:calc(var(--u)*1.8)}
+  .p-leds{gap:calc(var(--u)*.8)}
+  .lgrp{gap:calc(var(--u)*.8)}.lrow{gap:calc(var(--u)*.9)}
+  .k.view,.k.mode{width:calc(var(--u)*7.4);font-size:calc(var(--u)*1.35)}
+  .led{font-size:calc(var(--u)*1.05)}
+  .p-leds{padding:calc(var(--u)*1.2) calc(var(--u)*1)}
+  .k{font-size:calc(var(--u)*1.8);min-height:calc(var(--u)*6)}
+  .k.b{min-height:calc(var(--u)*5.4)}
+  .k.view,.k.mode{width:calc(var(--u)*9)}
+  .led{font-size:calc(var(--u)*1.5)}
+  .led i{width:calc(var(--u)*1.9);height:calc(var(--u)*1.9)}
+}
+
+/* ============ LCD SCREENS (sized in cqw of the LCD) ============ */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;font:500 2.7cqw/1.25 Arial,Helvetica,sans-serif;color:#111;background:linear-gradient(180deg,#d8d8d8,#bdbdbd)}
+.scr.cfg{background:linear-gradient(180deg,#b9cff0,#6f93c9)}
+.scr .tb{display:flex;justify-content:space-between;align-items:flex-start;padding:1.2cqw 1.6cqw .6cqw;border-bottom:.3cqw solid #a01e2b;background:linear-gradient(180deg,#f4f4f4,#dadada)}
+.scr .tb h1{margin:0;font:400 5cqw/1 Arial,sans-serif;color:#a01e2b}
+.scr .cs{text-align:right;font-size:2.2cqw;line-height:1.15}
+.scr .cs u{display:block;text-decoration:underline;color:#333}
+.scr .cs b{color:#b06000;font-weight:600}
+.scr .cs em{display:block;font-style:normal;color:#555;font-size:1.9cqw}
+.scr .bd{flex:1;min-height:0;position:relative;padding:1.4cqw 1.8cqw;overflow:hidden}
+.scr .mb{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4cqw;padding:.9cqw 1.6cqw 1.1cqw;background:#2a2a2a;border-top:.25cqw solid #000}
+.scr .mb span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:5cqw;border-radius:.6cqw;background:linear-gradient(180deg,#9b2a38,#6a1824);color:#fff;font-size:2.3cqw;line-height:1.05;padding:0 .5cqw}
+.scr .mb span.e{background:none}
+.scr .mb span.gk{background:linear-gradient(180deg,#2b9a5f,#145a35)}
+.f{outline:.5cqw solid transparent;outline-offset:.2cqw;border-radius:.5cqw}
+.f.on{outline-color:#ffb000;box-shadow:0 0 0 .9cqw rgba(255,176,0,.35)}
+.mbtn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:5.6cqw;background:linear-gradient(180deg,#9b2a38,#6a1824);color:#fff;border-radius:.6cqw;font-size:2.5cqw;padding:0 .6cqw}
+.mbtn.gk{background:linear-gradient(180deg,#2b9a5f,#145a35)}
+.mbtn.dis{background:linear-gradient(180deg,#8d8d8d,#6c6c6c);color:#ddd}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2cqw 3cqw;padding:2cqw 4cqw}
+.val{display:inline-block;background:#000;color:#fff;font:600 3.2cqw/1 "JetBrains Mono",monospace;padding:.9cqw 1.4cqw;border-radius:.4cqw;min-width:14cqw;text-align:right}
+.val.big{font-size:4.4cqw}
+.val.sm{font-size:2.6cqw;min-width:10cqw}
+.lbl{font-size:2.5cqw;color:#222}
+.dotl{display:inline-block;width:2.4cqw;height:2.4cqw;border-radius:50%;background:#222;vertical-align:-.4cqw;margin-right:1cqw;box-shadow:inset 0 0 0 .3cqw #555}
+.dotl.g{background:#2ee05a;box-shadow:0 0 1cqw #2ee05a}.dotl.r{background:#ff3322;box-shadow:0 0 1cqw #ff3322}.dotl.y{background:#ffc21a}
+.box{background:#e9e9e9;border:.25cqw solid #8a8a8a;border-radius:.6cqw;padding:1cqw 1.4cqw}
+.box h4{margin:0 0 .8cqw;font:700 2.5cqw Arial;text-align:center;border-bottom:.2cqw solid #999;padding-bottom:.5cqw}
+.tbl{width:100%;border-collapse:collapse;font-size:2.35cqw}
+.tbl th{background:#4a4a4a;color:#fff;font-weight:600;text-align:left;padding:.6cqw .9cqw}
+.tbl td{padding:.55cqw .9cqw;border-bottom:.15cqw solid #a9a9a9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40cqw}
+.tbl tr.act td{color:#a00;font-weight:600}
+.adjb{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:5cqw;height:6.6cqw;background:linear-gradient(180deg,#2b9a5f,#145a35);color:#fff;border-radius:.5cqw;font-size:1.6cqw;vertical-align:middle;margin-left:.8cqw;line-height:1}
+.gauge{width:100%;height:auto;display:block}
+.dlg{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:5}
+.dlg .in{background:#efefef;border:.4cqw solid #a01e2b;border-radius:1cqw;width:72%;padding:2.4cqw 3cqw;text-align:center;box-shadow:0 1cqw 3cqw rgba(0,0,0,.5)}
+.dlg h2{margin:0 0 1.4cqw;font:700 3.6cqw Arial;color:#a01e2b}
+.dlg p{margin:0 0 2cqw;font-size:2.7cqw}
+.dlg .row{display:flex;gap:3cqw;justify-content:center}
+.dlg .row .mbtn{min-width:20cqw}
+.entry{font:600 4.6cqw "JetBrains Mono",monospace;background:#000;color:#ffd84a;padding:1.2cqw 2cqw;border-radius:.6cqw;display:inline-block;min-width:34cqw;text-align:right}
+.splash{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font:700 italic 8cqw Arial}
+.splash b{color:#e0202a;font-size:1.3em}
+.splash small{font:400 2.6cqw Arial;margin-top:2cqw;color:#bbb;font-style:normal}
+.off{position:absolute;inset:0;background:#030303}
+.msgbar{position:absolute;left:2cqw;right:2cqw;bottom:9.5cqw;background:#222;color:#ffd84a;font-size:2.5cqw;padding:1cqw 1.6cqw;border-radius:.6cqw;z-index:4;text-align:center}
+.lss{width:100%;height:auto}
+
+/* guide */
+.g-k{display:inline-block;font:600 11px var(--f-key);letter-spacing:.08em;text-transform:uppercase;color:#1b1206;background:var(--warn);border-radius:4px;padding:2px 7px;margin-bottom:6px}
+.g-t{font:700 16px/1.2 var(--f-key);letter-spacing:.03em;margin:0 0 4px}
+.g-p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.g-next{margin-top:10px;padding:9px 11px;border-radius:8px;background:#1f3550;border:1px solid #2f5a86;font-size:13.5px;line-height:1.45}
+.g-next b{display:block;font:700 11px var(--f-key);letter-spacing:.1em;text-transform:uppercase;color:#a9cdf0;margin-bottom:3px}
+.keyhelp{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:13px;line-height:1.4;color:var(--ink2);margin:0}
+.keyhelp dt{font:700 12px var(--f-key);letter-spacing:.06em;color:var(--ink);text-transform:uppercase;white-space:nowrap}
+.keyhelp dd{margin:0}
+
+/* exercises */
+.ex{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ex li{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;background:var(--card2);font-size:13px;line-height:1.4}
+.ex li i{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font:700 11px var(--f-key);font-style:normal;color:var(--ink3)}
+.ex li.done i{background:var(--ok);border-color:var(--ok);color:#0d2416}
+.ex li.cur{outline:1px solid var(--accent)}
+.ex li b{display:block;color:var(--ink);font-weight:600}
+
+/* plant svg */
+.plantsvg{width:100%;height:auto;display:block}
+.plantsvg text{font-family:var(--f-key)}
+.rot{transform-box:fill-box;transform-origin:center}
+
+/* wiring */
+.wscroll{display:none;font-size:12px;color:var(--ink3);margin:0 0 6px}@media (max-width:899px){.wscroll{display:block}}
+.wirewrap{overflow-x:auto;border-radius:8px;background:#1d2226;border:1px solid var(--line)}
+.wirewrap svg{display:block;width:100%;min-width:640px;height:auto}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.tgc{background:var(--card2);border-radius:8px;padding:9px 10px}
+.tgc h4{margin:0 0 6px;font:700 12px var(--f-key);letter-spacing:.08em;text-transform:uppercase;color:var(--warn)}
+.tr{display:grid;grid-template-columns:3.4em 1fr auto;gap:6px;align-items:center;font-size:12.5px;padding:3px 0;border-bottom:1px solid #3a434c}
+.tr:last-child{border-bottom:0}
+.tr code{font:500 11.5px var(--f-mono);color:var(--ink3)}
+.tr .st{font:500 11px var(--f-mono);padding:1px 6px;border-radius:4px;background:#22282d;color:var(--ink3);white-space:nowrap}
+.tr .st.on{background:#1f4a2e;color:#c9f2d5}
+.tr .st.bad{background:#5a1f1a;color:#ffd6cf}
+
+/* faults */
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;background:#1d2226;border:1px solid var(--line);border-radius:8px;color:var(--ink);font:500 16px var(--f-mono);padding:10px 12px}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.quick button{appearance:none;background:#22282d;border:1px solid var(--line);color:var(--ink2);border-radius:6px;font:500 12px var(--f-mono);padding:5px 8px;cursor:pointer}
+.quick button.trip{border-color:#94342b;color:#ffd6cf}
+.quick button.alm{border-color:#8a6a1e;color:#ffeec5}
+.quick button.act{box-shadow:0 0 0 2px var(--bad)}
+.fr h4{margin:10px 0 4px;font:700 12px var(--f-key);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.fr ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.fr .ft{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fr .ft b{font:700 18px var(--f-key);letter-spacing:.03em}
+.tag{font:600 11px var(--f-key);letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.tag.trip{background:#5a1f1a;color:#ffd6cf}.tag.alm{background:#4a3a14;color:#ffeec5}
+.sym details{border-bottom:1px solid var(--line);padding:8px 0}
+.sym summary{cursor:pointer;font-weight:600;font-size:13.5px}
+.sym ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.5;color:var(--ink2)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;transition:.25s;background:#11161a;border:1px solid var(--line);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:13.5px;max-width:calc(100% - 32px);z-index:50;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{border-color:#94342b}.toast.ok{border-color:#2f7a48}
+
+/* wide screens: two columns */
+@media (min-width:1000px){
+  #p-sim .col.wide{display:grid;grid-template-columns:1.25fr 1fr;align-items:start}
+  #p-sim .c-plant{grid-column:1}#p-sim .c-trend{grid-column:1}#p-sim .c-field{grid-column:2;grid-row:1 / span 2}
+  #p-sim .c-ex{grid-column:1 / span 2}
+  #p-key .col.wide{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start}
+  #p-key .k-panel{grid-column:1;grid-row:1 / span 4}
+  #p-key .col.wide>*:not(.k-panel){grid-column:2}
+  #p-trb .col.wide{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+  #p-trb .f-search{grid-column:1}#p-trb .f-res{grid-column:1}#p-trb .f-sym{grid-column:2;grid-row:1 / span 2}
+}
+</style>
+</head><body>
+<header class="hdr">
+  <div class="brand"><a class="backlink" href="training.html">‹ TRAINING HUB</a><span style="display:block">505D DIGITAL GOVERNOR</span><small>Woodward 505 · 8200-1300 / 1301 / 1302 · Manual 26839V1</small></div>
+  <label class="lang"><span data-t="lang">Language</span>
+    <select id="lang"><option value="en">English</option><option value="hi">हिंदी</option><option value="hg">Hinglish</option></select></label>
+</header>
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t0" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="15" rx="2"/><rect x="6" y="6.5" width="10" height="7" rx=".6"/><path d="M18 8h1M18 11h1M7 16.5h2M11 16.5h2M15 16.5h2"/></svg><span data-t="tKey">Panel</span></button>
+  <button class="tab" role="tab" id="t1" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 15h4l2-6h6l2 6h4"/><circle cx="12" cy="15" r="2.4"/><path d="M12 4v3"/></svg><span data-t="tSim">Turbine</span></button>
+  <button class="tab" role="tab" id="t2" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 7h6l3 5h9M3 17h6l3-5"/></svg><span data-t="tWire">Wiring</span></button>
+  <button class="tab" role="tab" id="t3" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.2v.3"/></svg><span data-t="tTrb">Trips</span></button>
+</nav>
+<main class="viewport" id="vp"><div class="track" id="track">
+
+<section class="pane" id="p-key" role="tabpanel"><div class="col wide">
+ <div class="k-panel">
+ <div class="pwrap"><div class="panel" id="panel"><div class="pin">
+  <div class="p-head"><span class="lg"><b>505</b>Turbine Control</span><span class="wd">WOODWARD</span></div>
+  <div class="p-estop"><span class="estl">EMERGENCY<br>TRIP</span><button class="estop" data-k="ESTOP" aria-label="Emergency trip">E-STOP</button></div>
+  <div class="p-leds">
+    <div class="lgrp"><div class="led r" id="L-trip"><i></i>TRIPPED</div><button class="k m view" data-k="VIEWT">VIEW</button></div>
+    <div class="lgrp"><div class="lrow"><div class="led g" id="L-cpu"><i></i>CPU</div><div class="led r" id="L-io"><i></i>IOLOCK</div></div><button class="k m mode" data-k="MODE">MODE</button></div>
+    <div class="lgrp"><div class="led y" id="L-alm"><i></i>ALARM</div><button class="k m view" data-k="VIEWA">VIEW</button></div>
+  </div>
+  <div class="p-scr"><div class="lcd" id="lcd"></div></div>
+  <div class="p-soft"><button class="k b" data-k="S1" aria-label="Soft key 1"></button><button class="k b" data-k="S2" aria-label="Soft key 2"></button><button class="k b" data-k="S3" aria-label="Soft key 3"></button><button class="k b" data-k="S4" aria-label="Soft key 4"></button></div>
+  <div class="p-nav">
+    <div class="cmdl"><button class="k g" data-k="STOP">STOP</button><button class="k m" data-k="ESC">ESC</button></div>
+    <div class="cross">
+      <span></span><button class="k m" data-k="UP" aria-label="Up">▲</button><span></span>
+      <button class="k m" data-k="LEFT" aria-label="Left">◀</button><button class="k m ent" data-k="ENTER">ENTER</button><button class="k m" data-k="RIGHT" aria-label="Right">▶</button>
+      <span></span><button class="k m" data-k="DOWN" aria-label="Down">▼</button><span></span>
+    </div>
+    <div class="cmdr"><button class="k m" data-k="HOME">HOME</button><button class="k g" data-k="START">START</button></div>
+  </div>
+  <div class="p-num">
+    <button class="k m" data-k="1">1<small>@</small></button><button class="k m" data-k="2">2<small>abc</small></button><button class="k m" data-k="3">3<small>def</small></button>
+    <button class="k m" data-k="4">4<small>ghi</small></button><button class="k m" data-k="5">5<small>jkl</small></button><button class="k m" data-k="6">6<small>mno</small></button>
+    <button class="k m" data-k="7">7<small>pqrs</small></button><button class="k m" data-k="8">8<small>tuv</small></button><button class="k m" data-k="9">9<small>wxyz</small></button>
+    <button class="k m" data-k=".">.</button><button class="k m" data-k="0">0<small>␣</small></button><button class="k m" data-k="PM">+/-</button>
+    <button class="k m" data-k="BS" aria-label="Backspace">←</button><button class="k m" data-k="SHIFT" aria-label="Shift / fast">⇧</button><button class="k m" data-k="BRT" aria-label="Brightness">☀</button>
+  </div>
+  <div class="p-adj">
+    <div class="rocker"><button class="k g" data-k="ADJUP" aria-label="Adjust up">▲</button><span>ADJUST</span><button class="k g" data-k="ADJDN" aria-label="Adjust down">▼</button></div>
+    <button class="k m rst" data-k="RESET">RESET</button>
+  </div>
+ </div></div></div>
+ </div>
+ <div class="hintline"><span data-t="kbd">PC keys: arrows, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset</span><span data-t="swipe">Swipe left or right to change tabs</span></div>
+ <div class="card" id="guide" aria-live="polite"></div>
+ <div class="card"><h3 data-t="keysT">Keys on the 505 (Chapter 1)</h3><dl class="keyhelp" id="keyhelp"></dl></div>
+ <p class="disc" data-t="disc">Training purpose only. Not affiliated with Woodward or the equipment supplier. Settings are a training example, not your site's configuration.</p>
+ <div class="foot">© 2026 DUKEKRRISH · ourworldhive.com. All rights reserved. <a href="terms.html#training" style="color:inherit">Terms</a></div>
+</div></section>
+
+<section class="pane" id="p-sim" role="tabpanel"><div class="col wide">
+  <div class="card c-plant">
+    <div class="pills" id="pills"></div>
+    <svg class="plantsvg" id="plant" viewBox="0 0 640 250" aria-label="Steam turbine and generator"></svg>
+    <div class="read" id="readouts"></div>
+  </div>
+  <div class="card c-trend">
+    <h3 data-t="trend">Trend (last 4 min)</h3>
+    <canvas id="trend"></canvas>
+    <div class="legend"><span><i style="background:var(--t-spd)"></i><span data-t="lgSpd">Speed</span></span><span><i style="background:var(--t-sp)"></i><span data-t="lgSp">Setpoint</span></span><span><i style="background:var(--t-hp)"></i><span data-t="lgHp">HP valve %</span></span><span><i style="background:var(--t-mw)"></i><span data-t="lgMw">Load MW</span></span></div>
+  </div>
+  <div class="card c-field">
+    <h3 data-t="fieldT">Field / control room</h3>
+    <div class="sub" data-t="ttT">Trip &amp; Throttle (T&amp;T) valve — at the turbine</div>
+    <div class="grid3"><button class="btn go" id="ttOpen" data-t="ttOpen">Open slowly</button><button class="btn" id="ttHold" data-t="ttHold">Hold</button><button class="btn st" id="ttClose" data-t="ttClose">Close</button></div>
+    <div class="slider"><label for="ttS" data-t="ttPos">T&amp;T position</label><input type="range" id="ttS" min="0" max="100" step="1" value="0"><output id="ttO">0 %</output></div>
+    <div class="sub" data-t="brkT">Breakers (DI5 / DI6)</div>
+    <div class="grid2"><button class="btn go" id="genB" data-t="genC">Close GEN breaker</button><button class="btn go on" id="tieB" data-t="tieO">Utility tie: CLOSED</button></div>
+    <div class="sub" data-t="dcsT">DCS contacts / Modbus</div>
+    <div class="grid4"><button class="btn" id="dRaise" data-t="dRaise">Raise (DI3)</button><button class="btn" id="dLower" data-t="dLower">Lower (DI4)</button><button class="btn amb" id="dReset" data-t="dReset">Reset (DI2)</button><button class="btn st" id="dMbTrip" data-t="dMb">Modbus trip</button></div>
+    <div class="sub" data-t="faultT">Inject a fault (trainer)</div>
+    <div class="grid2" id="faultBtns"></div>
+    <div class="sub" data-t="plantT">Plant conditions</div>
+    <div class="slider"><label for="pinS" data-t="pinL">Inlet steam</label><input type="range" id="pinS" min="0" max="80" step="1" value="64"><output id="pinO">64 bar</output></div>
+    <div class="slider"><label for="islS" data-t="islL">Island load</label><input type="range" id="islS" min="0" max="14" step="0.5" value="6"><output id="islO">6.0 MW</output></div>
+    <div class="slider"><label for="hzS" data-t="hzL">Grid frequency</label><input type="range" id="hzS" min="49.5" max="50.5" step="0.05" value="50"><output id="hzO">50.00 Hz</output></div>
+    <div class="sub" data-t="simspd">Simulation speed</div>
+    <div class="seg" id="spdSel"><button data-v="1" aria-pressed="true">1×</button><button data-v="2">2×</button><button data-v="4">4×</button></div>
+    <div class="grid2" style="margin-top:10px"><button class="btn" id="pwr" data-t="pwrCyc">Power cycle 505</button><button class="btn link" id="toKey" data-t="toKey">Open panel</button></div>
+    <p class="note" data-t="fieldNote"></p>
+  </div>
+  <div class="card c-ex">
+    <h3 data-t="exT">Training exercises (auto-checked)</h3>
+    <ul class="ex" id="ex"></ul>
+    <div class="grid2" style="margin-top:10px"><button class="btn" id="exReset" data-t="exReset">Restart exercises</button><span></span></div>
+  </div>
+</div></section>
+
+<section class="pane" id="p-wire" role="tabpanel"><div class="col wide">
+  <div class="card"><h3 data-t="wDiagT">Field wiring — training I/O assignment (Fig 2-10)</h3><p class="wscroll" data-t="wScroll">Swipe the diagram left / right to see the field devices →</p><div class="wirewrap"><svg id="wsvg" viewBox="0 0 900 520"></svg></div><p class="note" data-t="wNote"></p></div>
+  <div class="card"><h3 data-t="wTermT">Terminal blocks (back cover, Fig 2-9) — live status</h3><div class="tg" id="wterms"></div></div>
+  <div class="card"><h3 data-t="wChkT">Installation checks (Chapter 2)</h3><ul class="note" id="wchk" style="padding-left:18px;margin:0"></ul></div>
+</div></section>
+
+<section class="pane" id="p-trb" role="tabpanel"><div class="col wide">
+  <div class="card f-search">
+    <h3 data-t="fcT">Trip / alarm event ID</h3>
+    <div class="search"><input id="fq" autocomplete="off" spellcheck="false" placeholder="3, Overspeed, MPU, T45…"></div>
+    <div class="sub" data-t="activeT">Active now on the simulator</div>
+    <div class="quick" id="factive"></div>
+    <div class="sub" data-t="commonT">Common events</div>
+    <div class="quick" id="fquick"></div>
+  </div>
+  <div class="card f-res fr" id="fres"></div>
+  <div class="card f-sym sym"><h3 data-t="symT">Symptoms — what to check</h3><div id="sym"></div></div>
+</div></section>
+
+</div></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let LANG='en';try{LANG=localStorage.getItem('owh505lang')||'en'}catch(e){}
+const LI=()=>LANG==='hi'?1:LANG==='hg'?2:0;
+const L3=a=>Array.isArray(a)?(a[LI()]||a[0]):a;
+
+/* ---------------- TRAINING CONFIGURATION (example values, generator drive) ---------------- */
+const C={nr:6000,idle:1500,minGov:5700,maxGov:6300,osTrip:6600,osLimit:6750,critLo:2400,critHi:3200,failLvl:250,
+  rateToMin:40,idleRate:60,critRate:200,vlRate:5,hpMaxStart:30,slowRate:15,fastRate:60,entRate:40,droop:5,mwRated:15,pNom:64,
+  startMode:'auto',useIdle:true,useCrit:true,ostTimeout:30,
+  dynOff:{P:15,I:1.5,DR:5},dynOn:{P:8,I:0.8,DR:5}};
+const DEF=JSON.parse(JSON.stringify(C));
+const LVL=['Monitor','Operator','Service','Configure'];
+
+/* ---------------- EVENT TABLES (Table 5-1 / 5-2) ---------------- */
+const TRIPN={1:'External Trip Input 1',2:'Emergency Stop Button',3:'Overspeed',4:'All Speed Probes Failed',5:'HP Actuator Fault',6:'HP2 Actuator Fault',7:'Aux Input Failed',
+  8:'External Trip 2',9:'External Trip 3',10:'Trip Command from Modbus',13:'Tie Breaker Opened',14:'GEN Breaker Opened',15:'Power Up Trip',16:'Normal Shutdown Complete',
+  17:'External Trip 4',18:'External Trip 5',20:'External Trip 6',21:'External Trip 7',22:'External Trip 8',23:'External Trip 9',24:'External Trip 10',
+  25:'HP Ramp at Max/No Speed',30:'Tunable Trip',31:'Unit in Calibration Mode',32:'Configuration Error',33:'Actuator Scaling Min>Max',37:'Inlet Stm Pressure Level2 TRIP',38:'EXH Stm Pressure Level2 TRIP',
+  39:'Selected PV 1 Level 2 TRIP',40:'Selected PV 2 Level 2 TRIP',41:'Selected PV 3 Level 2 TRIP',42:'Configuration Mode (IO Lock)',43:'Aux 2 Input Failed',44:'Open Wire on MPUs'};
+const ALMN={1:'Speed Probe #1 Failed',2:'Speed Probe #2 Failed',3:'Remote Spd Input Failed',4:'Sync Input Failed',5:'Load Share Input Failed',6:'KW Load Input Failed',7:'Cascade Input Failed',
+  8:'Remote Casc Input Failed',9:'AUX Input Failed',10:'Remote AUX Input Failed',11:'AUX2 Input Failed',12:'Remote AUX2 Input Failed',13:'Inlet Press Input Failed',14:'IH-A Input press AI FLT',15:'IH-B Input press AI FLT',
+  16:'Feed-forward input failed',17:'Remote Droop Fault',18:'Remote KW Setpoint Failed',19:'Exhaust Press Input Failed',21:'HP Valve Feedback Failed',22:'HP2 Valve Feedback Failed',23:'Isolated PID PV Failed',
+  24:'Rem SP Isolated PID Failed',25:'Customer Input #1 Failed',26:'Customer Input #2 Failed',27:'Customer Input #3 Failed',28:'Start Temperature 1 Failed',29:'Start Temperature 2 Failed',
+  32:'External alarm # 1',33:'External alarm # 2',34:'External alarm # 3',35:'External alarm # 4',36:'External alarm # 5',37:'External alarm # 6',38:'External alarm # 7',39:'External alarm # 8',40:'External alarm # 9',
+  41:'IH-act1 Failed from BI',42:'IH-act2 Failed from BI',43:'HP Actuator Fault (Act1 or 2)',44:'HP2 Actuator Fault (Act1 or 2)',45:'Start Perm Not Closed',46:'Mod Comm Link #1 Failed',47:'Mod Comm Link #2 Failed',48:'Mod Comm Link #3 Failed',
+  49:'AO_01 Readback Fault',50:'AO_02 Readback Fault',51:'AO_03 Readback Fault',52:'AO_04 Readback Fault',53:'AO_05 Readback Fault',54:'AO_06 Readback Fault',55:'Chassis Summary Alarm',56:'Turbine Tripped',57:'Overspeed',58:'Overspeed Test Enabled',
+  59:'TIE Breaker Opened',60:'GEN Breaker Opened',61:'Tie Open / No Auxiliary',62:'Gen Open / No Auxiliary',63:'Tie Open / No Cascade',64:'Gen Open / No Cascade',65:'Tie Open / No Remote',66:'Gen Open / No Remote',67:'Stuck In Critical Band',
+  68:'505 Display Comm Fault',69:'HP Valve Pos Fdbk Diff ALM',70:'HP2 Valve Pos Fdbk Diff ALM',72:'Inlet Steam Pressure Lvl1 ALM',73:'Inlet Steam Pressure Lvl2 ALM',74:'Exh Steam Pressure Lvl1 ALM',75:'Exh Steam Pressure Lvl2 ALM',
+  85:'Actuator 1 Readout Fault',86:'Actuator 2 Readout Fault',93:'Turbine Maintenance Interval',100:'MPU1 Failed Open Wire Test',101:'MPU2 Failed Open Wire Test',102:'Internal HW Simulation Enabled'};
+
+/* ---------------- STATE ---------------- */
+const F={extTrip:false,mpu1:false,mpu2:false,act:false,ai1:false,extAlm:false};
+let S;
+function freshState(){return{power:true,boot:0,n:0,sp:0,ramp:null,rampTo:0,rampRate:0,critDir:0,adj:0,adjFast:false,adjSrc:'',
+  vl:0,vlTarget:0,vlAuto:false,pid:0,integ:0,lastMeas:0,hpDem:0,hpPos:0,tt:0,ttMove:0,pIn:64,isl:6,hz:50,gen:false,tie:true,mw:0,
+  tripped:true,trips:[],alarms:[],running:false,phase:'tripped',idleSel:'idle',ost:null,ostMax:0,stop:null,armed:false,
+  noSpdT:0,critT:0,lvl:1,cfg:false,mode:'speed',online:false,pidCtl:false,tsim:0,rejArm:0,rejOk:false,ostTripped:false,manualIdle:false,startModeUsed:''}}
+S=freshState();
+const H=[];/* history: [t,n,sp,hp,mw] every 0.5 s */
+let simMul=1;
+
+function now(){const d=new Date(),p=(n,l)=>String(n).padStart(l||2,'0');return `${p(d.getDate())}-${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(d.getMilliseconds(),3)}`}
+function nGrid(){return C.nr*S.hz/50}
+function nSensed(){const a=F.mpu1?0:S.n,b=F.mpu2?0:S.n;return Math.max(a,b)}
+function mwPU(){return S.mw/C.mwRated}
+function minCtl(){return C.useIdle?C.idle:C.minGov}
+function inCrit(v){return C.useIdle&&C.useCrit&&v>C.critLo&&v<C.critHi}
+
+function trip(id){
+  if(!S.trips.find(x=>x.id===id))S.trips.push({id,t:now()});
+  if(!S.tripped){S.tripped=true;onTrip(id)}
+  alarm(56);
+}
+function onTrip(id){
+  S.running=false;S.phase='tripped';S.ramp=null;S.adj=0;S.stop=null;S.vl=0;S.vlTarget=0;S.vlAuto=false;S.sp=0;S.integ=0;S.pid=0;
+  if(S.ost){if(S.ost.mode==='int'&&id===3)S.ostTripped=true;S.ost=null}
+  if(S.gen){S.gen=false;S.rejArm=0}
+  if(id!==15&&id!==42)ui.flash('TRIPPED: '+TRIPN[id]);
+  ex.tick();
+}
+function alarm(id){if(!S.alarms.find(x=>x.id===id))S.alarms.push({id,t:now()})}
+function tripActive(id){switch(id){case 1:return F.extTrip;case 3:return nSensed()>=C.osTrip;case 5:return F.act;case 42:return S.cfg;default:return false}}
+function almActive(id){switch(id){case 1:return F.mpu1;case 2:return F.mpu2;case 13:return F.ai1;case 32:return F.extAlm;case 43:return F.act;case 56:return S.tripped;case 57:return nSensed()>=C.osTrip;case 58:return !!S.ost;default:return false}}
+function reset(src){
+  if(!S.power||S.boot>0)return;
+  const before=S.trips.length+S.alarms.length;
+  S.trips=S.trips.filter(x=>tripActive(x.id));
+  if(S.tripped&&!S.trips.length){S.tripped=false;S.phase='ready';S.armed=nSensed()>C.failLvl+50;S.noSpdT=0}
+  S.alarms=S.alarms.filter(x=>almActive(x.id));
+  const left=S.trips.length;
+  if(left)ui.flash('RESET: trip still active – '+TRIPN[S.trips[0].id]);
+  else if(before)ui.flash(S.running?'Alarms reset':'Reset done – Ready to Start');
+  ex.tick();
+}
+function canOp(){if(S.lvl<1){ui.flash('Monitor level: green keys inhibited – login as Operator (MODE)');return false}return true}
+function permOK(){return C.startMode!=='manual'||S.tt<=1}
+function startCmd(){
+  if(S.cfg){ui.flash('Start not allowed in Configuration Mode');return}
+  if(S.tripped){ui.flash('Start failed – unit is TRIPPED. Press RESET first');return}
+  if(S.running){ui.flash('Turbine already started');return}
+  if(!permOK()){alarm(45);ui.flash('Start Perm Not Met – T&T valve must be CLOSED for Manual start');return}
+  S.running=true;S.startModeUsed=C.startMode;S.stop=null;S.noSpdT=0;S.critT=0;S.manualIdle=false;
+  const ns=nSensed();S.sp=ns;S.integ=0;
+  if(ns>=minCtl()){S.ramp=null;S.phase=ns>=C.minGov?'run':'idle'}else{rampTo(minCtl(),C.rateToMin,'toMin');S.phase='toMin'}
+  S.idleSel=ns>=C.minGov?'rated':'idle';
+  if(C.startMode==='manual'){S.vlTarget=100;S.vlAuto=true}
+  else if(C.startMode==='auto'){S.vlTarget=C.hpMaxStart;S.vlAuto=true}
+  else {S.vlTarget=S.vl;S.vlAuto=false}
+  ui.flash('START – '+modeName(C.startMode)+' start mode');
+}
+function modeName(m){return m==='manual'?'Manual':m==='semi'?'Semiautomatic':'Automatic'}
+function rampTo(v,rate,kind){S.rampTo=v;S.rampRate=rate;S.ramp=kind||'ramp'}
+function idleRated(sel){
+  if(!C.useIdle){ui.flash('Idle/Rated not configured');return}
+  if(S.tripped||!S.running){ui.flash('Turbine not running');return}
+  if(S.gen){ui.flash('Idle/Rated inhibited – generator breaker closed');return}
+  if(S.ost){ui.flash('Disable overspeed test first');return}
+  if(S.phase==='toMin'){ui.flash('Wait – ramping to idle');return}
+  S.idleSel=sel;
+  if(sel==='rated'){rampTo(C.nr,C.idleRate,'toRated');S.phase='toRated';ui.flash('Ramp to Rated')}
+  else{rampTo(C.idle,C.idleRate,'toIdle');S.phase='toIdle';ui.flash('Ramp to Idle')}
+}
+function stopCmd(){
+  if(S.tripped||!S.running){ui.flash('Turbine not running');return}
+  if(S.ost){S.ost=null}
+  S.stop={ph:S.gen?'unload':'down'};S.adj=0;
+  if(S.gen)rampTo(nGrid(),12,'stop');else rampTo(minCtl(),C.rateToMin,'stop');
+  ui.flash('Controlled shutdown started');
+}
+function abortStop(){if(!S.stop)return;S.stop=null;S.ramp=null;S.vlTarget=100;S.vlAuto=true;ui.flash('Controlled shutdown aborted')}
+function genClose(){
+  if(S.gen)return;
+  if(S.tripped||!S.running){ui.flash('Breaker close refused – turbine not running');return}
+  const ref=S.tie?nGrid():C.nr,tol=S.tie?20:120;
+  if(Math.abs(S.n-ref)>tol){ui.flash(`Sync check failed: speed ${S.n.toFixed(0)} rpm, bus ${ref.toFixed(0)} rpm (±${tol})`);return}
+  if(S.ost){ui.flash('Breaker close refused – overspeed test active');return}
+  S.gen=true;S.ramp=null;S.adj=0;S.phase='run';S.idleSel='rated';
+  if(S.tie){S.sp=nGrid()+C.droop/100*C.nr*0.03;S.n=nGrid()}
+  ui.flash(S.tie?'GEN breaker closed – Unit Load control (droop)':'GEN breaker closed – Frequency control (island)');
+}
+function genOpen(reason){
+  if(!S.gen)return;
+  const ld=S.mw;S.gen=false;alarm(60);
+  if(!S.tripped){S.sp=C.nr;S.ramp=null;S.adj=0;if(ld>5){S.rejArm=12;S.rejOk=true}}
+  ui.flash('GEN breaker opened'+(ld>0.5?` with ${ld.toFixed(1)} MW – load rejection`:''));
+}
+function tieToggle(){
+  S.tie=!S.tie;if(!S.tie&&S.gen){alarm(59);ui.flash('Utility tie opened – unit now in Frequency control (island)')}
+  else if(S.tie&&S.gen){if(Math.abs(S.n-nGrid())>25){S.tie=false;ui.flash('Tie close refused – island not synchronised to grid');return}S.sp=S.n+C.droop/100*C.nr*mwPU();ui.flash('Utility tie closed – Unit Load control')}
+}
+function ostPerms(){return{trip:!S.tripped,brk:!S.gen,sp:S.sp>=C.maxGov-1,pid:S.pidCtl,spd:nSensed()>=C.maxGov-60}}
+function ostEnable(mode){
+  if(S.ost){ui.flash('Overspeed test already enabled');return}
+  const p=ostPerms();if(!(p.trip&&p.brk&&p.sp&&p.pid&&p.spd)){ui.flash('Overspeed test permissives not met');return}
+  S.ost={mode,t:C.ostTimeout};S.ostMax=nSensed();alarm(58);ui.flash(mode==='int'?'Internal overspeed test enabled – raise speed with ADJUST ▲':'External overspeed test enabled – 505 trip becomes alarm up to test limit');
+}
+function ostDisable(){if(!S.ost)return;S.ost=null;if(S.sp>C.maxGov)rampTo(C.maxGov,C.fastRate,'ramp');ui.flash('Overspeed test disabled')}
+
+/* operator setpoint raise/lower limits */
+function spLimits(){
+  let hi=S.ost?C.osLimit:C.maxGov,lo;
+  if(S.gen&&S.tie){lo=nGrid()-C.droop/100*C.nr*0.02}
+  else if(S.sp>=C.minGov-0.5||!C.useIdle)lo=C.minGov;else lo=C.useIdle?C.idle:0;
+  return[lo,hi];
+}
+function enterSP(v){
+  if(S.tripped||!S.running){ui.flash('Setpoint entry refused – turbine not running');return false}
+  if(inCrit(v)){ui.flash('Value is inside a critical speed band – entry rejected');return false}
+  const[lo,hi]=spLimits();if(v<lo||v>hi){ui.flash(`Entry out of range (${lo.toFixed(0)}–${hi.toFixed(0)} rpm)`);return false}
+  rampTo(v,C.entRate,'enter');if(S.ost)S.ost.t=C.ostTimeout;return true;
+}
+
+/* ---------------- SIMULATION STEP ---------------- */
+function step(dt){
+  S.tsim+=dt;
+  /* T&T valve (hand wheel / hydraulic) */
+  if(S.ttMove){S.tt=clamp(S.tt+S.ttMove*dt,0,100);if(S.tt<=0||S.tt>=100)S.ttMove=0}
+  const ns=nSensed();
+  if(S.boot>0||!S.power){S.hpDem=0}
+  else{
+    if(!S.tripped&&S.running){
+      /* --- setpoint --- */
+      if(S.ramp){
+        const r=inCrit(S.sp)?Math.max(S.rampRate,C.critRate):S.rampRate,d=S.rampTo-S.sp,stp=r*dt;
+        if(Math.abs(d)<=stp){S.sp=S.rampTo;const k=S.ramp;S.ramp=null;
+          if(k==='toMin'){S.phase=C.useIdle?'idle':'run';ui.flash(C.useIdle?'At Idle':'At Min Governor')}
+          else if(k==='toRated'){S.phase='run';ui.flash('At Rated speed')}
+          else if(k==='toIdle'){S.phase='idle'}}
+        else S.sp+=Math.sign(d)*stp;
+        if(S.ramp==='toRated'||S.ramp==='toIdle')S.critDir=Math.sign(d);
+      }else if(S.adj){
+        const[lo,hi]=spLimits(),r=inCrit(S.sp)?C.critRate:(S.adjFast?C.fastRate:C.slowRate);
+        if(!(S.adj<0&&S.sp<=lo)&&!(S.adj>0&&S.sp>=hi))S.sp=clamp(S.sp+S.adj*r*dt,Math.min(lo,S.sp),Math.max(hi,S.sp));
+        S.critDir=S.adj;if(S.ost)S.ost.t=C.ostTimeout;
+      }else if(inCrit(S.sp)){S.sp+=(S.critDir>=0?1:-1)*C.critRate*dt;if(!inCrit(S.sp))S.sp=S.critDir>=0?C.critHi:C.critLo}
+      if(S.sp>C.minGov-1&&S.phase==='idle')S.phase='run';
+      /* stuck in critical (Chapter 3) */
+      if(inCrit(ns)&&(S.sp>=C.critHi||S.sp<=C.critLo)){S.critT+=dt;if(S.critT>5*(C.critHi-C.critLo)/C.critRate){alarm(67);S.critT=0;S.sp=C.idle;S.ramp=null;S.phase='idle';S.idleSel='idle';ui.flash('Stuck in Critical Band – setpoint returned to Idle')}}else S.critT=0;
+      /* controlled shutdown */
+      if(S.stop){
+        if(S.stop.ph==='unload'&&!S.ramp&&S.mw<0.3){genOpen();S.stop.ph='down';rampTo(minCtl(),C.rateToMin,'stop')}
+        else if(S.stop.ph==='unload'&&!S.ramp){rampTo(S.sp-30,12,'stop')}
+        if(S.stop.ph==='down'&&!S.ramp){S.stop.ph='lim';S.vlAuto=true;S.vlTarget=0}
+        if(S.stop.ph==='lim'&&S.vl<=0.01){trip(16);}
+      }
+      /* --- valve limiter --- */
+      if(S.vlAuto){const d=S.vlTarget-S.vl,r=(S.stop?2:1)*C.vlRate*dt;S.vl=Math.abs(d)<=r?S.vlTarget:S.vl+Math.sign(d)*r}
+      if(C.startMode==='auto'&&S.vlAuto&&S.vlTarget<100&&!S.stop&&S.pidCtl&&ns>=minCtl()*0.97)S.vlTarget=100;
+      if(S.vlAdj){S.vl=clamp(S.vl+S.vlAdj*(S.vlFast?4:1)*C.vlRate*dt,0,100);S.vlAuto=false}
+      /* --- speed PID (with droop when paralleled) --- */
+      S.mode=S.gen?(S.tie?'load':'freq'):'speed';
+      S.online=S.gen&&S.tie;
+      const D=S.online?C.dynOn:C.dynOff;
+      const meas=ns+(S.mode==='load'?C.droop/100*C.nr*mwPU():0);
+      const e=(S.sp-meas)/C.nr*100,dm=(meas-S.lastMeas)/dt/C.nr*100;S.lastMeas=meas;
+      const Td=D.DR/100/Math.max(.05,D.I);
+      S.integ+=D.I*e*dt;
+      let u=D.P*(e+S.integ)-D.P*Td*dm;
+      const cap=Math.min(100,S.vl+3);
+      if(u>cap){S.integ=(cap+D.P*Td*dm)/D.P-e;u=cap}
+      if(u<-2){S.integ=(-2+D.P*Td*dm)/D.P-e;u=-2}
+      S.pid=u;S.pidCtl=u<S.vl-0.05;
+      S.hpDem=clamp(Math.min(u,S.vl),0,100);
+      /* trip 25 – HP ramp at max / no speed */
+      if(S.vl>=Math.max(1,S.vlTarget)-0.2&&S.vlTarget>0&&ns<C.failLvl){S.noSpdT+=dt;if(S.noSpdT>60)trip(25)}else S.noSpdT=0;
+    }else if(!S.tripped){S.hpDem=0;S.pid=0;S.pidCtl=false;S.mode=S.gen?(S.tie?'load':'freq'):'speed'}
+    else{S.hpDem=0;S.pid=0;S.pidCtl=false}
+    if(S.cfg)S.hpDem=0;
+  }
+  /* actuator + HP valve */
+  const dem=F.act?0:S.hpDem;
+  S.hpPos+=(dem-S.hpPos)*Math.min(1,dt/0.15);
+  /* turbine physics */
+  const a1=3*S.tt/100,a2=S.hpPos/100;
+  const fl=(a1>0&&a2>0)?a1*a2/Math.sqrt(a1*a1+a2*a2)/0.9487:0;
+  const Pt=fl*S.pIn/C.pNom,w=S.n/C.nr;
+  const tauT=Pt*1.05*(1.6-0.6*Math.min(w,1.6)),tauLoss=(S.n>0.5?0.012:0)+0.055*w*w;
+  if(S.gen&&S.tie){S.n+= (nGrid()-S.n)*Math.min(1,dt*8);S.mw=(tauT-tauLoss)*Math.max(w,.5)*C.mwRated}
+  else{
+    let tauL=0;if(S.gen)tauL=S.isl/C.mwRated/Math.max(w,.3);
+    let acc=(tauT-tauLoss-tauL)/8*C.nr;
+    if(S.n<=0.5&&acc<0)acc=0;
+    S.n=Math.max(0,S.n+acc*dt);
+    S.mw=S.gen?S.isl*Math.min(1,w*w):0;
+    if(S.gen&&S.n<C.nr*0.9){genOpen();}
+  }
+  /* protections & alarms */
+  if(S.power&&S.boot<=0&&!S.cfg){
+    const n2=nSensed();
+    if(n2>C.failLvl+50)S.armed=true;
+    if(S.ost){S.ostMax=Math.max(S.ostMax,n2);S.ost.t-=dt;
+      if(S.ost.t<=0){if(S.ost.mode==='ext'&&n2>=C.osTrip){trip(3)}else{ui.flash('Overspeed test timed out – returning to Max Governor');ostDisable()}}}
+    if(n2>=C.osTrip){alarm(57);if(!(S.ost&&S.ost.mode==='ext'&&n2<C.osLimit))trip(3)}
+    if(S.ost&&(S.sp>=C.osLimit||n2>=C.osLimit))trip(3);
+    if(F.act){alarm(43);trip(5)}
+    if(F.extTrip)trip(1);
+    if(F.extAlm)alarm(32);
+    if(F.ai1)alarm(13);
+    if(S.armed&&S.n>C.failLvl){if(F.mpu1)alarm(1);if(F.mpu2)alarm(2)}
+    if(S.armed&&F.mpu1&&F.mpu2&&!S.tripped&&S.running){alarm(1);alarm(2);trip(4)}
+    if(S.rejArm>0){S.rejArm-=dt;if(S.tripped)S.rejOk=false}
+  }
+}
+
+/* ---------------- MAIN LOOP ---------------- */
+let last=performance.now(),acc=0,hT=0,rT=0;
+function loop(t){
+  let dt=Math.min(0.25,(t-last)/1000);last=t;
+  if(S.boot>0){S.boot-=dt;if(S.boot<=0)bootDone()}
+  let sim=dt*simMul;
+  while(sim>0){const h=Math.min(0.02,sim);step(h);sim-=h}
+  hT+=dt*simMul;if(hT>=0.5){hT=0;H.push([S.tsim,S.n,S.tripped?0:S.sp,S.hpPos,S.mw]);if(H.length>480)H.shift();ex.tick()}
+  rT+=dt;if(rT>=0.12){rT=0;ui.render();view.render()}
+  requestAnimationFrame(loop);
+}
+function powerCycle(){
+  S.power=false;S.boot=5.2;S.trips=[];S.alarms=[];S.tripped=true;S.running=false;S.phase='tripped';S.ost=null;S.stop=null;S.vl=0;S.sp=0;S.hpDem=0;S.cfg=false;S.lvl=1;
+  if(S.gen)S.gen=false;ui.home(true);
+}
+function bootDone(){S.power=true;S.boot=0;trip(15);S.alarms=S.alarms.filter(a=>a.id!==56);alarm(56);ui.home(true);ui.flash('505 ready – Power Up Trip active. Press RESET')}
+
+/* ---------------- CONFIG MODE ---------------- */
+function enterCfg(){
+  if(S.lvl<3){ui.flash('Login as Configure to enter Configuration Mode');return}
+  if(!S.tripped||S.n>1){ui.flash('Turbine must be shut down (tripped, zero speed) to enter Configuration Mode');return}
+  S.cfg=true;trip(42);ui.go('config');ui.flash('Configuration Mode – IOLOCK: all outputs disabled');
+}
+function exitCfg(){if(!S.cfg)return;S.cfg=false;S.trips=S.trips.filter(x=>x.id!==42);trip(15);ui.home(true);ui.flash('Configuration saved – Power Up Trip. Press RESET')}
+
+/* ================= FRONT PANEL / SCREENS ================= */
+const lcd=$('lcd');
+const U={scr:'home',stack:[],fid:null,dlg:null,entry:null,msg:'',msgT:0,fast:false,brt:0,lastKey:'',adjDir:0,adjItem:null,lastGuide:''};
+const f1=(v,d)=>(+v).toFixed(d==null?0:d);
+function status(){
+  if(!S.power||S.boot>0)return'';
+  if(S.cfg)return'Config Mode (IOLOCK)';
+  if(S.tripped)return'Shutdown';
+  if(!S.running)return'Ready to Start';
+  if(S.stop)return'Controlled Stop';
+  if(S.ost)return'Overspeed Test';
+  if(S.phase==='toMin'){if(C.startMode==='semi'&&!S.pidCtl)return'Raise Valve Limiter';if(C.startMode==='manual'&&!S.pidCtl)return'Open T&T Valve';return C.useIdle?'Ramping to Idle':'Ramping to Min Gov'}
+  if(S.phase==='toRated')return inCrit(S.sp)?'In Critical Band':'Ramping to Rated';
+  if(S.phase==='toIdle')return'Ramping to Idle';
+  if(!S.pidCtl)return'Valve Limiter in Control';
+  if(S.phase==='idle')return'At Idle – Speed Control';
+  return S.mode==='load'?'Unit Load Control':S.mode==='freq'?'Frequency Control':'Speed Control';
+}
+const fb=(id,label,cls)=>`<div class="f mbtn ${cls||''}" data-f="${id}">${label}</div>`;
+const fv=(id,val,cls,adj)=>`<span class="f" data-f="${id}" style="display:inline-flex;align-items:center"><span class="val ${cls||''}">${val}</span>${adj?'<span class="adjb">▲<br>Adj<br>▼</span>':''}</span>`;
+const dot=(on,c)=>`<i class="dotl ${on?(c||'g'):''}"></i>`;
+const v=(val,cls)=>`<span class="val ${cls||''}">${val}</span>`;
+function brkBox(){return`<div class="box"><h4>Breaker Status</h4><div>${dot(S.gen,'r')}Generator Breaker</div><div>${dot(S.tie,'r')}Tie Breaker</div></div>`}
+
+/* ---- screen definitions: title, body(), soft[[label,fn,green]] ---- */
+const SCR={};
+const GO=(s)=>()=>ui.go(s);
+const EXIT=['Exit',()=>ui.back()];
+SCR.home={t:'Home',area:'run',body:()=>{
+  const T=[['go_ov','Overview'],['go_sp','Speed Control'],['go_vd','Valve Demand'],['go_sc','Startup Curve'],['go_os','Overspeed Test'],['go_dy','Speed Dynamics'],
+    ['go_ai','Analog Inputs'],['go_di','Contact Inputs'],['go_ro','Relay Outputs'],['go_ad','Actuator Drivers'],['go_ao','Analog Outputs'],['go_mp','Speed Signals'],
+    ['go_al','Alarm Summary'],['go_tr','Shutdown Summary'],['go_sv','Service Menu']];
+  return`<div class="mgrid">${T.map(x=>fb(x[0],x[1])).join('')}</div><div style="text-align:center;font-size:2.4cqw;font-weight:600;margin-top:.6cqw">Press Navigation Arrows to Select a Page</div>`},
+  soft:[['Overview',GO('ov')],['Speed',GO('sp')],['Start Curve',GO('sc')],['Login',GO('mode')]]};
+const GOMAP={go_ov:'ov',go_sp:'sp',go_vd:'vd',go_sc:'sc',go_os:'os',go_dy:'dy',go_ai:'ai',go_di:'di',go_ro:'ro',go_ad:'ad',go_ao:'ao',go_mp:'mp',go_al:'al',go_tr:'tr',go_sv:'sv',go_cf:'cf'};
+
+function turbSvg(){
+  const spin=S.n>1?`style="animation:none;transform:rotate(${(S.tsim*S.n*0.6)%360}deg)"`:'';
+  return`<svg viewBox="0 0 300 110" style="width:100%;height:auto;display:block">
+  <defs><linearGradient id="tg1" x1="0" x2="1"><stop offset="0" stop-color="#e9edf2"/><stop offset="1" stop-color="#7d8a99"/></linearGradient><linearGradient id="tg2" y1="0" y2="1"><stop offset="0" stop-color="#f1f1f1"/><stop offset=".5" stop-color="#a7adb4"/><stop offset="1" stop-color="#6d737a"/></linearGradient></defs>
+  <path d="M30 10 L30 30 L70 30" stroke="#555" stroke-width="6" fill="none"/><rect x="40" y="22" width="14" height="16" fill="${S.hpPos>1?'#2a9d5a':'#888'}" stroke="#333"/>
+  <polygon points="70,25 140,10 140,100 70,85" fill="url(#tg1)" stroke="#556"/>
+  ${Array.from({length:9},(_,i)=>`<line x1="${78+i*7}" y1="${27-i*1.6}" x2="${78+i*7}" y2="${83+i*1.6}" stroke="#55606d" stroke-width="1.6"/>`).join('')}
+  <rect x="140" y="50" width="40" height="10" fill="#9aa2ab" stroke="#555"/>
+  <rect x="180" y="22" width="90" height="66" rx="10" fill="url(#tg2)" stroke="#555"/>
+  <g transform="translate(225 55)"><g ${spin}><circle r="14" fill="#cfd4d9" stroke="#444"/><path d="M-9 0 Q-4 -8 0 0 T9 0" fill="none" stroke="#333" stroke-width="2"/></g></g>
+  <text x="225" y="104" font-size="9" text-anchor="middle" fill="#333">GEN</text><text x="105" y="108" font-size="9" text-anchor="middle" fill="#333">STEAM TURBINE</text></svg>`;
+}
+SCR.ov={t:'Overview',body:()=>`
+ <div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:1.4cqw;align-items:center">
+  <div><div class="lbl">HP Demand</div>${v(f1(S.hpDem,1)+' %','sm')}</div>
+  <div style="text-align:center"><div class="lbl">Inlet Pressure</div>${v(F.ai1?'FAULT':f1(S.pIn,1)+' bar','sm')}</div>
+  <div style="text-align:right;font-size:2.4cqw">${dot(S.tripped,'r')}Unit ${S.tripped?'TRIPPED':'OK'}</div>
+ </div>
+ <div style="display:grid;grid-template-columns:2.2fr 1fr;gap:1.6cqw;align-items:center;margin-top:.6cqw">
+  ${turbSvg()}
+  <div><div class="lbl">Load</div>${v(f1(S.mw,2)+' MW','sm')}<div style="margin-top:1.2cqw;font-size:2.3cqw">${dot(S.gen,'r')}Gen<br>${dot(S.tie,'r')}Utility</div></div>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.4cqw;margin-top:.8cqw;align-items:end">
+  <div><div class="lbl">Speed</div>${v(f1(nSensed())+' RPM')}</div>
+  <div><div class="lbl">Setpoint</div>${fv('sp',f1(S.sp)+' RPM','',1)}</div>
+  <div><div class="lbl">Valve Limiter</div>${fv('vl',f1(S.vl,1)+' %','sm',1)}</div>
+ </div>`,
+ soft:[['Speed',GO('sp')],['Valve Demand',GO('vd')],['Start Curve',GO('sc')],['Alarms',GO('al')]]};
+
+function gauge(){
+  const mx=7000,a=n=>Math.PI*(1-clamp(n,0,mx)/mx),R=40,cx=50,cy=48,pt=(n,r)=>[cx+r*Math.cos(a(n)),cy-r*Math.sin(a(n))];
+  const arc=(n1,n2,col,w)=>{const[p,q]=pt(n1,R),[s,t]=pt(n2,R);return`<path d="M${p} ${q} A${R} ${R} 0 0 1 ${s} ${t}" stroke="${col}" stroke-width="${w}" fill="none"/>`};
+  const [nx,ny]=pt(nSensed(),R-6);
+  return`<svg class="gauge" viewBox="0 0 100 60"><rect width="100" height="60" rx="3" fill="#111"/>${arc(0,mx,'#555',4)}${C.useIdle&&C.useCrit?arc(C.critLo,C.critHi,'#e0a000',4):''}${arc(C.minGov,C.maxGov,'#2ee05a',4)}${arc(C.osTrip,mx,'#ff3322',4)}
+  ${[0,2000,4000,6000].map(n=>{const[x,y]=pt(n,R-9);return`<text x="${x}" y="${y}" font-size="4.2" fill="#ddd" text-anchor="middle">${n}</text>`}).join('')}
+  <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#fff" stroke-width="1.4"/><circle cx="${cx}" cy="${cy}" r="2" fill="#fff"/>
+  <text x="50" y="40" font-size="5" fill="#bbb" text-anchor="middle">RPM</text><text x="50" y="57" font-size="9" fill="#fff" text-anchor="middle" font-family="monospace">${f1(nSensed())}</text></svg>`;
+}
+SCR.sp={t:'Speed Control',body:()=>`
+ <div style="display:grid;grid-template-columns:1fr 1.25fr;gap:2cqw">
+  <div><div style="text-align:center;font-weight:600">Speed</div>${gauge()}
+   <div style="text-align:center;font-weight:600;margin-top:1cqw">Setpoint</div><div style="text-align:center">${fv('sp',f1(S.sp),'big',1)}</div>
+   <div style="margin-top:1cqw" class="lbl">PID ${v(f1(S.pid,1)+' %','sm')}</div></div>
+  <div style="display:flex;flex-direction:column;gap:1.2cqw">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw"><div class="box"><h4>Operational Mode</h4><div>${dot(S.running&&S.mode==='speed','g')}Speed Control</div><div>${dot(S.running&&S.mode==='freq','g')}Frequency Control</div><div>${dot(S.running&&S.mode==='load','g')}Unit Load (Droop)</div></div>${brkBox()}</div>
+   <div class="lbl">HP Demand ${v(f1(S.hpDem,1)+' %','sm')}</div>
+   <div class="lbl">Load ${v(f1(S.mw,2)+' MW','sm')}</div>
+   <div class="lbl">Dynamics: <b>${S.online?'On-Line':'Off-Line'}</b> · Droop ${C.droop} %</div>
+   ${C.useIdle?fb('idr',S.idleSel==='rated'?'Ramp to Idle':'Ramp to Rated','gk'):''}
+  </div></div>`,
+ soft:[EXIT,['Valve Limiter',GO('vd')],['Overspeed Test',GO('os')],['Dynamics',GO('dy')]]};
+
+SCR.vd={t:'Valve Demand',body:()=>{
+  const lim=S.pidCtl?'Speed PID':'Valve Limiter';
+  return`<svg class="lss" viewBox="0 0 300 120">
+   <g font-size="8" font-family="Arial">
+   <rect x="6" y="8" width="88" height="22" rx="3" fill="#eee" stroke="#666"/><text x="12" y="22">Speed PID</text><text x="90" y="22" text-anchor="end" font-family="monospace" font-weight="bold">${f1(S.pid,1)}%</text>
+   <rect x="6" y="40" width="88" height="22" rx="3" fill="#eee" stroke="#666"/><text x="12" y="54">Aux (not used)</text>
+   <rect x="6" y="72" width="88" height="22" rx="3" fill="#eee" stroke="#666"/><text x="12" y="86">Valve Limiter</text><text x="90" y="86" text-anchor="end" font-family="monospace" font-weight="bold">${f1(S.vl,1)}%</text>
+   <path d="M94 19 H120 V45 M94 83 H120 V65 M94 51 H120" stroke="${'#333'}" stroke-width="1.5" fill="none"/>
+   <rect x="120" y="38" width="40" height="34" fill="#d9e4f5" stroke="#335"/><text x="140" y="58" text-anchor="middle" font-weight="bold">LSS</text>
+   <path d="M160 55 H185" stroke="#333" stroke-width="1.5"/>
+   <rect x="185" y="40" width="50" height="30" fill="#eee" stroke="#666"/><text x="210" y="53" text-anchor="middle">Valve</text><text x="210" y="63" text-anchor="middle">Logic</text>
+   <path d="M235 55 H250" stroke="#333" stroke-width="1.5"/>
+   <rect x="250" y="34" width="46" height="42" rx="3" fill="#000"/><text x="273" y="48" text-anchor="middle" fill="#bbb" font-size="6.5">HP Demand</text><text x="273" y="62" text-anchor="middle" fill="#fff" font-family="monospace" font-weight="bold">${f1(S.hpDem,1)}%</text><text x="273" y="72" text-anchor="middle" fill="#ffd84a" font-size="6.5">${F.act?'0.0':f1(4+16*S.hpDem/100,2)} mA</text>
+   <text x="140" y="88" text-anchor="middle" font-size="7">In control: <tspan font-weight="bold">${S.tripped?'—':lim}</tspan></text>
+   <text x="210" y="100" text-anchor="middle" font-size="7">HP feedback ${f1(S.hpPos,1)} %</text></g></svg>
+   <div style="display:flex;gap:3cqw;align-items:center;justify-content:center;margin-top:.6cqw"><span class="lbl">Valve Limiter Setpoint</span>${fv('vl',f1(S.vl,1)+' %','',1)}</div>`},
+ soft:[EXIT,['Speed',GO('sp')],['Start Curve',GO('sc')],['',null]]};
+
+function curve(){
+  const W=300,Hh=110,pts=H.slice(-360),t0=pts.length?pts[0][0]:0,t1=pts.length?pts[pts.length-1][0]:1,span=Math.max(60,t1-t0),mx=7000;
+  const X=t=>8+(t-t0)/span*(W-16),Y=n=>Hh-8-n/mx*(Hh-16);
+  const pl=(i,col)=>`<polyline points="${pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[i]).toFixed(1)).join(' ')}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+  const pl2=`<polyline points="${pts.map(p=>X(p[0]).toFixed(1)+','+(Hh-8-p[3]/100*(Hh-16)).toFixed(1)).join(' ')}" fill="none" stroke="#e08a00" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+  const band=C.useIdle&&C.useCrit?`<rect x="8" y="${Y(C.critHi)}" width="${W-16}" height="${Y(C.critLo)-Y(C.critHi)}" fill="rgba(255,190,0,.25)"/>`:'';
+  const ln=(n,c,l)=>`<line x1="8" x2="${W-8}" y1="${Y(n)}" y2="${Y(n)}" stroke="${c}" stroke-dasharray="2 2"/><text x="${W-10}" y="${Y(n)-2}" font-size="6" text-anchor="end" fill="${c}">${l} ${n}</text>`;
+  return`<svg viewBox="0 0 ${W} ${Hh}" style="width:100%;height:auto;display:block;background:#111;border-radius:4px">${band}${ln(C.nr,'#2ee05a','Rated')}${C.useIdle?ln(C.idle,'#8fd','Idle'):''}${ln(C.osTrip,'#ff5544','OS Trip')}${pl2}${pl(2,'#ffffff')}${pl(1,'#4fb3ff')}
+  <text x="10" y="10" font-size="6.5" fill="#4fb3ff">Speed</text><text x="40" y="10" font-size="6.5" fill="#fff">Setpoint</text><text x="78" y="10" font-size="6.5" fill="#e08a00">HP valve %</text></svg>`;
+}
+SCR.sc={t:'Startup Curve',body:()=>`
+ ${curve()}
+ <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:1.6cqw;margin-top:1cqw;font-size:2.35cqw">
+  <div><div>Start Mode: <b>${modeName(C.startMode)}</b>${C.useIdle?' + Idle/Rated':''}</div><div>Speed ${v(f1(nSensed()),'sm')} Setpt ${v(f1(S.sp),'sm')}</div>
+  <div style="margin-top:.6cqw">Rate to Min ${C.rateToMin} rpm/s · Idle/Rated ${C.idleRate} rpm/s</div>${C.useCrit&&C.useIdle?`<div>Critical band ${C.critLo}–${C.critHi} rpm @ ${C.critRate} rpm/s</div>`:''}</div>
+  <div style="display:flex;flex-direction:column;gap:1cqw">${C.useIdle?fb('idr',S.idleSel==='rated'?'Ramp to Idle':'Ramp to Rated','gk'):''}<div>Valve Limiter ${fv('vl',f1(S.vl,1)+' %','sm',1)}</div><div>T&amp;T Valve ${v(f1(S.tt)+' %','sm')}</div></div>
+ </div>`,
+ soft:[EXIT,['Speed',GO('sp')],['Valve Limiter',GO('vd')],['Idle / Rated',()=>{if(!canOp())return;idleRated(S.idleSel==='rated'?'idle':'rated')},1]]};
+
+SCR.os={t:'Overspeed Test',body:()=>{const p=ostPerms();return`
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:2cqw">
+  <div class="box"><h4>Test Permissives</h4>
+   <div>${dot(p.trip)}Unit not tripped</div><div>${dot(p.pid)}Speed PID in control</div><div>${dot(p.sp)}Setpoint at Max Gov (${C.maxGov})</div><div>${dot(p.spd)}Speed near Max Gov</div><div>${dot(p.brk)}Generator breaker open</div></div>
+  <div style="display:flex;flex-direction:column;gap:1cqw;font-size:2.4cqw">
+   <div>Speed ${v(f1(nSensed())+' rpm','sm')}</div><div>Setpoint ${fv('sp',f1(S.sp)+' rpm','sm',1)}</div>
+   <div>OS Trip ${v(C.osTrip+' rpm','sm')}</div><div>OS Test Limit ${v(C.osLimit+' rpm','sm')}</div>
+   <div>Highest Speed ${v(f1(S.ostMax)+' rpm','sm')}</div>
+   <div>Test: <b>${S.ost?(S.ost.mode==='int'?'INTERNAL':'EXTERNAL'):'Not enabled'}</b>${S.ost?` · Timeout <b>${Math.max(0,S.ost.t).toFixed(0)} s</b>`:''}</div></div></div>
+ <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.6cqw;margin-top:1.4cqw">${fb('ostInt','Enable Int Test','gk')}${fb('ostExt','Enable Ext Test','gk')}${fb('ostDis','Disable Test','gk')}${fb('ostMax','Reset Max')}</div>`},
+ soft:[EXIT,['Enable Int Test',()=>{if(canOp())ostEnable('int')},1],['Enable Ext Test',()=>{if(canOp())ostEnable('ext')},1],['Reset Max',()=>{S.ostMax=nSensed()}]]};
+
+SCR.dy={t:'Speed Dynamics',body:()=>{const c=(k,o)=>fv('dy_'+k,f1(o[k.split('_')[1]],o===C.dynOff&&k.endsWith('P')||o===C.dynOn&&k.endsWith('P')?1:2),'sm',1);return`
+ <table class="tbl"><tr><th></th><th>Off-Line ${S.online?'':'(ACTIVE)'}</th><th>On-Line ${S.online?'(ACTIVE)':''}</th></tr>
+ <tr><td>Proportional Gain (P %)</td><td>${c('off_P',C.dynOff)}</td><td>${c('on_P',C.dynOn)}</td></tr>
+ <tr><td>Integral Gain (I %)</td><td>${c('off_I',C.dynOff)}</td><td>${c('on_I',C.dynOn)}</td></tr>
+ <tr><td>Derivative Ratio (DR %)</td><td>${c('off_DR',C.dynOff)}</td><td>${c('on_DR',C.dynOn)}</td></tr></table>
+ <div style="font-size:2.3cqw;margin-top:1.4cqw">On-Line dynamics are used when generator AND tie breaker are closed. Rule: cycle &lt; 1 s → reduce P; cycle &gt; 1 s → reduce I. Service level needed to adjust.</div>
+ <div style="margin-top:1cqw" class="lbl">Speed ${v(f1(nSensed()),'sm')} PID ${v(f1(S.pid,1)+' %','sm')}</div>`},
+ soft:[EXIT,['Speed',GO('sp')],['Start Curve',GO('sc')],['Defaults',()=>{if(S.lvl<2){ui.flash('Service level required');return}C.dynOff={...DEF.dynOff};C.dynOn={...DEF.dynOn};ui.flash('Dynamics set to training defaults')}]]};
+
+const stTxt=(ok,a,b)=>ok?`<span style="color:#060">${a}</span>`:`<span style="color:#a00;font-weight:600">${b}</span>`;
+SCR.ai={t:'Analog Input Summary',body:()=>{const pmA=F.ai1?0:4+16*S.pIn/100,kmA=4+16*clamp(S.mw,0,20)/20;
+ const rows=[[1,'Inlet Pressure','PT-101',F.ai1?'—':f1(S.pIn,1)+' bar',pmA,!F.ai1],[2,'KW Load','JT-101',f1(S.mw,2)+' MW',kmA,true]];
+ for(let i=3;i<=8;i++)rows.push([i,'--- Not Used ---','',' ','',true]);
+ return`<table class="tbl"><tr><th>Ch</th><th>Function</th><th>Tag</th><th>Value</th><th>mA</th><th>Status</th></tr>${rows.map(r=>`<tr class="${r[5]?'':'act'}"><td>AI ${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]===''?'':f1(r[4],2)}</td><td>${r[4]===''?'':stTxt(r[5],'OK','FAULT &lt;2 mA')}</td></tr>`).join('')}</table>`},
+ soft:[EXIT,['Speed Signals',GO('mp')],['',null],['',null]]};
+SCR.mp={t:'Speed Signals',body:()=>`<table class="tbl"><tr><th>Input</th><th>Type</th><th>Frequency</th><th>Speed</th><th>Status</th></tr>
+ <tr class="${F.mpu1?'act':''}"><td>Speed #1</td><td>MPU</td><td>${F.mpu1?'0.0':f1(S.n,1)} Hz</td><td>${F.mpu1?0:f1(S.n)} rpm</td><td>${stTxt(!F.mpu1,'OK','FAILED')}</td></tr>
+ <tr class="${F.mpu2?'act':''}"><td>Speed #2</td><td>MPU</td><td>${F.mpu2?'0.0':f1(S.n,1)} Hz</td><td>${F.mpu2?0:f1(S.n)} rpm</td><td>${stTxt(!F.mpu2,'OK','FAILED')}</td></tr></table>
+ <div style="margin-top:1.4cqw;font-size:2.4cqw;line-height:1.5">Teeth seen by MPU: <b>60</b> · Gear ratio <b>1 : 1</b> (Hz = rpm)<br>Failed Speed Level: <b>${C.failLvl} rpm</b> · Control uses the <b>highest</b> valid probe<br>Loss-of-speed detection: <b>${S.armed?'ARMED':'OVERRIDDEN (auto, until '+(C.failLvl+50)+' rpm)'}</b><br>Validated speed: ${v(f1(nSensed())+' rpm','sm')}</div>`,
+ soft:[EXIT,['Analog Inputs',GO('ai')],['',null],['',null]]};
+function diList(){return[[1,'External Trip 1 (NC)',!F.extTrip],[2,'Reset Command',false],[3,'Speed Raise Command',S.adjSrc==='di'&&S.adj>0],[4,'Speed Lower Command',S.adjSrc==='di'&&S.adj<0],[5,'Generator Breaker',S.gen],[6,'Utility Tie Breaker',S.tie],
+ [7,C.startMode==='manual'?'Start Permissive 1 (T&T closed)':'--- Not Used ---',C.startMode==='manual'?S.tt<=1:false],[8,'Idle / Rated Command',false],[9,'Overspeed Test',false],[10,'External Alarm 1 (NC)',!F.extAlm]]}
+SCR.di={t:'Contact Input Summary',body:()=>`<table class="tbl"><tr><th>Ch</th><th>Function</th><th>State</th></tr>${diList().map(r=>`<tr><td>DI ${r[0]}</td><td>${r[1]}</td><td>${dot(r[2])}${r[2]?'CLOSED':'OPEN'}</td></tr>`).join('')}<tr><td>DI 11–20</td><td>--- Not Used ---</td><td></td></tr></table>`,
+ soft:[EXIT,['',null],['',null],['',null]]};
+function roList(){const anyA=S.alarms.length>0;return[[1,'Trip Relay (de-energise to trip)',!S.tripped&&!S.cfg],[2,'Summary Alarm',anyA&&!S.cfg],[3,'Speed PID in Control',S.pidCtl&&S.running&&!S.tripped&&!S.cfg],[4,'Overspeed Test Enabled',!!S.ost&&!S.cfg],[5,'Overspeed Trip',S.trips.some(x=>x.id===3)&&!S.cfg],[6,'Open GEN Breaker Cmd',S.tripped&&!S.cfg],[7,'Frequency Control',S.mode==='freq'&&S.gen&&!S.cfg],[8,'Control Status OK',S.power&&!S.cfg]]}
+SCR.ro={t:'Relay Output Summary',body:()=>`<table class="tbl"><tr><th>Relay</th><th>Function</th><th>Coil</th></tr>${roList().map(r=>`<tr><td>RLY ${r[0]}</td><td>${r[1]}</td><td>${dot(r[2])}${r[2]?'ENERGISED':'De-energised'}</td></tr>`).join('')}</table>${S.cfg?'<div style="color:#a00;font-weight:600;margin-top:1cqw">IOLOCK – all relays de-energised</div>':''}`,
+ soft:[EXIT,['',null],['',null],['',null]]};
+SCR.ad={t:'Actuator Driver Summary',body:()=>`<table class="tbl"><tr><th>Ch</th><th>Function</th><th>Range</th><th>Current</th><th>Demand</th><th>Status</th></tr>
+ <tr class="${F.act?'act':''}"><td>ACT 1</td><td>HP Valve Demand</td><td>4–20 mA</td><td>${F.act?'0.00':f1(4+16*S.hpDem/100,2)} mA</td><td>${f1(S.hpDem,1)} %</td><td>${stTxt(!F.act,'OK','OPEN WIRE')}</td></tr>
+ <tr><td>ACT 2</td><td>--- Not Used ---</td><td></td><td></td><td></td><td></td></tr></table>
+ <div style="margin-top:1.4cqw;font-size:2.4cqw;line-height:1.5">Actuator 1 → I/H converter → servo → HP governor valve.<br>HP valve feedback: ${v(f1(S.hpPos,1)+' %','sm')}<br>On TRIP or E-STOP the actuator current goes to <b>0 mA</b> (valve closes).</div>`,
+ soft:[EXIT,['Valve Demand',GO('vd')],['',null],['',null]]};
+SCR.ao={t:'Analog Output Summary',body:()=>{const r=[[1,'Actual Shaft Speed','0–7000 rpm',nSensed()/7000],[2,'Speed Reference Setpoint','0–7000 rpm',S.sp/7000],[3,'HP Valve Demand','0–100 %',S.hpDem/100],[4,'Generator Load','0–20 MW',clamp(S.mw,0,20)/20]];
+ return`<table class="tbl"><tr><th>Ch</th><th>Function</th><th>Range</th><th>mA</th></tr>${r.map(x=>`<tr><td>AO ${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${S.cfg?'0.00':f1(4+16*clamp(x[3],0,1),2)}</td></tr>`).join('')}<tr><td>AO 5–6</td><td>--- Not Used ---</td><td></td><td></td></tr></table>`},
+ soft:[EXIT,['',null],['',null],['',null]]};
+function evTable(list,names){if(!list.length)return'<div style="text-align:center;margin-top:8cqw;font-size:3cqw;color:#333">No events</div>';
+ return`<table class="tbl"><tr><th>ID</th><th>Description</th><th>Date / Time</th></tr>${list.map((x,i)=>`<tr class="${i===0?'act':''}"><td>${x.id}</td><td>${names[x.id]||('Event '+x.id)}${i===0&&list.length>1?' (first)':''}</td><td>${x.t}</td></tr>`).join('')}</table><div style="font-size:2.2cqw;margin-top:1cqw">First event at top. Press RESET to clear events that are no longer active.</div>`}
+SCR.al={t:'Alarm Summary',body:()=>evTable(S.alarms,ALMN),soft:[EXIT,['Shutdowns',GO('tr')],['',null],['',null]]};
+SCR.tr={t:'Shutdown Summary',body:()=>evTable(S.trips,TRIPN),soft:[EXIT,['Alarms',GO('al')],['',null],['',null]]};
+SCR.mode={t:'Login / Mode',body:()=>`
+ <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:2cqw">
+  <div style="display:flex;flex-direction:column;gap:1.3cqw">${LVL.map((l,i)=>fb('lv'+i,(S.lvl===i?'● ':'')+'Login: '+l,S.lvl===i?'gk':'')).join('')}</div>
+  <div class="box" style="font-size:2.3cqw;line-height:1.45"><h4>User Levels</h4><b>Monitor</b> – view only, green keys inhibited<br><b>Operator</b> – normal turbine operation<br><b>Service</b> – tuning, calibration<br><b>Configure</b> – all modes, Configuration (IOLOCK)<br><i>Trainer: no password needed. Real passwords: Vol 2 Appendix C.</i></div>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:2cqw;margin-top:1.6cqw;align-items:center">${fb('cfgbtn',S.cfg?'Exit Configuration Mode':'Enter Configuration Mode','gk')}<div style="font-size:2.3cqw">Current: <b>${LVL[S.lvl]}</b> · Mode: <b>${S.cfg?'Configuration (IOLOCK)':'Run / Operation'}</b></div></div>`,
+ soft:[EXIT,['Logout',()=>{S.lvl=0;ui.flash('Logged out – Monitor level')}],['',null],['Config Menu',GO('cf')]]};
+const SVI=[['rateToMin','Rate to Min (rpm/s)',5,200,1],['idleRate','Idle/Rated Rate (rpm/s)',5,200,1],['critRate','Critical Speed Rate (rpm/s)',50,400,1],['vlRate','Valve Limiter Rate (%/s)',1,20,0.5],['hpMaxStart','HP Max at Start (%)',5,100,1],['slowRate','Setpoint Slow Rate (rpm/s)',2,60,1],['fastRate','Setpoint Fast Rate (rpm/s)',10,200,1]];
+SCR.sv={t:'Service Menu',area:'service',body:()=>`<table class="tbl"><tr><th>Turbine Start / Speed Settings</th><th>Value</th></tr>${SVI.map(x=>`<tr><td>${x[1]}</td><td>${fv('sv_'+x[0],f1(C[x[0]],x[4]<1?1:0),'sm',1)}</td></tr>`).join('')}</table>
+ <div style="font-size:2.3cqw;margin-top:1cqw">${S.lvl<2?'<b style="color:#a00">View only – login as Service to adjust.</b>':'Focus a value and use ADJUST ▲/▼ (⇧ = fast).'} These are tunable while running.</div>`,
+ soft:[EXIT,['Dynamics',GO('dy')],['Config Menu',GO('cf')],['Defaults',()=>{if(S.lvl<2){ui.flash('Service level required');return}SVI.forEach(x=>C[x[0]]=DEF[x[0]]);ui.flash('Service settings restored')}]]};
+SCR.cf={t:'Configuration Menu',area:'config',body:()=>`
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:2cqw">
+  <div style="display:flex;flex-direction:column;gap:1.2cqw">
+   <div class="lbl">Turbine Start Mode</div>${fb('cf_start',modeName(C.startMode))}
+   <div class="lbl">Use Idle/Rated</div>${fb('cf_idle',C.useIdle?'YES':'NO')}
+   <div class="lbl">Use Critical Speed Band</div>${fb('cf_crit',C.useCrit&&C.useIdle?'YES':'NO')}
+  </div>
+  <table class="tbl"><tr><th>Speed Setpoints</th><th>rpm</th></tr><tr><td>Idle</td><td>${C.idle}</td></tr><tr><td>Critical band</td><td>${C.critLo}–${C.critHi}</td></tr><tr><td>Min Governor</td><td>${C.minGov}</td></tr><tr><td>Rated (Sync)</td><td>${C.nr}</td></tr><tr><td>Max Governor</td><td>${C.maxGov}</td></tr><tr><td>Overspeed Trip</td><td>${C.osTrip}</td></tr><tr><td>Overspeed Test Limit</td><td>${C.osLimit}</td></tr><tr><td>Failed Speed Level</td><td>${C.failLvl}</td></tr></table>
+ </div>
+ <div style="font-size:2.3cqw;margin-top:1.2cqw">${S.cfg?'<b>IOLOCK active.</b> Press ENTER on a setting to change it. Exit Config Mode → Power Up Trip.':'<b style="color:#a00">View only (Operation mode).</b> Enter Configuration Mode from MODE screen (Configure level, turbine shut down).'}</div>`,
+ soft:[()=>S.cfg?['Exit Config',()=>exitCfg(),1]:EXIT,['Config Check',()=>ui.flash(C.useCrit&&!C.useIdle?'Config Check: critical band needs Idle/Rated':'Config Check: OK – no errors')],['Login',GO('mode')],['',null]]};
+
+/* ---- focus item behaviours ---- */
+function adjItem(id){
+  if(id==='sp')return{start:(d,fast)=>{if(!canOp())return;if(S.tripped||!S.running){ui.flash('Setpoint adjust not available – turbine not running');return}if(S.ramp&&S.ramp!=='enter'&&S.ramp!=='ramp'&&!S.stop){S.ramp=null;if(S.phase==='toRated'||S.phase==='toIdle')S.phase=S.sp>=C.minGov?'run':'idle'}if(S.ramp)S.ramp=null;S.adj=d;S.adjFast=fast;S.adjSrc='key'},stop:()=>{if(S.adjSrc==='key')S.adj=0}};
+  if(id==='vl')return{start:(d,fast)=>{if(!canOp())return;if(S.tripped||!S.running){ui.flash('Valve limiter not available – turbine not running');return}S.vlAdj=d;S.vlFast=fast},stop:()=>{S.vlAdj=0}};
+  let m=id.match(/^dy_(off|on)_(P|I|DR)$/);
+  if(m)return{rate:{P:2,I:0.2,DR:4}[m[2]],lvl:2,get:()=>C[m[1]==='off'?'dynOff':'dynOn'][m[2]],set:x=>{C[m[1]==='off'?'dynOff':'dynOn'][m[2]]=clamp(x,m[2]==='DR'?0.01:0.01,m[2]==='DR'?100:100)}};
+  m=id.match(/^sv_(\w+)$/);
+  if(m){const d=SVI.find(x=>x[0]===m[1]);return{rate:(d[3]-d[2])/8,lvl:2,get:()=>C[d[0]],set:x=>{C[d[0]]=clamp(Math.round(x/d[4])*d[4],d[2],d[3])}}}
+  return null;
+}
+function enterItem(id){
+  if(GOMAP[id])return ui.go(GOMAP[id]);
+  if(id==='idr'){if(canOp())idleRated(S.idleSel==='rated'?'idle':'rated');return}
+  if(id==='ostInt'){if(canOp())ostEnable('int');return}
+  if(id==='ostExt'){if(canOp())ostEnable('ext');return}
+  if(id==='ostDis'){ostDisable();return}
+  if(id==='ostMax'){S.ostMax=nSensed();return}
+  if(/^lv\d$/.test(id)){S.lvl=+id[2];ui.flash('Logged in: '+LVL[S.lvl]);return}
+  if(id==='cfgbtn'){S.cfg?exitCfg():enterCfg();return}
+  if(id.startsWith('cf_')){if(!S.cfg){ui.flash('View only – enter Configuration Mode first');return}
+    if(id==='cf_start'){const o=['manual','semi','auto'];C.startMode=o[(o.indexOf(C.startMode)+1)%3]}
+    if(id==='cf_idle'){C.useIdle=!C.useIdle}
+    if(id==='cf_crit'){C.useCrit=!C.useCrit}return}
+  if(id==='sp'){ui.openEntry('Speed Setpoint','rpm',v=>enterSP(v));return}
+  const a=adjItem(id);if(a&&a.get){if(S.lvl<a.lvl){ui.flash('Service level required');return}ui.openEntry('New value','',v=>{a.set(v);return true})}
+}
+
+const ui={
+ flash(t){U.msg=t;U.msgT=3.2;U.lastGuide='';},
+ go(s){if(s==='sv'&&false){}if(U.scr!==s){U.stack.push(U.scr);if(U.stack.length>20)U.stack.shift()}U.scr=s;U.fid=null;U.dlg=null;U.entry=null;this.render(true);guide()},
+ back(){if(U.dlg){U.dlg=null;return this.render(true)}if(U.entry){U.entry=null;return this.render(true)}U.scr=U.stack.pop()||'home';U.fid=null;this.render(true);guide()},
+ home(reset){if(reset){U.stack=[];U.scr='home'}else{const a=(SCR[U.scr].area)||'run';if(a!=='run'&&U.scr!==(a==='service'?'sv':'cf')){U.stack.push(U.scr);U.scr=a==='service'?'sv':'cf'}else{U.stack=[];U.scr='home'}}U.fid=null;U.dlg=null;U.entry=null;this.render(true);guide()},
+ confirm(title,text,yes,yesLbl){U.dlg={title,text,btns:[[yesLbl||'Confirm',yes],['Cancel',()=>{}]]};U.fid='dlg0';this.render(true)},
+ openEntry(label,unit,cb){U.entry={label,unit,str:'',cb};this.render(true)},
+ render(force){
+  if(!S.power||S.boot>0){
+   const el=S.boot>2.6&&S.boot<5?`<div class="splash"><div><b>505</b> Turbine Control</div><small>Loading control application…</small></div>`:'<div class="off"></div>';
+   if(lcd.innerHTML!==el)lcd.innerHTML=el;leds();return}
+  const sc=SCR[U.scr];
+  const soft=sc.soft.map(s=>typeof s==='function'?s():s);
+  let h=`<div class="scr ${S.cfg?'cfg':''}" style="filter:brightness(${[1,.8,.62][U.brt]})"><div class="tb"><h1>${sc.t}</h1><div class="cs"><u>Control Status</u><b>${status()}</b><em>User Level: ${LVL[S.lvl]}${U.fast?' · <b style="color:#06c">FAST ⇧</b>':''}</em></div></div><div class="bd">${sc.body()}</div>
+  <div class="mb">${soft.map(s=>`<span class="${s[0]?'':'e'} ${s[2]?'gk':''}">${s[0]}</span>`).join('')}</div>`;
+  if(U.entry)h+=`<div class="dlg"><div class="in"><h2>${U.entry.label}</h2><p><span class="entry">${esc(U.entry.str)||'&nbsp;'}</span> ${U.entry.unit}</p><p style="font-size:2.3cqw">Type with the keypad · ENTER = accept · ESC = cancel</p></div></div>`;
+  else if(U.dlg)h+=`<div class="dlg"><div class="in"><h2>${U.dlg.title}</h2><p>${U.dlg.text}</p><div class="row">${U.dlg.btns.map((b,i)=>fb('dlg'+i,b[0],i===0?'gk':'')).join('')}</div></div></div>`;
+  if(U.msg)h+=`<div class="msgbar">${esc(U.msg)}</div>`;
+  h+='</div>';
+  lcd.innerHTML=h;
+  const scope=U.dlg?lcd.querySelector('.dlg'):lcd;
+  const els=[...scope.querySelectorAll('[data-f]')];
+  if(els.length&&!els.some(e=>e.dataset.f===U.fid))U.fid=els[0].dataset.f;
+  if(!els.length)U.fid=null;
+  els.forEach(e=>e.classList.toggle('on',e.dataset.f===U.fid));
+  U.soft=soft;
+  document.querySelectorAll('.p-soft .k').forEach((b,i)=>b.setAttribute('aria-label','Soft key: '+(soft[i]&&soft[i][0]||'blank')));
+  leds();
+ },
+ move(dir){
+  const scope=U.dlg?lcd.querySelector('.dlg'):lcd;if(!scope)return;
+  const els=[...scope.querySelectorAll('[data-f]')];if(!els.length)return;
+  const cur=els.find(e=>e.dataset.f===U.fid)||els[0],r=cur.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  let best=null,bs=1e9;
+  for(const e of els){if(e===cur)continue;const q=e.getBoundingClientRect(),x=q.left+q.width/2-cx,y=q.top+q.height/2-cy;
+   let p,s;if(dir==='RIGHT'){p=x;s=y}else if(dir==='LEFT'){p=-x;s=y}else if(dir==='DOWN'){p=y;s=x}else{p=-y;s=x}
+   if(p<=2)continue;const sc=p+2.2*Math.abs(s);if(sc<bs){bs=sc;best=e}}
+  if(best){U.fid=best.dataset.f;this.render(true)}
+ },
+ tick(dt){
+  if(U.msgT>0){U.msgT-=dt;if(U.msgT<=0)U.msg=''}
+  if(U.adjDir&&U.adjItem&&U.adjItem.get){const a=U.adjItem;a.set(a.get()+U.adjDir*a.rate*(U.fast?4:1)*dt)}
+ }
+};
+function leds(){
+ const on=(id,s,b)=>{const e=$(id);e.classList.toggle('on',!!s);e.classList.toggle('blink',!!b)};
+ const live=S.power&&S.boot<=0,chk=S.boot>2.6&&S.boot<4.2;
+ on('L-trip',chk||(live&&S.tripped)||(S.boot>0&&S.boot<2.6));on('L-alm',chk||(live&&S.alarms.length>0),S.boot>0&&S.boot<2.6);on('L-cpu',chk||live||S.boot<4);on('L-io',chk||(live&&S.cfg));
+}
+
+/* ---- keys ---- */
+function key(k,ph){
+ if(ph==='up'){if(k==='ADJUP'||k==='ADJDN'){U.adjDir=0;if(U.adjItem&&U.adjItem.stop)U.adjItem.stop();U.adjItem=null}return}
+ U.lastKey=k;
+ if(k==='ESTOP'){if(S.power&&S.boot<=0){trip(2);ui.flash('EMERGENCY TRIP – actuator current removed')}guide();return}
+ if(!S.power||S.boot>0){guide();return}
+ if(U.entry){
+  const e=U.entry;
+  if(/^[0-9]$/.test(k))e.str=(e.str+k).slice(0,8);
+  else if(k==='.'&&!e.str.includes('.'))e.str+='.';
+  else if(k==='PM')e.str=e.str.startsWith('-')?e.str.slice(1):'-'+e.str;
+  else if(k==='BS')e.str=e.str.slice(0,-1);
+  else if(k==='ENTER'){const x=parseFloat(e.str);U.entry=null;if(!isNaN(x)){if(e.cb(x)!==false)ui.flash(e.label+' = '+x)}}
+  else if(k==='ESC'||k==='HOME')U.entry=null;
+  ui.render(true);guide();return}
+ if(U.dlg){
+  if(k==='LEFT'||k==='RIGHT'||k==='UP'||k==='DOWN')ui.move(k);
+  else if(k==='ENTER'){const i=+String(U.fid).slice(3)||0,b=U.dlg.btns[i];U.dlg=null;if(b)b[1]();ui.render(true)}
+  else if(k==='ESC'){U.dlg=null;ui.render(true)}
+  else if(k==='START'||k==='STOP'){}
+  else if(k==='RESET'){reset('key')}
+  guide();return}
+ switch(k){
+  case'UP':case'DOWN':case'LEFT':case'RIGHT':ui.move(k);break;
+  case'ENTER':if(U.fid)enterItem(U.fid);break;
+  case'ESC':ui.back();break;
+  case'HOME':ui.home(false);break;
+  case'MODE':ui.go('mode');break;
+  case'VIEWT':ui.go('tr');break;
+  case'VIEWA':ui.go('al');break;
+  case'RESET':reset('key');break;
+  case'START':if(!canOp())break;if(S.running&&!S.tripped){ui.flash('Turbine already started');break}
+   ui.confirm('Start Turbine?',`Start mode: <b>${modeName(C.startMode)}</b>.<br>${C.startMode==='manual'?'Verify the T&amp;T valve is CLOSED.':'Verify the T&amp;T valve is OPEN and the turbine does not accelerate.'}`,startCmd,'Start');break;
+  case'STOP':if(!canOp())break;
+   if(S.stop)ui.confirm('Controlled Stop in progress','Abort the normal shutdown sequence?',abortStop,'Abort Stop');
+   else if(S.running&&!S.tripped)ui.confirm('Controlled Shutdown?',S.gen?'Unit will unload, open the generator breaker, ramp down and close the valve limiter.':'Speed ramps down and the valve limiter closes.',stopCmd,'Stop');
+   else ui.flash('Turbine not running');break;
+  case'S1':case'S2':case'S3':case'S4':{const s=U.soft&&U.soft[+k[1]-1];if(s&&s[1]){if(s[2]&&!canOp())break;s[1]()}break}
+  case'ADJUP':case'ADJDN':{const d=k==='ADJUP'?1:-1,a=U.fid&&adjItem(U.fid);
+   if(!a){ui.flash('ADJUST: move the focus to an adjustable value first');break}
+   if(a.lvl&&S.lvl<a.lvl){ui.flash('Service level required to tune this value');break}
+   if(S.lvl<1){ui.flash('Monitor level: green keys inhibited');break}
+   U.adjItem=a;U.adjDir=d;if(a.start)a.start(d,U.fast);break}
+  case'SHIFT':U.fast=!U.fast;break;
+  case'BRT':U.brt=(U.brt+1)%3;break;
+  default:if(/^[0-9.]$/.test(k)&&U.fid){const a=U.fid==='sp'||(adjItem(U.fid)||{}).get;if(a){enterItem(U.fid);if(U.entry&&k!=='.')U.entry.str=k}}
+ }
+ ui.render(true);guide();
+}
+
+/* ================= TEXT (EN / HI / HINGLISH) ================= */
+const T={
+ lang:['Language','भाषा','Language'],tKey:['Panel','पैनल','Panel'],tSim:['Turbine','टर्बाइन','Turbine'],tWire:['Wiring','वायरिंग','Wiring'],tTrb:['Trips','ट्रिप','Trips'],
+ kbd:['PC keys: arrows, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset','PC कुंजियाँ: एरो, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset','PC keys: arrows, Enter, Esc, Home, PgUp/PgDn = Adjust, R = Reset'],
+ swipe:['Swipe left or right to change tabs','टैब बदलने के लिए बाएँ या दाएँ स्वाइप करें','Tab badalne ke liye left ya right swipe karein'],
+ keysT:['Keys on the 505 (Chapter 1)','505 की कुंजियाँ (अध्याय 1)','505 ki keys (Chapter 1)'],
+ wScroll:['Swipe the diagram left / right to see the field devices →','फील्ड डिवाइस देखने के लिए डायग्राम को बाएँ / दाएँ स्वाइप करें →','Field devices dekhne ke liye diagram ko left / right swipe karein →'],
+ disc:['Training purpose only. Not affiliated with Woodward or the equipment supplier. Settings are a training example, not your site\'s configuration.','केवल प्रशिक्षण के लिए। Woodward या उपकरण सप्लायर से संबद्ध नहीं। सेटिंग्स प्रशिक्षण उदाहरण हैं, आपकी साइट की कॉन्फ़िगरेशन नहीं।','Sirf training ke liye. Woodward ya supplier se koi sambandh nahi. Settings training example hain, aapki site ki configuration nahi.'],
+ trend:['Trend (last 4 min)','ट्रेंड (पिछले 4 मिनट)','Trend (last 4 min)'],lgSpd:['Speed','स्पीड','Speed'],lgSp:['Setpoint','सेटपॉइंट','Setpoint'],lgHp:['HP valve %','HP वाल्व %','HP valve %'],lgMw:['Load MW','लोड MW','Load MW'],
+ fieldT:['Field / control room','फ़ील्ड / कंट्रोल रूम','Field / control room'],ttT:['Trip & Throttle (T&T) valve — at the turbine','ट्रिप एवं थ्रॉटल (T&T) वाल्व — टर्बाइन पर','Trip & Throttle (T&T) valve — turbine par'],
+ ttOpen:['Open slowly','धीरे खोलें','Dheere kholo'],ttHold:['Hold','रोकें','Hold'],ttClose:['Close','बंद करें','Band karo'],ttPos:['T&T position','T&T पोज़िशन','T&T position'],
+ brkT:['Breakers (DI5 / DI6)','ब्रेकर (DI5 / DI6)','Breakers (DI5 / DI6)'],genC:['Close GEN breaker','GEN ब्रेकर बंद करें','GEN breaker close karo'],genO:['Open GEN breaker','GEN ब्रेकर खोलें','GEN breaker open karo'],
+ tieO:['Utility tie: CLOSED','यूटिलिटी टाई: बंद (CLOSED)','Utility tie: CLOSED'],tieX:['Utility tie: OPEN','यूटिलिटी टाई: खुला (OPEN)','Utility tie: OPEN'],
+ dcsT:['DCS contacts / Modbus','DCS कॉन्टैक्ट / Modbus','DCS contacts / Modbus'],dRaise:['Raise (DI3)','बढ़ाएँ (DI3)','Raise (DI3)'],dLower:['Lower (DI4)','घटाएँ (DI4)','Lower (DI4)'],dReset:['Reset (DI2)','रीसेट (DI2)','Reset (DI2)'],dMb:['Modbus trip','Modbus ट्रिप','Modbus trip'],
+ faultT:['Inject a fault (trainer)','फ़ॉल्ट डालें (ट्रेनर)','Fault daalo (trainer)'],plantT:['Plant conditions','प्लांट की स्थिति','Plant conditions'],
+ pinL:['Inlet steam','इनलेट स्टीम','Inlet steam'],islL:['Island load','आइलैंड लोड','Island load'],hzL:['Grid frequency','ग्रिड फ्रीक्वेंसी','Grid frequency'],simspd:['Simulation speed','सिमुलेशन स्पीड','Simulation speed'],
+ pwrCyc:['Power cycle 505','505 पावर साइकिल','505 power cycle'],toKey:['Open panel','पैनल खोलें','Panel kholo'],
+ fieldNote:['<b>Generator drive, 15 MW, 6000 rpm, 5 % droop.</b> Island load is used only when the GEN breaker is closed and the utility tie is OPEN (frequency control). Breaker close needs speed matched to the bus (sync check ±20 rpm).','<b>जनरेटर ड्राइव, 15 MW, 6000 rpm, 5 % ड्रूप।</b> आइलैंड लोड तभी लगता है जब GEN ब्रेकर बंद और यूटिलिटी टाई खुला हो (फ्रीक्वेंसी कंट्रोल)। ब्रेकर बंद करने के लिए स्पीड बस से मिलनी चाहिए (सिंक चेक ±20 rpm)।','<b>Generator drive, 15 MW, 6000 rpm, 5 % droop.</b> Island load tabhi lagta hai jab GEN breaker closed aur utility tie OPEN ho (frequency control). Breaker close ke liye speed bus se match honi chahiye (sync check ±20 rpm).'],
+ exT:['Training exercises (auto-checked)','प्रशिक्षण अभ्यास (अपने-आप जाँच)','Training exercises (auto-check)'],exReset:['Restart exercises','अभ्यास फिर से शुरू करें','Exercises restart karo'],
+ wDiagT:['Field wiring — training I/O assignment (Fig 2-10)','फ़ील्ड वायरिंग — प्रशिक्षण I/O असाइनमेंट (चित्र 2-10)','Field wiring — training I/O assignment (Fig 2-10)'],
+ wTermT:['Terminal blocks (back cover, Fig 2-9) — live status','टर्मिनल ब्लॉक (बैक कवर, चित्र 2-9) — लाइव स्थिति','Terminal blocks (back cover, Fig 2-9) — live status'],
+ wChkT:['Installation checks (Chapter 2)','इंस्टॉलेशन जाँच (अध्याय 2)','Installation checks (Chapter 2)'],
+ wNote:['Terminal numbers are from Fig 2-10 of manual 26839V1. The function of each DI / relay / AO is <b>configurable</b> — this page shows the training assignment (DI1–DI4 use the manual defaults). Always follow your site loop drawings.','टर्मिनल नंबर मैनुअल 26839V1 के चित्र 2-10 से हैं। हर DI / रिले / AO का काम <b>कॉन्फ़िगर करने योग्य</b> है — यहाँ प्रशिक्षण असाइनमेंट दिखाया गया है (DI1–DI4 मैनुअल डिफ़ॉल्ट)। हमेशा अपनी साइट की लूप ड्रॉइंग देखें।','Terminal numbers manual 26839V1 ke Fig 2-10 se hain. Har DI / relay / AO ka function <b>configurable</b> hai — yahan training assignment dikhaya hai (DI1–DI4 manual default). Hamesha apni site ki loop drawing follow karein.'],
+ fcT:['Trip / alarm event ID','ट्रिप / अलार्म इवेंट ID','Trip / alarm event ID'],activeT:['Active now on the simulator','सिम्युलेटर पर अभी सक्रिय','Simulator par abhi active'],commonT:['Common events','आम इवेंट','Common events'],symT:['Symptoms — what to check','लक्षण — क्या जाँचें','Symptoms — kya check karein'],
+ none:['None','कोई नहीं','Koi nahi'],trip:['Trip','ट्रिप','Trip'],alm:['Alarm','अलार्म','Alarm'],mean:['Manual meaning','मैनुअल में अर्थ','Manual meaning'],cause:['Possible causes','संभावित कारण','Possible causes'],act:['What to do','क्या करें','Kya karein'],
+ notFound:['No event matches. Try an ID number (e.g. 3) or a word (e.g. speed).','कोई इवेंट नहीं मिला। ID नंबर (जैसे 3) या शब्द (जैसे speed) लिखें।','Koi event nahi mila. ID number (jaise 3) ya word (jaise speed) likho.'],
+ next:['Next step','अगला कदम','Next step'],keyP:['Key','कुंजी','Key'],scrH:['Screen','स्क्रीन','Screen'],focus:['In focus','फ़ोकस में','Focus mein'],
+ rSpd:['Speed','स्पीड','Speed'],rSp:['Setpoint','सेटपॉइंट','Setpoint'],rHp:['HP valve','HP वाल्व','HP valve'],rVl:['Valve limiter','वाल्व लिमिटर','Valve limiter'],rTT:['T&T valve','T&T वाल्व','T&T valve'],rMw:['Load','लोड','Load'],rHz:['Frequency','फ्रीक्वेंसी','Frequency'],rAct:['Actuator','एक्चुएटर','Actuator'],
+};
+const t=k=>T[k]?L3(T[k]):k;
+
+/* key help */
+const KH={
+ ESTOP:['EMERGENCY TRIP: trips the turbine at once and removes all current from the actuator outputs (0 mA). Always available in every mode and login.','इमरजेंसी ट्रिप: टर्बाइन तुरंत ट्रिप होता है और एक्चुएटर करंट 0 mA हो जाता है। हर मोड और लॉगिन में हमेशा उपलब्ध।','EMERGENCY TRIP: turbine turant trip, actuator current 0 mA. Har mode aur login mein hamesha available.'],
+ VIEWT:['VIEW (under TRIPPED LED): jumps to the Shutdown Summary – trip events with time stamp, first-out at top.','VIEW (TRIPPED LED के नीचे): शटडाउन सारांश खोलता है – ट्रिप इवेंट समय के साथ, पहला इवेंट ऊपर।','VIEW (TRIPPED LED ke neeche): Shutdown Summary kholta hai – trip events time ke saath, first-out upar.'],
+ VIEWA:['VIEW (under ALARM LED): jumps to the Alarm Summary.','VIEW (ALARM LED के नीचे): अलार्म सारांश खोलता है।','VIEW (ALARM LED ke neeche): Alarm Summary kholta hai.'],
+ MODE:['MODE: opens the Login / Mode screen – user level (Monitor, Operator, Service, Configure) and Configuration mode.','MODE: लॉगिन / मोड स्क्रीन – यूज़र लेवल (Monitor, Operator, Service, Configure) और कॉन्फ़िगरेशन मोड।','MODE: Login / Mode screen – user level (Monitor, Operator, Service, Configure) aur Configuration mode.'],
+ ESC:['ESC: always steps back one page.','ESC: हमेशा एक पेज पीछे जाता है।','ESC: hamesha ek page peeche.'],
+ HOME:['HOME: goes to the Home menu (Service / Configure home first if you are there; press again for the Run Home screen).','HOME: होम मेन्यू पर ले जाता है (Service/Configure में हों तो पहले उनका होम; दोबारा दबाने पर Run होम)।','HOME: Home menu (Service/Configure mein ho to pehle unka home; dobara dabao to Run home).'],
+ UP:['Navigation cross: moves the IN-FOCUS highlighter (orange frame) between items on the page.','नेविगेशन क्रॉस: पेज पर IN-FOCUS हाइलाइटर (नारंगी फ़्रेम) को आइटम्स के बीच घुमाता है।','Navigation cross: page par IN-FOCUS highlighter (orange frame) ko items ke beech ghumata hai.'],
+ ENTER:['ENTER: opens the page or performs the button in focus. On a value (e.g. setpoint) it opens direct entry.','ENTER: फ़ोकस वाला पेज/बटन चलाता है। किसी वैल्यू (जैसे सेटपॉइंट) पर डायरेक्ट एंट्री खोलता है।','ENTER: focus wala page/button chalata hai. Value (jaise setpoint) par direct entry kholta hai.'],
+ START:['START (green): starts the configured start mode. Always needs confirmation and Operator level or higher.','START (हरा): कॉन्फ़िगर किया गया स्टार्ट मोड शुरू करता है। हमेशा पुष्टि और Operator या ऊपर का लेवल चाहिए।','START (green): configured start mode shuru karta hai. Hamesha confirm aur Operator ya upar ka level chahiye.'],
+ STOP:['STOP (green): controlled (normal) shutdown with confirmation – unloads, opens breaker, ramps down, closes limiter → trip 16 "Normal Shutdown Complete". Press again to abort.','STOP (हरा): पुष्टि के साथ नियंत्रित शटडाउन – लोड घटता है, ब्रेकर खुलता है, स्पीड घटती है, लिमिटर बंद → ट्रिप 16। दोबारा दबाकर रद्द करें।','STOP (green): confirm ke saath controlled shutdown – unload, breaker open, ramp down, limiter close → trip 16. Dobara dabao to abort.'],
+ RESET:['RESET: clears trips and alarms whose cause is gone. Active causes stay in the list with the same time stamp.','RESET: जिन ट्रिप/अलार्म का कारण खत्म हो गया उन्हें साफ़ करता है। सक्रिय कारण उसी समय के साथ सूची में रहते हैं।','RESET: jin trip/alarm ka cause khatam ho gaya unhe clear karta hai. Active cause list mein same time ke saath rehte hain.'],
+ ADJUP:['ADJUST ▲/▼ (green): raises or lowers the value in focus (setpoint, valve limiter, dynamics). Press ⇧ first for fast rate.','ADJUST ▲/▼ (हरा): फ़ोकस वाली वैल्यू (सेटपॉइंट, वाल्व लिमिटर, डायनामिक्स) बढ़ाता/घटाता है। तेज़ रेट के लिए पहले ⇧ दबाएँ।','ADJUST ▲/▼ (green): focus wali value (setpoint, valve limiter, dynamics) badhata/ghatata hai. Fast ke liye pehle ⇧.'],
+ S1:['Black soft keys: do the command shown above them on the menu bar – no focus needed.','काली सॉफ्ट कुंजियाँ: मेन्यू बार पर ऊपर लिखा कमांड चलाती हैं – फ़ोकस की ज़रूरत नहीं।','Black soft keys: menu bar par upar likha command chalati hain – focus ki zaroorat nahi.'],
+ SHIFT:['⇧ SHIFT: with ADJUST gives the FAST rate (here it toggles FAST on/off).','⇧ SHIFT: ADJUST के साथ तेज़ रेट (यहाँ FAST चालू/बंद होता है)।','⇧ SHIFT: ADJUST ke saath FAST rate (yahan FAST on/off toggle).'],
+ BRT:['☀ Brightness: hold and use ADJUST on the real unit (here it cycles brightness).','☀ ब्राइटनेस: असली यूनिट पर दबाकर ADJUST (यहाँ ब्राइटनेस बदलता है)।','☀ Brightness: real unit par daba ke ADJUST (yahan brightness cycle).'],
+ NUM:['Numeric keypad: types values in an entry field (setpoint direct entry). ← = backspace.','न्यूमेरिक कीपैड: एंट्री फ़ील्ड में वैल्यू टाइप करता है। ← = बैकस्पेस।','Numeric keypad: entry field mein value type. ← = backspace.'],
+};
+KH.DOWN=KH.LEFT=KH.RIGHT=KH.UP;KH.ADJDN=KH.ADJUP;KH.S2=KH.S3=KH.S4=KH.S1;
+const KNAME={ESTOP:'EMERGENCY TRIP',VIEWT:'VIEW (Trips)',VIEWA:'VIEW (Alarms)',UP:'▲',DOWN:'▼',LEFT:'◀',RIGHT:'▶',ADJUP:'ADJUST ▲',ADJDN:'ADJUST ▼',S1:'Soft key 1',S2:'Soft key 2',S3:'Soft key 3',S4:'Soft key 4',SHIFT:'⇧ SHIFT',BRT:'☀',BS:'←',PM:'+/-'};
+const SH={
+ home:['Run / Operation HOME menu. Move the focus to a page and press ENTER, or use the black soft keys.','रन / ऑपरेशन होम मेन्यू। फ़ोकस किसी पेज पर ले जाकर ENTER दबाएँ, या काली सॉफ्ट कुंजियाँ।','Run / Operation HOME menu. Focus kisi page par le jao aur ENTER, ya black soft keys.'],
+ ov:['Overview: all main values – speed, setpoint, HP demand, inlet pressure, load and breakers.','ओवरव्यू: सभी मुख्य वैल्यू – स्पीड, सेटपॉइंट, HP डिमांड, इनलेट प्रेशर, लोड और ब्रेकर।','Overview: saari main values – speed, setpoint, HP demand, inlet pressure, load, breakers.'],
+ sp:['Speed Control: gauge, setpoint (ADJUST or direct entry), operational mode (speed / frequency / unit load), Idle/Rated, links to Valve Limiter, Overspeed Test and Dynamics.','स्पीड कंट्रोल: गेज, सेटपॉइंट (ADJUST या डायरेक्ट एंट्री), ऑपरेशनल मोड, Idle/Rated, और वाल्व लिमिटर, ओवरस्पीड टेस्ट, डायनामिक्स के लिंक।','Speed Control: gauge, setpoint (ADJUST ya direct entry), operational mode, Idle/Rated, aur Valve Limiter, Overspeed Test, Dynamics ke links.'],
+ vd:['Valve Demand: the LSS (low signal select) bus passes the LOWEST of Speed PID and Valve Limiter to the HP valve. Normally the limiter is 100 % and not limiting.','वाल्व डिमांड: LSS बस Speed PID और वाल्व लिमिटर में से सबसे कम वैल्यू HP वाल्व को देता है। सामान्यतः लिमिटर 100 % पर रहता है।','Valve Demand: LSS bus Speed PID aur Valve Limiter mein se LOWEST value HP valve ko deta hai. Normally limiter 100 % par rehta hai.'],
+ sc:['Startup Curve: speed, setpoint and HP valve during the start. Shaded band = critical speed band (setpoint cannot stop inside it).','स्टार्टअप कर्व: स्टार्ट के दौरान स्पीड, सेटपॉइंट और HP वाल्व। छायांकित पट्टी = क्रिटिकल स्पीड बैंड (सेटपॉइंट इसमें रुक नहीं सकता)।','Startup Curve: start ke time speed, setpoint aur HP valve. Shaded band = critical band (setpoint isme ruk nahi sakta).'],
+ os:['Overspeed Test: needs all permissives green. Internal test – 505 trips at OS Trip. External test – 505 trip becomes alarm, speed may go up to the OS Test Limit to test the separate overspeed device. 30 s timeout resets while you adjust.','ओवरस्पीड टेस्ट: सभी परमिसिव हरे होने चाहिए। इंटरनल – 505 OS ट्रिप पर ट्रिप करता है। एक्सटर्नल – 505 ट्रिप अलार्म बन जाता है, स्पीड OS टेस्ट लिमिट तक जा सकती है। 30 s टाइमआउट ADJUST पर रीसेट होता है।','Overspeed Test: saare permissive green chahiye. Internal – 505 OS Trip par trip. External – 505 trip alarm ban jata hai, speed OS Test Limit tak ja sakti hai. 30 s timeout adjust karne par reset.'],
+ dy:['Speed Dynamics: Off-Line and On-Line P, I, DR. Too much P → fast oscillation (< 1 s). Too much I → slow hunting (> 1 s).','स्पीड डायनामिक्स: ऑफ-लाइन और ऑन-लाइन P, I, DR। ज़्यादा P → तेज़ दोलन (< 1 s)। ज़्यादा I → धीमा हंटिंग (> 1 s)।','Speed Dynamics: Off-Line aur On-Line P, I, DR. Zyada P → fast oscillation (< 1 s). Zyada I → slow hunting (> 1 s).'],
+ ai:['Analog Input Summary: 4–20 mA channels. Below 2 mA or above 22 mA = input failed.','एनालॉग इनपुट सारांश: 4–20 mA चैनल। 2 mA से कम या 22 mA से ज़्यादा = इनपुट फ़ेल।','Analog Input Summary: 4–20 mA channels. 2 mA se kam ya 22 mA se zyada = input failed.'],
+ mp:['Speed Signals: two MPU probes; the 505 uses the highest valid signal. Loss-of-speed is overridden at start until Failed Speed Level + 50 rpm.','स्पीड सिग्नल: दो MPU प्रोब; 505 सबसे ऊँचा वैध सिग्नल लेता है। स्टार्ट पर Failed Speed Level + 50 rpm तक लॉस-ऑफ़-स्पीड ओवरराइड रहता है।','Speed Signals: do MPU probe; 505 highest valid signal leta hai. Start par Failed Speed Level + 50 rpm tak loss-of-speed override.'],
+ di:['Contact Inputs: live state of the 20 discrete inputs (training assignment).','कॉन्टैक्ट इनपुट: 20 डिस्क्रीट इनपुट की लाइव स्थिति।','Contact Inputs: 20 discrete inputs ki live state.'],
+ ro:['Relay Outputs: relay 1 is the Trip relay (energised = healthy, de-energises to trip). Relay 2 = summary alarm.','रिले आउटपुट: रिले 1 ट्रिप रिले है (एनर्जाइज़्ड = ठीक, ट्रिप पर डी-एनर्जाइज़)। रिले 2 = समरी अलार्म।','Relay Outputs: relay 1 Trip relay (energised = healthy, trip par de-energise). Relay 2 = summary alarm.'],
+ ad:['Actuator Drivers: ACT1 drives the HP valve (4–20 mA here). 0 mA = valve closed.','एक्चुएटर ड्राइवर: ACT1 HP वाल्व चलाता है (यहाँ 4–20 mA)। 0 mA = वाल्व बंद।','Actuator Drivers: ACT1 HP valve chalata hai (4–20 mA). 0 mA = valve band.'],
+ ao:['Analog Outputs: 4–20 mA readouts to DCS / meters.','एनालॉग आउटपुट: DCS / मीटर के लिए 4–20 mA रीडआउट।','Analog Outputs: DCS / meter ke liye 4–20 mA readouts.'],
+ al:['Alarm Summary: event ID, description, time. RESET clears alarms that are no longer active.','अलार्म सारांश: इवेंट ID, विवरण, समय। RESET निष्क्रिय अलार्म साफ़ करता है।','Alarm Summary: event ID, description, time. RESET inactive alarms clear karta hai.'],
+ tr:['Shutdown Summary: trip events; the FIRST one (top) is the real cause. Fix it, then RESET.','शटडाउन सारांश: ट्रिप इवेंट; सबसे ऊपर वाला (पहला) असली कारण है। उसे ठीक करें, फिर RESET।','Shutdown Summary: trip events; sabse upar wala (first-out) asli cause hai. Theek karo, phir RESET.'],
+ mode:['Login / Mode: choose user level. Configure level can enter Configuration mode (IOLOCK) only when the turbine is shut down.','लॉगिन / मोड: यूज़र लेवल चुनें। Configure लेवल टर्बाइन बंद होने पर ही कॉन्फ़िगरेशन मोड (IOLOCK) में जा सकता है।','Login / Mode: user level chuno. Configure level turbine band hone par hi Configuration mode (IOLOCK) mein ja sakta hai.'],
+ sv:['Service Menu: start rates and limiter settings, tunable while running (Service level).','सर्विस मेन्यू: स्टार्ट रेट और लिमिटर सेटिंग, चलते समय बदल सकते हैं (Service लेवल)।','Service Menu: start rates aur limiter settings, running mein tune kar sakte hain (Service level).'],
+ cf:['Configuration Menu: start mode, Idle/Rated, critical band. Editable only in Configuration mode (blue background, IOLOCK LED on). Exiting gives a Power Up Trip.','कॉन्फ़िगरेशन मेन्यू: स्टार्ट मोड, Idle/Rated, क्रिटिकल बैंड। केवल कॉन्फ़िगरेशन मोड (नीली पृष्ठभूमि, IOLOCK LED) में बदल सकते हैं। बाहर निकलने पर Power Up Trip।','Configuration Menu: start mode, Idle/Rated, critical band. Sirf Configuration mode (blue background, IOLOCK LED) mein edit. Exit karne par Power Up Trip.'],
+};
+const IH={
+ sp:['Speed setpoint: ADJUST ▲/▼ to raise/lower (⇧ fast), or ENTER / type digits for direct entry. Cannot stop inside a critical band.','स्पीड सेटपॉइंट: ADJUST ▲/▼ से बढ़ाएँ/घटाएँ (⇧ तेज़), या ENTER/अंक टाइप करके डायरेक्ट एंट्री। क्रिटिकल बैंड में नहीं रुक सकता।','Speed setpoint: ADJUST ▲/▼ se raise/lower (⇧ fast), ya ENTER/digits se direct entry. Critical band mein ruk nahi sakta.'],
+ vl:['Valve limiter: upper limit for HP valve demand (LSS). Raise it with ADJUST ▲ in a Semiautomatic start.','वाल्व लिमिटर: HP वाल्व डिमांड की ऊपरी सीमा (LSS)। सेमी-ऑटो स्टार्ट में ADJUST ▲ से बढ़ाएँ।','Valve limiter: HP valve demand ki upper limit (LSS). Semi-auto start mein ADJUST ▲ se badhao.'],
+ idr:['Idle / Rated: ENTER ramps the setpoint between Idle and Rated at the Idle/Rated rate (faster through the critical band).','Idle / Rated: ENTER से सेटपॉइंट Idle और Rated के बीच रैम्प होता है (क्रिटिकल बैंड में तेज़)।','Idle / Rated: ENTER se setpoint Idle aur Rated ke beech ramp (critical band mein fast).'],
+ ostInt:['Enable internal overspeed test: 505 lets the setpoint go above Max Governor and trips at the OS Trip speed.','इंटरनल ओवरस्पीड टेस्ट: 505 सेटपॉइंट को Max Governor से ऊपर जाने देता है और OS Trip स्पीड पर ट्रिप करता है।','Internal overspeed test: setpoint Max Gov se upar ja sakta hai, OS Trip speed par trip.'],
+ ostExt:['Enable external overspeed test: the 505 overspeed trip becomes an alarm, speed may rise to the OS Test Limit so the separate protection device (e.g. ProTech) trips.','एक्सटर्नल ओवरस्पीड टेस्ट: 505 ओवरस्पीड ट्रिप अलार्म बनता है, स्पीड OS टेस्ट लिमिट तक जा सकती है ताकि अलग सुरक्षा डिवाइस ट्रिप करे।','External overspeed test: 505 overspeed trip alarm ban jata hai, speed OS Test Limit tak ja sakti hai taaki alag protection device (jaise ProTech) trip kare.'],
+ cfgbtn:['Enter / exit Configuration mode (IOLOCK). All outputs disabled while in it.','कॉन्फ़िगरेशन मोड (IOLOCK) में जाएँ / निकलें। इसमें सभी आउटपुट बंद रहते हैं।','Configuration mode (IOLOCK) enter / exit. Isme saare outputs disabled.'],
+};
+function itemHelp(id){if(!id)return'';if(IH[id])return L3(IH[id]);if(id.startsWith('go_'))return L3(['ENTER opens this page.','ENTER यह पेज खोलता है।','ENTER ye page kholta hai.']);if(id.startsWith('dy_'))return L3(['Dynamics value – ADJUST to tune (Service level).','डायनामिक्स वैल्यू – ADJUST से ट्यून करें (Service लेवल)।','Dynamics value – ADJUST se tune (Service level).']);
+ if(id.startsWith('sv_'))return L3(['Service setting – ADJUST to change (Service level).','सर्विस सेटिंग – ADJUST से बदलें (Service लेवल)।','Service setting – ADJUST se badlo (Service level).']);if(id.startsWith('lv'))return L3(['ENTER logs in at this user level.','ENTER इस यूज़र लेवल पर लॉगिन करता है।','ENTER is user level par login karta hai.']);
+ if(id.startsWith('cf_'))return L3(['ENTER changes this setting (only in Configuration mode).','ENTER यह सेटिंग बदलता है (केवल कॉन्फ़िगरेशन मोड में)।','ENTER ye setting badalta hai (sirf Configuration mode mein).']);return''}
+
+function nextHint(){
+ const H3=(a,b,c)=>L3([a,b,c]);
+ if(!S.power||S.boot>0)return H3('The 505 is booting: CPU LED on, TRIPPED and ALARM LEDs flash-check, then the HOME screen appears.','505 बूट हो रहा है: CPU LED जलती है, TRIPPED और ALARM LED जाँच के लिए चमकती हैं, फिर HOME स्क्रीन।','505 boot ho raha hai: CPU LED on, TRIPPED aur ALARM LED check, phir HOME screen.');
+ if(S.cfg)return H3('Configuration mode (IOLOCK). Change settings in the Configuration Menu with ENTER, then press soft key "Exit Config". You will get a Power Up Trip – press RESET.','कॉन्फ़िगरेशन मोड (IOLOCK)। मेन्यू में ENTER से सेटिंग बदलें, फिर सॉफ्ट की "Exit Config"। Power Up Trip आएगा – RESET दबाएँ।','Configuration mode (IOLOCK). Menu mein ENTER se setting badlo, phir soft key "Exit Config". Power Up Trip aayega – RESET dabao.');
+ if(S.tripped){const a=S.trips.find(x=>tripActive(x.id));
+  if(a)return H3(`TRIPPED – cause still active: ${a.id} ${TRIPN[a.id]}. Remove the cause (Turbine tab → faults) and press RESET.`,`ट्रिप – कारण अभी सक्रिय: ${a.id} ${TRIPN[a.id]}। कारण हटाएँ (टर्बाइन टैब → फ़ॉल्ट) और RESET दबाएँ।`,`TRIPPED – cause abhi active: ${a.id} ${TRIPN[a.id]}. Cause hatao (Turbine tab → faults) aur RESET dabao.`);
+  if(S.n>C.failLvl&&S.trips.length)return H3('Unit tripped and coasting down. Read the first-out trip (VIEW under TRIPPED), then press RESET when ready.','यूनिट ट्रिप होकर धीमा हो रहा है। पहला ट्रिप पढ़ें (TRIPPED के नीचे VIEW), फिर RESET।','Unit trip hokar coast down ho raha hai. First-out trip padho (TRIPPED ke neeche VIEW), phir RESET.');
+  return H3('Press RESET to clear the trip(s). The TRIPPED LED must go off and status shows "Ready to Start".','ट्रिप साफ़ करने के लिए RESET दबाएँ। TRIPPED LED बंद होगी और स्थिति "Ready to Start" दिखेगी।','Trip clear karne ke liye RESET dabao. TRIPPED LED off hogi aur status "Ready to Start".')}
+ if(!S.running){
+  if(C.startMode==='manual'&&S.tt>1)return H3('Manual start: the T&T valve must be CLOSED before START (start permissive). Close it in the Turbine tab.','मैनुअल स्टार्ट: START से पहले T&T वाल्व बंद होना चाहिए (स्टार्ट परमिसिव)। टर्बाइन टैब में बंद करें।','Manual start: START se pehle T&T valve CLOSED hona chahiye (start permissive). Turbine tab mein band karo.');
+  if(C.startMode!=='manual'&&S.tt<99)return H3(`${modeName(C.startMode)} start: first OPEN the T&T valve fully (Turbine tab) and check the turbine does not accelerate. Then press START.`,`${modeName(C.startMode)} स्टार्ट: पहले T&T वाल्व पूरा खोलें (टर्बाइन टैब) और देखें टर्बाइन तेज़ न हो। फिर START।`,`${modeName(C.startMode)} start: pehle T&T valve poora kholo (Turbine tab), turbine accelerate na ho. Phir START.`);
+  return H3('Press START and confirm with ENTER. Watch the Startup Curve page.','START दबाएँ और ENTER से पुष्टि करें। स्टार्टअप कर्व पेज देखें।','START dabao aur ENTER se confirm karo. Startup Curve page dekho.')}
+ if(S.stop)return H3('Controlled shutdown in progress. Press STOP again to abort.','नियंत्रित शटडाउन चल रहा है। रद्द करने के लिए STOP फिर दबाएँ।','Controlled shutdown chal raha hai. Abort ke liye STOP dobara.');
+ if(S.ost)return H3(`Overspeed test (${S.ost.mode==='int'?'internal':'external'}): focus the setpoint and hold ADJUST ▲ (⇧ fast). Trip at ${C.osTrip} rpm${S.ost.mode==='ext'?' becomes alarm; trip at '+C.osLimit+' rpm':''}. Timeout ${Math.max(0,S.ost.t).toFixed(0)} s.`,`ओवरस्पीड टेस्ट: सेटपॉइंट पर फ़ोकस करके ADJUST ▲ दबाए रखें। ${C.osTrip} rpm पर ट्रिप${S.ost.mode==='ext'?' अलार्म बनेगा; '+C.osLimit+' rpm पर ट्रिप':''}। टाइमआउट ${Math.max(0,S.ost.t).toFixed(0)} s।`,`Overspeed test: setpoint focus karke ADJUST ▲ hold karo. ${C.osTrip} rpm par trip${S.ost.mode==='ext'?' alarm banega; '+C.osLimit+' rpm par trip':''}. Timeout ${Math.max(0,S.ost.t).toFixed(0)} s.`);
+ if(S.phase==='toMin'){
+  if(C.startMode==='manual'&&!S.pidCtl)return H3('Manual start: HP valve is fully open. OPEN the T&T valve slowly (Turbine tab) – you control acceleration until speed reaches the setpoint, then Speed PID takes over. Then open T&T to 100 %.','मैनुअल स्टार्ट: HP वाल्व पूरा खुला है। T&T वाल्व धीरे खोलें – स्पीड सेटपॉइंट तक आप नियंत्रित करते हैं, फिर Speed PID संभालता है। फिर T&T 100 % खोलें।','Manual start: HP valve full open hai. T&T valve dheere kholo – speed setpoint tak aap control karte ho, phir Speed PID le leta hai. Phir T&T 100 %.');
+  if(C.startMode==='semi'&&!S.pidCtl)return H3('Semiautomatic start: go to Valve Demand, focus the Valve Limiter and hold ADJUST ▲ slowly. When speed reaches the setpoint the Speed PID takes control – then raise the limiter to 100 %.','सेमी-ऑटो स्टार्ट: वाल्व डिमांड पर जाएँ, वाल्व लिमिटर पर फ़ोकस करें और ADJUST ▲ धीरे दबाएँ। स्पीड सेटपॉइंट पर आते ही Speed PID नियंत्रण लेगा – फिर लिमिटर 100 % करें।','Semi-auto start: Valve Demand par jao, Valve Limiter focus karo aur ADJUST ▲ dheere. Speed setpoint par aate hi Speed PID control lega – phir limiter 100 %.');
+  return H3('Automatic start: limiter opens to "HP Max at Start", setpoint ramps to minimum controlling speed. Just watch.','ऑटोमैटिक स्टार्ट: लिमिटर "HP Max at Start" तक खुलता है, सेटपॉइंट न्यूनतम स्पीड तक रैम्प होता है। बस देखें।','Automatic start: limiter "HP Max at Start" tak khulta hai, setpoint minimum speed tak ramp. Bas dekho.')}
+ if(C.startMode==='semi'&&S.vl<99&&S.pidCtl)return H3('Speed PID is in control. Raise the Valve Limiter to 100 % (Valve Demand page).','Speed PID नियंत्रण में है। वाल्व लिमिटर 100 % करें (वाल्व डिमांड पेज)।','Speed PID control mein hai. Valve Limiter 100 % karo (Valve Demand page).');
+ if(C.startMode==='manual'&&S.tt<99)return H3('Open the T&T valve to 100 % now (Speed PID controls through the HP valve).','अब T&T वाल्व 100 % खोलें (Speed PID HP वाल्व से नियंत्रित करता है)।','Ab T&T valve 100 % kholo (Speed PID HP valve se control karta hai).');
+ if(S.phase==='idle')return H3('At Idle. Open Speed Control, focus "Ramp to Rated" and press ENTER (or the Idle / Rated soft key on Startup Curve). The setpoint moves faster through the critical band.','Idle पर। स्पीड कंट्रोल खोलें, "Ramp to Rated" पर फ़ोकस करके ENTER दबाएँ। क्रिटिकल बैंड में सेटपॉइंट तेज़ चलता है।','Idle par. Speed Control kholo, "Ramp to Rated" focus karke ENTER. Critical band mein setpoint fast chalta hai.');
+ if(S.phase==='toRated')return H3('Ramping to rated. If you raise/lower now the ramp stops – but never inside the critical band.','Rated की ओर रैम्प। अभी raise/lower करने पर रैम्प रुकेगा – पर क्रिटिकल बैंड में कभी नहीं।','Rated ki taraf ramp. Abhi raise/lower karoge to ramp rukega – par critical band mein kabhi nahi.');
+ if(!S.gen&&!S.tie)return H3('Utility tie is open: you can close the GEN breaker near rated speed to supply the island load (frequency control).','यूटिलिटी टाई खुला है: Rated स्पीड के पास GEN ब्रेकर बंद करके आइलैंड लोड चला सकते हैं (फ्रीक्वेंसी कंट्रोल)।','Utility tie open hai: rated speed ke paas GEN breaker close karke island load chala sakte ho (frequency control).');
+ if(!S.gen){const d=S.n-nGrid();return Math.abs(d)>20?H3(`Match speed to the grid: speed ${S.n.toFixed(0)} rpm, grid ${nGrid().toFixed(0)} rpm. Adjust the setpoint, then close the GEN breaker (Turbine tab).`,`स्पीड ग्रिड से मिलाएँ: स्पीड ${S.n.toFixed(0)}, ग्रिड ${nGrid().toFixed(0)} rpm। सेटपॉइंट ठीक करें, फिर GEN ब्रेकर बंद करें।`,`Speed grid se match karo: speed ${S.n.toFixed(0)}, grid ${nGrid().toFixed(0)} rpm. Setpoint adjust karo, phir GEN breaker close.`):H3('Speed matched. Close the GEN breaker (Turbine tab). Or try the Overspeed Test (setpoint at Max Governor first).','स्पीड मैच है। GEN ब्रेकर बंद करें (टर्बाइन टैब)। या ओवरस्पीड टेस्ट करें (पहले सेटपॉइंट Max Governor पर)।','Speed match hai. GEN breaker close karo (Turbine tab). Ya Overspeed Test try karo (pehle setpoint Max Governor par).')}
+ if(S.mode==='load')return H3(`Paralleled (Unit Load, ${C.droop} % droop): each +${(C.droop/100*C.nr/C.mwRated).toFixed(0)} rpm of setpoint ≈ +1 MW. Hold ADJUST ▲ on the setpoint to load the unit.`,`ग्रिड से जुड़ा (यूनिट लोड, ${C.droop} % ड्रूप): सेटपॉइंट में +${(C.droop/100*C.nr/C.mwRated).toFixed(0)} rpm ≈ +1 MW। लोड बढ़ाने के लिए सेटपॉइंट पर ADJUST ▲।`,`Grid se parallel (Unit Load, ${C.droop} % droop): setpoint +${(C.droop/100*C.nr/C.mwRated).toFixed(0)} rpm ≈ +1 MW. Load ke liye setpoint par ADJUST ▲.`);
+ return H3('Frequency control (island): the Speed PID holds speed while the island load changes. Change the island load slider and watch.','फ्रीक्वेंसी कंट्रोल (आइलैंड): लोड बदलने पर भी Speed PID स्पीड बनाए रखता है। आइलैंड लोड स्लाइडर बदलकर देखें।','Frequency control (island): load badalne par bhi Speed PID speed hold karta hai. Island load slider badal ke dekho.');
+}
+function guide(){
+ const k=U.lastKey,kn=k?(KNAME[k]||k):'';
+ const kh=k?(KH[k]||(/^[0-9.]$|^BS$|^PM$/.test(k)?KH.NUM:null)):null;
+ const sc=SCR[U.scr];
+ let h='';
+ if(kh)h+=`<span class="g-k">${esc(t('keyP'))}: ${esc(kn)}</span><p class="g-p" style="margin-bottom:10px">${esc(L3(kh))}</p>`;
+ h+=`<div class="g-t">${esc(t('scrH'))}: ${esc(sc.t)}</div><p class="g-p">${esc(L3(SH[U.scr]||['']))}</p>`;
+ const ih=itemHelp(U.fid);if(ih&&!U.dlg)h+=`<p class="g-p" style="margin-top:6px"><b style="color:var(--warn)">${esc(t('focus'))}:</b> ${esc(ih)}</p>`;
+ h+=`<div class="g-next"><b>${esc(t('next'))}</b>${esc(nextHint())}</div>`;
+ if(h!==U.lastGuide){$('guide').innerHTML=h;U.lastGuide=h}
+}
+function keyHelp(){const order=[['ESTOP'],['START'],['STOP'],['RESET'],['ADJUP'],['UP'],['ENTER'],['ESC'],['HOME'],['MODE'],['VIEWT'],['VIEWA'],['S1'],['SHIFT'],['NUM']];
+ $('keyhelp').innerHTML=order.map(o=>`<dt>${esc(o[0]==='NUM'?'0–9':KNAME[o[0]]||o[0])}</dt><dd>${esc(L3(KH[o[0]]))}</dd>`).join('')}
+
+/* ================= TURBINE TAB ================= */
+const FB=[['extTrip',['External trip DI1 open','एक्सटर्नल ट्रिप DI1 खुला','External trip DI1 open']],['mpu1',['MPU #1 failed','MPU #1 फ़ेल','MPU #1 fail']],['mpu2',['MPU #2 failed','MPU #2 फ़ेल','MPU #2 fail']],
+ ['act',['Actuator open wire','एक्चुएटर ओपन वायर','Actuator open wire']],['ai1',['Inlet pressure AI fail','इनलेट प्रेशर AI फ़ेल','Inlet pressure AI fail']],['extAlm',['External alarm DI10','एक्सटर्नल अलार्म DI10','External alarm DI10']]];
+function buildFaultBtns(){$('faultBtns').innerHTML=FB.map(f=>`<button class="btn amb ${F[f[0]]?'on':''}" data-fl="${f[0]}">${esc(L3(f[1]))}</button>`).join('')}
+$('faultBtns').addEventListener('click',e=>{const b=e.target.closest('[data-fl]');if(!b)return;const k=b.dataset.fl;F[k]=!F[k];buildFaultBtns();toast((F[k]?'⚠ ':'✓ ')+b.textContent,F[k]?'bad':'ok')});
+function plantSvg(){
+ const sp=S.n/C.nr,ang=(S.tsim*S.n*6)%360,stm=S.tt>0&&S.hpPos>0.5&&S.pIn>0;
+ const flow=`stroke-dasharray:8 6;animation:flow ${Math.max(.25,1.4-S.hpPos/80)}s linear infinite`;
+ const vcol=p=>p>1?'#2f8a50':'#8a3a30';
+ return`<defs><linearGradient id="pt1" x1="0" x2="1"><stop offset="0" stop-color="#cfd8e2"/><stop offset="1" stop-color="#5d6b7a"/></linearGradient><linearGradient id="pt2" y1="0" y2="1"><stop offset="0" stop-color="#d9dde2"/><stop offset=".5" stop-color="#8b939c"/><stop offset="1" stop-color="#535a62"/></linearGradient>
+ <style>@keyframes flow{to{stroke-dashoffset:-14}}</style></defs>
+ <text x="10" y="18" fill="#a9b3bc" font-size="11" letter-spacing="1">STEAM ${F.ai1?'(PT FAULT)':S.pIn.toFixed(0)+' bar'}</text>
+ <path d="M10 60 H230" stroke="#6b7680" stroke-width="10" fill="none"/>
+ ${stm?`<path d="M10 60 H230" stroke="#e8f2ff" stroke-width="3" fill="none" style="${flow}"/>`:''}
+ <g transform="translate(70 60)"><rect x="-14" y="-22" width="28" height="44" rx="3" fill="${vcol(S.tt)}" stroke="#111"/><text y="-28" fill="#e8ecef" font-size="10" text-anchor="middle">T&amp;T ${S.tt.toFixed(0)}%</text><rect x="-3" y="-40" width="6" height="18" fill="#999"/></g>
+ <g transform="translate(160 60)"><rect x="-14" y="-22" width="28" height="44" rx="3" fill="${vcol(S.hpPos)}" stroke="#111"/><text y="-28" fill="#e8ecef" font-size="10" text-anchor="middle">HP GV ${S.hpPos.toFixed(0)}%</text><rect x="-3" y="-46" width="6" height="22" fill="#999"/><rect x="-12" y="-60" width="24" height="14" rx="2" fill="#3a4651" stroke="#111"/><text y="-50" fill="#ffd84a" font-size="7" text-anchor="middle">I/H</text></g>
+ <path d="M230 60 V95" stroke="#6b7680" stroke-width="10"/>
+ <polygon points="215,95 330,78 330,210 215,192" fill="url(#pt1)" stroke="#223"/>
+ ${Array.from({length:8},(_,i)=>`<line x1="${228+i*13}" y1="${97-i*2}" x2="${228+i*13}" y2="${190+i*2}" stroke="#4a5866" stroke-width="2"/>`).join('')}
+ <text x="272" y="232" fill="#a9b3bc" font-size="10" text-anchor="middle">TURBINE</text>
+ <rect x="330" y="137" width="40" height="14" fill="#9aa3ab" stroke="#222"/>
+ <g transform="translate(350 144)"><g transform="rotate(${ang})"><line x1="-7" y1="0" x2="7" y2="0" stroke="#222" stroke-width="2"/></g></g>
+ <rect x="370" y="112" width="36" height="64" rx="4" fill="#59626b" stroke="#222"/><text x="388" y="190" fill="#a9b3bc" font-size="9" text-anchor="middle">GEAR</text>
+ <rect x="406" y="138" width="24" height="12" fill="#9aa3ab" stroke="#222"/>
+ <rect x="430" y="100" width="100" height="88" rx="12" fill="url(#pt2)" stroke="#222"/>
+ <g transform="translate(480 144)"><g transform="rotate(${ang/4})"><circle r="22" fill="#c3c9cf" stroke="#333"/><path d="M-16 0 H16 M0 -16 V16" stroke="#333" stroke-width="3"/></g></g>
+ <text x="480" y="204" fill="#a9b3bc" font-size="10" text-anchor="middle">GEN 15 MW</text>
+ <path d="M530 144 H560" stroke="#c8a24a" stroke-width="4"/>
+ <g transform="translate(572 144)"><rect x="-12" y="-12" width="24" height="24" fill="${S.gen?'#a8342a':'#2f8a50'}" stroke="#111"/><text y="4" fill="#fff" font-size="9" text-anchor="middle">52G</text></g>
+ <path d="M584 144 H600 V60 H560" stroke="#c8a24a" stroke-width="4" fill="none"/>
+ <g transform="translate(560 60)"><rect x="-12" y="-12" width="24" height="24" fill="${S.tie?'#a8342a':'#2f8a50'}" stroke="#111"/><text y="4" fill="#fff" font-size="9" text-anchor="middle">52T</text></g>
+ <path d="M548 60 H520" stroke="#c8a24a" stroke-width="4"/><text x="512" y="64" fill="#e8ecef" font-size="11" text-anchor="end">GRID ${S.hz.toFixed(2)} Hz</text>
+ <text x="604" y="104" fill="#a9b3bc" font-size="9">${S.gen&&!S.tie?'ISLAND '+S.isl.toFixed(1)+' MW':''}</text>
+ <g transform="translate(300 40)"><rect x="-60" y="-26" width="120" height="40" rx="5" fill="#0b0c0d" stroke="#444"/><text y="-11" fill="#a9b3bc" font-size="9" text-anchor="middle">505 CONTROL STATUS</text><text y="7" fill="${S.tripped?'#ff6b5e':'#7fe39d'}" font-size="11" text-anchor="middle" font-weight="700">${esc(status()||'—')}</text></g>
+ <g transform="translate(110 150)"><circle r="7" fill="${F.mpu1?'#ff5b4a':'#57c27a'}"/><text x="12" y="4" fill="#a9b3bc" font-size="10">MPU1</text><circle cy="20" r="7" fill="${F.mpu2?'#ff5b4a':'#57c27a'}"/><text x="12" y="24" fill="#a9b3bc" font-size="10">MPU2</text>
+ <circle cy="40" r="7" fill="${F.act?'#ff5b4a':'#57c27a'}"/><text x="12" y="44" fill="#a9b3bc" font-size="10">ACT1 ${F.act?'0.00':(4+16*S.hpDem/100).toFixed(2)} mA</text></g>`;
+}
+function pills(){const P=[];
+ P.push(S.tripped?['bad','TRIPPED']:S.running?['ok','RUNNING']:['info','READY']);
+ if(S.alarms.length)P.push(['warn','ALARM ×'+S.alarms.length]);
+ if(S.cfg)P.push(['bad','IOLOCK']);
+ P.push(['info',modeName(C.startMode).toUpperCase()+' START']);
+ if(S.running&&!S.tripped)P.push([S.pidCtl?'ok':'warn',S.pidCtl?'SPEED PID IN CONTROL':'VALVE LIMITER IN CONTROL']);
+ if(S.gen)P.push(['ok',S.mode==='load'?'UNIT LOAD (DROOP)':'FREQUENCY CONTROL']);
+ if(S.ost)P.push(['warn','OS TEST '+(S.ost.mode==='int'?'INT':'EXT')]);
+ P.push(['', 'USER: '+LVL[S.lvl].toUpperCase()]);
+ return P.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('')}
+const view={
+ render(){
+  if(curTab===1){
+   $('plant').innerHTML=plantSvg();$('pills').innerHTML=pills();
+   const R=[[t('rSpd'),f1(nSensed()),'rpm'],[t('rSp'),f1(S.sp),'rpm'],[t('rHp'),f1(S.hpPos,1),'%'],[t('rVl'),f1(S.vl,1),'%'],[t('rTT'),f1(S.tt),'%'],[t('rMw'),f1(S.mw,2),'MW'],[t('rHz'),(S.n/C.nr*50).toFixed(2),'Hz'],[t('rAct'),F.act?'0.00':(4+16*S.hpDem/100).toFixed(2),'mA']];
+   $('readouts').innerHTML=R.map(r=>`<div class="rd"><small>${esc(r[0])}</small><b>${r[1]}<i>${r[2]}</i></b></div>`).join('');
+   $('ttS').value=S.tt;$('ttO').textContent=S.tt.toFixed(0)+' %';
+   const g=$('genB');g.textContent=t(S.gen?'genO':'genC');g.className='btn '+(S.gen?'st':'go');
+   const ti=$('tieB');ti.textContent=t(S.tie?'tieO':'tieX');ti.className='btn '+(S.tie?'go on':'amb');
+   $('ttOpen').classList.toggle('on',S.ttMove>0);$('ttClose').classList.toggle('on',S.ttMove<0);
+   drawTrend();
+  }
+  if(curTab===2)wireLive();
+  if(curTab===3)renderActive();
+  ui.tick(0.12);if(curTab===0)guide();
+ }
+};
+function drawTrend(){
+ const cv=$('trend'),r=cv.getBoundingClientRect();if(!r.width)return;const dpr=Math.min(2,window.devicePixelRatio||1);
+ if(cv.width!==Math.round(r.width*dpr)){cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr)}
+ const c=cv.getContext('2d'),W=cv.width,Hh=cv.height,pad=30*dpr;c.clearRect(0,0,W,Hh);
+ c.strokeStyle='#3f4851';c.lineWidth=1;c.fillStyle='#77828c';c.font=`${10*dpr}px JetBrains Mono, monospace`;
+ for(let i=0;i<=7;i++){const y=Hh-pad/2-(Hh-pad)*i/7;c.beginPath();c.moveTo(pad,y);c.lineTo(W-4*dpr,y);c.stroke();c.fillText(String(i*1000),2,y+3*dpr)}
+ const pts=H.slice(-480);if(pts.length<2)return;const t0=pts[0][0],t1=pts[pts.length-1][0],sp=Math.max(30,t1-t0);
+ const X=tt=>pad+(tt-t0)/sp*(W-pad-6*dpr),Y=(v,m)=>Hh-pad/2-(Hh-pad)*clamp(v/m,0,1.05);
+ const line=(i,m,col)=>{c.strokeStyle=col;c.lineWidth=2*dpr;c.beginPath();pts.forEach((p,j)=>{const x=X(p[0]),y=Y(p[i],m);j?c.lineTo(x,y):c.moveTo(x,y)});c.stroke()};
+ const css=getComputedStyle(document.documentElement);
+ line(3,100*7/7,css.getPropertyValue('--t-hp'));line(4,20,css.getPropertyValue('--t-mw'));line(2,7000,css.getPropertyValue('--t-sp'));line(1,7000,css.getPropertyValue('--t-spd'));
+ c.fillStyle='#77828c';c.fillText('HP% ×70 rpm · MW ×350 rpm',pad+4*dpr,12*dpr);
+}
+
+/* field buttons */
+$('ttOpen').onclick=()=>{S.ttMove=S.ttMove>0?0:3};$('ttHold').onclick=()=>{S.ttMove=0};$('ttClose').onclick=()=>{S.ttMove=-25};
+$('ttS').addEventListener('input',e=>{S.tt=+e.target.value;S.ttMove=0});
+$('genB').onclick=()=>{S.gen?genOpen():genClose()};$('tieB').onclick=()=>tieToggle();
+const hold=(el,dn,up)=>{el.addEventListener('pointerdown',e=>{e.preventDefault();dn()});['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,up))};
+hold($('dRaise'),()=>{if(S.running&&!S.tripped){S.ramp=null;S.adj=1;S.adjFast=false;S.adjSrc='di'}},()=>{if(S.adjSrc==='di')S.adj=0});
+hold($('dLower'),()=>{if(S.running&&!S.tripped){S.ramp=null;S.adj=-1;S.adjFast=false;S.adjSrc='di'}},()=>{if(S.adjSrc==='di')S.adj=0});
+$('dReset').onclick=()=>reset('di');$('dMbTrip').onclick=()=>{if(S.power&&!S.boot)trip(10)};
+$('pinS').addEventListener('input',e=>{S.pIn=+e.target.value;$('pinO').textContent=S.pIn+' bar'});
+$('islS').addEventListener('input',e=>{S.isl=+e.target.value;$('islO').textContent=S.isl.toFixed(1)+' MW'});
+$('hzS').addEventListener('input',e=>{S.hz=+e.target.value;$('hzO').textContent=S.hz.toFixed(2)+' Hz'});
+$('spdSel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;simMul=+b.dataset.v;[...$('spdSel').children].forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'))});
+$('pwr').onclick=()=>{powerCycle();toast('505 power cycled','')};$('toKey').onclick=()=>setTab(0,true);
+
+/* ================= EXERCISES ================= */
+const EXL=[
+ {k:'reset',t:['Clear the Power Up Trip','पावर अप ट्रिप साफ़ करें','Power Up Trip clear karo'],d:['Panel: press RESET. TRIPPED LED goes off, status "Ready to Start".','पैनल: RESET दबाएँ। TRIPPED LED बंद, स्थिति "Ready to Start"।','Panel: RESET dabao. TRIPPED LED off, status "Ready to Start".'],c:()=>!S.tripped},
+ {k:'tt',t:['Open the T&T valve (Automatic start)','T&T वाल्व खोलें (ऑटोमैटिक स्टार्ट)','T&T valve kholo (Automatic start)'],d:['Turbine tab: "Open slowly" until 100 %. HP valve is closed so the rotor must NOT turn.','टर्बाइन टैब: 100 % तक "धीरे खोलें"। HP वाल्व बंद है इसलिए रोटर नहीं घूमना चाहिए।','Turbine tab: 100 % tak "Dheere kholo". HP valve band hai to rotor nahi ghoomna chahiye.'],c:()=>S.tt>=99&&!S.tripped},
+ {k:'idle',t:['START and reach Idle','START करके Idle तक पहुँचें','START karke Idle tak pahuncho'],d:['Panel: START → ENTER (confirm). Watch Startup Curve: speed ramps to 1500 rpm.','पैनल: START → ENTER। स्टार्टअप कर्व देखें: स्पीड 1500 rpm तक।','Panel: START → ENTER. Startup Curve dekho: speed 1500 rpm tak.'],c:()=>S.running&&!S.tripped&&S.n>C.idle*0.97&&(S.phase==='idle'||S.phase==='run'||S.phase==='toRated')},
+ {k:'rated',t:['Ramp to Rated through the critical band','क्रिटिकल बैंड पार करके Rated तक','Critical band paar karke Rated tak'],d:['Speed Control: focus "Ramp to Rated" → ENTER. Setpoint passes 2400–3200 rpm at critical rate.','स्पीड कंट्रोल: "Ramp to Rated" → ENTER। सेटपॉइंट 2400–3200 rpm तेज़ी से पार करता है।','Speed Control: "Ramp to Rated" → ENTER. Setpoint 2400–3200 rpm fast paar karta hai.'],c:()=>S.running&&!S.tripped&&S.n>5900},
+ {k:'sync',t:['Synchronise and close the GEN breaker','सिंक करके GEN ब्रेकर बंद करें','Sync karke GEN breaker close karo'],d:['Turbine tab: "Close GEN breaker" (speed within ±20 rpm of grid). 505 goes to Unit Load (droop).','टर्बाइन टैब: "GEN ब्रेकर बंद करें" (ग्रिड से ±20 rpm)। 505 यूनिट लोड (ड्रूप) में।','Turbine tab: "GEN breaker close karo" (grid se ±20 rpm). 505 Unit Load (droop) mein.'],c:()=>S.gen},
+ {k:'load',t:['Load the unit to 10 MW','यूनिट को 10 MW तक लोड करें','Unit ko 10 MW tak load karo'],d:['Speed Control: focus setpoint, hold ADJUST ▲ (⇧ fast) or type 6200 + ENTER.','स्पीड कंट्रोल: सेटपॉइंट पर ADJUST ▲ (⇧ तेज़) या 6200 + ENTER।','Speed Control: setpoint par ADJUST ▲ (⇧ fast) ya 6200 + ENTER.'],c:()=>S.gen&&S.mw>=10},
+ {k:'rej',t:['Load rejection without overspeed trip','बिना ओवरस्पीड ट्रिप के लोड रिजेक्शन','Bina overspeed trip ke load rejection'],d:['With > 5 MW, press "Open GEN breaker". Speed jumps, the PID must hold it below 6600 rpm.','5 MW से ज़्यादा पर "GEN ब्रेकर खोलें"। स्पीड उछलेगी, PID को 6600 rpm से नीचे रखना है।','5 MW se zyada par "GEN breaker open karo". Speed uchhlegi, PID ko 6600 rpm se neeche rakhna hai.'],c:()=>S.rejOk&&S.rejArm<=0&&!S.tripped},
+ {k:'ost',t:['Internal overspeed test','इंटरनल ओवरस्पीड टेस्ट','Internal overspeed test'],d:['Breaker open, setpoint 6300 (Max Gov). Overspeed Test → Enable Int Test → hold ADJUST ▲ on setpoint → trip at 6600 rpm.','ब्रेकर खुला, सेटपॉइंट 6300। ओवरस्पीड टेस्ट → Enable Int Test → सेटपॉइंट पर ADJUST ▲ → 6600 पर ट्रिप।','Breaker open, setpoint 6300. Overspeed Test → Enable Int Test → setpoint par ADJUST ▲ → 6600 par trip.'],c:()=>S.ostTripped},
+ {k:'man',t:['Advanced: Manual start mode','एडवांस: मैनुअल स्टार्ट मोड','Advanced: Manual start mode'],d:['MODE → Login Configure → Enter Configuration Mode → Config Menu: Start Mode = Manual → Exit Config → RESET. Close T&T, START, then crack open T&T to reach idle.','MODE → Configure लॉगिन → Configuration Mode → स्टार्ट मोड = Manual → Exit Config → RESET। T&T बंद, START, फिर T&T धीरे खोलकर Idle।','MODE → Configure login → Configuration Mode → Start Mode = Manual → Exit Config → RESET. T&T band, START, phir T&T dheere khol ke Idle.'],c:()=>S.startModeUsed==='manual'&&S.running&&S.pidCtl&&S.n>C.idle*0.97&&!S.tripped},
+];
+const EXD={};
+const ex={tick(){let ch=false;EXL.forEach(e=>{if(!EXD[e.k]&&e.c()){EXD[e.k]=true;ch=true;toast('✓ '+L3(e.t),'ok')}});if(ch)ex.render()},
+ render(){const cur=EXL.find(e=>!EXD[e.k]);$('ex').innerHTML=EXL.map((e,i)=>`<li class="${EXD[e.k]?'done':''} ${e===cur?'cur':''}"><i>${EXD[e.k]?'✓':i+1}</i><span><b>${esc(L3(e.t))}</b>${esc(L3(e.d))}</span></li>`).join('')}};
+$('exReset').onclick=()=>{for(const k in EXD)delete EXD[k];S.ostTripped=false;S.rejOk=false;ex.render()};
+
+/* ================= WIRING ================= */
+function termGroups(){
+ const di=diList(),ro=roList(),aoV=[nSensed()/7000,S.sp/7000,S.hpDem/100,clamp(S.mw,0,20)/20];
+ const st=(txt,cls)=>`<span class="st ${cls||''}">${txt}</span>`;
+ return[
+  ['POWER INPUT',[['1','L+  (HV 88–264 VAC / 90–150 VDC orange · LV 18–36 VDC green)',st(S.power?'ON':'OFF',S.power?'on':'bad')],['2','L−',''],['3','PE earth',''] ]],
+  ['SPEED #1 (MPU 1)',[['1','MPU (+)',st(F.mpu1?'OPEN':f1(S.n)+' Hz',F.mpu1?'bad':'on')],['2','MPU (−)',''],['3','Shield',''],['4–6','Prox (+ / − / S) – not used',''],['7–8','Prox power 24 V / GND','']]],
+  ['SPEED #2 (MPU 2)',[['9','MPU (+)',st(F.mpu2?'OPEN':f1(S.n)+' Hz',F.mpu2?'bad':'on')],['10','MPU (−)',''],['11','Shield',''],['12–16','Prox / prox power – not used','']]],
+  ['ACT 1–2',[['1','ACT1 (+) → I/H converter (+)',st(F.act?'0.00 mA':(4+16*S.hpDem/100).toFixed(2)+' mA',F.act?'bad':'on')],['2','ACT1 (−)',''],['3','Shield',''],['4–6','ACT2 – not used','']]],
+  ['ANALOG IN 1–4',[['1','AI1 +24 V loop power → PT-101 (+)',''],['2','AI1 (+) ← PT-101 (−)  Inlet pressure',st(F.ai1?'0.0 mA':(4+16*S.pIn/100).toFixed(2)+' mA',F.ai1?'bad':'on')],['3','AI1 (−)',''],['4','Shield',''],['6–7','AI2 (+/−) ← JT-101 kW transducer (self-powered)',st((4+16*clamp(S.mw,0,20)/20).toFixed(2)+' mA','on')],['9–16','AI3–AI4 – not used','']]],
+  ['DIN 1–12 / 13–20',[...di.map(d=>[String(d[0]),'DI'+d[0]+' '+d[1],st(d[2]?'CLOSED':'OPEN',d[2]?'on':'')]),['21–23','Contact power +24 V (to field contacts)',''],['24','Contact COM',''],['25','Shield','']]],
+  ['RELAY 1–8 (NC / COM / NO)',ro.map((r,i)=>[`${i*3+1}-${i*3+3}`,'RLY'+r[0]+' '+r[1],st(r[2]?'ENERGISED':'de-energ.',r[2]?'on':(i===0?'bad':''))])],
+  ['ANALOG OUT 1–6',[['1-3','AO1 speed (+ / − / S)',st((4+16*clamp(aoV[0],0,1)).toFixed(2)+' mA','on')],['4-6','AO2 speed reference',st((4+16*clamp(aoV[1],0,1)).toFixed(2)+' mA','on')],['7-9','AO3 HP valve demand',st((4+16*clamp(aoV[2],0,1)).toFixed(2)+' mA','on')],['10-12','AO4 generator load',st((4+16*clamp(aoV[3],0,1)).toFixed(2)+' mA','on')],['13-18','AO5–AO6 – not used',''],['19','Shield','']]],
+  ['COMMUNICATIONS',[['ETH 1–4','Modbus TCP/UDP to DCS / HMI (ports 1–2)',''],['COM1','RS-232 / RS-485 Modbus RTU/ASCII',''],['CAN 1–4','Distributed I/O, VariStroke actuator','']]],
+ ];
+}
+function wireSvg(){
+ const W=(x1,y1,x2,y2,col,on)=>`<path class="wire ${on?'on':''}" d="M${x1} ${y1} H${(x1+x2)/2} V${y2} H${x2}" stroke="${col}" stroke-width="2.2" fill="none"/>`;
+ const box=(x,y,w,h,t,sub,col)=>`<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#2b3137" stroke="${col||'#556'}"/><text x="${x+10}" y="${y+18}" class="w-ttl">${t}</text>${sub?`<text x="${x+10}" y="${y+34}" class="w-lbl">${sub}</text>`:''}</g>`;
+ const live=(x,y,t)=>`<text x="${x}" y="${y}" class="w-live">${t}</text>`;
+ let s=`<style>.w-lbl{font:500 11px Barlow,sans-serif;fill:#a9b3bc}.w-ttl{font:700 12px 'Barlow Semi Condensed',sans-serif;letter-spacing:.06em;fill:#e8ecef}.w-live{font:500 11px 'JetBrains Mono',monospace;fill:#f0b84a}.wire.on{stroke-dasharray:6 4;animation:flow .6s linear infinite}@keyframes flow{to{stroke-dashoffset:-10}}.tn{font:600 10px 'JetBrains Mono',monospace;fill:#111}</style>`;
+ s+=`<rect x="20" y="20" width="250" height="480" rx="10" fill="#1b1f23" stroke="#6fa8dc"/><text x="145" y="44" text-anchor="middle" class="w-ttl">505D CONTROL (back)</text>`;
+ const rows=[['SPEED#1 1-2','MPU1',F.mpu1?'#ff5b4a':'#57c27a',!F.mpu1&&S.n>1],['SPEED#2 9-10','MPU2',F.mpu2?'#ff5b4a':'#57c27a',!F.mpu2&&S.n>1],['ACT 1-2','ACT1',F.act?'#ff5b4a':'#f0b84a',!F.act&&S.hpDem>0],['AI 1-2','AI1',F.ai1?'#ff5b4a':'#6fa8dc',!F.ai1],['AI 6-7','AI2','#6fa8dc',true],
+  ['DIN 1 / 21','DI1',F.extTrip?'#ff5b4a':'#57c27a',!F.extTrip],['DIN 5,6','DI5/6','#c08bf0',S.gen],['DIN 7','DI7','#c08bf0',S.tt<=1],['RLY 1-3','RLY1',S.tripped?'#ff5b4a':'#57c27a',!S.tripped],['RLY 4-6','RLY2','#f0b84a',S.alarms.length>0],['ETH 1','MODBUS','#6fa8dc',true]];
+ rows.forEach((r,i)=>{const y=70+i*40;s+=`<rect x="200" y="${y-10}" width="66" height="20" rx="3" fill="${r[2]}"/><text x="233" y="${y+4}" text-anchor="middle" class="tn">${r[1]}</text><text x="40" y="${y+4}" class="w-lbl">${r[0]}</text>`});
+ const dev=[
+  [0,'MPU #1 – magnetic pickup, 60 teeth',`${F.mpu1?'OPEN WIRE  0 Hz':f1(S.n)+' Hz'}`],[1,'MPU #2 – magnetic pickup',`${F.mpu2?'OPEN WIRE  0 Hz':f1(S.n)+' Hz'}`],
+  [2,'I/H converter → servo → HP governor valve',`${F.act?'0.00 mA – valve closes':(4+16*S.hpDem/100).toFixed(2)+' mA → '+f1(S.hpPos,1)+' %'}`],
+  [3,'PT-101 inlet steam pressure (loop powered)',F.ai1?'< 2 mA – AI FAILED':(4+16*S.pIn/100).toFixed(2)+' mA = '+S.pIn.toFixed(0)+' bar'],
+  [4,'JT-101 generator kW transducer',(4+16*clamp(S.mw,0,20)/20).toFixed(2)+' mA = '+S.mw.toFixed(2)+' MW'],
+  [5,'Trip chain (NC): ESD PB, lube oil low, vibration…',F.extTrip?'OPEN → TRIP 1':'CLOSED (healthy)'],
+  [6,'52G / 52T breaker aux contacts (52a)',`GEN ${S.gen?'CLOSED':'open'} · TIE ${S.tie?'CLOSED':'open'}`],
+  [7,'T&T valve closed limit switch (start permissive)',S.tt<=1?'CLOSED (T&T shut)':'OPEN ('+S.tt.toFixed(0)+' %)'],
+  [8,'Trip relay → T&T trip solenoid / DCS',S.tripped?'DE-ENERGISED = TRIP':'ENERGISED = healthy'],
+  [9,'Summary alarm → DCS annunciator',S.alarms.length?'ALARM':'normal'],
+  [10,'DCS / HMI (Modbus TCP)','speed, setpoint, status, commands']];
+ dev.forEach(d=>{const y=70+d[0]*40,r=rows[d[0]];s+=W(266,y,520,y,r[2],r[3]);s+=`<rect x="520" y="${y-15}" width="360" height="30" rx="5" fill="#2b3137" stroke="#3f4851"/><text x="530" y="${y-1}" class="w-lbl">${esc(d[1])}</text>`+live(530,y+11,esc(d[2]))});
+ return s;
+}
+function wireLive(){$('wsvg').innerHTML=wireSvg();
+ $('wterms').innerHTML=termGroups().map(g=>`<div class="tgc"><h4>${g[0]}</h4>${g[1].map(r=>`<div class="tr"><code>${r[0]}</code><span>${esc(r[1])}</span>${r[2]}</div>`).join('')}</div>`).join('')}
+const WCHK=[
+ ['Shielded twisted-pair cable for MPU, analog and actuator signals; shields earthed at the 505 end only (all shields are earthed by the control).','MPU, एनालॉग और एक्चुएटर सिग्नल के लिए शील्डेड ट्विस्टेड-पेयर केबल; शील्ड केवल 505 की तरफ़ अर्थ।','MPU, analog aur actuator ke liye shielded twisted-pair cable; shield sirf 505 side earth.'],
+ ['MPU sensors wired to the MPU terminals, PROX sensors to the PROX terminals (separate terminals).','MPU सेंसर MPU टर्मिनल पर, PROX सेंसर PROX टर्मिनल पर (अलग टर्मिनल)।','MPU sensor MPU terminal par, PROX sensor PROX terminal par (alag terminal).'],
+ ['MPU signal at minimum speed must be above 1 Vrms, otherwise the 505 sees "probe failed".','न्यूनतम स्पीड पर MPU सिग्नल 1 Vrms से ज़्यादा होना चाहिए, वरना "probe failed"।','Minimum speed par MPU signal 1 Vrms se upar hona chahiye, warna "probe failed".'],
+ ['Each AI(+)/AI(−) and AO(+)/AO(−) terminal must not be shorted to PS(+), PS(−) or EARTH. Loop power (LPWR) only for loop-powered transmitters.','हर AI(+)/AI(−) और AO(+)/AO(−) टर्मिनल PS(+), PS(−) या EARTH से शॉर्ट नहीं होना चाहिए। लूप पावर केवल लूप-पावर्ड ट्रांसमीटर के लिए।','Har AI(+)/AI(−), AO(+)/AO(−) terminal PS(+), PS(−) ya EARTH se short nahi hona chahiye. Loop power sirf loop-powered transmitter ke liye.'],
+ ['Contact power (CPWR) measured at the terminal block: 18–32 V dc.','कॉन्टैक्ट पावर (CPWR) टर्मिनल ब्लॉक पर: 18–32 V dc।','Contact power (CPWR) terminal block par: 18–32 V dc.'],
+ ['Trip inputs (DI1 external trip) wired fail-safe: contact CLOSED = healthy, OPEN = trip.','ट्रिप इनपुट (DI1) फ़ेल-सेफ़: कॉन्टैक्ट बंद = ठीक, खुला = ट्रिप।','Trip input (DI1) fail-safe: contact CLOSED = healthy, OPEN = trip.'],
+ ['An independent overspeed shutdown device (e.g. ProTech) must exist – it must be totally independent of the 505.','एक स्वतंत्र ओवरस्पीड शटडाउन डिवाइस (जैसे ProTech) होना चाहिए – 505 से पूरी तरह अलग।','Ek independent overspeed shutdown device (jaise ProTech) hona chahiye – 505 se poori tarah alag.'],
+ ['Verify calibration and function every 24–36 months; RTC battery life about 10 years.','हर 24–36 महीने में कैलिब्रेशन और फ़ंक्शन जाँचें; RTC बैटरी लगभग 10 साल।','Har 24–36 mahine calibration aur function check; RTC battery lagbhag 10 saal.']];
+function wireStatic(){$('wchk').innerHTML=WCHK.map(x=>`<li>${esc(L3(x))}</li>`).join('')}
+
+/* ================= TRIPS / ALARMS DATABASE ================= */
+const FD={};
+function fd(key,c,a){FD[key]={c,a}}
+fd('T1',[['External trip contact DI1 opened: ESD push button, lube oil pressure low, vibration high, DCS trip…','DI1 एक्सटर्नल ट्रिप कॉन्टैक्ट खुला: ESD बटन, लूब ऑयल प्रेशर कम, वाइब्रेशन ज़्यादा, DCS ट्रिप…','DI1 external trip contact open: ESD button, lube oil pressure low, vibration high, DCS trip…'],['Loose wire / blown fuse in the trip chain','ट्रिप चेन में ढीला तार / फ़्यूज़','Trip chain mein loose wire / fuse']],
+ [['Find which device opened the trip chain (check DCS first-out)','पता करें कौन सा डिवाइस ट्रिप चेन खोल रहा है (DCS first-out)','Pata karo kaunsa device trip chain open kar raha hai (DCS first-out)'],['Measure 24 V at DIN 1 vs COM (terminal 24)','DIN 1 और COM (24) के बीच 24 V नापें','DIN 1 aur COM (24) ke beech 24 V naapo'],['Correct the cause, close the contact, press RESET','कारण ठीक करें, कॉन्टैक्ट बंद करें, RESET','Cause theek karo, contact close, RESET']]);
+fd('T2',[['EMERGENCY TRIP key pressed on the 505 front panel','505 फ्रंट पैनल पर इमरजेंसी ट्रिप दबाया गया','505 front panel par Emergency Trip dabaya gaya']],[['Confirm why it was pressed (log book)','क्यों दबाया गया, पुष्टि करें (लॉग बुक)','Kyun dabaya, confirm karo (log book)'],['Press RESET – it clears immediately','RESET दबाएँ – तुरंत साफ़ होगा','RESET dabao – turant clear']]);
+fd('T3',[['Speed reached the Overspeed Trip setting (load rejection, valve stuck open, wrong dynamics)','स्पीड ओवरस्पीड ट्रिप सेटिंग पर पहुँची (लोड रिजेक्शन, वाल्व अटका, गलत डायनामिक्स)','Speed Overspeed Trip setting par pahunchi (load rejection, valve stuck, galat dynamics)'],['Internal overspeed test performed','इंटरनल ओवरस्पीड टेस्ट किया गया','Internal overspeed test kiya gaya'],['Noise on MPU signal giving false high speed','MPU सिग्नल में नॉइज़ से गलत ज़्यादा स्पीड','MPU signal mein noise se false high speed']],
+ [['Check HP valve and T&T valve close freely (stroke test)','HP और T&T वाल्व आसानी से बंद होते हैं, जाँचें (स्ट्रोक टेस्ट)','HP aur T&T valve free band hote hain, check karo (stroke test)'],['Check MPU shield / cable routing if no real overspeed','असली ओवरस्पीड न हो तो MPU शील्ड / केबल जाँचें','Real overspeed na ho to MPU shield / cable check'],['Review speed dynamics (Off-Line P, I)','स्पीड डायनामिक्स (ऑफ-लाइन P, I) देखें','Speed dynamics (Off-Line P, I) dekho'],['RESET only when speed is below the trip setting','स्पीड ट्रिप सेटिंग से नीचे होने पर ही RESET','Speed trip setting se neeche ho tabhi RESET']]);
+fd('T4',[['Both MPU signals lost (< Failed Speed Level or < 1 Vrms) after detection was armed','डिटेक्शन आर्म होने के बाद दोनों MPU सिग्नल गायब','Detection arm hone ke baad dono MPU signal gayab'],['MPU gap too large, cable open, sensor damaged','MPU गैप ज़्यादा, केबल खुली, सेंसर खराब','MPU gap zyada, cable open, sensor kharab']],
+ [['Speed Signals page: check both probes','स्पीड सिग्नल पेज: दोनों प्रोब देखें','Speed Signals page: dono probe dekho'],['Measure MPU resistance and AC voltage while turning','MPU रेज़िस्टेंस और घूमते समय AC वोल्टेज नापें','MPU resistance aur rotate karte AC voltage naapo'],['Set MPU gap per OEM (typ. 0.25–1 mm)','OEM के अनुसार MPU गैप सेट करें (आम 0.25–1 mm)','OEM ke hisaab se MPU gap (typ. 0.25–1 mm)']]);
+fd('T5',[['Actuator output open or short circuit (cable, I/H converter coil)','एक्चुएटर आउटपुट ओपन या शॉर्ट (केबल, I/H कॉइल)','Actuator output open ya short (cable, I/H coil)']],
+ [['Actuator Driver page: check current and status','एक्चुएटर ड्राइवर पेज: करंट और स्थिति','Actuator Driver page: current aur status'],['Measure loop resistance ACT1 (+/−), check terminals 1–2','ACT1 (+/−) लूप रेज़िस्टेंस, टर्मिनल 1–2 जाँचें','ACT1 (+/−) loop resistance, terminal 1–2 check'],['Repair wiring, RESET (trip clears only when the fault is gone)','वायरिंग ठीक करें, RESET','Wiring theek, RESET']]);
+fd('T10',[['DCS/HMI sent a trip command over Modbus','DCS/HMI ने Modbus से ट्रिप कमांड भेजा','DCS/HMI ne Modbus se trip command bheja']],[['Confirm with DCS operator / logic','DCS ऑपरेटर / लॉजिक से पुष्टि करें','DCS operator / logic se confirm'],['RESET','RESET','RESET']]);
+fd('T15',[['505 lost power, or Configuration mode was exited','505 की पावर गई, या कॉन्फ़िगरेशन मोड से बाहर निकले','505 ki power gayi, ya Configuration mode se exit']],[['Normal after power-up – press RESET','पावर-अप के बाद सामान्य – RESET दबाएँ','Power-up ke baad normal – RESET dabao'],['If unexpected: check supply (L+/L− terminals 1–2, UPS)','अनपेक्षित हो तो सप्लाई जाँचें (L+/L−, UPS)','Unexpected ho to supply check (L+/L−, UPS)']]);
+fd('T16',[['Controlled shutdown (STOP) completed normally','नियंत्रित शटडाउन (STOP) सामान्य रूप से पूरा','Controlled shutdown (STOP) normally complete']],[['No fault. Press RESET before the next start','कोई खराबी नहीं। अगले स्टार्ट से पहले RESET','Koi fault nahi. Agle start se pehle RESET']]);
+fd('T25',[['Valve limiter reached its start maximum but no speed is sensed: T&T valve closed, no steam, MPUs not reading','वाल्व लिमिटर स्टार्ट मैक्स पर पर स्पीड नहीं: T&T बंद, स्टीम नहीं, MPU नहीं पढ़ रहा','Valve limiter start max par par speed nahi: T&T band, steam nahi, MPU nahi padh raha']],
+ [['Open the T&T valve (Semi/Auto start) before START','START से पहले T&T वाल्व खोलें (Semi/Auto)','START se pehle T&T valve kholo (Semi/Auto)'],['Check steam pressure and MPU signals','स्टीम प्रेशर और MPU सिग्नल जाँचें','Steam pressure aur MPU signal check'],['RESET and restart','RESET और फिर स्टार्ट','RESET aur restart']]);
+fd('T42',[['505 is in Configuration mode (IOLOCK) – all outputs disabled','505 कॉन्फ़िगरेशन मोड (IOLOCK) में – सभी आउटपुट बंद','505 Configuration mode (IOLOCK) mein – saare outputs off']],[['Exit Configuration mode (Config Menu → Exit Config)','कॉन्फ़िगरेशन मोड से बाहर निकलें','Configuration mode se exit karo'],['Then RESET the Power Up Trip','फिर Power Up Trip RESET करें','Phir Power Up Trip RESET']]);
+fd('T44',[['Open wire detected on all MPUs during the automatic open-wire test before start','स्टार्ट से पहले ओपन-वायर टेस्ट में सभी MPU पर ओपन वायर','Start se pehle open-wire test mein saare MPU par open wire']],[['Check MPU cables and connectors','MPU केबल और कनेक्टर जाँचें','MPU cable aur connector check'],['Analog Inputs → Speed Signal → Open Wire Test','Analog Inputs → Speed Signal → Open Wire Test','Analog Inputs → Speed Signal → Open Wire Test']]);
+fd('A1',[['MPU #1 signal lost or below Failed Speed Level; the 505 continues on MPU #2','MPU #1 सिग्नल गया; 505 MPU #2 पर चलता रहता है','MPU #1 signal gaya; 505 MPU #2 par chalta rehta hai']],[['Check MPU #1 gap, cable (SPEED#1 terminals 1–2), shield','MPU #1 गैप, केबल (टर्मिनल 1–2), शील्ड जाँचें','MPU #1 gap, cable (terminal 1–2), shield check'],['Repair at the next safe opportunity – one more failure trips the turbine','अगले सुरक्षित मौके पर ठीक करें – एक और फ़ेल पर ट्रिप','Agle safe mauke par theek karo – ek aur fail par trip']]);
+FD.A2={c:[['MPU #2 signal lost; the 505 continues on MPU #1','MPU #2 सिग्नल गया; 505 MPU #1 पर चलता है','MPU #2 signal gaya; 505 MPU #1 par chalta hai']],a:[['Check MPU #2 (SPEED#2 terminals 9–10)','MPU #2 जाँचें (टर्मिनल 9–10)','MPU #2 check (terminal 9–10)']].concat(FD.A1.a.slice(1))};
+fd('A13',[['Inlet pressure transmitter loop < 2 mA (open) or > 22 mA (short)','इनलेट प्रेशर लूप < 2 mA (ओपन) या > 22 mA (शॉर्ट)','Inlet pressure loop < 2 mA (open) ya > 22 mA (short)']],[['Check transmitter power and loop (AI1 terminals 1–2)','ट्रांसमीटर पावर और लूप जाँचें (AI1 टर्मिनल 1–2)','Transmitter power aur loop check (AI1 terminal 1–2)'],['Analog Input Summary shows mA','एनालॉग इनपुट सारांश में mA देखें','Analog Input Summary mein mA dekho']]);
+fd('A43',[['Actuator 1 open/short circuit detected','एक्चुएटर 1 ओपन/शॉर्ट','Actuator 1 open/short']],FD.T5.a);
+fd('A45',[['START given while the Start Permissive contact was open (Manual mode: T&T not closed)','स्टार्ट परमिसिव खुला होने पर START दिया (मैनुअल: T&T बंद नहीं)','Start Permissive open hote START diya (Manual: T&T band nahi)']],[['Close the T&T valve, then START again (alarm need not be reset first)','T&T वाल्व बंद करें, फिर START','T&T valve band karo, phir START']]);
+fd('A56',[['Turbine is tripped (any trip)','टर्बाइन ट्रिप है (कोई भी ट्रिप)','Turbine trip hai (koi bhi trip)']],[['See Shutdown Summary for the first-out trip','पहले ट्रिप के लिए शटडाउन सारांश देखें','First-out ke liye Shutdown Summary dekho']]);
+fd('A57',[['Speed above the Overspeed Trip setting (alarm during external overspeed test)','स्पीड ओवरस्पीड ट्रिप सेटिंग से ऊपर (एक्सटर्नल टेस्ट में अलार्म)','Speed Overspeed Trip setting se upar (external test mein alarm)']],[['During an external test: the separate overspeed device should trip now','एक्सटर्नल टेस्ट में: अलग ओवरस्पीड डिवाइस अब ट्रिप करना चाहिए','External test mein: alag overspeed device ab trip karna chahiye']]);
+fd('A58',[['Overspeed test mode is active','ओवरस्पीड टेस्ट मोड सक्रिय','Overspeed test mode active']],[['Complete or disable the test; it times out after 30 s without adjustment','टेस्ट पूरा या बंद करें; 30 s में टाइमआउट','Test complete ya disable; 30 s mein timeout']]);
+fd('A60',[['Generator breaker opened after it was closed (load rejection or normal stop)','GEN ब्रेकर बंद होने के बाद खुला (लोड रिजेक्शन या सामान्य स्टॉप)','GEN breaker close hone ke baad open (load rejection ya normal stop)']],[['Check electrical protection relay if unexpected; check speed overshoot','अनपेक्षित हो तो प्रोटेक्शन रिले जाँचें; स्पीड ओवरशूट देखें','Unexpected ho to protection relay check; speed overshoot dekho']]);
+fd('A67',[['Speed stayed inside the critical band too long (5× normal time) – low steam pressure, critical rate too fast, valve limited','स्पीड क्रिटिकल बैंड में बहुत देर रही – कम स्टीम प्रेशर, रेट बहुत तेज़, वाल्व सीमित','Speed critical band mein bahut der rahi – low steam pressure, rate bahut fast, valve limited']],[['Setpoint returns to Idle. Fix steam / limiter, then Ramp to Rated again','सेटपॉइंट Idle पर लौटता है। स्टीम / लिमिटर ठीक करें, फिर Ramp to Rated','Setpoint Idle par laut-ta hai. Steam / limiter theek karo, phir Ramp to Rated'],['If regular: reduce the Critical Speed Rate (Service menu)','बार-बार हो: Critical Speed Rate कम करें','Baar baar ho: Critical Speed Rate kam karo']]);
+fd('A32',[['External alarm contact DI10 opened (e.g. lube oil temperature high)','एक्सटर्नल अलार्म DI10 खुला (जैसे लूब ऑयल तापमान ज़्यादा)','External alarm DI10 open (jaise lube oil temp high)']],[['Check the field device, close contact, RESET','फ़ील्ड डिवाइस जाँचें, कॉन्टैक्ट बंद, RESET','Field device check, contact close, RESET']]);
+const GEN_AI=[[['4–20 mA analog input below 2 mA (open loop, no transmitter power) or above 22 mA (short)','4–20 mA इनपुट 2 mA से कम (लूप खुला, पावर नहीं) या 22 mA से ज़्यादा (शॉर्ट)','4–20 mA input 2 mA se kam (loop open, power nahi) ya 22 mA se zyada (short)']],[['Analog Input Summary: read the mA','एनालॉग इनपुट सारांश: mA पढ़ें','Analog Input Summary: mA padho'],['Check transmitter, fuse, loop power setting and terminals','ट्रांसमीटर, फ़्यूज़, लूप पावर सेटिंग और टर्मिनल जाँचें','Transmitter, fuse, loop power setting aur terminal check']]];
+const GEN_DI=[[['Configured contact input opened (fail-safe: open = event)','कॉन्फ़िगर कॉन्टैक्ट इनपुट खुला (फ़ेल-सेफ़: खुला = इवेंट)','Configured contact input open (fail-safe: open = event)']],[['Contact Input Summary: find which DI','कॉन्टैक्ट इनपुट सारांश: कौन सा DI','Contact Input Summary: kaunsa DI'],['Check field device and wiring (+24 V CPWR)','फ़ील्ड डिवाइस और वायरिंग जाँचें (+24 V)','Field device aur wiring check (+24 V)']]];
+const GEN_X=[[['See the manual meaning','मैनुअल का अर्थ देखें','Manual meaning dekho']],[['Check the related function / page on the 505 and RESET when cleared','505 पर संबंधित पेज देखें और साफ़ होने पर RESET','505 par related page dekho, clear hone par RESET']]];
+const MEAN_T={1:'External Trip contact input was opened',2:'Front Panel Display Emergency Stop was pressed',3:'Turbine overspeed was sensed',4:'Loss of all speed probes was sensed',5:'HP Actuator fault detected (an open or short circuit was sensed)',6:'HP2 Actuator fault detected',7:'Aux analog input failure detected (> 22 mA or < 2 mA)',10:'Modbus communication link trip was commanded',13:'Utility tie breaker was opened after it was closed',14:'Generator breaker was opened after it was closed',15:'505 lost power or the Configuration mode was exited',16:'Controlled shutdown was performed and completed',25:'HP Valve Limiter ramp is at Max but no speed is detected',31:'505 is in Calibration Mode',32:'505 has a configuration error',33:'For Act 1&2 the Min current setting must be less than Max',37:'Inlet Steam Pressure passed trip level limit',38:'Exhaust Steam Pressure passed trip level limit',42:'505 is in Configuration Mode (in IOLOCK)',44:'Open wires detected on all MPUs'};
+const MEAN_A={1:'Speed probe #1 failure (< Failed Speed Level or 1 Vrms)',2:'Speed probe #2 failure (< Failed Speed Level or 1 Vrms)',43:'HP Actuator fault detected (open or short circuit was sensed)',45:'Run selected while the Start Perm contact in was not closed',55:'Display backlight fault, CPU OS fault, internal temperature > 70 °C, or factory calibration fault',56:'Turbine is tripped alarm indication',57:'Turbine overspeed alarm',58:'Overspeed Test mode is Active',59:'Utility Tie breaker was opened after it was closed',60:'Generator breaker was opened after it was closed',67:'Turbine is stagnating within critical speed window',68:'GAP to Display communication failed',69:'HP Demand versus Feedback Difference',100:'Open wire detected on speed signal circuit channel 1',101:'Open wire detected on speed signal circuit channel 2'};
+function evInfo(kind,id){
+ const key=kind+id,name=kind==='T'?TRIPN[id]:ALMN[id];if(!name)return null;
+ let d=FD[key];
+ if(!d){if(kind==='A'&&id>=3&&id<=29)d={c:GEN_AI[0],a:GEN_AI[1]};else if((kind==='T'&&(id===1||(id>=8&&id<=24&&/External/.test(name))))||(kind==='A'&&id>=32&&id<=40))d={c:GEN_DI[0],a:GEN_DI[1]};else d={c:GEN_X[0],a:GEN_X[1]}}
+ let mean=(kind==='T'?MEAN_T[id]:MEAN_A[id]);
+ if(!mean){if(kind==='A'&&id>=3&&id<=29)mean=name.replace(/ Failed$/,'')+' analog input failure (> 22 mA or < 2 mA)';else if(/External/.test(name))mean=name+' from contact input';else mean=name}
+ return{key,kind,id,name,mean,c:d.c,a:d.a};
+}
+let selEv='T3';
+function renderFres(){
+ const m=selEv.match(/^([TA])(\d+)$/),e=m&&evInfo(m[1],+m[2]);
+ if(!e){$('fres').innerHTML=`<p class="note">${esc(t('notFound'))}</p>`;return}
+ const act=(e.kind==='T'?S.trips:S.alarms).some(x=>x.id===e.id);
+ $('fres').innerHTML=`<div class="ft"><span class="tag ${e.kind==='T'?'trip':'alm'}">${esc(t(e.kind==='T'?'trip':'alm'))} ${e.id}</span><b>${esc(e.name)}</b>${act?'<span class="pill bad">ACTIVE</span>':''}</div>
+ <h4>${esc(t('mean'))}</h4><p class="note" style="margin:0">${esc(e.mean)} <i>(Table 5-${e.kind==='T'?2:1})</i></p>
+ <h4>${esc(t('cause'))}</h4><ul>${e.c.map(x=>`<li>${esc(L3(x))}</li>`).join('')}</ul>
+ <h4>${esc(t('act'))}</h4><ul>${e.a.map(x=>`<li>${esc(L3(x))}</li>`).join('')}</ul>`;
+}
+const QUICK=['T1','T2','T3','T4','T5','T10','T15','T16','T25','T42','A1','A2','A13','A45','A57','A58','A60','A67'];
+function renderQuick(){$('fquick').innerHTML=QUICK.map(k=>{const e=evInfo(k[0],+k.slice(1));return`<button class="${k[0]==='T'?'trip':'alm'}" data-ev="${k}" title="${esc(e.name)}">${k[0]==='T'?'T':'A'}${k.slice(1)} ${esc(e.name.length>18?e.name.slice(0,17)+'…':e.name)}</button>`}).join('')}
+let lastAct='';
+function renderActive(){const L=[...S.trips.map(x=>'T'+x.id),...S.alarms.map(x=>'A'+x.id)],k=L.join(',')+LANG;if(k===lastAct)return;lastAct=k;
+ $('factive').innerHTML=L.length?L.map(x=>{const e=evInfo(x[0],+x.slice(1));return`<button class="${x[0]==='T'?'trip':'alm'} act" data-ev="${x}">${x} ${esc(e?e.name:'')}</button>`}).join(''):`<span class="note" style="margin:0">${esc(t('none'))}</span>`;renderFres()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ev]');if(!b)return;selEv=b.dataset.ev;renderFres()});
+$('fq').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;
+ let m=q.match(/^([ta])?\s*(\d+)$/);if(m){const id=+m[2];if(m[1])selEv=m[1].toUpperCase()+id;else selEv=TRIPN[id]?'T'+id:'A'+id;renderFres();return}
+ const all=[...Object.keys(TRIPN).map(i=>['T'+i,TRIPN[i]]),...Object.keys(ALMN).map(i=>['A'+i,ALMN[i]])];const hit=all.find(x=>x[1].toLowerCase().includes(q));selEv=hit?hit[0]:'X0';renderFres()});
+const SYM=[
+ [['Turbine does not accelerate after START','START के बाद टर्बाइन तेज़ नहीं होता','START ke baad turbine accelerate nahi hota'],[['T&T valve still closed (Semi/Auto start)','T&T वाल्व अभी बंद (Semi/Auto)','T&T valve abhi band (Semi/Auto)'],['Semiautomatic mode: valve limiter not raised','सेमी-ऑटो: वाल्व लिमिटर नहीं बढ़ाया','Semi-auto: valve limiter nahi badhaya'],['Low inlet steam pressure','कम इनलेट स्टीम प्रेशर','Low inlet steam pressure'],['After 60 s: trip 25 "HP Ramp at Max/No Speed"','60 s बाद: ट्रिप 25','60 s baad: trip 25']]],
+ [['START refused / "Start Perm Not Met"','START अस्वीकार / "Start Perm Not Met"','START refuse / "Start Perm Not Met"'],[['Unit is tripped – press RESET first','यूनिट ट्रिप है – पहले RESET','Unit trip hai – pehle RESET'],['Manual mode: T&T valve not closed (alarm 45)','मैनुअल मोड: T&T बंद नहीं (अलार्म 45)','Manual mode: T&T band nahi (alarm 45)'],['Logged in as Monitor – green keys inhibited','Monitor लॉगिन – हरी कुंजियाँ बंद','Monitor login – green keys inhibited']]],
+ [['Speed stays at idle, will not go to rated','स्पीड Idle पर रुकी, Rated नहीं जाती','Speed Idle par ruki, Rated nahi jaati'],[['"Ramp to Rated" not selected','"Ramp to Rated" नहीं चुना','"Ramp to Rated" select nahi kiya'],['Stuck in Critical alarm returned setpoint to idle – check steam / limiter','Stuck in Critical से सेटपॉइंट Idle पर लौटा – स्टीम / लिमिटर जाँचें','Stuck in Critical se setpoint Idle par laut aaya – steam / limiter check'],['Valve limiter below 100 % (Valve Limiter in Control)','वाल्व लिमिटर 100 % से कम','Valve limiter 100 % se kam']]],
+ [['Speed hunting / oscillating','स्पीड हंटिंग / दोलन','Speed hunting / oscillation'],[['Cycle < 1 s: reduce Proportional gain','चक्र < 1 s: P घटाएँ','Cycle < 1 s: P kam karo'],['Cycle > 1 s: reduce Integral gain','चक्र > 1 s: I घटाएँ','Cycle > 1 s: I kam karo'],['Check by closing the valve limiter until it controls – if oscillation stops, the governor is the cause','लिमिटर से नियंत्रण लेकर देखें – दोलन रुके तो गवर्नर कारण है','Limiter se control lekar dekho – oscillation ruke to governor cause hai'],['Sticky valve / linkage backlash','अटकता वाल्व / लिंकेज ढीलापन','Sticky valve / linkage backlash']]],
+ [['Cannot raise speed above 6300 rpm','6300 rpm से ऊपर स्पीड नहीं बढ़ती','6300 rpm se upar speed nahi badhti'],[['Max Governor limit – only the Overspeed Test allows higher setpoint','Max Governor सीमा – केवल ओवरस्पीड टेस्ट में ऊपर','Max Governor limit – sirf Overspeed Test mein upar']]],
+ [['GEN breaker will not close','GEN ब्रेकर बंद नहीं होता','GEN breaker close nahi hota'],[['Speed not matched to grid (sync check)','स्पीड ग्रिड से नहीं मिली (सिंक चेक)','Speed grid se match nahi (sync check)'],['Turbine not running or tripped','टर्बाइन नहीं चल रहा या ट्रिप','Turbine nahi chal raha ya trip'],['Overspeed test active','ओवरस्पीड टेस्ट चालू','Overspeed test active']]],
+ [['Load cannot be increased','लोड नहीं बढ़ता','Load nahi badhta'],[['Setpoint at Max Governor (full droop load)','सेटपॉइंट Max Governor पर','Setpoint Max Governor par'],['Valve limiter limiting','वाल्व लिमिटर सीमित कर रहा','Valve limiter limit kar raha'],['HP valve fully open – low steam pressure','HP वाल्व पूरा खुला – कम स्टीम प्रेशर','HP valve full open – low steam pressure']]],
+ [['Screen blank, only CPU LED','स्क्रीन खाली, केवल CPU LED','Screen blank, sirf CPU LED'],[['Boot takes ~2–3 min on the real unit','असली यूनिट पर बूट ~2–3 मिनट','Real unit par boot ~2–3 min'],['Splash screen stays: GUI not started – service tool (AppManager)','स्प्लैश स्क्रीन रुकी: GUI शुरू नहीं हुआ','Splash screen ruki: GUI start nahi hua'],['Screen saver – press any maroon key','स्क्रीन सेवर – कोई मैरून कुंजी दबाएँ','Screen saver – koi maroon key dabao']]],
+];
+function renderSym(){$('sym').innerHTML=SYM.map(s=>`<details><summary>${esc(L3(s[0]))}</summary><ul>${s[1].map(x=>`<li>${esc(L3(x))}</li>`).join('')}</ul></details>`).join('')}
+
+/* ================= I18N / TABS / INPUT / INIT ================= */
+function applyLang(){
+ document.documentElement.lang=LANG==='hi'?'hi':'en';
+ document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(T[k]){if(k==='fieldNote'||k==='wNote')el.innerHTML=t(k);else el.textContent=t(k)}});
+ $('lang').value=LANG;buildFaultBtns();keyHelp();ex.render();wireStatic();renderQuick();renderSym();lastAct='';renderActive();renderFres();U.lastGuide='';guide();
+}
+$('lang').addEventListener('change',e=>{LANG=e.target.value;try{localStorage.setItem('owh505lang',LANG)}catch(x){}applyLang()});
+let curTab=0;
+const HASH=['panel','turbine','wiring','trips'];
+function setTab(i,push){curTab=clamp(i,0,3);$('track').style.transform=`translateX(${-25*curTab}%)`;for(let k=0;k<4;k++)$('t'+k).setAttribute('aria-selected',k===curTab?'true':'false');
+ if(push){try{history.replaceState(null,'','#'+HASH[curTab])}catch(e){}}view.render()}
+for(let k=0;k<4;k++)$('t'+k).addEventListener('click',()=>setTab(k,true));
+$('vp').addEventListener('scroll',()=>{if($('vp').scrollLeft)$('vp').scrollLeft=0});
+let sx=null,sy=0,st0=0;
+$('vp').addEventListener('touchstart',e=>{if(e.target.closest('input[type=range],.wirewrap,.panel'))return sx=null;const p=e.touches[0];sx=p.clientX;sy=p.clientY;st0=Date.now()},{passive:true});
+$('vp').addEventListener('touchend',e=>{if(sx==null)return;const p=e.changedTouches[0],dx=p.clientX-sx,dy=p.clientY-sy;sx=null;if(Math.abs(dx)>60&&Math.abs(dx)>1.6*Math.abs(dy)&&Date.now()-st0<700)setTab(curTab+(dx<0?1:-1),true)},{passive:true});
+/* panel swipe: swipe on the LCD/bezel also changes tab, but key presses do not */
+let px=null,py=0,pt0=0;
+$('panel').addEventListener('touchstart',e=>{if(e.target.closest('.k,.estop'))return px=null;const p=e.touches[0];px=p.clientX;py=p.clientY;pt0=Date.now()},{passive:true});
+$('panel').addEventListener('touchend',e=>{if(px==null)return;const p=e.changedTouches[0],dx=p.clientX-px,dy=p.clientY-py;px=null;if(Math.abs(dx)>60&&Math.abs(dx)>1.6*Math.abs(dy)&&Date.now()-pt0<700)setTab(curTab+(dx<0?1:-1),true)},{passive:true});
+/* panel keys (pointer) */
+document.querySelectorAll('#panel [data-k]').forEach(b=>{
+ const k=b.dataset.k;
+ b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('pr');key(k,'down');if(navigator.vibrate)try{navigator.vibrate(8)}catch(x){}});
+ const up=()=>{if(!b.classList.contains('pr'))return;b.classList.remove('pr');key(k,'up')};
+ b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up);
+ b.addEventListener('contextmenu',e=>e.preventDefault());
+ b.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!e.repeat)key(k,'down')}});
+ b.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')key(k,'up')});
+});
+const KM={ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',Enter:'ENTER',Escape:'ESC',Home:'HOME',PageUp:'ADJUP',PageDown:'ADJDN',r:'RESET',R:'RESET',Backspace:'BS','.':'.'};
+document.addEventListener('keydown',e=>{if(curTab!==0||e.target.closest('input,select,button'))return;let k=KM[e.key]||(/^[0-9]$/.test(e.key)?e.key:null);if(!k)return;e.preventDefault();if(e.repeat)return;
+ if((k==='ADJUP'||k==='ADJDN')&&e.shiftKey)U.fast=true;key(k,'down')});
+document.addEventListener('keyup',e=>{const k=KM[e.key];if(k==='ADJUP'||k==='ADJDN')key(k,'up')});
+let toT=0;function toast(m,c){const el=$('toast');el.textContent=m;el.className='toast show '+(c||'');clearTimeout(toT);toT=setTimeout(()=>el.className='toast',2600)}
+/* screen-saver style tap on LCD: tap focuses item under finger (helps on phones) */
+lcd.addEventListener('click',e=>{const f=e.target.closest('[data-f]');if(!f||!S.power||S.boot>0)return;U.fid=f.dataset.f;ui.render(true);guide()});
+
+/* init */
+{const i=HASH.indexOf(location.hash.slice(1));if(i>0)setTab(i,false)}
+applyLang();powerCycle();ex.render();requestAnimationFrame(t=>{last=t;requestAnimationFrame(loop)});
+})();
+</script>
+</body></html>

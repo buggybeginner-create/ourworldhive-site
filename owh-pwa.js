@@ -34,6 +34,7 @@ function installBtn(){
       else{var tp=d.createElement('div');tp.className='owh-tip';tp.textContent=ios?'Tap Share (⬆) then "Add to Home Screen" to install this page as its own app.':'Open the browser menu (⋮) and tap "Install app" / "Add to Home screen".';d.body.appendChild(tp);setTimeout(function(){tp.remove()},6000)}};
     b.children[2].onclick=function(){try{localStorage.setItem(key,Date.now())}catch(e){}hide()};
     d.body.appendChild(b);
+    var hb=b;setTimeout(function(){if(b!==hb)return;hb.style.transition='opacity .4s';hb.style.opacity='0';setTimeout(function(){if(b===hb)hide()},420)},2000); /* auto-hide after 2 seconds */
     try{var ml=d.querySelector('link[rel="manifest"]');if(ml)fetch(ml.href).then(function(r){return r.json()}).then(function(m){if(b&&m&&m.short_name)b.firstChild.textContent=m.short_name.toUpperCase()}).catch(function(){})}catch(e){}}
   function hide(){if(b){b.remove();b=null}}
   window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;if(d.body)show();else window.addEventListener('load',show)});

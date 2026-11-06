@@ -233,7 +233,7 @@ document.getElementById('fab').onclick=function(){openOrder()};
 load();render();netUpd();
 (function(){try{var q=new URLSearchParams(location.search),t=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n');if(t){history.replaceState(null,'',location.pathname);setTimeout(function(){var f=openSync(t);var r=parseEmails(t).filter(function(x){return x.orderId||x.item||x.amount});if(r.length){var rs=applyAll(r,S.account==='all'?S.accounts[0]:S.account,'shared message');var m=document.getElementById('smsM');if(m)m.textContent=rs.msg;document.getElementById('smsT').value='';toast(rs.msg)}},200)}}catch(e){}})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('parcel-sw.js',{scope:'./parcel-ledger.html'}).catch(function(){});
-var dp=null,ib=document.getElementById('inst');window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;ib.hidden=false});
+var dp=null,ib=document.getElementById('inst');window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;ib.hidden=false;setTimeout(function(){ib.hidden=true},2000)});
 ib.onclick=function(){if(dp){dp.prompt();dp=null;ib.hidden=true}};window.addEventListener('appinstalled',function(){ib.hidden=true;toast('Installed')});
 if(/iphone|ipad/i.test(navigator.userAgent)&&!window.navigator.standalone){ib.hidden=false;ib.onclick=function(){toast('Tap Share, then Add to Home Screen')}}
 if(window.matchMedia('(display-mode: standalone)').matches)ib.hidden=true;

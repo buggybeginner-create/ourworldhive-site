@@ -89,7 +89,7 @@ BX.Game.prototype.process=async function(rec){var G=this,s=G.s,def=G.def;if(G.ov
  G.after()};
 BX.Game.prototype.after=function(){var G=this;if(G.over)return;G.ui.onTurn&&G.ui.onTurn(G.state);
  G.s.seats.forEach(function(st,i){if(!st.bot||G.botBusy[i]||G.over)return;if(!G.def.needs(G.state,i))return;G.botBusy[i]=1;
-  setTimeout(async function(){try{if(G.over){G.botBusy[i]=0;return}var m=await G.def.bot(G.state,i,st.level||1);G.botBusy[i]=0;if(m)G.enq({n:G.n,by:i,mv:m,local:true})}catch(e){G.botBusy[i]=0;console.error(e)}},G.def.botDelay||650)})};
+  setTimeout(async function(){try{if(G.over){G.botBusy[i]=0;return}var m=await G.def.bot(G.state,i,st.level||1);G.botBusy[i]=0;if(m)G.enq({n:G.n,by:i,mv:m,local:true})}catch(e){G.botBusy[i]=0;console.error(e)}},(G.s.stealth?1300+Math.random()*2700:(G.def.botDelay||650)))})};
 BX.Game.prototype.cheat=function(seat,why){var G=this,s=G.s;if(G.over)return;
  var win=s.mode==='online'&&seat!==s.me?s.me:-1;
  G.finish({winner:win,cheat:true,seat:seat,reason:'Illegal or tampered move detected ('+why+'). The game is void'+(win>=0?' and you are the winner.':'.')})};
@@ -147,7 +147,7 @@ BX.lobby=function(root,o){BX.closeFs();BX.gameInit(o.game);
       BX.db.collection('board_rooms').doc(rid).delete().catch(function(){});
       var nm=OWHBOTS.names(d.max-1,c.tag),seats=[{name:BX.name(),bot:false}];
       for(var i=0;i<d.max-1;i++)seats.push({name:nm[i],bot:true,level:lvl});
-      start({mode:'bot',seats:seats,me:0,seed:Math.floor(Math.random()*2147483646)+1,uids:null})},OWHBOTS.delay())})})}
+      start({mode:'bot',seats:seats,me:0,seed:Math.floor(Math.random()*2147483646)+1,uids:null,stealth:true})},OWHBOTS.delay())})})}
   $('#bxCx',root).onclick=function(){unW();BX.db.collection('board_rooms').doc(rid).delete().catch(function(){});render()};
   if(d.players.length>=d.max&&d.status!=='open')go(d)}
  function onlineUI(){var W=$('#bxOn',root);
@@ -184,7 +184,7 @@ BX.frame=function(root,o){
  document.body.appendChild(fs);document.documentElement.classList.add('bx-nos');
  try{var ar=window.OWHG&&OWHG.game()===BX.G&&OWHG.eq('arena');if(ar)fs.style.background=ar.bg}catch(e){}
  var Q=function(i){return fs.querySelector(i)},F={stage:Q('#bxStage'),tools:Q('#bxTools'),mv:Q('#bxMv'),fs:fs};
- var P=Q('#bxPls');if(seats.length>2)P.classList.add('many');seats.forEach(function(s,i){P.appendChild(el('<div class="bx-pl" data-i="'+i+'"><span class="av" style="background:'+(o.colors?o.colors[i]:BX.COLORS[i])+'">'+(s.bot?'🤖':esc(s.name||'?').charAt(0).toUpperCase())+'</span><span class="nm"><b>'+esc(s.name||'Player').slice(0,12)+(o.me===i&&mode==='online'?' • you':'')+'</b><small>'+(o.sub?o.sub[i]:'')+'</small></span><span class="ck" hidden></span><span class="sc"></span></div>'))});
+ var P=Q('#bxPls');if(seats.length>2)P.classList.add('many');seats.forEach(function(s,i){P.appendChild(el('<div class="bx-pl" data-i="'+i+'"><span class="av" style="background:'+(o.colors?o.colors[i]:BX.COLORS[i])+'">'+(s.bot&&!o.stealth?'🤖':esc(s.name||'?').charAt(0).toUpperCase())+'</span><span class="nm"><b>'+esc(s.name||'Player').slice(0,12)+(o.me===i&&mode==='online'?' • you':'')+'</b><small>'+(o.sub?o.sub[i]:'')+'</small></span><span class="ck" hidden></span><span class="sc"></span></div>'))});
  F.act=function(i){[].forEach.call(P.children,function(c,k){c.classList.toggle('act',k===i)})};
  F.clock=function(i,t,cls){var c=P.children[i].querySelector('.ck');c.hidden=false;c.textContent=t;c.className='ck '+(cls||'')};F.sc=function(i,t){P.children[i].querySelector('.sc').textContent=t};F.sub=function(i,t){P.children[i].querySelector('small').innerHTML=t};
  F.status=function(t){Q('#bxSt').innerHTML=t};
@@ -210,6 +210,7 @@ BX.frame=function(root,o){
  var BOTSAY=['😎','🤔','😂','👍','Good move!','Hmm, nice one','Let’s go!'],started=Date.now();
  function say(type,x){var seat=mode==='online'?o.me:0;if(mode==='online'){BX.room.chatSend(o.rid,{by:BX.uid,seat:seat,t:type,x:x,ts:Date.now()}).catch(function(){BX.toast('Chat not sent')})}else{incoming(seat,type,x);if(mode==='bot'&&Math.random()<.8){var bs=seats.map(function(s,i){return s.bot?i:-1}).filter(function(i){return i>=0});if(bs.length)setTimeout(function(){var b=bs[Math.floor(Math.random()*bs.length)],r=BOTSAY[Math.floor(Math.random()*BOTSAY.length)];incoming(b,r.length<4?'e':'m',r)},900+Math.random()*900)}}}
  F.botReact=function(kind){if(mode!=='bot'||Math.random()>.45)return;var bs=seats.map(function(s,i){return s.bot?i:-1}).filter(function(i){return i>=0});if(bs.length)setTimeout(function(){incoming(bs[0],'e',kind==='win'?'😎':kind==='bad'?'😭':'😮')},700)};
+ if(mode==='bot'&&o.stealth&&window.OWHBOTS){OWHBOTS.talk(function(t){var bs=seats.map(function(s,i){return s.bot?i:-1}).filter(function(i){return i>=0});if(bs.length)incoming(bs[0],t.length<4?'e':'m',t)},function(){return document.body.contains(fs)})}
  var em=Q('#bxEm');BX.EMOJI.forEach(function(e){var b=document.createElement('button');b.textContent=e;b.onclick=function(ev){ev.stopPropagation();say('e',e)};em.appendChild(b)});
  Q('#bxCf').onsubmit=function(e){e.preventDefault();var i=this.querySelector('input'),v=i.value.trim();if(!v)return;i.value='';say('m',v)};
  if(mode==='local'){Q('#bxCh').style.display='none'}

@@ -137,7 +137,7 @@ function lobby(){if(G){G.dispose();G=null}document.querySelectorAll('.bx-over,.c
 function start(sess){
  var me=sess.me,opp=1-me,online=sess.mode==='online';
  var deck=fixDeck();
- var F=BX.frame(root,{seats:sess.seats,me:me,mode:sess.mode,noMoves:true,sub:['',''],colors:['#7cc4ff','#ff7a90'],onLeave:lobby,onResign:function(){G.resign()}});
+ var F=BX.frame(root,{seats:sess.seats,me:me,mode:sess.mode,stealth:sess.stealth,noMoves:true,sub:['',''],colors:['#7cc4ff','#ff7a90'],onLeave:lobby,onResign:function(){G.resign()}});
  F.stage.innerHTML='<div class="cc"><div class="cc-info" id="ccI"></div><div class="cc-strip" id="ccE"></div><div class="cc-arena" id="ccA"></div><div class="cc-hand" id="ccH"></div></div>';
  var elI=$('#ccI'),elE=$('#ccE'),elA=$('#ccA'),elH=$('#ccH');
  var mine={round:-1,i:-1,salt:'',locked:false,cSent:false,rSent:false,dSent:false,t0:0},anim=false,shown=0,tmr=0,waitSince=0,queued=null,skip=false,units=[];

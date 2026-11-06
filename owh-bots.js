@@ -3,10 +3,28 @@
 var FIRST=['Arjun','Rohan','Vikram','Aman','Kartik','Sahil','Nikhil','Yash','Dev','Harshit','Manish','Aditya','Ravi','Suraj','Ankit','Pranav','Tushar','Vivek','Rahul','Deepak','Sanjay','Abhay','Imran','Faizal','Zaheer','Naveen','Kabir','Mohit','Rajat','Satish','Lucky','Sonu','Bunty','Rohit','Jay','Om','Piyush','Subham','Bikash','Samir','Priya','Neha','Riya','Anjali','Pooja','Sneha','Kavya','Isha','Tanya','Meera'];
 var LAST=['K','S','P','M','R','D','T','B','N','G','V','J','A','H'];
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
+var LASTF=['Verma','Sharma','Singh','Das','Patel','Mishra','Nayak','Kumar','Gupta','Yadav','Khan','Reddy','Jena','Sahoo','Behera','Roy'];
+var TAIL=['07','21','99','11','45','_x','_pro','786','_op','18','23','_gg','08','77'];
+function name(){var f=pick(FIRST),r=Math.random(),n;
+  if(r<.30)n=f+' '+pick(LAST);
+  else if(r<.45)n=f+' '+pick(LASTF);
+  else if(r<.62)n=f.toLowerCase()+pick(TAIL);
+  else if(r<.74)n=f+pick(TAIL).replace(/^_/,'');
+  else if(r<.86)n=f.toLowerCase()+'.'+pick(LAST).toLowerCase();
+  else n=f;
+  return n.slice(0,14)}
+/* things a real person says now and then (emoji and short lines, English and a little Hinglish) */
+var SAY=['\uD83D\uDE0E','\uD83D\uDE02','\uD83E\uDD14','\uD83D\uDC4D','\uD83D\uDD25','\uD83D\uDE05','\uD83D\uDE2E','gg','nice one','haha','arey wah','oops','chal bhai','soch raha hu \uD83E\uDD14','good one \uD83D\uDC4F','close tha \uD83D\uDE05','let\u2019s go \uD83D\uDD25','hmm','wah \uD83D\uDE2E','ok ok \uD83D\uDE0F'];
 var B=window.OWHBOTS={
-  name:function(tag){return pick(FIRST)+' '+pick(LAST)+(tag?' (BOT)':'')},
+  name:function(tag){return name()+(tag?' (BOT)':'')},
   names:function(n,tag){var u={},o=[],g=0;while(o.length<n&&g++<200){var s=B.name(tag);if(!u[s]){u[s]=1;o.push(s)}}return o},
-  delay:function(){return (7+Math.random()*9)*1000},
+  /* a bot is assigned if nobody real joins within 10 seconds (between 5 and 9.5) */
+  delay:function(){return (5+Math.random()*4.5)*1000},
+  avatar:function(){return pick(['\uD83E\uDD8A','\uD83D\uDC2F','\uD83D\uDC3C','\uD83E\uDD81','\uD83D\uDC38','\uD83D\uDC35','\uD83E\uDD84','\uD83D\uDC3B','\uD83D\uDC31','\uD83D\uDC36'])},
+  say:function(){return pick(SAY)},
+  /* now and then the bot says something on its own. say(text) sends it; alive() returns false when the game is over. */
+  talk:function(say,alive){var stop=false;(function next(){setTimeout(function(){if(stop)return;var ok=false;try{ok=alive()}catch(e){}if(!ok){stop=true;return}
+      if(Math.random()<.7){try{say(B.say())}catch(e){}}next()},(14+Math.random()*26)*1000)})();return function(){stop=true}},
   /* resolves {on,tag} when bots are switched on for this game, otherwise null. Never throws. */
   cfg:function(db,game){
     try{if(!db)return Promise.resolve(null);

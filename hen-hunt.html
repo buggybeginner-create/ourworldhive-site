@@ -376,6 +376,7 @@ function avHtml(av,i,cls){return'<span class="'+(cls||'av')+' rg" data-t="'+i+'"
 function tprog(p){var i=tierOf(p),n=TIERS[i+1];if(!n)return{pct:100,txt:'Top rank reached! 🌌'};return{pct:Math.round((p-TIERS[i][0])/(n[0]-TIERS[i][0])*100),txt:(n[0]-p)+' pts to '+n[2]+' '+n[1]}}
 function lvl(name){var sum=0,tot=0;GAMES.forEach(function(g){var p=allPts(name,g.id),i=tierOf(p),n=TIERS[i+1],f=n?(p-TIERS[i][0])/(n[0]-TIERS[i][0]):1;sum+=i+Math.min(.99,f);tot+=p});return{lvl:sum/GAMES.length,pts:tot}}
 function allM(name,g){return SAMP.concat(matches()).filter(function(m){return m.name===name&&(!g||m.g===g)}).sort(function(a,b){return a.ts-b.ts})}
+function fakeP(n){var h=0;String(n).split('').forEach(function(c){h=(h*31+c.charCodeAt(0))%997});return 20+h%300}
 function allPts(name,g){return allM(name,g).reduce(function(a,m){return a+m.pts},0)}
 function pstats(name,g){var ms=allM(name,g),o={n:ms.length,w:0,l:0,pts:0,best:0,streak:0,fast:null},cur=0;ms.forEach(function(m){o.pts+=m.pts;if(m.pts>o.best)o.best=m.pts;if(m.res==='w'){o.w++;cur++;if(cur>o.streak)o.streak=cur;if(o.fast==null||m.moves<o.fast)o.fast=m.moves}else if(m.res==='l'){o.l++;cur=0}else{o.d=(o.d||0)+1;cur=0}});return o}
 function matches(){return LS.get('cb_matches',[])}
@@ -437,7 +438,7 @@ function openProfile(name,av,bot){
  modal(h)}
 function openScore(){
  var s=G.s,D=G.def,h='<h2>🏆 Score rack</h2><div class="muted" style="font-size:13px;margin-bottom:8px">'+D.i+' '+D.n+' · move '+Math.ceil((s.n+1)/2)+' · tap a player for profile</div><div class="sc2">';
- G.names.map(function(x,i){return i}).forEach(function(i){var pts=G.bots[i]?null:allPts(G.names[i],G.game);h+='<div class="grow" data-p="'+i+'"><div class="e">'+G.avs[i]+'</div><b>'+esc(G.names[i])+'</b><div>'+(pts==null?'<span class="tier">🤖 Computer</span>':tierTag(pts))+'</div>'+D.score(i).map(function(r){return'<div class="srow"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>'}).join('')+(G.tm?'<div class="srow"><span>Clock</span><b>'+fmt(G.ck[i])+'</b></div>':'')+'</div>'});
+ G.names.map(function(x,i){return i}).forEach(function(i){var pts=G.bots[i]&&!G.stealth?null:(G.bots[i]?fakeP(G.names[i]):allPts(G.names[i],G.game));h+='<div class="grow" data-p="'+i+'"><div class="e">'+G.avs[i]+'</div><b>'+esc(G.names[i])+'</b><div>'+(pts==null?'<span class="tier">🤖 Computer</span>':tierTag(pts))+'</div>'+D.score(i).map(function(r){return'<div class="srow"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>'}).join('')+(G.tm?'<div class="srow"><span>Clock</span><b>'+fmt(G.ck[i])+'</b></div>':'')+'</div>'});
  h+='</div><div class="lbl" style="margin-top:14px">'+D.i+' Top players · '+D.n+'</div>';
  var keep=RK.g,kk=RK.k,kp=RK.p;RK.g=G.game;RK.k='pts';RK.p='a';var arr=board();RK.g=keep;RK.k=kk;RK.p=kp;
  arr.slice(0,5).forEach(function(o,i){h+='<div class="grow" data-n="'+esc(o.name)+'" style="cursor:pointer;display:flex;gap:8px;align-items:center"><b>'+(['🥇','🥈','🥉'][i]||i+1)+'</b><span>'+o.av+'</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(o.name)+(o.sample?' <span class="tag">sample</span>':'')+'</span>'+tierTag(allPts(o.name,G.game))+'<b>'+o.pts+'</b></div>'});
@@ -487,15 +488,17 @@ function chatClosed(){return window.matchMedia('(max-width:899px)').matches&&!$(
 function openChat(on){$('#chat').classList.toggle('open',!!on);$('#cbg').hidden=!on;if(on){$('#bChat').classList.remove('unread');var l=$('#log');l.scrollTop=l.scrollHeight}}
 $('#bChat').onclick=function(){openChat(!$('#chat').classList.contains('open'))};$('#chX').onclick=function(){openChat(false)};$('#cbg').onclick=function(){openChat(false)};
 $('#bScore').onclick=function(){if(G)openScore()};
-$('#bar0').onclick=function(){if(G)openProfile(G.names[0],G.avs[0],false)};$('#bar1').onclick=function(e){if(!G)return;var c=e.target.closest('[data-s]'),i=c?+c.dataset.s:1;openProfile(G.names[i],G.avs[i],G.bots[i])};
+$('#bar0').onclick=function(){if(G)openProfile(G.names[0],G.avs[0],false)};$('#bar1').onclick=function(e){if(!G)return;var c=e.target.closest('[data-s]'),i=c?+c.dataset.s:1;openProfile(G.names[i],G.avs[i],G.bots[i]&&!G.stealth)};
 var QUICK=['Good luck! 🍀','Nice move! 👏','Hmm, tricky 🤔','Oops! 😅','Got you! 😈','Hurry up ⏰','Well played 🤝','Rematch? 🔁','Wow! 😮','Not fair! 😤'];
 var EMO=['😀','😂','😮','😡','👏','🔥','😭','👍','💎','🎉'];
 function start(opt){
- var gid=SET.game,D=DEFS[gid],bot=SET.mode==='bot',lv=+SET.lvl,tm=+SET.tm,np=D.multi?+SET.np:2,nm=$$('.p2n').map(function(i){return i.value.trim().slice(0,14)}),RN=['','II','III'],BA=[BOTS[lv].av,'🐙','🦈'],names=[prof.name],avs=[prof.av],bots=[false];
+ var STL=!!window.HR_BOTNAMES;
+ var gid=SET.game,D=DEFS[gid],bot=SET.mode==='bot',lv=+SET.lvl,tm=+SET.tm,np=D.multi?+SET.np:2,nm=$$('.p2n').map(function(i){return i.value.trim().slice(0,14)}),RN=['','II','III'],BA=(window.HR_BOTNAMES&&window.OWHBOTS)?[OWHBOTS.avatar(),OWHBOTS.avatar(),OWHBOTS.avatar()]:[BOTS[lv].av,'🐙','🦈'],names=[prof.name],avs=[prof.av],bots=[false];
  for(var k=1;k<np;k++){names.push(bot?(window.HR_BOTNAMES&&window.HR_BOTNAMES[k-1]||BOTS[lv].n+(k>1?' '+RN[k-1]:'')):(nm[k-1]||('Friend '+k)));avs.push(bot?BA[k-1]:['🐙','🐸','🦋'][k-1]);bots.push(bot)}
  if(opt&&opt.online){var O=opt.online;gid=O.game;D=DEFS[gid];bot=false;tm=0;np=O.names.length;names=O.names.slice();avs=O.avs.slice();bots=names.map(function(){return false});SET.role=O.role||0;SET.seed=O.seed||0}
  clearInterval(G&&G.iv);
  G={game:gid,def:D,bot:bot,bots:bots,np:np,lvl:lv,s:D.newState(np),names:names,avs:avs,over:0,mode:'move',flip:false,ghost:null,hint:false,busy:false,tm:tm,ck:names.map(function(){return tm*6e4}),t0:Date.now(),lastT:Date.now(),iv:null,sel:null,fxN:0,online:(opt&&opt.online)?{seat:opt.online.me,code:opt.online.code,gn:opt.online.gn,pend:false,ap:false}:null};
+ G.stealth=STL&&bot;if(G.stealth&&window.OWHBOTS){var Gx=G;OWHBOTS.talk(function(t){var bs=botSeat();if(G===Gx&&!G.over&&bs>=0)say(bs,t)},function(){return G===Gx&&!G.over})}
  $('#bHint').setAttribute('aria-pressed','false');
  ['bMove','bH','bV'].forEach(function(id){$('#'+id).hidden=!D.bars});
  $('#log').innerHTML='';sysMsg(D.i+' '+D.n+'. '+names[G.s.turn]+' goes first. Good luck! 🍀');
@@ -538,7 +541,7 @@ function myTurn(){if(G.online)return !G.over&&G.s.turn===G.online.seat;return !G
 function avEl(seat){var b=seat===(G.online?G.online.seat:0)?'#bar0':'#bar1';return $(b+' [data-s="'+seat+'"] .av')||$(b+' .av')}
 function botSeat(){return G.bots.indexOf(true)}
 function drawBars(){var D=G.def,s=G.s,np=G.np;
- function mk(i){var bot=G.bots[i],ti=bot?-1:tierOf(allPts(G.names[i],G.game)),out=s.out&&s.out[i];
+ function mk(i){var bot=G.bots[i]&&!G.stealth,ti=bot?-1:tierOf(G.bots[i]?fakeP(G.names[i]):allPts(G.names[i],G.game)),out=s.out&&s.out[i];
   return (bot?'<span class="av">'+G.avs[i]+'</span>':avHtml(G.avs[i],ti,'av'))+'<span class="nm">'+esc(G.names[i])+'<small>'+(out?'🚪 Out':bot?'🤖 Computer':tierHtml(ti))+(np>2?'':' · '+D.sub(i))+'</small>'+D.pips(i)+'</span><span class="clock" data-s="'+i+'" '+(G.tm?'':'hidden')+'></span>'}
  var bs=G.online?G.online.seat:0,b0=$('#bar0'),b1=$('#bar1'),h0=mk(bs),h1='';b0.setAttribute('data-s',bs);b0.style.setProperty('--c',COL[bs]);b0.classList.toggle('act',!G.over&&s.turn===bs);
  if(np===2){var ot=1-bs;h1=mk(ot);b1.className='pbar';b1.setAttribute('data-s',ot);b1.style.setProperty('--c',COL[ot]);b1.classList.toggle('act',!G.over&&s.turn===ot)}
@@ -598,7 +601,7 @@ function play(m){
  if(G.bots[G.s.turn])botTurn()}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function later(f,ms){setTimeout(function(){if(G&&!G.over)f()},ms)}
-function botTurn(){G.busy=true;var seat=G.s.turn;setTimeout(function(){if(!G||G.over||G.s.turn!==seat){return}var m=G.def.bot(G.def.clone(G.s),seat,G.lvl);if(m&&m.t==='w')throwBar(m,seat,function(){play(m)});else{G.busy=false;if(m)play(m)}},650+Math.random()*500)}
+function botTurn(){G.busy=true;var seat=G.s.turn;setTimeout(function(){if(!G||G.over||G.s.turn!==seat){return}var m=G.def.bot(G.def.clone(G.s),seat,G.lvl);if(m&&m.t==='w')throwBar(m,seat,function(){play(m)});else{G.busy=false;if(m)play(m)}},G.stealth?1300+Math.random()*2700:650+Math.random()*500)}
 function fin(w,why){
  if(G.over)return;G.over=1;clearInterval(G.iv);G.busy=false;var s=G.s,moves=Math.ceil(s.n/G.np),ts=Date.now(),gm=G.game,D=G.def,draw=w===-2,bs=botSeat();
  var humans=[];G.names.forEach(function(n,i){if(!G.bots[i])humans.push(i)});if(G.online)humans=[G.online.seat];if(G.online)setTimeout(function(){if(HRH)HRH.fin(w,why,moves)},0);var nsN=humans.map(function(i){return G.names[i]}),pre=nsN.map(function(n){return allPts(n,gm)}),youWin=G.online?w===G.online.seat:G.bot?w===0:!draw,txt,big,pts=0,sub='';

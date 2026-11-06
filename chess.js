@@ -57,7 +57,7 @@ function stopIdle(){clearTimeout(idleT);idleT=null;if(scene)scene.summon(false);
 function start(sess){
  var tc=sess.tc||null,clk=tc?{ms:[tc.m*60000,tc.m*60000],inc:(tc.inc||0)*1000,seat:0,last:0,run:false,warn:-1}:null;
  var flip=sess.mode==='online'&&sess.me===1,sel=-1,L=[],plies=0,prevB=CC.init().b.slice(),promoEl=null;
- F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,pairs:true,colors:['#f1e6c8','#8a93a8'],sub:['White','Black'],onLeave:lobby,onResign:function(){G.resign()}});
+ F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,stealth:sess.stealth,pairs:true,colors:['#f1e6c8','#8a93a8'],sub:['White','Black'],onLeave:lobby,onResign:function(){G.resign()}});
  var wrap=document.createElement('div');wrap.className='cx-wrap';wrap.style.background=TH[P.theme].bg;F.stage.innerHTML='';F.stage.style.perspective='none';F.stage.appendChild(wrap);
  try{scene=Chess3D.create(wrap,{theme:P.theme,skin:P.skin,table:P.table,flip:flip,fx:{cap:function(){BX.sfx.cap()},laugh:function(n){laugh(false)}},onYamLaugh:function(){var crit=critical(G.state),lowc=clk&&clk.ms[G.state.turn==='w'?0:1]<25000,t=lowc?YAMT[Math.floor(Math.random()*YAMT.length)]:(crit?YAMS:YAMN)[Math.floor(Math.random()*3)%(crit?YAMS.length:YAMN.length)];bubble('👹','Yamraj',t,'y',5200);laugh(true);speak(t.replace(/HAHAHA!?/g,'ha ha ha'),true);var d=wrap.querySelector('.cx-doom');if(d)d.classList.add('on')}})}catch(err){console.error(err);BX.toast('3D could not start, using the flat board');BX.closeFs();var s2=document.createElement('script');s2.src='chess2d.js';document.body.appendChild(s2);return}
  scene.host=wrap;scene.camera(P.cam);

@@ -5128,6 +5128,7 @@ function startBotMatch(cfg){
   const nm=OWHBOTS.name(false).toUpperCase();
   const sv=OPT.mode;OPT.mode='full';startMatch();OPT.mode=sv;
   if(MT&&MT.sides&&MT.sides[1])MT.sides[1].pname=nm+(cfg&&cfg.tag?' (BOT)':'');
+  {const iv=setInterval(()=>{try{if(!MT||MT.online||G.mode==='menu'){clearInterval(iv);return}if(G.mode==='end'||G.paused)return;if(Math.random()<0.6){if(Math.random()<0.6)chatAdd('opp','e',(Math.random()*CHAT_EMO.length)|0);else chatAdd('opp','m',(Math.random()*CHAT_MSG.length)|0)}}catch(e){clearInterval(iv)}},15000+Math.random()*20000)} /* the rival chats now and then like a real person */
   NETM.state='idle';NETM.msg='';
 }
 /* ---- live match sync ---- */

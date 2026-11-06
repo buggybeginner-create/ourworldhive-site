@@ -35,7 +35,7 @@ var root=$('#app'),G=null;
 function lobby(){if(G){G.dispose();G=null}document.querySelectorAll('.bx-over').forEach(function(x){x.remove()});
  BX.lobby(root,{game:'uttt',alt:true,maxP:2,note:'All moves go into a hash-chained log and both browsers re-check each move against the rules (right board, free cell). Illegal or edited moves void the game. Firestore rules force alternating turns and make moves write-once.',botNames:['Computer'],onStart:start})}
 function start(sess){
- var F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,pairs:true,sub:['❌ X','⭕ O'],colors:['#ff7a90','#7cc4ff'],onLeave:lobby,onResign:function(){G.resign()}}),n=0;
+ var F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,stealth:sess.stealth,pairs:true,sub:['❌ X','⭕ O'],colors:['#ff7a90','#7cc4ff'],onLeave:lobby,onResign:function(){G.resign()}}),n=0;
  F.stage.innerHTML='<div class="ut3"><div class="utw d3" id="utw"></div></div>';var W=$('#utw'),cells=[],boards=[];
  for(var b=0;b<9;b++){var bd=document.createElement('div');bd.className='ub';for(var i=0;i<9;i++){var c=document.createElement('div');c.className='uc e';c.dataset.b=b;c.dataset.i=i;bd.appendChild(c);cells.push(c)}W.appendChild(bd);boards.push(bd)}
  function paint(s,anim){for(var k=0;k<81;k++){var c=cells[k],v=s.c[k],had=c.dataset.v;if(String(v)!==had){c.dataset.v=v;c.innerHTML=v===0?X():v===1?O():'';c.classList.toggle('e',v<0);if(v>=0&&anim)c.classList.add('pp')}}

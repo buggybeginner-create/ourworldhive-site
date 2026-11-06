@@ -36,7 +36,7 @@ window.__chessDef=DEF;
 function seatOf(m){return G&&G.state.turn==='b'?0:1}
 function start(sess){
  var flip=sess.mode==='online'&&sess.me===1,els=new Array(64).fill(null),sel=-1,L=[],d3=true,plies=0;
- F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,pairs:true,colors:['#f1e6c8','#8a93a8'],sub:['White','Black'],onLeave:lobby,onResign:function(){G.resign()}});
+ F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,stealth:sess.stealth,pairs:true,colors:['#f1e6c8','#8a93a8'],sub:['White','Black'],onLeave:lobby,onResign:function(){G.resign()}});
  F.stage.innerHTML=DEFS+'<div class="cb3"><div class="cbw d3" id="cbw"><div class="cbd" id="cbd"></div></div></div>';
  var bd=$('#cbd'),cw=$('#cbw'),pl=document.createElement('div');pl.className='cpl';bd.appendChild(pl);
  function pos(sq){var r=sq>>3,f=sq&7;if(flip){r=7-r;f=7-f}return'translate('+f*100+'%,'+r*100+'%)'}

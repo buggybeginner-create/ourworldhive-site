@@ -69,7 +69,7 @@ function lobby(){cancelAnimationFrame(RAF);if(G){G.dispose();G=null}document.que
  BX.lobby(root,{game:'carrom',alt:false,maxP:2,note:'The physics is fully deterministic: a shot is just three whole numbers (striker position, direction, power) and every browser re-simulates it to get the identical board. Power is capped and the striker must start on your baseline, so nobody can teleport coins or hit harder than allowed. Edited shots are rejected. No server referee exists, so protection is peer-to-peer.',botNames:['Computer'],onStart:start})}
 function start(sess){
  var mine=sess.mode==='online'?[sess.me]:sess.seats.map(function(s,i){return s.bot?-1:i}).filter(function(i){return i>=0});animEnd=0;
- var F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,noMoves:true,colors:['#f3e9d2','#6b6b78'],sub:['⚪ White','⚫ Black'],onLeave:lobby,onResign:function(){G.resign()}});
+ var F=BX.frame(root,{seats:sess.seats,me:sess.me,mode:sess.mode,stealth:sess.stealth,noMoves:true,colors:['#f3e9d2','#6b6b78'],sub:['⚪ White','⚫ Black'],onLeave:lobby,onResign:function(){G.resign()}});
  F.stage.innerHTML='<div class="cr-w" id="crw"><canvas id="crc"></canvas><input class="cr-sl" id="crs" type="range" min="'+XMIN+'" max="'+XMAX+'" step="1" value="500" aria-label="Move striker"><div class="cr-hint" id="crh"></div></div>';
  var W=$('#crw'),cv=$('#crc'),x=cv.getContext('2d'),sl=$('#crs'),hint=$('#crh'),SZ=0,dpr=Math.min(2,window.devicePixelRatio||1),bg=null,aim=null,sx=500,disp=null,frameIdx=-1,animFrames=null,ctr=0,msgT=0;
  function viewSeat(){return sess.mode==='online'?sess.me:sess.mode==='local'?G.state.turn:0}

@@ -12,7 +12,7 @@ function name(){var f=pick(FIRST),r=Math.random(),n;
   else if(r<.74)n=f+pick(TAIL).replace(/^_/,'');
   else if(r<.86)n=f.toLowerCase()+'.'+pick(LAST).toLowerCase();
   else n=f;
-  if(!/\d/.test(n))n=n.replace(/[ .]/g,'')+pick(TAIL).replace(/[^0-9]/g,'');
+  if(!/\d/.test(n))n=n.replace(/[ .]/g,'').slice(0,11)+pick(['07','21','99','11','45','23','08','77','786','18','52','69']);
   return n.slice(0,14)}
 /* things a real person says now and then (emoji and short lines, English and a little Hinglish) */
 var SAY=['\uD83D\uDE0E','\uD83D\uDE02','\uD83E\uDD14','\uD83D\uDC4D','\uD83D\uDD25','\uD83D\uDE05','\uD83D\uDE2E','gg','nice one','haha','arey wah','oops','chal bhai','soch raha hu \uD83E\uDD14','good one \uD83D\uDC4F','close tha \uD83D\uDE05','let\u2019s go \uD83D\uDD25','hmm','wah \uD83D\uDE2E','ok ok \uD83D\uDE0F'];

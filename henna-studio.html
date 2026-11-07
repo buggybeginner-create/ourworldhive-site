@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Henna Studio | Ourworldhive</title>
+<meta name="description" content="Henna Studio makes mehendi designs for you: 1,999 designs in Mandala, Arabic, Bridal, Floral, Paisley, Geometric, Finger and Simple styles. Pick palm or back hand, save your favourites and share on WhatsApp.">
+<meta name="theme-color" content="#6b1f33"><script>(function(){try{var m=localStorage.getItem("owh_henna_theme")||"light",d=m==="dark"||(m==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()</script>
+<link rel="manifest" href="henna-manifest.webmanifest"><link rel="apple-touch-icon" href="henna-icon-192.png">
+<link rel="icon" href="henna-icon-192.png" type="image/png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#fbf4ec;--card:#fffaf4;--ink:#2d1a16;--mut:#7a625b;--line:#ead9c9;--p:#6b1f33;--p2:#9c2f4a;--gold:#d99a1f;--r:16px;--fd:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--fb:"DM Sans","Segoe UI",system-ui,sans-serif;color-scheme:light}
+html[data-theme=dark]{--bg:#150d0f;--card:#21151a;--ink:#f6e8de;--mut:#b99d94;--line:#3a2630;--p:#b13a58;--p2:#d4617c;--gold:#f2b84b;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--fb);min-height:100dvh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+header{background:linear-gradient(135deg,#4d1424,var(--p));color:#fff;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));padding-top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+header img{width:34px;height:34px;border-radius:9px}header h1{font:800 19px var(--fd);margin:0;letter-spacing:.04em;text-transform:uppercase}header small{display:block;opacity:.8;font-size:11.5px}
+header .sp{flex:1}header a{color:#fff;text-decoration:none;font-size:12px;font-weight:700;border:1px solid #fff5;border-radius:99px;padding:6px 10px;text-transform:uppercase}
+main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
+.tab{display:none}.tab.on{display:block;animation:fi .2s}@keyframes fi{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.mk{display:grid;gap:14px;grid-template-columns:1fr}@media(min-width:820px){.mk{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.stage{background:radial-gradient(circle at 50% 35%,var(--card),var(--bg));border:1px solid var(--line);border-radius:22px;padding:10px;text-align:center}
+.stage #stage>svg{width:100%;max-width:340px;max-height:62dvh;height:auto;filter:drop-shadow(0 10px 18px rgba(80,30,20,.18))}
+.cap{font:800 13px var(--fd);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:4px 0 0}.cap b{color:var(--p2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font:800 13px var(--fd);letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;font:700 13px var(--fb);letter-spacing:.03em;text-transform:uppercase;cursor:pointer;min-height:42px}
+.btn.p{background:var(--p);border-color:var(--p);color:#fff}.btn.g{background:var(--gold);border-color:var(--gold);color:#2d1a16}.btn.big{flex:1;min-height:50px;font-size:15px}
+.btn.on{background:var(--p);border-color:var(--p);color:#fff}.btn:active{transform:scale(.97)}.btn.sm{min-height:34px;padding:6px 10px;font-size:12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 12px;font:700 12px var(--fb);letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.chip.on{background:var(--p);border-color:var(--p);color:#fff}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;flex:none}.sw.on{outline:3px solid var(--p2);outline-offset:2px}
+.num{display:flex;align-items:center;gap:8px}.num input{width:90px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px;font:700 15px var(--fb);text-align:center}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}@media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:900px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.gc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;cursor:pointer;text-align:center;position:relative}.gc>svg{width:100%;height:auto;display:block}.gc small{display:block;font:700 11px var(--fb);letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin-top:2px}
+.gc .x{position:absolute;top:4px;right:4px;border:0;background:#0006;color:#fff;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer}
+.mut{color:var(--mut);font-size:13px}.empty{text-align:center;color:var(--mut);padding:30px 10px}
+nav{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:8px 2px 7px;font:700 11px var(--fb);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+nav button span{font-size:19px}nav button.on{color:var(--p2)}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:10px 16px 14px}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}.toast.on{opacity:1}
+.dnc{margin-top:8px}.seg{display:flex;gap:6px}.seg .btn{flex:1}
+</style></head><body>
+<header><img src="henna-icon-192.png" alt=""><div><h1>Henna Studio</h1><small>1,999 mehendi designs</small></div><span class="sp"></span><a href="marketplace.html">Hive Apps</a></header>
+<main id="main">
+<section class="tab on" id="t-maker">
+ <div class="mk">
+  <div class="stage"><div id="stage"></div><p class="cap" id="cap"></p></div>
+  <div>
+   <div class="card"><div class="row"><button class="btn big p" data-a="rand">✨ New design</button><button class="btn" data-a="prev" aria-label="Previous design">‹</button><button class="btn" data-a="next" aria-label="Next design">›</button></div>
+    <div class="row" style="margin-top:10px"><div class="num"><span class="mut">GO TO #</span><input id="goto" type="number" min="1" max="1999" inputmode="numeric"><button class="btn sm" data-a="go">GO</button></div><span style="flex:1"></span><button class="btn" id="favb" data-a="fav">♡ Save</button></div>
+    <div class="row" style="margin-top:10px"><button class="btn" data-a="png">⬇ Save image</button><button class="btn" data-a="share">📲 Share</button><button class="btn" data-a="wa">WhatsApp</button></div></div>
+   <div class="card"><h3>Style</h3><div class="chips" id="c-style"></div></div>
+   <div class="card"><h3>Hand</h3><div class="seg" id="c-hand"><button class="btn" data-hand="palm">Palm</button><button class="btn" data-hand="back">Back hand</button></div>
+    <h3 style="margin-top:12px">Henna colour</h3><div class="row" id="c-ink"></div>
+    <h3 style="margin-top:12px">Skin tone</h3><div class="row" id="c-skin"></div></div>
+  </div>
+ </div>
+</section>
+<section class="tab" id="t-gallery"><div class="card"><h3>Browse by style</h3><div class="chips" id="g-style"></div></div><div class="grid" id="g-grid"></div><div class="row" style="justify-content:center;margin:14px 0"><button class="btn p" data-a="more">Load more</button></div></section>
+<section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
+<section class="tab" id="t-more">
+ <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. These are drawn patterns to give you ideas, not photos of a real artist's work.</div></div>
+</section>
+</main>
+<nav id="nav"><button data-tab="maker" class="on"><span>🎨</span>Maker</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
+<footer>&copy; DUKEKRRISH. All rights reserved.</footer>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),TOTAL=1999,NS=8;
+const STYLES=['Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple'];
+const INK={brown:['#5b2a12','Dark brown'],maroon:['#7a1f2b','Maroon'],black:['#1d1511','Black']};
+const SKIN={light:['#f2d3b3','#d8aa80','Light'],medium:['#dcaa7c','#b97f52','Medium'],deep:['#a97344','#7e502b','Deep']};
+let ST={n:1,hand:'palm',ink:'brown',skin:'light',style:-1,gstyle:0,gcount:0,tab:'maker'};
+function load(){try{const s=JSON.parse(localStorage.getItem('owh_henna_s')||'{}');['hand','ink','skin'].forEach(k=>{if(s[k])ST[k]=s[k]})}catch(e){}}
+function keep(){try{localStorage.setItem('owh_henna_s',JSON.stringify({hand:ST.hand,ink:ST.ink,skin:ST.skin}))}catch(e){}}
+function favs(){try{return JSON.parse(localStorage.getItem('owh_henna_f')||'[]')}catch(e){return[]}}
+function setFavs(a){try{localStorage.setItem('owh_henna_f',JSON.stringify(a))}catch(e){}}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2200)}
+/* ---------- random numbers: the same design number always gives the same design ---------- */
+function rng(seed){let a=(seed*2654435761+12345)>>>0;const f=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};f.i=(a,b)=>a+Math.floor(f()*(b-a+1));f.p=arr=>arr[Math.floor(f()*arr.length)];f.f=(a,b)=>a+f()*(b-a);return f}
+const styleOf=n=>n%NS;
+/* ---------- drawing pieces (all lines are drawn in the henna colour) ---------- */
+const f1=x=>Math.round(x*10)/10;
+function leaf(x,y,L,a,w,fill){return`<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" d="M0 0C${f1(w)} ${f1(-L*.3)} ${f1(w)} ${f1(-L*.75)} 0 ${f1(-L)}C${f1(-w)} ${f1(-L*.75)} ${f1(-w)} ${f1(-L*.3)} 0 0Z"${fill?' class="F"':''}/>`+(fill?'':`<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" d="M0 -1V${f1(-L*.8)}"/>`)}
+function circ(x,y,r,fill){return`<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r)}"${fill?' class="F"':''}/>`}
+function petals(cx,cy,r,n,w,rot,fill){let s='';for(let i=0;i<n;i++)s+=leaf(cx,cy,r,rot+i*360/n,w,fill);return s}
+function dotRing(cx,cy,R,n,r,rot){let s='';for(let i=0;i<n;i++){const a=(rot||0)+i*Math.PI*2/n;s+=circ(cx+Math.cos(a)*R,cy+Math.sin(a)*R,r,1)}return s}
+function flower(cx,cy,r,R){const n=R.i(6,9);return petals(cx,cy,r,n,r*.38,R.i(0,30),0)+circ(cx,cy,r*.22,1)+circ(cx,cy,r*.42)}
+function star(cx,cy,Ro,Ri,n,rot){let d='';for(let i=0;i<n*2;i++){const r=i%2?Ri:Ro,a=(rot||0)+i*Math.PI/n;d+=(i?'L':'M')+f1(cx+Math.sin(a)*r)+' '+f1(cy-Math.cos(a)*r)}return`<path d="${d}Z"/>`}
+function paisley(x,y,s,a,R){return`<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)}) scale(${f1(s/30)})"><path d="M0 0C28 -6 34 -42 6 -48C-16 -52 -24 -26 -8 -14C-2 -10 6 -14 4 -22" /><path d="M-2 -6C14 -10 20 -34 6 -40" opacity=".8"/>${circ(0,-30,2.4,1)}<path d="M-6 0L-16 10M0 2L-6 14M6 0L4 14"/></g>`}
+function vine(pts,R,leafL){let d='M'+pts[0][0]+' '+pts[0][1],s='';for(let i=1;i<pts.length;i++){const p=pts[i-1],q=pts[i],mx=(p[0]+q[0])/2+(i%2?14:-14),my=(p[1]+q[1])/2;d+=`Q${f1(mx)} ${f1(my)} ${q[0]} ${q[1]}`;const ang=Math.atan2(q[0]-p[0],-(q[1]-p[1]))*180/Math.PI;s+=leaf(mx,my,leafL,ang+(i%2?60:-60),leafL*.34,i%3===0)+leaf(mx,my,leafL*.8,ang+(i%2?-55:55),leafL*.3,0)}return`<path d="${d}"/>`+s}
+function lattice(x0,y0,x1,y1,st){let d='',s='';for(let k=-(y1-y0);k<(x1-x0)+(y1-y0);k+=st){d+=`M${x0+k} ${y0}L${x0+k+(y1-y0)} ${y1}M${x0+k} ${y1}L${x0+k+(y1-y0)} ${y0}`}for(let x=x0;x<=x1;x+=st)for(let y=y0;y<=y1;y+=st)if(((x-x0)/st+(y-y0)/st)%2===0)s+=circ(x,y,1.7,1);return`<svg x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" overflow="hidden"><path d="${d}" stroke-width=".9"/>${s}</svg>`}
+/* hand geometry (viewBox 288 x 470): 4 fingers, thumb, palm, wrist */
+const FING=[{x:64,t:100},{x:104,t:66},{x:144,t:90},{x:184,t:142}];
+const SHAPES=()=>`<rect x="64" y="226" width="160" height="172" rx="56"/><rect x="84" y="380" width="120" height="86"/>`+FING.map(f=>`<rect x="${f.x}" y="${f.t}" width="38" height="170" rx="19"/>`).join('')+`<rect x="16" y="262" width="42" height="124" rx="21" transform="rotate(-34 52 330)"/>`;
+function fingers(kind,R){let s='';FING.forEach((f,i)=>{const cx=f.x+19,t=f.t;
+ if(kind==='line'){s+=`<path d="M${cx} ${t+14}V232"/>`;for(let y=t+22;y<226;y+=17)s+=leaf(cx,y,12,y%34<17?-52:52,4,0)+circ(cx,y+8,1.5,1)}
+ else if(kind==='cap'){s+=lattice(f.x-2,t,f.x+40,t+58,9)+`<path d="M${f.x} ${t+60}H${f.x+38}"/>`+circ(cx,t+14,3,0)+`<path d="M${f.x} ${t+70}H${f.x+38}" stroke-dasharray="2 4"/>`}
+ else if(kind==='ring'){s+=circ(cx,t+17,6)+circ(cx,t+17,2.2,1)+`<path d="M${f.x} ${t+38}H${f.x+38}M${f.x} ${t+44}H${f.x+38}" />`;for(let k=0;k<5;k++)s+=circ(f.x+6+k*6.5,t+52,1.6,1);s+=petals(cx,t+90,16,3,5,-30,0)}
+ else if(kind==='zig'){let d='M'+f.x+' '+(t+20);for(let y=t+20,k=0;y<226;y+=11,k++)d+=`L${f.x+(k%2?38:0)} ${y+11}`;s+=`<path d="${d}" stroke-width=".9"/>`+circ(cx,t+10,2.6,1)}
+ else if(kind==='tip'){s+=`<path d="M${f.x+2} ${t+30}Q${cx} ${t+46} ${f.x+36} ${t+30}"/>`+circ(cx,t+14,2.8,1)+circ(cx,t+26,1.8,1)}
+ else if(kind==='pais'){s+=leaf(cx,t+70,22,0,6,1)+petals(cx,t+70,14,2,4,-60,0)+circ(cx,t+30,2,1)}});return s}
+function thumb(R,m){const x=52,y=330,a=-34;let s=`<g transform="rotate(${a} ${x} ${y})">`;if(m==='line'){s+=`<path d="M${x} 270V386"/>`;for(let yy=276;yy<380;yy+=16)s+=leaf(x,yy,12,yy%32<16?-55:55,4,0)}else if(m==='flower'){s+=flower(x,300,13,R)+`<path d="M${x-14} 332H${x+14}M${x-14} 338H${x+14}"/>`+dotRing(x,360,8,6,1.5)}else s+=lattice(x-22,262,x+22,388,9);return s+'</g>'}
+function wrist(R,k){let s=`<path d="M86 418H202M86 426H202"/>`;if(k)for(let i=0;i<13;i++)s+=circ(92+i*8.6,434,1.8,1);s+=leaf(144,414,16,0,5,1)+leaf(144,442,16,180,5,0);return s}
+/* ---------- the eight styles ---------- */
+const CX=144,CY=312,FX=[83,123,163,203],FT=[100,66,90,142];
+const fk=(R,ks)=>R.p(ks||['line','ring','tip','zig','cap','pais']),tk=R=>R.p(['line','flower','cap']);
+function motif(x,y,r,R){const t=R.i(0,3);return t===0?flower(x,y,r,R):t===1?star(x,y,r,r*.55,R.i(6,10),0)+flower(x,y,r*.4,R)+dotRing(x,y,r*1.15,R.i(10,16),1.3,0):t===2?petals(x,y,r,R.i(8,12),r*.2,0,0)+petals(x,y,r*.6,R.i(8,12),r*.16,15,1)+circ(x,y,r*.2,1):circ(x,y,r)+circ(x,y,r*.7)+petals(x,y,r*.55,R.i(6,8),r*.2,0,0)+circ(x,y,r*.14,1)}
+function pat0(R){const rr=R.i(54,70);let s=`<circle cx="${CX}" cy="${CY}" r="${rr}"/>`+dotRing(CX,CY,rr+4,R.i(18,30),1.4,0);const T=['pet','petf','star','dots','arc','circ'];const L=R.i(3,5);for(let k=0;k<L;k++){const r=rr*(.92-k*(.8/L)),t=R.p(T),n=R.i(8,16);
+ if(t==='pet')s+=petals(CX,CY,r,n,r*.17,R.i(0,20),0);else if(t==='petf')s+=petals(CX,CY,r,n,r*.11,R.i(0,20),1);else if(t==='star')s+=star(CX,CY,r,r*.62,n,0);else if(t==='dots')s+=dotRing(CX,CY,r*.9,n*2,1.4,0)+`<circle cx="${CX}" cy="${CY}" r="${r*.78}" stroke-width=".8"/>`;else if(t==='arc'){for(let i=0;i<n;i++){const a=i*360/n;s+=`<path transform="rotate(${a} ${CX} ${CY})" d="M${CX-r*.2} ${CY-r}Q${CX} ${f1(CY-r*1.2)} ${CX+r*.2} ${CY-r}"/>`}}else s+=`<circle cx="${CX}" cy="${CY}" r="${f1(r)}"/>`}
+ s+=motif(CX,CY,rr*.22,R);return s+fingers(fk(R),R)+thumb(R,tk(R))+wrist(R,R.i(0,1))}
+function pat1(R){const e=R.i(0,3),ex=FX[e]+R.i(-6,6),ey=FT[e]+40,j=()=>R.i(-14,14),pts=[[R.i(120,170),440],[118+j(),392],[170+j(),346],[122+j(),300],[160+j(),262],[ex+j()/2,(262+ey)/2],[ex,ey]];let s=vine(pts,R,R.i(18,26));const nf=R.i(2,4);for(let i=0;i<nf;i++){const q=pts[1+i];s+=flower(q[0]+R.p([-22,22]),q[1],R.i(9,14),R)}return s+fingers(fk(R,['line','tip','ring']),R)+thumb(R,tk(R))+wrist(R,R.i(0,1))}
+function pat2(R){const st=R.i(11,17);return lattice(64,226,224,398,st)+`<circle cx="${CX}" cy="${CY}" r="38" fill="var(--hn-skin)"/><circle cx="${CX}" cy="${CY}" r="38"/>`+motif(CX,CY,R.i(24,32),R)+dotRing(CX,CY,44,R.i(14,20),1.7,0)+(R.i(0,1)?`<path d="M70 392Q144 340 218 392"/>`:`<path d="M70 242Q144 212 218 242"/>`)+fingers('cap',R)+thumb(R,R.i(0,1)?'cap':'flower')+wrist(R,1)}
+function pat3(R){let s='';const n=R.i(4,6),sx=R.i(90,120),ex=R.i(170,200);const a=[];for(let i=0;i<n;i++)a.push([sx+(ex-sx)*i/(n-1)+R.i(-6,6),396-i*(150/(n-1))+R.i(-6,6)]);a.forEach((p,i)=>{s+=flower(p[0],p[1],22-i*(10/n)*1.2,R)+(i<a.length-1?leaf((p[0]+a[i+1][0])/2+10,(p[1]+a[i+1][1])/2,16,R.i(-50,50),5,1)+leaf((p[0]+a[i+1][0])/2-10,(p[1]+a[i+1][1])/2,14,R.i(-50,50),5,0):'')});if(R.i(0,1))s+=dotRing(CX,CY,62,R.i(24,34),1.1,0);return s+leaf(200,300,18,35,6,0)+leaf(94,326,18,-35,6,0)+fingers(fk(R,['ring','tip','line']),R)+thumb(R,tk(R))+wrist(R,R.i(0,1))}
+function pat4(R){let s='',k=R.i(3,4);for(let i=0;i<k;i++){const x=CX-52+i*104/(k-1),a=(x-CX)*.45;s+=paisley(x,CY+66,R.i(34,40),a,R)}return s+motif(CX,CY-26,R.i(18,24),R)+dotRing(CX,CY-26,32,18,1.4,0)+`<path d="M74 262Q144 238 214 262" stroke-width=".9"/>`+fingers(fk(R,['pais','ring','line']),R)+thumb(R,tk(R))+wrist(R,1)}
+function pat5(R){let s='';const rows=R.i(2,3),pt=R.p([5,6,8,10]);for(let r=0;r<rows;r++)for(let c=0;c<3;c++){const x=96+c*48,y=(rows===3?262:286)+r*48,q=R.i(0,2)?pt:R.p([6,8]);s+=star(x,y,22,13,q,0)+circ(x,y,R.i(3,5),1)+`<rect x="${x-24}" y="${y-24}" width="48" height="48" fill="none" stroke-width=".8"/>`+(R.i(0,2)?dotRing(x,y,17,q*2,1,0):'')}return s+fingers(R.i(0,1)?'zig':'cap',R)+thumb(R,tk(R))+wrist(R,R.i(0,1))}
+function pat6(R){return motif(CX,CY+10,R.i(14,26),R)+dotRing(CX,CY+10,R.i(32,40),R.i(10,18),1.6,0)+`<path d="M90 400Q144 ${R.i(360,376)} 198 400"/>`+fingers(fk(R,['tip','ring','line']),R)+`<g transform="rotate(-34 52 330)">${circ(52,276,3,1)}${circ(52,288,2,1)}</g>`+wrist(R,R.i(0,1))}
+function pat7(R){const dir=R.i(0,1),pts=dir?[[70,366],[110,330],[150,300],[190,268],[210,234]]:[[200,380],[170,340],[130,310],[100,270],[90,236]];return vine(pts,R,R.i(20,28))+flower(dir?122:176,396,R.i(10,15),R)+(R.i(0,1)?dotRing(CX,CY+20,50,R.i(16,26),1.2,60):'')+fingers(fk(R,['tip','line']),R)+`<g transform="rotate(-34 52 330)">${leaf(52,376,22,0,7,1)}</g>`+wrist(R,R.i(0,1))}
+const PAT=[pat0,pat1,pat2,pat3,pat4,pat5,pat6,pat7];
+let UID=0;
+function hand(n,o,mini){o=o||ST;const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],back=o.hand==='back';
+ let body=PAT[styleOf(n)](R);
+ const nails=back?FING.map(f=>`<rect x="${f.x+9}" y="${f.t+3}" width="20" height="26" rx="9" fill="#fff" opacity=".28"/>`).join('')+`<rect x="27" y="266" width="20" height="26" rx="9" fill="#fff" opacity=".28" transform="rotate(-34 52 330)"/>`:'';
+ const hx=back?' transform="translate(250 0) scale(-1 1)"':'';
+ return`<svg viewBox="-40 0 330 470" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi design ${n}"><defs><clipPath id="${id}">${SHAPES()}</clipPath></defs><g${hx}><g fill="${sk[1]}" stroke="${sk[1]}" stroke-width="7" stroke-linejoin="round">${SHAPES()}</g><g fill="${sk[0]}">${SHAPES()}</g>${back?nails:''}<g clip-path="url(#${id})"><g fill="none" stroke="${ink}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${body.replace(/class="F"/g,'fill="'+ink+'"')}</g></g></g></svg>`}
+/* ---------- screens ---------- */
+function curStyle(){return ST.style<0?'':STYLES[ST.style]}
+function drawMaker(){$('stage').innerHTML=hand(ST.n);$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${ST.hand==='palm'?'Palm':'Back hand'}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());
+ [...document.querySelectorAll('[data-hand]')].forEach(b=>b.classList.toggle('on',b.dataset.hand===ST.hand));
+ [...document.querySelectorAll('#c-ink .sw')].forEach(b=>b.classList.toggle('on',b.dataset.ink===ST.ink));[...document.querySelectorAll('#c-skin .sw')].forEach(b=>b.classList.toggle('on',b.dataset.skin===ST.skin));
+ [...document.querySelectorAll('#c-style .chip')].forEach(b=>b.classList.toggle('on',+b.dataset.s===ST.style));
+ try{history.replaceState(null,'','?d='+ST.n+'&h='+ST.hand)}catch(e){}}
+function build(){$('c-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw" data-ink="${k}" title="${INK[k][1]}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`).join('');
+ $('c-skin').innerHTML=Object.keys(SKIN).map(k=>`<button class="sw" data-skin="${k}" title="${SKIN[k][2]}" aria-label="${SKIN[k][2]}" style="background:${SKIN[k][0]}"></button>`).join('');
+ const chips=(a,gal)=>[['All',-1]].concat(STYLES.map((s,i)=>[s,i])).map(x=>`<button class="chip" data-s="${x[1]}"${gal?' data-g="1"':''}>${x[0]}</button>`).join('');
+ $('c-style').innerHTML=chips();$('g-style').innerHTML=chips(1)}
+const isFav=()=>favs().some(f=>f.n===ST.n);
+function pick(n){ST.n=((n-1+TOTAL)%TOTAL)+1;drawMaker()}
+function randIn(){let n;const R=Math.random;do{n=1+Math.floor(R()*TOTAL)}while(ST.style>=0&&styleOf(n)!==ST.style||n===ST.n);return n}
+function stepIn(d){let n=ST.n;for(let k=0;k<NS+1;k++){n=((n-1+d+TOTAL)%TOTAL)+1;if(ST.style<0||styleOf(n)===ST.style)break}return n}
+function drawGallery(reset){const g=$('g-grid');if(reset){g.innerHTML='';ST.gcount=0}
+ const list=[];for(let n=1;n<=TOTAL&&list.length<ST.gcount+12;n++)if(ST.gstyle<0||styleOf(n)===ST.gstyle)list.push(n);
+ g.insertAdjacentHTML('beforeend',list.slice(ST.gcount).map(n=>`<div class="gc" data-open="${n}">${hand(n)}<small>#${n} &bull; ${STYLES[styleOf(n)]}</small></div>`).join(''));ST.gcount=list.length;
+ [...document.querySelectorAll('#g-style .chip')].forEach(b=>b.classList.toggle('on',+b.dataset.s===ST.gstyle))}
+function drawSaved(){const f=favs();$('s-empty').style.display=f.length?'none':'block';$('s-grid').innerHTML=f.map(x=>`<div class="gc" data-open="${x.n}">${hand(x.n)}<small>#${x.n} &bull; ${STYLES[styleOf(x.n)]}</small><button class="x" data-del="${x.n}" aria-label="Remove">&times;</button></div>`).join('')}
+function tab(t){ST.tab=t;['maker','gallery','saved','more'].forEach(k=>{$('t-'+k).classList.toggle('on',k===t)});[...document.querySelectorAll('#nav button')].forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+ if(t==='gallery'&&!$('g-grid').children.length)drawGallery(1);if(t==='saved')drawSaved();window.scrollTo(0,0)}
+const TABS=['maker','gallery','saved','more'];
+function svgString(){return $('stage').innerHTML.replace(/var\(--hn-skin\)/g,SKIN[ST.skin][0])}
+function toPng(){return new Promise((ok,no)=>{const s=svgString().replace('<svg ','<svg width="864" height="1410" ');const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=864;c.height=1410;const x=c.getContext('2d');x.fillStyle=getComputedStyle(document.body).backgroundColor||'#fff';x.fillRect(0,0,864,1410);x.drawImage(img,0,0,864,1410);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio #'+ST.n+'  ourworldhive.com',432,1396);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
+const link=()=>location.origin+location.pathname+'?d='+ST.n+'&h='+ST.hand;
+const A={
+ rand(){pick(randIn())},prev(){pick(stepIn(-1))},next(){pick(stepIn(1))},
+ go(){const v=parseInt($('goto').value,10);if(!(v>=1&&v<=TOTAL)){toast('Enter a number from 1 to '+TOTAL);return}pick(v)},
+ fav(){const f=favs(),i=f.findIndex(x=>x.n===ST.n);if(i>=0){f.splice(i,1);toast('Removed from saved')}else{f.unshift({n:ST.n});toast('Saved')}setFavs(f);drawMaker()},
+ png(){toPng().then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='henna-'+ST.n+'.png';document.body.appendChild(a);a.click();a.remove();toast('Image saved')}).catch(()=>toast('Could not make the image'))},
+ async share(){try{const b=await toPng(),file=new File([b],'henna-'+ST.n+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:'Henna design #'+ST.n+' '+link()});return}}catch(e){if(e&&e.name==='AbortError')return}if(navigator.share){try{await navigator.share({title:'Henna design #'+ST.n,url:link()})}catch(e){}}else A.wa()},
+ wa(){location.href='https://wa.me/?text='+encodeURIComponent('Henna design #'+ST.n+' ('+STYLES[styleOf(ST.n)]+')\n'+link())},
+ more(){drawGallery(0)},
+ upd(){if(window.OWHUPD)OWHUPD.run();else location.reload()},
+ don(){const c=$('dnc');if(!c.hidden){c.hidden=true;return}c.innerHTML=window.OWHDON?OWHDON.card():'';c.hidden=false;c.scrollIntoView({block:'nearest'})}};
+function setTheme(m){try{localStorage.setItem('owh_henna_theme',m)}catch(e){}applyTheme()}
+function themeMode(){try{return localStorage.getItem('owh_henna_theme')||'light'}catch(e){return'light'}}
+function applyTheme(){const m=themeMode(),d=m==='dark'||(m==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');const tc=document.querySelector('meta[name=theme-color]');if(tc)tc.setAttribute('content',d?'#3d1220':'#6b1f33');[...document.querySelectorAll('#c-theme .btn')].forEach(b=>b.classList.toggle('on',b.dataset.th===m))}
+document.addEventListener('click',e=>{const t=e.target.closest('button,.gc,.chip');if(!t)return;
+ if(t.dataset.tab)return tab(t.dataset.tab);if(t.dataset.a&&A[t.dataset.a])return A[t.dataset.a]();
+ if(t.dataset.del){const f=favs().filter(x=>x.n!==+t.dataset.del);setFavs(f);drawSaved();return}
+ if(t.dataset.open){ST.n=+t.dataset.open;tab('maker');drawMaker();return}
+ if(t.dataset.hand){ST.hand=t.dataset.hand;keep();drawMaker();return}
+ if(t.dataset.ink){ST.ink=t.dataset.ink;keep();drawMaker();return}
+ if(t.dataset.skin){ST.skin=t.dataset.skin;keep();drawMaker();return}
+ if(t.dataset.th){setTheme(t.dataset.th);return}
+ if(t.dataset.s!==undefined){const v=+t.dataset.s;if(t.dataset.g){ST.gstyle=v;drawGallery(1)}else{ST.style=v;if(v>=0&&styleOf(ST.n)!==v)pick(randIn());else drawMaker()}}});
+$('goto').addEventListener('keydown',e=>{if(e.key==='Enter')A.go()});
+/* swipe between tabs */
+(function(){let x0=0,y0=0,ok=true;document.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!e.target.closest('.chips,input')},{passive:true});
+ document.addEventListener('touchend',e=>{if(!ok)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;const i=TABS.indexOf(ST.tab)+(dx<0?1:-1);if(i>=0&&i<TABS.length)tab(TABS[i])},{passive:true})})();
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')A.next();if(e.key==='ArrowLeft')A.prev()});
+load();build();applyTheme();try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeMode()==='auto')applyTheme()})}catch(e){}
+(function(){const q=new URLSearchParams(location.search),d=parseInt(q.get('d'),10);if(d>=1&&d<=TOTAL)ST.n=d;else ST.n=1+Math.floor(Math.random()*TOTAL);const h=q.get('h');if(h==='palm'||h==='back')ST.hand=h})();
+drawMaker();
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('henna-sw.js',{scope:'./henna-studio.html'}).catch(()=>{});
+</script></body></html>

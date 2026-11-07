@@ -186,12 +186,23 @@ function hand(n,o,mini){o=o||ST;return armSvg(n,o,mini);const R=rng(n),id='c'+(+
 /* ---------- Hand and arm: realistic skin, 8 design families ---------- */
 let PAL={};
 const PALS=[['#d12f5b','#f08a24','#2f9e57','#7a3fb0'],['#c2185b','#e6a100','#00897b','#3949ab'],['#e53935','#fb8c00','#43a047','#8e24aa'],['#1e88e5','#ec407a','#26a69a','#ff7043'],['#8e24aa','#f4511e','#558b2f','#00acc1']];
-const AF=[{x:84,t:272,r:-13,w:26},{x:121,t:204,r:-4.5,w:29},{x:157,t:184,r:3,w:29},{x:193,t:218,r:11,w:27}];
+const AF=[{x:84,t:276,r:-12,w:31},{x:122,t:206,r:-4,w:35},{x:160,t:186,r:3.5,w:35},{x:197,t:222,r:11,w:32}];
 const fpath=f=>{const b=452,hw=f.w*.34;return`<path transform="rotate(${f.r} ${f.x} ${b})" d="M${f.x-f.w/2} ${b}L${f.x-hw} ${f.t+hw}A${hw} ${hw} 0 0 1 ${f.x+hw} ${f.t+hw}L${f.x+f.w/2} ${b}Z"/>`};
 const THUMB='<path transform="rotate(36 212 520)" d="M192 540L196 420A18 18 0 0 1 232 420L236 540Z"/>';
-const PALMP='<path d="M62 440C54 500 80 545 100 572L204 572C228 545 238 490 216 440Z"/>',ARMP='<path d="M100 556C110 590 114 620 114 650C110 720 86 800 72 852L66 892H238L232 852C218 800 194 720 190 650C190 620 194 590 204 556Z"/>';
-const ARMSH=()=>PALMP+AF.map(fpath).join('')+THUMB+ARMP;
-const edge=y=>{if(y<566)return[108,196];const t=Math.min(1,Math.max(0,(y-650)/200)),l=y<650?114:114-44*t,r=y<650?190:190+44*t;return[l+8,r-8]};
+const PALMP='<path d="M58 440H254V580H58Z"/>',ARMP='<path d="M70 560H236V892H68Z"/>';
+/* one flowing outline like the stencil: fingers with V gaps, thumb, wide forearm */
+function handOutline(){const D=Math.PI/180,P=[],fm=AF.map(f=>{const r=f.r*D,L=452-f.t,hb=(f.w+3)/2,ht=f.w*.33,n=[Math.cos(r),Math.sin(r)],d=[Math.sin(r),-Math.cos(r)],B=[f.x,452],T=[B[0]+d[0]*L,B[1]+d[1]*L];
+  return{n,hb,ht,B,T,l0:[B[0]-n[0]*hb,B[1]-n[1]*hb],l1:[T[0]-n[0]*ht,T[1]-n[1]*ht],r0:[B[0]+n[0]*hb,B[1]+n[1]*hb],r1:[T[0]+n[0]*ht,T[1]+n[1]*ht]}});
+ const X=(a,b,c,d)=>{const x1=a[0],y1=a[1],x2=b[0],y2=b[1],x3=c[0],y3=c[1],x4=d[0],y4=d[1],den=(x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);if(Math.abs(den)<1e-6)return[(a[0]+c[0])/2,(a[1]+c[1])/2];const t=((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/den;return[x1+t*(x2-x1),y1+t*(y2-y1)]};
+ const q=v=>f1(v[0])+' '+f1(v[1]),ro=(x,y)=>{const a=36*D,dx=x-212,dy=y-520;return[212+dx*Math.cos(a)-dy*Math.sin(a),520+dx*Math.sin(a)+dy*Math.cos(a)]};
+ const tl0=ro(192,540),tl1=ro(196,420),tr0=ro(236,540),tr1=ro(232,420);
+ let s='M68 892L70 652C70 610 60 578 58 536C56 500 62 474 '+q(fm[0].l0)+'L'+q(fm[0].l1);
+ fm.forEach((f,i)=>{s+='A'+f1(f.ht)+' '+f1(f.ht)+' 0 0 1 '+q(f.r1);if(i<3){const ap=X(f.r0,f.r1,fm[i+1].l0,fm[i+1].l1);s+='L'+q(ap)+'L'+q(fm[i+1].l1)}});
+ const V=X(fm[3].r0,fm[3].r1,tl0,tl1);
+ s+='L'+q(V)+'L'+q(tl1)+'A18 18 0 0 1 '+q(tr1)+'L'+q(tr0)+'C228 574 238 604 238 640L236 892Z';
+ return'<path d="'+s+'"/>'}
+let _HO=null;const ARMSH=()=>_HO||(_HO=handOutline());
+const edge=y=>{if(y<566)return[108,196];const t=Math.min(1,Math.max(0,(y-566)/90)),l=100-30*t,r=206+28*t;return[l+8,r-8]};
 function lf(x,y,L,a){return`<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" stroke="none" d="M0 0C${f1(L*.45)} ${f1(-L*.2)} ${f1(L*.45)} ${f1(-L*.75)} 0 ${f1(-L)}C${f1(-L*.45)} ${f1(-L*.75)} ${f1(-L*.45)} ${f1(-L*.2)} 0 0Z"/>`}
 function hp(cx,cy,L,w,a,col,kind){const sk=PAL.sk;const d=kind===0?`M0 0C${f1(-w*.6)} ${f1(-L*.15)} ${f1(-w*1.15)} ${f1(-L*.7)} ${f1(-w*.55)} ${f1(-L*.95)}C${f1(-w*.25)} ${f1(-L*1.08)} 0 ${f1(-L*.96)} 0 ${f1(-L*.82)}C0 ${f1(-L*.96)} ${f1(w*.25)} ${f1(-L*1.08)} ${f1(w*.55)} ${f1(-L*.95)}C${f1(w*1.15)} ${f1(-L*.7)} ${f1(w*.6)} ${f1(-L*.15)} 0 0Z`:kind===1?`M0 0C${f1(-w)} ${f1(-L*.2)} ${f1(-w)} ${f1(-L*.85)} 0 ${f1(-L)}C${f1(w)} ${f1(-L*.85)} ${f1(w)} ${f1(-L*.2)} 0 0Z`:`M0 0C${f1(-w)} ${f1(-L*.3)} ${f1(-w*.6)} ${f1(-L*.8)} 0 ${f1(-L)}C${f1(w*.6)} ${f1(-L*.8)} ${f1(w)} ${f1(-L*.3)} 0 0Z`;return`<path transform="translate(${f1(cx)} ${f1(cy)}) rotate(${f1(a)})" fill="${col}" stroke="${sk}" stroke-width="1.3" d="${d}"/>`}
 function bigFlower(cx,cy,r,kind,rot,col){const sk=PAL.sk;let s='';const n=kind===0?5:kind===1?6:kind===2?10:8,pk=kind===0||kind===3?0:kind===1?1:2,w=kind===0?r*.55:kind===1?r*.36:kind===2?r*.2:r*.4,L=kind===3?r*.92:r;
@@ -263,8 +274,8 @@ function armSvg(n,o,mini){const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[
 /* blank hand: soft edge shading on every finger, palm and arm, so shapes look wrapped around the hand */
 function blankX(id,full,dk){const rg=`<linearGradient id="e${id}" x1="0" x2="1"><stop offset="0" stop-color="#2a1006" stop-opacity=".42"/><stop offset=".3" stop-color="#2a1006" stop-opacity=".03"/><stop offset=".5" stop-color="#fff" stop-opacity=".1"/><stop offset=".7" stop-color="#2a1006" stop-opacity=".03"/><stop offset="1" stop-color="#2a1006" stop-opacity=".42"/></linearGradient>`;
  const cp=(k,s)=>`<clipPath id="o${id}${k}">${s}</clipPath>`,rc=(k,x,y,w,hh,t)=>`<g clip-path="url(#o${id}${k})"><rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="url(#e${id})"${t||''}/></g>`;
- const defs=rg+AF.map((f,i)=>cp('f'+i,fpath(f))).join('')+cp('p',PALMP)+cp('t',THUMB)+cp('a',ARMP);
- const o='<g pointer-events="none">'+AF.map((f,i)=>rc('f'+i,f1(f.x-f.w/2-2),f.t,f.w+4,452-f.t-8,` transform="rotate(${f.r} ${f.x} 452)"`)).join('')+rc('t',192,400,44,145,' transform="rotate(36 212 520)"')+rc('p',60,440,158,134)+rc('a',60,572,184,320)+'</g>';
+ const defs=rg+AF.map((f,i)=>cp('f'+i,fpath(f))).join('')+cp('a','<rect x="0" y="440" width="330" height="460"/>');
+ const o='<g pointer-events="none">'+AF.map((f,i)=>rc('f'+i,f1(f.x-f.w/2-2),f.t,f.w+4,452-f.t-8,` transform="rotate(${f.r} ${f.x} 452)"`)).join('')+rc('a',66,452,174,440)+'</g>';
  return{defs,over:o,cuff:full?`<g pointer-events="none"><path d="M65 858H239L243 892H61Z" fill="${lite(dk,-.1)}"/><path d="M64 866H240M63 874H241" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" fill="none"/></g>`:''}}
 /* ---------- screens ---------- */
 function curStyle(){return ST.style<0?'':STYLES[ST.style]}
@@ -430,7 +441,7 @@ function dcZone(x,y){
  const rot=(px,py,cx,cy,a)=>{const c=Math.cos(a*rad),s=Math.sin(a*rad),dx=px-cx,dy=py-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]};
  for(let i=0;i<AF.length;i++){const f=AF[i],[lx,ly]=rot(x,y,f.x,452,-f.r);if(ly>f.t+6&&ly<436){const half=f.w/2*(.78+.22*cl((ly-f.t)/(452-f.t),0,1))+2,off=(lx-f.x)/half;if(Math.abs(off)<=1)return{z:'finger',rot:f.r,sx:Math.max(.4,Math.cos(cl(off,-1,1)*58*rad)),cap:f.w*.95/68}}}
  {const [lx,ly]=rot(x,y,212,520,-36);if(ly>405&&ly<545&&Math.abs(lx-214)<=22){const off=(lx-214)/19;return{z:'thumb',rot:36,sx:Math.max(.4,Math.cos(cl(off,-1,1)*58*rad)),cap:.55}}}
- if(y>=430&&y<572&&x>56&&x<226){const off=(x-139)/82;return{z:'palm',rot:0,sx:Math.max(.45,Math.cos(cl(off,-1,1)*52*rad)),cap:1.9}}
+ if(y>=430&&y<572&&x>56&&x<254){const off=(x-155)/98;return{z:'palm',rot:0,sx:Math.max(.45,Math.cos(cl(off,-1,1)*52*rad)),cap:1.9}}
  if(y>=572&&y<=892){const e=edge(y),c=(e[0]+e[1])/2,half=(e[1]-e[0])/2+10;if(Math.abs(x-c)<=half){const off=(x-c)/half;return{z:'arm',rot:0,sx:Math.max(.4,Math.cos(cl(off,-1,1)*62*rad)),cap:2.4}}}
  return{z:'out',rot:0,sx:1,cap:9}}
 function dcXf(it){const z=DC.auto?dcZone(it.x,it.y):{rot:0,sx:1,cap:9,z:'out'},S=Math.min(it.s,z.cap),fx=it.fx?-1:1;return{z,S,t:`translate(${f1(it.x)} ${f1(it.y)}) rotate(${f1(z.rot+it.r)}) scale(${f1(S*z.sx*fx)} ${f1(S)})`}}

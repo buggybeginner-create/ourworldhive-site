@@ -17,7 +17,7 @@ header a,header .hb{color:#fff;background:#fff2;border:0;border-radius:10px;padd
 #view{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;width:100%;max-width:860px;margin:0 auto;padding:10px max(12px,env(safe-area-inset-right)) 14px max(12px,env(safe-area-inset-left))}
 .tab{display:none}.tab.on{display:block;animation:fi .18s}@keyframes fi{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 nav{flex:none;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;background:none;color:var(--mut);padding:7px 1px 6px;font:700 10.5px system-ui;letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:1px}nav button span{font-size:19px}nav button.on{color:var(--p)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:7px 1px 6px;font:700 10.5px system-ui;letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:1px}nav button span{font-size:19px}nav button.on{color:var(--p);font-weight:800;background:color-mix(in srgb,var(--p) 14%,transparent);box-shadow:inset 0 3px 0 var(--p);border-radius:0 0 12px 12px}.rf{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);padding:9px 2px;font:14px system-ui}.rf b{font:800 12px var(--mono);color:var(--p)}.rf span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rf i{font:700 14px var(--mono);font-style:normal}.rh{font:800 12px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:14px 0 2px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
 .card h3{margin:0 0 8px;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1;min-width:0}
@@ -70,11 +70,12 @@ footer{flex:none;text-align:center;color:var(--mut);font-size:11.5px;padding:3px
   <div class="row" style="margin-top:8px"><div class="seg grow" id="vseg"><button class="btn" data-v="r">Results</button><button class="btn" data-v="f">Formulas</button></div><button class="btn" data-a="share">Share</button><button class="btn" data-a="newsheet">New</button></div>
   <div style="margin-top:8px" id="curlabs"></div></div>
  <div id="rows" class="vr"></div>
- <div class="row" style="margin-top:8px"><button class="btn" data-a="addrow">+ Add row</button><button class="btn" data-a="fx">ƒx Functions</button><button class="btn" data-a="labadd">+ Label</button></div>
+ <div class="row" style="margin-top:8px"><button class="btn" data-a="addrow">+ Add row</button><button class="btn" data-a="ref">↗ Ref</button><button class="btn" data-a="fx">ƒx Functions</button><button class="btn" data-a="labadd">+ Label</button></div>
  <div class="bar"><div class="keys" id="keys"></div><div class="tot"><span>TOTAL</span><b id="total">0</b></div></div>
 </section>
 <section class="tab" id="t-calc">
  <div class="disp"><div class="ex" id="cEx"></div><div class="rt" id="cRt">0</div></div>
+ <div class="row" style="margin:8px 0"><input type="text" id="cIn" class="grow" placeholder="Type 2+3*4 or =SUM(A1:A3)" autocapitalize="off" autocomplete="off" spellcheck="false"><button class="btn sm" data-a="ref">↗ Ref</button><button class="btn sm" data-a="fx">ƒx</button></div>
  <div class="pad" id="pad"></div>
  <div class="card" style="margin-top:10px"><h3>Recent</h3><div id="cHist" class="mut">Nothing yet.</div></div>
 </section>
@@ -92,7 +93,7 @@ footer{flex:none;text-align:center;color:var(--mut);font-size:11.5px;padding:3px
  <div class="card"><h3>Calculator settings</h3><div class="mut">Angle unit for sin, cos, tan</div><div class="seg" id="c-deg" style="margin:6px 0 10px"><button class="btn" data-deg="1">Degrees</button><button class="btn" data-deg="0">Radians</button></div>
   <div class="mut">Decimal places</div><div class="seg" id="c-dec" style="margin:6px 0 10px"><button class="btn" data-dec="auto">Auto</button><button class="btn" data-dec="0">0</button><button class="btn" data-dec="2">2</button><button class="btn" data-dec="4">4</button></div>
   <div class="mut">Digit grouping</div><div class="seg" id="c-ind" style="margin-top:6px"><button class="btn" data-ind="1">1,00,000</button><button class="btn" data-ind="0">100,000</button></div></div>
- <div class="card"><h3>Help</h3><div class="mut" style="line-height:1.65">Type a calculation on each row: <b>1200 + 300</b>. Type a name before it: <b>Rent 5000 + 300</b>.<br>Excel style: <b>=SUM(A1:A5)</b>, <b>=ROUND(A3*1.18,2)</b>, <b>=IF(A2&gt;100,1,0)</b>. Use <b>=SUM(ABOVE)</b> to add all rows above.<br>Percent: <b>200 + 10%</b> gives 220. <b>10% of 500</b> gives 50.<br>Names: <b>price = 250</b> then <b>price * 3</b>.<br>Header: start the row with <b>#</b>. Note: start with <b>//</b>.<br>Rows that start with = or have a name = are not counted in TOTAL.</div></div>
+ <div class="card"><h3>Help</h3><div class="mut" style="line-height:1.65">Type a calculation on each row: <b>1200 + 300</b>. Type a name before it: <b>Rent 5000 + 300</b>.<br>Excel style: <b>=SUM(A1:A5)</b>, <b>=ROUND(A3*1.18,2)</b>, <b>=IF(A2&gt;100,1,0)</b>. Use <b>=SUM(ABOVE)</b> to add all rows above.<br>Percent: <b>200 + 10%</b> gives 220. <b>10% of 500</b> gives 50.<br>Names: <b>price = 250</b> then <b>price * 3</b>.<br>Header: start the row with <b>#</b>. Note: start with <b>//</b>.<br>Rows that start with = or have a name = are not counted in TOTAL.<br>Tap <b>↗ Ref</b> to pick any row, name, template or formula. Your templates also work inside formulas, like <b>=MOTOR_CURRENT(415,15,0.85)</b>. The Calc tab accepts the same formulas and rows (A1, A2…).</div></div>
  <div class="card"><h3>Backup</h3><div class="mut">Save all your sheets, history, labels and templates in one file, or load them back. Works without login.</div><div class="row" style="margin-top:8px"><button class="btn" data-a="bkexp">Export backup</button><button class="btn" data-a="bkimp">Import backup</button></div><input type="file" id="bkf" accept=".json,application/json" hidden></div>
  <div class="card" id="ownbox" hidden><h3>Owner</h3><div class="row"><button class="btn p" data-a="ousers">Users and plans</button><button class="btn" data-a="oprice">Prices and discounts</button></div></div>
  <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once.</div></div>
@@ -144,6 +145,8 @@ function lex(src){const s=src.replace(/×/g,'*').replace(/÷/g,'/').replace(/[�
   if('+-*/^%!()&,:=<>√'.includes(c)){t.push({t:'o',v:c});i++;continue}
   throw new ParseErr('Bad character '+c)}
  return t}
+var TD=0;function tplKey(n){let k=String(n||'').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'');if(!k||/^\d/.test(k))k='T_'+k;return k}
+function tplFn(up){let L;try{L=TPL}catch(e){return null}const t=L.find(x=>!x.del&&tplKey(x.name)===up);if(!t)return null;return a=>{if(TD>3)throw new Error('Template loop');TD++;try{const vals=t.vars.map((v,i)=>{let x=a[i];if(Array.isArray(x))x=FN.SUM([x]);if(x===undefined)x=Number(v.d);if(typeof x==='boolean')x=x?1:0;if(typeof x!=='number'||!isFinite(x))throw new Error('Number needed');return String(x)});const r=tplEval(t,vals);if(r.out===null)throw new Error(r.err||'No answer');return r.out}finally{TD--}}}
 function run(src,ctx){const T=lex(src);let k=0;const pk=()=>T[k],op=v=>T[k]&&T[k].t==='o'&&T[k].v===v,nx=()=>T[k++];
  function expect(v){if(!op(v))throw new ParseErr('Expected '+v);k++}
  const num=v=>{if(typeof v==='boolean')return v?1:0;if(typeof v!=='number')throw new Error('Number needed');return v};
@@ -158,7 +161,7 @@ function run(src,ctx){const T=lex(src);let k=0;const pk=()=>T[k],op=v=>T[k]&&T[k
   if(x.t==='n')return{v:x.v,p:false};if(x.t==='s')return{v:x.v,p:false};
   if(x.t==='o'&&x.v==='('){const v=cmp();expect(')');return{v,p:false}}
   if(x.t==='i'){const nm=x.v,up=nm.toUpperCase();
-   if(op('(')&&FN[up]){k++;const args=[];if(!op(')')){for(;;){args.push(arg());if(op(',')){k++;continue}break}}expect(')');return{v:FN[up](args),p:false}}
+   const F=FN[up]||tplFn(up);if(op('(')&&F){k++;const args=[];if(!op(')')){for(;;){args.push(arg());if(op(',')){k++;continue}break}}expect(')');return{v:F(args),p:false}}
    if(op(':')&&/^a\d+$/i.test(nm)&&T[k+1]&&T[k+1].t==='i'&&/^a\d+$/i.test(T[k+1].v)){k++;const b=nx().v;return{v:ctx.range(+nm.slice(1),+b.slice(1)),p:false}}
    if(up==='ABOVE')return{v:ctx.above(),p:false};
    if(/^a\d+$/i.test(nm))return{v:ctx.cell(+nm.slice(1)),p:false};
@@ -201,6 +204,7 @@ function licensed(){return !!LIC&&(LIC.plan==='paid'||LIC.trialEnd>Date.now())}
 let pushT=0;function touch(){CUR.upd=Date.now();LS.set('owh_cp_cur',CUR);clearTimeout(pushT);pushT=setTimeout(()=>Cloud.sync(),2500)}
 /* ================= sheet UI ================= */
 function rowHtml(i){const v=CUR.rows[i];return`<div class="rw" data-i="${i}"><span class="ln">${i+1}</span><div class="mid" style="min-width:0"><input type="text" value="${esc(v)}" data-i="${i}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="Row ${i+1}"><div class="show" data-i="${i}"></div></div><span class="rs" data-i="${i}"></span><button class="dx" data-del="${i}" aria-label="Delete row">×</button></div>`}
+function refInsert(txt){if(CT==='calc'){const i=$('cIn'),a=i.selectionStart==null?i.value.length:i.selectionStart,b=i.selectionEnd==null?a:i.selectionEnd;i.value=i.value.slice(0,a)+txt+i.value.slice(b);CE=i.value;cShow();i.focus();const q=a+txt.length;i.setSelectionRange(q,q)}else insertAtCaret(txt)}
 function drawRows(){$('rows').innerHTML=CUR.rows.map((_,i)=>rowHtml(i)).join('');$('rows').className=S.view==='f'?'vf':'vr';paint()}
 function paint(){R=evalSheet(CUR.rows);const E=$('rows');
  CUR.rows.forEach((_,i)=>{const r=R.res[i],rw=E.children[i];if(!rw)return;rw.classList.toggle('act',i===ACT);rw.classList.toggle('emp',r.k==='blank');const sh=rw.querySelector('.show'),rs=rw.querySelector('.rs');let h='',c='rs',t='';
@@ -208,7 +212,7 @@ function paint(){R=evalSheet(CUR.rows);const E=$('rows');
   else if(r.k==='note'){h=esc(r.text);sh.className='show n'}
   else if(r.k==='blank'){h='&nbsp;';sh.className='show'}
   else if(r.k==='err'){h='<span class="n">'+esc(CUR.rows[i])+'</span>';sh.className='show n';t=r.msg;c='rs e'}
-  else{h=r.label?'<span class="lb">'+esc(r.label)+'</span>':'<span class="lb">'+esc(CUR.rows[i].replace(/^=/,'')).slice(0,60)+'</span>';sh.className='show';t=fmtN(r.v);c='rs'+(r.noTot?' v':'')}
+  else{h=r.label?'<span class="lb">'+esc(r.label)+'</span>':/^\s*=/.test(CUR.rows[i])?'&nbsp;':'<span class="lb">'+esc(CUR.rows[i]).slice(0,60)+'</span>';sh.className='show';t=fmtN(r.v);c='rs'+(r.noTot?' v':'')}
   if(S.view==='f'&&r.k==='head'){h=''}
   sh.innerHTML=h;rs.className=c;rs.textContent=t});
  $('total').textContent=fmtN(R.total)}
@@ -220,6 +224,8 @@ function insertAtCaret(txt){let inp=LASTIN&&document.body.contains(LASTIN)?LASTI
  if(txt==='\n'){const i=+inp.dataset.i;insertRow(i+1,'');focusRow(i+1);return}
  const a=inp.selectionStart==null?inp.value.length:inp.selectionStart,b=inp.selectionEnd==null?a:inp.selectionEnd;inp.value=inp.value.slice(0,a)+txt+inp.value.slice(b);const p=a+txt.length;CUR.rows[+inp.dataset.i]=inp.value;touch();paint();inp.focus();inp.setSelectionRange(p,p)}
 $('keys').addEventListener('pointerdown',e=>e.preventDefault());
+$('cIn').addEventListener('input',e=>{CE=e.target.value;cShow()});
+$('cIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();cEq()}});
 $('rows').addEventListener('input',e=>{const t=e.target;if(t.tagName!=='INPUT')return;const i=+t.dataset.i;if(!lockCheck())return;CUR.rows[i]=t.value;touch();paint()});
 $('rows').addEventListener('focusin',e=>{if(e.target.tagName==='INPUT'){LASTIN=e.target;const i=+e.target.dataset.i;if(ACT!==i){ACT=i;paint()}}});
 $('rows').addEventListener('keydown',e=>{const t=e.target;if(t.tagName!=='INPUT')return;const i=+t.dataset.i;
@@ -274,9 +280,10 @@ const PADS=[['2nd','f','2nd'],['deg','f','deg'],['(','f','('],[')','f',')'],['C'
  ['0','','0'],['.','','.'],['⌫','f','back'],['+','o','+'],['MC','f','MC']];
 const SEC={sin:['asin','asin('],cos:['acos','acos('],tan:['atan','atan('],ln:['eˣ','exp('],log:['10ˣ','10^('],'x²':['x³','^3'],'√':['∛','cbrt('],'n!':['nPr','npr(']};
 function drawPad(){$('pad').innerHTML=PADS.map((p,i)=>{let lb=p[0];if(SECOND&&SEC[lb])lb=SEC[lb][0];if(lb==='deg')lb=S.deg?'DEG':'RAD';if(lb==='2nd'&&SECOND)lb='2nd ✓';return`<button class="${p[1]}" data-pi="${i}" type="button">${lb}</button>`}).join('')+'<button class="sh" data-pi="sh" type="button">→ SHEET</button><button class="eq" data-pi="eq" type="button">=</button>';}
-function cCtx(){return{vars:{},prev:()=>CANS,cell(){throw new Error('Not here')},range(){throw new Error('Not here')},above(){throw new Error('Not here')}}}
-function cEval(){try{if(!CE.trim())return null;let e=CE.replace(/(\d)\s*(?=[A-Za-z(π√])/g,'$1*').replace(/\)\s*(?=[\d(A-Za-z])/g,')*').replace(/!/g,'!');const o=cCtx();const v=run(e.replace(/\bnpr\(([^,)]+)\)/g,'$1'),o);return v}catch(er){return undefined}}
-function cShow(){$('cEx').textContent=CE||' ';const v=cEval();$('cRt').textContent=v===null?'0':v===undefined?'…':fmtN(v)}
+function cCtx(){const rs=(R&&R.res)||[],vars={},ok=r=>r&&r.k==='calc'&&typeof r.v==='number';rs.forEach(r=>{if(ok(r)&&r.label&&/^[A-Za-z_]\w*$/.test(r.label))vars[r.label]=r.v});
+ return{vars,prev:()=>CANS,cell(n){const r=rs[n-1];if(!r)throw new Error('No row '+n);if(r.k==='calc')return r.v;throw new Error('Row '+n+' has no value')},range(a,b){const o=[];for(let n=Math.min(a,b);n<=Math.max(a,b);n++){if(ok(rs[n-1]))o.push(rs[n-1].v)}return o},above(){return rs.filter(r=>ok(r)&&!r.noTot).map(r=>r.v)}}}
+function cEval(){try{if(!CE.trim())return null;let e=CE.trim().replace(/^=/,'').replace(/(?<![A-Za-z_0-9.])(\d+\.?\d*)\s*(?=[A-Za-z(π√])/g,'$1*').replace(/\)\s*(?=[\d(A-Za-z])/g,')*');const v=run(e.replace(/\bnpr\(([^,)]+)\)/g,'$1'),cCtx());return Array.isArray(v)?FN.SUM([v]):v}catch(er){return undefined}}
+function cShow(){$('cEx').textContent=CE||' ';const ci=$('cIn');if(ci&&document.activeElement!==ci)ci.value=CE;const v=cEval();$('cRt').textContent=v===null?'0':v===undefined?'…':fmtN(v)}
 FN.NPR=FN.NPR;
 function cPress(i){const p=PADS[i];let k=p[2],lb=p[0];if(SECOND&&SEC[lb])k=SEC[lb][1];
  if(k==='2nd'){SECOND=!SECOND;drawPad();return}if(k==='deg'){S.deg=S.deg?0:1;saveS();drawPad();cShow();return}
@@ -352,7 +359,7 @@ let TPL=LS.get('owh_cp_tpl',[]),FCAT='';
 const saveTpl=()=>LS.set('owh_cp_tpl',TPL);
 function tplRows(t,vals){return t.vars.map((v,i)=>v.n+' = '+vals[i]).concat(t.f.split('\n'))}
 function tplEval(t,vals){const rows=tplRows(t,vals),r=evalSheet(rows);let out=null,err='';for(let i=rows.length-1;i>=t.vars.length;i--){const x=r.res[i];if(x.k==='calc'){out=x.v;break}if(x.k==='err'){err=x.msg;break}}return{out,err}}
-function drawTpl(){const L=TPL.filter(t=>!t.del).sort((a,b)=>b.upd-a.upd);$('tpl').innerHTML=L.map(t=>`<div class="tp" data-ti="${t.id}"><div class="row"><b class="grow">${esc(t.name)}</b><button class="btn sm" data-te="${t.id}">Edit</button><button class="btn sm red" data-td="${t.id}">Delete</button></div><div class="in">${t.vars.map((v,i)=>`<div><label>${esc(v.n)}</label><input type="text" inputmode="decimal" data-tv="${i}" value="${esc(v.d)}"></div>`).join('')}</div><div class="out" data-to></div><button class="btn sm g" data-ts="${t.id}">→ Add to sheet</button></div>`).join('');document.querySelectorAll('.tp').forEach(tplCalc)}
+function drawTpl(){const L=TPL.filter(t=>!t.del).sort((a,b)=>b.upd-a.upd);$('tpl').innerHTML=L.map(t=>`<div class="tp" data-ti="${t.id}"><div class="row"><b class="grow">${esc(t.name)}</b><button class="btn sm" data-te="${t.id}">Edit</button><button class="btn sm red" data-td="${t.id}">Delete</button></div><div class="in">${t.vars.map((v,i)=>`<div><label>${esc(v.n)}</label><input type="text" inputmode="decimal" data-tv="${i}" value="${esc(v.d)}"></div>`).join('')}</div><div class="out" data-to></div><div class="mut" style="margin:4px 0 6px">Use in any formula: <b>=${esc(tplKey(t.name))}(${esc(t.vars.map(v=>v.n).join(', '))})</b></div><button class="btn sm g" data-ts="${t.id}">→ Add to sheet</button></div>`).join('');document.querySelectorAll('.tp').forEach(tplCalc)}
 function tplCalc(card){const t=TPL.find(x=>x.id===card.dataset.ti);if(!t)return;const vals=[...card.querySelectorAll('[data-tv]')].map(x=>x.value.trim());const o=card.querySelector('[data-to]');
  if(vals.some(v=>v===''||isNaN(Number(v)))){o.textContent='= ?';return}const r=tplEval(t,vals);o.textContent=r.out===null?'= ?'+(r.err?'  ('+r.err+')':''):'= '+fmtN(r.out)+(t.unit?' '+t.unit:'')}
 function tplEditor(t){t=t||{id:uid(),name:'',vars:[],f:'',unit:''};$('smc').innerHTML=`<h2>${t.name?'Edit':'New'} template</h2><div class="mut">Name</div><input type="text" id="tn" maxlength="60" placeholder="e.g. Motor current" value="${esc(t.name)}"><div class="mut" style="margin-top:8px">Variables: one per line, as name = default value</div><textarea id="tvs" rows="4" placeholder="V = 415&#10;kW = 15&#10;pf = 0.85">${esc(t.vars.map(v=>v.n+' = '+v.d).join('\n'))}</textarea><div class="mut" style="margin-top:8px">Formula: use the variable names. The last line is the answer.</div><textarea id="tf" rows="3" placeholder="kW*1000/(sqrt(3)*V*pf)">${esc(t.f)}</textarea><div class="mut" style="margin-top:8px">Unit of answer (optional)</div><input type="text" id="tu" maxlength="12" placeholder="A, kW, Rs" value="${esc(t.unit||'')}"><div class="row" style="margin-top:10px"><button class="btn p grow" id="tok">Save template</button></div><div class="mut" id="terr" style="margin-top:6px;color:var(--red)"></div>`;$('sm').hidden=false;$('sm')._e=null;
@@ -404,6 +411,14 @@ const A={
  addrow(){if(!lockCheck())return;insertRow(CUR.rows.length,'');focusRow(CUR.rows.length-1)},
  labadd(){askText('Add label','e.g. Home, Office, Site',v=>{if(!CUR.labels.includes(v))CUR.labels.push(v);touch();drawLabs();Cloud.sync()})},
  fx(){const L=['SUM','AVERAGE','MIN','MAX','COUNT','ROUND','ROUNDUP','ROUNDDOWN','ABS','SQRT','POWER','MOD','INT','IF','AND','OR','LOG','LOG10','LN','EXP','SIN','COS','TAN','ASIN','ACOS','ATAN','DEGREES','RADIANS','FACT','COMBIN','PERMUT','GCD','LCM','MEDIAN','PRODUCT','TODAY'];$('smc').innerHTML='<h2>Functions</h2><div class="mut" style="margin-bottom:8px">Tap a function to add it to the row.</div><div class="row">'+L.map(n=>`<button class="btn sm" data-fn="${n}">${n}</button>`).join('')+'</div>';$('sm').hidden=false;$('sm')._e=null},
+ ref(){const rs=R.res||[],o=[];let h='<h2>Insert reference</h2><div class="mut">Tap anything to put it in your formula. Rows come in as A1, A2 and so on, so the answer follows when that row changes.</div>';
+  const ok=r=>r&&r.k==='calc'&&typeof r.v!=='undefined';
+  const rr=rs.map((r,i)=>({r,i})).filter(x=>ok(x.r)&&!(CT==='sheet'&&x.i===ACT));
+  h+='<div class="rh">Rows (cells)</div>'+(rr.length?rr.map(x=>`<button class="rf" data-ref="A${x.i+1}"><b>A${x.i+1}</b><span>${esc(x.r.label||CUR.rows[x.i].replace(/^=/,'=').trim())}</span><i>${esc(fmtN(x.r.v))}</i></button>`).join('')+(rr.length>1?`<button class="rf" data-ref="SUM(ABOVE)"><b>Σ</b><span>All rows above (TOTAL)</span><i></i></button><button class="rf" data-ref="A1:A${rr[rr.length-1].i+1}"><b>A1:</b><span>Range, first to last value row</span><i></i></button>`:''):'<div class="mut">No values in the sheet yet.</div>');
+  const nm=rr.filter(x=>x.r.label&&/^[A-Za-z_]\w*$/.test(x.r.label)&&new RegExp('^\\s*'+x.r.label+'\\s*=(?!=)').test(CUR.rows[x.i]));if(nm.length)h+='<div class="rh">Names</div>'+nm.map(x=>`<button class="rf" data-ref="${esc(x.r.label)}"><b>name</b><span>${esc(x.r.label)}</span><i>${esc(fmtN(x.r.v))}</i></button>`).join('');
+  const T=TPL.filter(t=>!t.del);if(T.length)h+='<div class="rh">My templates (as a function)</div>'+T.map(t=>{const c=tplKey(t.name)+'('+t.vars.map(v=>v.d).join(',')+')';return`<button class="rf" data-ref="${esc(c)}"><b>tpl</b><span>${esc(t.name)}: ${esc(c)}</span><i></i></button>`}).join('');
+  h+='<div class="rh">Formulas</div>'+FORM.filter(f=>f[4]&&f[3].length).map(f=>{let ex=f[4];f[3].forEach(v=>{ex=ex.replace(new RegExp('\\b'+v[0]+'\\b','g'),'('+v[2]+')')});return`<button class="rf" data-ref="${esc('('+ex+')')}"><b>ƒ</b><span>${esc(f[1])}</span><i></i></button>`}).join('');
+  $('smc').innerHTML=h;$('sm').hidden=false;$('sm')._e=null},
  tplnew(){if(lockCheck())tplEditor()},
  tplsheet(){if(!lockCheck())return;const vars=[],f=[];CUR.rows.forEach(r=>{const m=/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(-?[\d.]+)\s*$/.exec(r.trim());if(m&&!f.length)vars.push({n:m[1],d:m[2]});else if(r.trim()&&!/^(#|\/\/)/.test(r.trim()))f.push(r.trim().replace(/^=/,''))});if(!vars.length||!f.length){toast('Sheet needs lines like V = 230 and then a formula');return}tplEditor({id:uid(),name:CUR.title||'',vars,f:f.join('\n'),unit:''})},
  bkexp(){const d={app:'calcpad',v:1,at:Date.now(),cur:CUR,hist:HIST,tpl:TPL},b=new Blob([JSON.stringify(d)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='calcpad-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup saved')},
@@ -424,7 +439,8 @@ document.addEventListener('click',e=>{if(e.target===$('sm')){$('sm').hidden=true
  if(t.dataset.k!==undefined)return insertAtCaret(t.dataset.k);
  if(t.dataset.v){S.view=t.dataset.v;saveS();ACT=-1;drawSheetHead();$('rows').className=S.view==='f'?'vf':'vr';paint();return}
  if(t.dataset.rl){e.preventDefault();CUR.labels=CUR.labels.filter(x=>x!==t.dataset.rl);touch();drawLabs();return}
- if(t.dataset.fn){$('sm').hidden=true;insertAtCaret(t.dataset.fn+'(');return}
+ if(t.dataset.fn){$('sm').hidden=true;refInsert(t.dataset.fn+'(');return}
+ if(t.dataset.ref){$('sm').hidden=true;refInsert(t.dataset.ref);return}
  if(t.dataset.th){setTheme(t.dataset.th);return}
  if(t.dataset.deg!==undefined){S.deg=+t.dataset.deg;saveS();drawSet();paint();return}
  if(t.dataset.dec!==undefined){S.dec=t.dataset.dec;saveS();drawSet();paint();return}

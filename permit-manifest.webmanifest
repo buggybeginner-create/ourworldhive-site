@@ -1,0 +1,32 @@
+{
+ "id": "permit.html",
+ "name": "E-Permit",
+ "short_name": "E-Permit",
+ "description": "Raise, verify, approve, renew and close work permits for your plant.",
+ "start_url": "permit.html",
+ "scope": "./permit.html",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#eef3f6",
+ "theme_color": "#0f3d5e",
+ "icons": [
+  {
+   "src": "permit-icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "permit-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "permit-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

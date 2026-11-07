@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en"><head><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval"><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>E-Permit: work permits raised, approved and closed</title><meta name="theme-color" content="#0f3d5e"><link rel="manifest" href="permit-manifest.webmanifest"><link rel="apple-touch-icon" href="permit-icon-192.png"><link rel="icon" href="permit-icon-192.png"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com">
+<script src="firebase-config.js"></script>
+<style>
+:root{--p:#0f3d5e;--p2:#14b8a6;--bg:#eef3f6;--card:#fff;--ink:#0f2230;--mut:#5b7385;--line:#d5e0e8;--red:#dc2626;--amb:#d97706;--grn:#16a34a;--blu:#2563eb;--pur:#7c3aed;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.top{flex:none;display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 14px 8px;background:var(--p);color:#fff;min-height:52px}
+.top .tt{flex:1;min-width:0}.top b{font-size:16px;line-height:1.15;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top small{opacity:.85;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{position:relative;background:rgba(255,255,255,.14);border:0;border-radius:10px;width:40px;height:40px;font-size:18px;color:#fff}.ib i{position:absolute;top:2px;right:2px;background:var(--red);font-style:normal;font-size:10px;min-width:16px;height:16px;border-radius:8px;line-height:16px;text-align:center;padding:0 3px}
+#view{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px 12px 18px;width:100%;max-width:820px;margin:0 auto}
+.nav{flex:none;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav button{flex:1;border:0;background:none;padding:7px 2px 6px;font-size:11px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}.nav button span{font-size:19px;line-height:1.1}.nav button.on{color:var(--p);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.card h3,.h{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.row{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:8px}.row b{font-size:14.5px}.row small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#e2e8f0;color:#334155;margin-left:4px;vertical-align:1px}
+.t-raised{background:#dbeafe;color:#1d4ed8}.t-verified{background:#ede9fe;color:#6d28d9}.t-active{background:#dcfce7;color:#15803d}.t-delayed{background:#fee2e2;color:#b91c1c}.t-closreq{background:#fef3c7;color:#b45309}.t-closed{background:#e2e8f0;color:#334155}.t-rejected,.t-cancelled{background:#fee2e2;color:#b91c1c}.t-renew{background:#ffedd5;color:#c2410c}
+.btn{display:block;width:100%;border:0;border-radius:12px;background:var(--p);color:#fff;font-weight:700;padding:12px;font-size:15px}.btn.g{background:var(--grn)}.btn.r{background:var(--red)}.btn.w{background:#fff;color:var(--p);border:1.5px solid var(--p)}.btn.s{width:auto;padding:8px 14px;font-size:13.5px;display:inline-block}.btn:disabled{opacity:.5}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btns .btn{flex:1 1 140px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;color:var(--ink)}.chip.on{background:var(--p);border-color:var(--p);color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin-bottom:10px}.tile{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px;text-align:left}.tile b{display:block;font-size:24px;line-height:1.1}.tile small{color:var(--mut);font-size:12px}
+label{display:block;margin:0 0 10px}label>span,.lb{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-bottom:3px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#fff;min-width:0}textarea{min-height:70px;resize:vertical}input:focus,select:focus,textarea:focus{outline:2px solid var(--p2);border-color:var(--p2)}
+input[type=checkbox]{width:20px;height:20px;flex:none;margin:0}
+.ck{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid var(--line);border-radius:10px;margin:0 0 5px;font-size:14px}.ck.on{background:#e6f4f1;border-color:var(--p2)}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0 8px}
+.yn{display:inline-flex;border:1.5px solid var(--line);border-radius:99px;overflow:hidden;flex:none}.yn button{border:0;background:#fff;padding:5px 12px;font-size:13px;font-weight:600}.yn button.on{background:var(--grn);color:#fff}.yn button.no.on{background:var(--mut)}
+.iso{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:6px}.iso .l{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.sheet{position:fixed;inset:0;background:rgba(10,25,40,.55);display:flex;align-items:flex-end;justify-content:center;z-index:50}.sheet[hidden]{display:none}
+.sin{background:#fff;width:100%;max-width:660px;max-height:94dvh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom))}
+.sin h2{margin:0 0 10px;font-size:18px}.x{float:right;border:0;background:#eef3f6;border-radius:50%;width:32px;height:32px;font-size:16px}
+@media(min-width:700px){.sheet{align-items:center}.sin{border-radius:18px}}
+.toast{position:fixed;left:50%;bottom:78px;transform:translate(-50%,20px);background:#0f2230;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:90vw;text-align:center}.toast.on{opacity:1;transform:translate(-50%,0)}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:3px 8px;font-size:14px;margin:0}.kv dt{color:var(--mut);font-size:12.5px}.kv dd{margin:0;overflow-wrap:anywhere}
+.note{font-size:12.5px;color:var(--mut)}.err{color:var(--red);font-size:13px;min-height:16px;margin:2px 0 6px}.warn{background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:8px 10px;font-size:13px;margin-bottom:8px}.bad{color:var(--red);font-weight:700}.ok{color:var(--grn);font-weight:700}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.bar{height:9px;border-radius:5px;background:#e2e8f0;overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;background:var(--p2)}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-size:12px}.tw{overflow-x:auto}
+.login{max-width:460px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 24px;overflow-y:auto;height:100%;width:100%}.hero{text-align:center;padding:10px 0 14px}.hero h1{margin:6px 0;color:var(--p)}.hero p{color:var(--mut);margin:0;font-size:14px}
+.feat{display:grid;gap:8px;margin-bottom:12px}.feat div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;font-size:13px;color:var(--mut)}.feat b{display:block;color:var(--ink);font-size:14px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:0 8px}input[type=datetime-local]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;min-height:42px}
+.cr{font-size:11.5px;color:var(--mut);text-align:center;padding:12px 0 4px}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:.15em;font-weight:800;color:var(--p)}
+</style></head><body><div id="app" style="display:contents"></div><div class="sheet" id="sheet" hidden><div class="sin" id="sin"></div></div><div class="toast" id="toast" role="status"></div>
+<input type="file" id="fi" accept=".csv,text/csv,text/plain" hidden>
+<script>
+'use strict';
+/* ===== helpers ===== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const NOW=()=>window.__EP_NOW||Date.now();
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD=ms=>{if(!ms)return'';const d=new Date(ms);return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear()};
+const fmtT=ms=>{if(!ms)return'';const d=new Date(ms);return fmtD(ms)+', '+pad(d.getHours())+':'+pad(d.getMinutes())};
+const dtl=ms=>{const d=new Date(ms);return ymd(d)+'T'+pad(d.getHours())+':'+pad(d.getMinutes())};
+const tms=s=>s?new Date(s).getTime():0;
+const uid=p=>p+Math.random().toString(36).slice(2,9);
+const emailOk=e=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e||'');
+const cap=s=>String(s||'').trim().replace(/\s+/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+let _tt;function toast(m,ms){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),ms||2800)}
+function openSheet(h){$('sin').innerHTML='<button class="x" data-a="closeSheet" aria-label="Close">✕</button>'+h;$('sheet').hidden=false;$('sin').scrollTop=0}
+function closeSheet(){$('sheet').hidden=true;$('sin').innerHTML=''}
+function dl(name,mime,data){const b=new Blob([data],{type:mime}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+function parseCSV(t){const rows=[];let r=[],c='',q=false;t=String(t).replace(/^﻿/,'');for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===','||ch===';'||ch==='\t'){r.push(c);c=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}if(c||r.length){r.push(c);rows.push(r)}return rows.map(r=>r.map(x=>x.trim())).filter(r=>r.some(x=>x))}
+const csvCell=v=>{v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+
+/* ===== demo store (same shape as Firestore) ===== */
+const LocalFS=(function(){const KEY='ep_demo_v1';let mem=null,subs=[];
+ const load=()=>{if(mem)return mem;try{mem=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){mem={}}return mem};
+ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){toast('Phone storage is full.',4000)}};
+ const parts=p=>p.split('/'),cp=v=>JSON.parse(JSON.stringify(v)),emit=()=>subs.slice().forEach(f=>f());
+ const dsnap=p=>{const d=load()[p];return{exists:d!==undefined,id:parts(p).pop(),data:()=>d===undefined?undefined:cp(d)}};
+ const cdocs=p=>{const pre=p+'/',n=parts(p).length+1;return Object.keys(load()).filter(k=>k.indexOf(pre)===0&&parts(k).length===n).map(dsnap)};
+ const setD=(p,v,o)=>{const m=load();m[p]=o&&o.merge&&m[p]?Object.assign({},m[p],cp(v)):cp(v)};
+ const updD=(p,v)=>{const m=load();if(m[p]===undefined)throw Object.assign(new Error('Not found'),{code:'not-found'});Object.assign(m[p],cp(v))};
+ const watch=fn=>{subs.push(fn);setTimeout(fn,0);return()=>{subs=subs.filter(x=>x!==fn)}};
+ const colr=p=>({path:p,orderBy(){return colr(p)},limit(){return colr(p)},onSnapshot:cb=>watch(()=>{const docs=cdocs(p);cb({docs,size:docs.length,forEach:f=>docs.forEach(f)})}),get:()=>Promise.resolve((()=>{const docs=cdocs(p);return{docs,size:docs.length,forEach:f=>docs.forEach(f)}})())});
+ return{doc:p=>({path:p,set:(v,o)=>{setD(p,v,o);persist();emit();return Promise.resolve()},update:v=>{try{updD(p,v);persist();emit();return Promise.resolve()}catch(e){return Promise.reject(e)}},delete:()=>{delete load()[p];persist();emit();return Promise.resolve()},get:()=>Promise.resolve(dsnap(p)),onSnapshot:(cb)=>watch(()=>cb(dsnap(p)))}),
+  collection:colr,
+  batch:()=>{const ops=[];return{set:(r,v,o)=>{ops.push(()=>setD(r.path,v,o))},update:(r,v)=>{ops.push(()=>updD(r.path,v))},delete:r=>{ops.push(()=>{delete load()[r.path]})},commit:()=>{try{ops.forEach(f=>f());persist();emit();return Promise.resolve()}catch(e){return Promise.reject(e)}}}},
+  has:p=>load()[p]!==undefined,reset:()=>{mem={};try{localStorage.removeItem(KEY)}catch(e){}emit()}}})();
+
+/* ===== constants ===== */
+const TYPES={cold:{n:'Cold Work',ic:'🔧'},hot:{n:'Hot Work',ic:'🔥'},height:{n:'Work At Height',ic:'🪜'},confined:{n:'Confined Space',ic:'🕳️'},elec:{n:'Electrical Work',ic:'⚡'},exc:{n:'Excavation',ic:'⛏️'},lift:{n:'Lifting / Crane',ic:'🏗️'}};
+const HZ_ALL=['Fire / explosion','Electric shock','Moving / rotating machinery','Hot surface / steam','Chemical / toxic release','Stored energy / pressure release','Slip / trip / fall','Falling objects','Noise','Poor lighting / visibility','Dust / fumes','Adjacent live equipment'];
+const HZ_T={hot:['Sparks / hot slag','Flammable vapour / combustibles nearby'],height:['Fall from height','Fragile roof / open edge'],confined:['Oxygen deficiency / enrichment','Toxic or flammable gas','Engulfment','Restricted entry / exit'],elec:['Arc flash','Induced / back-feed voltage'],exc:['Underground services (cable / pipe)','Trench collapse'],lift:['Load drop / swing','Overhead power line']};
+const PPE_ALL=['Safety helmet','Safety shoes','Safety glasses','Gloves','High visibility vest','Full-body harness','Face shield','Hearing protection','Respirator / mask','Fire-retardant clothing'];
+const PR_ALL=['Area barricaded and signboard displayed','Emergency contact / first aid known','Housekeeping maintained'];
+const PR_T={hot:['Fire extinguisher ready','Fire watch posted','Combustibles removed / covered','Spark containment / welding screen','Gas cylinders secured with flashback arrestors'],height:['Scaffold inspected and tagged','Harness anchored above head level','Edge protection / barricade','Tools tethered'],confined:['Standby attendant posted','Ventilation provided','Rescue plan and equipment ready','Entry log maintained','Low-voltage / explosion-proof lighting'],elec:['Proved dead (test-prove-test)','Earthing / discharging done','Insulated tools and mats','Warning signs displayed'],exc:['Underground services marked','Shoring / sloping done','Safe access / egress','Barricade and signage'],lift:['Crane / tackle certified and tagged','Load chart checked','Rigger and signaller appointed','Exclusion zone barricaded']};
+const ISO=[['E','Electrical (LOTO)'],['M','Mechanical (valve / blind / lock)'],['P','Process line (drain, purge, vent)'],['I','Instrument / control (bypass)'],['O','Other']];
+const ROLES={manager:'Manager',incharge:'Shift Incharge (Operation)',issuer:'Permit Issuer (Operation)',safety:'Safety Officer',user:'User'};
+const DEPTS0=[['Operation','OPR'],['Mechanical','MEC'],['Civil','CIV'],['Electrical','ELE'],['Instrumentation','INS'],['Safety','SAF'],['Other','OTH']];
+const ST={raised:'Raised',verified:'Verified',active:'Approved',closreq:'Closure Requested',closed:'Closed',rejected:'Rejected',cancelled:'Cancelled'};
+const GAS={o2:['Oxygen %','19.5 to 23.5'],lel:['Flammable gas % LEL','10 or less'],h2s:['H2S ppm','10 or less'],co:['CO ppm','25 or less']};
+
+/* ===== state ===== */
+const S={mode:'',user:null,cid:'',plant:null,mem:[],permits:[],equip:[],acts:[],tab:'home',ready:false};
+const ui={f:{st:'',q:'',dept:'',mine:0},sp:'month',form:null,fe:''};
+const A={},CH={};let DB=null,UNS=[];
+const P=x=>'ep_plants/'+S.cid+(x?'/'+x:'');
+const ME=()=>S.mem.find(m=>m.id===(S.user&&S.user.uid));
+const R=()=>{const m=ME();return m?m.role:''};
+const isMgr=()=>R()==='manager',isInc=()=>R()==='incharge'||isMgr(),isIss=()=>R()==='issuer'||isInc(),isSaf=()=>R()==='safety';
+const deptCode=n=>{const d=((S.plant&&S.plant.depts)||[]).find(x=>x.n===n);return d?d.c:String(n||'GEN').replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase()||'GEN'};
+const mname=id=>{const m=S.mem.find(x=>x.id===id);return m?m.name:''};
+const delayed=p=>p.st==='active'&&NOW()>tms(p.end);
+const skey=p=>delayed(p)?'delayed':(p.st==='active'&&p.rn&&p.rn.req)?'renew':p.st;
+const slabel=p=>{const k=skey(p);return k==='delayed'?'Delayed':k==='renew'?'Renewal Requested':k==='active'?'Approved':k==='verified'?'Verified, Awaiting Approval':ST[p.st]||p.st};
+const sTag=p=>{const k=skey(p);return `<span class="tag t-${k}">${esc(slabel(p))}</span>`};
+const isoTaken=p=>ISO.filter(x=>p.iso&&p.iso[x[0]]&&p.iso[x[0]].st==='done').length;
+const isoNeeded=p=>ISO.filter(x=>p.iso&&p.iso[x[0]]&&p.iso[x[0]].r).length;
+const needsMe=p=>{if(p.st==='raised')return isIss();if(p.st==='verified')return isInc();if(p.st==='closreq')return isIss();if(p.st==='active'&&p.rn&&p.rn.req)return isInc();return false};
+function chk(t,l,v){return`<label class="ck ${v?'on':''}"><input type="checkbox" data-ck="${t}" data-v="${esc(l)}" ${v?'checked':''}><span>${esc(l)}</span></label>`}
+function setPath(o,path,v){const k=path.split('.');let c=o;for(let i=0;i<k.length-1;i++)c=c[k[i]];c[k[k.length-1]]=v}
+/* ===== sign-in and plants ===== */
+const CL={ready:false,auth:null,fs:null,user:null,hooked:false};let cmode='in',pendingJoin='';
+function loadJsOrdered(L){return Promise.all(L.map(src=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.async=false;e.onload=ok;e.onerror=()=>no(new Error('load'));document.head.appendChild(e)})))}
+async function cloudInit(){if(CL.ready)return;const b='https://www.gstatic.com/firebasejs/10.12.2/';if(!window.firebase)await loadJsOrdered([b+'firebase-app-compat.js',b+'firebase-auth-compat.js',b+'firebase-firestore-compat.js']);
+ if(!firebase.apps||!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);CL.auth=firebase.auth();CL.fs=firebase.firestore();try{CL.fs.enablePersistence({synchronizeTabs:true}).catch(function(){})}catch(e){}CL.ready=true}
+const CE={'auth/invalid-credential':'Email or password is not right.','auth/wrong-password':'Email or password is not right.','auth/user-not-found':'Email or password is not right.','auth/email-already-in-use':'That email already has an account. Sign in instead.','auth/weak-password':'Use a password with at least 6 characters.','auth/invalid-email':'That email does not look right.','auth/popup-closed-by-user':'Sign-in was cancelled.','auth/unauthorized-domain':'This website address is not allowed in Firebase yet.','auth/network-request-failed':'No internet connection.','permission-denied':'You do not have permission for that.'};
+function cerr(e){const m=CE[e&&e.code]||'Something went wrong. Please try again.';const x=$('er');if(x)x.textContent=m;else toast(m)}
+function showLogin(msg){S.cid='';$('app').innerHTML=`<div class="login"><div class="hero"><div style="font-size:42px">📝</div><h1>E-Permit</h1><p>Work permits for your plant: raised, verified, approved, renewed and closed. Every permit has its own number and a PDF at every stage.</p></div>
+ <div class="feat"><div><b>🔐 Safe sequence</b>User raises. Operation verifies isolation, electrical and mechanical checks. Shift incharge approves.</div><div><b>⏱ Delay control</b>Time over? Renewal is asked before work continues.</div><div><b>📊 History and statistics</b>Raised, closed, isolations taken, delayed: by department and type.</div></div>
+ <div class="card"><button class="btn" data-a="cgoogle">Continue with Google</button><div class="note" style="text-align:center;margin:8px 0">or use your email</div>
+ <div class="chips"><button class="chip ${cmode==='in'?'on':''}" data-a="cmode" data-v="in">Sign in</button><button class="chip ${cmode==='up'?'on':''}" data-a="cmode" data-v="up">Register</button></div>
+ ${cmode==='up'?'<label><span>Your name</span><input id="cnm" autocomplete="name" maxlength="60"></label>':''}<label><span>Email</span><input id="ce" type="email" autocomplete="email"></label><label><span>Password</span><input id="cp" type="password" autocomplete="${cmode==='up'?'new-password':'current-password'}" placeholder="At least 6 characters"></label><div class="err" id="er" role="alert">${esc(msg||'')}</div>${cmode==='in'?'<button class="chip" style="margin-bottom:8px" data-a="cforgot">Forgot password?</button>':''}<button class="btn g" data-a="cemail">${cmode==='up'?'Create account':'Sign in'}</button></div>
+ <button class="btn w" data-a="demo">Try the demo (this device only)</button><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div></div>`}
+async function cloudBoot(){$('app').innerHTML='<div class="login"><div class="empty">Loading…</div></div>';S.mode='cloud';
+ try{await cloudInit()}catch(e){return showLogin('Could not reach the server. You can still try the demo on this device.')}
+ DB=CL.fs;if(!CL.hooked){CL.hooked=true;CL.auth.onAuthStateChanged(u=>{CL.user=u?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;if(!u){detach();S.user=null;showLogin()}else{S.user=Object.assign({},CL.user);chooser()}})}}
+function detach(){UNS.forEach(f=>{try{f()}catch(e){}});UNS=[];S.ready=false}
+async function chooser(msg){detach();S.cid='';const u=S.user;let last='',hm=/^#\/join\/([^\/]+)/.exec(location.hash||'');try{last=localStorage.getItem('ep_last')||''}catch(e){}
+ $('app').innerHTML='<div class="login"><div class="empty">Loading…</div></div>';let list=[];
+ try{const q=await DB.collection('ep_users/'+u.uid+'/plants').get();list=await Promise.all(q.docs.map(async d=>{const c=d.id,x=d.data();let st='',nm=x.name||c;try{const m=await DB.doc('ep_plants/'+c+'/members/'+u.uid).get();st=m.exists?m.data().status:'removed'}catch(e){st='?'}return{c,nm,st}}))}catch(e){msg=msg||'Could not load your plants. Check your internet.'}
+ if(!msg&&!pendingJoin&&list.filter(x=>x.st==='active').length===1&&(last===list.find(x=>x.st==='active').c||!last)&&!window.__noauto){return openPlant(list.find(x=>x.st==='active').c)}
+ $('app').innerHTML=`<div class="login"><div class="hero"><div style="font-size:36px">📝</div><h1>E-Permit</h1><p>${esc(u.name||u.email)}</p></div>${msg?`<div class="warn">${esc(msg)}</div>`:''}
+ ${list.length?'<div class="h">Your plants</div>':''}${list.map(x=>`<button class="row" data-a="pick" data-c="${esc(x.c)}" ${x.st==='active'?'':'style="opacity:.75"'}><b>${esc(x.nm)}</b><span class="tag">${esc(x.c)}</span>${x.st==='active'?'':`<span class="tag t-renew">${x.st==='pending'?'Waiting for approval':x.st==='removed'?'Removed':'Check'}</span>`}</button>`).join('')}
+ <div class="card"><h3>Join a plant</h3><label><span>Plant code</span><input id="jc" maxlength="12" autocapitalize="characters" value="${esc(pendingJoin)}" placeholder="ASK YOUR MANAGER"></label><button class="btn" data-a="cjoin">Continue</button></div>
+ <div class="card"><h3>Start a new plant</h3><div class="note" style="margin-bottom:8px">You become the first manager. You approve people and give roles.</div><button class="btn w" data-a="cnew">Create plant</button></div>
+ <button class="btn w" data-a="csignout">Sign out</button><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div></div>`}
+const deptOpts=(ds,sel)=>(ds||DEPTS0.map(d=>({n:d[0],c:d[1]}))).map(d=>`<option ${d.n===sel?'selected':''}>${esc(d.n)}</option>`).join('');
+function genCode(){const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+function openPlant(cid){detach();S.cid=cid;S.plant=null;S.mem=[];S.permits=[];S.equip=[];S.acts=[];try{localStorage.setItem('ep_last',cid)}catch(e){}
+ const got={pl:0,m:0,p:0,e:0,a:0};let shown=false;
+ const ready=()=>{if(shown||!Object.values(got).every(Boolean))return;shown=true;const me=ME();if(!me||me.status!=='active'){detach();S.cid='';return chooser(me?'Your request is waiting for approval by the plant manager.':'You are not a member of this plant.')}S.ready=true;shell()};
+ const err=()=>{if(!shown){detach();S.cid='';chooser('Could not open this plant. You may not have access.')}};
+ const go=(k)=>{got[k]=1;ready();if(shown)sched()};
+ UNS.push(DB.doc(P('')).onSnapshot(s=>{if(!s.exists)return err();S.plant=s.data();go('pl')},err));
+ UNS.push(DB.collection(P('members')).onSnapshot(q=>{S.mem=q.docs.map(d=>Object.assign({id:d.id},d.data()));go('m')},err));
+ const pc=DB.collection(P('permits'));UNS.push((S.mode==='cloud'?pc.orderBy('ts','desc').limit(400):pc).onSnapshot(q=>{S.permits=q.docs.map(d=>Object.assign({id:d.id},d.data())).sort((a,b)=>(b.ts||0)-(a.ts||0));go('p')},err));
+ UNS.push(DB.doc(P('cfg/equip')).onSnapshot(s=>{S.equip=s.exists?(s.data().items||[]):[];go('e')},err));
+ UNS.push(DB.doc(P('cfg/acts')).onSnapshot(s=>{S.acts=s.exists?(s.data().items||[]):[];go('a')},err))}
+let _st;function sched(){clearTimeout(_st);_st=setTimeout(()=>{if(!S.ready)return;const m=ME();if(!m||m.status!=='active')return;if(!$('sheet').hidden||S.tab==='new')return bellOnly();const sc=$('view')?$('view').scrollTop:0;shell();$('view').scrollTop=sc},150)}
+function bellOnly(){const b=document.querySelector('.ib i');const n=pendingCount();if(b)b.textContent=n}
+const pendingCount=()=>S.permits.filter(needsMe).length+(isMgr()?S.mem.filter(m=>m.status==='pending').length:0);
+
+/* ===== demo ===== */
+async function seedDemo(){const t=NOW(),h=36e5,b=DB.batch(),C='ep_plants/DEMO01';
+ const depts=DEPTS0.map(d=>({n:d[0],c:d[1]}));
+ b.set(DB.doc(C),{name:'Demo Power Plant',code:'DEMO01',ownerUid:'d-mgr',ownerEmail:'manager@demo.com',created:t,depts});
+ const M=[['d-mgr','Ravi Kumar','manager@demo.com','E001','Operation','manager'],['d-inc','Suresh Patil','suresh@demo.com','E002','Operation','incharge'],['d-iss','Amit Shah','amit@demo.com','E003','Operation','issuer'],['d-saf','Neha Gupta','neha@demo.com','E004','Safety','safety'],['d-mec','Rahul Verma','rahul@demo.com','E005','Mechanical','user'],['d-ele','Pooja Nair','pooja@demo.com','E006','Electrical','user'],['d-new','Kiran Das','kiran@demo.com','E007','Civil','user']];
+ M.forEach(m=>b.set(DB.doc(C+'/members/'+m[0]),{name:m[1],email:m[2],empId:m[3],dept:m[4],role:m[5],status:m[0]==='d-new'?'pending':'active',joined:t-9e8}));
+ b.set(DB.doc(C+'/cfg/equip'),{items:[{tag:'P-101A',name:'Boiler Feed Pump A',area:'Boiler House'},{tag:'P-101B',name:'Boiler Feed Pump B',area:'Boiler House'},{tag:'T-201',name:'Condensate Storage Tank',area:'Tank Farm'},{tag:'MCC-03',name:'MCC Panel 3',area:'Electrical Room'},{tag:'CT-02',name:'Cooling Tower Fan 2',area:'Cooling Tower'}]});
+ b.set(DB.doc(C+'/cfg/acts'),{items:[{name:'Pump overhauling',type:'cold'},{name:'Welding repair',type:'hot'},{name:'Tank internal cleaning',type:'confined'},{name:'Motor megger and cable work',type:'elec'}]});
+ b.set(DB.doc(C+'/cfg/counter'),{n:3});
+ const base=(n,ty,dp,by,eq,area,act,st,s0,e0,extra)=>Object.assign({no:'PTW/'+deptCode2(dp)+'/'+ymd2(t)+'/000'+n,seq:n,type:ty,dept:dp,by:by[0],byName:by[1],byEmail:by[2],equip:eq,area,act,desc:act+' as per job card.',contractor:'In-house',sup:'Mohan Lal',persons:'Ramesh\nSuresh K\nDinesh',pc:3,start:dtl(s0),end:dtl(e0),hz:['Moving / rotating machinery','Stored energy / pressure release'],ppe:['Safety helmet','Safety shoes','Gloves'],pr:PR_ALL.slice(0,2),iso:{E:{r:1,t:'MCC-03 breaker 5 LOTO-114'},M:{r:1,t:'Suction and discharge valves closed and locked'},P:{r:0,t:''},I:{r:0,t:''},O:{r:0,t:''}},gas:0,tbt:1,jsa:1,fw:0,st,ts:s0-h,upd:s0-h,log:[{t:s0-h,u:by[0],n:by[1],a:'Raised',x:''}]},extra||{});
+ const dc={Operation:'OPR',Mechanical:'MEC',Electrical:'ELE'};function deptCode2(d){return dc[d]||'GEN'}function ymd2(ms){const d=new Date(ms);return String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)}
+ const vr=(s)=>({vr:{by:'d-iss',n:'Amit Shah',at:s,el:1,me:1,tbt:1,note:'Isolation verified at site.'},iso:{E:{r:1,t:'MCC-03 breaker 5 LOTO-114',st:'done',by:'Amit Shah',at:s},M:{r:1,t:'Suction and discharge valves closed and locked',st:'done',by:'Amit Shah',at:s},P:{r:0,t:'',st:'na'},I:{r:0,t:'',st:'na'},O:{r:0,t:'',st:'na'}}});
+ const p1=base(1,'cold','Mechanical',['d-mec','Rahul Verma','rahul@demo.com'],'P-101A Boiler Feed Pump A','Boiler House','Pump overhauling','active',t-6*h,t-1*h,Object.assign(vr(t-5.5*h),{ap:{by:'d-inc',n:'Suresh Patil',at:t-5*h,note:'Approved.'}}));p1.log.push({t:t-5.5*h,u:'d-iss',n:'Amit Shah',a:'Verified',x:'Isolation verified at site.'},{t:t-5*h,u:'d-inc',n:'Suresh Patil',a:'Approved',x:''});
+ const p2=base(2,'elec','Electrical',['d-ele','Pooja Nair','pooja@demo.com'],'MCC-03 MCC Panel 3','Electrical Room','Motor megger and cable work','raised',t-.5*h,t+7*h);
+ const p3=base(3,'cold','Mechanical',['d-mec','Rahul Verma','rahul@demo.com'],'CT-02 Cooling Tower Fan 2','Cooling Tower','Gearbox oil change','closed',t-30*h,t-22*h,Object.assign(vr(t-29*h),{ap:{by:'d-inc',n:'Suresh Patil',at:t-28.5*h,note:''},cl:{by:'d-iss',n:'Amit Shah',at:t-21*h,note:'Area inspected.',deiso:1},closedAt:t-21*h}));p3.log.push({t:t-29*h,u:'d-iss',n:'Amit Shah',a:'Verified',x:''},{t:t-28.5*h,u:'d-inc',n:'Suresh Patil',a:'Approved',x:''},{t:t-21*h,u:'d-iss',n:'Amit Shah',a:'Closed',x:'Area inspected.'});
+ [p1,p2,p3].forEach((p,i)=>b.set(DB.doc(C+'/permits/dp'+(i+1)),p));await b.commit()}
+async function startDemo(){DB=LocalFS;S.mode='demo';try{localStorage.setItem('ep_demo','1')}catch(e){}if(!LocalFS.has('ep_plants/DEMO01'))await seedDemo();
+ const U={'d-mgr':['Ravi Kumar','manager@demo.com'],'d-inc':['Suresh Patil','suresh@demo.com'],'d-iss':['Amit Shah','amit@demo.com'],'d-saf':['Neha Gupta','neha@demo.com'],'d-mec':['Rahul Verma','rahul@demo.com'],'d-ele':['Pooja Nair','pooja@demo.com']};let as='d-mgr';try{as=localStorage.getItem('ep_demo_as')||as}catch(e){}if(!U[as])as='d-mgr';
+ S.user={uid:as,name:U[as][0],email:U[as][1]};S.demoU=U;openPlant('DEMO01')}
+
+/* ===== layout ===== */
+function shell(){const m=ME(),n=pendingCount();const tabs=[['home','🏠','Home'],['list','📋','Permits'],['new','➕','New'],['stats','📊','Stats'],['more','👤','More']];
+ $('app').innerHTML=`<div class="top"><div class="tt"><b>${esc(S.plant.name)}</b><small>${esc(m.name)} • ${esc(ROLES[m.role])} • ${esc(m.dept)}${S.mode==='demo'?' • demo':''}</small></div><button class="ib" data-a="bell" aria-label="Pending actions">🔔${n?'<i>'+(n>99?'99+':n)+'</i>':''}</button></div><div id="view"></div>
+ <nav class="nav" aria-label="Main">${tabs.map(t=>`<button class="${S.tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('')}</nav>`;view()}
+function view(){if(!$('view'))return shell();({home:vHome,list:vList,new:vNew,stats:vStats,more:vMore})[S.tab]()}
+const TABS=['home','list','new','stats','more'];
+function goTab(t){S.tab=t;if(t==='new'&&!ui.form)ui.form=newForm();shell();$('view').scrollTop=0}
+/* ===== views ===== */
+function pRow(p){return`<button class="row" data-a="open" data-id="${esc(p.id)}"><b>${esc(p.no)}</b> ${sTag(p)}<small>${TYPES[p.type]?TYPES[p.type].ic+' '+TYPES[p.type].n:''} • ${esc(p.dept)} • ${esc(p.equip||p.area)}</small><small>${esc(fmtT(tms(p.start)))} to ${esc(fmtT(tms(p.end)))} • ${esc(p.byName)}</small></button>`}
+function vHome(){const L=S.permits,act=L.filter(p=>p.st==='active'),del=act.filter(delayed),need=L.filter(needsMe),t0=new Date(NOW()).setHours(0,0,0,0),mine=L.filter(p=>p.by===S.user.uid).slice(0,5);
+ const pm=isMgr()?S.mem.filter(m=>m.status==='pending'):[];
+ $('view').innerHTML=`<div class="tiles"><div class="tile"><b>${need.length}</b><small>Need your action</small></div><div class="tile"><b>${act.length-del.length}</b><small>Active now</small></div><div class="tile"><b class="${del.length?'bad':''}">${del.length}</b><small>Delayed</small></div><div class="tile"><b>${L.filter(p=>(p.ts||0)>=t0).length}</b><small>Raised today</small></div></div>
+ <button class="btn" data-a="tab" data-v="new" style="margin-bottom:12px">➕ RAISE NEW PERMIT</button>
+ ${pm.length?`<div class="warn">👥 ${pm.length} ${pm.length>1?'people are':'person is'} waiting for your approval. <button class="chip" data-a="people">Open</button></div>`:''}
+ ${need.length?'<div class="h">Needs your action</div>'+need.map(pRow).join(''):''}
+ ${del.length?'<div class="h">Delayed permits</div>'+del.map(pRow).join(''):''}
+ ${mine.length?'<div class="h">My recent permits</div>'+mine.map(pRow).join(''):''}
+ ${!L.length?'<div class="empty">No permits yet. Tap RAISE NEW PERMIT.</div>':''}<div class="cr">&copy; DUKEKRRISH. All rights reserved.</div>`}
+const FLT=[['','All'],['pend','Pending'],['active','Active'],['delayed','Delayed'],['closreq','Closure'],['closed','Closed'],['rejected','Rejected']];
+function fPass(p){const f=ui.f,k=skey(p);if(f.st==='pend'&&!(p.st==='raised'||p.st==='verified'))return false;if(f.st==='active'&&!(p.st==='active'&&k!=='delayed'))return false;if(f.st==='delayed'&&k!=='delayed')return false;if(f.st==='closreq'&&p.st!=='closreq')return false;if(f.st==='closed'&&p.st!=='closed')return false;if(f.st==='rejected'&&!(p.st==='rejected'||p.st==='cancelled'))return false;if(f.dept&&p.dept!==f.dept)return false;if(f.mine&&p.by!==S.user.uid)return false;if(f.q){const q=f.q.toLowerCase();if(!(p.no+' '+p.equip+' '+p.act+' '+p.byName+' '+p.area).toLowerCase().includes(q))return false}return true}
+function vList(){const L=S.permits.filter(fPass),lim=ui.lim||50;
+ $('view').innerHTML=`<div class="chips">${FLT.map(x=>`<button class="chip ${ui.f.st===x[0]?'on':''}" data-a="fst" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
+ <div class="g2"><label><span>Search</span><input id="fq" value="${esc(ui.f.q)}" placeholder="Permit no, equipment, name" data-ch="fq"></label><label><span>Department</span><select data-ch="fdept"><option value="">All</option>${deptOpts(S.plant.depts,ui.f.dept)}</select></label></div>
+ <label class="ck ${ui.f.mine?'on':''}"><input type="checkbox" data-ch="fmine" ${ui.f.mine?'checked':''}><span>Only my permits</span></label>
+ <div class="note" style="margin:6px 0">${L.length} permit${L.length===1?'':'s'}</div>${L.slice(0,lim).map(pRow).join('')||'<div class="empty">No permits match.</div>'}${L.length>lim?'<button class="btn w" data-a="more">Show more</button>':''}`}
+
+/* ===== new permit form ===== */
+function newForm(){const me=ME();return{type:'',dept:me?me.dept:'',equip:'',area:'',act:'',desc:'',contractor:'',sup:'',persons:'',start:dtl(NOW()),end:dtl(NOW()+8*36e5),hz:[],hzo:'',ppe:['Safety helmet','Safety shoes'],pr:[],iso:{E:{r:0,t:''},M:{r:0,t:''},P:{r:0,t:''},I:{r:0,t:''},O:{r:0,t:''}},gas:0,tbt:0,jsa:0,fw:0,decl:0}}
+const yn=(f,v)=>`<span class="yn"><button class="${v?'on':''}" data-a="tg" data-f="${f}" data-v="1">Yes</button><button class="no ${v?'':'on'}" data-a="tg" data-f="${f}" data-v="0">No</button></span>`;
+function vNew(){const f=ui.form||(ui.form=newForm()),T=f.type,hz=HZ_ALL.concat(HZ_T[T]||[]),pr=PR_ALL.concat(PR_T[T]||[]);
+ const eqL=S.equip.map(e=>`<option value="${esc(e.tag+' '+e.name)}">`).join(''),acL=S.acts.map(a=>`<option value="${esc(a.name)}">`).join('');
+ $('view').innerHTML=`<div class="card"><h3>1. Type of permit</h3><div class="chips">${Object.keys(TYPES).map(k=>`<button class="chip ${T===k?'on':''}" data-a="ptype" data-v="${k}">${TYPES[k].ic} ${TYPES[k].n}</button>`).join('')}</div>
+ <label><span>Requesting department</span><select data-f="dept">${deptOpts(S.plant.depts,f.dept)}</select></label></div>
+ <div class="card"><h3>2. Job details</h3><datalist id="eql">${eqL}</datalist><datalist id="acl">${acL}</datalist>
+ <label><span>Equipment / tag no</span><input data-f="equip" list="eql" value="${esc(f.equip)}" maxlength="120" placeholder="Pick from list or type" data-ch="equip"></label>
+ <label><span>Area / location</span><input data-f="area" value="${esc(f.area)}" maxlength="100"></label>
+ <label><span>Activity</span><input data-f="act" list="acl" value="${esc(f.act)}" maxlength="120" data-ch="act" placeholder="Pick from list or type"></label>
+ <label><span>Work description (what, where, how)</span><textarea data-f="desc" maxlength="800">${esc(f.desc)}</textarea></label>
+ <label><span>Contractor / agency</span><input data-f="contractor" value="${esc(f.contractor)}" maxlength="80" placeholder="In-house or company name"></label>
+ <label><span>Work supervisor (in charge at site)</span><input data-f="sup" value="${esc(f.sup)}" maxlength="60"></label>
+ <label><span>Engaged persons (one name per line)</span><textarea data-f="persons" maxlength="800" placeholder="Ramesh&#10;Suresh">${esc(f.persons)}</textarea></label><div class="note" style="margin:-6px 0 8px">Persons: ${personsOf(f.persons).length}</div>
+ <div class="g2"><label><span>Valid from</span><input type="datetime-local" data-f="start" value="${esc(f.start)}"></label><label><span>Valid till</span><input type="datetime-local" data-f="end" value="${esc(f.end)}"></label></div><div class="note">A permit is valid for 24 hours at most. Not finished in time? Ask for renewal.</div></div>
+ <div class="card"><h3>3. Hazards identified</h3><div class="cg">${hz.map(h=>chk('hz',h,f.hz.includes(h))).join('')}</div><label><span>Other hazard (optional)</span><input data-f="hzo" value="${esc(f.hzo)}" maxlength="120"></label></div>
+ <div class="card"><h3>4. PPE and precautions</h3><div class="lb">PPE to be used</div><div class="cg">${PPE_ALL.map(h=>chk('ppe',h,f.ppe.includes(h))).join('')}</div><div class="lb" style="margin-top:6px">Precautions taken</div><div class="cg">${pr.map(h=>chk('pr',h,f.pr.includes(h))).join('')}</div></div>
+ <div class="card"><h3>5. Isolation required</h3><div class="note" style="margin-bottom:6px">Say what must be isolated. Operation will verify and give clearance: done or not required.</div>
+ ${ISO.map(x=>`<div class="iso"><div class="l"><span>${x[1]}</span>${yn('iso.'+x[0]+'.r',f.iso[x[0]].r)}</div>${f.iso[x[0]].r?`<input style="margin-top:6px" data-f="iso.${x[0]}.t" value="${esc(f.iso[x[0]].t)}" maxlength="140" placeholder="Isolation point, tag or LOTO no">`:''}</div>`).join('')}
+ <div class="iso"><div class="l"><span>Gas test needed (O2, LEL, H2S, CO)</span>${yn('gas',f.gas)}</div></div></div>
+ <div class="card"><h3>6. Safety declarations</h3><div class="iso"><div class="l"><span>TBT (Tool Box Talk) done with all engaged persons</span>${yn('tbt',f.tbt)}</div></div><div class="iso"><div class="l"><span>JSA / risk assessment available</span>${yn('jsa',f.jsa)}</div></div><div class="iso"><div class="l"><span>Fire watch / standby person arranged</span>${yn('fw',f.fw)}</div></div>
+ <label class="ck ${f.decl?'on':''}" style="margin-top:8px"><input type="checkbox" data-ck="decl" ${f.decl?'checked':''}><span>I confirm the details are correct, the persons know the hazards, and work will start only after the permit is approved.</span></label></div>
+ <div class="err" id="fer">${esc(ui.fe)}</div><button class="btn g" data-a="psubmit">SUBMIT PERMIT</button><button class="btn w" style="margin-top:8px" data-a="pclear">Clear form</button>`}
+const personsOf=s=>String(s||'').split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+function formErr(f){const e=[];if(!f.type)e.push('Choose the type of permit.');if(!f.equip.trim()&&!f.area.trim())e.push('Enter equipment or area.');if(!f.act.trim())e.push('Enter the activity.');if(f.desc.trim().length<10)e.push('Describe the work (at least 10 letters).');if(!f.sup.trim())e.push('Enter the work supervisor.');if(!personsOf(f.persons).length)e.push('Enter the engaged persons.');
+ const s=tms(f.start),en=tms(f.end);if(!s||!en)e.push('Enter valid from and till time.');else if(en<=s)e.push('Valid till must be after valid from.');else if(en-s>864e5)e.push('A permit can be valid for 24 hours at most.');else if(en<NOW())e.push('Valid till time is already over.');
+ if(!f.hz.length&&!f.hzo.trim())e.push('Select at least one hazard.');if(!f.ppe.length)e.push('Select the PPE.');
+ ISO.forEach(x=>{if(f.iso[x[0]].r&&!f.iso[x[0]].t.trim())e.push('Write the isolation point for '+x[1]+'.')});
+ if(['hot','confined'].includes(f.type)&&!f.gas)e.push('Gas test is needed for '+TYPES[f.type].n+'.');if(f.type!=='cold'&&f.type&&!f.jsa)e.push('JSA / risk assessment is needed for '+TYPES[f.type].n+'.');
+ if(f.type==='hot'&&!f.fw)e.push('Arrange a fire watch for hot work.');if(f.type==='confined'&&!f.pr.includes('Standby attendant posted'))e.push('Confined space needs a standby attendant.');if(f.type==='height'&&!f.ppe.includes('Full-body harness'))e.push('Select a full-body harness for work at height.');
+ if(!f.decl)e.push('Tick the confirmation.');return e}
+async function nextNo(){const ref=DB.doc(P('cfg/counter'));if(DB.runTransaction)return DB.runTransaction(async t=>{const s=await t.get(ref);const n=(s.exists?s.data().n:0)+1;t.set(ref,{n});return n});const s=await ref.get();const n=(s.exists?s.data().n:0)+1;await ref.set({n});return n}
+async function submitPermit(){const f=ui.form,e=formErr(f);ui.fe=e[0]||'';if(e.length){$('fer').textContent=e[0];$('fer').scrollIntoView({block:'center'});return}
+ const me=ME();let n;try{n=await nextNo()}catch(x){return toast('Could not get a permit number. Check internet and try again.',4000)}
+ const d=new Date(NOW()),no='PTW/'+deptCode(f.dept)+'/'+String(d.getFullYear()).slice(2)+pad(d.getMonth()+1)+'/'+String(n).padStart(4,'0'),ps=personsOf(f.persons);
+ const iso={};ISO.forEach(x=>{iso[x[0]]={r:f.iso[x[0]].r?1:0,t:f.iso[x[0]].r?f.iso[x[0]].t.trim():''}});
+ const p={no,seq:n,type:f.type,dept:f.dept,by:S.user.uid,byName:me.name,byEmail:me.email||S.user.email||'',equip:f.equip.trim(),area:f.area.trim(),act:f.act.trim(),desc:f.desc.trim(),contractor:f.contractor.trim()||'In-house',sup:cap(f.sup),persons:ps.map(cap).join('\n'),pc:ps.length,start:f.start,end:f.end,end0:f.end,hz:f.hz.concat(f.hzo.trim()?[f.hzo.trim()]:[]),ppe:f.ppe,pr:f.pr,iso,gas:f.gas?1:0,tbt:f.tbt?1:0,jsa:f.jsa?1:0,fw:f.fw?1:0,st:'raised',ts:NOW(),upd:NOW(),rnCount:0,log:[{t:NOW(),u:S.user.uid,n:me.name,a:'Raised',x:''}]};
+ await DB.doc(P('permits/'+uid('p'))).set(p);ui.form=null;ui.fe='';toast('Permit '+no+' raised.',3500);S.tab='list';ui.f={st:'',q:'',dept:'',mine:1};shell()}
+/* ===== statistics ===== */
+const SP=[['today','Today'],['week','7 Days'],['month','This Month'],['year','This Year'],['all','All']];
+function spFrom(){const d=new Date(NOW()),t0=new Date(d).setHours(0,0,0,0);return{today:t0,week:t0-6*864e5,month:new Date(d.getFullYear(),d.getMonth(),1).getTime(),year:new Date(d.getFullYear(),0,1).getTime(),all:0}[ui.sp]}
+const wasDelayed=p=>delayed(p)||(p.rnCount||0)>0||(p.closedAt&&p.end&&p.closedAt>tms(p.end));
+function statsOf(L){const iso=L.reduce((a,p)=>a+isoTaken(p),0);return{raised:L.length,approved:L.filter(p=>p.ap).length,rejected:L.filter(p=>p.st==='rejected').length,cancelled:L.filter(p=>p.st==='cancelled').length,closed:L.filter(p=>p.st==='closed').length,active:L.filter(p=>p.st==='active'&&!delayed(p)).length,delayed:L.filter(wasDelayed).length,delnow:L.filter(delayed).length,pending:L.filter(p=>p.st==='raised'||p.st==='verified').length,isoP:L.filter(p=>isoTaken(p)>0).length,iso,renew:L.reduce((a,p)=>a+(p.rnCount||0),0)}}
+function vStats(){const from=spFrom(),L=S.permits.filter(p=>(p.ts||0)>=from),s=statsOf(L),mx=Math.max(1,...Object.keys(TYPES).map(k=>L.filter(p=>p.type===k).length));
+ const T=(n,v,c)=>`<div class="tile"><b ${c?`class="${c}"`:''}>${v}</b><small>${n}</small></div>`;
+ const ds=(S.plant.depts||[]).map(d=>({n:d.n,s:statsOf(L.filter(p=>p.dept===d.n))})).filter(x=>x.s.raised);
+ $('view').innerHTML=`<div class="chips">${SP.map(x=>`<button class="chip ${ui.sp===x[0]?'on':''}" data-a="sp" data-v="${x[0]}">${x[1]}</button>`).join('')}</div>
+ <div class="tiles">${T('Permits raised',s.raised)}${T('Approved',s.approved)}${T('Closed',s.closed)}${T('Active now',s.active)}${T('Pending approval',s.pending)}${T('Rejected / cancelled',s.rejected+s.cancelled)}${T('Delayed (ever)',s.delayed,s.delayed?'bad':'')}${T('Delayed now',s.delnow,s.delnow?'bad':'')}${T('Renewals',s.renew)}${T('Permits with isolation',s.isoP)}${T('Isolations taken',s.iso)}</div>
+ <div class="card"><h3>By permit type</h3>${Object.keys(TYPES).map(k=>{const n=L.filter(p=>p.type===k).length;return`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:13.5px"><span>${TYPES[k].ic} ${TYPES[k].n}</span><b>${n}</b></div><div class="bar"><i style="width:${n/mx*100}%"></i></div></div>`}).join('')}</div>
+ <div class="card"><h3>By department</h3>${ds.length?`<div class="tw"><table><tr><th>Dept</th><th>Raised</th><th>Closed</th><th>Active</th><th>Delayed</th><th>Isol.</th></tr>${ds.map(x=>`<tr><td>${esc(x.n)}</td><td>${x.s.raised}</td><td>${x.s.closed}</td><td>${x.s.active}</td><td>${x.s.delayed}</td><td>${x.s.iso}</td></tr>`).join('')}</table></div>`:'<div class="empty">No permits in this period.</div>'}</div>
+ <button class="btn w" data-a="csv">⬇ DOWNLOAD REGISTER (CSV)</button>`}
+function exportCsv(){const h=['Permit No','Type','Department','Status','Raised By','Equipment','Area','Activity','Contractor','Supervisor','Persons','Valid From','Valid Till','Renewals','Isolations Required','Isolations Done','TBT','JSA','Raised At','Approved By','Closed At'];
+ const r=S.permits.map(p=>[p.no,(TYPES[p.type]||{}).n,p.dept,slabel(p),p.byName,p.equip,p.area,p.act,p.contractor,p.sup,p.pc,p.start,p.end,p.rnCount||0,isoNeeded(p),isoTaken(p),p.tbt?'Yes':'No',p.jsa?'Yes':'No',fmtT(p.ts),p.ap?p.ap.n:'',p.closedAt?fmtT(p.closedAt):''].map(csvCell).join(','));
+ dl('PermitRegister_'+ymd(new Date(NOW()))+'.csv','text/csv',h.join(',')+'\n'+r.join('\n'))}
+
+/* ===== more ===== */
+function vMore(){const m=ME(),pl=S.plant;
+ $('view').innerHTML=`<div class="card"><h3>My profile</h3><dl class="kv"><dt>Name</dt><dd>${esc(m.name)}</dd><dt>Email</dt><dd>${esc(m.email||S.user.email)}</dd><dt>Employee ID</dt><dd>${esc(m.empId||'-')}</dd><dt>Department</dt><dd>${esc(m.dept)}</dd><dt>Role</dt><dd>${esc(ROLES[m.role])}</dd></dl></div>
+ <div class="card"><h3>Plant</h3><b>${esc(pl.name)}</b><div class="code">${esc(S.cid)}</div><div class="note">Share this code. People join with it and wait for the manager to approve.</div><div class="btns"><button class="btn w s" data-a="copycode">Copy code</button></div></div>
+ ${isMgr()?`<button class="row" data-a="people"><b>👥 People and roles</b><small>${S.mem.filter(x=>x.status==='pending').length} waiting • ${S.mem.filter(x=>x.status==='active').length} active. Approve, give roles, transfer manager right.</small></button><button class="row" data-a="depts"><b>🏭 Departments</b><small>Departments people can pick when they join.</small></button><button class="row" data-a="lists"><b>📥 Equipment and activity lists</b><small>${S.equip.length} equipment • ${S.acts.length} activities. Import from CSV.</small></button>`:''}
+ <button class="row" data-a="csv"><b>⬇ Permit register (CSV)</b><small>All permits with status, times and isolation count.</small></button>
+ <button class="row" data-a="about"><b>ℹ️ About permit rules</b><small>What this app checks before a permit is approved.</small></button>
+ ${S.mode==='demo'?`<div class="card"><h3>Demo: act as</h3><div class="chips">${Object.keys(S.demoU).map(k=>`<button class="chip ${k===S.user.uid?'on':''}" data-a="as" data-v="${k}">${esc(S.demoU[k][0])}</button>`).join('')}</div><button class="btn w s" data-a="demoreset">Reset demo data</button></div>`:''}
+ <button class="btn w" data-a="switchp" style="margin-bottom:8px">Switch plant</button><button class="btn w" data-a="csignout">Sign out</button><div class="cr">&copy; DUKEKRRISH. All rights reserved.</div>`}
+A.about=()=>openSheet(`<h2>Permit rules in this app</h2><ul style="padding-left:18px;font-size:14px;line-height:1.5;margin:0"><li>Flow: user raises, Operation verifies isolation and electrical / mechanical checks, shift incharge approves, user closes, Operation closes.</li><li>Every permit has its own number and history of who did what and when.</li><li>Hot work and confined space need a gas test, JSA and (hot work) a fire watch. Confined space needs a standby attendant. Work at height needs a harness.</li><li>Gas limits checked: oxygen 19.5 to 23.5 %, flammable gas 10 % LEL or less, H2S 10 ppm or less, CO 25 ppm or less.</li><li>Valid up to 24 hours. After the time is over it shows DELAYED and renewal must be requested and approved, with a fresh gas test if needed.</li><li>Isolation follows lockout-tagout practice (for example OSHA 1910.147), confined space follows entry-permit practice (for example OSHA 1910.146) and hot work follows fire-watch practice (for example NFPA 51B), within an ISO 45001 style system.</li></ul><p class="note">This is a tool to follow your plant's permit procedure. Your own site procedure, legal rules and trained people decide. It does not replace them and is not a certified system.</p><button class="btn" data-a="closeSheet">OK</button>`);
+
+/* ===== permit detail ===== */
+const getP=id=>S.permits.find(x=>x.id===id);
+const sec=(t,h)=>`<div class="card" style="padding:10px"><h3>${t}</h3>${h}</div>`;
+function detail(id){const p=getP(id);if(!p)return;const k=TYPES[p.type]||{n:'',ic:''},me=S.user.uid,own=p.by===me;
+ const isoRows=ISO.filter(x=>p.iso&&p.iso[x[0]]&&p.iso[x[0]].r);
+ const isoH=isoRows.length?`<div class="tw"><table><tr><th>Type</th><th>Point / tag</th><th>Status</th></tr>${isoRows.map(x=>{const i=p.iso[x[0]];return`<tr><td>${x[1]}</td><td>${esc(i.t)}</td><td>${i.st==='done'?'<span class="ok">DONE</span>':i.st==='na'?'NOT REQUIRED':'<span class="bad">PENDING</span>'}${i.by?`<br><small>${esc(i.by)} ${esc(fmtT(i.at))}</small>`:''}</td></tr>`}).join('')}</table></div>`:'<span>No isolation required (as raised).</span>';
+ const clear=p.vr?(isoRows.length?(isoRows.every(x=>p.iso[x[0]].st==='na')?'ISOLATION NOT REQUIRED':'ISOLATION DONE'):'ISOLATION NOT REQUIRED'):'';
+ const g=p.gas&&typeof p.gas==='object'?p.gas:null;
+ const b=[];
+ if(p.st==='raised'&&isIss())b.push(['verify','Verify checks and isolation','']);
+ if(p.st==='verified'&&isInc())b.push(['approve','Approve permit','g']);
+ if((p.st==='raised'||p.st==='verified')&&isInc())b.push(['reject','Reject','r']);
+ if(p.st==='active'&&own)b.push(['closreq','Work finished: request closure','g']);
+ if(p.st==='active'&&own&&!(p.rn&&p.rn.req))b.push(['renew','Request renewal',delayed(p)?'':'w']);
+ if(p.st==='active'&&p.rn&&p.rn.req&&isInc()){b.push(['rnok','Approve renewal','g']);b.push(['rndec','Decline renewal','r'])}
+ if((p.st==='closreq'||p.st==='active')&&isIss())b.push(['close','Close permit',p.st==='closreq'?'g':'w']);
+ if(p.st==='active'&&(isInc()||isSaf()))b.push(['stop','Stop work and cancel','r']);
+ if((p.st==='raised'||p.st==='verified')&&own&&!isInc())b.push(['cancel','Cancel my permit','w']);
+ openSheet(`<h2>${esc(p.no)}</h2><div style="margin:-4px 0 10px">${sTag(p)} <span class="tag">${k.ic} ${esc(k.n)}</span>${clear?`<span class="tag t-active">${clear}</span>`:''}</div>
+ ${delayed(p)?'<div class="warn">⏱ Permit time is over. Work should stop. Requester must ask for renewal or close the permit.</div>':''}${p.rn&&p.rn.req?`<div class="warn">🔁 Renewal asked till ${esc(fmtT(tms(p.rn.end)))} by ${esc(p.rn.n)}. Reason: ${esc(p.rn.reason)}</div>`:''}
+ ${sec('Job',`<dl class="kv"><dt>Department</dt><dd>${esc(p.dept)}</dd><dt>Raised by</dt><dd>${esc(p.byName)} • ${esc(fmtT(p.ts))}</dd><dt>Equipment</dt><dd>${esc(p.equip||'-')}</dd><dt>Area</dt><dd>${esc(p.area||'-')}</dd><dt>Activity</dt><dd>${esc(p.act)}</dd><dt>Description</dt><dd>${esc(p.desc)}</dd><dt>Contractor</dt><dd>${esc(p.contractor)}</dd><dt>Supervisor</dt><dd>${esc(p.sup)}</dd><dt>Persons (${p.pc})</dt><dd>${esc(String(p.persons||'').split('\n').join(', '))}</dd><dt>Valid</dt><dd>${esc(fmtT(tms(p.start)))} to ${esc(fmtT(tms(p.end)))}${p.rnCount?` <span class="tag t-renew">Renewed ${p.rnCount}x</span>`:''}</dd></dl>`)}
+ ${sec('Hazards',esc((p.hz||[]).join(', ')||'-'))}${sec('PPE and precautions',esc((p.ppe||[]).join(', '))+'<br><br>'+esc((p.pr||[]).join(', ')||'-'))}
+ ${sec('Isolation',isoH)}
+ ${p.gas?sec('Gas test',g?`<dl class="kv">${Object.keys(GAS).map(q=>`<dt>${GAS[q][0]}</dt><dd>${esc(g[q])} <small>(limit ${GAS[q][1]})</small></dd>`).join('')}<dt>By</dt><dd>${esc(g.n||'')} ${esc(fmtT(g.at))}</dd></dl>`:'<span class="bad">Required. Not yet recorded.</span>'):''}
+ ${sec('Declarations',`TBT done: <b class="${p.tbt?'ok':'bad'}">${p.tbt?'YES':'NO'}</b> • JSA: <b>${p.jsa?'YES':'NO'}</b> • Fire watch: <b>${p.fw?'YES':'NO'}</b>${p.vr?`<br>Electrical check: <b class="ok">OK</b> • Mechanical check: <b class="ok">OK</b> • TBT confirmed by Operation: <b class="ok">YES</b>`:''}`)}
+ ${sec('History',`<div class="tw"><table>${(p.log||[]).map(l=>`<tr><td>${esc(fmtT(l.t))}</td><td><b>${esc(l.a)}</b> ${esc(l.n)}${l.x?`<br><small>${esc(l.x)}</small>`:''}</td></tr>`).join('')}</table></div>`)}
+ <div class="btns">${b.map(x=>`<button class="btn ${x[2]}" data-a="${x[0]}" data-id="${esc(p.id)}">${x[1].toUpperCase()}</button>`).join('')}<button class="btn w" data-a="pdf" data-id="${esc(p.id)}">⬇ PDF (${esc(slabel(p).toUpperCase())})</button><button class="btn w" data-a="copy" data-id="${esc(p.id)}">COPY AS NEW PERMIT</button></div>`)}
+A.open=d=>detail(d.id);
+async function upd(p,patch,a,x){const log=(p.log||[]).concat([{t:NOW(),u:S.user.uid,n:ME().name,a,x:x||''}]);await DB.doc(P('permits/'+p.id)).update(Object.assign({},patch,{log,upd:NOW()}));closeSheet();toast(a+': '+p.no)}
+const val=id=>($(id)?$(id).value:'').trim();
+const gasBlock=(g)=>`<div class="iso"><div class="l"><span>Gas test readings</span></div>${Object.keys(GAS).map(q=>`<label style="margin:6px 0 0"><span>${GAS[q][0]} (limit ${GAS[q][1]})</span><input id="g_${q}" type="number" step="0.1" inputmode="decimal" value="${g?esc(g[q]):''}"></label>`).join('')}</div>`;
+function gasRead(){const o={},e=[];for(const q of Object.keys(GAS)){const v=val('g_'+q);if(v===''||isNaN(+v))return{e:'Enter all gas readings.'};o[q]=+v}
+ if(o.o2<19.5||o.o2>23.5)e.push('Oxygen');if(o.lel>10)e.push('LEL');if(o.h2s>10)e.push('H2S');if(o.co>25)e.push('CO');if(e.length)return{e:'Gas reading out of limit ('+e.join(', ')+'). Work is not safe. Do not approve.'};o.by=S.user.uid;o.n=ME().name;o.at=NOW();return{o}}
+A.verify=d=>{const p=getP(d.id),rows=ISO.filter(x=>p.iso[x[0]]&&p.iso[x[0]].r);
+ openSheet(`<h2>Verify ${esc(p.no)}</h2>${rows.length?rows.map(x=>`<div class="iso"><div class="l"><span>${x[1]}</span></div><div class="note">Asked: ${esc(p.iso[x[0]].t)}</div><select id="vs_${x[0]}"><option value="">Choose clearance…</option><option value="done">Isolation done</option><option value="na">Isolation not required</option></select><input id="vt_${x[0]}" style="margin-top:6px" maxlength="140" value="${esc(p.iso[x[0]].t)}" placeholder="Tag / LOTO no actually applied"></div>`).join(''):'<div class="warn">Requester marked no isolation. Confirm at site that none is needed.</div>'}
+ ${p.gas?gasBlock(p.gas&&typeof p.gas==='object'?p.gas:null):''}
+ <label class="ck"><input type="checkbox" id="ve"><span>Electrical checks done (de-energised, proved dead where needed)</span></label><label class="ck"><input type="checkbox" id="vm"><span>Mechanical checks done (valves, blinds, rotating parts secured)</span></label><label class="ck"><input type="checkbox" id="vt"><span>TBT (Tool Box Talk) confirmed with engaged persons${p.tbt?'':' (requester said NO)'}</span></label>
+ <label><span>Remarks</span><textarea id="vn" maxlength="300"></textarea></label><div class="err" id="ve2"></div><div class="btns"><button class="btn g" data-a="verifyok" data-id="${esc(p.id)}">VERIFIED, SEND FOR APPROVAL</button></div>`)};
+A.verifyok=async d=>{const p=getP(d.id),er=m=>{$('ve2').textContent=m};const iso={};
+ for(const x of ISO){const o=Object.assign({r:0,t:''},p.iso[x[0]]);if(o.r){const s=val('vs_'+x[0]);if(!s)return er('Choose isolation clearance for '+x[1]+'.');o.st=s;if(s==='done'&&!val('vt_'+x[0]))return er('Write the tag / LOTO no for '+x[1]+'.');o.t=val('vt_'+x[0])||o.t;o.by=ME().name;o.at=NOW()}else o.st='na';iso[x[0]]=o}
+ let gas=p.gas;if(p.gas){const g=gasRead();if(g.e)return er(g.e);gas=g.o}
+ if(!$('ve').checked||!$('vm').checked)return er('Tick the electrical and mechanical checks.');if(!$('vt').checked)return er('Confirm the TBT.');
+ await upd(p,{st:'verified',iso,gas,tbt:1,vr:{by:S.user.uid,n:ME().name,at:NOW(),el:1,me:1,tbt:1,note:val('vn')}},'Verified',val('vn'))};
+A.approve=d=>{const p=getP(d.id);openSheet(`<h2>Approve ${esc(p.no)}</h2><div class="warn">Check: isolation ${isoTaken(p)}/${isoNeeded(p)} done • TBT ${p.tbt?'YES':'NO'} • JSA ${p.jsa?'YES':'NO'} • Valid till ${esc(fmtT(tms(p.end)))}</div><label><span>Remarks (optional)</span><textarea id="an" maxlength="300"></textarea></label><div class="btns"><button class="btn g" data-a="apok" data-id="${esc(p.id)}">APPROVE, WORK MAY START</button></div>`)};
+A.apok=d=>{const p=getP(d.id);return upd(p,{st:'active',ap:{by:S.user.uid,n:ME().name,at:NOW(),note:val('an')}},'Approved',val('an'))};
+const reasonSheet=(d,kind,title,btn)=>{const p=getP(d.id);openSheet(`<h2>${title} ${esc(p.no)}</h2><label><span>Reason (required)</span><textarea id="rr" maxlength="300"></textarea></label><div class="err" id="rre"></div><div class="btns"><button class="btn r" data-a="reasonok" data-id="${esc(p.id)}" data-k="${kind}">${btn}</button></div>`)};
+A.reject=d=>reasonSheet(d,'rejected','Reject','REJECT PERMIT');A.cancel=d=>reasonSheet(d,'cancelled','Cancel','CANCEL PERMIT');A.stop=d=>reasonSheet(d,'stop','Stop work','STOP WORK AND CANCEL');
+A.reasonok=d=>{const p=getP(d.id),r=val('rr');if(r.length<3)return $('rre').textContent='Write the reason.';const st=d.k==='rejected'?'rejected':'cancelled',a=d.k==='rejected'?'Rejected':d.k==='stop'?'Work stopped':'Cancelled';return upd(p,{st,[st==='rejected'?'rj':'cn']:{by:S.user.uid,n:ME().name,at:NOW(),reason:r}},a,r)};
+A.closreq=d=>{const p=getP(d.id);openSheet(`<h2>Closure of ${esc(p.no)}</h2><label class="ck"><input type="checkbox" class="cq"><span>Work is complete</span></label><label class="ck"><input type="checkbox" class="cq"><span>All persons withdrawn from the area</span></label><label class="ck"><input type="checkbox" class="cq"><span>Tools, materials and waste removed. Area cleaned</span></label><label><span>Remarks</span><textarea id="cn" maxlength="300"></textarea></label><div class="err" id="cqe"></div><div class="btns"><button class="btn g" data-a="closreqok" data-id="${esc(p.id)}">REQUEST CLOSURE</button></div>`)};
+A.closreqok=d=>{const p=getP(d.id);if([...document.querySelectorAll('.cq')].some(x=>!x.checked))return $('cqe').textContent='Tick all three points.';return upd(p,{st:'closreq',cr:{by:S.user.uid,n:ME().name,at:NOW(),note:val('cn')}},'Closure requested',val('cn'))};
+A.close=d=>{const p=getP(d.id);openSheet(`<h2>Close ${esc(p.no)}</h2><label class="ck"><input type="checkbox" class="cq"><span>Job complete and area inspected</span></label>${isoTaken(p)?'<label class="ck"><input type="checkbox" class="cq"><span>Isolations removed (LOTO tags returned), equipment normalised</span></label>':''}<label><span>Remarks</span><textarea id="cn" maxlength="300"></textarea></label><div class="err" id="cqe"></div><div class="btns"><button class="btn g" data-a="closeok" data-id="${esc(p.id)}">CLOSE PERMIT</button></div>`)};
+A.closeok=d=>{const p=getP(d.id);if([...document.querySelectorAll('.cq')].some(x=>!x.checked))return $('cqe').textContent='Tick all points.';return upd(p,{st:'closed',closedAt:NOW(),cl:{by:S.user.uid,n:ME().name,at:NOW(),note:val('cn'),deiso:isoTaken(p)?1:0}},'Closed',val('cn'))};
+A.renew=d=>{const p=getP(d.id),base=Math.max(NOW(),tms(p.end));openSheet(`<h2>Renewal of ${esc(p.no)}</h2><div class="note">Current end: ${esc(fmtT(tms(p.end)))}</div><label><span>New valid till</span><input type="datetime-local" id="rne" value="${dtl(base+4*36e5)}"></label><label><span>Reason (required)</span><textarea id="rnr" maxlength="300"></textarea></label><div class="err" id="rnx"></div><div class="btns"><button class="btn" data-a="renewok" data-id="${esc(p.id)}">ASK FOR RENEWAL</button></div>`)};
+A.renewok=d=>{const p=getP(d.id),e=tms(val('rne')),r=val('rnr');if(!e||e<=tms(p.end)&&e<=NOW())return $('rnx').textContent='New time must be in the future.';if(e<=tms(p.end))return $('rnx').textContent='New time must be after the current end.';if(e-NOW()>864e5)return $('rnx').textContent='Renewal can be 24 hours at most from now.';if(r.length<3)return $('rnx').textContent='Write the reason.';
+ return upd(p,{rn:{req:1,end:val('rne'),reason:r,by:S.user.uid,n:ME().name,at:NOW()}},'Renewal requested','Till '+fmtT(e)+'. '+r)};
+A.rnok=d=>{const p=getP(d.id);openSheet(`<h2>Approve renewal ${esc(p.no)}</h2><div class="warn">New end: ${esc(fmtT(tms(p.rn.end)))}<br>Reason: ${esc(p.rn.reason)}</div>${p.gas?'<div class="note">Fresh gas test is needed for renewal.</div>'+gasBlock(null):''}<div class="err" id="rox"></div><div class="btns"><button class="btn g" data-a="rnok2" data-id="${esc(p.id)}">APPROVE RENEWAL</button></div>`)};
+A.rnok2=d=>{const p=getP(d.id);let gas=p.gas;if(p.gas){const g=gasRead();if(g.e)return $('rox').textContent=g.e;gas=g.o}return upd(p,{end:p.rn.end,gas,rnCount:(p.rnCount||0)+1,rn:{req:0},rnh:(p.rnh||[]).concat([{from:p.end,to:p.rn.end,reason:p.rn.reason,by:p.rn.n,ok:ME().name,at:NOW()}])},'Renewal approved','Till '+fmtT(tms(p.rn.end)))};
+A.rndec=d=>{const p=getP(d.id);return upd(p,{rn:{req:0,dec:1}},'Renewal declined','Work must stop or be closed.')};
+A.copy=d=>{const p=getP(d.id),f=newForm();Object.assign(f,{type:p.type,dept:p.dept,equip:p.equip,area:p.area,act:p.act,desc:p.desc,contractor:p.contractor,sup:p.sup,persons:p.persons,hz:(p.hz||[]).filter(x=>HZ_ALL.concat(HZ_T[p.type]||[]).includes(x)),ppe:(p.ppe||[]).slice(),pr:(p.pr||[]).slice(),gas:p.gas?1:0,jsa:p.jsa,fw:p.fw});ISO.forEach(x=>{const i=p.iso&&p.iso[x[0]]||{};f.iso[x[0]]={r:i.r?1:0,t:i.t||''}});ui.form=f;closeSheet();goTab('new');toast('Copied. Check the times and submit.')};
+A.pdf=d=>{const p=getP(d.id);try{const f=makePdf(p);dl(f.name,'application/pdf',f.bytes);toast('PDF saved: '+f.name,4000)}catch(e){console.error(e);toast('Could not make the PDF.')}};
+/* ===== people, departments, lists ===== */
+const RSEL=(sel,id,dis)=>`<select ${dis?'disabled':''} data-ch="mrole" data-id="${id}">${['incharge','issuer','safety','user'].map(r=>`<option value="${r}" ${r===sel?'selected':''}>${ROLES[r]}</option>`).join('')}</select>`;
+A.people=()=>{if(!isMgr())return;const pen=S.mem.filter(m=>m.status==='pending'),act=S.mem.filter(m=>m.status==='active').sort((a,b)=>a.name.localeCompare(b.name));
+ openSheet(`<h2>People and roles</h2>${pen.length?'<div class="h">Waiting for approval</div>'+pen.map(m=>`<div class="card"><b>${esc(m.name)}</b><div class="note">${esc(m.email)} • ID ${esc(m.empId||'-')} • ${esc(m.dept)}</div><label style="margin-top:6px"><span>Give role</span><select id="mr_${m.id}">${['user','issuer','incharge','safety'].map(r=>`<option value="${r}">${ROLES[r]}</option>`).join('')}</select></label><div class="btns"><button class="btn g s" data-a="mok" data-id="${m.id}">APPROVE</button><button class="btn r s" data-a="mno" data-id="${m.id}">REJECT</button></div></div>`).join(''):'<div class="note">No one is waiting.</div>'}
+ <div class="h" style="margin-top:10px">Active people (${act.length})</div>${act.map(m=>`<div class="card"><b>${esc(m.name)}</b> ${m.id===S.user.uid?'<span class="tag">You</span>':''}<div class="note">${esc(m.dept)} • ID ${esc(m.empId||'-')}</div>${m.role==='manager'?'<span class="tag t-active">Manager</span>':`${RSEL(m.role,m.id)}<div class="btns"><button class="btn w s" data-a="xfer" data-id="${m.id}">MAKE MANAGER</button><button class="btn r s" data-a="mdel" data-id="${m.id}">REMOVE</button></div>`}</div>`).join('')}`)};
+A.mok=async d=>{const r=$('mr_'+d.id).value;await DB.doc(P('members/'+d.id)).update({status:'active',role:r});toast('Approved');setTimeout(A.people,60)};
+A.mno=async d=>{await DB.doc(P('members/'+d.id)).delete();toast('Rejected');setTimeout(A.people,60)};
+A.mdel=d=>{const m=S.mem.find(x=>x.id===d.id);openSheet(`<h2>Remove ${esc(m.name)}?</h2><div class="note">They lose access to this plant. Their old permits stay in the history.</div><div class="btns"><button class="btn r" data-a="mdelok" data-id="${m.id}">REMOVE</button><button class="btn w" data-a="people">BACK</button></div>`)};
+A.mdelok=async d=>{await DB.doc(P('members/'+d.id)).delete();toast('Removed');A.people()};
+CH.mrole=async e=>{await DB.doc(P('members/'+e.target.dataset.id)).update({role:e.target.value});toast('Role changed')};
+A.xfer=d=>{const m=S.mem.find(x=>x.id===d.id);openSheet(`<h2>Make ${esc(m.name)} the manager?</h2><div class="warn">${esc(m.name)} will get the manager right: approve people, give roles, edit lists. You become Shift Incharge. Only the new manager can undo this.</div><div class="btns"><button class="btn r" data-a="xferok" data-id="${m.id}">YES, TRANSFER</button><button class="btn w" data-a="people">BACK</button></div>`)};
+A.xferok=async d=>{const m=S.mem.find(x=>x.id===d.id),b=DB.batch();b.update(DB.doc(P('members/'+d.id)),{role:'manager',status:'active'});b.update(DB.doc(P('members/'+S.user.uid)),{role:'incharge'});b.update(DB.doc(P('')),{ownerUid:d.id,ownerEmail:m.email||''});await b.commit();closeSheet();toast(m.name+' is now the manager.',3500)};
+A.depts=()=>{const ds=S.plant.depts||[];openSheet(`<h2>Departments</h2>${ds.map(x=>`<div class="ck"><span style="flex:1">${esc(x.n)} <small class="note">(${esc(x.c)})</small></span>${S.mem.some(m=>m.dept===x.n)?'':`<button class="chip" data-a="ddel" data-v="${esc(x.n)}">Remove</button>`}</div>`).join('')}<label style="margin-top:8px"><span>Add department</span><input id="dn" maxlength="30" placeholder="For example Fire or Laboratory"></label><div class="err" id="dne"></div><button class="btn" data-a="dadd">ADD</button>`)};
+A.dadd=async()=>{const n=cap($('dn').value);if(n.length<2)return $('dne').textContent='Enter a name.';const ds=(S.plant.depts||[]).slice();if(ds.some(x=>x.n.toLowerCase()===n.toLowerCase()))return $('dne').textContent='Already there.';let c=n.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase()||'DEP';while(ds.some(x=>x.c===c))c=c.slice(0,2)+String.fromCharCode(65+Math.floor(Math.random()*26));ds.push({n,c});await DB.doc(P('')).update({depts:ds});setTimeout(A.depts,80)};
+A.ddel=async d=>{await DB.doc(P('')).update({depts:(S.plant.depts||[]).filter(x=>x.n!==d.v)});setTimeout(A.depts,80)};
+A.lists=()=>openSheet(`<h2>Equipment and activity lists</h2><div class="note">CSV columns. Equipment: tag, name, area. Activity: name, type (cold, hot, height, confined, elec, exc, lift). First row may be a heading. New rows are added; same tag or name is replaced.</div>
+ <div class="card"><b>Equipment: ${S.equip.length}</b><div class="btns"><button class="btn s" data-a="imp" data-v="equip">IMPORT CSV</button><button class="btn w s" data-a="sample" data-v="equip">SAMPLE</button><button class="btn r s" data-a="clearl" data-v="equip">CLEAR</button></div></div>
+ <div class="card"><b>Activities: ${S.acts.length}</b><div class="btns"><button class="btn s" data-a="imp" data-v="acts">IMPORT CSV</button><button class="btn w s" data-a="sample" data-v="acts">SAMPLE</button><button class="btn r s" data-a="clearl" data-v="acts">CLEAR</button></div></div>`);
+A.imp=d=>{const f=$('fi');f.dataset.k=d.v;f.value='';f.click()};
+A.sample=d=>dl(d.v==='equip'?'equipment-sample.csv':'activity-sample.csv','text/csv',d.v==='equip'?'tag,name,area\nP-101A,Boiler Feed Pump A,Boiler House\nT-201,Condensate Tank,Tank Farm\n':'name,type\nPump overhauling,cold\nWelding repair,hot\nTank internal cleaning,confined\n');
+A.clearl=async d=>{await DB.doc(P('cfg/'+d.v)).set({items:[]});setTimeout(A.lists,80)};
+CH.fi=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>2e6)return toast('File is too big (2 MB max).');const k=e.target.dataset.k,rows=parseCSV(await f.text());if(!rows.length)return toast('The file is empty.');
+ const h=rows[0].map(x=>x.toLowerCase()),head=h.some(x=>/^(tag|name|equipment|activity|type|area)/.test(x));const body=head?rows.slice(1):rows,c=s=>String(s||'').slice(0,100);
+ let cur=(k==='equip'?S.equip:S.acts).slice(),n=0;const key=k==='equip'?(x=>x.tag.toLowerCase()):(x=>x.name.toLowerCase());
+ body.slice(0,5000).forEach(r=>{let it;if(k==='equip'){const tag=c(r[0]),name=c(r[1]);if(!tag&&!name)return;it={tag:tag||name,name:name||'',area:c(r[2])}}else{const name=c(r[0]);if(!name)return;const t=String(r[1]||'').toLowerCase();it={name,type:TYPES[t]?t:''}}
+  const i=cur.findIndex(x=>key(x)===key(it));if(i>=0)cur[i]=it;else cur.push(it);n++});
+ cur=cur.slice(0,5000);await DB.doc(P('cfg/'+k)).set({items:cur});toast(n+' rows imported.',3500);setTimeout(A.lists,100)};
+
+/* ===== join, create, sign-out ===== */
+A.cmode=d=>{cmode=d.v;showLogin()};A.cgoogle=()=>{const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});CL.auth.signInWithPopup(p).catch(cerr)};
+A.cemail=async()=>{const e=val('ce'),p=$('cp').value;if(!emailOk(e))return $('er').textContent='Enter a valid email.';if(p.length<6)return $('er').textContent='Use a password with at least 6 characters.';try{if(cmode==='up'){const nm=val('cnm');const r=await CL.auth.createUserWithEmailAndPassword(e,p);if(nm)await r.user.updateProfile({displayName:nm})}else await CL.auth.signInWithEmailAndPassword(e,p)}catch(x){cerr(x)}};
+A.cforgot=()=>{const e=val('ce');if(!emailOk(e))return $('er').textContent='Type your email above first.';CL.auth.sendPasswordResetEmail(e).then(()=>toast('Reset mail sent. Check your inbox.')).catch(cerr)};
+A.demo=()=>startDemo();A.pick=d=>openPlant(d.c);A.switchp=()=>{if(S.mode==='demo')return toast('Demo has one plant.');chooser()};
+A.csignout=()=>{if(S.mode==='demo'){try{localStorage.removeItem('ep_demo')}catch(e){}location.reload();return}detach();CL.auth.signOut()};
+A.as=d=>{ui.f={st:'',q:'',dept:'',mine:0};try{localStorage.setItem('ep_demo_as',d.v)}catch(e){}ui.form=null;const t=S.tab;startDemo().then(()=>{S.tab=t==='new'?'home':t})};
+A.demoreset=()=>openSheet('<h2>Reset demo data?</h2><div class="note">All demo permits are deleted and the sample ones come back.</div><div class="btns"><button class="btn r" data-a="demoreset2">RESET</button><button class="btn w" data-a="closeSheet">CANCEL</button></div>');
+A.demoreset2=()=>{LocalFS.reset();location.reload()};
+A.cjoin=async()=>{const c=val('jc').toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length<4)return toast('Enter the plant code.');let pl;try{pl=await DB.doc('ep_plants/'+c).get()}catch(e){return toast('Could not check the code. Try again.')}
+ if(!pl.exists)return toast('No plant with that code.');const x=pl.data();let ex=null;try{const m=await DB.doc('ep_plants/'+c+'/members/'+S.user.uid).get();if(m.exists)ex=m.data()}catch(e){}
+ if(ex&&ex.status==='active')return openPlant(c);if(ex&&ex.status==='pending')return chooser('Your request is already sent. Wait for the manager to approve.');
+ openSheet(`<h2>Join ${esc(x.name)}</h2><label><span>Your name</span><input id="jn" maxlength="60" value="${esc(S.user.name||'')}"></label><label><span>Employee ID</span><input id="jid" maxlength="20"></label><label><span>Your department</span><select id="jd">${deptOpts(x.depts)}</select></label><div class="err" id="jer"></div><button class="btn g" data-a="cjoinok" data-c="${esc(c)}">SEND REQUEST</button>`)};
+A.cjoinok=async d=>{const nm=cap(val('jn'));if(nm.length<2)return $('jer').textContent='Enter your name.';const pl=await DB.doc('ep_plants/'+d.c).get(),b=DB.batch();
+ b.set(DB.doc('ep_plants/'+d.c+'/members/'+S.user.uid),{name:nm,email:S.user.email,empId:val('jid'),dept:$('jd').value,role:'user',status:'pending',joined:NOW()});b.set(DB.doc('ep_users/'+S.user.uid+'/plants/'+d.c),{code:d.c,name:pl.data().name,joined:NOW()});
+ try{await b.commit()}catch(e){return cerr(e)}pendingJoin='';closeSheet();chooser('Request sent. The manager will approve you, then open the plant from this list.')};
+A.cnew=()=>openSheet(`<h2>New plant</h2><label><span>Plant name</span><input id="pn" maxlength="60"></label><label><span>Your name</span><input id="jn" maxlength="60" value="${esc(S.user.name||'')}"></label><label><span>Employee ID</span><input id="jid" maxlength="20"></label><label><span>Your department</span><select id="jd">${deptOpts()}</select></label><div class="err" id="jer"></div><button class="btn g" data-a="cnewok">CREATE PLANT</button>`);
+A.cnewok=async()=>{const pn=cap(val('pn')),nm=cap(val('jn'));if(pn.length<2)return $('jer').textContent='Enter the plant name.';if(nm.length<2)return $('jer').textContent='Enter your name.';let c='',tries=0;
+ try{do{c=genCode();tries++}while((await DB.doc('ep_plants/'+c).get()).exists&&tries<6)}catch(e){return cerr(e)}
+ const b=DB.batch(),t=NOW();b.set(DB.doc('ep_plants/'+c),{name:pn,code:c,ownerUid:S.user.uid,ownerEmail:S.user.email,created:t,depts:DEPTS0.map(x=>({n:x[0],c:x[1]}))});
+ b.set(DB.doc('ep_plants/'+c+'/members/'+S.user.uid),{name:nm,email:S.user.email,empId:val('jid'),dept:$('jd').value,role:'manager',status:'active',joined:t});b.set(DB.doc('ep_users/'+S.user.uid+'/plants/'+c),{code:c,name:pn,joined:t});
+ try{await b.commit()}catch(e){return cerr(e)}closeSheet();toast('Plant created. Code: '+c,4500);openPlant(c)};
+A.closeSheet=closeSheet;
+A.tab=d=>goTab(d.v);A.bell=()=>{const pm=isMgr()&&S.mem.some(m=>m.status==='pending');if(pm)A.people();else{ui.f={st:'',q:'',dept:'',mine:0};goTab('home')}};
+A.fst=d=>{ui.f.st=d.v;ui.lim=50;view()};A.more=()=>{ui.lim=(ui.lim||50)+50;view()};A.sp=d=>{ui.sp=d.v;view()};A.csv=exportCsv;
+A.copycode=()=>{const c=S.cid;(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast('Code copied'),()=>toast('Code: '+c,5000))};
+A.tg=d=>{setPath(ui.form,d.f,+d.v);if(d.f==='gas'||/^iso/.test(d.f)||true){const sc=$('view').scrollTop;view();$('view').scrollTop=sc}};
+A.ptype=d=>{const f=ui.form,sc=$('view').scrollTop;f.type=d.v;const hz=HZ_ALL.concat(HZ_T[d.v]||[]),pr=PR_ALL.concat(PR_T[d.v]||[]);f.hz=f.hz.filter(x=>hz.includes(x));f.pr=f.pr.filter(x=>pr.includes(x));if(d.v==='hot'||d.v==='confined')f.gas=1;if(d.v==='height'&&!f.ppe.includes('Full-body harness'))f.ppe.push('Full-body harness');view();$('view').scrollTop=sc};
+A.psubmit=()=>submitPermit();A.pclear=()=>{ui.form=newForm();ui.fe='';view()};
+
+/* ===== events ===== */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b){if(e.target.id==='sheet')closeSheet();return}const f=A[b.dataset.a];if(f){e.preventDefault();Promise.resolve().then(()=>f(b.dataset,b)).catch(x=>{console.error(x);toast(x&&x.code==='permission-denied'?'You do not have permission for that.':'Something went wrong. Try again.')})}});
+document.addEventListener('input',e=>{const t=e.target,f=t.dataset&&t.dataset.f;if(f&&ui.form&&t.tagName!=='BUTTON')setPath(ui.form,f,t.value)});
+document.addEventListener('change',e=>{const t=e.target,d=t.dataset||{};
+ if(d.ck&&ui.form){const f=ui.form;if(d.ck==='decl')f.decl=t.checked?1:0;else{const L=f[d.ck],i=L.indexOf(d.v);if(t.checked&&i<0)L.push(d.v);if(!t.checked&&i>=0)L.splice(i,1)}t.closest('.ck').classList.toggle('on',t.checked);return}
+ if(d.ch==='equip'&&ui.form){const it=S.equip.find(x=>(x.tag+' '+x.name)===t.value);if(it&&!ui.form.area){ui.form.area=it.area||'';const sc=$('view').scrollTop;view();$('view').scrollTop=sc}return}
+ if(d.ch==='act'&&ui.form){const it=S.acts.find(x=>x.name===t.value);if(it&&it.type&&!ui.form.type){A.ptype({v:it.type})}return}
+ if(d.ch==='fq'){ui.f.q=t.value;view();return}if(d.ch==='fdept'){ui.f.dept=t.value;view();return}if(d.ch==='fmine'){ui.f.mine=t.checked?1:0;view();return}
+ if(d.ch&&CH[d.ch])CH[d.ch](e);else if(t.id==='fi')CH.fi(e)});
+(function(){let x0=0,y0=0,ok=false;document.addEventListener('touchstart',e=>{const t=e.target;ok=!!t.closest&&!!t.closest('#view')&&!t.closest('input,textarea,select,.tw')&&$('sheet').hidden;const p=e.touches[0];x0=p.clientX;y0=p.clientY},{passive:true});
+ document.addEventListener('touchend',e=>{if(!ok||!S.ready)return;const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;if(Math.abs(dx)<70||Math.abs(dy)>45||Math.abs(dx)<Math.abs(dy)*2)return;const i=TABS.indexOf(S.tab),j=i+(dx<0?1:-1);if(j>=0&&j<TABS.length)goTab(TABS[j])},{passive:true})})();
+(function(){const b=document.createElement('div');b.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#b45309;color:#fff;font-size:13px;text-align:center;padding:6px 10px;display:none';b.textContent='Offline: changes are saved on this phone and will sync when the internet is back. A new permit number needs internet.';document.body.appendChild(b);const f=()=>{b.style.display=navigator.onLine?'none':'block'};addEventListener('online',f);addEventListener('offline',f);f();
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('permit-sw.js',{scope:'./permit.html'}).catch(()=>{})})();
+function boot(){const hm=/^#\/join\/([^\/]+)/.exec(location.hash||'');if(hm)pendingJoin=hm[1].toUpperCase();let demo=false;try{demo=localStorage.getItem('ep_demo')==='1'}catch(e){}if(demo||!window.OWH_FIREBASE)return startDemo();cloudBoot()}
+
+/* ===== PDF (written by hand, no library) ===== */
+const HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const asc=s=>String(s==null?'':s).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/[^\x20-\x7e\n]/g,'?');
+const pw=(s,sz,b)=>{let w=0;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);w+=c>=32&&c<=126?HW[c-32]:556}return w*sz/1000*(b?1.07:1)};
+function wrapT(s,w,sz,b){const out=[];asc(s).split('\n').forEach(par=>{let line='';par.split(' ').forEach(wd=>{while(pw(wd,sz,b)>w){let k=wd.length;while(k>1&&pw(wd.slice(0,k),sz,b)>w)k--;if(line){out.push(line);line=''}out.push(wd.slice(0,k));wd=wd.slice(k)}const t=line?line+' '+wd:wd;if(pw(t,sz,b)<=w||!line)line=t;else{out.push(line);line=wd}});out.push(line)});return out}
+function makePdf(p){const W=595,H=842,M=34,CW=W-2*M,pages=[];let pg,y;
+ const np=()=>{pg=[];pages.push(pg);y=M+4};np();
+ const pesc=s=>asc(s).replace(/[\\()]/g,'\\$&').replace(/\n/g,' ');
+ const col=h=>[1,3,5].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(' ');
+ const T=(s,x,yy,sz,b,c)=>pg.push(`BT ${col(c||'#0f2230')} rg /F${b?2:1} ${sz} Tf ${x.toFixed(1)} ${(H-yy).toFixed(1)} Td (${pesc(s)}) Tj ET`);
+ const Rf=(x,yy,w,h,c)=>pg.push(`${col(c)} rg ${x.toFixed(1)} ${(H-yy-h).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`);
+ const Rs=(x,yy,w,h)=>pg.push(`0.5 w ${col('#9fb3c3')} RG ${x.toFixed(1)} ${(H-yy-h).toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re S`);
+ const need=h=>{if(y+h>H-M-12)np()};
+ const head=t=>{need(40);y+=6;Rf(M,y,CW,16,'#0f3d5e');T(t.toUpperCase(),M+6,y+11.5,9,1,'#ffffff');y+=16};
+ const rowC=(cells,ws)=>{const L=cells.map((c,i)=>wrapT(c.t,ws[i]-8,9,c.b)),h=Math.max(...L.map(l=>l.length))*11+6;need(h);let x=M;cells.forEach((c,i)=>{if(c.bg)Rf(x,y,ws[i],h,c.bg);Rs(x,y,ws[i],h);L[i].forEach((ln,k)=>T(ln,x+4,y+10+k*11,9,c.b,c.c));x+=ws[i]});y+=h};
+ const lab=t=>({t,b:1,bg:'#eef3f6'}),vv=(t,c,b)=>({t:String(t==null||t===''?'-':t),c,b});
+ const kv4=(a,b,c,d)=>rowC([lab(a),vv(b),lab(c),vv(d)],[88,175.5,88,175.5]);const kv1=(a,b)=>rowC([lab(a),vv(b)],[88,CW-88]);
+ const tbl=(hd,ws,rows)=>{rowC(hd.map(t=>({t,b:1,bg:'#dbe7ee'})),ws);rows.forEach(r=>rowC(r.map(c=>typeof c==='object'?c:vv(c)),ws))};
+ const ty=TYPES[p.type]||{n:p.type},sl=slabel(p),g=p.gas&&typeof p.gas==='object'?p.gas:null;
+ /* header band */
+ Rf(0,0,W,66,'#0f3d5e');T('PERMIT TO WORK',M,27,17,1,'#ffffff');T((S.plant&&S.plant.name)||'',M,43,10,0,'#cfe3ef');T('Status: '+sl.toUpperCase(),M,58,9,1,'#5eead4');const nw=pw(p.no,14,1);T(p.no,W-M-nw,27,14,1,'#ffffff');const tw=pw(ty.n,10,1);T(ty.n,W-M-tw,43,10,1,'#cfe3ef');y=74;
+ head('1. Job details');
+ kv4('Permit no',p.no,'Type',ty.n);kv4('Department',p.dept,'Raised by',p.byName);kv4('Raised on',fmtT(p.ts),'Status',sl);kv4('Equipment',p.equip,'Area',p.area);kv1('Activity',p.act);kv1('Work description',p.desc);kv4('Contractor',p.contractor,'Supervisor',p.sup);kv1('Engaged persons ('+p.pc+')',String(p.persons||'').split('\n').join(', '));kv4('Valid from',fmtT(tms(p.start)),'Valid till',fmtT(tms(p.end))+(p.rnCount?' (renewed '+p.rnCount+'x)':''));
+ head('2. Hazards, PPE and precautions');kv1('Hazards',(p.hz||[]).join(', '));kv1('PPE',(p.ppe||[]).join(', '));kv1('Precautions',(p.pr||[]).join(', '));
+ head('3. Isolation');
+ tbl(['Isolation','Required','Point / tag / LOTO no','Clearance','By and time'],[100,52,175,80,120],ISO.map(x=>{const i=(p.iso&&p.iso[x[0]])||{};return[x[1],i.r?'YES':'NO',i.t,!p.vr?(i.r?'AWAITING':'-'):i.st==='done'?vv('ISOLATION DONE','#15803d',1):'NOT REQUIRED',i.by?i.by+' '+fmtT(i.at):'-']}));
+ kv1('Isolation clearance',p.vr?(ISO.some(x=>p.iso[x[0]]&&p.iso[x[0]].st==='done')?'ISOLATION DONE':'ISOLATION NOT REQUIRED'):'Not yet verified by Operation');
+ head('4. Checks and declarations');
+ kv4('Gas test needed',p.gas?'YES':'NO','Fire watch',p.fw?'YES':'NO');
+ if(p.gas)tbl(['Oxygen % (19.5-23.5)','LEL % (10 or less)','H2S ppm (10 or less)','CO ppm (25 or less)','Tested by'],[100,100,105,100,122],[[g?String(g.o2):'-',g?String(g.lel):'-',g?String(g.h2s):'-',g?String(g.co):'-',g?g.n+' '+fmtT(g.at):'Not yet recorded']]);
+ kv4('Electrical check',p.vr?'OK - '+p.vr.n:'Pending','Mechanical check',p.vr?'OK - '+p.vr.n:'Pending');kv4('TBT (tool box talk) by requester',p.tbt?'YES':'NO','TBT confirmed by Operation',p.vr?'YES':'Pending');kv4('JSA / risk assessment',p.jsa?'YES':'NO','Requester declaration','Confirmed at raising');
+ head('5. Authorisation');
+ const au=[['Raised by (Requester)',p.byName,fmtT(p.ts),'']];
+ if(p.vr)au.push(['Verified (Operation)',p.vr.n,fmtT(p.vr.at),p.vr.note]);if(p.ap)au.push(['Approved (Shift Incharge)',p.ap.n,fmtT(p.ap.at),p.ap.note]);if(p.rj)au.push(['Rejected',p.rj.n,fmtT(p.rj.at),p.rj.reason]);
+ (p.rnh||[]).forEach(r=>au.push(['Renewed till '+fmtT(tms(r.to)),r.ok,fmtT(r.at),'Asked by '+r.by+'. '+r.reason]));if(p.rn&&p.rn.req)au.push(['Renewal requested till '+fmtT(tms(p.rn.end)),p.rn.n,fmtT(p.rn.at),p.rn.reason]);
+ if(p.cr)au.push(['Closure requested',p.cr.n,fmtT(p.cr.at),p.cr.note]);if(p.cl)au.push(['Closed (Operation)',p.cl.n,fmtT(p.cl.at),(p.cl.deiso?'Isolations removed. ':'')+(p.cl.note||'')]);if(p.cn)au.push(['Cancelled / work stopped',p.cn.n,fmtT(p.cn.at),p.cn.reason]);
+ tbl(['Stage','Name','Date and time','Remarks'],[130,100,110,187],au);
+ head('6. History');tbl(['Time','Action','By','Remarks'],[100,110,110,207],(p.log||[]).map(l=>[fmtT(l.t),l.a,l.n,l.x]));
+ need(30);y+=8;wrapT('This permit follows the plant permit-to-work procedure. Isolation, confined space and hot work practice follows common standards (for example OSHA 1910.147, 1910.146, NFPA 51B). The site procedure and legal rules decide. Work must stop when the valid time is over unless renewed.',CW,7.5,0).forEach((ln,k)=>T(ln,M,y+k*9,7.5,0,'#5b7385'));
+ const n=pages.length,gen=fmtT(NOW());pages.forEach((c,i)=>{pg=c;Rf(M,H-M+2,CW,.6,'#9fb3c3');T('(c) DUKEKRRISH. All rights reserved.  E-Permit',M,H-M+13,7.5,0,'#5b7385');const s='Page '+(i+1)+' of '+n+'  |  '+p.no+'  |  Printed '+gen;T(s,W-M-pw(s,7.5,0),H-M+13,7.5,0,'#5b7385');if(i>0){Rf(0,0,W,18,'#0f3d5e');T(p.no+'  '+((S.plant&&S.plant.name)||''),M,12,8.5,1,'#ffffff')}});
+ let out='%PDF-1.4\n',off=[];const put=(i,s)=>{off[i]=out.length;out+=i+' 0 obj\n'+s+'\nendobj\n'};
+ put(1,'<< /Type /Catalog /Pages 2 0 R >>');put(2,`<< /Type /Pages /Kids [${pages.map((_,i)=>(5+i*2)+' 0 R').join(' ')}] /Count ${n} >>`);put(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');put(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ pages.forEach((c,i)=>{const s=c.join('\n');put(5+i*2,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6+i*2} 0 R >>`);put(6+i*2,`<< /Length ${s.length} >>\nstream\n${s}\nendstream`)});
+ const N=4+n*2,xo=out.length;out+=`xref\n0 ${N+1}\n0000000000 65535 f \n`;for(let i=1;i<=N;i++)out+=String(off[i]).padStart(10,'0')+' 00000 n \n';out+=`trailer\n<< /Size ${N+1} /Root 1 0 R >>\nstartxref\n${xo}\n%%EOF`;
+ const bytes=new Uint8Array(out.length);for(let i=0;i<out.length;i++)bytes[i]=out.charCodeAt(i)&255;
+ return{name:ymd(new Date(p.ts))+'_'+String(p.dept).replace(/\s+/g,'')+'_'+p.no.replace(/\//g,'-')+'.pdf',bytes}}
+boot();
+</script></body></html>

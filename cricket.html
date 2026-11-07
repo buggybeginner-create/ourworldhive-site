@@ -1647,7 +1647,7 @@ async function rkFlush(){
     const b='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
     if(!window.firebase||!firebase.firestore){await loadScript(b+'firebase-app-compat.js');await loadScript(b+'firebase-auth-compat.js');await loadScript(b+'firebase-firestore-compat.js')}
     const cfg=window.OWH_FIREBASE||NET_CFG;if(!firebase.apps.length)firebase.initializeApp(cfg);
-    const auth=firebase.auth();if(!auth.currentUser)await auth.signInAnonymously();const uid=auth.currentUser.uid,db=firebase.firestore();if(auth.currentUser.isAnonymous){q=[];try{localStorage.setItem(RQ_KEY,'[]')}catch(x){}}
+    const auth=firebase.auth();await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=auth.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!auth.currentUser)await auth.signInAnonymously();const uid=auth.currentUser.uid,db=firebase.firestore();if(auth.currentUser.isAnonymous){q=[];try{localStorage.setItem(RQ_KEY,'[]')}catch(x){}}
     while(q.length){
       const e=q[0],d=new Date(e.t||Date.now()),wk=rkWeek(d),mo=rkMonth(d);
       await db.runTransaction(async t=>{const ref=db.collection('ck_rank').doc(uid),sn=await t.get(ref),cur=sn.exists?sn.data():{};
@@ -4988,7 +4988,7 @@ const FBA={
     this.auth=firebase.auth();this.db=firebase.firestore();
     if(!this.auth.currentUser){
       await new Promise(r=>{const u=this.auth.onAuthStateChanged(()=>{u();r()})});
-      if(!this.auth.currentUser)await this.auth.signInAnonymously();
+      await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=this.auth.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!this.auth.currentUser)await this.auth.signInAnonymously();
     }
     this.uid=this.auth.currentUser.uid;this.ready=true;
   },

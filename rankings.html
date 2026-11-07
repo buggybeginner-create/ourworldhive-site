@@ -152,7 +152,7 @@ function load(){
  function ls(u){return new Promise(function(res,rej){var s=document.createElement('script');s.src=u;s.onload=res;s.onerror=function(){rej(new Error('load'))};document.head.appendChild(s)})}
  (async function(){
   if(!window.firebase)await ls(b+'firebase-app-compat.js');if(!firebase.auth)await ls(b+'firebase-auth-compat.js');if(!firebase.firestore)await ls(b+'firebase-firestore-compat.js');
-  if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);var auth=firebase.auth();if(!auth.currentUser)await auth.signInAnonymously();me=auth.currentUser.uid;
+  if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);var auth=firebase.auth();await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=auth.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!auth.currentUser)await auth.signInAnonymously();me=auth.currentUser.uid;
   var q=await firebase.firestore().collection('hr_rank').orderBy('pts','desc').limit(200).get();rows=[];q.forEach(function(d){var v=d.data();v.uid=d.id;rows.push(v)});if(cur==='cricket')try{await loadCk()}catch(x){}if(cur==='rec')try{await loadRec()}catch(x){}if(cur==='hs')try{await loadHs()}catch(x){}paint()
  })().catch(function(e){console.warn(e);$('#rkNote').textContent='Could not load the rankings right now. Please try again later.'})}
 var paintBase=paint,per='all',cat='player',ck={},CKP=[['all','All time'],['mo','This month'],['wk','This week']],CKC=[['player','🏅 Best player'],['bat','🏏 Best batsman'],['bowl','🎯 Best bowler']];

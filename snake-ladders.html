@@ -1012,7 +1012,7 @@ function fsRT(){
   init:async function(){if(!window.OWH_FIREBASE)throw new Error('no config');
    if(!window.firebase||!firebase.firestore||!firebase.auth){var b='https://www.gstatic.com/firebasejs/'+FB+'/';if(!window.firebase)await loadScript(b+'firebase-app-compat.js');if(!firebase.auth)await loadScript(b+'firebase-auth-compat.js');if(!firebase.firestore)await loadScript(b+'firebase-firestore-compat.js')}
    if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);db=firebase.firestore();auth=firebase.auth();
-   if(!auth.currentUser)await auth.signInAnonymously();this.uid=auth.currentUser.uid;return this.uid},
+   await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=auth.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!auth.currentUser)await auth.signInAnonymously();this.uid=auth.currentUser.uid;return this.uid},
   create:function(c,room){return db.runTransaction(async function(t){var s=await t.get(ref(c));if(s.exists)throw new Error('Try again');t.set(ref(c),room)})},
   get:function(c){return ref(c).get().then(function(s){return s.exists?s.data():null})},
   watchRoom:function(c,fn){return ref(c).onSnapshot(function(s){fn(s.exists?s.data():null,!s.metadata.fromCache)},function(e){console.warn(e)})},

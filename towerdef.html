@@ -380,7 +380,7 @@ var FB_VER='10.12.2',FBP=null,RANKROWS=null,lastErr='';
 function loadScript(u){return new Promise(function(res,rej){var s=document.createElement('script');s.src=u;s.onload=res;s.onerror=function(){rej(new Error('load'))};document.head.appendChild(s)})}
 function fb(){if(FBP)return FBP;FBP=(async function(){if(!window.OWH_FIREBASE)throw new Error('cfg');var b='https://www.gstatic.com/firebasejs/'+FB_VER+'/';
  if(!window.firebase){await loadScript(b+'firebase-app-compat.js')}if(!firebase.auth)await loadScript(b+'firebase-auth-compat.js');if(!firebase.firestore)await loadScript(b+'firebase-firestore-compat.js');
- if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);var a=firebase.auth();if(!a.currentUser)await a.signInAnonymously();return{db:firebase.firestore(),uid:a.currentUser.uid}})().catch(function(e){FBP=null;throw e});return FBP}
+ if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);var a=firebase.auth();await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=a.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!a.currentUser)await a.signInAnonymously();return{db:firebase.firestore(),uid:a.currentUser.uid}})().catch(function(e){FBP=null;throw e});return FBP}
 async function syncRank(){
  try{var f=await fb();if(firebase.auth().currentUser&&firebase.auth().currentUser.isAnonymous)return;var tot=total(),db=f.db,ref=db.collection('hr_rank').doc(f.uid);
   await db.runTransaction(async function(t){var sn=await t.get(ref),cur=sn.exists?sn.data():{name:SAVE.name||'Player',av:'🏰',pts:0,n:0,g:{},done:[]};cur.g=cur.g||{};

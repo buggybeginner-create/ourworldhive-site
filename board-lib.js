@@ -23,7 +23,7 @@ BX.init=function(){if(BX._r)return BX._r;BX._r=(async function(){
   if(!window.firebase||!firebase.firestore||!firebase.auth){var b='https://www.gstatic.com/firebasejs/'+FB+'/';if(!window.firebase)await loadScript(b+'firebase-app-compat.js');if(!firebase.auth)await loadScript(b+'firebase-auth-compat.js');if(!firebase.firestore)await loadScript(b+'firebase-firestore-compat.js')}
   if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
   BX.db=firebase.firestore();BX.auth=firebase.auth();
-  if(!BX.auth.currentUser)await BX.auth.signInAnonymously();
+  await new Promise(function(r){var t=setTimeout(r,4000),u=null;u=BX.auth.onAuthStateChanged(function(){clearTimeout(t);if(u)u();r()})});if(!BX.auth.currentUser)await BX.auth.signInAnonymously();
   BX.uid=BX.auth.currentUser.uid;return true})();return BX._r};
 var TS=function(){return firebase.firestore.FieldValue.serverTimestamp()};
 function code(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='',a=new Uint8Array(5);crypto.getRandomValues(a);for(var i=0;i<5;i++)s+=c[a[i]%c.length];return s}

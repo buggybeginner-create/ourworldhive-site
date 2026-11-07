@@ -57,17 +57,26 @@ function donateInit(){
     box.querySelector('#owhdx').onclick=close;
     box.querySelector('#owhdc').onclick=function(){var b=this;try{navigator.clipboard.writeText(UPI).then(function(){b.textContent='COPIED'},function(){b.textContent=UPI})}catch(e){b.textContent=UPI}};
   }
+  /* Get latest version: clears the saved copy of the app on this phone and reloads. Data stays safe. */
+  function upd(){try{if(!confirm('Get the latest version of this app? Your data stays safe.'))return}catch(e){}
+    var j=[];try{if(navigator.serviceWorker)j.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}
+    try{if(window.caches)j.push(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}))}catch(e){}
+    Promise.all(j).catch(function(){}).then(function(){var u=new URL(location.href);u.searchParams.set('_u',String(Date.now()));location.replace(u.toString())})}
+  window.OWHUPD={run:upd};
   window.OWHDON={open:open};
   var tm=0;
   function scan(){if(!d.body)return;var w=d.createTreeWalker(d.body,NodeFilter.SHOW_TEXT,null),n,list=[];
-    while((n=w.nextNode())){if(/©\s*DUKEKRRISH/.test(n.nodeValue)){var el=n.parentNode;if(el&&!el.getAttribute('data-don')&&!(el.closest&&el.closest('script,style,title,noscript,textarea,#sheet-donate')))list.push(el)}}
-    list.forEach(function(el){el.setAttribute('data-don','1');var a=d.createElement('a');a.href='#';a.className='owh-don';a.textContent=' • ♥ Support / Donate';a.style.cssText='color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;white-space:nowrap';a.onclick=function(e){e.preventDefault();open()};el.appendChild(a)})}
+    while((n=w.nextNode())){if(/©\s*(\d{4}\s*)?DUKEKRRISH/.test(n.nodeValue)){var el=n.parentNode;if(el&&!el.getAttribute('data-don')&&!(el.closest&&el.closest('script,style,title,noscript,textarea,#sheet-donate')))list.push(el)}}
+    list.forEach(function(el){el.setAttribute('data-don','1');var a=d.createElement('a');a.href='#';a.className='owh-don';a.textContent=' • ♥ Support / Donate';a.style.cssText='color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;white-space:nowrap';a.onclick=function(e){e.preventDefault();open()};el.appendChild(a);var u=d.createElement('a');u.href='#';u.className='owh-upd';u.textContent=' \u2022 \u21BB Get latest version';u.style.cssText='color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;white-space:nowrap';u.onclick=function(e){e.preventDefault();upd()};el.appendChild(u)})}
   function kick(){clearTimeout(tm);tm=setTimeout(scan,350)}
   var APPS=/^(pm|permit|safety|project-planner|expense-tracker|grocery-cart|loan-tracker|parcel-ledger|diary-app|money-planner|home-planner|family-tree)\.html$/;
   function floatBtn(){if(!APPS.test(page)||d.getElementById('owhdon'))return;var vis=false,l=d.querySelectorAll('.owh-don');for(var i=0;i<l.length;i++)if(l[i].offsetParent!==null)vis=true;if(vis)return;
     var b=d.createElement('button');b.id='owhdon';b.type='button';b.setAttribute('aria-label','Support or donate');b.textContent='\u2665';
     b.style.cssText='position:fixed;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:2147482000;width:34px;height:34px;border-radius:50%;border:1px solid #ffc857;background:#14181c;color:#ffc857;font-size:17px;line-height:1;cursor:pointer;opacity:.8;box-shadow:0 3px 10px rgba(0,0,0,.4)';
-    b.onclick=open;d.body.appendChild(b)}
+    b.onclick=open;d.body.appendChild(b);
+    if(!d.getElementById('owhupb')){var g=d.createElement('button');g.id='owhupb';g.type='button';g.setAttribute('aria-label','Get latest version');g.title='Get latest version';g.textContent='\u21BB';
+      g.style.cssText='position:fixed;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(126px + env(safe-area-inset-bottom,0px));z-index:2147482000;width:34px;height:34px;border-radius:50%;border:1px solid #ffc857;background:#14181c;color:#ffc857;font-size:18px;line-height:1;cursor:pointer;opacity:.8;box-shadow:0 3px 10px rgba(0,0,0,.4)';
+      g.onclick=upd;d.body.appendChild(g)}}
   setTimeout(function(){floatBtn()},2500);
   function start(){scan();try{new MutationObserver(kick).observe(d.body,{childList:true,subtree:true})}catch(e){}}
   if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',start);else start();

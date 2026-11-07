@@ -976,7 +976,7 @@ function fsRT(){
   sendMove:function(c,id,rec){return ref(c).collection('moves').doc(id).set(rec)},
   watchChat:function(c,fn){return ref(c).collection('chat').onSnapshot(function(q){q.docChanges().forEach(function(ch){if(ch.type==='added')fn(ch.doc.data())})},function(e){console.warn(e)})},
   sendChat:function(c,rec){return ref(c).collection('chat').add(rec)},
-  rankUpdate:function(u,fn){var r=db.collection('hr_rank').doc(u);return db.runTransaction(async function(t){var s=await t.get(r),n=fn(s.exists?s.data():null);if(s.exists)t.update(r,n);else t.set(r,n)})}}
+  rankUpdate:function(u,fn){if(firebase.auth().currentUser&&firebase.auth().currentUser.isAnonymous)return Promise.resolve();var r=db.collection('hr_rank').doc(u);return db.runTransaction(async function(t){var s=await t.get(r),n=fn(s.exists?s.data():null);if(s.exists)t.update(r,n);else t.set(r,n)})}}
 }
 
 function boot(){if(inited)return inited;inited=(async function(){

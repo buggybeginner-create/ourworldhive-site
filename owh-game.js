@@ -51,7 +51,7 @@ async function attach(){
 function rkKey(){return'owh_rk_'+C.game}
 function flushRank(){
   clearTimeout(qT);qT=0;if(!(Q.pts||Q.n||Q.w||Q.l||Q.d))return;var d=Q;Q={pts:0,w:0,l:0,d:0,n:0};
-  ensureName().then(function(){return fb()}).then(function(f){var ref=f.db.collection('hr_rank').doc(CUR.uid),named=jget('owh_rk_named',0);
+  ensureName().then(function(){return fb()}).then(function(f){if(f.auth.currentUser&&f.auth.currentUser.isAnonymous)return;var ref=f.db.collection('hr_rank').doc(CUR.uid),named=jget('owh_rk_named',0);
     return f.db.runTransaction(async function(t){var sn=await t.get(ref),cur=sn.exists?sn.data():{name:pName(),av:C.icon||'🏅',pts:0,n:0,g:{},done:[]};cur.g=cur.g||{};
       var g=cur.g[C.game]||{w:0,l:0,d:0,pts:0,n:0};g.w=(g.w||0)+d.w;g.l=(g.l||0)+d.l;g.d=(g.d||0)+d.d;g.pts=(g.pts||0)+d.pts;g.n=(g.n||0)+d.n;cur.g[C.game]=g;
       cur.pts=(cur.pts||0)+d.pts;cur.n=(cur.n||0)+d.n;if(named||!cur.name)cur.name=pName();cur.av=cur.av||C.icon||'🏅';cur.upd=Date.now();t.set(ref,cur)})}).catch(function(){Q.pts+=d.pts;Q.w+=d.w;Q.l+=d.l;Q.d+=d.d;Q.n+=d.n})}
@@ -78,6 +78,7 @@ function record(key,label,val,o){
 function pushRecords(){
   if(!C)return;var pb=jget(recKey(),{}),todo=Object.keys(pb).filter(function(k){return !pb[k].sent});if(!todo.length)return;
   ensureName().then(function(){return fb()}).then(function(f){
+    if(f.auth.currentUser&&f.auth.currentUser.isAnonymous)return;
     return Promise.all(todo.map(function(k){var e=pb[k],ref=f.db.collection('hive_records').doc(C.game+'__'+k);
       return f.db.runTransaction(async function(t){var sn=await t.get(ref),d=sn.exists?sn.data():null;
         if(d&&!recBetter(e.val,d.val,e.low))return;

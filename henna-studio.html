@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><script src="firebase-config.js"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Henna Studio | Ourworldhive</title>
-<meta name="description" content="Henna Studio makes mehendi designs for you: 1,999 designs in Mandala, Arabic, Bridal, Floral, Paisley, Geometric, Finger and Simple styles. Pick palm or back hand, save your favourites and share on WhatsApp.">
+<meta name="description" content="Henna Studio makes mehendi designs for you: 1,999 designs in Mandala, Arabic, Bridal, Floral, Paisley, Geometric, Finger and Simple styles. Pick palm, back hand or full arm, in many colours. Post your own mehendi photos, get star ratings and rank as a designer.">
 <meta name="theme-color" content="#6b1f33"><script>(function(){try{var m=localStorage.getItem("owh_henna_theme")||"light",d=m==="dark"||(m==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()</script>
 <link rel="manifest" href="henna-manifest.webmanifest"><link rel="apple-touch-icon" href="henna-icon-192.png">
 <link rel="icon" href="henna-icon-192.png" type="image/png">
@@ -16,9 +16,24 @@ header img{width:34px;height:34px;border-radius:9px}header h1{font:800 19px var(
 header .sp{flex:1}header a{color:#fff;text-decoration:none;font-size:12px;font-weight:700;border:1px solid #fff5;border-radius:99px;padding:6px 10px;text-transform:uppercase}
 main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px))}
 .tab{display:none}.tab.on{display:block;animation:fi .2s}@keyframes fi{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
-.mk{display:grid;gap:14px;grid-template-columns:1fr}@media(min-width:820px){.mk{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.mk{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}@media(min-width:820px){.mk{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
 .stage{background:radial-gradient(circle at 50% 35%,var(--card),var(--bg));border:1px solid var(--line);border-radius:22px;padding:10px;text-align:center}
-.stage #stage>svg{width:100%;max-width:340px;max-height:62dvh;height:auto;filter:drop-shadow(0 10px 18px rgba(80,30,20,.18))}
+.stage #stage>svg{width:100%;max-width:520px;max-height:74dvh;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 12px 16px rgba(80,30,20,.22))}
+.sw.multi{background:conic-gradient(#d12f5b,#f08a24,#2f9e57,#1e88e5,#7a3fb0,#d12f5b)!important}
+.gc img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;background:var(--line)}
+.gc .by{text-transform:none;letter-spacing:0;font-weight:600}
+.star{color:var(--gold)}
+.sheet{position:fixed;inset:0;background:#000a;z-index:30;display:flex;align-items:flex-end;justify-content:center}.sheet[hidden]{display:none}
+.sb{background:var(--bg);color:var(--ink);width:100%;max-width:560px;max-height:92dvh;overflow:auto;border-radius:20px 20px 0 0;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));position:relative}
+@media(min-width:700px){.sheet{align-items:center}.sb{border-radius:20px}}
+.sb .cl{position:absolute;top:8px;right:10px;border:0;background:var(--card);color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:20px;cursor:pointer}
+.sb h2{margin:0 36px 8px 0;font:800 17px var(--fd);text-transform:uppercase;letter-spacing:.04em}
+.sb img.big{width:100%;max-height:58dvh;object-fit:contain;border-radius:12px;background:var(--card)}
+.sb input[type=text],.sb select{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;font:600 15px var(--fb);margin:4px 0 10px}
+.stars{display:flex;gap:4px;margin:8px 0}.stars button{border:0;background:none;font-size:34px;line-height:1;color:var(--line);cursor:pointer;padding:2px}.stars button.on{color:var(--gold)}
+.rk{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}.rk.me{outline:2px solid var(--p2)}
+.rk .no{font:800 20px var(--fd);width:34px;text-align:center;color:var(--p2)}.rk .nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rk small{display:block;color:var(--mut);font-weight:500}
+.rk .sc{font:800 16px var(--fd);text-align:right}
 .cap{font:800 13px var(--fd);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:4px 0 0}.cap b{color:var(--p2)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:12px}
 .card h3{margin:0 0 8px;font:800 13px var(--fd);letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
@@ -42,7 +57,7 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:10px 16px 14px}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}.toast.on{opacity:1}
 .dnc{margin-top:8px}.seg{display:flex;gap:6px}.seg .btn{flex:1}
 </style></head><body>
-<header><img src="henna-icon-192.png" alt=""><div><h1>Henna Studio</h1><small>1,999 mehendi designs</small></div><span class="sp"></span><a href="marketplace.html">Hive Apps</a></header>
+<header><img src="henna-icon-192.png" alt=""><div><h1>Henna Studio</h1><small>1,999 designs &bull; community</small></div><span class="sp"></span><a href="marketplace.html">Hive Apps</a></header>
 <main id="main">
 <section class="tab on" id="t-maker">
  <div class="mk">
@@ -52,30 +67,37 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:10px 16px 14px}
     <div class="row" style="margin-top:10px"><div class="num"><span class="mut">GO TO #</span><input id="goto" type="number" min="1" max="1999" inputmode="numeric"><button class="btn sm" data-a="go">GO</button></div><span style="flex:1"></span><button class="btn" id="favb" data-a="fav">♡ Save</button></div>
     <div class="row" style="margin-top:10px"><button class="btn" data-a="png">⬇ Save image</button><button class="btn" data-a="share">📲 Share</button><button class="btn" data-a="wa">WhatsApp</button></div></div>
    <div class="card"><h3>Style</h3><div class="chips" id="c-style"></div></div>
-   <div class="card"><h3>Hand</h3><div class="seg" id="c-hand"><button class="btn" data-hand="palm">Palm</button><button class="btn" data-hand="back">Back hand</button></div>
+   <div class="card"><h3>Hand</h3><div class="seg" id="c-hand"><button class="btn" data-hand="arm">Full arm</button><button class="btn" data-hand="palm">Palm</button><button class="btn" data-hand="back">Back hand</button></div>
     <h3 style="margin-top:12px">Henna colour</h3><div class="row" id="c-ink"></div>
     <h3 style="margin-top:12px">Skin tone</h3><div class="row" id="c-skin"></div></div>
   </div>
  </div>
 </section>
 <section class="tab" id="t-gallery"><div class="card"><h3>Browse by style</h3><div class="chips" id="g-style"></div></div><div class="grid" id="g-grid"></div><div class="row" style="justify-content:center;margin:14px 0"><button class="btn p" data-a="more">Load more</button></div></section>
+<section class="tab" id="t-comm">
+ <div class="card"><div class="row"><div class="chips" id="cm-sort" style="flex:1"><button class="chip on" data-cs="new">Newest</button><button class="chip" data-cs="top">Top rated</button></div><button class="btn p" data-a="cpost">+ Post design</button></div><div class="mut" id="cm-user" style="margin-top:8px"></div></div>
+ <div class="grid" id="cm-grid"></div><div class="empty" id="cm-empty" hidden>No designs posted yet. Be the first to post your mehendi!</div>
+ <div class="row" style="justify-content:center;margin:14px 0"><button class="btn" data-a="cmore" id="cm-more" hidden>Load more</button></div>
+</section>
+<section class="tab" id="t-rank"><div class="card"><h3>Top designers</h3><div class="mut">Ranking uses the average star rating given by other users. More votes make a rating count for more.</div></div><div id="rk-list"><div class="empty">Loading…</div></div><div class="card" style="margin-top:14px"><h3>Top rated designs</h3></div><div class="grid" id="rk-top"></div></section>
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
  <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.</div><div class="dnc" id="dnc" hidden></div></div>
- <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. These are drawn patterns to give you ideas, not photos of a real artist's work.</div></div>
+ <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
-<nav id="nav"><button data-tab="maker" class="on"><span>🎨</span>Maker</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
+<nav id="nav"><button data-tab="maker" class="on"><span>🎨</span>Maker</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="comm"><span>👥</span>Community</button><button data-tab="rank"><span>🏆</span>Ranking</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
 <footer>&copy; DUKEKRRISH. All rights reserved.</footer>
+<div class="sheet" id="sheet" hidden><div class="sb"><button class="cl" data-a="sclose" aria-label="Close">&times;</button><div id="sc"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
 'use strict';
 const $=id=>document.getElementById(id),TOTAL=1999,NS=8;
 const STYLES=['Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple'];
-const INK={brown:['#5b2a12','Dark brown'],maroon:['#7a1f2b','Maroon'],black:['#1d1511','Black']};
+const INK={brown:['#5b2a12','Dark brown'],maroon:['#7a1f2b','Maroon'],black:['#1d1511','Black'],red:['#b3202c','Red'],rose:['#d6457a','Rose pink'],gold:['#c8921a','Gold'],blue:['#2a5fb0','Blue'],green:['#2e7d4f','Green'],purple:['#6a3a9e','Purple'],multi:['#5b2a12','Multicolour']};
 const SKIN={light:['#f2d3b3','#d8aa80','Light'],medium:['#dcaa7c','#b97f52','Medium'],deep:['#a97344','#7e502b','Deep']};
-let ST={n:1,hand:'palm',ink:'brown',skin:'light',style:-1,gstyle:0,gcount:0,tab:'maker'};
+let ST={n:1,hand:'arm',ink:'brown',skin:'light',style:-1,gstyle:0,gcount:0,tab:'maker'};
 function load(){try{const s=JSON.parse(localStorage.getItem('owh_henna_s')||'{}');['hand','ink','skin'].forEach(k=>{if(s[k])ST[k]=s[k]})}catch(e){}}
 function keep(){try{localStorage.setItem('owh_henna_s',JSON.stringify({hand:ST.hand,ink:ST.ink,skin:ST.skin}))}catch(e){}}
 function favs(){try{return JSON.parse(localStorage.getItem('owh_henna_f')||'[]')}catch(e){return[]}}
@@ -122,20 +144,74 @@ function pat5(R){let s='';const rows=R.i(2,3),pt=R.p([5,6,8,10]);for(let r=0;r<r
 function pat6(R){return motif(CX,CY+10,R.i(14,26),R)+dotRing(CX,CY+10,R.i(32,40),R.i(10,18),1.6,0)+`<path d="M90 400Q144 ${R.i(360,376)} 198 400"/>`+fingers(fk(R,['tip','ring','line']),R)+`<g transform="rotate(-34 52 330)">${circ(52,276,3,1)}${circ(52,288,2,1)}</g>`+wrist(R,R.i(0,1))}
 function pat7(R){const dir=R.i(0,1),pts=dir?[[70,366],[110,330],[150,300],[190,268],[210,234]]:[[200,380],[170,340],[130,310],[100,270],[90,236]];return vine(pts,R,R.i(20,28))+flower(dir?122:176,396,R.i(10,15),R)+(R.i(0,1)?dotRing(CX,CY+20,50,R.i(16,26),1.2,60):'')+fingers(fk(R,['tip','line']),R)+`<g transform="rotate(-34 52 330)">${leaf(52,376,22,0,7,1)}</g>`+wrist(R,R.i(0,1))}
 const PAT=[pat0,pat1,pat2,pat3,pat4,pat5,pat6,pat7];
-let UID=0;
-function hand(n,o,mini){o=o||ST;const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],back=o.hand==='back';
+let UID=0;const TABS=['maker','gallery','comm','rank','saved','more'];
+function lite(c,k){const n=parseInt(c.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,m=v=>Math.max(0,Math.min(255,Math.round(v+(k>0?(255-v)*k:v*k))));return'#'+[m(r),m(g),m(b)].map(v=>('0'+v.toString(16)).slice(-2)).join('')}
+function skinBase(shapes,sk,id,mini,vb,joints){
+ const c0=sk[0],c1=sk[1],hi=lite(c0,.22),dk=lite(c1,-.25);
+ const defs=`<linearGradient id="g${id}" x1="0" x2="1"><stop offset="0" stop-color="${c1}"/><stop offset=".2" stop-color="${c0}"/><stop offset=".5" stop-color="${hi}"/><stop offset=".8" stop-color="${c0}"/><stop offset="1" stop-color="${c1}"/></linearGradient><clipPath id="k${id}">${shapes}</clipPath>`+(mini?'':`<filter id="b${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="4"/></filter><filter id="n${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .42 0 0 0 0 .25 0 0 0 0 .15 0 0 0 .5 0"/></filter>`);
+ const edge=`<g fill="${c1}" stroke="${dk}" stroke-width="3.5" stroke-linejoin="round" opacity=".9">${shapes}</g><g fill="url(#g${id})" stroke="url(#g${id})" stroke-width="1">${shapes}</g>`;
+ const shade=mini?'':`<g clip-path="url(#k${id})"><g fill="none" stroke="${dk}" stroke-width="16" opacity=".42" filter="url(#b${id})">${shapes}</g><rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" filter="url(#n${id})" opacity=".55"/></g>`;
+ const jt=`<g fill="none" stroke="${dk}" stroke-width="1.1" stroke-linecap="round" opacity=".32" clip-path="url(#k${id})">${joints}</g>`;
+ return{defs,layers:edge+shade+jt}}
+function palmLines(){return'<path d="M84 300Q120 330 112 372"/><path d="M96 262Q150 292 190 262"/>'}
+function handJoints(){return FING.map(f=>`<path d="M${f.x+7} ${f.t+78}Q${f.x+19} ${f.t+84} ${f.x+31} ${f.t+78}M${f.x+9} ${f.t+130}Q${f.x+19} ${f.t+135} ${f.x+29} ${f.t+130}"/>`).join('')}
+function hand(n,o,mini){o=o||ST;if(o.hand==='arm')return armSvg(n,o,mini);const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],back=o.hand==='back';
  let body=PAT[styleOf(n)](R);
- const nails=back?FING.map(f=>`<rect x="${f.x+9}" y="${f.t+3}" width="20" height="26" rx="9" fill="#fff" opacity=".28"/>`).join('')+`<rect x="27" y="266" width="20" height="26" rx="9" fill="#fff" opacity=".28" transform="rotate(-34 52 330)"/>`:'';
+ const nails=back?FING.map(f=>`<rect x="${f.x+9}" y="${f.t+3}" width="20" height="26" rx="9" fill="#fff" opacity=".3"/>`).join('')+`<rect x="27" y="266" width="20" height="26" rx="9" fill="#fff" opacity=".3" transform="rotate(-34 52 330)"/>`:'';
  const hx=back?' transform="translate(250 0) scale(-1 1)"':'';
- return`<svg viewBox="-40 0 330 470" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi design ${n}"><defs><clipPath id="${id}">${SHAPES()}</clipPath></defs><g${hx}><g fill="${sk[1]}" stroke="${sk[1]}" stroke-width="7" stroke-linejoin="round">${SHAPES()}</g><g fill="${sk[0]}">${SHAPES()}</g>${back?nails:''}<g clip-path="url(#${id})"><g fill="none" stroke="${ink}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${body.replace(/class="F"/g,'fill="'+ink+'"')}</g></g></g></svg>`}
+ const sb=skinBase(SHAPES(),sk,id,mini,[-10,54,270,420],handJoints()+(back?'':palmLines()));
+ return`<svg viewBox="-10 54 270 420" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi design ${n}"><defs>${sb.defs}<clipPath id="${id}">${SHAPES()}</clipPath></defs><g${hx}>${sb.layers}${back?nails:''}<g clip-path="url(#${id})"><g fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity=".94">${body.replace(/class="F"/g,'fill="'+ink+'"')}</g></g></g></svg>`}
+/* ---------- Full arm: bold floral designs ---------- */
+let PAL={};
+const PALS=[['#d12f5b','#f08a24','#2f9e57','#7a3fb0'],['#c2185b','#e6a100','#00897b','#3949ab'],['#e53935','#fb8c00','#43a047','#8e24aa'],['#1e88e5','#ec407a','#26a69a','#ff7043'],['#8e24aa','#f4511e','#558b2f','#00acc1']];
+const AF=[{x:62,t:256},{x:101,t:196},{x:140,t:176},{x:179,t:212}];
+const ARMSH=()=>`<rect x="72" y="360" width="148" height="140" rx="44"/>`+AF.map(f=>`<rect x="${f.x}" y="${f.t}" width="34" height="${440-f.t}" rx="17"/>`).join('')+`<rect x="206" y="392" width="36" height="130" rx="18" transform="rotate(30 224 500)"/><path d="M98 450C102 520 106 570 100 620C86 720 70 810 60 890H244C234 810 218 720 206 620C200 570 204 520 212 450Z"/>`;
+function lf(x,y,L,a){return`<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" stroke="none" d="M0 0C${f1(L*.45)} ${f1(-L*.2)} ${f1(L*.45)} ${f1(-L*.75)} 0 ${f1(-L)}C${f1(-L*.45)} ${f1(-L*.75)} ${f1(-L*.45)} ${f1(-L*.2)} 0 0Z"/>`}
+function hp(cx,cy,L,w,a,col,kind){const sk=PAL.sk;const d=kind===0?`M0 0C${f1(-w*.6)} ${f1(-L*.15)} ${f1(-w*1.15)} ${f1(-L*.7)} ${f1(-w*.55)} ${f1(-L*.95)}C${f1(-w*.25)} ${f1(-L*1.08)} 0 ${f1(-L*.96)} 0 ${f1(-L*.82)}C0 ${f1(-L*.96)} ${f1(w*.25)} ${f1(-L*1.08)} ${f1(w*.55)} ${f1(-L*.95)}C${f1(w*1.15)} ${f1(-L*.7)} ${f1(w*.6)} ${f1(-L*.15)} 0 0Z`:kind===1?`M0 0C${f1(-w)} ${f1(-L*.2)} ${f1(-w)} ${f1(-L*.85)} 0 ${f1(-L)}C${f1(w)} ${f1(-L*.85)} ${f1(w)} ${f1(-L*.2)} 0 0Z`:`M0 0C${f1(-w)} ${f1(-L*.3)} ${f1(-w*.6)} ${f1(-L*.8)} 0 ${f1(-L)}C${f1(w*.6)} ${f1(-L*.8)} ${f1(w)} ${f1(-L*.3)} 0 0Z`;return`<path transform="translate(${f1(cx)} ${f1(cy)}) rotate(${f1(a)})" fill="${col}" stroke="${sk}" stroke-width="1.3" d="${d}"/>`}
+function bigFlower(cx,cy,r,kind,rot,col){const sk=PAL.sk;let s='';const n=kind===0?5:kind===1?6:kind===2?10:8,pk=kind===0||kind===3?0:kind===1?1:2,w=kind===0?r*.55:kind===1?r*.36:kind===2?r*.2:r*.4,L=kind===3?r*.92:r;
+ for(let i=0;i<n;i++)s+=hp(cx,cy,L,w,rot+i*360/n,col,pk);
+ s+=`<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r*.3)}" fill="${sk}"/><circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r*.2)}" fill="none" stroke="${col}" stroke-width="1.6"/><circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r*.09)}" fill="${col}"/>`;
+ for(let i=0;i<12;i++){const a=i*Math.PI/6;s+=`<path d="M${f1(cx+Math.cos(a)*r*.34)} ${f1(cy+Math.sin(a)*r*.34)}L${f1(cx+Math.cos(a)*r*.5)} ${f1(cy+Math.sin(a)*r*.5)}" stroke="${sk}" stroke-width="1.5" stroke-linecap="round"/>`}
+ return s}
+function burst(cx,cy,r,col){let s=`<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(r*.3)}" fill="${col}"/>`;for(let i=0;i<14;i++){const a=i*Math.PI/7;s+=`<path d="M${f1(cx+Math.cos(a)*r*.45)} ${f1(cy+Math.sin(a)*r*.45)}L${f1(cx+Math.cos(a)*r)} ${f1(cy+Math.sin(a)*r)}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>`}return s}
+function sprig(x,y,len,ang,col){let s=`<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(ang)})" fill="${col}"><path d="M0 0V${-len}" stroke="${col}" stroke-width="2.2" fill="none"/>`;const n=Math.max(3,Math.floor(len/12));for(let i=1;i<=n;i++){const yy=-i*len/(n+1)+2,l=12-i*.5;s+=lf(0,yy,l,-52)+lf(0,yy,l,52)}return s+lf(0,-len,12,0)+'</g>'}
+function dotLine(x0,y0,x1,y1,n,r,col,bend){let s='';for(let i=0;i<n;i++){const t=i/(n-1);s+=`<circle cx="${f1(x0+(x1-x0)*t+Math.sin(t*Math.PI)*bend)}" cy="${f1(y0+(y1-y0)*t)}" r="${f1(r*(1-.35*t))}" fill="${col}"/>`}return s}
+function dotsArc(cx,cy,Rr,a0,a1,n,r,col){let s='';for(let i=0;i<n;i++){const a=(a0+(a1-a0)*i/(n-1))*Math.PI/180;s+=`<circle cx="${f1(cx+Math.cos(a)*Rr)}" cy="${f1(cy+Math.sin(a)*Rr)}" r="${f1(r*(1-.3*i/n))}" fill="${col}"/>`}return s}
+function ringArc(cx,cy,r,rot,col){return`<g transform="rotate(${rot} ${f1(cx)} ${f1(cy)})" fill="none" stroke="${col}" stroke-width="6">`+[0,1,2].map(k=>{const rr=r-k*9;return`<path d="M${f1(cx-rr)} ${f1(cy)}A${f1(rr)} ${f1(rr)} 0 0 1 ${f1(cx+rr)} ${f1(cy)}" stroke-dasharray="${f1(rr*.9)} 4"/>`}).join('')+'</g>'}
+function fan(x,y,ang,col){return`<g transform="translate(${f1(x)} ${f1(y)}) rotate(${ang})" fill="none" stroke="${col}" stroke-width="3.4" stroke-linecap="round"><path d="M0 0C-10 -14 -4 -28 12 -30"/><path d="M6 3C-2 -10 4 -22 20 -22"/><path d="M12 6C6 -5 12 -13 26 -14"/></g>`}
+function drop(x,y,sc,col){return`<path transform="translate(${f1(x)} ${f1(y)}) scale(${sc})" fill="${col}" d="M0 -8C5 -2 5 4 0 6C-5 4 -5 -2 0 -8Z"/>`}
+function armFinger(cx,t,R){const P=PAL;let s=`<path d="M${cx-13} ${t+36}A13 13 0 0 1 ${cx+13} ${t+36}" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;const m=R.i(0,3),k=R.i(0,3);
+ if(m===0)s+=bigFlower(cx,t+68,14,k,R.i(0,70),P.f)+bigFlower(cx,t+104,12,R.i(0,3),R.i(0,70),P.g)+drop(cx,t+128,1,P.a)+drop(cx-8,t+138,.8,P.a)+drop(cx+8,t+138,.8,P.a);
+ else if(m===1)s+=bigFlower(cx,t+68,13,k,R.i(0,70),P.f)+dotLine(cx,t+92,cx,t+140,5,2.6,P.a,0)+sprig(cx,t+170,30,0,P.l);
+ else if(m===2)s+=burst(cx,t+66,13,P.a)+drop(cx,t+92,1.1,P.f)+burst(cx,t+118,12,P.g)+dotLine(cx,t+138,cx,t+168,3,2.6,P.a,0);
+ else s+=sprig(cx,t+120,66,0,P.l)+bigFlower(cx,t+64,11,k,0,P.f)+dotLine(cx,t+130,cx,t+156,3,2.4,P.a,0);
+ return s}
+function armBody(R){const P=PAL;let back='',mid='',top='';const n=R.i(6,8),y0=392,y1=838,amp=R.i(12,26),ph=R.f(0,6),nodes=[];
+ for(let k=0;k<n;k++){const y=y0+(y1-y0)*k/(n-1),x=148+Math.sin(ph+k*1.5)*amp*(k?1:.3),r=k===0?R.f(20,24):R.f(30,37)+k*R.f(1.6,2.6);nodes.push({x,y,r,side:(k+R.i(0,1))%2?1:-1,kind:R.i(0,3),rot:R.i(0,71),col:k%2?P.g:P.f})}
+ nodes.forEach((o,k)=>{const{x,y,r}=o;[o.side,-o.side].forEach((side,si)=>{if(si&&R.i(0,9)<3)return;const acc=R.p(['ring','sprig','fan','dots','ring','sprig']);
+  if(acc==='ring')back+=ringArc(x-side*4,y-r*.15,r*1.35,R.i(-25,25),P.a);
+  else if(acc==='sprig')mid+=sprig(x+side*r*.8,y+r*.7,R.i(42,58),side*R.i(38,62),P.l);
+  else if(acc==='fan')mid+=fan(x+side*(r+6),y+R.i(-4,10),side*R.i(20,40)+(side<0?-20:0),P.a);
+  else mid+=dotsArc(x,y,r+13,side>0?-70:110,side>0?60:240,R.i(7,10),3,P.a)});
+  if(k<n-1){const side=o.side,q=nodes[k+1],mx=(o.x+q.x)/2,my=(o.y+q.y)/2;if(R.i(0,2)){mid+=lf(mx-side*14,my+8,15,-side*55)+lf(mx+side*14,my+8,13,side*55)}if(R.i(0,2)===0)mid+=dotLine(o.x+side*(o.r+10),o.y+10,q.x+side*(q.r+8),q.y-8,R.i(4,6),2.6,P.a,side*8)}
+  top+=bigFlower(x,y,r,o.kind,o.rot,o.col)});
+ let s=`<g fill="${P.a}" stroke="none">${dotLine(84,468,122,392,6,2.8,P.a,-8)+dotLine(80,488,126,408,7,2.8,P.a,-10)+dotLine(218,470,186,420,5,2.6,P.a,8)}</g>`;
+ s+=back+mid+top;AF.forEach(f=>{s+=armFinger(f.x+17,f.t,R)});
+ s+=`<g transform="rotate(30 224 500)">${`<path d="M211 426A13 13 0 0 1 237 426" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`}${bigFlower(224,452,12,R.i(0,3),0,P.f)}${dotLine(224,472,224,500,3,2.8,P.a,0)}</g>`;
+ s+=sprig(104,860,40,-12,P.l)+sprig(200,862,40,14,P.l);
+ return s}
+function armSvg(n,o,mini){const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0];PAL={f:ink,g:ink,l:ink,a:ink,sk:sk[0]};
+ if(o.ink==='multi'){const q=R.p(PALS);PAL={f:q[0],g:q[1],l:q[2],a:q[3],sk:sk[0]}}
+ const body=armBody(R),sb=skinBase(ARMSH(),sk,id,mini,[-8,148,336,744],AF.map(f=>`<path d="M${f.x+7} ${f.t+88}Q${f.x+17} ${f.t+94} ${f.x+27} ${f.t+88}M${f.x+9} ${f.t+138}Q${f.x+17} ${f.t+143} ${f.x+25} ${f.t+138}`+'"/>').join('')+'<path d="M96 640Q150 660 206 640" />');
+ return`<svg viewBox="-8 148 336 744" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi full arm design ${n}"><defs>${sb.defs}<clipPath id="${id}">${ARMSH()}</clipPath></defs>${sb.layers}<g clip-path="url(#${id})"><g fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".95">${body}</g></g></svg>`}
 /* ---------- screens ---------- */
 function curStyle(){return ST.style<0?'':STYLES[ST.style]}
-function drawMaker(){$('stage').innerHTML=hand(ST.n);$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${ST.hand==='palm'?'Palm':'Back hand'}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());
+function drawMaker(){$('stage').innerHTML=hand(ST.n);$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${ST.hand==='palm'?'Palm':ST.hand==='arm'?'Full arm':'Back hand'}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());
  [...document.querySelectorAll('[data-hand]')].forEach(b=>b.classList.toggle('on',b.dataset.hand===ST.hand));
  [...document.querySelectorAll('#c-ink .sw')].forEach(b=>b.classList.toggle('on',b.dataset.ink===ST.ink));[...document.querySelectorAll('#c-skin .sw')].forEach(b=>b.classList.toggle('on',b.dataset.skin===ST.skin));
  [...document.querySelectorAll('#c-style .chip')].forEach(b=>b.classList.toggle('on',+b.dataset.s===ST.style));
  try{history.replaceState(null,'','?d='+ST.n+'&h='+ST.hand)}catch(e){}}
-function build(){$('c-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw" data-ink="${k}" title="${INK[k][1]}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`).join('');
+function build(){$('c-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw" data-ink="${k}" title="${INK[k][1]}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`.replace('class="sw"',k==='multi'?'class="sw multi"':'class="sw"')).join('');
  $('c-skin').innerHTML=Object.keys(SKIN).map(k=>`<button class="sw" data-skin="${k}" title="${SKIN[k][2]}" aria-label="${SKIN[k][2]}" style="background:${SKIN[k][0]}"></button>`).join('');
  const chips=(a,gal)=>[['All',-1]].concat(STYLES.map((s,i)=>[s,i])).map(x=>`<button class="chip" data-s="${x[1]}"${gal?' data-g="1"':''}>${x[0]}</button>`).join('');
  $('c-style').innerHTML=chips();$('g-style').innerHTML=chips(1)}
@@ -145,14 +221,13 @@ function randIn(){let n;const R=Math.random;do{n=1+Math.floor(R()*TOTAL)}while(S
 function stepIn(d){let n=ST.n;for(let k=0;k<NS+1;k++){n=((n-1+d+TOTAL)%TOTAL)+1;if(ST.style<0||styleOf(n)===ST.style)break}return n}
 function drawGallery(reset){const g=$('g-grid');if(reset){g.innerHTML='';ST.gcount=0}
  const list=[];for(let n=1;n<=TOTAL&&list.length<ST.gcount+12;n++)if(ST.gstyle<0||styleOf(n)===ST.gstyle)list.push(n);
- g.insertAdjacentHTML('beforeend',list.slice(ST.gcount).map(n=>`<div class="gc" data-open="${n}">${hand(n)}<small>#${n} &bull; ${STYLES[styleOf(n)]}</small></div>`).join(''));ST.gcount=list.length;
+ g.insertAdjacentHTML('beforeend',list.slice(ST.gcount).map(n=>`<div class="gc" data-open="${n}">${hand(n,null,1)}<small>#${n} &bull; ${STYLES[styleOf(n)]}</small></div>`).join(''));ST.gcount=list.length;
  [...document.querySelectorAll('#g-style .chip')].forEach(b=>b.classList.toggle('on',+b.dataset.s===ST.gstyle))}
-function drawSaved(){const f=favs();$('s-empty').style.display=f.length?'none':'block';$('s-grid').innerHTML=f.map(x=>`<div class="gc" data-open="${x.n}">${hand(x.n)}<small>#${x.n} &bull; ${STYLES[styleOf(x.n)]}</small><button class="x" data-del="${x.n}" aria-label="Remove">&times;</button></div>`).join('')}
-function tab(t){ST.tab=t;['maker','gallery','saved','more'].forEach(k=>{$('t-'+k).classList.toggle('on',k===t)});[...document.querySelectorAll('#nav button')].forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
- if(t==='gallery'&&!$('g-grid').children.length)drawGallery(1);if(t==='saved')drawSaved();window.scrollTo(0,0)}
-const TABS=['maker','gallery','saved','more'];
+function drawSaved(){const f=favs();$('s-empty').style.display=f.length?'none':'block';$('s-grid').innerHTML=f.map(x=>`<div class="gc" data-open="${x.n}">${hand(x.n,null,1)}<small>#${x.n} &bull; ${STYLES[styleOf(x.n)]}</small><button class="x" data-del="${x.n}" aria-label="Remove">&times;</button></div>`).join('')}
+function tab(t){ST.tab=t;TABS.forEach(k=>{$('t-'+k).classList.toggle('on',k===t)});[...document.querySelectorAll('#nav button')].forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+ if(t==='gallery'&&!$('g-grid').children.length)drawGallery(1);if(t==='saved')drawSaved();if(t==='comm')CM.show();if(t==='rank')RK.load();window.scrollTo(0,0)}
 function svgString(){return $('stage').innerHTML.replace(/var\(--hn-skin\)/g,SKIN[ST.skin][0])}
-function toPng(){return new Promise((ok,no)=>{const s=svgString().replace('<svg ','<svg width="864" height="1410" ');const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=864;c.height=1410;const x=c.getContext('2d');x.fillStyle=getComputedStyle(document.body).backgroundColor||'#fff';x.fillRect(0,0,864,1410);x.drawImage(img,0,0,864,1410);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio #'+ST.n+'  ourworldhive.com',432,1396);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
+function toPng(){return new Promise((ok,no)=>{const raw=svgString(),m=raw.match(/viewBox="([-\d. ]+)"/),vb=m?m[1].split(' ').map(Number):[0,0,330,470],W=864,H=Math.round(W*vb[3]/vb[2]),s=raw.replace('<svg ','<svg width="'+W+'" height="'+H+'" ');const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H+70;const x=c.getContext('2d');x.fillStyle=getComputedStyle(document.body).backgroundColor||'#fff';x.fillRect(0,0,W,H+70);x.drawImage(img,0,0,W,H);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio #'+ST.n+'  ourworldhive.com',W/2,H+46);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
 const link=()=>location.origin+location.pathname+'?d='+ST.n+'&h='+ST.hand;
 const A={
  rand(){pick(randIn())},prev(){pick(stepIn(-1))},next(){pick(stepIn(1))},
@@ -167,7 +242,57 @@ const A={
 function setTheme(m){try{localStorage.setItem('owh_henna_theme',m)}catch(e){}applyTheme()}
 function themeMode(){try{return localStorage.getItem('owh_henna_theme')||'light'}catch(e){return'light'}}
 function applyTheme(){const m=themeMode(),d=m==='dark'||(m==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');const tc=document.querySelector('meta[name=theme-color]');if(tc)tc.setAttribute('content',d?'#3d1220':'#6b1f33');[...document.querySelectorAll('#c-theme .btn')].forEach(b=>b.classList.toggle('on',b.dataset.th===m))}
-document.addEventListener('click',e=>{const t=e.target.closest('button,.gc,.chip');if(!t)return;
+/* ---------- Community: post, rate, rank ---------- */
+const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const capN=t=>String(t||'Designer').trim().toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()).slice(0,40);
+const score=p=>((p.sum||0)+3.5*3)/((p.cnt||0)+3);
+const avgT=p=>p.cnt?'<span class="star">★</span> '+(p.sum/p.cnt).toFixed(1)+' ('+p.cnt+')':'New';
+function ldScript(u){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=()=>no(new Error('load'));document.head.appendChild(e)})}
+const CM={ready:null,db:null,auth:null,user:null,posts:[],last:null,done:false,busy:false,sort:'new',cur:null};
+CM.init=function(){if(CM.ready)return CM.ready;CM.ready=(async()=>{if(!window.OWH_FIREBASE)throw new Error('cfg');const b='https://www.gstatic.com/firebasejs/10.12.2/';
+ if(!window.firebase)await ldScript(b+'firebase-app-compat.js');if(!firebase.auth)await ldScript(b+'firebase-auth-compat.js');if(!firebase.firestore)await ldScript(b+'firebase-firestore-compat.js');
+ if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);CM.db=firebase.firestore();CM.auth=firebase.auth();
+ await new Promise(r=>{const t=setTimeout(r,3500);const u=CM.auth.onAuthStateChanged(x=>{clearTimeout(t);u();r()})});
+ CM.auth.onAuthStateChanged(u=>{CM.user=u&&!u.isAnonymous&&u.providerData.some(q=>q.providerId==='google.com')?u:null;CM.drawUser()});
+ const u=CM.auth.currentUser;CM.user=u&&!u.isAnonymous&&u.providerData.some(q=>q.providerId==='google.com')?u:null;CM.drawUser()})().catch(e=>{CM.ready=null;throw e});return CM.ready};
+CM.name=()=>capN(CM.user&&(CM.user.displayName||(CM.user.email||'').split('@')[0]));
+CM.drawUser=function(){const e=$('cm-user');if(!e)return;e.innerHTML=CM.user?'Signed in as <b>'+esc(CM.name())+'</b> &bull; <a href="#" data-a="logout">Sign out</a>':'You can look and browse freely. Sign in with Google to post or rate. <a href="#" data-a="login">Sign in</a>'};
+CM.login=async function(){try{await CM.init();const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});await CM.auth.signInWithPopup(p);return !!CM.user}catch(e){toast(e&&e.code==='auth/popup-closed-by-user'?'Sign-in cancelled':'Sign-in failed. Please try again.');return false}};
+CM.show=async function(){CM.drawUser();try{await CM.init()}catch(e){$('cm-empty').hidden=false;$('cm-empty').textContent='Community needs internet. Please try again.';return}if(!CM.posts.length&&!CM.done)CM.load(1);else CM.draw()};
+CM.load=async function(reset){if(CM.busy)return;CM.busy=1;try{await CM.init();if(reset){CM.posts=[];CM.last=null;CM.done=false}let q=CM.db.collection('hn_posts').orderBy('ts','desc').limit(30);if(CM.last)q=q.startAfter(CM.last);const r=await q.get();r.docs.forEach(d=>CM.posts.push(Object.assign({id:d.id},d.data())));if(r.docs.length)CM.last=r.docs[r.docs.length-1];if(r.size<30)CM.done=true;CM.draw()}catch(e){toast('Could not load designs')}finally{CM.busy=0}};
+CM.card=p=>`<div class="gc" data-pid="${esc(p.id)}"><img loading="lazy" src="${esc(p.th)}" alt=""><small>${esc(p.title)}</small><small class="by">${esc(p.name)} &bull; ${avgT(p)}</small></div>`;
+CM.draw=function(){const l=CM.posts.slice();if(CM.sort==='top')l.sort((a,b)=>score(b)-score(a));$('cm-grid').innerHTML=l.map(CM.card).join('');$('cm-empty').hidden=!!l.length;$('cm-empty').textContent='No designs posted yet. Be the first to post your mehendi!';$('cm-more').hidden=CM.done||!l.length;[...document.querySelectorAll('#cm-sort .chip')].forEach(b=>b.classList.toggle('on',b.dataset.cs===CM.sort))};
+function sheet(h){$('sc').innerHTML=h;$('sheet').hidden=false}
+function shrink(file,max,q){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{let w=im.width,h=im.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',q))};im.onerror=()=>no(new Error('img'));im.src=u})}
+async function fit(file,max,q,lim){let d=await shrink(file,max,q);while(d.length>lim&&q>.3){q-=.1;d=await shrink(file,max,q)}if(d.length>lim)throw new Error('big');return d}
+CM.postSheet=async function(){if(!CM.user){const ok=await CM.login();if(!ok)return}
+ sheet(`<h2>Post your design</h2><div class="mut">Post a clear photo of mehendi YOU made. Other users can rate it. Do not post other people's work or anything not suitable for everyone.</div><div style="margin-top:10px"><label class="mut">PHOTO</label><input type="file" id="cp-file" accept="image/*" style="width:100%;margin:4px 0 10px"><img id="cp-prev" class="big" alt="" hidden><label class="mut">TITLE</label><input type="text" id="cp-title" maxlength="60" placeholder="e.g. Bridal floral arm"><label class="mut">STYLE</label><select id="cp-style">${['Full arm','Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple','Other'].map(x=>`<option>${x}</option>`).join('')}</select><button class="btn p big" data-a="cpub" id="cp-go" style="width:100%">POST DESIGN</button></div>`);
+ $('cp-file').onchange=e=>{const f=e.target.files[0];if(f){$('cp-prev').src=URL.createObjectURL(f);$('cp-prev').hidden=false}}};
+CM.publish=async function(){const f=$('cp-file').files[0],t=$('cp-title').value.trim();if(!f){toast('Choose a photo first');return}if(t.length<2){toast('Write a title');return}if(!CM.user){toast('Sign in first');return}
+ const b=$('cp-go');b.disabled=true;b.textContent='POSTING…';try{const th=await fit(f,360,.72,55000),img=await fit(f,900,.74,380000),id=CM.db.collection('hn_posts').doc().id,B=CM.db.batch(),TS=firebase.firestore.FieldValue.serverTimestamp();
+  B.set(CM.db.collection('hn_posts').doc(id),{uid:CM.user.uid,name:CM.name(),title:t,style:$('cp-style').value,th:th,sum:0,cnt:0,ts:TS});B.set(CM.db.collection('hn_img').doc(id),{uid:CM.user.uid,img:img});await B.commit();
+  $('sheet').hidden=true;toast('Posted! Others can rate it now');CM.sort='new';CM.load(1)}catch(e){b.disabled=false;b.textContent='POST DESIGN';toast(e&&e.message==='big'?'Photo is too detailed. Try a smaller photo.':'Could not post. Check internet and try again.')}};
+CM.open=async function(id){const p=CM.posts.find(x=>x.id===id)||(window.RKP||[]).find(x=>x.id===id);if(!p)return;CM.cur=p;CM.mine=0;
+ sheet(CM.detail(p,p.th));let img=p.th;try{const d=await CM.db.collection('hn_img').doc(id).get();if(d.exists){img=d.data().img;const e=document.getElementById('dimg');if(e)e.src=img}}catch(e){}
+ if(CM.user){try{const r=await CM.db.collection('hn_rates').doc(id+'_'+CM.user.uid).get();CM.mine=r.exists?r.data().v:0;CM.stars()}catch(e){}}};
+CM.detail=function(p,img){const own=CM.user&&CM.user.uid===p.uid,adm=CM.user&&CM.user.email==='er.krushnananda@gmail.com';
+ return`<h2>${esc(p.title)}</h2><img class="big" id="dimg" src="${esc(img)}" alt=""><div class="mut" style="margin:8px 0">By <b>${esc(p.name)}</b> &bull; ${esc(p.style||'')} &bull; <span id="davg">${avgT(p)}</span></div>`+(own?'<div class="mut">This is your design. You cannot rate your own work.</div>':`<div class="mut">${CM.user?'Your rating':'Sign in with Google to rate'}</div><div class="stars" id="dstars">${[1,2,3,4,5].map(i=>`<button data-star="${i}" aria-label="${i} star">★</button>`).join('')}</div>`)+`<div class="row" style="margin-top:8px">${CM.user?'':'<button class="btn p" data-a="login2">Sign in with Google</button>'}${own||adm?'<button class="btn" data-a="cdel">Delete</button>':'<button class="btn" data-a="crep">Report</button>'}</div>`};
+CM.stars=function(){[...document.querySelectorAll('#dstars button')].forEach(b=>b.classList.toggle('on',+b.dataset.star<=CM.mine))};
+CM.rate=async function(v){const p=CM.cur;if(!p)return;if(!CM.user){const ok=await CM.login();if(!ok)return;CM.open(p.id);return}if(CM.user.uid===p.uid)return;
+ try{const FV=firebase.firestore.FieldValue,rr=CM.db.collection('hn_rates').doc(p.id+'_'+CM.user.uid),pr=CM.db.collection('hn_posts').doc(p.id),old=await rr.get(),B=CM.db.batch();B.set(rr,{pid:p.id,uid:CM.user.uid,v:v,ts:FV.serverTimestamp()});
+  if(old.exists){B.update(pr,{sum:FV.increment(v-old.data().v)});p.sum=(p.sum||0)+v-old.data().v}else{B.update(pr,{sum:FV.increment(v),cnt:FV.increment(1)});p.sum=(p.sum||0)+v;p.cnt=(p.cnt||0)+1}
+  await B.commit();CM.mine=v;CM.stars();const e=$('davg');if(e)e.innerHTML=avgT(p);toast('Thanks! Rated '+v+' star'+(v>1?'s':''));CM.draw()}catch(e){toast('Could not save rating. Try again.')}};
+CM.del=async function(){const p=CM.cur;if(!p)return;try{const B=CM.db.batch();B.delete(CM.db.collection('hn_posts').doc(p.id));B.delete(CM.db.collection('hn_img').doc(p.id));await B.commit();CM.posts=CM.posts.filter(x=>x.id!==p.id);$('sheet').hidden=true;CM.draw();toast('Deleted')}catch(e){toast('Could not delete')}};
+CM.report=async function(){const p=CM.cur;if(!p)return;if(!CM.user){toast('Sign in to report');return}try{await CM.db.collection('hn_reports').doc(p.id+'_'+CM.user.uid).set({pid:p.id,uid:CM.user.uid,ts:firebase.firestore.FieldValue.serverTimestamp()});toast('Reported. Thank you')}catch(e){toast('Could not report')}};
+const RK={load:async function(){const L=$('rk-list');try{await CM.init();const r=await CM.db.collection('hn_posts').orderBy('ts','desc').limit(300).get(),P=r.docs.map(d=>Object.assign({id:d.id},d.data()));window.RKP=P;
+ const M={};P.forEach(p=>{const d=M[p.uid]||(M[p.uid]={uid:p.uid,name:p.name,n:0,sum:0,cnt:0});d.n++;d.sum+=p.sum||0;d.cnt+=p.cnt||0});
+ const D=Object.values(M).map(d=>Object.assign(d,{sc:(d.sum+3.5*5)/(d.cnt+5)}));const V=D.filter(d=>d.cnt>0).sort((a,b)=>b.sc-a.sc||b.cnt-a.cnt),N=D.filter(d=>!d.cnt);
+ const me=CM.user&&CM.user.uid,row=(d,i)=>`<div class="rk${d.uid===me?' me':''}"><div class="no">${['🥇','🥈','🥉'][i]||(i+1)}</div><div class="nm">${esc(d.name)}<small>${d.n} design${d.n>1?'s':''} &bull; ${d.cnt} vote${d.cnt===1?'':'s'}</small></div><div class="sc">${d.cnt?'<span class="star">★</span> '+(d.sum/d.cnt).toFixed(1):'–'}</div></div>`;
+ L.innerHTML=V.length?V.slice(0,30).map(row).join('')+(N.length?'<div class="mut" style="margin:10px 2px">Waiting for first votes: '+N.slice(0,12).map(d=>esc(d.name)).join(', ')+'</div>':''):'<div class="empty">No ratings yet. Post a design and ask friends to rate it!</div>';
+ $('rk-top').innerHTML=P.filter(p=>p.cnt>0).sort((a,b)=>score(b)-score(a)).slice(0,8).map(CM.card).join('')}catch(e){L.innerHTML='<div class="empty">Ranking needs internet. Please try again.</div>'}}};
+Object.assign(A,{cpost(){CM.postSheet()},cpub(){CM.publish()},cmore(){CM.load(0)},sclose(){$('sheet').hidden=true},login(){CM.login().then(()=>CM.drawUser())},login2(){CM.login().then(ok=>{if(ok&&CM.cur)CM.open(CM.cur.id)})},logout(){CM.auth&&CM.auth.signOut().then(()=>{toast('Signed out')})},cdel(){CM.del()},crep(){CM.report()}});
+document.addEventListener('click',e=>{if(e.target.closest('a[data-a]'))e.preventDefault();if(e.target===$('sheet')){$('sheet').hidden=true;return}const t=e.target.closest('button,.gc,.chip,a[data-a]');if(!t)return;
+ if(t.dataset.pid)return CM.open(t.dataset.pid);if(t.dataset.cs){CM.sort=t.dataset.cs;CM.draw();return}if(t.dataset.star)return CM.rate(+t.dataset.star);
  if(t.dataset.tab)return tab(t.dataset.tab);if(t.dataset.a&&A[t.dataset.a])return A[t.dataset.a]();
  if(t.dataset.del){const f=favs().filter(x=>x.n!==+t.dataset.del);setFavs(f);drawSaved();return}
  if(t.dataset.open){ST.n=+t.dataset.open;tab('maker');drawMaker();return}
@@ -182,7 +307,7 @@ $('goto').addEventListener('keydown',e=>{if(e.key==='Enter')A.go()});
  document.addEventListener('touchend',e=>{if(!ok)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;const i=TABS.indexOf(ST.tab)+(dx<0?1:-1);if(i>=0&&i<TABS.length)tab(TABS[i])},{passive:true})})();
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')A.next();if(e.key==='ArrowLeft')A.prev()});
 load();build();applyTheme();try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeMode()==='auto')applyTheme()})}catch(e){}
-(function(){const q=new URLSearchParams(location.search),d=parseInt(q.get('d'),10);if(d>=1&&d<=TOTAL)ST.n=d;else ST.n=1+Math.floor(Math.random()*TOTAL);const h=q.get('h');if(h==='palm'||h==='back')ST.hand=h})();
+(function(){const q=new URLSearchParams(location.search),d=parseInt(q.get('d'),10);if(d>=1&&d<=TOTAL)ST.n=d;else ST.n=1+Math.floor(Math.random()*TOTAL);const h=q.get('h');if(h==='palm'||h==='back'||h==='arm')ST.hand=h})();
 drawMaker();
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('henna-sw.js',{scope:'./henna-studio.html'}).catch(()=>{});
 </script></body></html>

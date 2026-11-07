@@ -45,7 +45,7 @@ function installBtn(){
 
 /* ---- Support / Donate: a link next to the copyright line, and OWHDON.open() for menus ---- */
 function donateInit(){
-  var UPI='8917262864@ybl',box=null;
+  var UPI='8917262863@ybl',box=null;
   function close(){if(box){box.remove();box=null}}
   function open(){
     if(box)return;box=d.createElement('div');

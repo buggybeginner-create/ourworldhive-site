@@ -27,5 +27,9 @@
    "purpose": "maskable"
   }
  ],
- "id": "diary-app.html"
+ "id": "diary-app.html",
+ "lang": "en",
+ "categories": [
+  "productivity"
+ ]
 }

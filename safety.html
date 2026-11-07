@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval"><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="owh-loader.js" data-owh="gears"></script>
 <title>ZeroHarm: log, track and close unsafe acts and conditions</title><meta name="theme-color" content="#c2410c"><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="preconnect" href="https://firestore.googleapis.com"><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin><link rel="preload" as="script" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin><link rel="manifest" href="safety-manifest.webmanifest"><link rel="apple-touch-icon" href="safety-icon-192.png"><link rel="icon" href="safety-icon-192.png">
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js"></script><script src="owh-viewas.js"></script><script src="owh-account.js"></script>
 <style>
 
 :root{--p:#c2410c;--p2:#f97316;--bg:#f7f2ee;--card:#fff;--ink:#2a1a10;--mut:#7a6455;--line:#e8ddd3;--red:#dc2626;--amb:#d97706;--yel:#ca8a04;--grn:#16a34a;--blu:#2563eb;--pur:#7c3aed;--r:14px}
@@ -133,6 +133,7 @@ const P=p=>'sf_companies/'+S.cid+(p?'/'+p:'');
 const unitOf=id=>S.units.find(x=>x.id===id),deptOf=id=>S.depts.find(x=>x.id===id),secOf=id=>S.secs.find(x=>x.id===id);
 const ME=()=>S.mem.find(m=>m.id===(S.user&&S.user.uid))||null;
 const myMail=()=>lc(S.user&&S.user.email);
+const realAdm=()=>{if(S.mode!=='cloud')return false;const u=S.vaReal||S.user,m=u&&S.mem.find(x=>x.id===u.uid);return !!m&&m.status==='active'&&m.role==='admin'};
 const isAdmin=()=>{const m=ME();return !!m&&m.status==='active'&&m.role==='admin'};
 const isMod=()=>{const m=ME();return !!m&&m.status==='active'&&(m.role==='admin'||m.role==='moderator')};
 const modFor=unitId=>{const m=ME();return isAdmin()||(isMod()&&!(m.unitIds&&m.unitIds.length)||isMod()&&m.unitIds.indexOf(unitId)>=0)};
@@ -361,7 +362,13 @@ function memForm(id){const m=S.mem.find(x=>x.id===id);if(!m)return;openSheet(`<h
 
 /* ---- more ---- */
 function owhUpdate(){try{toast('Updating…')}catch(e){}Promise.all([navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}):0,window.caches?caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}):0]).catch(function(){}).then(function(){location.reload()})}
+A.delacc=()=>OWHACC.open({keep:'observations you logged stay in the company record.',purge:async u=>{const us=await DB.doc('sf_users/'+u.uid).get(),c=Object.keys((us.exists&&us.data().cids)||{});for(const id of c){try{await DB.doc('sf_companies/'+id+'/members/'+u.uid).delete()}catch(e){throw new Error('You created company '+id+'. Make another admin and ask support to move ownership first.')}}await DB.doc('sf_users/'+u.uid).delete()}});
+A.vaopen=()=>{if(!realAdm())return;const L=S.mem.filter(m=>m.status==='active'&&m.id!==S.user.uid).sort((a,b)=>String(a.role).localeCompare(b.role)||String(a.name).localeCompare(b.name));openSheet(`<h2>View as</h2><div class="note">Pick a person. You see the app as that person sees it. Nothing can be changed in this mode.</div>${L.length?L.map(m=>`<button class="row" data-a="vago" data-id="${esc(m.id)}"><b>${esc(m.name)}</b><small>${esc(m.role==='admin'?'Company admin':m.role==='moderator'?'Plant moderator':'User')}${m.dept?' • '+esc(m.dept):''}${m.sec?' • '+esc(m.sec):''}</small></button>`).join(''):'<div class="note">No other active people yet.</div>'}<button class="btn w" data-a="closeSheet" style="margin-top:8px">CLOSE</button>`)};
+A.vago=d=>{const m=S.mem.find(x=>x.id===d.id);if(!m||!realAdm())return;if(!window.OWHVA||!OWHVA.start(m.name+' ('+m.role+(m.dept?', '+m.dept:'')+')',()=>{S.user=S.vaReal;S.vaReal=null;S.tab='more';shell()}))return toast('Preview is not available on this phone.',4000);
+ S.vaReal=S.user;S.user={uid:m.id,name:m.name,email:m.email||''};closeSheet();S.tab='home';shell()};
 function vMore(){const m=ME();$('view').innerHTML=`<div class="card"><b>${esc(S.user.name||'')}</b><div class="note">${esc(S.user.email||'')} • ${m.role==='admin'?'Company admin':m.role==='moderator'?'Plant moderator':'User'}</div></div>
+ ${realAdm()&&!S.vaReal?`<button class="btn" data-a="vaopen">👁 VIEW AS ANOTHER USER (READ ONLY)</button><div class="note">See the app as a moderator or user of any department or section, to find bugs.</div>`:''}
+ ${S.mode==='cloud'&&!S.vaReal?`<button class="btn" data-a="delacc">🗑 DELETE MY ACCOUNT</button>`:''}
  <button class="btn g" data-a="notifon">Enable phone notifications for my pending actions</button><div class="note">${window.Notification?'Permission: '+Notification.permission:'Not supported in this browser'}. E-mails are sent automatically when an observation is logged, closed, rejected or escalated.</div>
  <button class="btn" data-a="exsheet">⬇ Export report (PDF, Excel, PowerPoint)</button>
  <button class="btn g" data-a="help">How ZeroHarm works</button>

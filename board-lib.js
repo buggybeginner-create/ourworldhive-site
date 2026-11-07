@@ -35,8 +35,8 @@ BX.gameInit=function(g){BX.G=g;BX.need(function(){var c=window.BX_CATALOG&&BX_CA
   OWHG.mount();setTimeout(function(){OWHG.hint()},900)}})};
 BX.eqName=function(){var n=BX.name();try{var b=window.OWHG&&OWHG.game()===BX.G&&OWHG.eq('badge');if(b)n=(n.slice(0,12)+' '+b.e).slice(0,16)}catch(e){}return n};
 BX.room={
- create:async function(game,max,alt){await BX.init();var rid=code(),seed=Math.floor(Math.random()*2147483646)+1;
-  await BX.db.collection('board_rooms').doc(rid).set({game:game,host:BX.uid,players:[BX.uid],names:(function(){var o={};o[BX.uid]=BX.eqName();return o})(),max:max,alt:!!alt,seed:seed,status:'open',created:TS(),hb:{}});return rid},
+ create:async function(game,max,alt,qm){await BX.init();var rid=code(),seed=Math.floor(Math.random()*2147483646)+1;
+  await BX.db.collection('board_rooms').doc(rid).set({game:game,host:BX.uid,players:[BX.uid],names:(function(){var o={};o[BX.uid]=BX.eqName();return o})(),max:max,alt:!!alt,qm:qm===1?1:0,seed:seed,status:'open',created:TS(),hb:{}});return rid},
  join:async function(rid){await BX.init();rid=String(rid||'').trim().toUpperCase();var ref=BX.db.collection('board_rooms').doc(rid);
   return BX.db.runTransaction(async function(tx){var s=await tx.get(ref);if(!s.exists)throw new Error('Room not found');var d=s.data();if(d.players.indexOf(BX.uid)>=0)return d;if(d.players.length>=d.max||d.status!=='open')throw new Error('Room is full');
    var p=d.players.concat([BX.uid]),nm={};Object.keys(d.names||{}).forEach(function(k){nm[k]=d.names[k]});nm[BX.uid]=BX.eqName();
@@ -44,7 +44,7 @@ BX.room={
  quick:async function(game,max,alt){await BX.init();var ms=function(v){return v&&v.toMillis?v.toMillis():Date.now()},now=Date.now(),q=await BX.db.collection('board_rooms').where('status','==','open').where('game','==',game).limit(15).get(),c=[];
   q.forEach(function(d){var v=d.data();if(v.players.indexOf(BX.uid)<0&&now-ms(v.created)<90000&&v.players.length<v.max)c.push({id:d.id,t:ms(v.created)})});c.sort(function(a,b){return a.t-b.t});
   for(var i=0;i<c.length;i++){try{var d=await BX.room.join(c[i].id);return{rid:c[i].id,data:d,joined:true}}catch(e){}}
-  var rid=await BX.room.create(game,max,alt),sn=await BX.db.collection('board_rooms').doc(rid).get();return{rid:rid,data:sn.data(),t:ms(sn.data().created)}},
+  var rid=await BX.room.create(game,max,alt,1),sn=await BX.db.collection('board_rooms').doc(rid).get();return{rid:rid,data:sn.data(),t:ms(sn.data().created)}},
  open:async function(game){await BX.init();var q=await BX.db.collection('board_rooms').where('status','==','open').where('game','==',game).limit(15).get();var o=[];q.forEach(function(d){var v=d.data();if(v.players.indexOf(BX.uid)<0)o.push({rid:d.id,data:v})});return o},
  watch:function(rid,cb){return BX.db.collection('board_rooms').doc(rid).onSnapshot(function(s){if(s.exists)cb(s.data())})},
  moves:function(rid,cb){return BX.db.collection('board_rooms').doc(rid).collection('moves').orderBy('n').onSnapshot(function(s){var a=[];s.forEach(function(d){a.push(d.data())});cb(a)})},
@@ -139,7 +139,7 @@ BX.lobby=function(root,o){BX.closeFs();BX.gameInit(o.game);
   unW=function(){if(!done){done=true;un();clearTimeout(botT)}};
   /* owner-controlled bots: if nobody joins, fill the room with computer players (set in Studio) */
   var botT=0;
-  if(d.players.length<d.max&&d.players.length<=1&&d.host===BX.uid){
+  if(d.qm===1&&d.players.length<d.max&&d.players.length<=1&&d.host===BX.uid){
    (window.OWHBOTS?Promise.resolve():new Promise(function(ok){var sc=document.createElement('script');sc.src='owh-bots.js';sc.onload=sc.onerror=ok;document.head.appendChild(sc)})).then(function(){
     if(done||!window.OWHBOTS)return;return OWHBOTS.cfg(BX.db,o.game).then(function(c){
      if(!c||done)return;

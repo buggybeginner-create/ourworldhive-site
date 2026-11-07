@@ -1018,10 +1018,10 @@ async function quickMatch(){try{await boot()}catch(e){toast(errMsg(e));return}va
  toast('Looking for a player...');var a=[];try{a=await RT.listOpen(g)}catch(e){}
  a=a.filter(function(r){return r.us.indexOf(uid)<0&&r.us.length<r.max&&r.exp>now()}).sort(function(x,y){return x.cr-y.cr});
  for(var i=0;i<Math.min(3,a.length);i++){await joinRoom(a[i].code);if(code===a[i].code)return}
- await hostRoom()}
-async function hostRoom(){try{await boot()}catch(e){toast(errMsg(e));return}var g=H.SET.game;if(GAMES.indexOf(g)<0){toast('Online rooms are not available for this game.');return}
+ await hostRoom(1)}
+async function hostRoom(q){try{await boot()}catch(e){toast(errMsg(e));return}var g=H.SET.game;if(GAMES.indexOf(g)<0){toast('Online rooms are not available for this game.');return}
  var D=defOf(g),mx=D.multi?Math.max(2,Math.min(D.maxP||4,+H.SET.np||4)):2,p=profile(),t=now(),c=rcode();
- var room={code:c,game:g,max:mx,host:uid,seats:[{u:uid,n:p.n,a:p.a,r:1}],us:[uid],st:'lobby',cr:t,exp:t+TTL,hb:{},gn:0,sw:0,rm:[],av:[],res:null,why:''};
+ var room={code:c,game:g,max:mx,host:uid,seats:[{u:uid,n:p.n,a:p.a,r:1}],us:[uid],st:'lobby',qm:q===1?1:0,cr:t,exp:t+TTL,hb:{},gn:0,sw:0,rm:[],av:[],res:null,why:''};
  try{await Promise.race([RT.create(c,room),new Promise(function(_,rj){setTimeout(function(){rj(new Error('No answer from the server. Tap the Guest tag at the bottom to check the connection.'))},12000)})])}catch(e){toast(errMsg(e));return}enterRoom(c)}
 async function joinRoom(c){try{await boot()}catch(e){toast(errMsg(e));return}c=String(c||'').toUpperCase().trim();var p=profile();
  try{await RT.tx(c,function(r){if(r.us.indexOf(uid)>=0)return null;if(r.st!=='lobby')throw new Error('That match has already started.');if(r.exp<=now())throw new Error('That room has expired.');if(r.us.length>=r.max)throw new Error('That room is full.');
@@ -1031,7 +1031,7 @@ function enterRoom(c){cleanup();code=c;LSset('hr_room',c);curGn=0;
  /* owner-controlled bots (Studio > Online bots): nobody joined -> start a computer match with random names */
  if(window.OWHBOTS&&window.HR_LOCK&&!demo)try{OWHBOTS.cfg(firebase.firestore(),HR_LOCK).then(function(cf){
   if(!cf||code!==c)return;
-  tm.bot=setTimeout(function(){if(code!==c||!R||R.st!=='lobby'||R.us.length>1||R.host!==uid)return;
+  tm.bot=setTimeout(function(){if(code!==c||!R||R.st!=='lobby'||R.us.length>1||R.host!==uid||!R.qm)return;
    var g=R.game,np=R.max;RT.tx(c,function(r){return r.st==='lobby'?{st:'closed',why:'Closed'}:null}).catch(function(){});
    cleanup();window.HR_BOTNAMES=OWHBOTS.names(3,cf.tag);window.__cb.start({game:g,mode:'bot',lvl:2,np:np});window.HR_BOTNAMES=null},OWHBOTS.delay())})}catch(e){}
  tm.ui=setInterval(tick1,1000);tm.dog=setInterval(watchdog,4000);tm.beat=setInterval(beat,BEAT);beat();

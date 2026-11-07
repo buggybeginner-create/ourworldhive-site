@@ -466,6 +466,7 @@ function fail(msg){
 tryLoad(['https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js','https://cdn.jsdelivr.net/npm/d3@3.5.17/d3.min.js'])
 .then(function(){ return tryLoad(['https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js','https://cdn.jsdelivr.net/npm/topojson@1.6.9/topojson.min.js']); })
 .then(function(){ return tryLoad(['https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.world.min.js','https://cdn.jsdelivr.net/npm/datamaps@0.5.9/dist/datamaps.world.min.js']); })
+.then(function(){ return loadScript('india-map.js').catch(function(){}); })
 .then(function(){ return init(); })
 .catch(function(e){ console.error(e); fail(); });
 
@@ -822,6 +823,13 @@ var topo=Datamap.prototype.worldTopo;
 var obj=topo.objects.world||topo.objects[Object.keys(topo.objects)[0]];
 var feats=topojson.feature(topo,obj).features;
 var nbIdx=topojson.neighbors(obj.geometries);
+/* India, Pakistan and China are drawn with the India map as shown by Google Maps in India (full Jammu and Kashmir, Ladakh and Arunachal Pradesh) */
+var bordersX=null;
+if(window.INDIA_POV){
+  var bxl=[];
+  feats.forEach(function(f){ var p=window.INDIA_POV[f.id]; if(!p) return; f.geometry={type:'MultiPolygon',coordinates:JSON.parse(JSON.stringify(p))}; p.forEach(function(poly){ poly.forEach(function(r){ bxl.push(r); }); }); });
+  bordersX={type:'MultiLineString',coordinates:bxl};
+}
 var PALETTE=['#ff6b6b','#ffa94d','#ffe066','#69db7c','#38d9a9','#9775fa','#f783ac','#74c0fc'];
 
 function fixGeometry(g){
@@ -1510,6 +1518,11 @@ function drawOverlay(now){
   /* country borders */
   if(borders){
     o.save(); o.lineJoin='round'; o.beginPath(); opath(borders);
+    o.strokeStyle='rgba(0,0,0,.28)'; o.lineWidth=2.4; o.stroke();
+    o.strokeStyle='rgba(255,255,255,.62)'; o.lineWidth=zoom>2?1.1:.8; o.stroke(); o.restore();
+  }
+  if(bordersX){
+    o.save(); o.lineJoin='round'; o.beginPath(); opath(bordersX);
     o.strokeStyle='rgba(0,0,0,.28)'; o.lineWidth=2.4; o.stroke();
     o.strokeStyle='rgba(255,255,255,.62)'; o.lineWidth=zoom>2?1.1:.8; o.stroke(); o.restore();
   }
@@ -2358,6 +2371,13 @@ async function loadStates(c){
     c._stErr=errs;
     if(!gj) throw new Error(errs.join(' | ')||'no state data');
     feats=gj.features;
+    if(iso==='IND'&&window.INDIA_CLAIM){
+      /* add the areas shown as part of India on Google Maps in India (Ladakh incl. Gilgit-Baltistan and Aksai Chin, and Pakistan-occupied Kashmir) */
+      var lad=null; feats.forEach(function(f){ var pr=f.properties||{}; if(/ladakh/i.test(pr.shapeName||pr.name||pr.NAME_1||'')) lad=f; });
+      var extra=JSON.parse(JSON.stringify(window.INDIA_CLAIM));
+      if(lad&&lad.geometry){ var g0=lad.geometry; lad.geometry={type:'MultiPolygon',coordinates:(g0.type==='Polygon'?[g0.coordinates]:g0.coordinates).concat(extra)}; }
+      else feats.push({type:'Feature',properties:{shapeName:'Ladakh and Jammu and Kashmir (claimed areas)'},geometry:{type:'MultiPolygon',coordinates:extra}});
+    }
   }
   var st=prepStates(feats||[]); if(!st.length) throw new Error('no state shapes');
   c._st=st; return st;

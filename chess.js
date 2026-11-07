@@ -88,7 +88,7 @@ function start(sess){
   scene.marks({sel:sel,dots:dots,caps:caps,last:s.last?[s.last.f,s.last.t]:null,check:CC.inCheck(s)?CC.kingSq(s.b,s.turn):-1})}
  function turnUI(s){var seat=s.turn==='w'?0:1;F.act(seat);var mat=material(s);F.sc(0,mat>0?'+'+mat:'');F.sc(1,mat<0?'+'+(-mat):'');
   var me=G?G.mySeats():[],mine=me.indexOf(seat)>=0,chk=CC.inCheck(s)?' — <b style="color:#ff8a8a">Check!</b>':'';
-  F.status((mine?(sess.mode==='local'?(seat===0?'White':'Black')+' to move':'🟢 Your move'):'⏳ '+sess.seats[seat].name+' is thinking…')+chk);F.ver(G?G.verified:0);
+  F.status((mine?(sess.mode==='local'?(seat===0?'White':'Black')+' to move':'🟢 Your move'):'⏳ '+(sess.stealth?'Waiting for '+sess.seats[seat].name+'…':sess.seats[seat].name+' is thinking…'))+chk);F.ver(G?G.verified:0);
   L=mine?CC.legal(s):[];marks(s);armIdle(s)}
  function armIdle(s){stopIdle();if(!P.yam||!G||G.over)return;var seat=s.turn==='w'?0:1;if(G.mySeats().indexOf(seat)<0||G.pending)return;var crit=critical(s);
   idleT=setTimeout(function(){if(!G||G.over||scene.busy()&&false)return;scene.summon(true);idleT=setTimeout(function(){scene.summon(false);var d=wrap.querySelector('.cx-doom');if(d)d.classList.remove('on');armIdle(G.state)},26000)},crit?14000:42000)}

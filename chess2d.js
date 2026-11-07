@@ -51,7 +51,7 @@ function start(sess){
  function material(s){var V={p:1,n:3,b:3,r:5,q:9},w=0,b=0;s.b.forEach(function(p){if(!p)return;var l=p.toLowerCase();if(!V[l])return;if(p===l)b+=V[l];else w+=V[l]});return w-b}
  function turnUI(s){var seat=s.turn==='w'?0:1;F.act(seat);var mat=material(s);F.sc(0,mat>0?'+'+mat:'');F.sc(1,mat<0?'+'+(-mat):'');
   var me=G?G.mySeats():[];var mine=me.indexOf(seat)>=0;var chk=CC.inCheck(s)?' — <b style="color:#ff8a8a">Check!</b>':'';
-  F.status((mine?(sess.mode==='local'?(seat===0?'White':'Black')+' to move':'🟢 Your move'):'⏳ '+sess.seats[seat].name+' is thinking…')+chk);F.ver(G?G.verified:0);
+  F.status((mine?(sess.mode==='local'?(seat===0?'White':'Black')+' to move':'🟢 Your move'):'⏳ '+(sess.stealth?'Waiting for '+sess.seats[seat].name+'…':sess.seats[seat].name+' is thinking…'))+chk);F.ver(G?G.verified:0);
   L=mine?CC.legal(s):[];marks(s)}
  G=new BX.Game(DEF,sess,{
   onMove:function(s,info){var m=s.last,e=els[m.f];sel=-1;

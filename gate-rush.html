@@ -239,7 +239,7 @@ body.ig .bn{display:none}
  <div class="sec"><h2>🎮 Pick a game</h2><div class="gcards" id="gCards"></div></div>
  <div class="sec"><h2>🏆 Rankings</h2>
  <div class="card"><div class="rk-ctl"><div class="seg" id="rkGame" role="group" aria-label="Game"></div></div>
- <div class="rk-ctl"><div class="seg" id="rkKind" role="group" aria-label="Ranking type"></div><div class="seg" id="rkPer" role="group" aria-label="Period"></div><label class="muted" style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="rkSample"> Show demo players</label></div>
+ <div class="rk-ctl"><div class="seg" id="rkKind" role="group" aria-label="Ranking type"></div><div class="seg" id="rkPer" role="group" aria-label="Period"></div><label class="muted" style="display:none"><input type="checkbox" id="rkSample"> Show demo players</label></div>
  <div class="muted" id="rkMe" style="margin-bottom:8px;font-size:14px"></div><ol class="rk" id="rkList"></ol>
  <div class="lbl" style="margin-top:12px">Rank titles (same ladder in every game)</div><div class="ladder" id="rkLadder" style="gap:6px"></div><p class="muted" style="font-size:12.5px;margin:10px 0 0">This list shows matches played on this device. The shared worldwide ranking of online matches is on the <a href="rankings.html" style="color:var(--gold)">Rankings page</a>.</p></div></div>
  <div class="sec"><h2>🕘 Your recent matches</h2><div class="recent" id="recent"></div></div>
@@ -549,7 +549,7 @@ function drawBars(){var D=G.def,s=G.s,np=G.np;
  var key0=h0,key1=h1+(np>2?s.turn:'');if(b0._h!==key0){b0._h=key0;b0.innerHTML=h0}if(b1._h!==key1){b1._h=key1;b1.innerHTML=h1}
  if(G.tm)$$('.clock[data-s]').forEach(function(c){var i=+c.dataset.s;c.textContent=fmt(G.ck[i]);c.classList.toggle('low',G.ck[i]<1e4)})}
 function updateUI(){drawBars();G.def.draw();
- var s=G.s,st;if(G.over)st=$('#status').textContent;else if(G.bots[s.turn])st='⏳ '+esc(G.names[s.turn])+' is thinking…';else if(G.online)st=s.turn===G.online.seat?'🟢 Your move: '+G.def.act:'⏳ Waiting for '+esc(G.names[s.turn])+'…';else if(G.bot)st='🟢 Your move: '+G.def.act;else st='🟢 '+esc(G.names[s.turn])+' to move';
+ var s=G.s,st;if(G.over)st=$('#status').textContent;else if(G.bots[s.turn])st='⏳ '+(G.stealth?'Waiting for '+esc(G.names[s.turn])+'…':esc(G.names[s.turn])+' is thinking…');else if(G.online)st=s.turn===G.online.seat?'🟢 Your move: '+G.def.act:'⏳ Waiting for '+esc(G.names[s.turn])+'…';else if(G.bot)st='🟢 Your move: '+G.def.act;else st='🟢 '+esc(G.names[s.turn])+' to move';
  if(!G.over&&G.def.bars&&myTurn()&&G.mode==='wall')st='🧱 Tap a spot on the board to throw the bar';if(!G.over)$('#status').innerHTML=st;
  if(G.def.bars){var nb=G.online?s.wl[G.online.seat]:G.bot?s.wl[0]:s.wl[s.turn],dis=G.over||!myTurn()||s.wl[s.turn]<1;$('#bH').disabled=dis;$('#bV').disabled=dis;$('#bH').textContent='━ '+nb;$('#bV').textContent='┃ '+nb;if(G.def.id==='hen'){var hn=(G.online?G.online.seat:G.bot?0:s.turn)!==s.ch;$('#bV').hidden=hn;if(hn)$('#bH').textContent='🪤 '+nb}}
  $('#bRes').disabled=!!G.over}

@@ -43,7 +43,7 @@ function start(sess){
   var mv=moves(s),act={};mv.forEach(function(m){act[m.b]=1});
   boards.forEach(function(bd,b){bd.classList.toggle('act',!!act[b]&&!done(s));var o=s.own[b],w=bd.querySelector('.uw');if(o>=0&&!w){w=document.createElement('div');w.className='uw';w.innerHTML=o===0?X():o===1?O():D();bd.appendChild(w)}})}
  function turn(s){var seat=s.turn;F.act(seat);var mine=G&&G.mySeats().indexOf(seat)>=0;var a=0,b2=0;s.own.forEach(function(v){if(v===0)a++;else if(v===1)b2++});F.sc(0,a);F.sc(1,b2);
-  F.status((mine?(sess.mode==='local'?sess.seats[seat].name:'🟢 Your move'):'⏳ '+sess.seats[seat].name+' is thinking…')+'<br><small>'+(s.next>=0&&s.own[s.next]<0?'Play in the highlighted board':'Play in any highlighted board')+'</small>');F.ver(G?G.verified:0);paint(s,false)}
+  F.status((mine?(sess.mode==='local'?sess.seats[seat].name:'🟢 Your move'):'⏳ '+(sess.stealth?'Waiting for '+sess.seats[seat].name+'…':sess.seats[seat].name+' is thinking…'))+'<br><small>'+(s.next>=0&&s.own[s.next]<0?'Play in the highlighted board':'Play in any highlighted board')+'</small>');F.ver(G?G.verified:0);paint(s,false)}
  G=new BX.Game(DEF,sess,{onMove:function(s,info){BX.sfx.move();F.addMove((info.seat===0?'X':'O')+(info.mv.b+1)+'.'+(info.mv.c+1),n++);paint(s,true);turn(s)},onTurn:turn,
   onOver:function(r){var t=r.cheat?'Game void':r.winner<0?'Draw':(sess.mode==='online'?(r.winner===sess.me?'You win! 🏆':'You lost'):sess.seats[r.winner].name+' wins!');F.status('<b>'+t+'</b> — '+r.reason);BX.sfx[r.winner>=0&&(sess.mode!=='online'||r.winner===sess.me)?'good':'bad']();setTimeout(function(){F.over(t,r.reason,r.winner>=0&&(sess.mode!=='online'||r.winner===sess.me))},700)}});
  turn(G.state);

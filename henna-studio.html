@@ -155,17 +155,20 @@ function skinBase(shapes,sk,id,mini,vb,joints){
  return{defs,layers:edge+shade+jt}}
 function palmLines(){return'<path d="M84 300Q120 330 112 372"/><path d="M96 262Q150 292 190 262"/>'}
 function handJoints(){return FING.map(f=>`<path d="M${f.x+7} ${f.t+78}Q${f.x+19} ${f.t+84} ${f.x+31} ${f.t+78}M${f.x+9} ${f.t+130}Q${f.x+19} ${f.t+135} ${f.x+29} ${f.t+130}"/>`).join('')}
-function hand(n,o,mini){o=o||ST;if(o.hand==='arm')return armSvg(n,o,mini);const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],back=o.hand==='back';
+function hand(n,o,mini){o=o||ST;return armSvg(n,o,mini);const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],back=o.hand==='back';
  let body=PAT[styleOf(n)](R);
  const nails=back?FING.map(f=>`<rect x="${f.x+9}" y="${f.t+3}" width="20" height="26" rx="9" fill="#fff" opacity=".3"/>`).join('')+`<rect x="27" y="266" width="20" height="26" rx="9" fill="#fff" opacity=".3" transform="rotate(-34 52 330)"/>`:'';
  const hx=back?' transform="translate(250 0) scale(-1 1)"':'';
  const sb=skinBase(SHAPES(),sk,id,mini,[-10,54,270,420],handJoints()+(back?'':palmLines()));
  return`<svg viewBox="-10 54 270 420" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi design ${n}"><defs>${sb.defs}<clipPath id="${id}">${SHAPES()}</clipPath></defs><g${hx}>${sb.layers}${back?nails:''}<g clip-path="url(#${id})"><g fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity=".94">${body.replace(/class="F"/g,'fill="'+ink+'"')}</g></g></g></svg>`}
-/* ---------- Full arm: bold floral designs ---------- */
+/* ---------- Hand and arm: realistic skin, 8 design families ---------- */
 let PAL={};
 const PALS=[['#d12f5b','#f08a24','#2f9e57','#7a3fb0'],['#c2185b','#e6a100','#00897b','#3949ab'],['#e53935','#fb8c00','#43a047','#8e24aa'],['#1e88e5','#ec407a','#26a69a','#ff7043'],['#8e24aa','#f4511e','#558b2f','#00acc1']];
-const AF=[{x:62,t:256},{x:101,t:196},{x:140,t:176},{x:179,t:212}];
-const ARMSH=()=>`<rect x="72" y="360" width="148" height="140" rx="44"/>`+AF.map(f=>`<rect x="${f.x}" y="${f.t}" width="34" height="${440-f.t}" rx="17"/>`).join('')+`<rect x="206" y="392" width="36" height="130" rx="18" transform="rotate(30 224 500)"/><path d="M98 450C102 520 106 570 100 620C86 720 70 810 60 890H244C234 810 218 720 206 620C200 570 204 520 212 450Z"/>`;
+const AF=[{x:79,t:262,r:-7,w:32},{x:118,t:200,r:-2.5,w:37},{x:157,t:182,r:2,w:37},{x:196,t:214,r:6.5,w:35}];
+const fpath=f=>{const b=452,hw=f.w*.39;return`<path transform="rotate(${f.r} ${f.x} ${b})" d="M${f.x-f.w/2} ${b}L${f.x-hw} ${f.t+hw}A${hw} ${hw} 0 0 1 ${f.x+hw} ${f.t+hw}L${f.x+f.w/2} ${b}Z"/>`};
+const THUMB='<path transform="rotate(36 212 520)" d="M192 540L196 420A18 18 0 0 1 232 420L236 540Z"/>';
+const ARMSH=()=>`<path d="M62 440C54 500 80 545 100 572L204 572C228 545 238 490 216 440Z"/>`+AF.map(fpath).join('')+THUMB+`<path d="M98 556C102 600 104 640 100 680C86 760 70 830 60 890H244C234 830 218 760 206 680C200 640 202 600 206 556Z"/>`;
+const edge=y=>{if(y<566)return[108,196];const t=Math.min(1,Math.max(0,(y-620)/270)),l=y<620?100:100-40*t,r=y<620?206:206+38*t;return[l+8,r-8]};
 function lf(x,y,L,a){return`<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" stroke="none" d="M0 0C${f1(L*.45)} ${f1(-L*.2)} ${f1(L*.45)} ${f1(-L*.75)} 0 ${f1(-L)}C${f1(-L*.45)} ${f1(-L*.75)} ${f1(-L*.45)} ${f1(-L*.2)} 0 0Z"/>`}
 function hp(cx,cy,L,w,a,col,kind){const sk=PAL.sk;const d=kind===0?`M0 0C${f1(-w*.6)} ${f1(-L*.15)} ${f1(-w*1.15)} ${f1(-L*.7)} ${f1(-w*.55)} ${f1(-L*.95)}C${f1(-w*.25)} ${f1(-L*1.08)} 0 ${f1(-L*.96)} 0 ${f1(-L*.82)}C0 ${f1(-L*.96)} ${f1(w*.25)} ${f1(-L*1.08)} ${f1(w*.55)} ${f1(-L*.95)}C${f1(w*1.15)} ${f1(-L*.7)} ${f1(w*.6)} ${f1(-L*.15)} 0 0Z`:kind===1?`M0 0C${f1(-w)} ${f1(-L*.2)} ${f1(-w)} ${f1(-L*.85)} 0 ${f1(-L)}C${f1(w)} ${f1(-L*.85)} ${f1(w)} ${f1(-L*.2)} 0 0Z`:`M0 0C${f1(-w)} ${f1(-L*.3)} ${f1(-w*.6)} ${f1(-L*.8)} 0 ${f1(-L)}C${f1(w*.6)} ${f1(-L*.8)} ${f1(w)} ${f1(-L*.3)} 0 0Z`;return`<path transform="translate(${f1(cx)} ${f1(cy)}) rotate(${f1(a)})" fill="${col}" stroke="${sk}" stroke-width="1.3" d="${d}"/>`}
 function bigFlower(cx,cy,r,kind,rot,col){const sk=PAL.sk;let s='';const n=kind===0?5:kind===1?6:kind===2?10:8,pk=kind===0||kind===3?0:kind===1?1:2,w=kind===0?r*.55:kind===1?r*.36:kind===2?r*.2:r*.4,L=kind===3?r*.92:r;
@@ -180,30 +183,59 @@ function dotsArc(cx,cy,Rr,a0,a1,n,r,col){let s='';for(let i=0;i<n;i++){const a=(
 function ringArc(cx,cy,r,rot,col){return`<g transform="rotate(${rot} ${f1(cx)} ${f1(cy)})" fill="none" stroke="${col}" stroke-width="6">`+[0,1,2].map(k=>{const rr=r-k*9;return`<path d="M${f1(cx-rr)} ${f1(cy)}A${f1(rr)} ${f1(rr)} 0 0 1 ${f1(cx+rr)} ${f1(cy)}" stroke-dasharray="${f1(rr*.9)} 4"/>`}).join('')+'</g>'}
 function fan(x,y,ang,col){return`<g transform="translate(${f1(x)} ${f1(y)}) rotate(${ang})" fill="none" stroke="${col}" stroke-width="3.4" stroke-linecap="round"><path d="M0 0C-10 -14 -4 -28 12 -30"/><path d="M6 3C-2 -10 4 -22 20 -22"/><path d="M12 6C6 -5 12 -13 26 -14"/></g>`}
 function drop(x,y,sc,col){return`<path transform="translate(${f1(x)} ${f1(y)}) scale(${sc})" fill="${col}" d="M0 -8C5 -2 5 4 0 6C-5 4 -5 -2 0 -8Z"/>`}
-function armFinger(cx,t,R){const P=PAL;let s=`<path d="M${cx-13} ${t+36}A13 13 0 0 1 ${cx+13} ${t+36}" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;const m=R.i(0,3),k=R.i(0,3);
- if(m===0)s+=bigFlower(cx,t+68,14,k,R.i(0,70),P.f)+bigFlower(cx,t+104,12,R.i(0,3),R.i(0,70),P.g)+drop(cx,t+128,1,P.a)+drop(cx-8,t+138,.8,P.a)+drop(cx+8,t+138,.8,P.a);
- else if(m===1)s+=bigFlower(cx,t+68,13,k,R.i(0,70),P.f)+dotLine(cx,t+92,cx,t+140,5,2.6,P.a,0)+sprig(cx,t+170,30,0,P.l);
- else if(m===2)s+=burst(cx,t+66,13,P.a)+drop(cx,t+92,1.1,P.f)+burst(cx,t+118,12,P.g)+dotLine(cx,t+138,cx,t+168,3,2.6,P.a,0);
- else s+=sprig(cx,t+120,66,0,P.l)+bigFlower(cx,t+64,11,k,0,P.f)+dotLine(cx,t+130,cx,t+156,3,2.4,P.a,0);
+function pais(x,y,sz,a,col){return`<g transform="translate(${f1(x)} ${f1(y)}) rotate(${a}) scale(${f1(sz/50)})"><path fill="${col}" d="M0 0C-24 -6 -30 -40 -6 -54C16 -64 34 -46 24 -30C18 -20 6 -24 8 -34C-4 -30 -6 -10 8 -2C10 0 4 4 0 0Z"/><circle cx="9" cy="-45" r="4" fill="${PAL.sk}"/><path d="M-12 -14C-18 -26 -12 -40 0 -44" stroke="${PAL.sk}" stroke-width="2" fill="none"/></g>`}
+function mandala(cx,cy,r,R){const P=PAL;let s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${P.a}" stroke-width="2.6"/>`+dotsArc(cx,cy,r+7,0,350,R.i(24,30),2.2,P.a);for(let i=0;i<12;i++)s+=hp(cx,cy,r*.92,r*.2,i*30,P.f,1);s+=`<circle cx="${cx}" cy="${cy}" r="${f1(r*.56)}" fill="${P.sk}"/>`;for(let i=0;i<8;i++)s+=hp(cx,cy,r*.52,r*.15,i*45+22,P.g,2);return s+bigFlower(cx,cy,r*.3,R.i(0,3),R.i(0,70),P.f)}
+function band(y,x0,x1,type,R){const P=PAL;let s=`<path d="M${f1(x0)} ${y-9}H${f1(x1)}M${f1(x0)} ${y+9}H${f1(x1)}" stroke="${P.a}" stroke-width="2.2" fill="none"/>`;
+ if(type===0){for(let x=x0+6;x<x1-4;x+=13)s+=`<g fill="${P.l}">`+lf(x,y+7,14,0)+lf(x+6.5,y-7,14,180)+'</g>'}
+ else if(type===1){for(let x=x0+6;x<x1;x+=11)s+=`<circle cx="${f1(x)}" cy="${y}" r="3.2" fill="${P.a}"/>`}
+ else if(type===2){for(let x=x0+12;x<x1-6;x+=23)s+=bigFlower(x,y,10,R.i(0,3),R.i(0,70),(x/23|0)%2?P.g:P.f)}
+ else{for(let x=x0+2;x<x1-8;x+=15)s+=`<path d="M${f1(x)} ${y+8}L${f1(x+7.5)} ${y-8}L${f1(x+15)} ${y+8}Z" fill="${P.a}"/>`}
  return s}
-function armBody(R){const P=PAL;let back='',mid='',top='';const n=R.i(6,8),y0=392,y1=838,amp=R.i(12,26),ph=R.f(0,6),nodes=[];
- for(let k=0;k<n;k++){const y=y0+(y1-y0)*k/(n-1),x=148+Math.sin(ph+k*1.5)*amp*(k?1:.3),r=k===0?R.f(20,24):R.f(30,37)+k*R.f(1.6,2.6);nodes.push({x,y,r,side:(k+R.i(0,1))%2?1:-1,kind:R.i(0,3),rot:R.i(0,71),col:k%2?P.g:P.f})}
+function armFinger(cx,t,R,fam){const P=PAL;let s=`<path d="M${f1(cx-12)} ${t+38}A12 12 0 0 1 ${f1(cx+12)} ${t+38}" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;if(fam===7)return s+bigFlower(cx,t+68,11,R.i(0,3),R.i(0,70),P.f)+dotLine(cx,t+90,cx,t+120,4,2.4,P.a,0);
+ const m=R.i(0,3),k=R.i(0,3);
+ if(m===0)s+=bigFlower(cx,t+70,13,k,R.i(0,70),P.f)+bigFlower(cx,t+106,12,R.i(0,3),R.i(0,70),P.g)+drop(cx,t+130,1,P.a)+drop(cx-8,t+140,.8,P.a)+drop(cx+8,t+140,.8,P.a);
+ else if(m===1)s+=bigFlower(cx,t+70,13,k,R.i(0,70),P.f)+dotLine(cx,t+94,cx,t+140,5,2.6,P.a,0)+sprig(cx,t+175,30,0,P.l);
+ else if(m===2)s+=burst(cx,t+68,13,P.a)+drop(cx,t+94,1.1,P.f)+burst(cx,t+120,12,P.g)+dotLine(cx,t+140,cx,t+170,3,2.6,P.a,0);
+ else s+=sprig(cx,t+124,66,0,P.l)+bigFlower(cx,t+66,11,k,0,P.f)+dotLine(cx,t+132,cx,t+158,3,2.4,P.a,0);
+ if(fam===6)s+=bigFlower(cx,t+160,11,R.i(0,3),R.i(0,70),P.f)+dotLine(cx,t+178,cx,t+200,3,2.4,P.a,0);
+ return s}
+function vine(R,y0,y1,n,sc){const P=PAL;let back='',mid='',top='';const amp=R.i(12,24),ph=R.f(0,6),nodes=[];
+ for(let k=0;k<n;k++){const y=y0+(y1-y0)*k/Math.max(1,n-1),x=150+Math.sin(ph+k*1.5)*amp*(k?1:.3),r=(k===0?R.f(20,24):R.f(30,37)+k*R.f(1.6,2.4))*sc;nodes.push({x,y,r,side:(k+R.i(0,1))%2?1:-1,kind:R.i(0,3),rot:R.i(0,71),col:k%2?P.g:P.f})}
  nodes.forEach((o,k)=>{const{x,y,r}=o;[o.side,-o.side].forEach((side,si)=>{if(si&&R.i(0,9)<3)return;const acc=R.p(['ring','sprig','fan','dots','ring','sprig']);
   if(acc==='ring')back+=ringArc(x-side*4,y-r*.15,r*1.35,R.i(-25,25),P.a);
-  else if(acc==='sprig')mid+=sprig(x+side*r*.8,y+r*.7,R.i(42,58),side*R.i(38,62),P.l);
+  else if(acc==='sprig')mid+=sprig(x+side*r*.8,y+r*.7,R.i(42,58)*sc,side*R.i(38,62),P.l);
   else if(acc==='fan')mid+=fan(x+side*(r+6),y+R.i(-4,10),side*R.i(20,40)+(side<0?-20:0),P.a);
   else mid+=dotsArc(x,y,r+13,side>0?-70:110,side>0?60:240,R.i(7,10),3,P.a)});
   if(k<n-1){const side=o.side,q=nodes[k+1],mx=(o.x+q.x)/2,my=(o.y+q.y)/2;if(R.i(0,2)){mid+=lf(mx-side*14,my+8,15,-side*55)+lf(mx+side*14,my+8,13,side*55)}if(R.i(0,2)===0)mid+=dotLine(o.x+side*(o.r+10),o.y+10,q.x+side*(q.r+8),q.y-8,R.i(4,6),2.6,P.a,side*8)}
   top+=bigFlower(x,y,r,o.kind,o.rot,o.col)});
- let s=`<g fill="${P.a}" stroke="none">${dotLine(84,468,122,392,6,2.8,P.a,-8)+dotLine(80,488,126,408,7,2.8,P.a,-10)+dotLine(218,470,186,420,5,2.6,P.a,8)}</g>`;
- s+=back+mid+top;AF.forEach(f=>{s+=armFinger(f.x+17,f.t,R)});
- s+=`<g transform="rotate(30 224 500)">${`<path d="M211 426A13 13 0 0 1 237 426" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`}${bigFlower(224,452,12,R.i(0,3),0,P.f)}${dotLine(224,472,224,500,3,2.8,P.a,0)}</g>`;
- s+=sprig(104,860,40,-12,P.l)+sprig(200,862,40,14,P.l);
+ return back+mid+top}
+function sweep(R,yB,yT,fl,leafN){const P=PAL,ph=R.f(0,6),amp=yB-yT>200?34:20,N=26;let d='',s='';const pt=[];for(let i=0;i<=N;i++){const t=i/N;pt.push([150+amp*Math.sin(ph+t*4.2)*(1-t*.25),yB-(yB-yT)*t])}
+ d='M'+pt.map(q=>f1(q[0])+' '+f1(q[1])).join('L');s+=`<path d="${d}" stroke="${P.l}" stroke-width="3.4" fill="none" stroke-linejoin="round"/>`;
+ for(let i=2;i<N;i+=leafN){const q=pt[i],side=(i/leafN|0)%2?1:-1;s+=`<g fill="${P.l}">`+lf(q[0],q[1],R.f(17,24),side*R.i(52,78))+'</g>'}
+ fl.forEach((t,j)=>{const q=pt[Math.round(t*N)];s+=bigFlower(q[0],q[1],R.f(22,30)*(1-t*.25),R.i(0,3),R.i(0,70),j%2?P.g:P.f)});return s}
+function armBody(R,fam,yE){const P=PAL,full=yE>700,sc=full?1:.82;let s=`<g fill="${P.a}" stroke="none">${dotLine(84,468,122,392,6,2.8,P.a,-8)+dotLine(80,488,126,408,7,2.8,P.a,-10)+dotLine(218,470,186,420,5,2.6,P.a,8)}</g>`,e;
+ if(fam===0){s+=mandala(150,452,full?46:50,R);if(full){s+=band(560,108,196,R.i(0,3),R);s+=vine(R,640,yE,R.i(3,5),1)}else s+=band(552,108,196,R.i(0,3),R)}
+ else if(fam===1){s+=sweep(R,yE-8,full?408:400,full?[.12,.36,.6,.86]:[.3,.85],2)}
+ else if(fam===2){s+=mandala(150,444,40,R);s+=band(556,108,196,0,R)+band(580,108,196,1,R);if(full){e=edge(660);s+=band(660,e[0],e[1],2,R);s+=vine(R,730,yE,R.i(2,3),1.05);e=edge(yE+20);s+=band(yE+30,e[0]-10,e[1]+10,3,R)}}
+ else if(fam===3){s+=vine(R,392,yE,full?R.i(6,8):R.i(3,4),sc)}
+ else if(fam===4){const n=full?5:2;for(let k=0;k<n;k++){const y=full?470+k*(yE-500)/(n-1):470+k*80,d=k%2?1:-1;s+=pais(150+d*20,y+60,R.i(46,58)*sc,d*R.i(16,34),k%2?P.g:P.f);if(k<n-1)s+=bigFlower(150-d*28,y+80,R.i(11,15),R.i(0,3),R.i(0,70),P.l)+dotLine(150+d*50,y+20,150+d*44,y+66,4,2.4,P.a,d*6)}s+=bigFlower(150,432,R.i(22,28),R.i(0,3),R.i(0,70),P.f)}
+ else if(fam===5){const st=R.i(11,15);s+=`<g stroke="${P.a}" fill="${P.a}" stroke-width="1.2">`+lattice(70,380,226,520,st)+'</g>'+`<circle cx="150" cy="452" r="34" fill="${P.sk}"/><circle cx="150" cy="452" r="34" fill="none" stroke="${P.a}" stroke-width="2"/>`+bigFlower(150,452,24,R.i(0,3),0,P.f);if(full){for(let y=560,k=0;y<yE;y+=62,k++){e=edge(y);s+=band(y,e[0],e[1],k%4===0?2:k%4,R)}}else s+=band(552,108,196,3,R)}
+ else if(fam===6){s+=mandala(150,452,28,R);s+=band(full?560:552,108,196,R.i(0,3),R);if(full)s+=sprig(104,yE+20,40,-12,P.l)+sprig(200,yE+22,40,14,P.l)}
+ else{s+=sweep(R,full?yE-20:560,full?470:420,[full?.82:.7],3);s+=bigFlower(150,452,R.i(15,19),R.i(0,3),0,P.f)}
+ s+=AF.map(f=>`<g transform="rotate(${f.r} ${f.x} 452)">${armFinger(f.x,f.t,R,fam)}</g>`).join('');
+ s+=`<g transform="rotate(36 212 520)"><path d="M199 428A13 13 0 0 1 225 428" stroke="${P.a}" stroke-width="4.5" fill="none" stroke-linecap="round"/>${bigFlower(212,456,12,R.i(0,3),0,P.f)}${dotLine(212,478,212,512,4,2.8,P.a,0)}</g>`;
  return s}
-function armSvg(n,o,mini){const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0];PAL={f:ink,g:ink,l:ink,a:ink,sk:sk[0]};
+function armSvg(n,o,mini){const R=rng(n),id='c'+(++UID),sk=SKIN[o.skin],ink=INK[o.ink][0],mode=o.hand,full=mode==='arm',nails=mode!=='palm',flip=mode==='back';PAL={f:ink,g:ink,l:ink,a:ink,sk:sk[0]};
  if(o.ink==='multi'){const q=R.p(PALS);PAL={f:q[0],g:q[1],l:q[2],a:q[3],sk:sk[0]}}
- const body=armBody(R),sb=skinBase(ARMSH(),sk,id,mini,[-8,148,336,744],AF.map(f=>`<path d="M${f.x+7} ${f.t+88}Q${f.x+17} ${f.t+94} ${f.x+27} ${f.t+88}M${f.x+9} ${f.t+138}Q${f.x+17} ${f.t+143} ${f.x+25} ${f.t+138}`+'"/>').join('')+'<path d="M96 640Q150 660 206 640" />');
- return`<svg viewBox="-8 148 336 744" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi full arm design ${n}"><defs>${sb.defs}<clipPath id="${id}">${ARMSH()}</clipPath></defs>${sb.layers}<g clip-path="url(#${id})"><g fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".95">${body}</g></g></svg>`}
+ const body=armBody(R,styleOf(n),full?838:566).replace(/class="F"/g,'fill="'+PAL.a+'"'),c0=sk[0],c1=sk[1],hi=lite(c0,.3),dk=lite(c1,-.3),vb=full?[-8,148,336,744]:[-8,148,336,484];
+ let jt='',ex='';
+ AF.forEach(f=>{const g=(i,y)=>`M${f.x-f.w*.3} ${y}Q${f.x} ${y+5} ${f.x+f.w*.3} ${y}`;jt+=`<g transform="rotate(${f.r} ${f.x} 452)">`+(nails?g(0,f.t+92)+g(0,f.t+98)+g(0,f.t+148)+g(0,f.t+153)+g(0,420)+g(0,426):g(0,f.t+92)+g(0,f.t+150)+g(0,410))+'</g>'});
+ jt=`<path d="${jt.replace(/<g[^>]*>|<\/g>/g,'')}" />`.slice(0,0)+AF.map(f=>`<g transform="rotate(${f.r} ${f.x} 452)"><path d="${nails?`M${f.x-f.w*.3} ${f.t+92}Q${f.x} ${f.t+97} ${f.x+f.w*.3} ${f.t+92}M${f.x-f.w*.25} ${f.t+98}Q${f.x} ${f.t+102} ${f.x+f.w*.25} ${f.t+98}M${f.x-f.w*.3} ${f.t+148}Q${f.x} ${f.t+153} ${f.x+f.w*.3} ${f.t+148}M${f.x-f.w*.28} ${f.t+154}Q${f.x} ${f.t+158} ${f.x+f.w*.28} ${f.t+154}M${f.x-f.w*.32} 418Q${f.x} 424 ${f.x+f.w*.32} 418`:`M${f.x-f.w*.32} ${f.t+96}Q${f.x} ${f.t+102} ${f.x+f.w*.32} ${f.t+96}M${f.x-f.w*.32} ${f.t+152}Q${f.x} ${f.t+158} ${f.x+f.w*.32} ${f.t+152}M${f.x-f.w*.34} 432Q${f.x} 440 ${f.x+f.w*.34} 432`}"/></g>`).join('')+(nails?'':'<path d="M84 470Q120 500 150 472Q190 500 216 462M128 520Q150 545 172 520"/>')+'<path d="M100 576Q150 590 204 576"/>';
+ AF.forEach(f=>{ex+=`<g transform="rotate(${f.r} ${f.x} 452)"><path d="M${f.x} ${f.t+26}L${f.x} 440" stroke="${hi}" stroke-width="${f.w*.3}" stroke-linecap="round" opacity=".42" filter="url(#s${id})"/>`;if(nails){const nw=f.w*.5;ex+=`<rect x="${f1(f.x-nw/2)}" y="${f.t+5}" width="${f1(nw)}" height="26" rx="${f1(nw/2.2)}" fill="${lite('#e9b0a4',.1)}" stroke="${dk}" stroke-width=".8" stroke-opacity=".5"/><path d="M${f1(f.x-nw/4)} ${f.t+10}Q${f.x} ${f.t+7} ${f1(f.x+nw/4)} ${f.t+10}" stroke="#fff" stroke-width="1.6" fill="none" opacity=".6" stroke-linecap="round"/>`}ex+='</g>'});
+ ex+=`<g transform="rotate(36 212 520)"><path d="M214 400L214 520" stroke="${hi}" stroke-width="10" stroke-linecap="round" opacity=".38" filter="url(#s${id})"/>${nails?`<rect x="202" y="387" width="24" height="26" rx="10" fill="${lite('#e9b0a4',.1)}" stroke="${dk}" stroke-width=".8" stroke-opacity=".5"/>`:''}</g>`;
+ ex+=`<ellipse cx="190" cy="505" rx="26" ry="42" transform="rotate(25 190 505)" fill="${dk}" opacity=".16" filter="url(#s${id})"/><ellipse cx="140" cy="480" rx="40" ry="34" fill="${hi}" opacity=".3" filter="url(#s${id})"/><ellipse cx="150" cy="740" rx="30" ry="120" fill="${hi}" opacity=".18" filter="url(#s${id})"/>`;
+ const sb=skinBase(ARMSH(),sk,id,mini,[-8,148,336,744],jt),tx=flip?' transform="translate(300 0) scale(-1 1)"':'',fl=mini?'':` filter="url(#h${id})"`,defs=sb.defs+`<filter id="s${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>`+(mini?'':`<filter id="h${id}" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="7" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation=".35"/></filter>`);
+ return`<svg viewBox="${vb.join(' ')}" xmlns="http://www.w3.org/2000/svg" style="--hn-skin:${sk[0]}" role="img" aria-label="Mehendi design ${n}"><defs>${defs}<clipPath id="${id}">${ARMSH()}</clipPath></defs><g${tx}>${sb.layers}${ex}<g clip-path="url(#${id})"><g${fl} fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".94" style="mix-blend-mode:multiply">${body}</g></g></g></svg>`}
 /* ---------- screens ---------- */
 function curStyle(){return ST.style<0?'':STYLES[ST.style]}
 function drawMaker(){$('stage').innerHTML=hand(ST.n);$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${ST.hand==='palm'?'Palm':ST.hand==='arm'?'Full arm':'Back hand'}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());

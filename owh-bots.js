@@ -12,14 +12,15 @@ function name(){var f=pick(FIRST),r=Math.random(),n;
   else if(r<.74)n=f+pick(TAIL).replace(/^_/,'');
   else if(r<.86)n=f.toLowerCase()+'.'+pick(LAST).toLowerCase();
   else n=f;
+  if(!/\d/.test(n))n=n.replace(/[ .]/g,'')+pick(TAIL).replace(/[^0-9]/g,'');
   return n.slice(0,14)}
 /* things a real person says now and then (emoji and short lines, English and a little Hinglish) */
 var SAY=['\uD83D\uDE0E','\uD83D\uDE02','\uD83E\uDD14','\uD83D\uDC4D','\uD83D\uDD25','\uD83D\uDE05','\uD83D\uDE2E','gg','nice one','haha','arey wah','oops','chal bhai','soch raha hu \uD83E\uDD14','good one \uD83D\uDC4F','close tha \uD83D\uDE05','let\u2019s go \uD83D\uDD25','hmm','wah \uD83D\uDE2E','ok ok \uD83D\uDE0F'];
 var B=window.OWHBOTS={
-  name:function(tag){return name()+(tag?' (BOT)':'')},
+  name:function(tag){return name()},
   names:function(n,tag){var u={},o=[],g=0;while(o.length<n&&g++<200){var s=B.name(tag);if(!u[s]){u[s]=1;o.push(s)}}return o},
-  /* a bot is assigned if nobody real joins within 10 seconds (between 5 and 9.5) */
-  delay:function(){return (5+Math.random()*4.5)*1000},
+  /* a bot is assigned if nobody real joins within 12 seconds */
+  delay:function(){return 12000},
   avatar:function(){return pick(['\uD83E\uDD8A','\uD83D\uDC2F','\uD83D\uDC3C','\uD83E\uDD81','\uD83D\uDC38','\uD83D\uDC35','\uD83E\uDD84','\uD83D\uDC3B','\uD83D\uDC31','\uD83D\uDC36'])},
   say:function(){return pick(SAY)},
   /* now and then the bot says something on its own. say(text) sends it; alive() returns false when the game is over. */

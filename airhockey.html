@@ -255,7 +255,7 @@ function goalFx(team){
   hud();const el=$(sideOf(team)==='L'?'sL':'sR');el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),260);
   (mine?sfx.goal:sfx.lose)();vib(mine?[40,40,90]:60);
   confetti(team==='b'?'#ffd34a':'#ff6a5a',mine?60:30,G.ball.x,clamp(G.ball.y,40,H-40));
-  G.msg={t:MODE==='two'?names[team].toUpperCase()+' SCORES':team===myTeam?'GOAL!':(MODE==='cpu'?'CPU SCORES':'OPPONENT SCORES'),c:team==='b'?'#ffd34a':'#ff8a7a',age:0}}
+  G.msg={t:MODE==='two'?names[team].toUpperCase()+' SCORES':team===myTeam?'GOAL!':(MODE==='cpu'&&!botOpp?'CPU SCORES':'OPPONENT SCORES'),c:team==='b'?'#ffd34a':'#ff8a7a',age:0}}
 function sideOf(team){return MODE==='two'?(team==='b'?'L':'R'):(team===myTeam?'L':'R')}
 function resetBall(dir){const b=G.ball;b.x=W/2;b.y=H/2;b.vx=0;b.vy=0;b.tr=[];G.serveDir=dir}
 function launch(){const b=G.ball,d=G.serveDir||(Math.random()<.5?-1:1);b.vx=rnd(-60,60);b.vy=d*rnd(230,300);G.idle=0}
@@ -271,10 +271,10 @@ function finish(){if(G.ended)return;const w=G.sc.b>G.sc.t?'b':'t';sendR({t:'over
 async function showEnd(w,note){
   if(G.ended)return;G.ended=true;G.state='over';$('cnt').hidden=true;
   const win=MODE==='two'?true:w===myTeam;
-  $('eT').textContent=MODE==='two'?names[w]+' Wins!':win?'You Win!':(MODE==='cpu'?'CPU Wins':'You Lost');
+  $('eT').textContent=MODE==='two'?names[w]+' Wins!':win?'You Win!':(MODE==='cpu'&&!botOpp?'CPU Wins':'You Lost');
   $('eT').style.color=win?'#ffd34a':'#ff8a7a';
   const me=MODE==='two'?'b':myTeam,op=me==='b'?'t':'b';$('eS').textContent=G.sc[me]+' - '+G.sc[op];
-  $('eM').textContent=note||(botOpp?'Ranking points count only in matches against real players.':win?(MODE==='two'?'Great match!':'Great shots! Try a harder level.'):'So close. Keep your striker in front of your goal.');
+  $('eM').textContent=note||(botOpp?(win?'Great match!':'So close. Rematch?'):win?(MODE==='two'?'Great match!':'Great shots! Try a harder level.'):'So close. Keep your striker in front of your goal.');
   $('ePts').textContent='';
   if(win&&MODE!=='two'){confetti('#ffd34a',90,W/2,H/2);sfx.goal()}else sfx.lose();
   if(MODE==='cpu'){const k='ah-rec-'+diff,o=LS.get(k,{w:0,l:0});win?o.w++:o.l++;LS.set(k,o)}
@@ -519,7 +519,7 @@ async function botFill(){
   try{await db.runTransaction(async tx=>{const s=await tx.get(rref(c)),r=s.data();if(!r||r.st!=='lobby'||r.us.length>1)return;tx.update(rref(c),{st:'closed',why:'Opponent found'});ok=true})}catch(e){}
   if(!ok||code!==c)return;
   roomLeft=true;cleanRoom();
-  botOpp={n:botName()+(cfg.tag?' (BOT)':''),a:bpick(BAV),c:bpick(BCC)};if(diffSaved==null)diffSaved=diff;diff=myRank&&myRank.pts>=160?2:1;
+  botOpp={n:botName(),a:bpick(BAV),c:bpick(BCC)};if(diffSaved==null)diffSaved=diff;diff=2;
   toast('Opponent found: '+botOpp.n,2200);startLocal('cpu')}
 /* ---------- online: direct link (WebRTC), room only used to connect ---------- */
 const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};

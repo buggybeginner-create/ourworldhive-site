@@ -22,9 +22,9 @@ try{fetch('pwa/'+base+'.webmanifest').then(function(r){return r.json()}).then(fu
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('app-sw.js',{scope:'./'+page}).catch(function(){})})}
 /* ---- separate INSTALL button for this page ---- */
 function installBtn(){
-  var sa=window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone;if(sa)return;
+  var sa=window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone;if(sa||/^android-app:/.test(document.referrer||''))return;
   var key='owh-inst-'+page,ev=null,b=null;
-  try{var t=+localStorage.getItem(key);if(t&&Date.now()-t<7*864e5)return}catch(e){}
+  try{if(localStorage.getItem(key))return}catch(e){}
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!/crios|fxios/i.test(navigator.userAgent);
   function show(){if(b)return;var st=d.createElement('style');
     st.textContent='.owh-inst{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483000;display:flex;align-items:center;gap:6px;background:#14181c;color:#fff;border:1px solid #ffc857;border-radius:999px;padding:4px 4px 4px 12px;font:700 12px/1 system-ui,sans-serif;letter-spacing:.06em;box-shadow:0 6px 18px rgba(0,0,0,.45)}.owh-inst button{appearance:none;border:0;background:#ffc857;color:#14181c;font:inherit;border-radius:999px;padding:8px 12px;cursor:pointer}.owh-inst .x{background:none;color:#aab;padding:6px 8px;font-size:15px}.owh-tip{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:2147483000;background:#14181c;color:#fff;border:1px solid #ffc857;border-radius:12px;padding:10px 12px;font:500 14px/1.45 system-ui,sans-serif;max-width:420px}';
@@ -34,7 +34,7 @@ function installBtn(){
       else{var tp=d.createElement('div');tp.className='owh-tip';tp.textContent=ios?'Tap Share (⬆) then "Add to Home Screen" to install this page as its own app.':'Open the browser menu (⋮) and tap "Install app" / "Add to Home screen".';d.body.appendChild(tp);setTimeout(function(){tp.remove()},6000)}};
     b.children[2].onclick=function(){try{localStorage.setItem(key,Date.now())}catch(e){}hide()};
     d.body.appendChild(b);
-    var hb=b;setTimeout(function(){if(b!==hb)return;hb.style.transition='opacity .4s';hb.style.opacity='0';setTimeout(function(){if(b===hb)hide()},420)},2000); /* auto-hide after 2 seconds */
+    var hb=b;setTimeout(function(){if(b!==hb)return;hb.style.transition='opacity .4s';hb.style.opacity='0';setTimeout(function(){if(b===hb){try{localStorage.setItem(key,'1')}catch(e){}hide()}},420)},2000); /* auto-hide after 2 seconds */
     try{var ml=d.querySelector('link[rel="manifest"]');if(ml)fetch(ml.href).then(function(r){return r.json()}).then(function(m){if(b&&m&&m.short_name)b.firstChild.textContent=m.short_name.toUpperCase()}).catch(function(){})}catch(e){}}
   function hide(){if(b){b.remove();b=null}}
   window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;if(d.body)show();else window.addEventListener('load',show)});

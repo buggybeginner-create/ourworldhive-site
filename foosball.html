@@ -469,7 +469,7 @@ async function refreshList(){const L=$('oList');if(!db)return;try{const q=await 
 $('oRef').onclick=()=>boot().then(refreshList).catch(e=>toast(errMsg(e)));
 $('oCode').addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')});
 $('oJoin').onclick=()=>{const c=$('oCode').value.trim();if(c.length<4){toast('Type the room code first.');return}joinRoom(c)};
-$('oHost').onclick=hostRoom;$('oQuick').onclick=quickMatch;
+$('oHost').onclick=()=>hostRoom(false);$('oQuick').onclick=quickMatch;
 async function hostRoom(quick){try{await boot()}catch(e){toast(errMsg(e));return}const t=now(),c=rcode(),me={u:uid,n:prof.name,a:prof.av,c:prof.cc,r:1};
   const room={code:c,game:'foosball',max:2,host:uid,seats:[me],us:[uid],st:'lobby',cr:t,exp:t+10*60*1000,hb:{},gn:0,sw:0,rm:[],av:[],res:null,why:'',qm:quick?1:0};
   try{await db.runTransaction(async tx=>{const s=await tx.get(rref(c));if(s.exists)throw new Error('Try again');tx.set(rref(c),room)})}catch(e){toast(errMsg(e));return}enterRoom(c,!!quick)}

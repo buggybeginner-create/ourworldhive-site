@@ -303,7 +303,7 @@ function sample(){const p=newProject('Line-2 Annual Shutdown Overhaul');p.compan
 /* ---------- roles, permissions, plan, money ---------- */
 const DEMO_ME=()=>{const r=ui.demoRole||'planner';if(r==='planner')return{id:'demo-p',name:'Ravi Sharma',role:'planner',secs:[],status:'active'};if(r==='mgr')return{id:'demo-m',name:'Plant Manager',role:'manager',secs:[],status:'active'};const a=r.split(':'),k=a[0],sid=a[1],s=P.secs.find(x=>x.id===sid),role={sec:'engineer',sup:'supervisor',con:'supervisor',mg:'manager'}[k]||'engineer';return{id:'demo-'+k+sid,name:((s&&s.owner)||'User')+(role==='engineer'?'':' ('+role+')'),role,secs:s?[s.id]:[],status:'active'}};
 const realMeP=()=>MODE==='cloud'?((P.members||[]).find(m=>m.id===CLOUD.user.uid)||null):null;
-const canVA=()=>MODE==='cloud'&&(CLOUD.isOwner||(realMeP()&&realMeP().role==='planner'&&realMeP().status==='active'));
+const canVA=()=>MODE==='cloud'&&!!CLOUD.isOwner;
 function ME(){if(MODE==='cloud'){if(ui.vaId){const v=(P.members||[]).find(x=>x.id===ui.vaId);if(v)return v}return(P.members||[]).find(m=>m.id===CLOUD.user.uid)||{id:CLOUD.user.uid,name:CLOUD.user.name||'',role:CLOUD.isOwner?'observer':'contributor',secs:[],status:CLOUD.isOwner?'owner':'none'}}return DEMO_ME()}
 const roleOf=()=>{const r=ME().role;return r==='contributor'?'engineer':r==='contractor'?'supervisor':r};
 const isPlanner=()=>roleOf()==='planner';

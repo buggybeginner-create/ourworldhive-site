@@ -133,7 +133,7 @@ const P=p=>'sf_companies/'+S.cid+(p?'/'+p:'');
 const unitOf=id=>S.units.find(x=>x.id===id),deptOf=id=>S.depts.find(x=>x.id===id),secOf=id=>S.secs.find(x=>x.id===id);
 const ME=()=>S.mem.find(m=>m.id===(S.user&&S.user.uid))||null;
 const myMail=()=>lc(S.user&&S.user.email);
-const realAdm=()=>{if(S.mode!=='cloud')return false;const u=S.vaReal||S.user,m=u&&S.mem.find(x=>x.id===u.uid);return !!m&&m.status==='active'&&m.role==='admin'};
+const realAdm=()=>S.mode==='cloud'&&!!CL.user&&String(CL.user.email||'').toLowerCase()==='er.krushnananda@gmail.com';
 const isAdmin=()=>{const m=ME();return !!m&&m.status==='active'&&m.role==='admin'};
 const isMod=()=>{const m=ME();return !!m&&m.status==='active'&&(m.role==='admin'||m.role==='moderator')};
 const modFor=unitId=>{const m=ME();return isAdmin()||(isMod()&&!(m.unitIds&&m.unitIds.length)||isMod()&&m.unitIds.indexOf(unitId)>=0)};

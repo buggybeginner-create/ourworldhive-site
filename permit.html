@@ -151,7 +151,7 @@ const slabel=p=>{const k=skey(p);return k==='delayed'?'Delayed':k==='renew'?'Ren
 const sTag=p=>{const k=skey(p);return `<span class="tag t-${k}">${esc(slabel(p))}</span>`};
 const isoTaken=p=>ISO.filter(x=>p.iso&&p.iso[x[0]]&&p.iso[x[0]].st==='done').length;
 const isoNeeded=p=>ISO.filter(x=>p.iso&&p.iso[x[0]]&&p.iso[x[0]].r).length;
-const needsMe=p=>{if(isoNeedMe(p)||isoRetMe(p))return true;if(p.st==='raised')return isIss()&&isoReady(p);if(p.st==='verified')return canApprove(p);if(p.st==='closreq')return isIss();if(p.st==='active'&&p.rn&&p.rn.req)return canApprove(p);return false};
+const needsMe=p=>{if(isoNeedMe(p)||isoRetMe(p))return true;if(p.st==='raised')return isIss()&&isoReady(p);if(p.st==='verified')return canApprove(p);if(p.st==='closreq')return isIss()&&!isoReq(p).some(x=>p.iso[x[0]].st==='done'&&!p.iso[x[0]].ret);if(p.st==='active'&&p.rn&&p.rn.req)return canApprove(p);return false};
 function chk(t,l,v){return`<label class="ck ${v?'on':''}"><input type="checkbox" data-ck="${t}" data-v="${esc(l)}" ${v?'checked':''}><span>${esc(l)}</span></label>`}
 function setPath(o,path,v){const k=path.split('.');let c=o;for(let i=0;i<k.length-1;i++)c=c[k[i]];c[k[k.length-1]]=v}
 /* ===== sign-in and plants ===== */
@@ -383,6 +383,7 @@ function detail(id){const p=getP(id);if(!p)return;const k=TYPES[p.type]||{n:'',i
  const isoH=isoRows.length?isoRows.map(x=>{const i=p.iso[x[0]];return`<div class="iso"><div class="l"><span>${x[1]}<br><small>${esc(isoNo(p,x[0]))}</small></span><span>${isoTag(i)}${i.ret?' <span class="tag">DE-ISOLATED</span>':''}</span></div><div class="note">${esc(i.t||'')} • Authority: ${esc(isoDept(p,x[0]))}</div>${i.by?`<div class="note">${esc(i.by)} ${esc(fmtT(i.at))}</div>`:''}<button class="btn w s" style="margin-top:6px" data-a="isoopen" data-id="${esc(p.id)}" data-k="${x[0]}">${canIso(x[0],p)?'OPEN ISOLATION PAGE':'VIEW ISOLATION DETAILS'}</button> <button class="btn w s" style="margin-top:6px" data-a="pdfiso" data-id="${esc(p.id)}" data-k="${x[0]}">PDF ${esc(isoNo(p,x[0]))}</button><button class="btn wa s" style="margin-top:6px" data-a="wa" data-id="${esc(p.id)}" data-k="${x[0]}">${WAI} WHATSAPP APPROVAL</button>${i.st==='done'?`<button class="btn w s" style="margin-top:6px" data-a="pdftag" data-id="${esc(p.id)}" data-k="${x[0]}">PRINT LOTO TAG</button>`:''}</div>`}).join(''):'<span>No isolation required (as raised).</span>';
  const clear=p.vr?(isoRows.length?(isoRows.every(x=>p.iso[x[0]].st==='na')?'ISOLATION NOT REQUIRED':'ISOLATION DONE'):'ISOLATION NOT REQUIRED'):'';
  const g=p.gas&&typeof p.gas==='object'?p.gas:null;
+ const dePend=isoReq(p).filter(x=>p.iso[x[0]].st==='done'&&!p.iso[x[0]].ret),cc=p.st==='closreq'?(dePend.length?'<span class="tag t-delayed">WAITING FOR ISOLATION CLEARANCE: '+dePend.map(x=>esc(x[1])).join(', ')+'</span>':'<span class="tag t-active">ISOLATION CLEARED. READY TO CLOSE</span>'):'';
  const b=[];
  if(p.st==='raised'&&isIss())b.push(['verify','Verify checks and isolation','']);
  if(p.st==='verified'&&canApprove(p))b.push(['approve','Approve permit','g']);
@@ -390,13 +391,14 @@ function detail(id){const p=getP(id);if(!p)return;const k=TYPES[p.type]||{n:'',i
  if(p.st==='active'&&own)b.push(['closreq','Work finished: request closure','g']);
  if(p.st==='active'&&own&&!(p.rn&&p.rn.req))b.push(['renew','Request renewal',delayed(p)?'':'w']);
  if(p.st==='active'&&p.rn&&p.rn.req&&canApprove(p)){b.push(['rnok','Approve renewal','g']);b.push(['rndec','Decline renewal','r'])}
- if((p.st==='closreq'||p.st==='active')&&isIss())b.push(['close','Close permit',p.st==='closreq'?'g':'w']);
+ if(p.st==='closreq'&&isIss()&&!dePend.length)b.push(['close','Close permit','g']);
+ if(p.st==='active'&&isMgr())b.push(['close','Force close (manager only)','w']);
  if(p.st==='active'&&(isInc()||isSaf()||canApprove(p)))b.push(['stop','Stop work and cancel','r']);
  if(p.st==='active'&&p.ap&&p.ap.by===S.user.uid)b.push(['revoke','Revoke my approval','r']);
  if(own&&delOk(p))b.push(['pdel','Delete my permit','r']);
  if(p.gas&&p.st==='active'&&(isIss()||isInc()||isSaf()))b.push(['gasre','Record gas retest','w']);
  if((p.st==='raised'||p.st==='verified')&&own&&!canApprove(p))b.push(['cancel','Cancel my permit','w']);
- openSheet(`<h2>${esc(p.no)}</h2><div style="margin:-4px 0 10px">${sTag(p)} <span class="tag">${k.ic} ${esc(k.n)}</span>${clear?`<span class="tag t-active">${clear}</span>`:''}</div>
+ openSheet(`<h2>${esc(p.no)}</h2><div style="margin:-4px 0 10px">${sTag(p)} <span class="tag">${k.ic} ${esc(k.n)}</span>${clear?`<span class="tag t-active">${clear}</span>`:''}${cc}</div>
  ${p.st==='verified'?`<div class="note" style="margin:0 0 8px">Approval by: ${esc(approverNames(p))}.</div>`:''}${p.rv&&p.st==='verified'?`<div class="warn">↩ Approval was revoked by ${esc(p.rv.n)}: ${esc(p.rv.reason)}</div>`:''}${own&&!p.ap&&!delOk(p)&&['raised','verified','rejected','cancelled'].includes(p.st)?'<div class="note" style="margin:0 0 8px">This permit cannot be deleted while an isolation is still applied. Ask the isolator to remove it first.</div>':''}${delayed(p)?'<div class="warn">⏱ Permit time is over. Work should stop. Requester must ask for renewal or close the permit.</div>':''}${p.rn&&p.rn.req?`<div class="warn">🔁 Renewal asked till ${esc(fmtT(tms(p.rn.end)))} by ${esc(p.rn.n)}. Reason: ${esc(p.rn.reason)}</div>`:''}
  ${sec('Job',`<dl class="kv"><dt>Department</dt><dd>${esc(p.dept)}</dd><dt>Raised by</dt><dd>${esc(p.byName)} • ${esc(fmtT(p.ts))}</dd><dt>Equipment</dt><dd>${esc(p.equip||'-')}</dd><dt>Area</dt><dd>${esc(p.area||'-')}</dd><dt>Activity</dt><dd>${esc(p.act)}</dd><dt>Description</dt><dd>${esc(p.desc)}</dd><dt>Contractor</dt><dd>${esc(p.contractor)}</dd><dt>Supervisor</dt><dd>${esc(p.sup)}</dd><dt>Persons (${p.pc})</dt><dd>${esc(String(p.persons||'').split('\n').join(', '))}</dd><dt>Valid</dt><dd>${esc(fmtT(tms(p.start)))} to ${esc(fmtT(tms(p.end)))}${p.rnCount?` <span class="tag t-renew">Renewed ${p.rnCount}x</span>`:''}</dd></dl>`)}
  ${sec('Hazards',esc((p.hz||[]).join(', ')||'-'))}${sec('PPE and precautions',esc((p.ppe||[]).join(', '))+'<br><br>'+esc((p.pr||[]).join(', ')||'-'))}

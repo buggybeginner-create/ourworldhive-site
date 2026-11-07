@@ -987,7 +987,7 @@ function boot(){if(inited)return inited;inited=(async function(){
 function defOf(g){return H.DEFS[g]}
 function mySeatIdx(r){for(var i=0;i<r.seats.length;i++)if(r.seats[i].u===uid)return i;return -1}
 function profile(){var p=H.prof();return{n:String(p.name||'Player').slice(0,14),a:String(p.av||'🦊').slice(0,4)}}
-function errMsg(e){var m=(e&&e.message)||String(e);if(/permission|insufficient/i.test(m))return 'Not allowed. The site owner must publish the HiveRealm Firestore rules.';return m}
+function errMsg(e){var m=(e&&e.message)||String(e);if(/admin-restricted|operation-not-allowed/i.test(m+((e&&e.code)||'')))return 'Online play is switched off. The site owner must turn ON Anonymous in Firebase: Authentication > Sign-in method > Anonymous > Enable. Or tap SIGN IN (top) to use Google.';if(/permission|insufficient/i.test(m))return 'Not allowed. The site owner must publish the HiveRealm Firestore rules.';return m}
 function clearTimers(){Object.keys(tm).forEach(function(k){clearInterval(tm[k])});tm={}}
 function unsubAll(){offs.forEach(function(f){try{f()}catch(e){}});offs=[];mvUn&&mvUn();chUn&&chUn();mvUn=chUn=null}
 function cleanup(){clearTimers();unsubAll();code=null;R=null;seat=-1;curGn=0;want=0;q=Promise.resolve();LSset('hr_room',null);document.querySelectorAll('.over').forEach(function(o){o.remove()});H.setHooks(null)}

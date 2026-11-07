@@ -4,16 +4,17 @@
 (function(){
 var CURS=[['INR','₹','India'],['USD','$','USA and rest of the world'],['EUR','€','Europe'],['GBP','£','United Kingdom'],['AED','AED ','UAE'],['SGD','S$','Singapore'],['AUD','A$','Australia'],['CAD','C$','Canada']];
 var PLANS=[['m1','1 month',1],['m3','3 months',3],['m12','12 months',12],['perm','Permanent access',0]];
-var TOOLS=[['pm','PM Tracker'],['pp','Project Planner'],['diary','My Diary (one-time)']];
-var DEFUPI='8917262863@ybl',ONCE={diary:1};
+var TOOLS=[['pm','PM Tracker'],['pp','Project Planner'],['diary','My Diary (one-time)'],['calc','CalcPad (one-time)']];
+var DEFUPI='8917262863@ybl',ONCE={diary:1,calc:1};
 var DEF={
  pm:{INR:{m1:199,m3:549,m12:1499,perm:1999},USD:{m1:5,m3:14,m12:37,perm:49},EUR:{m1:4.5,m3:12.9,m12:34,perm:45},GBP:{m1:3.9,m3:10.9,m12:29,perm:39},AED:{m1:19,m3:52,m12:139,perm:179},SGD:{m1:6.5,m3:17.9,m12:49,perm:65},AUD:{m1:7.5,m3:20,m12:55,perm:75},CAD:{m1:7,m3:19,m12:50,perm:65}},
  pp:{INR:{m1:499,m3:1399,m12:4499,perm:5999},USD:{m1:9,m3:25,m12:79,perm:99},EUR:{m1:8,m3:23,m12:72,perm:92},GBP:{m1:7,m3:20,m12:63,perm:79},AED:{m1:33,m3:92,m12:290,perm:365},SGD:{m1:12,m3:33,m12:105,perm:130},AUD:{m1:14,m3:39,m12:120,perm:150},CAD:{m1:13,m3:36,m12:110,perm:140}},
- diary:{INR:{m1:1999,m3:1999,m12:1999,perm:1999},USD:{m1:24,m3:24,m12:24,perm:24},EUR:{m1:22,m3:22,m12:22,perm:22},GBP:{m1:19,m3:19,m12:19,perm:19},AED:{m1:89,m3:89,m12:89,perm:89},SGD:{m1:31,m3:31,m12:31,perm:31},AUD:{m1:36,m3:36,m12:36,perm:36},CAD:{m1:33,m3:33,m12:33,perm:33}}
+ diary:{INR:{m1:1999,m3:1999,m12:1999,perm:1999},USD:{m1:24,m3:24,m12:24,perm:24},EUR:{m1:22,m3:22,m12:22,perm:22},GBP:{m1:19,m3:19,m12:19,perm:19},AED:{m1:89,m3:89,m12:89,perm:89},SGD:{m1:31,m3:31,m12:31,perm:31},AUD:{m1:36,m3:36,m12:36,perm:36},CAD:{m1:33,m3:33,m12:33,perm:33}},
+ calc:{INR:{m1:199,m3:199,m12:199,perm:199},USD:{m1:3,m3:3,m12:3,perm:3},EUR:{m1:2.9,m3:2.9,m12:2.9,perm:2.9},GBP:{m1:2.5,m3:2.5,m12:2.5,perm:2.5},AED:{m1:11,m3:11,m12:11,perm:11},SGD:{m1:4,m3:4,m12:4,perm:4},AUD:{m1:4.5,m3:4.5,m12:4.5,perm:4.5},CAD:{m1:4,m3:4,m12:4,perm:4}}
 };
 var P={cfg:fresh(),loaded:false,CURS:CURS,PLANS:PLANS,TOOLS:TOOLS,DEF:DEF};
 function clone(o){return JSON.parse(JSON.stringify(o))}
-function fresh(){return{prices:clone(DEF),disc:{pm:{pct:0,label:'',until:''},pp:{pct:0,label:'',until:''},diary:{pct:0,label:'',until:''}},upi:DEFUPI,paypal:''}}
+function fresh(){return{prices:clone(DEF),disc:{pm:{pct:0,label:'',until:''},pp:{pct:0,label:'',until:''},diary:{pct:0,label:'',until:''},calc:{pct:0,label:'',until:''}},upi:DEFUPI,paypal:''}}
 function merge(j){var c=fresh();if(!j||typeof j!=='object')return c;
  TOOLS.forEach(function(t){var k=t[0];CURS.forEach(function(u){var s=j.prices&&j.prices[k]&&j.prices[k][u[0]];if(s)PLANS.forEach(function(p){var v=+s[p[0]];if(isFinite(v)&&v>=0)c.prices[k][u[0]][p[0]]=v});});
   var d=j.disc&&j.disc[k];if(d){var pc=Math.max(0,Math.min(95,+d.pct||0));c.disc[k]={pct:pc,label:String(d.label||'').slice(0,60),until:/^\d{4}-\d{2}-\d{2}$/.test(d.until||'')?d.until:''}}});

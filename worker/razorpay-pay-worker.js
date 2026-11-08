@@ -106,7 +106,7 @@ async function activate(env,at,A,n,payId){
   return false;
 }
 
-export default{async fetch(req,env){
+async function handle(req,env){
   const url=new URL(req.url);
   const cors={'access-control-allow-origin':env.ORIGIN||'*','access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS'};
   const J=(o,s)=>new Response(JSON.stringify(o),{status:s||200,headers:Object.assign({'content-type':'application/json'},cors)});
@@ -169,4 +169,9 @@ export default{async fetch(req,env){
     return new Response('ok');
   }
   return new Response('not found',{status:404});
+}
+// Any crash inside the Worker is sent back as a readable error (with CORS) so the app can show the real reason.
+export default{async fetch(req,env){
+  try{return await handle(req,env)}
+  catch(e){return new Response(JSON.stringify({error:'server error: '+String(e&&e.message||e).slice(0,140)}),{status:500,headers:{'content-type':'application/json','access-control-allow-origin':env.ORIGIN||'*'}})}
 }};

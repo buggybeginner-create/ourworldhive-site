@@ -4426,6 +4426,9 @@ function Admin(db,u){
         var r=rows.filter(function(x){ return x.id===sel.dataset.uid; })[0]; sel.disabled=true;
         users.doc(sel.dataset.uid).update({plan:sel.value,planAt:Date.now()}).then(function(){ r.plan=sel.value; draw(); }).catch(function(e){ alert(err(e)); sel.disabled=false; });
       }; });
+    } else if(tab==='price'){
+      b.innerHTML='<div class="card"><div class="msg2" style="margin-bottom:8px">One-time price and discount. Online payment uses this price by itself.</div><div id="owhpe"></div></div>';
+      if(window.OWH_PRICE) OWH_PRICE.editor(b.querySelector('#owhpe'),{tool:'diary',lock:true,save:function(j){ return db.collection('pp_config').doc('pricing').set({json:j,ts:Date.now()}); }});
     } else {
       b.innerHTML='<div class="card"><label>Diary name (top of every page)<input type="text" id="cpTitle" maxlength="60" placeholder="'+h(title0)+'" value="'+h(cur.title||'')+'"></label>'
         +'<label>Message for all users (shown above the diary; leave empty to hide)<textarea id="cpNote" maxlength="400">'+h(cur.notice||'')+'</textarea></label>'
@@ -4438,7 +4441,7 @@ function Admin(db,u){
     }
   }
   v.innerHTML='<div class="cpw"><div class="cph"><h2>🛠 Control panel</h2><button class="btn" id="cpClose" type="button">✕ Close</button></div>'
-    +'<div class="cpt"><button class="btn" data-t="users" type="button">👥 Users</button><button class="btn" data-t="set" type="button">⚙️ Diary settings</button></div><div class="body"></div></div>';
+    +'<div class="cpt"><button class="btn" data-t="users" type="button">👥 Users</button><button class="btn" data-t="set" type="button">⚙️ Diary settings</button><button class="btn" data-t="price" type="button">💰 Prices</button></div><div class="body"></div></div>';
   v.querySelectorAll('[data-t]').forEach(function(b){ b.onclick=function(){ tab=b.dataset.t; draw(); }; });
   v.querySelector('#cpClose').onclick=function(){ v.hidden=true; document.body.style.overflow=''; };
   btn.onclick=function(){ v.hidden=false; document.body.style.overflow='hidden'; load(); };

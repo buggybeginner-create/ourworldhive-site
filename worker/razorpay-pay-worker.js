@@ -1,17 +1,25 @@
-// Razorpay payment + auto-activation for Cloudflare Workers (free plan is enough).
+// Razorpay payments + automatic activation for ALL Ourworldhive apps. Cloudflare Worker (free plan is enough).
 // Settings and secrets (Worker > Settings > Variables and Secrets):
-//   FB_PROJECT      your Firebase project id (ourworldhive)
-//   FB_API_KEY      the Web API key from firebase-config.js
-//   SA_EMAIL        client_email from the Firebase service-account JSON
-//   SA_KEY          private_key from the same JSON (Secret)
-//   RZP_KEY_ID      Razorpay Key Id (starts rzp_live_ or rzp_test_)
-//   RZP_KEY_SECRET  Razorpay Key Secret (Secret)
-//   RZP_WEBHOOK_SECRET  the secret you type when adding the webhook in Razorpay (Secret)
-//   ORIGIN          https://ourworldhive.com
-// Routes:  POST /order    app asks for a Razorpay order (price is fixed here, not by the app)
-//          POST /webhook  Razorpay tells us a payment is captured; we switch the plan to paid in Firestore
-// Only Razorpay's signed webhook can switch a plan on. The app can never do it by itself.
-const PRICES={calc:{amount:9900,name:'CalcPad Full Version',col:'cp_users'}}; // amount in paise (99.00 INR)
+//   FB_PROJECT, FB_API_KEY, SA_EMAIL, SA_KEY (Secret), RZP_KEY_ID, RZP_KEY_SECRET (Secret), RZP_WEBHOOK_SECRET (Secret), ORIGIN
+// Routes:
+//   POST /order    the app asks for a Razorpay order. The price is worked out HERE from the owner's price list
+//                  (Firestore pp_config/pricing), so an app can never change what it pays.
+//   POST /webhook  Razorpay tells us a payment is captured. We check the signature, read the order from Razorpay,
+//                  and switch the plan on in Firestore. Each payment is counted once (pay_log/{paymentId}).
+//   GET  /prices   not used, returns {}
+// To add a new app later: add one line in APPS below and one small button in that app.
+const DEF_INR={pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
+// kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
+const APPS={
+  calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},
+  diary:{kind:'user',col:'diary_users',label:'My Diary Full Version',once:true},
+  pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
+  pp:{kind:'project',col:'pp_projects',label:'Project Planner'}
+};
+const PLAN_NAME={m1:'1 month',m3:'3 months',m12:'12 months',perm:'Permanent access'};
+const PP_DAYS={m1:30,m3:90,m12:365};
+const PM_MONTHS={m1:1,m3:3,m12:12};
+
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const enc=s=>b64u(new TextEncoder().encode(s));
 async function saToken(env){
@@ -30,43 +38,130 @@ async function hmacHex(secret,msg){
   return [...new Uint8Array(s)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 const same=(a,b)=>{if(a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0};
+const cleanId=s=>String(s||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,80);
+const rzpAuth=env=>'Basic '+btoa(env.RZP_KEY_ID+':'+env.RZP_KEY_SECRET);
+
+// ---- Firestore REST helpers (service account, bypasses rules) ----
+const fsBase=env=>'https://firestore.googleapis.com/v1/projects/'+env.FB_PROJECT+'/databases/(default)/documents/';
+async function fsGet(env,at,path){
+  const r=await fetch(fsBase(env)+path,{headers:{authorization:'Bearer '+at}});
+  if(r.status===404)return null;if(!r.ok)throw new Error('fs get '+r.status);
+  const j=await r.json(),o={};for(const k in (j.fields||{})){const v=j.fields[k];o[k]=v.stringValue!==undefined?v.stringValue:v.integerValue!==undefined?+v.integerValue:v.doubleValue!==undefined?v.doubleValue:v.booleanValue!==undefined?v.booleanValue:null}
+  return o;
+}
+function fv(v){return typeof v==='number'?{integerValue:String(Math.round(v))}:{stringValue:String(v)}}
+async function fsPatch(env,at,path,obj,extra){
+  const keys=Object.keys(obj),fields={};keys.forEach(k=>fields[k]=fv(obj[k]));
+  const q=keys.map(k=>'updateMask.fieldPaths='+encodeURIComponent(k)).join('&')+(extra?'&'+extra:'');
+  const r=await fetch(fsBase(env)+path+'?'+q,{method:'PATCH',headers:{authorization:'Bearer '+at,'content-type':'application/json'},body:JSON.stringify({fields})});
+  return r;
+}
+
+// ---- price: owner's list in Firestore (public doc pp_config/pricing), else defaults. INR only. ----
+async function priceInr(env,at,tool,plan){
+  const A=APPS[tool];if(!A)return 0;if(A.once)plan='perm';
+  let b=(DEF_INR[tool]||{})[plan];if(!b)return 0;
+  let pct=0,until='';
+  try{
+    const d=await fsGet(env,at,'pp_config/pricing');
+    const j=d&&d.json?JSON.parse(d.json):null;
+    if(j){
+      const o=j.prices&&j.prices[tool]&&j.prices[tool].INR&&+j.prices[tool].INR[plan];
+      if(isFinite(o)&&o>0)b=o;
+      const dd=j.disc&&j.disc[tool];if(dd){pct=Math.max(0,Math.min(95,+dd.pct||0));until=/^\d{4}-\d{2}-\d{2}$/.test(dd.until||'')?dd.until:''}
+    }
+  }catch(e){}
+  const today=new Date(Date.now()+19800000).toISOString().slice(0,10);
+  if(pct>0&&(!until||until>=today))b=Math.round(b*(100-pct)/100);
+  return Math.max(1,Math.round(b))*100; // paise
+}
+
+// ---- activation, one function per kind ----
+const addMonths=(ms,n)=>{const d=new Date(ms);d.setMonth(d.getMonth()+n);return d.getTime()};
+async function activate(env,at,A,n,payId){
+  const path=A.col+'/'+n.target,now=Date.now(),note='Razorpay '+payId;
+  const cur=await fsGet(env,at,path);
+  if(A.kind==='user'){
+    const r=await fsPatch(env,at,path,{plan:'paid',planAt:now,payNote:note});return r.ok;
+  }
+  if(!cur)return false; // plant / project must exist
+  if(A.kind==='plant'){
+    if(cur.plan==='permanent')return true; // already permanent, nothing to add
+    if(n.plan==='perm')return (await fsPatch(env,at,path,{plan:'permanent',expiresMs:0})).ok;
+    const months=PM_MONTHS[n.plan];if(!months)return false;
+    const base=(!(cur.expiresMs>now))?now:cur.expiresMs;
+    return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:addMonths(base,months)})).ok;
+  }
+  if(A.kind==='project'){
+    if(cur.plan==='permanent')return true;
+    if(n.plan==='perm')return (await fsPatch(env,at,path,{plan:'permanent',expiresMs:0})).ok;
+    const days=PP_DAYS[n.plan];if(!days)return false;
+    const base=Math.max(now,((cur.plan==='monthly'||cur.plan==='trial')&&cur.expiresMs>now)?cur.expiresMs:now);
+    return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:base+days*864e5})).ok;
+  }
+  return false;
+}
+
 export default{async fetch(req,env){
   const url=new URL(req.url);
-  const cors={'access-control-allow-origin':env.ORIGIN||'*','access-control-allow-headers':'content-type','access-control-allow-methods':'POST,OPTIONS'};
+  const cors={'access-control-allow-origin':env.ORIGIN||'*','access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS'};
   const J=(o,s)=>new Response(JSON.stringify(o),{status:s||200,headers:Object.assign({'content-type':'application/json'},cors)});
   if(req.method==='OPTIONS')return new Response(null,{headers:cors});
+  if(req.method==='GET'&&url.pathname.endsWith('/prices'))return J({});
   if(req.method!=='POST')return new Response('POST only',{status:405,headers:cors});
 
+  // ===== create an order =====
   if(url.pathname.endsWith('/order')){
-    let b;try{b=await req.json()}catch(e){return J({error:'bad'},400)}
-    const p=PRICES[b.tool];if(!p||!b.idToken)return J({error:'bad'},400);
-    const lk=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+env.FB_API_KEY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({idToken:b.idToken})}).then(r=>r.json());
-    const u=lk.users&&lk.users[0];if(!u)return J({error:'not signed in'},401);
-    const o=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{'content-type':'application/json',authorization:'Basic '+btoa(env.RZP_KEY_ID+':'+env.RZP_KEY_SECRET)},
-      body:JSON.stringify({amount:p.amount,currency:'INR',receipt:(b.tool+'_'+u.localId).slice(0,40),notes:{tool:b.tool,uid:u.localId,email:u.email||''}})}).then(r=>r.json());
+    let b;try{b=await req.json()}catch(e){return J({error:'bad request'},400)}
+    // PM Tracker sends {plant,plan,currency}; Project Planner sends {tool:'pp',pid,plan}; CalcPad and Diary send {tool,idToken}
+    const tool=b.tool||(b.plant?'pm':'');const A=APPS[tool];if(!A)return J({error:'unknown app'},400);
+    if(b.currency&&b.currency!=='INR')return J({error:'online payment is for India (INR) only'},400);
+    const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan])return J({error:'unknown plan'},400);
+    const at=await saToken(env);if(!at)return J({error:'server auth'},500);
+    let target='',email='';
+    if(A.kind==='user'){
+      if(!b.idToken)return J({error:'sign in first'},401);
+      const lk=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+env.FB_API_KEY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({idToken:b.idToken})}).then(r=>r.json());
+      const u=lk.users&&lk.users[0];if(!u)return J({error:'not signed in'},401);
+      target=u.localId;email=u.email||'';
+    }else{
+      target=cleanId(A.kind==='plant'?b.plant:b.pid);if(!target)return J({error:'missing code'},400);
+      let d;try{d=await fsGet(env,at,A.col+'/'+target)}catch(e){return J({error:'lookup failed'},502)}
+      if(!d)return J({error:'not found'},404);
+    }
+    const amount=await priceInr(env,at,tool,plan);if(!amount)return J({error:'no price'},500);
+    const o=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{'content-type':'application/json',authorization:rzpAuth(env)},
+      body:JSON.stringify({amount,currency:'INR',receipt:(tool+'_'+target).slice(0,40),notes:{tool,target,plan}})}).then(r=>r.json());
     if(!o.id)return J({error:'order failed'},502);
-    return J({orderId:o.id,amount:p.amount,key:env.RZP_KEY_ID,name:p.name,email:u.email||''});
+    const label=A.label+(A.once?'':' - '+PLAN_NAME[plan]);
+    return J({orderId:o.id,amount,currency:'INR',key:env.RZP_KEY_ID,keyId:env.RZP_KEY_ID,name:A.label,label,email});
   }
 
+  // ===== Razorpay webhook =====
   if(url.pathname.endsWith('/webhook')){
     const raw=await req.text();
     const sig=req.headers.get('x-razorpay-signature')||'';
     if(!same(sig,await hmacHex(env.RZP_WEBHOOK_SECRET,raw)))return new Response('bad signature',{status:400});
     let ev;try{ev=JSON.parse(raw)}catch(e){return new Response('bad',{status:400})}
-    if(ev.event!=='payment.captured'&&ev.event!=='order.paid')return new Response('ignored');
+    if(ev.event!=='payment.captured')return new Response('ignored');
     const pay=ev.payload&&ev.payload.payment&&ev.payload.payment.entity;
-    const ord=ev.payload&&ev.payload.order&&ev.payload.order.entity;
-    const notes=(pay&&pay.notes)||(ord&&ord.notes)||{};
-    const p=PRICES[notes.tool];const uid=String(notes.uid||'').replace(/[^A-Za-z0-9_-]/g,'');
-    if(!p||!uid)return new Response('no notes');
-    const paid=(pay&&pay.amount)||(ord&&ord.amount_paid)||0;
-    if(paid<p.amount||(pay&&pay.status!=='captured'&&ev.event==='payment.captured'))return new Response('amount mismatch');
+    if(!pay||!pay.id||!pay.order_id||pay.status!=='captured')return new Response('no payment');
+    // Always read the order from Razorpay: its notes and amount are the truth (made by this Worker).
+    const ord=await fetch('https://api.razorpay.com/v1/orders/'+encodeURIComponent(pay.order_id),{headers:{authorization:rzpAuth(env)}}).then(r=>r.json());
+    const n=ord&&ord.notes||{};const A=APPS[n.tool];const target=cleanId(n.target);
+    if(!A||!target||!PLAN_NAME[n.plan])return new Response('not ours');
+    if(!(pay.amount>=ord.amount)||ord.currency!=='INR')return new Response('amount mismatch');
     const at=await saToken(env);if(!at)return new Response('auth',{status:500});
-    const note='Razorpay '+((pay&&pay.id)||(ord&&ord.id)||'');
-    const doc='https://firestore.googleapis.com/v1/projects/'+env.FB_PROJECT+'/databases/(default)/documents/'+p.col+'/'+uid;
-    const r=await fetch(doc+'?updateMask.fieldPaths=plan&updateMask.fieldPaths=planAt&updateMask.fieldPaths=payNote',{method:'PATCH',headers:{authorization:'Bearer '+at,'content-type':'application/json'},
-      body:JSON.stringify({fields:{plan:{stringValue:'paid'},planAt:{integerValue:String(Date.now())},payNote:{stringValue:note}}})});
-    return new Response(r.ok?'ok':'firestore failed',{status:r.ok?200:500});
+    // count each payment once: create pay_log/{id}; if it already exists, stop
+    const lg=await fetch(fsBase(env)+'pay_log/'+cleanId(pay.id)+'?currentDocument.exists=false&updateMask.fieldPaths=tool&updateMask.fieldPaths=target&updateMask.fieldPaths=plan&updateMask.fieldPaths=amount&updateMask.fieldPaths=ts',
+      {method:'PATCH',headers:{authorization:'Bearer '+at,'content-type':'application/json'},body:JSON.stringify({fields:{tool:fv(n.tool),target:fv(target),plan:fv(n.plan),amount:fv(pay.amount),ts:fv(Date.now())}})});
+    if(!lg.ok){const t=await lg.text();if(lg.status===409||/ALREADY_EXISTS|FAILED_PRECONDITION/.test(t))return new Response('already done');return new Response('log failed',{status:500})}
+    let ok=false;try{ok=await activate(env,at,A,{target,plan:n.plan},pay.id)}catch(e){ok=false}
+    if(!ok){ // let Razorpay retry later
+      await fetch(fsBase(env)+'pay_log/'+cleanId(pay.id),{method:'DELETE',headers:{authorization:'Bearer '+at}});
+      return new Response('activation failed',{status:500});
+    }
+    return new Response('ok');
   }
   return new Response('not found',{status:404});
 }};

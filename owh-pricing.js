@@ -69,5 +69,13 @@ P.payBox=function(el,o){o=o||{};var tool=o.tool||'diary',cur=o.cur||P.guessCur()
   h+='<div style="font-size:13px;opacity:.85;line-height:1.5">After you pay, email the payment screenshot'+(ref?' with the code <b>'+esc(ref)+'</b>':'')+' to <b>'+esc(owner)+'</b>. Access is switched on the same day.</div></div>';
   el.innerHTML=h;var s=el.querySelector('#owhpb_c');s.onchange=function(){cur=s.value;draw()};var cp=el.querySelector('#owhpb_cp');if(cp)cp.onclick=function(){try{navigator.clipboard.writeText(c.upi);cp.textContent='Copied'}catch(e){cp.textContent=c.upi}}}
  draw()};
+
+/* ---------- online payment (Razorpay) through the owh-pay Worker; the plan switches on by itself after payment ---------- */
+P.PAY_URL='https://owh-pay.er-krushnananda.workers.dev';
+P.rzpPay=function(o){o=o||{};return new Promise(function(ok,no){
+ function ld(){return new Promise(function(a,b){if(window.Razorpay)return a();var e=document.createElement('script');e.src='https://checkout.razorpay.com/v1/checkout.js';e.onload=a;e.onerror=function(){b(new Error('Could not load the payment window'))};document.head.appendChild(e)})}
+ var body={tool:o.tool,plan:o.plan,pid:o.pid,plant:o.plant,idToken:o.idToken,currency:'INR'};
+ fetch(P.PAY_URL+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){if(!r.ok||!j.orderId)throw new Error(j.error||'order failed');return j})})
+ .then(function(j){return ld().then(function(){new Razorpay({key:j.keyId,amount:j.amount,currency:'INR',order_id:j.orderId,name:j.name||'Ourworldhive',description:j.label||'',prefill:{email:j.email||o.email||''},theme:{color:'#16a34a'},handler:function(){ok(true)},modal:{ondismiss:function(){ok(false)}}}).open()})}).catch(no)})};
 window.OWH_PRICE=P;P.load();
 })();

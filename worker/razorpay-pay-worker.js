@@ -8,11 +8,12 @@
 //                  and switch the plan on in Firestore. Each payment is counted once (pay_log/{paymentId}).
 //   GET  /prices   not used, returns {}
 // To add a new app later: add one line in APPS below and one small button in that app.
-const DEF_INR={pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
+const DEF_INR={ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
 const APPS={
   calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},
   diary:{kind:'user',col:'diary_users',label:'My Diary Full Version',once:true},
+  ep:{kind:'plant',col:'ep_plants',label:'E-Permit',days:{m1:30,m3:90,m12:360}},
   pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
   pp:{kind:'project',col:'pp_projects',label:'Project Planner'}
 };
@@ -88,8 +89,9 @@ async function activate(env,at,A,n,payId){
   if(A.kind==='plant'){
     if(cur.plan==='permanent')return true; // already permanent, nothing to add
     if(n.plan==='perm')return (await fsPatch(env,at,path,{plan:'permanent',expiresMs:0})).ok;
-    const months=PM_MONTHS[n.plan];if(!months)return false;
     const base=(!(cur.expiresMs>now))?now:cur.expiresMs;
+    if(A.days){const d=A.days[n.plan];if(!d)return false;return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:base+d*864e5})).ok}
+    const months=PM_MONTHS[n.plan];if(!months)return false;
     return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:addMonths(base,months)})).ok;
   }
   if(A.kind==='project'){
@@ -128,6 +130,7 @@ export default{async fetch(req,env){
       target=cleanId(A.kind==='plant'?b.plant:b.pid);if(!target)return J({error:'missing code'},400);
       let d;try{d=await fsGet(env,at,A.col+'/'+target)}catch(e){return J({error:'lookup failed'},502)}
       if(!d)return J({error:'not found'},404);
+      if(d.plan==='suspended')return J({error:'this is suspended, please contact the owner'},403);
     }
     const amount=await priceInr(env,at,tool,plan);if(!amount)return J({error:'no price'},500);
     const o=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{'content-type':'application/json',authorization:rzpAuth(env)},

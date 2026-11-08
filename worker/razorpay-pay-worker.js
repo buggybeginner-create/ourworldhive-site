@@ -8,11 +8,12 @@
 //                  and switch the plan on in Firestore. Each payment is counted once (pay_log/{paymentId}).
 //   GET  /prices   not used, returns {}
 // To add a new app later: add one line in APPS below and one small button in that app.
-const DEF_INR={ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
+const DEF_INR={sf:{perm:199},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
 const APPS={
   calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},
   diary:{kind:'user',col:'diary_users',label:'My Diary Full Version',once:true},
+  sf:{kind:'plant',col:'sf_companies',label:'Safety Observation Full Version',once:true},
   ep:{kind:'plant',col:'ep_plants',label:'E-Permit',days:{m1:30,m3:90,m12:360}},
   pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
   pp:{kind:'project',col:'pp_projects',label:'Project Planner'}
@@ -82,8 +83,9 @@ const addMonths=(ms,n)=>{const d=new Date(ms);d.setMonth(d.getMonth()+n);return 
 async function activate(env,at,A,n,payId){
   const path=A.col+'/'+n.target,now=Date.now(),note='Razorpay '+payId;
   const cur=await fsGet(env,at,path);
-  if(A.kind==='user'){
-    const r=await fsPatch(env,at,path,{plan:'paid',planAt:now,payNote:note});return r.ok;
+  if(A.once){ // one-time apps: plan = paid (the plant / company must exist unless it is a user document)
+    if(A.kind!=='user'&&!cur)return false;
+    return (await fsPatch(env,at,path,{plan:'paid',planAt:now,payNote:note})).ok;
   }
   if(!cur)return false; // plant / project must exist
   if(A.kind==='plant'){

@@ -12,6 +12,7 @@ Razorpay webhook `/webhook` (payment.captured) -> Worker switches the plan on in
 | pm | pm_plants/{code} | adds 1/3/12 months (or permanent) |
 | pp | pp_projects/{id} | adds 30/90/365 days (or permanent) |
 | ep | ep_plants/{code} | adds 30/90/360 days |
+| sf | sf_companies/{code} | plan = paid (one-time INR 199). Worker ready, app button NOT added yet: decide what the paid version unlocks first |
 
 ## Add payment to a NEW app (3 small steps)
 1. Worker: add one line to `APPS` (kind `user`, `plant` or `project`, the Firestore collection, a label, `once:true` for one-time apps; `days:{m1:30,...}` for plant kinds that count in days)

@@ -85,12 +85,12 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
  <div class="card"><h3>Shapes &bull; drag onto the hand, or tap</h3><div class="chips" id="dcat"></div><div class="dpal" id="dpal" style="margin-top:8px"></div></div>
  <div class="stage"><div id="dstage"></div><p class="cap" id="dcap"></p></div>
  <div class="card" id="dctl"></div>
- <div class="card"><div class="row"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="clear">Clear all</button><button class="btn sm on" id="d-auto" data-dc="auto">✓ Auto fit on</button></div>
+ <div class="card"><div class="row"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="clear">Clear all</button></div>
   <h3 style="margin-top:12px">Hand</h3><div class="seg" id="d-hand"></div>
   <h3 style="margin-top:12px">Skin tone</h3><div class="row" id="d-skin"></div>
   <h3 style="margin-top:12px">Henna colour for new shapes</h3><div class="row" id="d-ink"></div>
-  <div class="row" style="margin-top:12px"><button class="btn p" data-dc="png">⬇ Save image</button><button class="btn" data-dc="share">📲 Share</button></div>
-  <div class="mut" style="margin-top:8px">Auto fit turns each shape to follow the finger, palm or arm and squeezes it near the edges, like it is wrapped around the hand. Shapes cannot go bigger than the part of the hand they sit on.</div></div>
+  <div class="row" style="margin-top:12px"><button class="btn p" data-dc="png">⬇ Save image (4K JPEG)</button><button class="btn" data-dc="share">📲 Share</button></div>
+  <div class="mut" style="margin-top:8px">Drag a shape from the list onto the hand, or tap it. Tap a shape on the hand to select it. Drag it to move, drag the round handle to make it bigger or smaller, or use the sliders. Shapes stay inside the hand. Save image gives a 4K JPEG.</div></div>
 </div></section>
 <section class="tab" id="t-gallery"><div class="card"><h3>Browse by style</h3><div class="chips" id="g-style"></div></div><div class="grid" id="g-grid"></div><div class="row" style="justify-content:center;margin:14px 0"><button class="btn p" data-a="more">Load more</button></div></section>
 <section class="tab" id="t-comm">
@@ -429,14 +429,16 @@ const g0=(c,x)=>`<g fill="${c}" stroke="none">${x}</g>`;
  dcs('circle','Shapes','Circle',()=>`<circle r="30" fill="none" stroke="${PAL.a}" stroke-width="2.6"/><circle r="22" fill="none" stroke="${PAL.a}" stroke-width="1.6" stroke-dasharray="3 4"/><circle r="5" fill="${PAL.a}"/>`);
  dcs('teardrop','Shapes','Teardrop',()=>`<path d="M0 -34C26 -4 26 28 0 30C-26 28 -26 -4 0 -34Z" fill="none" stroke="${PAL.a}" stroke-width="2.6"/><path d="M0 -14C12 2 12 16 0 18C-12 16 -12 2 0 -14Z" fill="${PAL.a}"/>`);
 })();
-const DC={items:[],sel:-1,mode:'arm',ink:'brown',auto:true,cat:'Flowers',undo:[],tc:{},ready:false,drag:null,mv:null,cnt:0};
-function dcSave(){try{localStorage.setItem('owh_henna_dc',JSON.stringify({items:DC.items,mode:DC.mode,ink:DC.ink,auto:DC.auto}))}catch(e){}}
-function dcLoad(){try{const s=JSON.parse(localStorage.getItem('owh_henna_dc')||'null');if(s){DC.items=s.items||[];DC.mode=s.mode||'arm';DC.ink=s.ink||'brown';DC.auto=s.auto!==false}}catch(e){}}
+const TPLS=[{k:'t1',n:'One hand',f:'h1',w:2483,h:3840},{k:'t2',n:'Both hands',f:'h2',w:2971,h:3840},{k:'t3',n:'Two hands',f:'h3',w:2705,h:3840}];
+const DC={items:[],by:{t1:[],t2:[],t3:[]},sel:-1,mode:'t1',ink:'brown',auto:true,cat:'Flowers',undo:[],tc:{},ready:false,drag:null,mv:null,cnt:0};
+function dcSave(){try{DC.by[DC.mode]=DC.items;localStorage.setItem('owh_henna_dc2',JSON.stringify({by:DC.by,mode:DC.mode,ink:DC.ink}))}catch(e){}}
+function dcLoad(){try{const s=JSON.parse(localStorage.getItem('owh_henna_dc2')||'null');if(s){DC.by=Object.assign({t1:[],t2:[],t3:[]},s.by||{});DC.mode=/^t[123]$/.test(s.mode)?s.mode:'t1';DC.ink=s.ink||'brown'}else{const o=localStorage.getItem('owh_henna_dc');if(o)localStorage.setItem('owh_henna_dc_old',o)}DC.items=DC.by[DC.mode]||[]}catch(e){}}
 function dcPal(ink,pi){const sk=SKIN[ST.skin][0];if(ink==='multi'){const q=PALS[(pi||0)%PALS.length];PAL={f:q[0],g:q[1],l:q[2],a:q[3],sk}}else{const c=INK[ink]?INK[ink][0]:INK.brown[0];PAL={f:c,g:c,l:c,a:c,sk}}}
 function dcSvg(k,ink,pi){const d=DCS.find(x=>x.k===k);if(!d)return'';dcPal(ink,pi);return`<g fill="none" stroke="${PAL.a}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d.fn().replace(/class="F"/g,'fill="'+PAL.a+'"')}</g>`}
 function dcSnap(){DC.undo.push(JSON.stringify(DC.items));if(DC.undo.length>40)DC.undo.shift()}
 /* where is a point on the hand, and how should a shape bend there */
 function dcZone(x,y){
+ if(/^t\d$/.test(DC.mode))return tplIn(x,y)?{z:'hand',rot:0,sx:1,cap:9}:{z:'out',rot:0,sx:1,cap:9};
  const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),rad=Math.PI/180;
  const rot=(px,py,cx,cy,a)=>{const c=Math.cos(a*rad),s=Math.sin(a*rad),dx=px-cx,dy=py-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]};
  for(let i=0;i<AF.length;i++){const f=AF[i],[lx,ly]=rot(x,y,f.x,452,-f.r);if(ly>f.t+6&&ly<436){const half=f.w/2*(.78+.22*cl((ly-f.t)/(452-f.t),0,1))+2,off=(lx-f.x)/half;if(Math.abs(off)<=1)return{z:'finger',rot:f.r,sx:Math.max(.4,Math.cos(cl(off,-1,1)*58*rad)),cap:f.w*.95/68}}}
@@ -449,42 +451,50 @@ function dcDraw(){const g=document.getElementById('dc-items');if(!g)return;
  g.innerHTML=DC.items.map((it,i)=>`<g class="dci" data-i="${i}" transform="${dcXf(it).t}"><circle r="34" fill="#000" fill-opacity=".001" stroke="none"/>${dcSvg(it.k,it.ink,it.pi)}</g>`).join('');
  const sv=document.getElementById('dsvg');if(!sv)return;let s=sv.querySelector('#dc-sel');if(s)s.remove();
  if(DC.sel>=0&&DC.items[DC.sel]){const it=DC.items[DC.sel],x=dcXf(it);s=document.createElementNS('http://www.w3.org/2000/svg','g');s.id='dc-sel';s.setAttribute('pointer-events','none');
-  s.innerHTML=`<g transform="translate(${f1(it.x)} ${f1(it.y)})"><circle r="${f1(Math.max(12,36*x.S))}" fill="none" stroke="#ffb703" stroke-width="2" stroke-dasharray="5 4"/><circle r="3" fill="#ffb703"/></g>`;sv.appendChild(s)}
+  const R=Math.max(12,36*x.S),h=R*.7071;s.innerHTML=`<g transform="translate(${f1(it.x)} ${f1(it.y)})"><circle r="${f1(R)}" fill="none" stroke="#ffb703" stroke-width="2" stroke-dasharray="5 4"/><circle r="3" fill="#ffb703"/><g class="dch" pointer-events="all" style="cursor:nwse-resize" transform="translate(${f1(h)} ${f1(-h)})"><circle r="15" fill="#000" fill-opacity=".001"/><circle r="7.5" fill="#fff" stroke="#ffb703" stroke-width="2.4"/><path d="M-2.6 2.6L2.6 -2.6M-2.6 -1V-2.6H-1M1 2.6H2.6V1" fill="none" stroke="#b86e00" stroke-width="1.4" stroke-linecap="round"/></g></g>`;sv.appendChild(s)}
  dcCtl()}
-function dcMount(){const o=Object.assign({},ST,{hand:DC.mode,blank:true});$('dstage').innerHTML=armSvg(0,o,false);
- const sv=$('dsvg');if(sv){sv.addEventListener('pointerdown',dcDown);sv.addEventListener('pointermove',dcMove);sv.addEventListener('pointerup',dcUp);sv.addEventListener('pointercancel',dcUp)}dcDraw();
- $('dcap').innerHTML=`${DC.items.length} shape${DC.items.length===1?'':'s'} &bull; ${DC.mode==='arm'?'Full arm':DC.mode==='palm'?'Palm':'Back hand'} &bull; ${DC.auto?'Auto fit on':'Auto fit off'}`}
+function tplInfo(){return TPLS.find(t=>t.k===DC.mode)||TPLS[0]}
+const TM={};
+function tplLoad(t){if(TM[t.k])return;const im=new Image();im.onload=()=>{try{const sw=220,sh=Math.round(220*im.naturalHeight/im.naturalWidth),c=document.createElement('canvas');c.width=sw;c.height=sh;const x=c.getContext('2d');x.drawImage(im,0,0,sw,sh);const d=x.getImageData(0,0,sw,sh).data;let x0=sw,y0=sh,x1=0,y1=0;
+ for(let y=0;y<sh;y++)for(let xx=0;xx<sw;xx++)if(d[(y*sw+xx)*4+3]>128){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}
+ const k=330/sw;TM[t.k]={d,sw,sh,bb:{x:x0*k,y:y0*k,w:(x1-x0)*k,h:(y1-y0)*k}}}catch(e){}};im.src='henna-hands/'+t.f+'-m.png'}
+function tplIn(x,y){const m=TM[DC.mode];if(!m)return true;const px=Math.floor(x/330*m.sw),py=Math.floor(y/330*m.sw);if(px<0||py<0||px>=m.sw||py>=m.sh)return false;return m.d[(py*m.sw+px)*4+3]>128}
+function tplHome(){const m=TM[DC.mode],t=tplInfo();return m?{x:m.bb.x+m.bb.w/2,y:m.bb.y+m.bb.h*.42}:{x:165,y:165*t.h/t.w*.9}}
+function dcNote(){return `${DC.items.length} shape${DC.items.length===1?'':'s'} &bull; ${tplInfo().n}`}
+function dcMount(){const t=tplInfo(),vw=330,vh=Math.round(vw*t.h/t.w*10)/10,sk=SKIN[ST.skin][0],B='henna-hands/'+t.f;tplLoad(t);
+ $('dstage').innerHTML=`<svg id="dsvg" viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="touch-action:none" role="img" aria-label="Design area"><defs><mask id="dm" maskUnits="userSpaceOnUse" x="0" y="0" width="${vw}" height="${vh}"><image data-h="m" xlink:href="${B}-m.png" width="${vw}" height="${vh}"/></mask></defs><rect width="${vw}" height="${vh}" fill="#fff8f1"/><rect width="${vw}" height="${vh}" fill="${sk}" mask="url(#dm)"/><g id="dc-items" mask="url(#dm)"></g><image data-h="l" xlink:href="${B}-l.png" width="${vw}" height="${vh}" pointer-events="none"/></svg>`;
+ const sv=$('dsvg');if(sv){sv.addEventListener('pointerdown',dcDown);sv.addEventListener('pointermove',dcMove);sv.addEventListener('pointerup',dcUp);sv.addEventListener('pointercancel',dcUp)}dcDraw();$('dcap').innerHTML=dcNote()}
 function dcPt(e){const sv=$('dsvg'),p=sv.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=sv.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:0,y:0}}
-function dcDown(e){const it=e.target.closest&&e.target.closest('.dci');if(!it){DC.sel=-1;dcDraw();return}
+function dcDown(e){if(e.target.closest&&e.target.closest('.dch')){const o=DC.items[DC.sel];if(o){const p=dcPt(e);DC.rs={i:DC.sel,d0:Math.hypot(p.x-o.x,p.y-o.y)||1,s0:o.s,before:JSON.stringify(DC.items),moved:false};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();return}}
+ const it=e.target.closest&&e.target.closest('.dci');if(!it){DC.sel=-1;dcDraw();return}
  const i=+it.dataset.i;DC.sel=i;const p=dcPt(e),o=DC.items[i];DC.mv={i,dx:o.x-p.x,dy:o.y-p.y,before:JSON.stringify(DC.items),moved:false};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}dcDraw();e.preventDefault()}
-function dcMove(e){if(!DC.mv)return;const p=dcPt(e),o=DC.items[DC.mv.i];if(!o)return;const nx=p.x+DC.mv.dx,ny=p.y+DC.mv.dy;if(Math.abs(nx-o.x)+Math.abs(ny-o.y)>.5)DC.mv.moved=true;o.x=Math.round(nx*10)/10;o.y=Math.round(ny*10)/10;dcDraw()}
-function dcUp(){if(DC.mv){if(DC.mv.moved){DC.undo.push(DC.mv.before);dcSave();dcCap()}DC.mv=null}}
-function dcCap(){$('dcap').innerHTML=`${DC.items.length} shape${DC.items.length===1?'':'s'} &bull; ${DC.mode==='arm'?'Full arm':DC.mode==='palm'?'Palm':'Back hand'} &bull; ${DC.auto?'Auto fit on':'Auto fit off'}`}
-function dcAdd(k,x,y){const n=DC.items.length;if(x==null){x=140+((n*23)%60)-30;y=DC.mode==='arm'?500+((n*31)%80)-30:480+((n*31)%60)}
- if(dcZone(x,y).z==='out'||(DC.mode!=='arm'&&y>620)){toast('Drop the shape on the hand');return}dcSnap();
+function dcMove(e){if(DC.rs){const o=DC.items[DC.rs.i],p=dcPt(e);if(!o)return;const ns=Math.min(3,Math.max(.15,DC.rs.s0*Math.hypot(p.x-o.x,p.y-o.y)/DC.rs.d0));if(Math.abs(ns-o.s)>.002)DC.rs.moved=true;o.s=Math.round(ns*100)/100;dcDraw();return}
+ if(!DC.mv)return;const p=dcPt(e),o=DC.items[DC.mv.i];if(!o)return;const nx=p.x+DC.mv.dx,ny=p.y+DC.mv.dy;if(!tplIn(nx,ny))return;if(Math.abs(nx-o.x)+Math.abs(ny-o.y)>.5)DC.mv.moved=true;o.x=Math.round(nx*10)/10;o.y=Math.round(ny*10)/10;dcDraw()}
+function dcUp(){if(DC.rs){if(DC.rs.moved){DC.undo.push(DC.rs.before);dcSave()}DC.rs=null;return}if(DC.mv){if(DC.mv.moved){DC.undo.push(DC.mv.before);dcSave();dcCap()}DC.mv=null}}
+function dcCap(){$('dcap').innerHTML=dcNote()}
+function dcAdd(k,x,y){const n=DC.items.length;if(x==null){const h=tplHome();x=h.x+((n*23)%50)-25;y=h.y+((n*31)%50)-25;if(!tplIn(x,y)){x=h.x;y=h.y}}
+ if(dcZone(x,y).z==='out'){toast('Drop the shape on the hand');return}dcSnap();
  DC.items.push({k,x:Math.round(x*10)/10,y:Math.round(y*10)/10,s:1.1,r:0,fx:0,ink:DC.ink,pi:(DC.cnt++)%PALS.length});DC.sel=DC.items.length-1;dcSave();dcDraw();dcCap()}
 function dcCtl(){const c=$('dctl');if(!c)return;const it=DC.items[DC.sel];
- if(!it){c.innerHTML='<h3>Selected shape</h3><div class="mut">Tap a shape on the hand to select it. Then drag it to move, or use the sliders to resize and turn it.</div>';return}
+ if(!it){c.innerHTML='<h3>Selected shape</h3><div class="mut">Tap a shape on the hand to select it. Then drag it to move, drag the round handle to resize, or use the sliders to resize and turn it.</div>';return}
  const d=DCS.find(x=>x.k===it.k);
  c.innerHTML=`<h3>Selected: ${d?d.name:''}</h3><div class="dcr"><label>Size</label><input type="range" id="dc-s" min="15" max="300" value="${Math.round(it.s*100)}"></div><div class="dcr"><label>Turn</label><input type="range" id="dc-r" min="-180" max="180" value="${Math.round(it.r)}"></div>
  <div class="row" style="margin:8px 0">${Object.keys(INK).map(k=>`<button class="sw${k==='multi'?' multi':''}${it.ink===k?' on':''}" data-dcink="${k}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`).join('')}</div>
  <div class="row"><button class="btn sm" data-dc="flip">⇋ Mirror</button><button class="btn sm" data-dc="dup">⧉ Copy</button><button class="btn sm" data-dc="front">▲ Front</button><button class="btn sm" data-dc="del">🗑 Delete</button></div>`}
 function dcPalette(){const cats=[...new Set(DCS.map(x=>x.cat))];$('dcat').innerHTML=cats.map(c=>`<button class="chip${c===DC.cat?' on':''}" data-dcat="${c}">${c}</button>`).join('');
  $('dpal').innerHTML=DCS.filter(x=>x.cat===DC.cat).map(x=>{const key=x.k+'|'+ST.skin;if(!DC.tc[key]){dcPal('brown');DC.tc[key]=`<svg viewBox="-42 -42 84 84" style="background:${SKIN[ST.skin][0]}">${dcSvg(x.k,'brown')}</svg>`}return`<div class="dtile" data-k="${x.k}" role="button" tabindex="0" aria-label="${x.name}">${DC.tc[key]}<small>${x.name}</small></div>`}).join('')}
-function dcSide(){$('d-hand').innerHTML=[['arm','Full arm'],['palm','Palm'],['back','Back hand']].map(a=>`<button class="btn${DC.mode===a[0]?' on':''}" data-dh="${a[0]}">${a[1]}</button>`).join('');
+function dcSide(){$('d-hand').innerHTML=TPLS.map(a=>`<button class="btn${DC.mode===a.k?' on':''}" data-dh="${a.k}">${a.n}</button>`).join('');
  $('d-skin').innerHTML=skinHtml();markSkin();
- $('d-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw${k==='multi'?' multi':''}${DC.ink===k?' on':''}" data-dink="${k}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`).join('');
- $('d-auto').classList.toggle('on',DC.auto);$('d-auto').textContent=DC.auto?'✓ Auto fit on':'Auto fit off'}
+ $('d-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw${k==='multi'?' multi':''}${DC.ink===k?' on':''}" data-dink="${k}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`).join('');}
 DC.show=function(){if(!DC.ready){dcLoad();DC.ready=true;dcPalette()}dcSide();dcMount()};
 DC.redraw=function(){DC.tc={};if(ST.tab==='canvas'){dcPalette();dcMount();markSkin()}};
 function dcClick(e){const t=e.target.closest('[data-dc],[data-dcat],[data-dh],[data-dink],[data-dcink]');if(!t)return;
  if(t.dataset.dcat){DC.cat=t.dataset.dcat;dcPalette();return}
- if(t.dataset.dh){DC.mode=t.dataset.dh;dcSave();dcSide();dcMount();return}
+ if(t.dataset.dh){DC.by[DC.mode]=DC.items;DC.mode=t.dataset.dh;DC.items=DC.by[DC.mode]||[];DC.undo=[];DC.sel=-1;dcSave();dcSide();dcMount();return}
  if(t.dataset.dink){DC.ink=t.dataset.dink;dcSave();dcSide();return}
  if(t.dataset.dcink){const it=DC.items[DC.sel];if(it){dcSnap();it.ink=t.dataset.dcink;dcSave();dcDraw()}return}
  const it=DC.items[DC.sel],a=t.dataset.dc;
- if(a==='auto'){DC.auto=!DC.auto;dcSave();dcSide();dcDraw();dcCap();return}
- if(a==='undo'){const s=DC.undo.pop();if(s){DC.items=JSON.parse(s);DC.sel=-1;dcSave();dcDraw();dcCap()}else toast('Nothing to undo');return}
+  if(a==='undo'){const s=DC.undo.pop();if(s){DC.items=JSON.parse(s);DC.sel=-1;dcSave();dcDraw();dcCap()}else toast('Nothing to undo');return}
  if(a==='clear'){if(!DC.items.length)return;if(t.dataset.sure){dcSnap();DC.items=[];DC.sel=-1;dcSave();dcDraw();dcCap();t.textContent='Clear all';delete t.dataset.sure}else{t.dataset.sure=1;t.textContent='Tap again';setTimeout(()=>{if(t.isConnected){delete t.dataset.sure;t.textContent='Clear all'}},2500)}return}
  if(a==='png'||a==='share'){dcExport(a);return}
  if(!it)return;
@@ -493,12 +503,16 @@ function dcClick(e){const t=e.target.closest('[data-dc],[data-dcat],[data-dh],[d
  else if(a==='front'){dcSnap();DC.items.push(DC.items.splice(DC.sel,1)[0]);DC.sel=DC.items.length-1}
  else if(a==='del'){dcSnap();DC.items.splice(DC.sel,1);DC.sel=-1}
  dcSave();dcDraw();dcCap()}
-function dcRaster(){return new Promise((ok,no)=>{const sv=$('dsvg').cloneNode(true),sel=sv.querySelector('#dc-sel');if(sel)sel.remove();sv.removeAttribute('id');sv.removeAttribute('class');sv.removeAttribute('style');
- const vb=sv.getAttribute('viewBox').split(' ').map(Number),W=864,H=Math.round(W*vb[3]/vb[2]);sv.setAttribute('width',W);sv.setAttribute('height',H);
- let raw=new XMLSerializer().serializeToString(sv).replace(/var\(--hn-skin\)/g,SKIN[ST.skin][0]);const img=new Image();
- img.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H+70;const x=c.getContext('2d');x.fillStyle='#fff8f1';x.fillRect(0,0,W,H+70);x.drawImage(img,0,0,W,H);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio design  ourworldhive.com',W/2,H+46);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(raw)})}
-async function dcExport(a){try{const b=await dcRaster();if(a==='png'){const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='henna-my-design.png';document.body.appendChild(l);l.click();l.remove();toast('Image saved')}
- else{const f=new File([b],'henna-my-design.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'My mehendi design'});else{const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='henna-my-design.png';document.body.appendChild(l);l.click();l.remove();toast('Image saved')}}}catch(e){if(e&&e.name!=='AbortError')toast('Could not save the image')}}
+function dcRaster(){const t=tplInfo(),sv=$('dsvg').cloneNode(true),sel=sv.querySelector('#dc-sel');if(sel)sel.remove();sv.removeAttribute('id');sv.removeAttribute('style');
+ const du=async u=>{const r=await fetch(u);if(!r.ok)throw new Error('img');const b=await r.blob();return await new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(b)})};
+ return (async()=>{for(const im of sv.querySelectorAll('image')){const u=await du('henna-hands/'+t.f+'-'+im.getAttribute('data-h')+'4k.png');im.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',u)}
+  let sc=1;for(let tries=0;tries<2;tries++){const W=Math.round(t.w*sc),H=Math.round(t.h*sc);sv.setAttribute('width',W);sv.setAttribute('height',H);
+   const raw=new XMLSerializer().serializeToString(sv),url=URL.createObjectURL(new Blob([raw],{type:'image/svg+xml'}));
+   try{return await new Promise((ok,no)=>{const img=new Image();img.onload=()=>{try{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff8f1';x.fillRect(0,0,W,H);x.drawImage(img,0,0,W,H);c.toBlob(b=>b?ok(b):no(new Error('enc')),'image/jpeg',.93)}catch(e){no(e)}};img.onerror=()=>no(new Error('svg'));img.src=url})}
+   catch(e){sc=.5}finally{URL.revokeObjectURL(url)}}
+  throw new Error('export')})()}
+async function dcExport(a){try{toast('Making your 4K image...');const b=await dcRaster(),nm='henna-my-design.jpg';if(a==='png'){const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved')}
+ else{const f=new File([b],nm,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'My mehendi design'});else{const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved')}}}catch(e){if(e&&e.name!=='AbortError')toast('Could not save the image')}}
 /* drag a tile from the shape list onto the hand */
 (function(){let d=null,ghost=null;
  document.addEventListener('pointerdown',e=>{const t=e.target.closest&&e.target.closest('.dtile');if(!t)return;d={k:t.dataset.k,x:e.clientX,y:e.clientY,on:false,html:t.querySelector('svg').outerHTML}});

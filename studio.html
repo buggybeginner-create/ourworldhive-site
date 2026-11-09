@@ -214,7 +214,7 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 </section>
 
 <section id="sApp" hidden>
-  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Hive Apps</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tV" aria-selected="false">Visitors</button><button role="tab" id="tE" aria-selected="false">Earnings</button><button role="tab" id="tC" aria-selected="false">Messages</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
+  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Hive Apps</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tV" aria-selected="false">Visitors</button><button role="tab" id="tE" aria-selected="false">Earnings</button><button role="tab" id="tR" aria-selected="false">Prices</button><button role="tab" id="tC" aria-selected="false">Messages</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
     <div class="who"><span id="whoName"></span><button class="sb" id="sOut" type="button">Sign out</button></div></div>
 
   <div id="vP">
@@ -329,6 +329,10 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
       <h3 style="margin:12px 0 6px;font-size:15px">By month</h3><div id="eaMon" style="overflow-x:auto"></div>
       <h3 style="margin:12px 0 6px;font-size:15px">Latest payments</h3><div id="eaList" style="overflow-x:auto"></div></div>
   </div>
+  <div id="vR" hidden>
+    <div class="box"><h2>Prices and discounts for all apps</h2><p>Pick an app and a currency, change the prices, add a discount if you like, then press Save. The new prices go live in every app at once and the online payment uses them by itself. No code change needed. Only your login (superadmin) can do this.</p>
+      <div id="prE">Loading...</div></div>
+  </div>
   <div id="vC" hidden>
     <div class="box"><h2>Messages from users</h2><p>Feature requests, problems and questions sent from inside the apps (Contact us). A copy is also e-mailed to you.</p>
       <div class="row"><label class="chk">Show <select id="cmFilter"><option value="new" selected>new only</option><option value="all">all</option><option value="done">done</option></select></label><button class="sb" id="cmReload" type="button">Refresh</button></div>
@@ -379,7 +383,7 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
   }
   var y=new Date().getFullYear(); [].forEach.call(document.querySelectorAll('.sx-year'),function(e){ e.textContent=y; });
 })();
-</script><script src="firebase-config.js"></script><script src="site.js"></script><script>
+</script><script src="firebase-config.js"></script><script src="owh-pricing.js"></script><script src="site.js"></script><script>
 (function(){
 'use strict';
 var $=function(id){ return document.getElementById(id); };
@@ -441,7 +445,7 @@ $('uAgain').onclick=function(){ say('uMsg','Checking\u2026'); gate(); };
 $('uOut').onclick=$('sOut').onclick=function(){ auth.signOut(); };
 
 /* ---------- tabs ---------- */
-var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tV','vV'],['tE','vE'],['tC','vC'],['tB','vB']];
+var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tV','vV'],['tE','vE'],['tR','vR'],['tC','vC'],['tB','vB']];
 TABS.forEach(function(t,i){ $(t[0]).onclick=function(){ TABS.forEach(function(u,k){ $(u[0]).setAttribute('aria-selected',String(k===i)); $(u[1]).hidden=k!==i; }); }; });
 
 
@@ -462,6 +466,7 @@ function eaLoad(){ say('eaMsg','Loading...');
     $('eaMon').innerHTML=M.length?tbl(['Month','Payments','Amount'],M.map(function(k){ return [k,byMon[k].n,rs(byMon[k].a)]; })):'<p>No payments yet.</p>';
     $('eaList').innerHTML=L.length?tbl(['Date','App','Plan','Amount','Code / user','Payment id'],L.slice(0,100).map(function(x){ return [new Date(x.ts||0).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}),esc(EA_NAMES[x.tool]||x.tool||''),esc(EA_PLAN[x.plan]||x.plan||''),rs((x.amount||0)/100),esc(x.target||''),esc(x.id)]; })):'<p>No payments yet.</p>';
     say('eaMsg',L.length?'':'No online payment has come in yet.'); }).catch(function(e){ say('eaMsg',e&&e.code==='permission-denied'?'Firestore rules are not updated yet. Paste the new rules block (pay_log) in Firebase and refresh.':'Could not load.','err'); }); }
+var prLoaded=false; $('tR').addEventListener('click',function(){ if(prLoaded||!window.OWH_PRICE){ if(!window.OWH_PRICE) $('prE').textContent='The price tool could not load. Refresh the page.'; return; } prLoaded=true; OWH_PRICE.load(true).then(function(){ OWH_PRICE.editor($('prE'),{save:function(j){ return db.doc('pp_config/pricing').set({json:j,ts:Date.now()}); }}); }); });
 $('tE').addEventListener('click',function(){ if(!eaLoaded) eaLoad(); }); $('eaReload').onclick=eaLoad;
 function cmLoad(){ say('cmMsg','Loading...'); var f=$('cmFilter').value;
   db.collection('contact_msgs').orderBy('ts','desc').limit(200).get().then(function(q){ cmLoaded=true; var h='',n=0; q.forEach(function(d){ var x=d.data(),done=x.status==='done'; if(f==='new'&&done)return; if(f==='done'&&!done)return; n++;

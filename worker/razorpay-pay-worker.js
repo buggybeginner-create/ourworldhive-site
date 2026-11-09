@@ -8,17 +8,17 @@
 //                  and switch the plan on in Firestore. Each payment is counted once (pay_log/{paymentId}).
 //   GET  /prices   not used, returns {}
 // To add a new app later: add one line in APPS below and one small button in that app.
-const DEF_INR={sf:{m1:199,m3:549,m6:999,m12:1799},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
+const DEF_INR={sf:{perm:1999},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
 const APPS={
   calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},
   diary:{kind:'user',col:'diary_users',label:'My Diary Full Version',once:true},
-  sf:{kind:'plant',col:'sf_companies',label:'Safety Observation Full Version',days:{m1:30,m3:90,m6:180,m12:360}},
+  sf:{kind:'plant',col:'sf_companies',label:'Safety Observation Full Version',once:true},
   ep:{kind:'plant',col:'ep_plants',label:'E-Permit',days:{m1:30,m3:90,m12:360}},
   pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
   pp:{kind:'project',col:'pp_projects',label:'Project Planner'}
 };
-const PLAN_NAME={m1:'1 month',m3:'3 months',m6:'6 months',m12:'12 months',perm:'Permanent access'};
+const PLAN_NAME={m1:'1 month',m3:'3 months',m12:'12 months',perm:'Permanent access'};
 const PP_DAYS={m1:30,m3:90,m12:365};
 const PM_MONTHS={m1:1,m3:3,m12:12};
 
@@ -90,7 +90,6 @@ async function activate(env,at,A,n,payId){
   if(!cur)return false; // plant / project must exist
   if(A.kind==='plant'){
     if(cur.plan==='permanent')return true; // already permanent, nothing to add
-    if(cur.plan==='paid')return true; // older one-time Safety purchase, already full
     if(n.plan==='perm')return (await fsPatch(env,at,path,{plan:'permanent',expiresMs:0})).ok;
     const base=(!(cur.expiresMs>now))?now:cur.expiresMs;
     if(A.days){const d=A.days[n.plan];if(!d)return false;return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:base+d*864e5})).ok}

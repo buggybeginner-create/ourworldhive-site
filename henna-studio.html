@@ -18,7 +18,7 @@ main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:14px max(16px,env(
 .tab{display:none}.tab.on{display:block;animation:fi .2s}@keyframes fi{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 .mk{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}@media(min-width:820px){.mk{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
 .stage{background:radial-gradient(circle at 50% 35%,var(--card),var(--bg));border:1px solid var(--line);border-radius:22px;padding:10px;text-align:center}
-.stage #stage>svg{width:100%;max-width:520px;max-height:74dvh;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 12px 16px rgba(80,30,20,.22))}
+.stage #stage>svg{touch-action:none;user-select:none;-webkit-user-select:none;width:100%;max-width:520px;max-height:74dvh;height:auto;display:block;margin:0 auto;filter:drop-shadow(0 12px 16px rgba(80,30,20,.22))}
 .sw.multi{background:conic-gradient(#d12f5b,#f08a24,#2f9e57,#1e88e5,#7a3fb0,#d12f5b)!important}
 .gc img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;background:var(--line)}
 .gc .by{text-transform:none;letter-spacing:0;font-weight:600}
@@ -72,7 +72,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <main id="main">
 <section class="tab on" id="t-maker">
  <div class="mk">
-  <div class="stage"><div id="stage"></div><p class="cap" id="cap"></p></div>
+  <div class="stage"><div id="stage"></div><p class="cap" id="cap"></p><div class="row" style="justify-content:center;margin-top:8px"><button class="btn sm" data-mz="out" aria-label="Zoom out">－</button><span class="mut" id="mzv" style="min-width:64px;text-align:center">Zoom 100%</span><button class="btn sm" data-mz="in" aria-label="Zoom in">＋</button><button class="btn sm" data-mz="fit">Fit hand</button></div><div class="mut" style="text-align:center;margin-top:6px">Pinch with two fingers to zoom, drag to move</div></div>
   <div>
    <div class="card"><div class="row"><button class="btn big p" data-a="rand">✨ New design</button><button class="btn" data-a="prev" aria-label="Previous design">‹</button><button class="btn" data-a="next" aria-label="Next design">›</button></div>
     <div class="row" style="margin-top:10px"><div class="num"><span class="mut">GO TO #</span><input id="goto" type="number" min="1" max="1999" inputmode="numeric"><button class="btn sm" data-a="go">GO</button></div><span style="flex:1"></span><button class="btn" id="favb" data-a="fav">♡ Save</button></div>
@@ -106,7 +106,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 9 Nov 2026 c, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 a, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -283,7 +283,7 @@ function blankX(id,full,dk){const rg=`<linearGradient id="e${id}" x1="0" x2="1">
  return{defs,over:o,cuff:full?`<g pointer-events="none"><path d="M65 858H239L243 892H61Z" fill="${lite(dk,-.1)}"/><path d="M64 866H240M63 874H241" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" fill="none"/></g>`:''}}
 /* ---------- screens ---------- */
 function curStyle(){return ST.style<0?'':STYLES[ST.style]}
-function drawMaker(){$('stage').innerHTML=hand(ST.n);$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${(TPLS.find(t=>t.k===ST.hand)||TPLS[0]).n}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());
+function drawMaker(){$('stage').innerHTML=hand(ST.n);mzView();$('cap').innerHTML=`Design <b>#${ST.n}</b> of ${TOTAL} &bull; ${STYLES[styleOf(ST.n)]} &bull; ${(TPLS.find(t=>t.k===ST.hand)||TPLS[0]).n}`;$('goto').value=ST.n;$('favb').textContent=isFav()?'♥ Saved':'♡ Save';$('favb').classList.toggle('on',isFav());
  [...document.querySelectorAll('[data-hand]')].forEach(b=>b.classList.toggle('on',b.dataset.hand===ST.hand));
  [...document.querySelectorAll('#c-ink .sw')].forEach(b=>b.classList.toggle('on',b.dataset.ink===ST.ink));markSkin();
  [...document.querySelectorAll('#c-style .chip')].forEach(b=>b.classList.toggle('on',+b.dataset.s===ST.style));
@@ -303,7 +303,7 @@ function drawGallery(reset){const g=$('g-grid');if(reset){g.innerHTML='';ST.gcou
 function drawSaved(){const f=favs();$('s-empty').style.display=f.length?'none':'block';$('s-grid').innerHTML=f.map(x=>`<div class="gc" data-open="${x.n}">${hand(x.n,null,1)}<small>#${x.n} &bull; ${STYLES[styleOf(x.n)]}</small><button class="x" data-del="${x.n}" aria-label="Remove">&times;</button></div>`).join('')}
 function tab(t){ST.tab=t;TABS.forEach(k=>{$('t-'+k).classList.toggle('on',k===t)});[...document.querySelectorAll('#nav button')].forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
  if(t==='canvas')DC.show();if(t==='gallery'&&!$('g-grid').children.length)drawGallery(1);if(t==='saved')drawSaved();if(t==='comm')CM.show();if(t==='rank')RK.load();window.scrollTo(0,0)}
-function svgString(){return $('stage').innerHTML.replace(/var\(--hn-skin\)/g,SKIN[ST.skin][0])}
+function svgString(){return hand(ST.n).replace(/var\(--hn-skin\)/g,SKIN[ST.skin][0])}
 function toPng(){return inlineHands(svgString()).then(raw=>new Promise((ok,no)=>{const m=raw.match(/viewBox="([-\d. ]+)"/),vb=m?m[1].split(' ').map(Number):[0,0,330,470],W=864,H=Math.round(W*vb[3]/vb[2]),s=raw.replace('<svg ','<svg width="'+W+'" height="'+H+'" ');const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H+70;const x=c.getContext('2d');x.fillStyle=getComputedStyle(document.body).backgroundColor||'#fff';x.fillRect(0,0,W,H+70);x.drawImage(img,0,0,W,H);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio #'+ST.n+'  ourworldhive.com',W/2,H+46);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)}))}
 const link=()=>location.origin+location.pathname+'?d='+ST.n+'&h='+ST.hand;
 const A={
@@ -486,6 +486,20 @@ function tplSvgStr(k,items,o){const t=TPLS.find(x=>x.k===k)||TPLS[0],vw=330,vh=M
  const body=items.map(it=>`<g transform="translate(${f1(it.x)} ${f1(it.y)}) rotate(${f1(it.r)}) scale(${(it.fx?-1:1)*it.s} ${it.s})">${dcSvg(it.k,o.ink,it.pi,it)}</g>`).join('');
  return `<svg viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Mehendi design"><defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${vw}" height="${vh}"><image xlink:href="${B}-m.png" width="${vw}" height="${vh}"/></mask></defs><rect width="${vw}" height="${vh}" fill="#fff8f1"/><rect width="${vw}" height="${vh}" fill="${o.skin}" mask="url(#${id})"/><g mask="url(#${id})">${body}</g><image xlink:href="${B}-l.png" width="${vw}" height="${vh}"/></svg>`}
 function tplHand(n,o,mini){o=o||ST;const k=/^t[123]$/.test(o.hand)?o.hand:'t1';return tplSvgStr(k,genItems(n,k),{skin:SKIN[o.skin][0],ink:o.ink,mini})}
+const MZ={z:1,cx:165,cy:0,pt:{},pz:null,pan:null};
+function mzDims(){const sv=$('stage').querySelector('svg');if(!sv)return null;const f=(sv.dataset.vb||(sv.dataset.vb=sv.getAttribute('viewBox'))).split(' ').map(Number);return{sv,vw:f[2],vh:f[3]}}
+function mzView(){const d=mzDims();if(!d)return;const z=MZ.z,w=d.vw/z,h=d.vh/z;if(z===1){MZ.cx=d.vw/2;MZ.cy=d.vh/2}MZ.cx=Math.max(w/2,Math.min(d.vw-w/2,MZ.cx));MZ.cy=Math.max(h/2,Math.min(d.vh-h/2,MZ.cy));d.sv.setAttribute('viewBox',`${f1(MZ.cx-w/2)} ${f1(MZ.cy-h/2)} ${f1(w)} ${f1(h)}`);const l=$('mzv');if(l)l.textContent='Zoom '+Math.round(z*100)+'%'}
+function mzPt(x,y){const d=mzDims();if(!d)return{x:0,y:0};const p=d.sv.createSVGPoint();p.x=x;p.y=y;const m=d.sv.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:0,y:0}}
+function mzZoom(z,px,py){const d=mzDims();if(!d)return;const o=MZ.z;z=Math.max(1,Math.min(6,z));if(px==null){px=MZ.cx;py=MZ.cy}const w0=d.vw/o,h0=d.vh/o,w1=d.vw/z,h1=d.vh/z,fx=(px-(MZ.cx-w0/2))/w0,fy=(py-(MZ.cy-h0/2))/h0;MZ.z=z;MZ.cx=px-fx*w1+w1/2;MZ.cy=py-fy*h1+h1/2;mzView()}
+(function(){const inSt=e=>e.target.closest&&e.target.closest('#stage');
+ document.addEventListener('pointerdown',e=>{if(!inSt(e))return;MZ.pt[e.pointerId]={x:e.clientX,y:e.clientY};const k=Object.values(MZ.pt);if(k.length===2){MZ.pz={d:Math.hypot(k[0].x-k[1].x,k[0].y-k[1].y)||1,z:MZ.z};MZ.pan=null}else if(MZ.z>1)MZ.pan={x:e.clientX,y:e.clientY,cx:MZ.cx,cy:MZ.cy}});
+ document.addEventListener('pointermove',e=>{if(!MZ.pt[e.pointerId])return;MZ.pt[e.pointerId]={x:e.clientX,y:e.clientY};const k=Object.values(MZ.pt);
+  if(MZ.pz&&k.length===2){const d=Math.hypot(k[0].x-k[1].x,k[0].y-k[1].y)||1,m=mzPt((k[0].x+k[1].x)/2,(k[0].y+k[1].y)/2);mzZoom(MZ.pz.z*d/MZ.pz.d,m.x,m.y);return}
+  if(MZ.pan&&k.length===1){const d=mzDims();if(!d)return;const r=d.sv.getBoundingClientRect(),vb=d.sv.viewBox.baseVal,q=vb.width/r.width;MZ.cx=MZ.pan.cx-(e.clientX-MZ.pan.x)*q;MZ.cy=MZ.pan.cy-(e.clientY-MZ.pan.y)*q;mzView()}});
+ const up=e=>{delete MZ.pt[e.pointerId];const n=Object.keys(MZ.pt).length;if(n<2)MZ.pz=null;if(n===0)MZ.pan=null};
+ document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+ document.addEventListener('wheel',e=>{if(!inSt(e))return;e.preventDefault();const p=mzPt(e.clientX,e.clientY);mzZoom(MZ.z*(e.deltaY<0?1.15:1/1.15),p.x,p.y)},{passive:false});
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-mz]');if(!b)return;mzZoom(b.dataset.mz==='in'?MZ.z*1.4:b.dataset.mz==='out'?MZ.z/1.4:1)})})();
 function refreshArt(){drawMaker();if(ST.tab==='gallery'&&typeof drawGallery==='function')drawGallery(1);if(ST.tab==='saved'&&typeof drawSaved==='function')drawSaved();if(ST.tab==='canvas'&&DC.ready)dcMount()}
 function tplInfo(){return TPLS.find(t=>t.k===DC.mode)||TPLS[0]}
 const TM={};

@@ -1,7 +1,7 @@
 {
  "id": "/training.html",
- "name": "Training",
- "short_name": "Training",
+ "name": "Hands-On Hub",
+ "short_name": "Hands-On",
  "start_url": "../training.html",
  "scope": "../training.html",
  "display": "standalone",

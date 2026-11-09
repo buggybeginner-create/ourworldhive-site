@@ -4178,6 +4178,7 @@ function openMore() {
     <button class="mi" type="button" data-do="png"><span>🖼️</span>Export page as PNG</button>
     <button class="mi" type="button" data-do="ink"><span>✍️</span>Export handwriting only (PNG)</button>
     <button class="mi" type="button" data-do="theme"><span>${dark ? '☀️' : '🌙'}</span>${dark ? 'Light mode' : 'Dark mode'}</button>
+    <button class="mi" type="button" data-do="owhupd"><span>↻</span>Get latest version</button>
     <button class="mi" type="button" data-do="contact"><span>✉️</span>Contact us / Feature request</button>
     <button class="mi" type="button" data-do="out"><span>🚪</span>Sign out (${esc((window.OWH && OWH.name) || 'account')})</button>
     <button class="mi danger" type="button" data-do="del"><span>🗑️</span>Delete this page</button>
@@ -4194,6 +4195,7 @@ function openMore() {
     else if (a === 'pdf') exportPDF();
     else if (a === 'png') exportPNG(false);
     else if (a === 'ink') exportPNG(true);
+    else if (a === 'owhupd') { if (window.OWHUPD) OWHUPD.run(); }
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
     else if (a === 'out') { if (window.OWH) OWH.signOut(); }
     else if (a === 'theme') { S.theme = dark ? 'light' : 'dark'; saveSettings(); applyTheme(); }

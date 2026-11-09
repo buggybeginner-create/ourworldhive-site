@@ -106,7 +106,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
-<nav id="nav"><button data-tab="maker" class="on"><span>🎨</span>Maker</button><button data-tab="canvas"><span>🖌️</span>Design</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="comm"><span>👥</span>Community</button><button data-tab="rank"><span>🏆</span>Ranking</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
+<nav id="nav"><button data-tab="canvas" class="on"><span>🖌️</span>Design</button><button data-tab="maker"><span>🎨</span>Maker</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="comm"><span>👥</span>Community</button><button data-tab="rank"><span>🏆</span>Ranking</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
 <footer>&copy; DUKEKRRISH. All rights reserved. &middot; <a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">Privacy policy</a></footer>
 <div class="sheet" id="sheet" hidden><div class="sb"><button class="cl" data-a="sclose" aria-label="Close">&times;</button><div id="sc"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -166,7 +166,7 @@ function pat5(R){let s='';const rows=R.i(2,3),pt=R.p([5,6,8,10]);for(let r=0;r<r
 function pat6(R){return motif(CX,CY+10,R.i(14,26),R)+dotRing(CX,CY+10,R.i(32,40),R.i(10,18),1.6,0)+`<path d="M90 400Q144 ${R.i(360,376)} 198 400"/>`+fingers(fk(R,['tip','ring','line']),R)+`<g transform="rotate(-34 52 330)">${circ(52,276,3,1)}${circ(52,288,2,1)}</g>`+wrist(R,R.i(0,1))}
 function pat7(R){const dir=R.i(0,1),pts=dir?[[70,366],[110,330],[150,300],[190,268],[210,234]]:[[200,380],[170,340],[130,310],[100,270],[90,236]];return vine(pts,R,R.i(20,28))+flower(dir?122:176,396,R.i(10,15),R)+(R.i(0,1)?dotRing(CX,CY+20,50,R.i(16,26),1.2,60):'')+fingers(fk(R,['tip','line']),R)+`<g transform="rotate(-34 52 330)">${leaf(52,376,22,0,7,1)}</g>`+wrist(R,R.i(0,1))}
 const PAT=[pat0,pat1,pat2,pat3,pat4,pat5,pat6,pat7];
-let UID=0;const TABS=['maker','canvas','gallery','comm','rank','saved','more'];
+let UID=0;const TABS=['canvas','maker','gallery','comm','rank','saved','more'];
 function lite(c,k){const n=parseInt(c.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,m=v=>Math.max(0,Math.min(255,Math.round(v+(k>0?(255-v)*k:v*k))));return'#'+[m(r),m(g),m(b)].map(v=>('0'+v.toString(16)).slice(-2)).join('')}
 function skinBase(shapes,sk,id,mini,vb,joints){
  const c0=sk[0],c1=sk[1],hi=lite(c0,.22),dk=lite(c1,-.25);
@@ -530,7 +530,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#t-canvas'))dcClick(e
 document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.cskin)setCustomSkin(e.target.value)});
 document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')A.next();if(e.key==='ArrowLeft')A.prev()});
 load();build();applyTheme();try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeMode()==='auto')applyTheme()})}catch(e){}
-(function(){const q=new URLSearchParams(location.search),d=parseInt(q.get('d'),10);if(d>=1&&d<=TOTAL)ST.n=d;else ST.n=1+Math.floor(Math.random()*TOTAL);const h=q.get('h');if(h==='palm'||h==='back'||h==='arm')ST.hand=h})();
-drawMaker();
+(function(){const q=new URLSearchParams(location.search),d=parseInt(q.get('d'),10);if(d>=1&&d<=TOTAL){ST.n=d;ST.fromLink=1}else ST.n=1+Math.floor(Math.random()*TOTAL);const h=q.get('h');if(h==='palm'||h==='back'||h==='arm')ST.hand=h})();
+drawMaker();if(!ST.fromLink)tab('canvas');
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('henna-sw.js',{scope:'./henna-studio.html'}).catch(()=>{});
 </script></body></html>

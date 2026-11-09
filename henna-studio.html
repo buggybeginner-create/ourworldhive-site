@@ -86,14 +86,15 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 </section>
 <section class="tab" id="t-canvas"><div class="dcg">
  <div class="card"><h3>Shapes &bull; drag onto the hand, or tap</h3><div class="chips" id="dcat"></div><div class="dpal" id="dpal" style="margin-top:8px"></div><input type="file" id="d-file" accept="image/*" hidden></div>
- <div class="stage"><div id="dstage"></div><p class="cap" id="dcap"></p></div>
+ <div class="stage"><div id="dstage"></div><p class="cap" id="dcap"></p>
+  <div class="row" style="justify-content:center;margin-top:8px"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="redo">↷ Redo</button><button class="btn sm" data-dc="clear">Clear all</button></div>
+  <div class="row" style="justify-content:center;margin-top:8px"><button class="btn sm" data-dc="zout" aria-label="Zoom out">－</button><span class="mut" id="dzv" style="min-width:64px;text-align:center">Zoom 100%</span><button class="btn sm" data-dc="zin" aria-label="Zoom in">＋</button><button class="btn sm" data-dc="zfit">Fit hand</button></div></div>
  <div class="card" id="dctl"></div>
- <div class="card"><div class="row"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="clear">Clear all</button></div>
-  <h3 style="margin-top:12px">Hand</h3><div class="seg" id="d-hand"></div>
+ <div class="card"><h3>Hand</h3><div class="seg" id="d-hand"></div>
   <h3 style="margin-top:12px">Skin tone</h3><div class="row" id="d-skin"></div>
   <h3 style="margin-top:12px">Henna colour for new shapes</h3><div class="row" id="d-ink"></div>
-  <div class="row" style="margin-top:12px"><button class="btn p" data-dc="png">⬇ Save image (4K JPEG)</button><button class="btn" data-dc="share">📲 Share</button></div>
-  <div class="mut" style="margin-top:8px">Drag a shape from the list onto the hand, or tap it. Tap a shape on the hand to select it. Drag it to move, drag the round handle to make it bigger or smaller, or use the sliders. Shapes stay inside the hand. Save image gives a 4K JPEG.</div></div>
+  <div class="row" style="margin-top:12px"><button class="btn p" data-dc="png">⬇ Save JPEG (4K)</button><button class="btn" data-dc="wa">💬 WhatsApp</button></div><div class="row" style="margin-top:8px"><button class="btn" data-dc="post">🌸 Post to community</button><button class="btn" data-dc="share">📲 Share</button></div>
+  <div class="mut" style="margin-top:8px">Drag a shape from the list onto the hand, or tap it. Tap a shape on the hand to select it. Drag it to move, drag the round handle to make it bigger or smaller, or use the sliders. Shapes stay inside the hand. Use ＋ / － or pinch with two fingers to zoom the hand, and drag an empty place to move around. Save JPEG, WhatsApp and Post to community all use the 4K image.</div></div>
 </div></section>
 <section class="tab" id="t-gallery"><div class="card"><h3>Browse by style</h3><div class="chips" id="g-style"></div></div><div class="grid" id="g-grid"></div><div class="row" style="justify-content:center;margin:14px 0"><button class="btn p" data-a="more">Load more</button></div></section>
 <section class="tab" id="t-comm">
@@ -105,7 +106,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 9 Nov 2026 b, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 9 Nov 2026 c, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -341,10 +342,10 @@ CM.draw=function(){const l=CM.posts.slice();if(CM.sort==='top')l.sort((a,b)=>sco
 function sheet(h){$('sc').innerHTML=h;$('sheet').hidden=false}
 function shrink(file,max,q){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{let w=im.width,h=im.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',q))};im.onerror=()=>no(new Error('img'));im.src=u})}
 async function fit(file,max,q,lim){let d=await shrink(file,max,q);while(d.length>lim&&q>.3){q-=.1;d=await shrink(file,max,q)}if(d.length>lim)throw new Error('big');return d}
-CM.postSheet=async function(){if(!CM.user){const ok=await CM.login();if(!ok)return}
+CM.postSheet=async function(pre){CM.pre=(pre&&pre.size)?pre:null;if(!CM.user){const ok=await CM.login();if(!ok)return}
  sheet(`<h2>Post your design</h2><div class="mut">Post a clear photo of mehendi YOU made. Other users can rate it. Do not post other people's work or anything not suitable for everyone.</div><div style="margin-top:10px"><label class="mut">PHOTO</label><input type="file" id="cp-file" accept="image/*" style="width:100%;margin:4px 0 10px"><img id="cp-prev" class="big" alt="" hidden><label class="mut">TITLE</label><input type="text" id="cp-title" maxlength="60" placeholder="e.g. Bridal floral arm"><label class="mut">STYLE</label><select id="cp-style">${['Full arm','Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple','Other'].map(x=>`<option>${x}</option>`).join('')}</select><button class="btn p big" data-a="cpub" id="cp-go" style="width:100%">POST DESIGN</button></div>`);
- $('cp-file').onchange=e=>{const f=e.target.files[0];if(f){$('cp-prev').src=URL.createObjectURL(f);$('cp-prev').hidden=false}}};
-CM.publish=async function(){const f=$('cp-file').files[0],t=$('cp-title').value.trim();if(!f){toast('Choose a photo first');return}if(t.length<2){toast('Write a title');return}if(!CM.user){toast('Sign in first');return}
+ $('cp-file').onchange=e=>{const f=e.target.files[0];if(f){CM.pre=null;$('cp-prev').src=URL.createObjectURL(f);$('cp-prev').hidden=false}};if(CM.pre){$('cp-prev').src=URL.createObjectURL(CM.pre);$('cp-prev').hidden=false;$('cp-file').hidden=true;const sl=$('cp-style');sl.value='Other'}};
+CM.publish=async function(){const f=CM.pre||$('cp-file').files[0],t=$('cp-title').value.trim();if(!f){toast('Choose a photo first');return}if(t.length<2){toast('Write a title');return}if(!CM.user){toast('Sign in first');return}
  const b=$('cp-go');b.disabled=true;b.textContent='POSTING…';try{const th=await fit(f,360,.72,55000),img=await fit(f,900,.74,380000),id=CM.db.collection('hn_posts').doc().id,B=CM.db.batch(),TS=firebase.firestore.FieldValue.serverTimestamp();
   B.set(CM.db.collection('hn_posts').doc(id),{uid:CM.user.uid,name:CM.name(),title:t,style:$('cp-style').value,th:th,sum:0,cnt:0,ts:TS});B.set(CM.db.collection('hn_img').doc(id),{uid:CM.user.uid,img:img});await B.commit();
   $('sheet').hidden=true;toast('Posted! Others can rate it now');CM.sort='new';CM.load(1)}catch(e){b.disabled=false;b.textContent='POST DESIGN';toast(e&&e.message==='big'?'Photo is too detailed. Try a smaller photo.':'Could not post. Check internet and try again.')}};
@@ -433,7 +434,7 @@ const g0=(c,x)=>`<g fill="${c}" stroke="none">${x}</g>`;
  dcs('teardrop','Shapes','Teardrop',()=>`<path d="M0 -34C26 -4 26 28 0 30C-26 28 -26 -4 0 -34Z" fill="none" stroke="${PAL.a}" stroke-width="2.6"/><path d="M0 -14C12 2 12 16 0 18C-12 16 -12 2 0 -14Z" fill="${PAL.a}"/>`);
 })();
 const TPLS=[{k:'t1',n:'One hand',f:'h1',w:2483,h:3840},{k:'t2',n:'Both hands',f:'h2',w:2971,h:3840},{k:'t3',n:'Two hands',f:'h3',w:2705,h:3840}];
-const DC={imgs:{},items:[],by:{t1:[],t2:[],t3:[]},sel:-1,mode:'t1',ink:'brown',auto:true,cat:'Flowers',undo:[],tc:{},ready:false,drag:null,mv:null,cnt:0};
+const DC={redo:[],vz:{z:1,cx:165,cy:0},pt:{},imgs:{},items:[],by:{t1:[],t2:[],t3:[]},sel:-1,mode:'t1',ink:'brown',auto:true,cat:'Flowers',undo:[],tc:{},ready:false,drag:null,mv:null,cnt:0};
 function dcSave(){try{DC.by[DC.mode]=DC.items;localStorage.setItem('owh_henna_dc2',JSON.stringify({by:DC.by,mode:DC.mode,ink:DC.ink}))}catch(e){}}
 function dcLoad(){try{const s=JSON.parse(localStorage.getItem('owh_henna_dc2')||'null');if(s){DC.by=Object.assign({t1:[],t2:[],t3:[]},s.by||{});DC.mode=/^t[123]$/.test(s.mode)?s.mode:'t1';DC.ink=s.ink||'brown'}else{const o=localStorage.getItem('owh_henna_dc');if(o)localStorage.setItem('owh_henna_dc_old',o)}DC.items=DC.by[DC.mode]||[]}catch(e){}try{DC.imgs=JSON.parse(localStorage.getItem('owh_henna_dcimg')||'{}')||{}}catch(e){DC.imgs={}}}
 function dcPal(ink,pi){const sk=SKIN[ST.skin][0];if(ink==='multi'){const q=PALS[(pi||0)%PALS.length];PAL={f:q[0],g:q[1],l:q[2],a:q[3],sk}}else{const c=INK[ink]?INK[ink][0]:INK.brown[0];PAL={f:c,g:c,l:c,a:c,sk}}}
@@ -446,7 +447,8 @@ function dcImgSave(){try{localStorage.setItem('owh_henna_dcimg',JSON.stringify(D
 function dcImgTiles(){const ids=Object.keys(DC.imgs);return `<button class="dtile2" data-addimg="1" type="button">+<small>Add image</small></button>`+ids.map(id=>`<div class="dtile" data-k="img:${id}" role="button" tabindex="0" aria-label="My image"><svg viewBox="-42 -42 84 84" style="background:${SKIN[ST.skin][0]}">${dcImgSvg('img:'+id,'brown',null)}</svg><small>My image</small><b class="dx" data-delimg="${id}" aria-label="Remove image">&times;</b></div>`).join('')+(ids.length?'':'<div class="mut" style="grid-column:1/-1">Add a photo of a henna design from your phone. It becomes a stamp: drag it onto the hand, resize it or tap Auto fit. White background is removed.</div>')}
 function dcSvg(k,ink,pi,it){if(String(k).slice(0,4)==='img:')return dcImgSvg(k,ink,it);const d=DCS.find(x=>x.k===k);if(!d)return'';
 dcPal(ink,pi);return`<g fill="none" stroke="${PAL.a}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d.fn().replace(/class="F"/g,'fill="'+PAL.a+'"')}</g>`}
-function dcSnap(){DC.undo.push(JSON.stringify(DC.items));if(DC.undo.length>40)DC.undo.shift()}
+function dcPush(v){DC.undo.push(v);if(DC.undo.length>40)DC.undo.shift();DC.redo=[]}
+function dcSnap(){dcPush(JSON.stringify(DC.items))}
 /* where is a point on the hand, and how should a shape bend there */
 function dcZone(x,y){
  if(/^t\d$/.test(DC.mode))return tplIn(x,y)?{z:'hand',rot:0,sx:1,cap:9}:{z:'out',rot:0,sx:1,cap:9};
@@ -499,14 +501,22 @@ function tplHome(){const m=TM[DC.mode],t=tplInfo();return m?{x:m.bb.x+m.bb.w/2,y
 function dcNote(){return `${DC.items.length} shape${DC.items.length===1?'':'s'} &bull; ${tplInfo().n}`}
 function dcMount(){const t=tplInfo(),vw=330,vh=Math.round(vw*t.h/t.w*10)/10,sk=SKIN[ST.skin][0],B='henna-hands/'+t.f;tplLoad(t);
  $('dstage').innerHTML=`<svg id="dsvg" viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="touch-action:none" role="img" aria-label="Design area"><defs><mask id="dm" maskUnits="userSpaceOnUse" x="0" y="0" width="${vw}" height="${vh}"><image data-h="m" xlink:href="${B}-m.png" width="${vw}" height="${vh}"/></mask></defs><rect width="${vw}" height="${vh}" fill="#fff8f1"/><rect width="${vw}" height="${vh}" fill="${sk}" mask="url(#dm)"/><g id="dc-items" mask="url(#dm)"></g><image data-h="l" xlink:href="${B}-l.png" width="${vw}" height="${vh}" pointer-events="none"/></svg>`;
- const sv=$('dsvg');if(sv){sv.addEventListener('pointerdown',dcDown);sv.addEventListener('pointermove',dcMove);sv.addEventListener('pointerup',dcUp);sv.addEventListener('pointercancel',dcUp)}dcDraw();$('dcap').innerHTML=dcNote()}
+ const sv=$('dsvg');if(sv){DC.vz.cy=vh/2;if(!DC.vz.cx)DC.vz.cx=165;dcView();sv.addEventListener('wheel',e=>{e.preventDefault();const p=dcPt(e);dcZoom(DC.vz.z*(e.deltaY<0?1.15:1/1.15),p.x,p.y)},{passive:false});sv.addEventListener('pointerdown',dcDown);sv.addEventListener('pointermove',dcMove);sv.addEventListener('pointerup',dcUp);sv.addEventListener('pointercancel',dcUp)}dcDraw();$('dcap').innerHTML=dcNote()}
+function dcView(){const sv=$('dsvg');if(!sv)return;const t=tplInfo(),vw=330,vh=Math.round(vw*t.h/t.w*10)/10,z=DC.vz.z,w=vw/z,h=vh/z;DC.vz.cx=Math.max(w/2,Math.min(vw-w/2,DC.vz.cx));DC.vz.cy=Math.max(h/2,Math.min(vh-h/2,DC.vz.cy));sv.setAttribute('viewBox',`${f1(DC.vz.cx-w/2)} ${f1(DC.vz.cy-h/2)} ${f1(w)} ${f1(h)}`);const l=$('dzv');if(l)l.textContent='Zoom '+Math.round(z*100)+'%'}
+function dcZoom(z,px,py){const t=tplInfo(),vw=330,vh=Math.round(vw*t.h/t.w*10)/10,o=DC.vz.z;z=Math.max(1,Math.min(6,z));if(px==null){px=DC.vz.cx;py=DC.vz.cy}
+ const w0=vw/o,h0=vh/o,w1=vw/z,h1=vh/z,fx=(px-(DC.vz.cx-w0/2))/w0,fy=(py-(DC.vz.cy-h0/2))/h0;DC.vz.z=z;DC.vz.cx=px-fx*w1+w1/2;DC.vz.cy=py-fy*h1+h1/2;if(z===1){DC.vz.cx=vw/2;DC.vz.cy=vh/2}dcView()}
 function dcPt(e){const sv=$('dsvg'),p=sv.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=sv.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:0,y:0}}
-function dcDown(e){if(e.target.closest&&e.target.closest('.dch')){const o=DC.items[DC.sel];if(o){const p=dcPt(e);DC.rs={i:DC.sel,d0:Math.hypot(p.x-o.x,p.y-o.y)||1,s0:o.s,before:JSON.stringify(DC.items),moved:false};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();return}}
- const it=e.target.closest&&e.target.closest('.dci');if(!it){DC.sel=-1;dcDraw();return}
+function dcDown(e){DC.pt[e.pointerId]={x:e.clientX,y:e.clientY};if(Object.keys(DC.pt).length===2){const k=Object.values(DC.pt);DC.pz={d:Math.hypot(k[0].x-k[1].x,k[0].y-k[1].y)||1,z:DC.vz.z};DC.mv=null;DC.rs=null;DC.pan=null;return}
+ if(e.target.closest&&e.target.closest('.dch')){const o=DC.items[DC.sel];if(o){const p=dcPt(e);DC.rs={i:DC.sel,d0:Math.hypot(p.x-o.x,p.y-o.y)||1,s0:o.s,before:JSON.stringify(DC.items),moved:false};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();return}}
+ const it=e.target.closest&&e.target.closest('.dci');if(!it){DC.sel=-1;dcDraw();if(DC.vz.z>1){DC.pan={x:e.clientX,y:e.clientY,cx:DC.vz.cx,cy:DC.vz.cy};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()}return}
  const i=+it.dataset.i;DC.sel=i;const p=dcPt(e),o=DC.items[i];DC.mv={i,dx:o.x-p.x,dy:o.y-p.y,before:JSON.stringify(DC.items),moved:false};try{$('dsvg').setPointerCapture(e.pointerId)}catch(_){}dcDraw();e.preventDefault()}
-function dcMove(e){if(DC.rs){const o=DC.items[DC.rs.i],p=dcPt(e);if(!o)return;const ns=Math.min(3,Math.max(.15,DC.rs.s0*Math.hypot(p.x-o.x,p.y-o.y)/DC.rs.d0));if(Math.abs(ns-o.s)>.002)DC.rs.moved=true;o.s=Math.round(ns*100)/100;dcDraw();return}
+function dcMove(e){if(DC.pt[e.pointerId]){DC.pt[e.pointerId]={x:e.clientX,y:e.clientY}}
+ if(DC.pz&&Object.keys(DC.pt).length===2){const k=Object.values(DC.pt),d=Math.hypot(k[0].x-k[1].x,k[0].y-k[1].y)||1,mid=dcPt({clientX:(k[0].x+k[1].x)/2,clientY:(k[0].y+k[1].y)/2});dcZoom(DC.pz.z*d/DC.pz.d,mid.x,mid.y);e.preventDefault();return}
+ if(DC.pan){const sv=$('dsvg'),r=sv.getBoundingClientRect(),vb=sv.viewBox.baseVal,k=vb.width/r.width;DC.vz.cx=DC.pan.cx-(e.clientX-DC.pan.x)*k;DC.vz.cy=DC.pan.cy-(e.clientY-DC.pan.y)*k;dcView();return}
+ if(DC.rs){const o=DC.items[DC.rs.i],p=dcPt(e);if(!o)return;const ns=Math.min(3,Math.max(.15,DC.rs.s0*Math.hypot(p.x-o.x,p.y-o.y)/DC.rs.d0));if(Math.abs(ns-o.s)>.002)DC.rs.moved=true;o.s=Math.round(ns*100)/100;dcDraw();return}
  if(!DC.mv)return;const p=dcPt(e),o=DC.items[DC.mv.i];if(!o)return;const nx=p.x+DC.mv.dx,ny=p.y+DC.mv.dy;if(!tplIn(nx,ny))return;if(Math.abs(nx-o.x)+Math.abs(ny-o.y)>.5)DC.mv.moved=true;o.x=Math.round(nx*10)/10;o.y=Math.round(ny*10)/10;dcDraw()}
-function dcUp(){if(DC.rs){if(DC.rs.moved){DC.undo.push(DC.rs.before);dcSave()}DC.rs=null;return}if(DC.mv){if(DC.mv.moved){DC.undo.push(DC.mv.before);dcSave();dcCap()}DC.mv=null}}
+function dcUp(e){if(e&&e.pointerId!=null)delete DC.pt[e.pointerId];if(DC.pz){if(Object.keys(DC.pt).length<2)DC.pz=null;return}if(DC.pan){DC.pan=null;return}
+ if(DC.rs){if(DC.rs.moved){dcPush(DC.rs.before);dcSave()}DC.rs=null;return}if(DC.mv){if(DC.mv.moved){dcPush(DC.mv.before);dcSave();dcCap()}DC.mv=null}}
 function dcCap(){$('dcap').innerHTML=dcNote()}
 function dcAdd(k,x,y){const n=DC.items.length;if(x==null){const h=tplHome();x=h.x+((n*23)%50)-25;y=h.y+((n*31)%50)-25;if(!tplIn(x,y)){x=h.x;y=h.y}}
  if(dcZone(x,y).z==='out'){toast('Drop the shape on the hand');return}dcSnap();
@@ -530,11 +540,14 @@ function dcClick(e){const t=e.target.closest('[data-dc],[data-dcat],[data-dh],[d
  if(t.dataset.addimg){$('d-file').click();return}
  if(t.dataset.delimg){const id=t.dataset.delimg;dcSnap();delete DC.imgs[id];for(const q in DC.by)DC.by[q]=DC.by[q].filter(x=>x.k!=='img:'+id);DC.items=DC.by[DC.mode]||[];DC.sel=-1;dcImgSave();dcSave();dcPalette();dcDraw();return}
  if(t.dataset.dcat){DC.cat=t.dataset.dcat;dcPalette();return}
- if(t.dataset.dh){DC.by[DC.mode]=DC.items;DC.mode=t.dataset.dh;DC.items=DC.by[DC.mode]||[];DC.undo=[];DC.sel=-1;dcSave();dcSide();dcMount();return}
+ if(t.dataset.dh){DC.by[DC.mode]=DC.items;DC.mode=t.dataset.dh;DC.items=DC.by[DC.mode]||[];DC.undo=[];DC.redo=[];DC.vz={z:1,cx:165,cy:0};DC.sel=-1;dcSave();dcSide();dcMount();return}
  if(t.dataset.dink){DC.ink=t.dataset.dink;dcSave();dcSide();return}
  if(t.dataset.dcink){const it=DC.items[DC.sel];if(it){dcSnap();it.ink=t.dataset.dcink;dcSave();dcDraw()}return}
  const it=DC.items[DC.sel],a=t.dataset.dc;
-  if(a==='undo'){const s=DC.undo.pop();if(s){DC.items=JSON.parse(s);DC.sel=-1;dcSave();dcDraw();dcCap()}else toast('Nothing to undo');return}
+  if(a==='redo'){const s=DC.redo.pop();if(s){DC.undo.push(JSON.stringify(DC.items));DC.items=JSON.parse(s);DC.sel=-1;dcSave();dcDraw();dcCap()}else toast('Nothing to redo');return}
+  if(a==='zin'||a==='zout'||a==='zfit'){dcZoom(a==='zin'?DC.vz.z*1.4:a==='zout'?DC.vz.z/1.4:1);return}
+  if(a==='post'||a==='wa'){dcExport(a);return}
+  if(a==='undo'){const s=DC.undo.pop();if(s){DC.redo.push(JSON.stringify(DC.items));DC.items=JSON.parse(s);DC.sel=-1;dcSave();dcDraw();dcCap()}else toast('Nothing to undo');return}
  if(a==='clear'){if(!DC.items.length)return;if(t.dataset.sure){dcSnap();DC.items=[];DC.sel=-1;dcSave();dcDraw();dcCap();t.textContent='Clear all';delete t.dataset.sure}else{t.dataset.sure=1;t.textContent='Tap again';setTimeout(()=>{if(t.isConnected){delete t.dataset.sure;t.textContent='Clear all'}},2500)}return}
  if(a==='png'||a==='share'){dcExport(a);return}
  if(!it)return;
@@ -545,7 +558,7 @@ function dcClick(e){const t=e.target.closest('[data-dc],[data-dcat],[data-dh],[d
  else if(a==='afit'){dcSnap();it.s=dcFit(it.x,it.y,it.k)}
  else if(a==='palm'){const m=TM[DC.mode];if(m){dcSnap();it.x=Math.round(m.palm.x*10)/10;it.y=Math.round(m.palm.y*10)/10;it.s=dcFit(it.x,it.y,it.k)}}
  dcSave();dcDraw();dcCap()}
-function dcRaster(){const t=tplInfo(),sv=$('dsvg').cloneNode(true),sel=sv.querySelector('#dc-sel');if(sel)sel.remove();sv.removeAttribute('id');sv.removeAttribute('style');
+function dcRaster(){const t=tplInfo(),sv=$('dsvg').cloneNode(true),sel=sv.querySelector('#dc-sel');if(sel)sel.remove();sv.removeAttribute('id');sv.removeAttribute('style');sv.setAttribute('viewBox',`0 0 330 ${Math.round(330*t.h/t.w*10)/10}`);
  const du=async u=>{const r=await fetch(u);if(!r.ok)throw new Error('img');const b=await r.blob();return await new Promise((ok,no)=>{const f=new FileReader();f.onload=()=>ok(f.result);f.onerror=no;f.readAsDataURL(b)})};
  return (async()=>{for(const im of sv.querySelectorAll('image[data-h]')){const u=await du('henna-hands/'+t.f+'-'+im.getAttribute('data-h')+'4k.png');im.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',u)}
   let sc=1;for(let tries=0;tries<2;tries++){const W=Math.round(t.w*sc),H=Math.round(t.h*sc);sv.setAttribute('width',W);sv.setAttribute('height',H);
@@ -553,7 +566,9 @@ function dcRaster(){const t=tplInfo(),sv=$('dsvg').cloneNode(true),sel=sv.queryS
    try{return await new Promise((ok,no)=>{const img=new Image();img.onload=()=>{try{const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff8f1';x.fillRect(0,0,W,H);x.drawImage(img,0,0,W,H);c.toBlob(b=>b?ok(b):no(new Error('enc')),'image/jpeg',.93)}catch(e){no(e)}};img.onerror=()=>no(new Error('svg'));img.src=url})}
    catch(e){sc=.5}finally{URL.revokeObjectURL(url)}}
   throw new Error('export')})()}
-async function dcExport(a){try{toast('Making your 4K image...');const b=await dcRaster(),nm='henna-my-design.jpg';if(a==='png'){const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved')}
+async function dcExport(a){try{toast('Making your 4K image...');if(!DC.items.length&&a!=='png'){toast('Add some shapes first');return}const b=await dcRaster(),nm='henna-my-design.jpg';if(a==='post'){CM.postSheet(new File([b],nm,{type:'image/jpeg'}));return}
+ if(a==='wa'){const f=new File([b],nm,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'My mehendi design',text:'My mehendi design made on Henna Studio, ourworldhive.com/henna-studio.html'});return}const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved. Opening WhatsApp, attach it from your gallery');setTimeout(()=>{location.href='https://wa.me/?text='+encodeURIComponent('My mehendi design made on Henna Studio https://ourworldhive.com/henna-studio.html')},1500);return}
+ if(a==='png'){const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved')}
  else{const f=new File([b],nm,{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'My mehendi design'});else{const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Image saved')}}}catch(e){if(e&&e.name!=='AbortError')toast('Could not save the image')}}
 /* drag a tile from the shape list onto the hand */
 (function(){let d=null,ghost=null;

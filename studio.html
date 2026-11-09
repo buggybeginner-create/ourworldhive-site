@@ -214,7 +214,7 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 </section>
 
 <section id="sApp" hidden>
-  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Hive Apps</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tV" aria-selected="false">Visitors</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
+  <div class="bar4"><div class="tabs4" role="tablist"><button role="tab" id="tP" aria-selected="true">Posts and pages</button><button role="tab" id="tG" aria-selected="false">Gallery</button><button role="tab" id="tX" aria-selected="false">Games</button><button role="tab" id="tM" aria-selected="false">Header buttons</button><button role="tab" id="tI" aria-selected="false">Hive Apps</button><button role="tab" id="tS" aria-selected="false">Site settings</button><button role="tab" id="tA" aria-selected="false">Admins</button><button role="tab" id="tV" aria-selected="false">Visitors</button><button role="tab" id="tE" aria-selected="false">Earnings</button><button role="tab" id="tC" aria-selected="false">Messages</button><button role="tab" id="tB" aria-selected="false">Backup</button></div>
     <div class="who"><span id="whoName"></span><button class="sb" id="sOut" type="button">Sign out</button></div></div>
 
   <div id="vP">
@@ -319,6 +319,20 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
       <div id="aList"></div>
       <label class="fld" style="margin-top:12px">Add an email address (Google account)<input id="aE" type="email" autocomplete="off" placeholder="name@gmail.com"></label>
       <div class="row"><button class="sb gold" id="aAdd" type="button">Add admin</button></div><p class="msg4" id="aMsg" role="status"></p></div>
+  </div>
+  <div id="vE" hidden>
+    <div class="box"><h2>Earnings from online payments</h2><p>Every Razorpay payment that switched on a plan automatically. Payments you confirmed by hand (UPI, PayPal or bank) are not in this list. Amounts are in rupees.</p>
+      <div class="row"><button class="sb" id="eaReload" type="button">Refresh</button></div>
+      <p class="msg4" id="eaMsg" role="status"></p>
+      <div id="eaK" style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0"></div>
+      <h3 style="margin:12px 0 6px;font-size:15px">By app</h3><div id="eaApp" style="overflow-x:auto"></div>
+      <h3 style="margin:12px 0 6px;font-size:15px">By month</h3><div id="eaMon" style="overflow-x:auto"></div>
+      <h3 style="margin:12px 0 6px;font-size:15px">Latest payments</h3><div id="eaList" style="overflow-x:auto"></div></div>
+  </div>
+  <div id="vC" hidden>
+    <div class="box"><h2>Messages from users</h2><p>Feature requests, problems and questions sent from inside the apps (Contact us). A copy is also e-mailed to you.</p>
+      <div class="row"><label class="chk">Show <select id="cmFilter"><option value="new" selected>new only</option><option value="all">all</option><option value="done">done</option></select></label><button class="sb" id="cmReload" type="button">Refresh</button></div>
+      <p class="msg4" id="cmMsg" role="status"></p><div id="cmList"></div></div>
   </div>
   <div id="vV" hidden>
     <div class="box"><h2>Where your visitors come from</h2><p>Approximate place of each visit (country and city), the page they opened and their device. Your own visits are not counted. No IP addresses are stored.</p>
@@ -427,9 +441,37 @@ $('uAgain').onclick=function(){ say('uMsg','Checking\u2026'); gate(); };
 $('uOut').onclick=$('sOut').onclick=function(){ auth.signOut(); };
 
 /* ---------- tabs ---------- */
-var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tV','vV'],['tB','vB']];
+var TABS=[['tP','vP'],['tG','vG'],['tX','vX'],['tM','vM'],['tI','vI'],['tS','vS'],['tA','vA'],['tV','vV'],['tE','vE'],['tC','vC'],['tB','vB']];
 TABS.forEach(function(t,i){ $(t[0]).onclick=function(){ TABS.forEach(function(u,k){ $(u[0]).setAttribute('aria-selected',String(k===i)); $(u[1]).hidden=k!==i; }); }; });
 
+
+
+/* ---------- earnings (Razorpay) and user messages ---------- */
+var EA_NAMES={pm:'PM Tracker',pp:'Project Planner',ep:'E-Permit',sf:'Safety Observation',diary:'My Diary',calc:'CalcPad'},EA_PLAN={m1:'1 month',m3:'3 months',m12:'12 months',perm:'One-time'},eaLoaded=false,cmLoaded=false;
+function rs(n){ return '\u20b9'+(Math.round(n*100)/100).toLocaleString('en-IN'); }
+function tbl(h,rows){ return '<table style="border-collapse:collapse;min-width:100%;font-size:14px"><thead><tr>'+h.map(function(x){ return '<th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--sx-line)">'+x+'</th>'; }).join('')+'</tr></thead><tbody>'+rows.map(function(r){ return '<tr>'+r.map(function(x){ return '<td style="padding:6px 10px;border-bottom:1px solid var(--sx-line)">'+x+'</td>'; }).join('')+'</tr>'; }).join('')+'</tbody></table>'; }
+function eaLoad(){ say('eaMsg','Loading...');
+  db.collection('pay_log').orderBy('ts','desc').limit(1000).get().then(function(q){ eaLoaded=true; var L=[]; q.forEach(function(d){ var x=d.data(); x.id=d.id; L.push(x); });
+    var now=new Date(),mk=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2),d30=Date.now()-30*864e5,tot=0,mon=0,l30=0,byApp={},byMon={};
+    L.forEach(function(x){ var a=(x.amount||0)/100,dt=new Date(x.ts||0),k=dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2); tot+=a; if(k===mk)mon+=a; if((x.ts||0)>=d30)l30+=a; var b=byApp[x.tool]=byApp[x.tool]||{n:0,a:0}; b.n++; b.a+=a; var m=byMon[k]=byMon[k]||{n:0,a:0}; m.n++; m.a+=a; });
+    function card(t,v){ return '<div style="flex:1 1 140px;border:1px solid var(--sx-line);border-radius:12px;padding:10px 12px"><div style="font-size:12px;opacity:.75">'+t+'</div><div style="font-size:20px;font-weight:700">'+v+'</div></div>'; }
+    $('eaK').innerHTML=card('Total',rs(tot))+card('This month',rs(mon))+card('Last 30 days',rs(l30))+card('Payments',L.length);
+    var A=Object.keys(byApp).sort(function(a,b){ return byApp[b].a-byApp[a].a; });
+    $('eaApp').innerHTML=A.length?tbl(['App','Payments','Amount'],A.map(function(k){ return [esc(EA_NAMES[k]||k),byApp[k].n,rs(byApp[k].a)]; })):'<p>No payments yet.</p>';
+    var M=Object.keys(byMon).sort().reverse();
+    $('eaMon').innerHTML=M.length?tbl(['Month','Payments','Amount'],M.map(function(k){ return [k,byMon[k].n,rs(byMon[k].a)]; })):'<p>No payments yet.</p>';
+    $('eaList').innerHTML=L.length?tbl(['Date','App','Plan','Amount','Code / user','Payment id'],L.slice(0,100).map(function(x){ return [new Date(x.ts||0).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}),esc(EA_NAMES[x.tool]||x.tool||''),esc(EA_PLAN[x.plan]||x.plan||''),rs((x.amount||0)/100),esc(x.target||''),esc(x.id)]; })):'<p>No payments yet.</p>';
+    say('eaMsg',L.length?'':'No online payment has come in yet.'); }).catch(function(e){ say('eaMsg',e&&e.code==='permission-denied'?'Firestore rules are not updated yet. Paste the new rules block (pay_log) in Firebase and refresh.':'Could not load.','err'); }); }
+$('tE').addEventListener('click',function(){ if(!eaLoaded) eaLoad(); }); $('eaReload').onclick=eaLoad;
+function cmLoad(){ say('cmMsg','Loading...'); var f=$('cmFilter').value;
+  db.collection('contact_msgs').orderBy('ts','desc').limit(200).get().then(function(q){ cmLoaded=true; var h='',n=0; q.forEach(function(d){ var x=d.data(),done=x.status==='done'; if(f==='new'&&done)return; if(f==='done'&&!done)return; n++;
+      h+='<div class="box" style="margin:10px 0"><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="tag4">'+esc(x.type||'')+'</span><b>'+esc(x.app||'')+'</b><span style="opacity:.7;font-size:13px">'+new Date(x.ts||0).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})+'</span>'+(done?'<span style="color:#16a34a;font-size:13px">Done</span>':'')+'</div>'
+       +'<p style="white-space:pre-wrap;margin:8px 0">'+esc(x.msg||'')+'</p><div style="font-size:13px;opacity:.8">From: '+esc(x.name||'')+' '+esc(x.email||'')+'<br>Reply to: '+esc(x.reply||'')+'</div>'
+       +'<div class="row" style="margin-top:8px">'+(done?'':'<button class="sb gold" data-cm="done" data-id="'+esc(d.id)+'" type="button">Mark done</button>')+'<button class="sb" data-cm="del" data-id="'+esc(d.id)+'" type="button">Delete</button></div></div>'; });
+    $('cmList').innerHTML=h||'<p>No messages here.</p>'; say('cmMsg',''); }).catch(function(e){ say('cmMsg',e&&e.code==='permission-denied'?'Firestore rules are not updated yet. Paste the new rules block (contact_msgs) in Firebase and refresh.':'Could not load.','err'); }); }
+$('tC').addEventListener('click',function(){ if(!cmLoaded) cmLoad(); }); $('cmReload').onclick=cmLoad; $('cmFilter').onchange=cmLoad;
+$('cmList').addEventListener('click',function(e){ var b=e.target.closest('[data-cm]'); if(!b)return; var ref=db.collection('contact_msgs').doc(b.dataset.id);
+  var p=b.dataset.cm==='del'?(confirm('Delete this message?')?ref.delete():null):ref.update({status:'done'}); if(p)p.then(cmLoad).catch(function(){ say('cmMsg','Could not change it.','err'); }); });
 
 /* ---------- visitors: where they come from ---------- */
 var VV=[], vvLoaded=false;

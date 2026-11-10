@@ -463,6 +463,7 @@ body.inkon .cvt{pointer-events:none}
 .dg h3 small{color:var(--muted);font-weight:600}
 .drow{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line)}
 .drow .cb{margin-top:-1px}
+.drow.sub{border-top-style:dashed}
 .drow .dt{flex:1;min-width:0;font:16px/1.3 var(--serif);word-break:break-word}
 .dm{font:12px/1.45 var(--sans);color:var(--muted);margin-top:2px}
 .dm .bad{color:var(--danger);font-weight:700}
@@ -578,7 +579,25 @@ body{background:var(--desk)}
   .blk textarea{font-size:15px}
   .who{font-size:11.5px;height:24px;line-height:24px;max-width:84px}
   .topts{height:56px}.topts button{min-height:38px;padding:0 11px;font-size:13px}
-  .task.sel .who:empty,.task.sel .tgl:empty{display:none}}
+  .task.sel .who:empty,.task.sel .tgl:empty{display:none}
+  /* summary tools: two slim rows that slide sideways */
+  body.sumview #sumhead{display:grid;grid-template-rows:auto auto;grid-auto-flow:column;grid-auto-columns:max-content;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 8px 8px;align-items:center}
+  #sumhead::-webkit-scrollbar{display:none}
+  #sumhead .sp{display:none}
+  #sumhead #sBack{grid-row:1;grid-column:1}
+  #sumhead #sTabs{grid-row:1;grid-column:2 / span 8;flex-wrap:nowrap;justify-self:start}
+  #sumhead>.btn:not(#sBack){grid-row:2}
+  #sumhead .btn{min-height:36px;height:36px;padding:0 11px;font-size:13px;border-radius:11px}
+  #sTabs button{min-height:34px;padding:0 10px;font-size:13px}
+  /* phone text sizes: 12 for tasks, 14 for headings */
+  .blk textarea{font-size:12px}
+  .sx{font-size:14px!important}
+  .sh-date{font-size:17px}
+  .drow .dt{font-size:12px}.dm{font-size:10.5px}
+  .dg h3{font-size:14px}.dayh{font-size:16px}
+  .dstat .stc{padding:5px 10px;font-size:12px}.dstat .stc b{font-size:16px}
+  table.jt td.dsc{font-size:12px}.job{font-size:12px}
+  .cin{font-size:12px}}
 @media print{
   #top,#nav,#chips,#bSpace,#toast,#modal,.acts,#ring,#pad,#sumhead{display:none!important}
   :root[data-theme]{--paper:#fff;--ink:#111;--muted:#555;--line:#ddd;--desk:#fff;--accent:#1f3d91;--btn:#f3f3f3;--shadow:none}
@@ -3131,7 +3150,7 @@ function mkT(p, b) {
     doneAt: b.doneAt || 0, at: b.at || 0, age, days: done ? took : age,
     cm: cm.length ? cm[cm.length - 1] : null, cmN: cm.length, cmAll: cm,
     rid: b.rid || '', rep: b.rid ? (rules.get(b.rid) ? ruleDesc(rules.get(b.rid)) : 'Repeated') : '',
-    par: sm.parentOf.get(b.id) ? sm.parentOf.get(b.id).text.trim() : '', prog: sm.progOf.get(b.id) || null,
+    par: sm.parentOf.get(b.id) ? sm.parentOf.get(b.id).text.trim() : '', parId: sm.parentOf.get(b.id) ? sm.parentOf.get(b.id).id : '', ix: p.blocks.indexOf(b), prog: sm.progOf.get(b.id) || null,
     depText: dep && !dep.b.done ? dep.b.text.trim() : '', depOpen: !!(dep && !dep.b.done && !done) };
 }
 const PRI = { h: 'High', m: 'Medium', l: 'Low' };
@@ -3261,6 +3280,13 @@ function buildDay(date) {
   });
   const pr = { h: 0, m: 1, l: 2, '': 3 };
   const sort = a => a.sort((x, y) => (pr[x.pri] - pr[y.pri]) || ((x.due || '9999') < (y.due || '9999') ? -1 : (x.due || '9999') > (y.due || '9999') ? 1 : 0) || x.at - y.at);
+  /* keep every sub-task right below its main task (when both are in the same list), in the order written on the page */
+  const nest = a => {
+    const key = t => t.pid + '|' + t.bid, ids = new Set(a.map(key)), kids = new Map(), roots = [];
+    a.forEach(t => { const k = t.parId ? t.pid + '|' + t.parId : ''; if (k && ids.has(k)) { if (!kids.has(k)) kids.set(k, []); kids.get(k).push(t); } else { t.ind = 0; roots.push(t); } });
+    const out = [], put = (t, d) => { t.ind = d; out.push(t); (kids.get(key(t)) || []).sort((x, y) => x.ix - y.ix).forEach(c => put(c, Math.min(2, d + 1))); };
+    roots.forEach(t => put(t, 0)); return out;
+  };
   const isToday = date === today;
   const groups = [];
   if (od.length) groups.push({ key: 'od', icon: '⚠', title: 'Overdue', color: '#d64545', items: sort(od) });
@@ -3269,6 +3295,7 @@ function buildDay(date) {
   if (er.length) groups.push({ key: 'er', icon: '🕓', title: 'Earlier pending', color: '#8a6d3b', items: sort(er) });
   const missed = [...mr.values()].map(g => ({ text: g.text, rep: g.rep, who: g.who, count: g.dates.length, oldest: g.dates.slice().sort()[0] }));
   if (done.length) groups.push({ key: 'dn', icon: '✅', title: isToday ? 'Completed today' : 'Completed that day', color: '#1b7f52', items: done.sort((a, b) => a.doneAt - b.doneAt) });
+  groups.forEach(g => { g.items = nest(g.items); });
   const nStage = [...stg.values()].reduce((n, a) => n + a.length, 0);
   const pend = od.length + nStage + td.length + er.length + missed.reduce((n, g) => n + g.count, 0);
   return { kind: 'day', title: 'Day status', date, label: isToday ? 'Today' : dayShort(date), period: dayShort(date), whoLabel: sum.who === '__none' ? 'Unassigned' : sum.who,
@@ -3296,7 +3323,7 @@ function dayHTML(m, inter) {
     const txt = inter ? `<button class="jl" type="button" data-open="${t.pid}|${t.bid}">${esc(t.text)}</button>` : `<span>${esc(t.text)}</span>`;
     const meta = dayMeta(t, m.date).map((x, i) => (t.due && !t.done && t.due < m.date && /^Overdue/.test(x)) ? `<span class="bad">${esc(x)}</span>` : esc(x)).join(' · ');
     const cm = t.cm ? `<div class="dm">💬 ${esc(t.cm.x.length > 90 ? t.cm.x.slice(0, 90) + '…' : t.cm.x)}</div>` : '';
-    return `<div class="drow${t.done ? ' done' : ''}">${cb}<div class="dt">${txt}${meta ? `<div class="dm">${meta}</div>` : ''}${cm}</div></div>`;
+    return `<div class="drow${t.done ? ' done' : ''}${t.ind ? ' sub' : ''}"${t.ind ? ` style="margin-left:${t.ind * 22}px"` : ''}>${cb}<div class="dt">${txt}${meta ? `<div class="dm">${meta}</div>` : ''}${cm}</div></div>`;
   };
   const cards = m.groups.map(g => `<section class="dg g-${g.key}"><h3>${g.icon} ${esc(g.title)} <small>(${g.items.length})</small></h3>${g.items.map(row).join('')}</section>`);
   if (m.missed.length) cards.push(`<section class="dg g-mr"><h3>🔁 Missed repeats <small>(${m.missed.reduce((n, g) => n + g.count, 0)})</small></h3>${m.missed.map(g => `<div class="drow"><span class="cb">☐</span><div class="dt"><span>${esc(g.text)}</span><div class="dm">missed ${g.count} time${g.count === 1 ? '' : 's'}, oldest ${esc(shortDate(g.oldest))}${g.rep ? ' · ' + esc(g.rep) : ''}${g.who ? ' · ' + esc(g.who) : ''}</div></div></div>`).join('')}</section>`);

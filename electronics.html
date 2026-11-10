@@ -214,12 +214,24 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 .pact{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
 @media(max-width:600px){ .pcols{ grid-template-columns:1fr; } .phero{ flex-direction:column; text-align:center; } .pcard{ padding:18px 16px; } }
 @media(prefers-reduced-motion:reduce){ .pcard,.pinfo{ transition:none; } }
+#tab-ai [hidden]{ display:none!important; }
+.ai-up{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; } @media(max-width:820px){ .ai-up{ grid-template-columns:1fr; } }
+.ai-drop{ border:2px dashed rgba(255,200,87,.45); border-radius:16px; padding:18px; text-align:center; background:rgba(255,200,87,.04); cursor:pointer; min-height:170px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+.ai-drop.over{ background:rgba(255,200,87,.12); } .ai-drop img{ max-width:100%; max-height:340px; border-radius:10px; background:#fff; }
+.ai-side{ display:flex; flex-direction:column; gap:10px; } .ai-side textarea{ width:100%; box-sizing:border-box; min-height:70px; border-radius:12px; border:1px solid var(--sx-line); background:rgba(255,255,255,.05); color:var(--sx-ink); font:inherit; padding:10px; }
+.ai-warn{ font-size:13px; color:var(--sx-soft); border-left:3px solid #ff9f5a; padding:6px 10px; background:rgba(255,159,90,.07); border-radius:6px; }
+.ai-res{ margin-top:18px; } .ai-res h3{ margin:0 0 6px; font-size:22px; } .ai-parts{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-top:12px; }
+.ai-p{ padding:12px 14px; border:1px solid var(--sx-line); border-radius:14px; background:rgba(255,255,255,.045); } .ai-p .tg{ font-family:'JetBrains Mono',ui-monospace,monospace; color:var(--sx-gold); font-weight:700; }
+.ai-p .nm{ font-weight:700; font-size:16px; margin:2px 0 6px; } .ai-p p{ margin:4px 0; font-size:14px; line-height:1.5; color:var(--sx-soft); } .ai-p p b{ color:var(--sx-ink); font-size:11.5px; letter-spacing:.06em; }
+.ai-p .sm{ display:inline-block; font-size:11.5px; padding:2px 8px; border-radius:99px; border:1px solid #6ee7a8; color:#9df5c6; margin-top:4px; } .ai-p .sm.no{ border-color:var(--sx-line); color:var(--sx-soft); }
+.ai-notes{ margin:10px 0 0; padding-left:18px; color:var(--sx-soft); font-size:14px; } .ai-hist{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; } .ai-hist button{ font-size:13px; }
+.ai-busy{ display:inline-block; width:16px; height:16px; border:3px solid #ffc85755; border-top-color:#ffc857; border-radius:50%; animation:aispin .8s linear infinite; vertical-align:-3px; margin-right:6px; } @keyframes aispin{ to{ transform:rotate(360deg); } }
 .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; } .chips span{ padding:5px 12px; border-radius:99px; font-size:13px; border:1px solid rgba(255,200,87,.35); background:rgba(255,200,87,.08); color:var(--sx-gold); }
 </style><link rel="stylesheet" href="fx.css"><meta name="fx" content="lite"><link rel="stylesheet" href="site-fx.css"></head>
 <body><header class="sx-head"><div class="sx-in"><a class="sx-brand" href="index.html" aria-label="Ourworldhive home"><svg class="sx-logo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 2.2 28 9.1v13.8L16 29.8 4 22.9V9.1z" fill="none" stroke="#ffc857" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="6" fill="none" stroke="#eaf1ff" stroke-width="1.6"/><ellipse cx="16" cy="16" rx="2.6" ry="6" fill="none" stroke="#eaf1ff" stroke-width="1.3"/><path d="M10 16h12" stroke="#eaf1ff" stroke-width="1.3"/></svg><span>Ourworldhive</span></a><nav aria-label="Main"><ul class="sx-nav" id="sxnav"><li><a href="index.html">Home</a></li><li><a href="news.html">News</a></li><li><a class="sx-roll" href="compare.html" aria-label="Compare, Best Picks and Reviews"><span class="sx-drum" aria-hidden="true"><i>Compare</i><i>Best Picks</i><i>Reviews</i><i>Compare</i></span></a></li><li><a href="forum.html">Forum</a></li><li><a href="marketplace.html">Hive Apps</a></li><li><a href="training.html"><svg class="hhi" viewBox="0 0 64 64" width="14" height="14" aria-hidden="true" style="vertical-align:-2px;margin-right:5px"><rect x="14" y="8" width="36" height="48" rx="6" fill="none" stroke="currentColor" stroke-width="5"/><rect x="21" y="16" width="22" height="11" rx="2" fill="#ffc857"/><g fill="currentColor"><circle cx="23" cy="37" r="3.5"/><circle cx="32" cy="37" r="3.5"/><circle cx="41" cy="37" r="3.5"/><circle cx="23" cy="47" r="3.5"/><circle cx="32" cy="47" r="3.5"/><circle cx="41" cy="47" r="3.5"/></g></svg>Hands-On Hub</a></li><li><a href="games.html">Games</a></li><li><a href="legends.html">Legends</a></li><li><a href="animeway.html">Anime Way</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="ocean.html">Ocean</a></li><li><a href="electronics.html" aria-current="page">Spark Bench</a></li><li><a href="blog.html">Blog</a></li><li><a href="about.html">About</a></li></ul></nav><button class="sx-burger" id="sxburger" aria-label="Open menu" aria-expanded="false" aria-controls="sxnav"><span></span><span></span><span></span></button></div></header><main id="main">
 <div class="el">
-<div class="el-head"><h1>Spark Bench</h1><p class="lede">Build a circuit, press Run and watch it work. Voltages, currents, an oscilloscope and a trend recorder, all inside your browser. No sign-up, nothing to install.</p><div class="chips"><span>28 real parts</span><span>12 working examples</span><span>Live scope</span><span>Tap any part picture for its details</span></div></div>
-<div class="el-tabs" role="tablist"><button type="button" role="tab" id="tb-build" aria-selected="true">Build and simulate</button><button type="button" role="tab" id="tb-lib" aria-selected="false">Components</button><button type="button" role="tab" id="tb-ex" aria-selected="false">Examples</button></div>
+<div class="el-head"><h1>Spark Bench</h1><p class="lede">Build a circuit, press Run and watch it work. Voltages, currents, an oscilloscope and a trend recorder, all inside your browser. No sign-up, nothing to install.</p><div class="chips"><span>28 real parts</span><span>12 working examples</span><span>Live scope</span><span>Tap any part picture for its details</span><span>NEW: AI reads your drawing</span></div></div>
+<div class="el-tabs" role="tablist"><button type="button" role="tab" id="tb-build" aria-selected="true">Build and simulate</button><button type="button" role="tab" id="tb-lib" aria-selected="false">Components</button><button type="button" role="tab" id="tb-ex" aria-selected="false">Examples</button><button type="button" role="tab" id="tb-ai" aria-selected="false">AI Drawing Reader</button></div>
 <section id="tab-build">
  <div class="el-bar">
   <button class="eb gold" id="brun" type="button">Run</button><button class="eb" id="brst" type="button">Reset</button>
@@ -243,7 +255,25 @@ a.orblink:focus-visible{ outline:2px solid var(--sx-gold); outline-offset:6px; }
 </section>
 <section id="tab-lib" hidden><p class="lede2">Every part you can use, with what it does and its key formula. Press \u201CTry it live\u201D to open a working circuit with the part in it.</p><div id="lib"></div></section>
 <section id="tab-ex" hidden><p class="lede2">Ready-made circuits. Each one opens on the board and starts running at once.</p><div id="exlist" class="exgrid"></div>
- <article class="lc soon"><h4>Build a circuit from a photo or PDF</h4><p>Coming next: upload a clear picture or PDF of a schematic and the lab will draw the circuit for you to check and test.</p></article></section>
+ <article class="lc soon"><h4>Build a circuit from a photo or PDF</h4><p>Upload a picture or PDF of a schematic in the AI Drawing Reader tab: it lists every part with its function and benefit, and rebuilds the circuit on the bench to run and test.</p><div class="lcb"><button class="eb gold" type="button" onclick="document.getElementById('tb-ai').click()">Open AI Drawing Reader</button></div></article></section>
+<section id="tab-ai" hidden>
+ <p class="lede2">Upload a photo or PDF of a circuit, schematic or control-panel drawing. The AI reads it, lists every part with what it does and why it is used, and rebuilds the working part of the circuit on the bench so you can run and test it.</p>
+ <div id="aiwal"></div>
+ <div class="ai-up" style="margin-top:14px">
+  <label class="ai-drop" id="aidrop" for="aifile"><span id="aiph"><b>TAP TO UPLOAD A DRAWING</b><br><span style="font-size:13px;color:var(--sx-soft)">JPG, PNG or PDF · or drop it here</span></span><img id="aiimg" alt="Drawing preview" hidden></label>
+  <input type="file" id="aifile" accept="image/*,application/pdf" hidden>
+  <div class="ai-side">
+   <label class="bs" id="aipgw" hidden><span>PDF page</span><select id="aipg"></select></label>
+   <label style="font-size:14px;font-weight:700">NOTE FOR THE AI (OPTIONAL)<textarea id="aihint" maxlength="300" placeholder="Example: focus on the HT ON interlock circuit, or: this is a 12 V LED flasher"></textarea></label>
+   <button class="eb gold" id="aigo" type="button" disabled>READ DRAWING</button>
+   <div class="ai-warn">Use clear, straight photos. Big panel drawings: the AI lists all parts, and simulates the main working section. Your drawing is sent to the AI only to read it and is not saved by Ourworldhive; do not upload company-confidential drawings. AI can make mistakes, so always check the result against the drawing.</div>
+   <div id="aimsg" class="note" style="margin:0"></div>
+  </div>
+ </div>
+ <div class="ai-res" id="aires" hidden></div>
+ <div style="margin-top:18px"><h3 style="margin:0;font-size:16px;letter-spacing:.05em">MY READINGS (THIS DEVICE)</h3><div class="ai-hist" id="aihist"></div></div>
+</section>
+
 <p class="note foot">The lab is for learning and for quick checks of ideas. It is a simplified simulator, so real parts, fast signals and large circuits can behave differently. Never use it as the only check for anything that affects safety.</p>
 </div>
 </main><footer class="sx-foot"><div class="sx-fin">
@@ -1037,6 +1067,50 @@ var EX=[
   c:[['B1','BAT',100,260,270,{V:9}],['J1','JUNC',100,160,0],['R1','R',240,160,0,{R:470}],['D1','LED',360,200,90,{color:'yellow'}],['M1','NMOS',340,280,0,{Vt:2,K:0.5}],['V2','DCV',100,420,270,{V:5}],['G1','GND',100,340,0],['G2','GND',360,360,0],['G3','GND',100,500,0],['A1','PA',440,240,0]],
   w:[['B1.1','J1.0'],['J1.0','R1.0'],['R1.1','D1.0'],['D1.1','M1.1'],['M1.2','G2.0'],['V2.1','M1.0'],['V2.0','G3.0'],['B1.0','G1.0'],['D1.1','A1.0']]}
 ];
+/* ---------- AI drawing reader (pay per use from the Hive Wallet) ---------- */
+var aiImg=null, aiPdf=null, aiLast=null;
+function aiMsg(t,busy){ $('aimsg').innerHTML=(busy?'<span class="ai-busy"></span>':'')+esc(t||''); }
+function aiScale(src,cb){ var im=new Image(); im.onload=function(){ var m=1568, k=Math.min(1,m/Math.max(im.width,im.height)), c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); cb(c.toDataURL('image/jpeg',0.88)); }; im.onerror=function(){ aiMsg('This picture could not be opened. Try a JPG or PNG.'); }; im.src=src; }
+function aiShow(d){ aiImg=d; $('aiimg').src=d; $('aiimg').hidden=false; $('aiph').hidden=true; $('aigo').disabled=false; aiMsg(''); }
+function aiLoadPdfLib(){ return new Promise(function(ok,no){ if(window.pdfjsLib) return ok(); var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload=function(){ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(); }; s.onerror=function(){ no(new Error('PDF reader could not load')); }; document.head.appendChild(s); }); }
+function aiPdfPage(n){ aiMsg('Opening page '+n+'...',true); aiPdf.getPage(n).then(function(pg){ var v=pg.getViewport({scale:1}), k=Math.min(4,2600/Math.max(v.width,v.height)), vp=pg.getViewport({scale:k}), c=document.createElement('canvas'); c.width=vp.width; c.height=vp.height; var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); return pg.render({canvasContext:g,viewport:vp}).promise.then(function(){ aiScale(c.toDataURL('image/png'),aiShow); }); }).catch(function(){ aiMsg('Could not draw this PDF page.'); }); }
+function aiFile(f){ if(!f) return; $('aires').hidden=true;
+  if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){ aiMsg('Reading PDF...',true); aiLoadPdfLib().then(function(){ return f.arrayBuffer(); }).then(function(b){ return pdfjsLib.getDocument({data:b}).promise; }).then(function(pdf){ aiPdf=pdf; var o=''; for(var i=1;i<=pdf.numPages;i++) o+='<option value="'+i+'">Page '+i+'</option>'; $('aipg').innerHTML=o; $('aipgw').hidden=pdf.numPages<2; aiPdfPage(1); }).catch(function(e){ aiImg=null; $('aiimg').hidden=true; $('aiph').hidden=false; $('aigo').disabled=true; aiMsg(e.message||'Could not open this PDF.'); }); return; }
+  if(!/^image\//.test(f.type)){ aiMsg('Please choose a JPG, PNG or PDF file.'); return; }
+  aiPdf=null; $('aipgw').hidden=true; var r=new FileReader(); r.onload=function(){ aiScale(r.result,aiShow); }; r.readAsDataURL(f); }
+function aiNum(v,d){ v=+v; return isFinite(v)?v:d; }
+function aiSpec(sp){ var out={c:[],w:[]}, ok={}, lab={}; if(!sp||!Array.isArray(sp.c)) return out;
+  sp.c.forEach(function(a){ if(!Array.isArray(a)) return; var t=String(a[1]||''), d=DEFS[t]; if(!d) return; var l=String(a[0]||'').replace(/[^A-Za-z0-9_+-]/g,'').slice(0,12)||t; while(lab[l]) l+='_'; lab[l]=1;
+    var p={}, src=a[5]&&typeof a[5]==='object'?a[5]:{}; Object.keys(d.p).forEach(function(k){ var v=src[k]; p[k]=typeof d.p[k]==='number'?aiNum(v,d.p[k]):typeof d.p[k]==='boolean'?(v===undefined?d.p[k]:!!v):(v===undefined?d.p[k]:String(v).slice(0,20)); });
+    var rr=aiNum(a[4],0); rr=[0,90,180,270].indexOf(rr)>=0?rr:0; out.c.push([l,t,snap(Math.max(-200,Math.min(2400,aiNum(a[2],0)))),snap(Math.max(-200,Math.min(1800,aiNum(a[3],0)))),rr,p]); ok[l]=d.pins.length; ok['#'+String(a[0])]=l; });
+  (sp.w||[]).forEach(function(w){ if(!Array.isArray(w)||w.length<2) return; var A=String(w[0]).split('.'), B=String(w[1]).split('.'); var la=ok['#'+A[0]]||A[0], lb=ok['#'+B[0]]||B[0], pa=+A[1], pb=+B[1];
+    if(ok[la]&&ok[lb]&&pa>=0&&pa<ok[la]&&pb>=0&&pb<ok[lb]&&!(la===lb&&pa===pb)) out.w.push([la+'.'+pa,lb+'.'+pb]); });
+  return out; }
+function aiRender(r,fromHist){ aiLast=r; var sp=aiSpec(r.spec), h='<h3>'+esc(r.title||'Your drawing')+'</h3><p class="lede2" style="margin:0 0 10px">'+esc(r.summary||'')+'</p>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap">'+(sp.c.length?'<button class="eb gold" id="aiload" type="button">LOAD ON BENCH AND RUN ('+sp.c.length+' PARTS)</button>':'<span class="note" style="margin:0">Nothing from this drawing could be simulated. The parts and their functions are listed below.</span>')+'<button class="eb" id="aicopy" type="button">COPY PARTS LIST</button></div>';
+  h+='<div class="ai-parts">'+(r.parts||[]).map(function(p){ var s=p.sim&&DEFS[p.sim]; return '<article class="ai-p">'+(p.tag?'<div class="tg">'+esc(p.tag)+'</div>':'')+'<div class="nm">'+esc(p.name||'')+'</div><p><b>FUNCTION</b><br>'+esc(p.function||'')+'</p><p><b>BENEFIT</b><br>'+esc(p.benefit||'')+'</p><span class="sm'+(s?'':' no')+'">'+(s?'SIMULATED AS '+esc(DEFS[p.sim].name.toUpperCase()):'INFO ONLY')+'</span></article>'; }).join('')+'</div>';
+  if(r.notes&&r.notes.length) h+='<h4 style="margin:16px 0 0">NOTES FROM THE AI</h4><ul class="ai-notes">'+r.notes.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join('')+'</ul>';
+  $('aires').innerHTML=h; $('aires').hidden=false;
+  if($('aiload')) $('aiload').onclick=function(){ showTab('build'); loadSpec({id:'',c:sp.c,w:sp.w,td:1e-3}); setRun(true); $('exnote').textContent=(r.title||'Drawing')+': rebuilt by AI from your drawing. Check it against the drawing; tap any part to change values.'; $('exnote').hidden=false; };
+  $('aicopy').onclick=function(){ var t=(r.title||'')+'\n'+(r.parts||[]).map(function(p){ return (p.tag?p.tag+' - ':'')+(p.name||'')+': '+(p.function||'')+' Benefit: '+(p.benefit||''); }).join('\n'); try{ navigator.clipboard.writeText(t).then(function(){ aiMsg('Parts list copied.'); }); }catch(e){} };
+  if(!fromHist){ try{ var H=JSON.parse(localStorage.getItem('owh_ai_reads')||'[]'); H.unshift({t:Date.now(),r:r}); localStorage.setItem('owh_ai_reads',JSON.stringify(H.slice(0,12))); }catch(e){} aiHist(); }
+  setTimeout(function(){ $('aires').scrollIntoView({behavior:'smooth',block:'start'}); },60); }
+function aiHist(){ var H=[]; try{ H=JSON.parse(localStorage.getItem('owh_ai_reads')||'[]'); }catch(e){}
+  $('aihist').innerHTML=H.length?H.map(function(x,i){ return '<button class="eb" type="button" data-h="'+i+'">'+esc((x.r.title||'Drawing').slice(0,40))+' · '+new Date(x.t).toLocaleDateString('en-IN')+'</button>'; }).join(''):'<span class="note" style="margin:0">Readings you make are kept here, so you can open them again for free.</span>';
+  $('aihist').onclick=function(e){ var b=e.target.closest('[data-h]'); if(b) aiRender(H[+b.getAttribute('data-h')].r,true); }; }
+function aiGo(){ if(!aiImg||!window.OWH_WALLET) return; var b=$('aigo'); b.disabled=true; aiMsg('The AI is reading your drawing. This can take up to a minute...',true);
+  OWH_WALLET.use('/ai/drawing',{image:aiImg,hint:$('aihint').value.trim()}).then(function(j){ aiMsg(j.owner?'Done (owner, free).':'Done. '+(j.charged?'₹'+j.charged+' used from your wallet.':'')); aiRender(j.result); })
+  .catch(function(e){ aiMsg(String(e&&e.message||'Could not read the drawing').replace(/\.+$/,'')+'. Nothing was charged.'); }).then(function(){ b.disabled=false; }); }
+function aiInit(){ if(aiInit.done) return; aiInit.done=true;
+  function go(){ if(window.OWH_WALLET){ OWH_WALLET.mount($('aiwal'),{tool:'sbai',useName:'drawing read'}); var st=OWH_WALLET.state; var upd=function(){ $('aigo').textContent='READ DRAWING'+(st.price&&!st.owner?' (₹'+st.price+')':''); }; setInterval(upd,1500); upd(); } else setTimeout(go,300); } go();
+  $('aifile').onchange=function(){ aiFile(this.files[0]); this.value=''; }; $('aipg').onchange=function(){ aiPdfPage(+this.value); }; $('aigo').onclick=aiGo;
+  var dz=$('aidrop'); ['dragenter','dragover'].forEach(function(n){ dz.addEventListener(n,function(e){ e.preventDefault(); dz.classList.add('over'); }); }); ['dragleave','drop'].forEach(function(n){ dz.addEventListener(n,function(e){ e.preventDefault(); dz.classList.remove('over'); }); });
+  dz.addEventListener('drop',function(e){ var f=e.dataTransfer&&e.dataTransfer.files[0]; if(f) aiFile(f); }); aiHist(); }
+/* swipe between the tabs (not on the circuit board, which uses touch for building) */
+(function(){ var T=['build','lib','ex','ai'], sx=null, sy=null, st=0; var el=document.querySelector('.el'); if(!el) return;
+  el.addEventListener('touchstart',function(e){ if(e.touches.length!==1||e.target.closest('#ws,.el-wsw,.el-inst,canvas,input,textarea,select,.ai-drop img')){ sx=null; return; } sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now(); },{passive:true});
+  el.addEventListener('touchend',function(e){ if(sx===null) return; var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; sx=null; if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-st>700) return;
+    var cur=T.filter(function(t){ return !$('tab-'+t).hidden; })[0]||'build', i=T.indexOf(cur)+(dx<0?1:-1); if(i>=0&&i<T.length){ showTab(T[i]); window.scrollTo({top:$('tb-build').getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'}); } },{passive:true}); })();
 function exById(id){ for(var i=0;i<EX.length;i++) if(EX[i].id===id) return EX[i]; return null; }
 function loadSpec(sp){
   pushUndo(); comps=[]; wires=[]; sel=null; selW=null; wirePend=null; uidN=1;
@@ -1055,7 +1129,7 @@ function buildExamples(){
 var TD=[[1e-5,'10 \u00B5s'],[2e-5,'20 \u00B5s'],[5e-5,'50 \u00B5s'],[1e-4,'100 \u00B5s'],[2e-4,'200 \u00B5s'],[5e-4,'0.5 ms'],[1e-3,'1 ms'],[2e-3,'2 ms'],[5e-3,'5 ms'],[1e-2,'10 ms'],[2e-2,'20 ms'],[5e-2,'50 ms'],[0.1,'0.1 s'],[0.2,'0.2 s'],[0.5,'0.5 s'],[1,'1 s']];
 function setTdiv(v){ var best=TD[0][0]; TD.forEach(function(t){ if(Math.abs(Math.log(t[0]/v))<Math.abs(Math.log(best/v))) best=t[0]; }); tdiv=best; $('tdiv').value=String(best); if(eng){ eng.h=10*tdiv/500; } sn=0; }
 function setVd(a,b){ vdA=a; vdB=b; $('vda').value=String(a); $('vdb').value=String(b); posA=0; posB=0; trigDiv=0; $('posa').value='0'; $('posb').value='0'; $('trig').value='0'; }
-function showTab(n){ ['build','lib','ex'].forEach(function(t){ $('tab-'+t).hidden=t!==n; $('tb-'+t).setAttribute('aria-selected',t===n?'true':'false'); }); if(n==='build'){ setTimeout(function(){ draw(); },30); } }
+function showTab(n){ if(n==='ai') aiInit(); ['build','lib','ex','ai'].forEach(function(t){ $('tab-'+t).hidden=t!==n; $('tb-'+t).setAttribute('aria-selected',t===n?'true':'false'); }); if(n==='build'){ setTimeout(function(){ draw(); },30); } }
 function saveFile(){ var b=new Blob([snapshot()],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='my-circuit.json'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500); }
 function loadFile(f){ var r=new FileReader(); r.onload=function(){ try{ var o=JSON.parse(r.result); if(!o.c||!o.w) throw 0; pushUndo(); restore(r.result); fitView(); }catch(e){ alert('This file is not a circuit saved from the Spark Bench.'); } }; r.readAsText(f); }
 function init(){
@@ -1072,7 +1146,8 @@ function init(){
   $('exsel').onchange=function(){ if(this.value) openExample(this.value); };
   ['tr1','tr2','tr3'].forEach(function(id,k){ $(id).onchange=function(){ trSig[k]=this.value; trUser[k]=true; tr.t=[]; tr.d=[[],[],[]]; }; });
   $('trclr').onclick=function(){ tr={t:[],d:[[],[],[]]}; }; $('trcsv').onclick=exportCsv;
-  ['build','lib','ex'].forEach(function(t){ $('tb-'+t).onclick=function(){ showTab(t); }; });
+  ['build','lib','ex','ai'].forEach(function(t){ $('tb-'+t).onclick=function(){ showTab(t); }; });
+  if(/[#&]ai\b/.test(location.hash||'')) showTab('ai');
   var saved=null; try{ saved=localStorage.getItem('owh_elec_v1'); }catch(e){}
   var h=/[#&]ex=([a-z0-9_]+)/.exec(location.hash||'');
   if(h&&exById('ex_'+h[1])){ openExample('ex_'+h[1]); }
@@ -1085,4 +1160,4 @@ function init(){
 }
 init();
 })();
-</script><script src="fx.js" defer></script><script src="site-fx.js" defer></script></body></html>
+</script><script src="owh-pricing.js"></script><script src="owh-wallet.js"></script><script src="fx.js" defer></script><script src="site-fx.js" defer></script></body></html>

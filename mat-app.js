@@ -93,7 +93,7 @@ function drawList(){drawFilters();const L=visible();$('cnt').textContent=L.lengt
  if(!L.length){$('lv').innerHTML='<div class="mut" style="padding:20px;text-align:center">Nothing matches the filters.</div>';return}
  if(VIEW==='table'){const head=COLS.map(c=>`<th data-sort="${c[0]}" class="${c[2]==='n'?'num ':''}${c[3]||''}">${c[1]}${SORT&&SORT.k===c[0]?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('');
   $('lv').innerHTML=`<div class="tw"><table><thead><tr>${head}</tr></thead><tbody>${L.map(r=>`<tr class="rw${r.chk?' chk':''}" data-id="${r.id}">${COLS.map(c=>`<td class="${c[2]==='n'?'num ':''}${c[3]||''}${c[0]==='txt'?' tx':''}">${cell(r,c[0])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
- else $('lv').innerHTML='<div class="cg">'+L.map(r=>`<div class="cd${r.chk?' chk':''}" data-id="${r.id}"><div class="row"><b class="grow">${esc(r.mat||(r.pr&&r.pr[1]==='2'?'Service':'No material no.'))}</b>${bdg(r)}</div><h4>${esc(r.txt||'')}</h4><div class="kv"><div><b>PR No.</b>${esc(r.pr||'')}</div><div><b>Qty</b>${fmt(r.qty)} ${esc(r.un||'')}</div><div><b>Total value</b>${fmt(r.val)}</div><div><b>PO</b>${esc(r.po||'-')}</div><div><b>PO date</b>${esc(r.poDt||'-')}</div><div><b>Received</b>${fmt(r.recv)||'-'}</div><div><b>Z amount</b>${fmt(r.zamt)||'-'}</div><div><b>Responsibility</b>${esc(r.resp||'-')}</div><div><b>Due</b>${cell(r,'due')||'-'}</div></div>${r.rem?`<div class="mut" style="margin-top:5px">${esc(r.rem)}</div>`:''}<div class="row" style="margin-top:7px"><button class="btn sm g" data-recv="${r.id}">✔ Received</button><button class="btn sm" data-edit="${r.id}">Edit</button></div></div>`).join('')+'</div>'}
+ else $('lv').innerHTML='<div class="cg">'+L.map(r=>`<div class="cd st-${stOf(r)}${r.chk?' chk':''}" data-id="${r.id}"><div class="row"><b class="grow">${esc(r.mat||(r.pr&&r.pr[1]==='2'?'Service':'No material no.'))}</b>${bdg(r)}</div><h4>${esc(r.txt||'')}</h4><div class="kv"><div><b>PR No.</b>${esc(r.pr||'')}</div><div><b>Qty</b>${fmt(r.qty)} ${esc(r.un||'')}</div><div><b>Total value</b>${fmt(r.val)}</div><div><b>PO</b>${esc(r.po||'-')}</div><div><b>PO date</b>${esc(r.poDt||'-')}</div><div><b>Received</b>${fmt(r.recv)||'-'}</div><div><b>Z amount</b>${fmt(r.zamt)||'-'}</div><div><b>Responsibility</b>${esc(r.resp||'-')}</div><div><b>Due</b>${cell(r,'due')||'-'}</div></div>${num(r.qty)&&num(r.recv)?`<div class="pbar"><i style="width:${Math.min(100,Math.round(num(r.recv)/num(r.qty)*100))}%"></i></div>`:''}${r.rem?`<div class="mut" style="margin-top:5px">${esc(r.rem)}</div>`:''}<div class="row" style="margin-top:7px"><button class="btn sm g" data-recv="${r.id}">✔ Received</button><button class="btn sm" data-edit="${r.id}">Edit</button><button class="btn sm" data-share="${r.id}">💬 Share</button></div></div>`).join('')+'</div>'}
 
 /* ---------- edit sheet ---------- */
 function sheet(h){$('sb').innerHTML='<button class="cl" aria-label="Close">&times;</button>'+h;$('sh').hidden=false;$('sb').querySelector('.cl').onclick=()=>{$('sh').hidden=true}}
@@ -102,7 +102,7 @@ function editRow(id){const r=id?ROWS.find(x=>x.id===id):{},isN=!id;if(!r)return;
  const rs=[...new Set(live().map(x=>x.resp).filter(Boolean))];
  sheet(`<h2>${isN?'Add item':'Edit item'}</h2><div class="fg">${f('mat','Material')}${f('pr','PR No.')}${f('txt','Short Text','',1)}${f('qty','Qty','number')}${f('un','Unit')}${f('val','Total Value','number')}${f('po','PO')}${f('poDt','PO Date')}${f('reqDt','Req. Date')}
  <div class="w2" style="border-top:1px solid var(--line);padding-top:6px"><b class="mut">YOUR DETAILS</b></div>${f('recv','Received Qty','number')}${f('zamt','Z Amount','number')}${f('resp','Responsibility')}<div><label>Status</label><select data-f="st"><option value="">Auto (${esc(isN?'Pending':eff(r))})</option>${STS.map(s=>`<option${r.st===s?' selected':''}>${s}</option>`).join('')}</select></div>${f('due','Due Date','date')}${f('rem','Remarks','',1)}${f('plant','Plant')}${f('pgr','PGr')}${f('trk','Tracking No.')}${r.rel?`<div class="w2"><label>Release</label><div class="mut">${esc(r.rel)}</div></div>`:''}</div><datalist id="rl">${rs.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
- <div class="row" style="margin-top:10px"><button class="btn p" id="es">Save</button>${isN?'':'<button class="btn g" id="er">✔ Mark received</button><button class="btn red" id="ed">Delete</button>'}</div>`);
+ <div class="row" style="margin-top:10px"><button class="btn p" id="es">Save</button>${isN?'':'<button class="btn g" id="er">✔ Mark received</button><button class="btn" id="esh" data-id="${r.id}">💬 Share</button><button class="btn red" id="ed">Delete</button>'}</div>`);
  const read=()=>{const o={};document.querySelectorAll('#sb [data-f]').forEach(e=>{const k=e.dataset.f;let v=e.value.trim();if(['qty','recv','zamt','val'].includes(k))v=v===''?'':num(v);o[k]=v});return o};
  $('es').onclick=()=>{const o=read();if(isN){if(!o.txt&&!o.mat){toast('Enter a material or text');return}const k=keyOf(o),nid=o.pr?'r'+hash(k):'r'+uid();const n=Object.assign({id:nid,upd:Date.now(),ts:Date.now()},o);Object.keys(n).forEach(k=>{if(n[k]==='')delete n[k]});const ex=ROWS.find(x=>x.id===nid);if(ex)Object.assign(ex,n,{del:false});else ROWS.push(n)}
   else{Object.assign(r,o,{upd:Date.now(),chk:false});Object.keys(o).forEach(k=>{if(o[k]==='')delete r[k]})}
@@ -149,6 +149,51 @@ function addReviewed(){const take=[];document.querySelectorAll('[data-ri]').forE
  if(!take.length){toast('Nothing selected');return}const k=upsert(take);SCN={rows:[],text:'',img:null};$('thumbs').innerHTML='';sst(k.added+' added, '+k.updated+' updated.');drawReview();redraw();toast(k.added+' added, '+k.updated+' updated');goTab('list')}
 function pasteSheet(){sheet('<h2>Paste text</h2><div class="mut" style="margin-bottom:6px">Copy rows from the SAP list (select, Ctrl+C) and paste them here.</div><textarea id="pt" rows="9" placeholder="Paste here..." style="font:12px ui-monospace,monospace"></textarea><div class="row" style="margin-top:8px"><button class="btn p" id="pgo">Read</button></div>');$('pgo').onclick=()=>{const t=$('pt').value;SCN.text=t;SCN.rows=readText(t);$('sh').hidden=true;sst(SCN.rows.length?SCN.rows.length+' item(s) found.':'Nothing found in that text.');drawReview()}}
 
+
+/* ---------- share as WhatsApp text or image ---------- */
+const SC={Pending:'#a16207',Ordered:'#2563eb',Received:'#15803d',Closed:'#64748b',Overdue:'#dc2626'};
+function itemText(r,i){const q=[r.mat&&'Material '+r.mat,r.pr&&'PR '+r.pr].filter(Boolean).join('  |  '),qt=(r.qty!=null&&r.qty!==''?fmt(r.qty)+' '+(r.un||''):'').trim();
+ const L=[(i?i+'. ':'')+'📦 *'+(r.txt||r.mat||'Item')+'*',q,[qt&&'Qty '+qt,r.val!==''&&r.val!=null&&'Value '+fmt(r.val)].filter(Boolean).join('  |  '),r.po?'PO '+r.po+(r.poDt?' ('+r.poDt+')':''):'PO: not issued',
+  [num(r.recv)?'Received '+fmt(r.recv)+(r.qty?' of '+fmt(r.qty):''):'',num(r.zamt)?'Z amount '+fmt(r.zamt):'',r.resp&&'Responsibility '+r.resp,r.due&&'Due '+r.due.split('-').reverse().join('.')].filter(Boolean).join('  |  '),r.rem&&'Note: '+r.rem,(isOver(r)?'🔴 *Overdue*':{Pending:'⏳ *Pending*',Ordered:'🔵 *Ordered*',Received:'✅ *Received*',Closed:'⚪ *Closed*'}[eff(r)])];
+ return L.filter(Boolean).join('\n')}
+function shareTextOf(rows,title){return '*MATERIAL TRACKER*'+(title?' - '+title:'')+'\n'+new Date().toLocaleDateString('en-GB').replace(/\//g,'.')+'  |  '+rows.length+' item'+(rows.length===1?'':'s')+'\n\n'+rows.map((r,i)=>itemText(r,rows.length>1?i+1:0)).join('\n\n')}
+function wrapT(x,t,w,n){const out=[];let cur='';String(t||'').split(/\s+/).forEach(wd=>{const tt=cur?cur+' '+wd:wd;if(x.measureText(tt).width>w&&cur){out.push(cur);cur=wd}else cur=tt});if(cur)out.push(cur);if(out.length>n){out.length=n;out[n-1]=out[n-1].replace(/.{0,2}$/,'...')}return out}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function pill(x,t,rx,cy,col){x.font='700 24px system-ui,sans-serif';const w=x.measureText(t.toUpperCase()).width+34;rr(x,rx-w,cy-18,w,36,18);x.fillStyle=col;x.fill();x.fillStyle='#fff';x.textBaseline='middle';x.textAlign='center';x.fillText(t.toUpperCase(),rx-w/2,cy+1);x.textAlign='left';return w}
+function stOf(r){return isOver(r)?'Overdue':eff(r)}
+function cvs(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+function header(x,W,t1,t2){const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#7c3a06');g.addColorStop(1,'#d97706');x.fillStyle=g;x.fillRect(0,0,W,150);x.fillStyle='#fff';x.textBaseline='alphabetic';x.font='800 40px system-ui,sans-serif';x.fillText('📦 MATERIAL TRACKER',44,70);x.font='500 26px system-ui,sans-serif';x.globalAlpha=.9;x.fillText(t2,44,115);x.globalAlpha=1}
+function foot(x,W,y){x.fillStyle='#9a8570';x.font='500 22px system-ui,sans-serif';x.textAlign='center';x.fillText('Material Tracker  |  ourworldhive.com',W/2,y);x.textAlign='left'}
+function itemCanvas(r){const W=1080,c=cvs(W,980),x=c.getContext('2d');x.fillStyle='#fbf3e8';x.fillRect(0,0,W,980);header(x,W,'','Item details  |  '+new Date().toLocaleDateString('en-GB').replace(/\//g,'.'));
+ rr(x,34,176,W-68,720,28);x.fillStyle='#fff';x.fill();x.fillStyle=SC[stOf(r)];rr(x,34,176,16,720,8);x.fill();
+ x.fillStyle='#2b1a0a';x.textBaseline='alphabetic';x.font='800 44px system-ui,sans-serif';const tl=wrapT(x,r.txt||r.mat||'Item',W-300,2);tl.forEach((t,i)=>x.fillText(t,84,246+i*54));
+ pill(x,stOf(r),W-64,222,SC[stOf(r)]);
+ const F=[['Material',r.mat||(r.pr&&r.pr[1]==='2'?'Service':'-')],['PR No.',r.pr||'-'],['Qty',((r.qty!=null&&r.qty!==''?fmt(r.qty):'-')+' '+(r.un||'')).trim()],['Total value',r.val!==''&&r.val!=null?fmt(r.val):'-'],['PO',r.po||'Not issued'],['PO date',r.poDt||'-'],['Received',num(r.recv)?fmt(r.recv):'-'],['Z amount',num(r.zamt)?fmt(r.zamt):'-'],['Responsibility',r.resp||'-'],['Due date',r.due?r.due.split('-').reverse().join('.'):'-']];
+ const top=360;F.forEach((f,i)=>{const cx=84+(i%2)*470,cy=top+Math.floor(i/2)*94;x.fillStyle='#9a8570';x.font='700 20px system-ui,sans-serif';x.fillText(f[0].toUpperCase(),cx,cy);x.fillStyle='#2b1a0a';x.font='700 32px system-ui,sans-serif';x.fillText(wrapT(x,f[1],420,1)[0]||'-',cx,cy+40)});
+ if(r.rem){x.fillStyle='#7a6552';x.font='500 26px system-ui,sans-serif';wrapT(x,'Note: '+r.rem,W-170,2).forEach((t,i)=>x.fillText(t,84,top+5*94+10+i*34))}
+ foot(x,W,946);return c}
+function listCanvases(rows,title){const W=1080,PER=8,out=[],pages=Math.max(1,Math.ceil(rows.length/PER));
+ for(let p=0;p<pages;p++){const part=rows.slice(p*PER,p*PER+PER),H=150+30+part.length*170+60,c=cvs(W,H),x=c.getContext('2d');x.fillStyle='#fbf3e8';x.fillRect(0,0,W,H);
+  header(x,W,'',(title||'Material list')+'  |  '+rows.length+' items  |  '+new Date().toLocaleDateString('en-GB').replace(/\//g,'.')+(pages>1?'  |  '+(p+1)+'/'+pages:''));
+  part.forEach((r,i)=>{const y=180+i*170;rr(x,28,y,W-56,152,22);x.fillStyle='#fff';x.fill();x.fillStyle=SC[stOf(r)];rr(x,28,y,14,152,7);x.fill();x.textBaseline='alphabetic';
+   x.fillStyle='#2b1a0a';x.font='800 30px system-ui,sans-serif';const tl=wrapT(x,r.txt||r.mat||'Item',W-330,1);x.fillText(tl[0],66,y+46);pill(x,stOf(r),W-52,y+36,SC[stOf(r)]);
+   x.fillStyle='#7a6552';x.font='600 23px system-ui,sans-serif';x.fillText([r.mat&&'Mat '+r.mat,r.pr&&'PR '+r.pr,r.qty!=null&&r.qty!==''&&('Qty '+fmt(r.qty)+' '+(r.un||'')).trim(),r.val!==''&&r.val!=null&&'Value '+fmt(r.val)].filter(Boolean).join('   '),66,y+86);
+   x.fillStyle='#b45309';x.font='700 23px system-ui,sans-serif';x.fillText(wrapT(x,[r.po?'PO '+r.po:'No PO',num(r.recv)&&'Recv '+fmt(r.recv),num(r.zamt)&&'Z '+fmt(r.zamt),r.resp,r.due&&'Due '+r.due.split('-').reverse().join('.')].filter(Boolean).join('   '),W-110,1)[0],66,y+126)});
+  foot(x,W,H-22);out.push(c)}
+ return out}
+const toBlob=c=>new Promise(ok=>c.toBlob(ok,'image/png'));
+let SHR={rows:[],title:''};
+function shareMenu(rows,title){SHR={rows,title};sheet(`<h2>Share ${rows.length===1?'item':rows.length+' items'}</h2><div class="mut" style="margin-bottom:8px">${rows.length>40?'Only the first 40 items go in an image.':'Send it on WhatsApp as text or as a picture.'}</div><div class="row"><button class="btn g" id="shw">💬 WhatsApp text</button><button class="btn p" id="shi">🖼 Image</button><button class="btn" id="shc">📋 Copy text</button></div>`)}
+async function doShare(kind){const rows=SHR.rows,title=SHR.title;
+ if(kind==='img'){try{const cs=rows.length===1?[itemCanvas(rows[0])]:listCanvases(rows.slice(0,40),title),files=[];for(let i=0;i<cs.length;i++)files.push(new File([await toBlob(cs[i])],'material-'+(i+1)+'.png',{type:'image/png'}));
+   if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,title:'Material Tracker'})}catch(e){}}
+   else{for(const f of files){const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}toast('Image saved. Attach it in WhatsApp')}
+   $('sh').hidden=true}catch(e){toast('Could not make the image')}return}
+ const t=shareTextOf(rows,title);
+ if(kind==='copy'){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){toast('Could not copy')}$('sh').hidden=true;return}
+ if(navigator.share&&matchMedia('(pointer:coarse)').matches){try{await navigator.share({text:t})}catch(e){}}
+ else{if(t.length>1800)try{await navigator.clipboard.writeText(t);toast('Long list copied. Paste it in WhatsApp')}catch(e){}window.open('https://wa.me/?text='+encodeURIComponent(t.slice(0,1800)),'_blank')}
+ $('sh').hidden=true}
 /* ---------- export, import ---------- */
 function dl(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function exportCsv(){const hdr=COLS.map(c=>c[1]),keys=COLS.map(c=>c[0]);const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
@@ -191,6 +236,10 @@ document.addEventListener('click',e=>{const t=e.target;let x;
  if((x=t.closest('[data-edit]')))return editRow(x.dataset.edit);
  if((x=t.closest('tr.rw,.cd'))&&!t.closest('button'))return editRow(x.dataset.id);
  if((x=t.closest('[data-th]')))return setTheme(x.dataset.th);
+ if((x=t.closest('[data-share]'))){const r=ROWS.find(y=>y.id===x.dataset.share);if(r)shareMenu([r],'');return}
+ if(t.id==='shl')return shareMenu(visible(),FL.st==='All'?'':FL.st);
+ if(t.id==='shw')return doShare('wa');if(t.id==='shi')return doShare('img');if(t.id==='shc')return doShare('copy');
+ if(t.id==='esh'){const r=ROWS.find(y=>y.id===t.dataset.id);if(r)shareMenu([r],'');return}
  if(t.id==='add'||t.id==='add2')return editRow(null);
  if(t.id==='vt'){VIEW=VIEW==='table'?'cards':'table';LS.set('owh_mt_view',VIEW);return drawList()}
  if(t.id==='cam')return $('fc').click();if(t.id==='gal')return $('fg').click();if(t.id==='pst')return pasteSheet();
@@ -208,6 +257,6 @@ $('ai').value=LS.get('owh_mt_ai','');$('ai').onchange=e=>LS.set('owh_mt_ai',e.ta
  document.addEventListener('touchend',e=>{if(!ok||!$('sh').hidden)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;const i=TABS.indexOf(CT)+(dx<0?1:-1);if(i>=0&&i<TABS.length)goTab(TABS[i])},{passive:true})})();
 $('ver').textContent='Version: '+VER;
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('mat-sw.js',{scope:'./mat-tracker.html'}).catch(()=>{});
-window.MT={parseList,parseDetail,readText,upsert,get rows(){return ROWS}};
+window.MT={itemCanvas,listCanvases,shareTextOf,live,parseList,parseDetail,readText,upsert,get rows(){return ROWS}};
 drawList();setThemeBtns();Cloud.init().catch(()=>{});
 })();

@@ -508,14 +508,14 @@ body.inkon .cvt{pointer-events:none}
   .btn{padding:0 12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
-.lbl{flex:none;align-self:flex-start;margin-top:5px;height:24px;max-width:112px;padding:0 11px;border:0;border-radius:12px;font:800 11.5px/24px var(--sans);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 3px rgba(20,30,60,.22)}
-.lbl:empty{display:none}
-.task.sel .lbl:empty{display:block;background:var(--accent-soft);color:var(--accent);box-shadow:none;font-weight:700}
-.task.sel .lbl:empty::before{content:'🏷️ Label';opacity:.85}
-body.inkon .lbl{pointer-events:none}
+.tgl{flex:none;align-self:flex-start;margin-top:5px;height:24px;max-width:112px;padding:0 11px;border:0;border-radius:12px;font:800 11.5px/24px var(--sans);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 3px rgba(20,30,60,.22)}
+.tgl:empty{display:none}
+.task.sel .tgl:empty{display:block;background:var(--accent-soft);color:var(--accent);box-shadow:none;font-weight:700}
+.task.sel .tgl:empty::before{content:'🏷️ Label';opacity:.85}
+body.inkon .tgl{pointer-events:none}
 .lbrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
 .lbchip{display:inline-flex;align-items:center;gap:2px}
-.lbchip .lbl{margin:0;height:32px;line-height:32px;border-radius:16px;max-width:none;font-size:13px}
+.lbchip .tgl{margin:0;height:32px;line-height:32px;border-radius:16px;max-width:none;font-size:13px}
 .lbx{width:26px;height:26px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:12px;padding:0}
 .lbsw{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
 .sw2{position:relative;width:34px;height:34px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 1px 3px rgba(20,30,60,.3);display:grid;place-items:center}
@@ -523,9 +523,9 @@ body.inkon .lbl{pointer-events:none}
 .sw2.custom{background:conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);overflow:hidden;cursor:pointer}
 .sw2.custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .sw2.custom span{font-size:15px;pointer-events:none}
-@media (max-width:640px){.lbl{max-width:84px}}
+@media (max-width:640px){.tgl{max-width:84px}}
 /* ---------- modern diary polish ---------- */
-:root{--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
+:root{--rl:-54px;--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
   --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
 :root[data-theme="dark"]{--desk:#0d0f17;--paper:#1a1d29;--line:#2a3045;--ink:#eceaf4;--muted:#8d96b3;--accent:#9aa3ff;--accent-soft:#272c49;--margin:#7f4358;--btn:rgba(40,45,64,.92);--bar:rgba(16,18,27,.86);
   --shadow:0 2px 4px rgba(0,0,0,.5),0 22px 56px rgba(0,0,0,.55)}
@@ -553,7 +553,15 @@ body{background:var(--desk)}
 .pbar::before{height:6px;top:4px;border-radius:4px}.pbar i{height:6px;top:4px;border-radius:4px;background:linear-gradient(90deg,#8fa2ff,#4b4fd8 55%,#1fa354)}
 .pfw i{background:linear-gradient(90deg,rgba(75,79,216,.06),rgba(75,79,216,.2));border-right-color:rgba(75,79,216,.5)}
 .pfw{border-radius:10px}
-@media (max-width:640px){.sh-date{font-size:31px}}
+#toolbar>#bMore{position:sticky;right:6px;z-index:3;margin-left:6px;margin-right:0;background:var(--paper);box-shadow:0 1px 3px rgba(30,35,80,.2),inset 0 0 0 1px rgba(30,35,80,.08)}
+#toolbar>#bMore::before{content:"";position:absolute;right:100%;top:-8px;bottom:-8px;width:16px;pointer-events:none;background:linear-gradient(90deg,transparent,var(--bars))}
+#toolbar>#bMore::after{content:"";position:absolute;left:100%;top:-8px;bottom:-8px;width:20px;pointer-events:none;background:var(--bars)}
+:root{--bars:#f1f2fa}:root[data-theme="dark"]{--bars:#12141d}
+@media (max-width:640px){:root{--rl:-47px}
+  .pct{width:28px;height:28px;top:3px}.pct::before{inset:3px}.pct::after{font-size:9px}.pct.full::after{font-size:13px}
+  .sh-title{font-size:10.5px}.sh-date{font-size:22px;line-height:1.2}.sh-dl{font-size:14px;margin-top:10px}
+  .blk textarea{font-size:16.5px}.sx{font-size:12.5px!important}
+  .tgl{height:22px;line-height:22px;font-size:10.5px;padding:0 9px}}
 @media print{
   #top,#nav,#chips,#bSpace,#toast,#modal,.acts,#ring,#pad,#sumhead{display:none!important}
   :root[data-theme]{--paper:#fff;--ink:#111;--muted:#555;--line:#ddd;--desk:#fff;--accent:#1f3d91;--btn:#f3f3f3;--shadow:none}
@@ -1323,7 +1331,7 @@ function makeBlockEl(b) {
     el.innerHTML =
       '<div class="pfw" aria-hidden="true"><i></i></div><span class="pct" aria-hidden="true"></span><div class="pbar" role="slider" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
       '<div class="trow">' +
-      '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><button class="lbl" type="button" data-act="label" aria-label="Label"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
+      '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><button class="tgl" type="button" data-act="label" aria-label="Label"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
       '<div class="topts" role="toolbar" aria-label="Task options">' +
       '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="outdent">⇤ Promote</button>' +
@@ -1354,7 +1362,7 @@ function syncBlockEl(el, b) {
   c.setAttribute('aria-label', done ? 'Mark task as not done' : 'Mark task as done');
   const w = el.querySelector('.who'), nm = b.who || '';
   w.textContent = nm ? '👤 ' + nm : '';
-  { const lb = el.querySelector('.lbl'); if (lb) { const L = b.lb; lb.textContent = L ? L.t : ''; lb.style.background = L ? L.c : ''; lb.style.color = L ? lbInk(L.c) : ''; } }
+  { const lb = el.querySelector('.tgl'); if (lb) { const L = b.lb; lb.textContent = L ? L.t : ''; lb.style.background = L ? L.c : ''; lb.style.color = L ? lbInk(L.c) : ''; } }
   el.classList.toggle('haswho', !!nm);
   el.classList.toggle('isrep', !!b.rid);
   if (b.rid) { const r = rules.get(b.rid); el.querySelector('.rep').title = r ? ruleDesc(r) : 'Repeated job'; }
@@ -1372,7 +1380,7 @@ function syncBlockEl(el, b) {
   el.style.marginLeft = lv * 26 + 'px'; el.classList.toggle('sub', lv > 0);
   el.querySelector('.prog').textContent = pg ? `${pg.d}/${pg.t}` : '';
   { const pv = pctMap.has(b.id) ? pctMap.get(b.id) : (done ? 100 : (b.pc || 0)), pe = el.querySelector('.pct'), bar = el.querySelector('.pbar');
-    pe.textContent = ''; pe.dataset.v = pv >= 100 ? '✓' : String(pv); pe.dataset.z = pv <= 0 ? '1' : ''; pe.style.setProperty('--p', pv); pe.style.setProperty('--pc', pv <= 0 ? '' : 'hsl(' + Math.round(pv * 1.25) + ' 68% 42%)'); pe.style.left = (-54 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
+    pe.textContent = ''; pe.dataset.v = pv >= 100 ? '✓' : String(pv); pe.dataset.z = pv <= 0 ? '1' : ''; pe.style.setProperty('--p', pv); pe.style.setProperty('--pc', pv <= 0 ? '' : 'hsl(' + Math.round(pv * 1.25) + ' 68% 42%)'); pe.style.left = 'calc(var(--rl,-54px) - ' + (lv * 26) + 'px)'; pe.classList.toggle('full', pv >= 100);
     bar.firstChild.style.width = pv + '%';
     { const pf = el.querySelector('.pfw'); pf.firstChild.style.width = pv + '%'; pf.classList.toggle('z', pv <= 0); } bar.setAttribute('aria-valuenow', String(pv));
     bar.title = pg ? 'Progress follows the sub-tasks (' + pg.d + ' of ' + pg.t + ' done)' : 'Tap or drag to set how much is done';
@@ -1766,13 +1774,13 @@ function openLabel(id) {
   begin();
   if (!Array.isArray(S.labels)) S.labels = [];
   let pick = b.lb ? b.lb.c : LB_COLORS[5];
-  const chipH = l => `<span class="lbchip"><button class="lbl on" type="button" data-use="${esc(l.t)}|${esc(l.c)}" style="background:${esc(l.c)};color:${lbInk(l.c)}">${esc(l.t)}</button><button class="lbx" type="button" data-del="${esc(l.t)}|${esc(l.c)}" aria-label="Remove ${esc(l.t)} from my list">✕</button></span>`;
+  const chipH = l => `<span class="lbchip"><button class="tgl on" type="button" data-use="${esc(l.t)}|${esc(l.c)}" style="background:${esc(l.c)};color:${lbInk(l.c)}">${esc(l.t)}</button><button class="lbx" type="button" data-del="${esc(l.t)}|${esc(l.c)}" aria-label="Remove ${esc(l.t)} from my list">✕</button></span>`;
   openModal(`<h2>Label</h2><p class="msg">A coloured tag for <b>${esc(b.text.trim() || 'this task')}</b>. Tap one of your labels, or make a new one with your own colour.</p>
     <div class="lbrow" id="lbList"></div>
     <div class="fld"><span class="dl">New label</span>
       <input id="lbIn" class="qin" type="text" maxlength="24" placeholder="Label name, e.g. Shutdown" autocomplete="off" enterkeyhint="done" value="${esc(b.lb ? b.lb.t : '')}">
       <div class="lbsw" id="lbSw">${LB_COLORS.map(c => `<button type="button" class="sw2" data-c="${c}" style="background:${c}" aria-label="Colour ${c}"></button>`).join('')}<label class="sw2 custom" title="Any colour"><input id="lbCol" type="color" value="${esc(pick)}"><span>🎨</span></label></div>
-      <p class="hint">Preview: <span class="lbl on" id="lbPrev"></span></p></div>
+      <p class="hint">Preview: <span class="tgl on" id="lbPrev"></span></p></div>
     <div class="btns" style="margin-top:14px">${b.lb ? '<button class="btn" type="button" data-lb="rm">Remove label</button>' : ''}<button class="btn" type="button" data-lb="x">Cancel</button><button class="btn primary" type="button" data-lb="ok">Save label</button></div>`);
   const P = $('.panel', modal), q = x => $(x, P);
   const draw = () => {
@@ -3778,6 +3786,32 @@ $('#bText').onclick = () => {
 };
 $('#bPen').onclick = () => { tool = 'pen'; setMode('pen'); };
 $('#bEraser').onclick = () => { tool = 'eraser'; setMode('pen'); };
+
+/* tablet gestures: swipe right = next day, left = previous day, up at the page end = more writing space, down at the top = earlier pending tasks */
+(() => {
+  let g = null;
+  const tablet = () => window.matchMedia('(min-width:600px)').matches;
+  document.addEventListener('touchstart', e => {
+    g = null;
+    if (!tablet() || mode === 'pen' || e.touches.length !== 1 || !modal.hidden) return;
+    if (e.target.closest && e.target.closest('input,select,#fmtbar,#toolbar,#nav,.topts,.pbar,.carrylist,.tw,[data-drag],.dh,#remind')) return;
+    const t = e.touches[0], de = document.documentElement;
+    g = { x: t.clientX, y: t.clientY, top: window.scrollY <= 2, bot: window.scrollY + window.innerHeight >= de.scrollHeight - 8, t: Date.now() };
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const s = g; g = null; if (!s || !e.changedTouches.length || Date.now() - s.t > 900) return;
+    const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax >= 110 && ay < 60 && ax > ay * 2.2) { (dx > 0 ? $('#bNext') : $('#bPrev')).click(); return; }
+    if (ay >= 90 && ax < 60 && ay > ax * 2.2) {
+      if (dy < 0 && s.bot) { $('#bSpace').click(); toast('Writing space added'); }
+      else if (dy > 0 && s.top) {
+        if (S.carryHidden) { S.carryHidden = false; saveSettings(); }
+        renderCarry();
+        if (carry.hidden) toast('No pending tasks from earlier days.'); else carry.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, { passive: true });
+})();
 $('#bTask').onclick = addTask;
 $('#bSection').onclick = addSection;
 $('#bUndo').onclick = undo;

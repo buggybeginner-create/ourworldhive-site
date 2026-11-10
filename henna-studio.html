@@ -77,7 +77,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
   <div>
    <div class="card"><div class="row"><button class="btn big p" data-a="rand">✨ New design</button><button class="btn" data-a="prev" aria-label="Previous design">‹</button><button class="btn" data-a="next" aria-label="Next design">›</button></div>
     <div class="row" style="margin-top:10px"><div class="num"><span class="mut">GO TO #</span><input id="goto" type="number" min="1" max="1999" inputmode="numeric"><button class="btn sm" data-a="go">GO</button></div><span style="flex:1"></span><button class="btn" id="favb" data-a="fav">♡ Save</button></div>
-    <div class="row" style="margin-top:10px"><button class="btn" data-a="png">⬇ Save image</button><button class="btn" data-a="share">📲 Share</button><button class="btn" data-a="wa">WhatsApp</button></div></div>
+    <div class="row" style="margin-top:10px"><button class="btn p" data-a="edit">✏ Edit in Design</button><button class="btn" data-a="png">⬇ Save image</button><button class="btn" data-a="share">📲 Share</button><button class="btn" data-a="wa">WhatsApp</button></div></div>
    <div class="card"><h3>Style</h3><div class="chips" id="c-style"></div></div>
    <div class="card"><h3>Hand</h3><div class="seg" id="c-hand"><button class="btn" data-hand="t1">One hand</button><button class="btn" data-hand="t2">Both hands</button><button class="btn" data-hand="t3">Two hands</button></div>
     <h3 style="margin-top:12px">Henna colour</h3><div class="row" id="c-ink"></div>
@@ -86,7 +86,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
  </div>
 </section>
 <section class="tab" id="t-canvas"><div class="dcg">
-<div class="stage"><div class="row" style="justify-content:center;margin-bottom:8px"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="redo">↷ Redo</button><button class="btn sm" data-dc="new">✦ New</button><button class="btn sm p" data-dc="share">📲 Share</button></div><div class="seg" id="d-hand2" style="margin-bottom:8px"></div><div id="dstage"></div><p class="cap" id="dcap"></p>
+<div class="stage"><div class="row" style="justify-content:center;flex-wrap:wrap;margin-bottom:8px"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="redo">↷ Redo</button><button class="btn sm" data-dc="new">✦ New</button><button class="btn sm" data-dc="clear">Clear all</button><button class="btn sm p" data-dc="share">📲 Share</button></div><div class="seg" id="d-hand2" style="margin-bottom:8px"></div><div id="dstage"></div><p class="cap" id="dcap"></p>
   <div class="row" style="justify-content:center;margin-top:8px"><button class="btn sm" data-dc="zout" aria-label="Zoom out">－</button><span class="mut" id="dzv" style="min-width:64px;text-align:center">Zoom 100%</span><button class="btn sm" data-dc="zin" aria-label="Zoom in">＋</button><button class="btn sm" data-dc="zfit">Fit hand</button></div></div>
  <div class="card"><h3>Stamps &bull; swipe sideways, tap to add, or drag up onto the hand</h3><div class="row" style="margin-bottom:8px"><input type="search" id="d-q" placeholder="Search stamps: peacock, flower, border..." style="flex:1;min-width:0"><button class="btn sm p" data-a="scan">📷 Scan</button></div><div class="chips" id="dcat"></div><div class="dpal" id="dpal" style="margin-top:8px"></div><label class="dchk" style="margin-top:8px"><input type="checkbox" id="d-afit" checked> Auto fit and turn to the hand when placed</label><input type="file" id="d-file" accept="image/*" hidden></div>
  
@@ -107,7 +107,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 i, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 k, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -308,6 +308,10 @@ function svgString(){return hand(ST.n).replace(/var\(--hn-skin\)/g,SKIN[ST.skin]
 function toPng(){return inlineHands(svgString()).then(raw=>new Promise((ok,no)=>{const m=raw.match(/viewBox="([-\d. ]+)"/),vb=m?m[1].split(' ').map(Number):[0,0,330,470],W=864,H=Math.round(W*vb[3]/vb[2]),s=raw.replace('<svg ','<svg width="'+W+'" height="'+H+'" ');const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H+70;const x=c.getContext('2d');x.fillStyle=getComputedStyle(document.body).backgroundColor||'#fff';x.fillRect(0,0,W,H+70);x.drawImage(img,0,0,W,H);x.fillStyle='#7a625b';x.font='bold 26px sans-serif';x.textAlign='center';x.fillText('Henna Studio #'+ST.n+'  ourworldhive.com',W/2,H+46);c.toBlob(b=>b?ok(b):no(),'image/png')};img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)}))}
 const link=()=>location.origin+location.pathname+'?d='+ST.n+'&h='+ST.hand;
 const A={
+ edit(){const k=/^t[123]$/.test(ST.hand)?ST.hand:'t1',src=genItems(ST.n,k);if(!src.length){toast('Design is not ready yet. Try again');return}
+  if(!DC.ready){dcLoad();DC.ready=true;dcPalette()}
+  DC.by[DC.mode]=DC.items;DC.mode=k;DC.items=DC.by[k]||[];if(DC.items.length)dcSnap();
+  DC.items=src.map(i=>({k:i.k,x:i.x,y:i.y,s:i.s,r:i.r,fx:i.fx?1:0,pi:i.pi||0}));if(INK[ST.ink])DC.ink=ST.ink;DC.sel=-1;DC.vz={z:1,cx:165,cy:0};DC.by[k]=DC.items;dcSave();tab('canvas');toast('Design #'+ST.n+' opened in Design. Tap any shape to edit')},
  rand(){pick(randIn())},prev(){pick(stepIn(-1))},next(){pick(stepIn(1))},
  go(){const v=parseInt($('goto').value,10);if(!(v>=1&&v<=TOTAL)){toast('Enter a number from 1 to '+TOTAL);return}pick(v)},
  fav(){const f=favs(),i=f.findIndex(x=>x.n===ST.n);if(i>=0){f.splice(i,1);toast('Removed from saved')}else{f.unshift({n:ST.n});toast('Saved')}setFavs(f);drawMaker()},

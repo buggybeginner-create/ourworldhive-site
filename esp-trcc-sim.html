@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="owh-pwa.js"></script><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>ESP TR Set Controller (TRCC) Panel Trainer | Ourworldhive Hands-On Hub</title>
+<meta name="description" content="Interactive ESP TR set control panel (TRCC) trainer: live power schematic with purpose, use and benefits of every part, SCR phase-angle control, spark handling, interlocks, protections, DCS signals, guided tests and fault-finding challenge.">
+<meta name="theme-color" content="#0f141a"><link rel="canonical" href="https://ourworldhive.com/esp-trcc-sim.html">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="ESP TRCC Panel Trainer | Ourworldhive Hands-On Hub"><meta property="og:url" content="https://ourworldhive.com/esp-trcc-sim.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f141a;--panel:#18202a;--panel2:#202a36;--line:#2c3846;--txt:#e6edf3;--mut:#8b9bb0;
+  --acc:#f5a524;--ok:#2fd27a;--bad:#ff4d4f;--info:#3fa7ff;
+  --R:#e5484d;--Y:#f5b400;--B:#3b82f6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Rajdhani,system-ui,sans-serif;font-size:16px}
+button{font-family:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#121a23,#0f141a);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:10px;padding:8px 12px}
+.logo{width:34px;height:34px;border-radius:8px;background:conic-gradient(from 200deg,#f5a524,#ff4d4f,#3fa7ff,#f5a524);display:grid;place-items:center;font-weight:700;color:#111}
+.ttl{font-weight:700;font-size:18px;letter-spacing:.5px;line-height:1.05}
+.ttl small{display:block;font-weight:500;color:var(--mut);font-size:12px;letter-spacing:.3px}
+.live{margin-left:auto;display:flex;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.chip{padding:3px 8px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);white-space:nowrap}
+.chip.on{border-color:var(--ok);color:var(--ok)}.chip.trip{border-color:var(--bad);color:var(--bad)}
+nav{display:flex;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;background:none;border:0;color:var(--mut);padding:10px 14px;font-size:15px;font-weight:700;letter-spacing:.6px;border-bottom:3px solid transparent;text-transform:uppercase}
+nav button.act{color:var(--acc);border-color:var(--acc)}
+main{position:relative}
+.tab{display:none;padding:12px;max-width:1500px;margin:0 auto}
+.tab.act{display:block;animation:fi .2s}
+@keyframes fi{from{opacity:.4;transform:translateX(8px)}to{opacity:1;transform:none}}
+h2{margin:4px 0 10px;font-size:20px;letter-spacing:.6px;text-transform:uppercase}
+h3{margin:0 0 8px;font-size:16px;letter-spacing:.5px;text-transform:uppercase;color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:12px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.mut{color:var(--mut)}
+.mono{font-family:'JetBrains Mono',monospace}
+/* drawing */
+.dwgbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:7px 11px;border-radius:8px;font-weight:700;letter-spacing:.4px;font-size:14px}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--acc);color:#111;border-color:var(--acc)}
+.btn.red{background:#5a1416;border-color:var(--bad);color:#ffd7d7}
+.btn.grn{background:#0f3d26;border-color:var(--ok);color:#c9ffe1}
+.dwgwrap{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px}
+@media(max-width:1000px){.dwgwrap{grid-template-columns:1fr}}
+.svgbox{background:#f4f1e8;border-radius:10px;overflow:auto;border:1px solid var(--line);height:72vh;touch-action:pan-x pan-y}
+.svgbox svg{display:block}
+#info{position:sticky;top:110px;align-self:start}
+#info .tag{font-family:'JetBrains Mono',monospace;color:var(--acc);font-size:22px;font-weight:600}
+#info .nm{font-size:18px;font-weight:700;margin:2px 0 8px}
+#info p{margin:6px 0;line-height:1.35}
+#info .lbl{font-size:12px;color:var(--mut);letter-spacing:.6px;text-transform:uppercase;margin-top:10px}
+#info .st{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--panel2);font-family:'JetBrains Mono',monospace;font-size:13px}
+#info{max-height:calc(100vh - 130px);overflow:auto}
+@media(max-width:1000px){
+  #info{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:40;max-height:48vh;overflow:auto;border-radius:16px 16px 0 0;transform:translateY(110%);transition:transform .25s;box-shadow:0 -10px 30px #0008}
+  #info.show{transform:none}
+}
+.x{float:right;background:none;border:0;color:var(--mut);font-size:22px}
+/* svg styles */
+polyline{fill:none}
+svg text{font-family:'JetBrains Mono',monospace;fill:#1b1b1b}
+.w{stroke:#222;stroke-width:1.4;fill:none}
+.pw{stroke:#111;stroke-width:4;fill:none;stroke-linecap:round}
+.pw.live.R{stroke:var(--R)}.pw.live.Y{stroke:var(--Y)}.pw.live.B{stroke:var(--B)}
+.pw.live{filter:drop-shadow(0 0 3px currentColor)}
+.w.live{stroke:#e8590c;stroke-width:2.2}
+.w.dc.live{stroke:#7b2ff7}
+.sig{stroke:#2563eb;stroke-dasharray:5 3}
+.sig.live{stroke:#2563eb;stroke-width:2;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.cmp{cursor:pointer}
+.cmp .hit{fill:transparent;stroke:transparent;stroke-width:2;rx:4}
+.cmp:hover .hit{stroke:#f5a52499;fill:#f5a52418}
+.cmp.pick .hit{stroke:#f5a524;fill:#f5a52430;stroke-width:3}
+.cmp.flash .hit{animation:fl 1.2s 3}
+@keyframes fl{50%{fill:#f5a52480;stroke:#f5a524}}
+.lampc{fill:#fff;stroke:#222;stroke-width:1.4}
+.lamp.on .lampc{filter:drop-shadow(0 0 6px currentColor)}
+.coil{fill:#fff;stroke:#222;stroke-width:1.4}
+.coil.on{fill:#ffe3b3;stroke:#e8590c;stroke-width:2}
+.box{fill:#ffffffaa;stroke:#222;stroke-width:1.3}
+.dbox{fill:none;stroke:#444;stroke-width:1;stroke-dasharray:6 4}
+.ctrl{fill:#e9eef7;stroke:#1d3a6b;stroke-width:2}
+.blade{stroke:#111;stroke-width:2.2;transition:all .2s}
+.blade.on{stroke:#0a8a43}
+.scrtri{fill:#222}
+.scr.on .scrtri{fill:#e8590c}
+.zone{fill:#1d3a6b;font-size:11px;font-weight:600;letter-spacing:1px}
+.tiny{font-size:9px}.sm{font-size:10.5px}.md{font-size:12px;font-weight:600}
+.spark{stroke:#7c3aed;stroke-width:2.5;fill:none;opacity:0}
+.spark.on{opacity:1}
+.glow{fill:#a78bfa;opacity:0}
+/* panel */
+.panel{background:linear-gradient(180deg,#c9cbc6,#b5b8b2);border-radius:12px;padding:12px;color:#111;border:2px solid #8f938d;box-shadow:inset 0 2px 0 #fff6}
+.panel h3{color:#1d3a6b}
+.prow{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-around;align-items:flex-start;margin-bottom:10px}
+.meter{width:150px;text-align:center}
+.meter .mlbl{font-weight:700;font-size:13px;letter-spacing:.4px}
+.meter svg text{fill:#111}
+.lampw{display:flex;flex-direction:column;align-items:center;width:64px;font-weight:700;font-size:11.5px;text-align:center;gap:4px}
+.pl{width:30px;height:30px;border-radius:50%;border:3px solid #555;background:radial-gradient(circle at 35% 35%,#888,#333)}
+.pl.on.r{background:radial-gradient(circle at 35% 35%,#fff,#ff2b2b);box-shadow:0 0 16px #ff2b2b}
+.pl.on.y{background:radial-gradient(circle at 35% 35%,#fff,#ffcc00);box-shadow:0 0 16px #ffcc00}
+.pl.on.b{background:radial-gradient(circle at 35% 35%,#fff,#2b7bff);box-shadow:0 0 16px #2b7bff}
+.pl.on.g{background:radial-gradient(circle at 35% 35%,#fff,#16d35f);box-shadow:0 0 16px #16d35f}
+.pl.on.a{background:radial-gradient(circle at 35% 35%,#fff,#ff8a00);box-shadow:0 0 16px #ff8a00}
+.pb{width:52px;height:52px;border-radius:50%;border:4px solid #333;font-weight:700;font-size:12px;color:#fff}
+.pb.on{background:radial-gradient(circle at 35% 35%,#5be08d,#0b7a36)}
+.pb.es{width:62px;height:62px;background:radial-gradient(circle at 35% 35%,#ff7b7b,#b30000);border-color:#f5c400;border-width:6px}
+.pb.es.in{transform:scale(.92);box-shadow:inset 0 6px 10px #0008}
+.sel{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:11.5px;width:84px;text-align:center}
+.knob{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,#444,#111);position:relative;border:3px solid #777}
+.knob i{position:absolute;left:50%;top:4px;width:5px;height:20px;margin-left:-2.5px;background:#fff;border-radius:3px;transform-origin:50% 20px;transition:transform .2s}
+.mcbrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.mcb{width:70px;background:#f4f4f2;border:1px solid #777;border-radius:6px;padding:5px 3px;text-align:center;font-size:11px;font-weight:700}
+.mcb .lev{margin:4px auto;width:22px;height:34px;border-radius:4px;background:#ddd;border:1px solid #777;position:relative}
+.mcb .lev b{position:absolute;left:2px;right:2px;height:15px;border-radius:3px;background:#1d3a6b;bottom:2px;transition:all .15s}
+.mcb.on .lev b{bottom:15px;background:#0a8a43}
+.mcb .s{font-size:10px;color:#444}
+.lcd{background:#2a3b1d;border:6px solid #222;border-radius:8px;padding:8px 10px;font-family:'JetBrains Mono',monospace;color:#b6ff7a;font-size:13px;line-height:1.45;min-height:112px;white-space:pre;text-shadow:0 0 6px #6dff2a88;overflow:hidden}
+.lcd.off{background:#1a2213;color:#2a3b1d;text-shadow:none}
+.keys{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.keys button{background:#2b2f36;color:#fff;border:1px solid #111;border-radius:6px;padding:8px 10px;font-weight:700;font-size:13px}
+.flist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px}
+.fitem{display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-weight:600;font-size:14px}
+.fitem input{width:18px;height:18px;accent-color:var(--bad)}
+.fitem.on{border-color:var(--bad);background:#3a1416}
+canvas{width:100%;display:block;background:#0b1016;border-radius:8px;border:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+@media(max-width:520px){.kv{grid-template-columns:repeat(2,1fr)}}
+.kv div{background:var(--panel2);border-radius:8px;padding:6px 8px;border:1px solid var(--line)}
+.kv b{display:block;font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--acc)}
+.kv span{font-size:11.5px;color:var(--mut);letter-spacing:.5px;text-transform:uppercase}
+.evlog{font-family:'JetBrains Mono',monospace;font-size:12px;max-height:180px;overflow:auto;background:#0b1016;border-radius:8px;padding:6px 8px;border:1px solid var(--line)}
+.evlog div{padding:2px 0;border-bottom:1px dashed #1f2a36}
+.evlog .t{color:var(--bad)}.evlog .g{color:var(--ok)}.evlog .a{color:var(--acc)}
+.range{display:flex;align-items:center;gap:8px;font-weight:600;margin:6px 0}
+.range input{flex:1;accent-color:var(--acc)}
+/* components */
+.search{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:16px;font-family:inherit;margin-bottom:10px}
+.cgrid{display:grid;align-items:start;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.cc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.cc .tag{font-family:'JetBrains Mono',monospace;color:var(--acc);font-weight:600;font-size:16px}
+.cc .grp{float:right;font-size:11px;color:var(--mut);border:1px solid var(--line);padding:1px 7px;border-radius:10px;text-transform:uppercase}
+.cc .nm{font-weight:700;font-size:16px;margin:2px 0 6px}
+.cc p{margin:4px 0;line-height:1.35;font-size:15px}
+.cc .tst{color:#c6d4e4;font-size:14px}
+.cc button{margin-top:8px}
+.cc details{margin-top:6px;border-top:1px dashed var(--line);padding-top:6px}
+.cc summary{cursor:pointer;color:var(--acc);font-weight:700;font-size:13px;letter-spacing:.4px}
+.lbl2{font-size:11.5px;color:var(--mut);letter-spacing:.6px;margin-top:8px}
+.ben{color:#bff5d4}.fail{color:#ffc9c9}
+#info .ben{color:#bff5d4}#info .fail{color:#ffc9c9}
+.xall{margin-bottom:10px}
+.fil{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.fil button{background:var(--panel2);border:1px solid var(--line);color:var(--mut);border-radius:20px;padding:5px 11px;font-weight:700;font-size:13px;text-transform:uppercase}
+.fil button.act{color:#111;background:var(--acc);border-color:var(--acc)}
+/* tests */
+.test{margin-bottom:10px}
+.test .hd{display:flex;align-items:center;gap:8px;cursor:pointer}
+.test .hd b{flex:1;font-size:17px;text-transform:uppercase;letter-spacing:.4px}
+.prog{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mut)}
+.steps{margin:8px 0 0;padding:0;list-style:none}
+.steps li{display:flex;gap:8px;padding:6px 4px;border-bottom:1px dashed var(--line);font-size:15px;line-height:1.3}
+.steps li i{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:13px}
+.steps li.done i{background:var(--ok);border-color:var(--ok);color:#062}
+.steps li.cur{background:#f5a52412}
+.steps li.cur i{border-color:var(--acc)}
+.why{font-size:13px;color:var(--mut);display:block}
+.quiz select{width:100%;padding:9px;border-radius:8px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);font-family:inherit;font-size:15px;margin:6px 0}
+.res{padding:8px 10px;border-radius:8px;margin-top:6px;font-weight:600}
+.res.ok{background:#0f3d26;color:#c9ffe1}.res.no{background:#3a1416;color:#ffd7d7}
+/* original */
+.orig{overflow:auto;height:75vh;background:#fff;border-radius:10px;border:1px solid var(--line)}
+.orig img{display:block;transform-origin:0 0}
+@media(max-width:600px){.ttl small{display:none}.ttl{font-size:16px}#chKV{display:none}.logo{width:30px;height:30px}}
+footer{padding:16px;text-align:center;color:var(--mut);font-size:13px;border-top:1px solid var(--line);margin-top:20px;line-height:1.5}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120px);background:#222c38;border:1px solid var(--acc);padding:10px 16px;border-radius:10px;z-index:60;transition:transform .25s;font-weight:600;max-width:92vw}
+.toast.show{transform:translateX(-50%)}
+.mini{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--mut);margin-top:8px}
+.legend i{display:inline-block;width:22px;height:4px;vertical-align:middle;margin-right:4px;border-radius:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <div class="logo">HV</div>
+    <div class="ttl"><a href="training.html" style="display:block;color:#ffc857;text-decoration:none;font-size:12px;letter-spacing:.06em">‹ HANDS-ON HUB</a>ESP TRCC PANEL TRAINER<small>POWER SCHEMATIC · 110 kV / 1000 mA TR SET · PRECICON-R3</small></div>
+    <div class="live"><span class="chip" id="chHT">HT OFF</span><span class="chip mono" id="chKV">0.0 kV</span></div>
+  </div>
+  <nav id="nav">
+    <button data-t="dwg" class="act">Drawing</button>
+    <button data-t="sim">Simulator</button>
+    <button data-t="cmp">Components</button>
+    <button data-t="tst">Tests</button>
+  </nav>
+</header>
+<main id="main">
+<!-- DRAWING -->
+<section class="tab act" id="t-dwg">
+  <div class="dwgbar">
+    <button class="btn" onclick="zoom(1.2)">ZOOM +</button>
+    <button class="btn" onclick="zoom(1/1.2)">ZOOM −</button>
+    <button class="btn" onclick="zoom(0)">FIT</button>
+    <span style="flex:1"></span>
+    <div class="mini">
+      <button class="btn" onclick="quickReady()">MAKE READY</button>
+      <button class="btn grn" onclick="pressOn()">ON PB2</button>
+      <button class="btn red" onclick="toggleEstop()">E-STOP</button>
+      <span class="chip mono" id="dwgRead">0 kV · 0 mA</span>
+    </div>
+  </div>
+  <div class="dwgwrap">
+    <div class="svgbox noswipe" id="svgbox"><svg id="dwg" viewBox="0 0 1500 1010" width="1500" height="1010"></svg></div>
+    <div class="card" id="info">
+      <button class="x" onclick="closeInfo()">×</button>
+      <div class="tag" id="iTag">TAP ANY PART</div>
+      <div class="nm" id="iNm">Tap a component on the drawing to see its purpose</div>
+      <div id="iBody" class="mut">The drawing is LIVE: it follows the simulator. Coloured thick lines = energised 3-phase power (R / Y / B). Orange = live control wiring. Blue dashed = signals to/from controller. Purple = HV DC feedback.</div>
+    </div>
+  </div>
+  <div class="legend"><span><i style="background:var(--R)"></i>R PHASE</span><span><i style="background:var(--Y)"></i>Y PHASE</span><span><i style="background:var(--B)"></i>B PHASE</span><span><i style="background:#e8590c"></i>LIVE CONTROL</span><span><i style="background:#2563eb"></i>SIGNAL</span><span><i style="background:#7b2ff7"></i>HV FEEDBACK</span></div>
+</section>
+
+<!-- SIMULATOR -->
+<section class="tab" id="t-sim">
+  <div class="grid2">
+    <div>
+      <div class="panel">
+        <h3>PANEL FRONT · METERS</h3>
+        <div class="prow" id="meters"></div>
+        <div class="prow">
+          <div class="lampw"><div class="pl r" id="pl1"></div>PL1 R</div>
+          <div class="lampw"><div class="pl y" id="pl2"></div>PL2 Y</div>
+          <div class="lampw"><div class="pl b" id="pl3"></div>PL3 B</div>
+          <div class="lampw"><div class="pl g" id="pl4"></div>PL4 HT ON</div>
+          <div class="lampw"><div class="pl a" id="pl5"></div>PL5 ALARM / TRIP</div>
+          <div class="lampw"><div class="pl r" id="pl6"></div>PL6 PHASE FAIL</div>
+        </div>
+        <div class="prow">
+          <div class="sel"><div class="knob" id="kSW1" onclick="toggleSW1()"><i></i></div>SW1 LOCAL / REMOTE<span class="mono" id="sw1t">L</span></div>
+          <div class="sel"><div class="knob" id="kVSS" onclick="cycleSel('vss')"><i></i></div>VSS VOLT SEL<span class="mono" id="vsst">RY</span></div>
+          <div class="sel"><div class="knob" id="kASS" onclick="cycleSel('ass')"><i></i></div>ASS AMP SEL<span class="mono" id="asst">R</span></div>
+          <div class="sel"><button class="pb on" onpointerdown="pressOn()">ON</button>PB2 HT ON</div>
+          <div class="sel"><button class="pb es" id="pbES" onclick="toggleEstop()">STOP</button>PB1 EM STOP<span class="mono" id="est">RELEASED</span></div>
+          <div class="sel"><div class="knob" id="kKEY" onclick="toggle('key')"><i></i></div>TS3 MECH KEY<span class="mono" id="keyt">IN</span></div>
+        </div>
+        <h3>BREAKERS (INSIDE PANEL)</h3>
+        <div class="mcbrow" id="mcbs"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>PRECICON-R3 CONTROLLER</h3>
+        <div class="lcd" id="lcd"></div>
+        <div class="keys">
+          <button onclick="ctrlKey('mode')">MODE</button>
+          <button onclick="ctrlKey('up')">▲ SET</button>
+          <button onclick="ctrlKey('dn')">▼ SET</button>
+          <button onclick="ctrlKey('reset')">RESET</button>
+          <button onclick="toggle('remoteCmd')" id="bK7">DCS REMOTE ON: OFF</button>
+        </div>
+        <div class="range">I-LIMIT <input type="range" min="300" max="1000" step="10" id="ilim" value="900"><span class="mono" id="ilimv">900 mA</span></div>
+        <div class="range">GAS / DUST (SPARK kV) <input type="range" min="45" max="95" step="1" id="spk" value="72"><span class="mono" id="spkv">72 kV</span></div>
+        <div class="range">SETBACK <input type="range" min="2" max="20" step="1" id="sb" value="8"><span class="mono" id="sbv">8 %</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>LIVE VALUES</h3>
+        <div class="kv">
+          <div><span>Secondary kV</span><b id="vKV">0.0</b></div>
+          <div><span>Secondary mA</span><b id="vMA">0</b></div>
+          <div><span>Conduction</span><b id="vCA">0 %</b></div>
+          <div><span>Spark rate /min</span><b id="vSR">0</b></div>
+          <div><span>Primary V</span><b id="vPV">0</b></div>
+          <div><span>Primary A</span><b id="vPA">0</b></div>
+          <div><span>DCS mA (4-20)</span><b id="vDA">0.0</b></div>
+          <div><span>DCS kV (4-20)</span><b id="vDK">0.0</b></div>
+        </div>
+        <canvas id="trend" width="900" height="300"></canvas>
+        <div class="legend"><span><i style="background:#f5a524"></i>kV</span><span><i style="background:#3fa7ff"></i>mA</span><span><i style="background:#a78bfa"></i>SPARK</span><span class="mono">LAST 60 s</span></div>
+        <svg id="esp" viewBox="0 0 600 120" style="width:100%;margin-top:8px;background:#0b1016;border-radius:8px"></svg>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>FAULT INJECTION</h3>
+        <div class="flist" id="flist"></div>
+        <div style="margin-top:8px" class="mini"><button class="btn" onclick="clearFaults()">CLEAR ALL FAULTS</button><button class="btn" onclick="resetAll()">RESET SIMULATOR</button></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>EVENT LOG</h3>
+        <div class="evlog" id="log"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3>DCS HARDWIRED SIGNALS (TB4)</h3>
+        <div id="dcs" class="mono" style="font-size:13px;line-height:1.7"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENTS -->
+<section class="tab" id="t-cmp">
+  <h2>Components – Purpose, Use & Benefits</h2>
+  <input class="search" id="q" placeholder="Search tag or name (e.g. SPP, K1, SCR, CT4)...">
+  <div class="fil" id="fil"></div>
+  <button class="btn xall" onclick="document.querySelectorAll('.cc details').forEach(d=>d.open=!d.open)">EXPAND / COLLAPSE ALL DETAILS</button>
+  <div class="cgrid" id="cgrid"></div>
+</section>
+
+<!-- TESTS -->
+<section class="tab" id="t-tst">
+  <h2>Simulation Tests</h2>
+  <p class="mut" style="margin-top:-4px">Each step ticks automatically when you do it on the SIMULATOR or DRAWING tab. Swipe or tap tabs to go back and forth.</p>
+  <div id="tests"></div>
+  <div class="card quiz" style="margin-top:12px">
+    <h3>FAULT-FINDING CHALLENGE</h3>
+    <p class="mut" style="margin:0 0 6px">A hidden fault is put in the panel. Make the unit ready, try to start it, watch lamps, meters, LCD and DCS signals, then choose the cause.</p>
+    <div class="mini"><button class="btn pri" onclick="newChallenge()">NEW CHALLENGE</button><span class="chip mono" id="score">SCORE 0 / 0</span></div>
+    <select id="ans"></select>
+    <button class="btn" onclick="checkAns()">CHECK ANSWER</button>
+    <div id="ansRes"></div>
+  </div>
+</section>
+
+</main>
+<div class="toast" id="toast"></div>
+<footer>
+  © <span id="cy">2026</span> DUKEKRRISH · ourworldhive.com · All rights reserved.<br>
+  For training purposes only. Not affiliated with or endorsed by the panel or controller supplier. The controller logic here is a generic ESP-controller teaching model built from the schematic — always follow the supplier manual and site safety rules on real equipment.
+</footer>
+
+<script>
+"use strict";
+/* ================= COMPONENT DATA ================= */
+const C = {
+ LT123:{tag:"LT1 / LT2 / LT3",nm:"Incoming 415 V AC Supply Terminals",g:"POWER",s:"415 V AC ±10 %, 50 Hz ±5 %, 3-phase · power cable min 50 sq.mm",
+  p:"Entry point of 3-phase power from the MCC / PCC feeder into the TRCC panel.",
+  u:"Supply arrives here, passes FSU1 → K1 → SCR stacks → CTs → LT4/5/6 → TR set primary. Phase lamps, MCB3 (aux) and SPP also tap from here.",
+  b:"• One clear isolation/termination point for the panel\n• Correct phase sequence here gives correct SCR firing sync\n• Proper lug size avoids heating at full 1000 mA load",
+  f:"Loose lug → hot terminal, phase drop, SPP trip. Missing phase → PL lamp off + PL6 PHASE FAIL.",
+  t:"Measure 415 V between all phases and check phase sequence (R-Y-B) with a phase sequence meter before charging. Thermography after load."},
+ PL123:{tag:"F4–F6 + PL1/PL2/PL3",nm:"Phase Indication Lamps (R / Y / B)",g:"INDICATION",s:"Fuses F4/F5/F6 200 mA · lamps star-connected at point 27 · ferrules 62/64/66, 222/224/226",
+  p:"Show at a glance that each incoming phase is present at the panel.",
+  u:"Each lamp is fed from one phase through its own 200 mA fuse; the three lamps are star connected (point 27), so no neutral is needed.",
+  b:"• Operator sees supply status without opening the panel\n• Quickly separates 'no supply' problems from 'panel' problems\n• Small fuses protect lamp wiring without disturbing the main circuit",
+  f:"One lamp dark → phase missing OR its 200 mA fuse blown OR lamp fused. With star connection, one phase missing makes the other two lamps glow dimmer.",
+  t:"Check fuse continuity, then lamp. Compare with voltmeter V1 / VSS readings."},
+ FSU1:{tag:"FSU1 (F1, F2, F3)",nm:"Fuse Switch Unit – Main Isolator",g:"POWER",s:"3-pole fuse switch, semiconductor-grade fuses F1–F3 · aux contact to TB4-19/20",
+  p:"Main isolation of the panel and short-circuit protection for SCRs and wiring.",
+  u:"Operated OFF for maintenance (with LOTO). Fuses are high-speed (I²t rated) so they blow before the SCRs are damaged by a short circuit. FSU aux contact is in the READY TO START signal to DCS.",
+  b:"• Safe isolation point for maintenance (lockable)\n• Fast fuses save costly SCRs during a TR or cable fault\n• DCS knows if the panel is isolated (Ready to Start)",
+  f:"Blown F1 or F3 → MCB2 loses supply → controller and K1 coil dead (display off). Blown F2 → SPP sees phase loss → PL6 ON.",
+  t:"Isolate, check fuse continuity and I²t rating = same as original. Never replace with ordinary HRC fuse."},
+ K1:{tag:"K1",nm:"Main Power Contactor",g:"POWER",s:"3-pole power contactor · coil 110/120 V AC from TX1 via K2/1 · RC suppressor · aux K1/2, K1/4, K1/5, K1/7",
+  p:"Switches the TR-set primary circuit ON/OFF on command of the controller.",
+  u:"Controller output CONTACTOR → K2 → K2/1 closes → K1 coil energised. Aux contacts: K1/2 = status back to controller, K1/4 = REMOTE HT ON to DCS, K1/5 = remote TRIP logic, K1/7 = firing module enable (CN2).",
+  b:"• Physical disconnection of the TR set on any trip (SCRs alone are not an isolation)\n• Controller confirms closing via K1/2 feedback (Contactor Fail protection)\n• Firing pulses only allowed when K1 is closed (K1/7)",
+  f:"Coil open / burnt → CONTACTOR FAIL trip. Welded contacts → HT stays energised after stop – dangerous. Worn contacts → phase imbalance, heating.",
+  t:"Check coil resistance, RC suppressor, contact wear. Close/open test from controller with power section isolated (test position)."},
+ SCR14:{tag:"SCR1 / SCR4",nm:"Anti-parallel Thyristor Pair – R Phase",g:"POWER",s:"Back-to-back SCR pair · snubber R4-C4 (ferrules 78/82/112) · MOV · gate wires 177–180",
+  p:"Controls the voltage given to the TR set on R phase by phase-angle firing.",
+  u:"SCR1 conducts in the positive half cycle and SCR4 in the negative half cycle. Firing later in the half cycle = less voltage; earlier = more voltage. On a spark, firing is blocked (quench) for a few half cycles, then restarted lower (setback).",
+  b:"• Smooth, step-less control of kV from 0 to max\n• Very fast switching OFF on sparks protects TR set and electrodes\n• No moving parts, long life\n• Snubber (R-C) limits dv/dt so SCR does not self-trigger; MOV clamps spikes from sparks",
+  f:"Shorted SCR → no control on that phase, high current, fuse may blow. Open SCR / no gate pulse → current imbalance, lower kV, TR humming.",
+  t:"Isolated: A–K both directions should be high Ω (not short). G–K typically 10–50 Ω. Running: check current balance with ASS/A1."},
+ SCR36:{tag:"SCR3 / SCR6",nm:"Anti-parallel Thyristor Pair – Y Phase",g:"POWER",s:"Back-to-back SCR pair · snubber R5-C5 (ferrules 84/149/114) · MOV · gate wires 181–184",
+  p:"Phase-angle voltage control for Y phase (same job as SCR1/SCR4).",
+  u:"Fired in sequence with the other two pairs by the 6P11 firing module, synchronised from TX6.",
+  b:"• Balanced 3-phase control keeps TR set and supply currents balanced\n• Snubber + MOV give the pair long life in a spark-heavy duty",
+  f:"Try the 'SCR3 open' fault in the simulator: Y-phase current drops (see ASS = Y), R and B go up, kV falls.",
+  t:"Same as SCR1/4. Compare gate pulses on CRO for all six SCRs."},
+ SCR52:{tag:"SCR5 / SCR2",nm:"Anti-parallel Thyristor Pair – B Phase",g:"POWER",s:"Back-to-back SCR pair · snubber R6-C6 (ferrules 86/152/116) · MOV · gate wires 185–188 · heat-sink thermostats TH1–TH3",
+  p:"Phase-angle voltage control for B phase.",
+  u:"Mounted on heat-sinks with thermostats TH1–TH3. Panel fans cool the stacks while HT is ON.",
+  b:"• Completes 3-phase control\n• Thermostats protect all SCRs from over-heating (dirty heat-sink, fan failure)",
+  f:"Over-heating → TH opens → RL3 drops → SCR TEMP HIGH trip.",
+  t:"Clean heat-sinks, check fan airflow, check thermostat continuity at room temperature."},
+ CT4:{tag:"CT4 + TS4",nm:"Primary Current Feedback CT",g:"MEASUREMENT",s:"CT on R phase · test/shorting terminal TS4 · to controller TB6-1 AMPS(CT), TB6-2 GND(CT) · ferrules 14/15",
+  p:"Gives the controller the primary current signal.",
+  u:"The controller uses primary current for over-current protection, for current limit cross-check and to see if SCRs are conducting (current with K1 closed).",
+  b:"• Fast over-current / short-circuit detection on the primary side\n• Helps controller distinguish a real field short from a feedback fault\n• TS4 allows safe CT shorting during maintenance",
+  f:"Open CT secondary → dangerous high voltage at CT terminals + wrong reading. Wrong polarity → wrong protection action.",
+  t:"Short at TS4 before removing controller plug. Secondary injection to check controller reading."},
+ CT123:{tag:"CT1 / CT2 / CT3",nm:"Primary Current CTs for Ammeter",g:"MEASUREMENT",s:"One CT per phase · S1/S2 to ASS · ferrules 192, 207–209",
+  p:"Local measurement of R, Y and B primary currents.",
+  u:"Secondary currents go to the ammeter selector switch ASS; A1 shows the selected phase.",
+  b:"• Operator can check phase balance during running\n• Quick indication of SCR or firing problems\n• Useful for checking TR loading against rating",
+  f:"One phase reading low/zero with others normal → SCR open, gate fault, or CT/wiring fault.",
+  t:"Rotate ASS through R/Y/B while running and compare. >10 % imbalance needs investigation."},
+ ASS:{tag:"ASS + A1",nm:"Ammeter Selector Switch + Primary Ammeter",g:"MEASUREMENT",s:"3-position selector · ferrules 196/197 · A1 primary ammeter",
+  p:"Reads any one phase primary current on a single meter.",
+  u:"Selector shorts the CTs not being read (make-before-break) and connects the selected one to A1.",
+  b:"• One meter instead of three – saves panel space and cost\n• CTs are never left open-circuited while switching",
+  f:"Worn switch contacts → flickering or zero reading on one position.",
+  t:"Turn ASS in the SIMULATOR to R / Y / B and watch A1."},
+ MCB5:{tag:"MCB5 + VSS + V1",nm:"Primary Voltmeter Circuit",g:"MEASUREMENT",s:"MCB5 3P 2 A (ferrules 112/114/116 → 216/217/218) · VSS · fuses F7/F8 200 mA (194/195 → 65/68) · V1",
+  p:"Shows the actual controlled voltage going to the TR-set primary.",
+  u:"Tapped after the SCRs, so V1 rises and falls with the conduction angle. VSS selects RY / YB / BR.",
+  b:"• Confirms SCRs are actually firing (V1 rises after HT ON)\n• Detects phase-to-phase voltage imbalance on the TR side\n• MCB5 and F7/F8 protect the meter wiring",
+  f:"HT ON but V1 = 0 → no firing (firing module, sync, K1/7) or MCB5 off. V1 high but kV low → TR or HV side issue.",
+  t:"Compare V1 with the controller's primary-voltage display."},
+ TX3:{tag:"TX3",nm:"Primary Voltage PT (600 V / 20 V)",g:"MEASUREMENT",s:"600 V / 20 V · MOV on primary · to TB6-3 VOLTS(PT), TB6-4 GND(PT) · ferrules 25/16",
+  p:"Gives an isolated low-voltage signal of the primary voltage to the controller.",
+  u:"Controller compares primary V with secondary kV: high primary V with very low kV indicates a short circuit; normal kV with low primary V indicates feedback problems.",
+  b:"• Galvanic isolation of the controller from 415 V\n• Enables open-circuit / short-circuit / feedback-fault discrimination\n• MOV protects against spikes",
+  f:"No PT signal → controller may show wrong primary V or give faults.",
+  t:"While running: TB6-3/4 voltage ≈ 20 × V1 / 600."},
+ TR:{tag:"TR SET (LT4/LT5/LT6)",nm:"HV Transformer-Rectifier Set 110 kV / 1000 mA",g:"FIELD",s:"110 kV (peak) / 1000 mA DC · oil-filled · float switches, oil-temp contacts · feedback divider and shunt",
+  p:"Converts the controlled 415 V AC into high negative DC voltage for the ESP field.",
+  u:"Step-up transformer + HV rectifier bridge in oil. Built-in voltage divider (VFB) and current shunt (IFB) send feedback to the panel. Protection contacts go to TB2.",
+  b:"• Produces the corona needed to charge dust particles\n• Negative polarity gives higher spark-over voltage and stable corona\n• Built-in protections (float, temperature) protect this costly equipment",
+  f:"Low oil → float alarm/trip. Overloading or poor cooling → oil temp alarm/trip. Rectifier failure → low kV, high primary current.",
+  t:"Open-circuit test (field disconnected) and short-circuit test only under permit, earthing switch and key interlock procedure. Oil BDV yearly."},
+ ESP:{tag:"ESP FIELD",nm:"Electrostatic Precipitator Field",g:"FIELD",s:"Discharge electrodes (−kV) between earthed collecting plates",
+  p:"Removes dust from flue gas – the whole panel exists to power this field.",
+  u:"Corona around the discharge electrodes charges dust; charged dust moves to the collecting plates. Rappers knock it into hoppers (rapper NOT applicable for this project). The controller keeps kV as high as possible without continuous sparking.",
+  b:"• Higher average kV = higher collection efficiency = lower stack emission\n• Optimum spark rate keeps the field at its best operating point as gas and dust change",
+  f:"Broken / swinging electrode → short or heavy sparking. Ash build-up in hopper → short circuit. HV disconnected → open circuit (high kV, no mA).",
+  t:"Air-load V-I curve during shutdown: record kV and mA at steps – compare with previous curves to judge field condition."},
+ SPP:{tag:"MCB4 + SPP",nm:"Single Phasing Preventer",g:"PROTECTION",s:"MCB4 3P 2 A (ferrules 72/74/76 → 272/274/276) · SPP relay · SPP1 contact in start chain · SPP1/2 → PL6",
+  p:"Prevents running with a missing, unbalanced or reversed phase.",
+  u:"Monitors supply after FSU1. When healthy, SPP1 closes in the interlock chain. On a fault, SPP1 opens (HT OFF) and SPP1/2 lights PL6 PHASE FAILURE. MCB4 also feeds sync transformers TX5–TX7.",
+  b:"• Protects TR set from unbalanced heating and DC saturation\n• Protects SCRs from wrong firing\n• Clear operator indication of the cause (PL6)",
+  f:"Nuisance trip → loose supply connection, weak phase, or SPP setting too tight.",
+  t:"With HT ON, simulate phase loss → HT OFF + PL6 ON. Check SPP sensitivity setting."},
+ TX567:{tag:"TX5 / TX6 / TX7",nm:"Synchronising Transformers 415/115 V",g:"CONTROL",s:"415 V / 115 V · MOV on primary · secondary to firing module CN3 · ferrules 261/262/263",
+  p:"Give the firing module the exact phase angle (zero crossing) of each phase.",
+  u:"The firing module measures the delay from each zero crossing to place the gate pulse at the demanded angle.",
+  b:"• Correct, balanced firing of all six SCRs\n• Isolation of the firing electronics from 415 V\n• Wrong-phase connection is easily detected during commissioning",
+  f:"Missing sync phase → that phase does not fire or fires wrongly → imbalance, humming, DC component in TR.",
+  t:"Check 115 V on each secondary and phase sequence matching the power circuit."},
+ FM:{tag:"6P11",nm:"Firing Module",g:"CONTROL",s:"6-pulse firing module · CN1 supply/command · CN2 K1/7 enable · CN3 sync · CN4/CN5 gate outputs (177–188)",
+  p:"Converts the controller's firing command into six isolated gate pulses for the SCRs.",
+  u:"Gets angle command from the controller via the signal conditioning card, timing from TX5–TX7, and enable from K1/7. Gives pulse trains to SCR gates through twisted-pair gate/cathode wires.",
+  b:"• Isolated, strong gate pulses for reliable SCR turn-on\n• Pulses only when K1 is closed (safety)\n• Fast blocking on spark command",
+  f:"No pulses → V1 = 0 and kV = 0 although K1 is ON. One output dead → current imbalance.",
+  t:"CRO across G-K of each SCR: pulse position must move when conduction is changed."},
+ SCC:{tag:"SIGNAL COND. CARD (J1/J2)",nm:"Signal Conditioning Card",g:"CONTROL",s:"Connects controller HIGH VOLTAGE firing terminals TB1 (G1-K1) / TB2 (G2-K2) to firing module · ferrules 277–281",
+  p:"Matches the controller firing output to the firing module input.",
+  u:"Converts/conditions the firing reference signal levels and provides isolation between controller and firing module.",
+  b:"• Keeps controller electronics separate from power-side firing circuits\n• Reduces noise on the firing command",
+  f:"Card fault → no or unstable firing, kV fluctuates with no sparks.",
+  t:"Measure firing reference on J1/J2 while changing conduction in MAN mode."},
+ TX4:{tag:"MCB3 + TX4",nm:"Auxiliary Transformer (Fans, Light, Socket)",g:"AUXILIARY",s:"MCB3 2P 6 A (62/66 → 205/206) · TX4 415/457/373 V → 120/110 V · outputs X / Y (118/119)",
+  p:"Power for panel cooling, lighting, service socket and 4–20 mA converter cards.",
+  u:"Fans FAN1–FAN5 run through K2/2 only when HT is commanded ON. LED lamp switches on by door micro-switch MS1. SW2 controls the 3-pin socket. X-Y supply goes to the 4–20 mA cards.",
+  b:"• Auxiliaries separated from controller supply – a socket fault cannot trip the controller\n• Fans run only when needed – longer fan life, less dust inside\n• Tappings 457/415/373 V adjust for high/low site voltage",
+  f:"MCB3 off → fans stop (SCR over-heat later), no panel light, DCS 4–20 mA signals lost.",
+  t:"Check fans start at HT ON. Open door → LED ON."},
+ TX1:{tag:"MCB2 + TX1",nm:"Contactor Control Transformer",g:"CONTROL",s:"MCB2 2P 6 A (72/76 → 154/155) · TX1 415 V → 120/110 V · ferrules 79/81/106",
+  p:"Supplies the K1 contactor coil and the PL4 HT ON lamp.",
+  u:"TX1 output → K2/1 → K1 coil (with RC suppressor) and PL4. MCB2 also feeds TX2.",
+  b:"• Contactor coil on a separate transformer – coil inrush does not disturb the controller supply\n• Isolated low-voltage control for safety\n• Tap selection for site voltage",
+  f:"MCB2 OFF → both K1 coil and controller (TX2) lose power.",
+  t:"Check 110 V at TX1 output and at K1 coil when K2 picks."},
+ TX2:{tag:"TX2 + MCB1",nm:"Controller Supply Transformer",g:"CONTROL",s:"TX2 415 V → 110-0-110 V · MCB1 1P 2 A · TB3-1/2 120 V AC, TB3-4 0 V, TB3-6 earth",
+  p:"Clean, isolated supply for the PRECICON-R3 controller and the control phase P / neutral N.",
+  u:"Controller supply comes from TX2. MCB1 gives control phase P for the interlock chain, RL relays, K3, PL5, PL6.",
+  b:"• Isolated controller supply reduces noise and protects electronics\n• MCB1 protects control wiring separately\n• One P/N source for all interlocks → simple fault finding",
+  f:"MCB1 OFF → controller display dark, no interlock chain, cannot start.",
+  t:"Check 120 V at TB3-1/2 and P–N voltage."},
+ CTRL:{tag:"PRECICON-R3",nm:"ESP Controller (Interface Unit RK3973 V2.32)",g:"CONTROL",s:"TB3 supply/contactor/fault/run · TB4 alarm 1–4 & outputs · TB5 inputs 7–12 · TB6 CT/PT/mA/kV · TB7 CAN · AUTO/MAN/FLASH",
+  p:"The brain of the panel – decides the SCR conduction to give the best ESP performance safely.",
+  u:"Reads kV, mA, primary V and A. Detects sparks (fast fall of kV / rise of mA), quenches firing, applies setback, then ramps fast and slow back up. Applies current limit, open-/short-circuit and feedback-fail protections, TR-set protections and interlocks. Sends status to DCS and other fields via CAN.",
+  b:"• Higher average kV than manual control → better dust collection\n• Fast spark handling protects electrodes and TR set\n• All protections, alarms and data in one place\n• AUTO for normal running, MAN for testing, FLASH for spark-rate control / conditioning",
+  f:"Display dark → MCB1/MCB2/TX2. Repeated trips → check the message and the related input on TB2/TB3.",
+  t:"Watch LCD fault message first, then follow the related input wiring. Keep a record of normal kV/mA/spark rate per field."},
+ K2:{tag:"K2",nm:"Contactor Command Relay",g:"CONTROL",s:"Coil from controller TB3-10 CONTACTOR · MOV across coil · contacts K2/1, K2/2, K2/3",
+  p:"Interface relay between controller output and the high-power contactor circuit.",
+  u:"Controller energises K2 → K2/1 switches K1 coil, K2/2 starts fans, K2/3 in contactor status loop.",
+  b:"• Controller output contact is not loaded by the big K1 coil – longer controller life\n• One command operates contactor and fans together",
+  f:"K2 picks but K1 does not → TX1/MCB2/K1 coil. K2 does not pick → controller output or K2 coil.",
+  t:"Listen/see K2 operation on HT ON command."},
+ K3:{tag:"K3 + PL5",nm:"Fault Relay + Alarm/Trip Lamp",g:"PROTECTION",s:"Coil from controller FAULT (TB3-8/9) · MOV · contacts K3/1 trip, K3/2 alarm, K3/3 ready",
+  p:"Signals any controller alarm or trip locally and to DCS.",
+  u:"PL5 glows. K3/2 → REMOTE ALARM (TB4-6/7). K3/1 with K1/5 (K1 open) → REMOTE TRIP (TB4-8/9). K3/3 removes READY TO START.",
+  b:"• Control room knows immediately about field problems\n• Alarm vs trip clearly separated for DCS\n• Ready-to-start prevents remote start attempts during a fault",
+  f:"PL5 not glowing on fault → lamp/K3 coil; DCS not getting alarm → wiring to TB4.",
+  t:"Inject an alarm and a trip in the simulator and watch TB4 contacts."},
+ TB1:{tag:"TB1 (IFB / VFB)",nm:"HV Feedback Terminals from TR Set",g:"MEASUREMENT",s:"TB1-1 +I IFB · TB1-2/3 COMMON · TB1-4 −V VFB · TB1-5 SHIELD · ferrules 38/39/40/41/86/91",
+  p:"Bring the secondary current and kV signals from the TR set into the panel.",
+  u:"Signals go to meters A2, V2, controller TB6 and 4–20 mA cards. Shielded cable, shield earthed at TB1-5 only.",
+  b:"• Accurate real-time kV/mA for spark detection and control\n• Shield and separate routing (drawing note 7) prevent false sparks from noise",
+  f:"VFB open → kV reads 0 while mA normal → UNDER VOLTAGE trip. IFB open → mA reads 0 → OPEN CIRCUIT trip.",
+  t:"Check cable insulation and shield continuity; check divider resistance in TR set."},
+ MCAL:{tag:"A2 / V2 / MCAL1 / MCAL2",nm:"Secondary mA & kV Meters with Calibration Pots",g:"MEASUREMENT",s:"A2 mA meter, MCAL1 10K + 560 Ω · V2 kV meter, MCAL2 10K + 12K",
+  p:"Local display of field current (mA) and field voltage (kV).",
+  u:"Read the most important ESP values at the panel. Pots allow meter calibration to match the controller display.",
+  b:"• Operator can judge field condition without the controller menu\n• Independent check of controller readings\n• Calibration keeps panel and DCS readings matched",
+  f:"Meter and controller disagree → calibrate MCAL or check 4–20 mA card.",
+  t:"Calibrate against a reference HV probe at commissioning."},
+ OVP1:{tag:"OVP1",nm:"Over-Voltage Protector (Feedback)",g:"PROTECTION",s:"Gas-discharge arrester · ferrules 40/86 to EB1",
+  p:"Protects controller and meters from high voltage on the feedback lines.",
+  u:"If the feedback line opens or a flash-over couples high voltage into it, OVP1 conducts to earth EB1.",
+  b:"• Saves expensive controller cards and meters\n• Personnel safety at panel terminals during HV faults",
+  f:"Shorted OVP1 → feedback reads zero → nuisance trips.",
+  t:"Check OVP1 insulation (open) with low-voltage megger as per supplier limit."},
+ CONV:{tag:"4–20 mA CARDS",nm:"4–20 mA Converter Cards (mA & kV)",g:"MEASUREMENT",s:"TB3-1/2 mA O/P · TB3-3/4 kV O/P · max load 560 Ω · supply X-Y from TX4 · ferrules 67/77, 233/97",
+  p:"Send field mA and kV to DCS as standard 4–20 mA signals.",
+  u:"Inputs from the feedback circuit; outputs to DCS AI cards. Live zero (4 mA) shows the loop is healthy.",
+  b:"• Trending of each ESP field in DCS\n• Isolated outputs – DCS earth problems don't disturb the controller\n• 4 mA live zero detects broken loops",
+  f:"DCS shows < 4 mA → loop broken / card supply (MCB3) off.",
+  t:"Loop check: inject or run and compare panel meter vs DCS value."},
+ TB2:{tag:"TB2 + DIODE PCB",nm:"TR Set Protection Inputs",g:"PROTECTION",s:"P.F. NC contacts: TX bottom float trip, oil temp trip, top float alarm, oil temp alarm, earth switch, safety loop 1 & 2 · Diode PCB D1–D10 · TR terminals 6–12",
+  p:"Bring the TR-set and ESP safety contacts into the controller.",
+  u:"Contacts are normally closed (fail-safe): a broken wire acts like a fault. Diode PCB isolates each contact into controller ALARM 1–4 and INPUT 7–12.",
+  b:"• Fail-safe NC wiring – wire break = safe shutdown\n• Separate alarm (warning) and trip (stop) levels for oil temperature and floats\n• Diode PCB prevents back-feeding between inputs",
+  f:"Any open contact or loose wire → alarm or trip. If safety-loop contacts are not used, links TB2-8&9, 10&11, 12&13 are required (drawing note).",
+  t:"Operate each TR protection (or open the link) and confirm the correct alarm/trip message."},
+ RL1:{tag:"RL1",nm:"Safety Loop Relay",g:"PROTECTION",s:"Coil with MOV · contact RL1/1 to SAFETY LOOP FAIL input (ferrule 57)",
+  p:"Supervises the external safety loop (access doors / earthing / key system).",
+  u:"Healthy loop keeps RL1 energised. Loop opens → RL1 drops → controller trips.",
+  b:"• Personnel protection: HT cannot stay ON when the safety loop is broken\n• Fail-safe energised design",
+  f:"Loose loop wiring → nuisance SAFETY LOOP FAIL trips.",
+  t:"Open the loop → HT must trip."},
+ RL3:{tag:"TH1–TH3 + RL3",nm:"SCR Heat-sink Thermostats + Relay",g:"PROTECTION",s:"Thermostats TH1–TH3 in series (100/101) · RL3 coil with MOV (50) · RL3/1 → SCR TEMP HIGH input (58)",
+  p:"Protect the SCRs from over-temperature.",
+  u:"All thermostats closed → RL3 energised. Any heat-sink too hot → its TH opens → RL3 drops → SCR TEMP HIGH trip.",
+  b:"• Saves SCRs when fans fail, filters choke or heat-sinks get dusty\n• Series design: one relay watches all three stacks",
+  f:"Repeated SCR TEMP trips → check fans (K2/2, MCB3), filters, heat-sink cleanliness, ambient temperature.",
+  t:"Try the 'Panel fans not running' fault in the simulator – trip comes after some time."},
+ TS3:{tag:"TS3",nm:"Mechanical Key Interlock",g:"INTERLOCK",s:"Key switch in start chain (ferrule 129 to P)",
+  p:"Guarantees HT is OFF before anyone can enter the ESP.",
+  u:"Key is trapped in TS3 while HT can run. Removing the key opens the start chain; the key is then used in the key-exchange sequence to earth the field and open ESP doors.",
+  b:"• Personnel safety – the most important interlock in an ESP\n• Physical key – cannot be bypassed by software",
+  f:"Worn key switch → unable to start or nuisance stop.",
+  t:"With HT ON, take the key out → HT must switch off at once."},
+ SPP1:{tag:"SPP1",nm:"SPP Contact in Start Chain",g:"INTERLOCK",s:"Ferrules 129–130",
+  p:"Stops the HT when the supply is unhealthy.",
+  u:"Series element of the chain P–TS3–SPP1–PB1–SW1. Opens on phase loss / imbalance.",
+  b:"• Automatic stop on bad supply – protects TR set and SCRs",
+  f:"Chain open with PL6 ON → supply problem, not the controller.",
+  t:"Remove one phase (MCB4/fuse) → SPP1 opens."},
+ PB1:{tag:"PB1",nm:"Emergency Stop Push Button",g:"INTERLOCK",s:"Stay-put mushroom PB · ferrules 130–173",
+  p:"Immediate local stop of the HT in an emergency.",
+  u:"Opens the start chain → RL2 drops → RUN removed → controller opens K2 → K1 opens. Stays pressed until twisted/pulled.",
+  b:"• Fast hard-wired stop independent of controller software\n• Stay-put action prevents accidental restart",
+  f:"Contact stuck closed → E-stop does not work (dangerous) – test regularly.",
+  t:"Press with HT ON → K1 must open; PB2 must not restart until released."},
+ SW1:{tag:"SW1",nm:"Local / Remote Selector",g:"INTERLOCK",s:"L → PB2/RL2 path (174) · R → K7/1 path (132) · status to TB4-10/11/12 (103/104/105)",
+  p:"Selects who controls HT ON/OFF – panel or DCS.",
+  u:"LOCAL: start with PB2, latched by RL2. REMOTE: DCS sends 230 V to K7; K7/1 gives RUN directly. DCS sees the selected mode.",
+  b:"• Maintenance staff can take local control safely\n• Prevents conflicting commands from panel and DCS\n• DCS operator knows when the panel is in local",
+  f:"DCS cannot start → SW1 in LOCAL or K7 supply missing.",
+  t:"Check start works only from the selected place."},
+ PB2:{tag:"PB2 + RL2",nm:"HT ON Push Button + Start Latch Relay",g:"INTERLOCK",s:"PB2 ON PB · RL2 coil with MOV (181) · RL2/1 hold · RL2/2 RUN to TB3-11 (114)",
+  p:"Local start of the HT with self-hold.",
+  u:"PB2 energises RL2 through the healthy chain. RL2/1 holds it in. RL2/2 sends RUN/START to the controller. Any chain opening drops RL2 – a new PB2 press is needed.",
+  b:"• No automatic restart after power dip or interlock trip (safety)\n• Momentary PB – operator must deliberately start",
+  f:"HT starts but stops when PB2 is released → RL2/1 hold contact faulty.",
+  t:"Press PB2, release – HT must stay ON."},
+ K7:{tag:"K7",nm:"Remote HT ON/OFF Relay",g:"INTERLOCK",s:"Coil on external 230 V AC from DCS (TB4-2/3, 97/98) · MOV · K7/1 (114–132)",
+  p:"Accepts the DCS start/stop command.",
+  u:"DCS keeps 230 V ON for 'HT ON'. K7/1 in the REMOTE branch gives RUN while the chain is healthy.",
+  b:"• Isolates DCS 230 V from panel control circuit\n• Maintained command – loss of DCS signal stops the HT (fail-safe)",
+  f:"No pick → DCS output / fuse / wiring to TB4-2/3.",
+  t:"Force DCS command, check K7 picks and HT starts in REMOTE."},
+ TB4:{tag:"TB4 (DCS)",nm:"Hardwired Signals to DCS",g:"INDICATION",s:"Contact rating 220 V AC, 5 A · TB4-4/5 HT ON · 6/7 ALARM · 8/9 TRIP · 10–12 L/R · 19/20 READY · 13–18 rapper (N/A)",
+  p:"Potential-free status signals for the control room.",
+  u:"Relay contacts (K1/4, K3/2, K3/1+K1/5, SW1, K3/3+FSU aux) give clean digital inputs to DCS.",
+  b:"• Remote monitoring of every field without networking\n• Potential-free contacts – no voltage mixing between panel and DCS\n• READY TO START lets DCS logic start fields in sequence",
+  f:"DCS status wrong → check relay contact first, then cable/DI card.",
+  t:"Loop check each signal by operating it in the simulator / panel."},
+ TB7:{tag:"TB7",nm:"CAN Communication",g:"CONTROL",s:"CAN high / low (×2), shield, shield ground · daisy chain",
+  p:"Data link between this controller and the other field controllers / supervisory system.",
+  u:"Daisy-chained from the previous interface to the next. Carries readings, settings and status.",
+  b:"• Settings and trends of all fields from one place\n• Coordinated operation between fields\n• Fewer hardwired cables",
+  f:"Communication loss → field data missing on the supervisory screen (HT keeps running locally).",
+  t:"Check termination resistor at both ends, shield earthed at one point."},
+ EB1:{tag:"EB1",nm:"Main Earth Busbar",g:"POWER",s:"Panel body earth bus · PVC green/yellow earthing wire",
+  p:"Common earth for panel body, transformer screens, MOVs, OVP and shields.",
+  u:"All protective and noise-screen earths terminate here and connect to the plant earth grid.",
+  b:"• Personnel safety (touch voltage)\n• Path for surge energy from MOVs and OVP\n• Low-noise reference for kV/mA measurement",
+  f:"Poor earth → noisy readings, false sparks, damaged cards during flash-over.",
+  t:"Measure earth resistance and continuity panel-to-grid."},
+ FAN:{tag:"FAN1–FAN5",nm:"Panel Cooling Fans",g:"AUXILIARY",s:"5 fans on TX4 supply via K2/2",
+  p:"Remove heat from the SCR stacks and panel.",
+  u:"Start automatically with the contactor command (K2/2) and stop when HT is OFF.",
+  b:"• Keeps SCRs within rating at full load\n• Running only with HT reduces dust intake and wear",
+  f:"Fan failure → slow heating → SCR TEMP HIGH trip.",
+  t:"Check all fans rotate at HT ON; clean filters monthly."},
+};
+const GROUPS=["ALL","POWER","CONTROL","MEASUREMENT","PROTECTION","INTERLOCK","INDICATION","AUXILIARY","FIELD"];
+
+/* ================= STATE ================= */
+const FAULTS=[
+ {id:"phaseLoss",nm:"Y phase supply lost",hint:"Incoming phase missing"},
+ {id:"fuseF1",nm:"F1 fuse blown (FSU1)",hint:"Main fuse"},
+ {id:"oilTrip",nm:"TR oil temp high TRIP",hint:"TB2"},
+ {id:"oilAlarm",nm:"TR oil temp high ALARM",hint:"TB2"},
+ {id:"botFloat",nm:"TX bottom float TRIP",hint:"TB2"},
+ {id:"topFloat",nm:"TX top float ALARM",hint:"TB2"},
+ {id:"earthSw",nm:"Earth switch not open",hint:"TB2"},
+ {id:"safety",nm:"Safety loop fail (RL1)",hint:"RL1"},
+ {id:"scrTemp",nm:"SCR heat-sink over-temp",hint:"TH1-3/RL3"},
+ {id:"scrOpen",nm:"SCR3 open (no conduction)",hint:"Y phase SCR"},
+ {id:"k1Coil",nm:"K1 coil open",hint:"Contactor"},
+ {id:"shortCkt",nm:"ESP field short (broken wire)",hint:"Field"},
+ {id:"openCkt",nm:"HV open circuit (disconnected)",hint:"Field"},
+ {id:"vfbLoss",nm:"kV feedback (VFB) open",hint:"TB1"},
+ {id:"fanFail",nm:"Panel fans not running",hint:"Aux"},
+];
+let S;
+function freshState(){return{
+ supply:true,fsu:false,mcb1:false,mcb2:false,mcb3:false,mcb4:false,mcb5:false,
+ key:true,estop:false,sw1:"L",remoteCmd:false,door:false,
+ vss:0,ass:0,mode:"AUTO",manSet:50,
+ faults:{},hidden:null,
+ rl2:false,run:false,k2:false,k1:false,k3:false,k7:false,
+ trip:null,alarm:null,state:"STOP",tStart:0,
+ c:0,cPre:0,quench:0,ramp:"slow",V:0,I:0,Vr:0,Ir:0,Vp:0,Ip:[0,0,0],
+ sparks:[],sparkFlash:0,sppOK:false,ctrlOn:false,chain:false,fans:false,
+ hist:[],t:0,k1fail:0,spk:72,ilim:900,sb:8,thDrift:0
+};}
+S=freshState();
+const F=id=>!!(S.faults[id]||S.hidden===id);
+
+/* ================= LOG / TOAST ================= */
+function log(msg,cls=""){const d=document.getElementById("log");const e=document.createElement("div");e.className=cls;const tm=new Date().toLocaleTimeString();e.textContent=tm+"  "+msg;d.prepend(e);while(d.children.length>80)d.lastChild.remove();}
+let tT;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),2200);}
+
+/* ================= SIM LOGIC ================= */
+const DT=0.05;
+function trip(msg){if(!S.trip){S.trip=msg;log("TRIP: "+msg,"t");toast("TRIP: "+msg);}}
+function step(){
+ S.t+=DT;
+ S.spk=+document.getElementById("spk").value;S.ilim=+document.getElementById("ilim").value;S.sb=+document.getElementById("sb").value;
+ const ph=[S.supply,S.supply&&!F("phaseLoss"),S.supply];          // incoming phases
+ const afterFsu=[ph[0]&&S.fsu&&!F("fuseF1"),ph[1]&&S.fsu,ph[2]&&S.fsu];
+ S.ph=ph;S.af=afterFsu;
+ const all3=afterFsu.every(x=>x);
+ const prevSpp=S.sppOK;
+ S.sppOK=S.mcb4&&all3;
+ if(prevSpp&&!S.sppOK&&S.mcb4)log("SPP: phase failure detected","t");
+ S.pl6=S.ctrlOn&&S.mcb4&&!all3;
+ // TX1/TX2 via MCB2 (wires 72/76 = L1/L3 after FSU)
+ const tx12=S.mcb2&&afterFsu[0]&&afterFsu[2];
+ S.ctrlOn=tx12&&S.mcb1;
+ S.tx1=tx12;
+ S.tx4=S.mcb3&&ph[0]&&ph[2];
+ // interlock chain
+ S.chain=S.ctrlOn&&S.key&&S.sppOK&&!S.estop;
+ S.k7=S.remoteCmd; // external 230V
+ if(!(S.chain&&S.sw1==="L"))S.rl2=false;
+ S.run=S.ctrlOn&&(S.rl2||(S.sw1==="R"&&S.k7&&S.chain));
+ // protection inputs (only when controller on)
+ if(S.ctrlOn){
+   if(F("oilTrip"))trip("TR OIL TEMP HIGH TRIP");
+   if(F("botFloat"))trip("TX BOTTOM FLOAT TRIP");
+   if(F("earthSw"))trip("EARTH SWITCH CLOSED");
+   if(F("safety"))trip("SAFETY LOOP FAIL");
+   if(F("fanFail")&&S.k1){S.thDrift+=DT;if(S.thDrift>12)S.scrHot=true;}else S.thDrift=Math.max(0,S.thDrift-DT*0.5);
+   if(F("scrTemp")||S.scrHot)trip("SCR TEMP HIGH");
+   S.alarm=F("oilAlarm")?"OIL TEMP HIGH ALARM":F("topFloat")?"TX TOP FLOAT ALARM":null;
+ }else{S.alarm=null;}
+ // controller contactor command
+ const want=S.ctrlOn&&S.run&&!S.trip;
+ if(want&&!S.k2){S.k2=true;S.tStart=S.t;S.c=0;S.cPre=0.6;S.ramp="fast";log("Controller: RUN received, K2 → K1 closing","g");}
+ if(!want&&S.k2){S.k2=false;log(S.trip?"Controller: K2 OFF (trip)":"Controller: RUN removed, HT OFF","a");}
+ const k1prev=S.k1;
+ S.k1=S.k2&&S.tx1&&!F("k1Coil");
+ if(S.k1&&!k1prev)log("K1 main contactor CLOSED – HT ON","g");
+ if(!S.k1&&k1prev)log("K1 main contactor OPEN – HT OFF","a");
+ if(S.k2&&!S.k1){S.k1fail+=DT;if(S.k1fail>1.2)trip("CONTACTOR FAIL (NO K1 FEEDBACK)");}else S.k1fail=0;
+ S.fans=S.k2&&S.tx4&&!F("fanFail");
+ S.k3=S.ctrlOn&&(!!S.trip||!!S.alarm);
+ // power section
+ const out=[afterFsu[0]&&S.k1,afterFsu[1]&&S.k1,afterFsu[2]&&S.k1];
+ S.out=out;
+ let phaseF=out.filter(x=>x).length===3?1:out.filter(x=>x).length>=2?0.5:0;
+ if(F("scrOpen"))phaseF*=0.62;
+ // firing control
+ if(S.k1&&S.t-S.tStart>0.5&&!S.trip){
+   const ilim=S.ilim/1000,sb=S.sb/100;
+   if(S.quench>0){S.quench-=DT;if(S.quench<=0){S.c=S.cPre*(1-sb);S.ramp="fast";}}
+   else{
+     let target=S.mode==="MAN"?S.manSet/100:1;
+     let fastTo=S.cPre*0.97;
+     let rate=S.mode==="FLASH"?0.10:(S.ramp==="fast"&&S.c<fastTo?0.18:0.035);
+     if(S.c>=fastTo)S.ramp="slow";
+     if(S.I>=ilim){S.c-=0.25*DT;}
+     else if(S.c<target)S.c=Math.min(target,S.c+rate*DT);
+     else S.c=Math.max(target,S.c-0.15*DT);
+   }
+ }else{S.c=Math.max(0,S.c-0.5*DT);if(!S.k1)S.c=0;S.quench=0;}
+ S.c=Math.max(0,Math.min(1,S.c));
+ // electrical model
+ const ce=S.quench>0?0:S.c*phaseF;
+ const Vsrc=110*Math.sqrt(ce)*(ce>0?1:0);
+ let V=0,I=0;const Vc=26,K=0.9/(75*(75-Vc)),Rint=32;
+ if(Vsrc>0){
+   if(F("shortCkt")){I=Math.min(1.25,Vsrc/Rint*0.95);V=Math.max(0.3,Vsrc-I*Rint)*0.15;}
+   else if(F("openCkt")){I=0;V=Vsrc;}
+   else{let lo=0,hi=Vsrc;for(let i=0;i<30;i++){const m=(lo+hi)/2;const im=m>Vc?K*m*(m-Vc):0;if(m+im*Rint>Vsrc)hi=m;else lo=m;}V=lo;I=V>Vc?K*V*(V-Vc):0;}
+   V*=1+(Math.random()-0.5)*0.01;I*=1+(Math.random()-0.5)*0.02;
+ }
+ // sparking
+ S.sparkFlash=Math.max(0,S.sparkFlash-DT);
+ const vsp=S.spk+Math.sin(S.t*0.3)*1.5;
+ if(V>vsp-5&&!F("shortCkt")&&!F("openCkt")&&S.quench<=0&&S.k1){
+   const p=Math.min(0.5,0.0025*Math.exp((V-(vsp-5))*0.9));
+   if(Math.random()<p){S.cPre=S.c;S.quench=0.12;S.sparks.push(S.t);S.sparkFlash=0.25;V=0;I=1.0;}
+ }
+ S.sparks=S.sparks.filter(t=>S.t-t<60);
+ S.V=V;S.I=I;
+ S.Vr=F("vfbLoss")?0:V;S.Ir=I;
+ // primary
+ S.Vp=S.k1&&!F("shortCkt")?415*Math.sqrt(ce)*(phaseF>0?1:0):(S.k1&&F("shortCkt")?415*Math.sqrt(ce)*0.7:0);
+ const P=V*I+(F("shortCkt")?Vsrc*I*0.6:0);
+ const Ip=S.k1&&ce>0?P*1.855+4:0;
+ S.Ip=[out[0]?Ip:0,out[1]?(F("scrOpen")?Ip*0.15:Ip):0,out[2]?Ip:0];
+ if(F("scrOpen")&&S.k1){S.Ip[0]*=1.25;S.Ip[2]*=1.25;}
+ // controller detection of field/feedback faults
+ if(S.k1&&!S.trip&&S.t-S.tStart>3&&S.c>0.05&&S.quench<=0){
+   if(S.Vr<2&&S.Ir>0.25){S.badT=(S.badT||0)+DT;if(S.badT>1)trip("UNDER VOLTAGE (SHORT CKT / VFB)");}
+   else if(S.Vr<10&&S.Ir>0.3){S.badT=(S.badT||0)+DT;if(S.badT>1)trip("UNDER VOLTAGE (SHORT CKT / VFB)");}
+   else if(S.Ir<0.01&&S.Vr>40){S.badT=(S.badT||0)+DT;if(S.badT>1.5)trip("OPEN CIRCUIT (NO CURRENT)");}
+   else S.badT=0;
+ }
+ S.state=!S.ctrlOn?"OFF":S.trip?"TRIP":S.k1?(S.quench>0?"SPARK":"RUN"):"STOP";
+ if(S.t%0.5<DT){S.hist.push([S.Vr,S.Ir*1000,S.sparkFlash>0?1:0]);if(S.hist.length>120)S.hist.shift();}
+}
+
+/* ================= USER ACTIONS ================= */
+function pressOn(){
+ if(!S.ctrlOn){toast("No control supply – switch on FSU1, MCB2, MCB1");return;}
+ if(S.sw1!=="L"){toast("SW1 is in REMOTE – PB2 not active");return;}
+ if(!S.chain){toast("Interlock chain open: "+chainWhy());return;}
+ if(S.trip){toast("Trip active – clear cause and press RESET");}
+ S.rl2=true;log("PB2 pressed – RL2 latched");
+}
+function chainWhy(){const r=[];if(!S.key)r.push("TS3 key out");if(!S.sppOK)r.push("SPP not healthy");if(S.estop)r.push("E-STOP pressed");return r.join(", ")||"OK";}
+function toggleEstop(){S.estop=!S.estop;log(S.estop?"EM STOP PB1 pressed":"EM STOP released",S.estop?"t":"");}
+function toggleSW1(){S.sw1=S.sw1==="L"?"R":"L";log("SW1 → "+(S.sw1==="L"?"LOCAL":"REMOTE"));}
+function toggle(k){S[k]=!S[k];const n={fsu:"FSU1",mcb1:"MCB1",mcb2:"MCB2",mcb3:"MCB3",mcb4:"MCB4",mcb5:"MCB5",key:"TS3 key",remoteCmd:"DCS remote command",supply:"415 V incomer"}[k]||k;log(n+" → "+(S[k]?(k==="key"?"IN":"ON"):(k==="key"?"OUT":"OFF")));}
+function cycleSel(k){S[k]=(S[k]+1)%3;}
+function ctrlKey(k){
+ if(!S.ctrlOn)return;
+ if(k==="mode"){S.mode={AUTO:"MAN",MAN:"FLASH",FLASH:"AUTO"}[S.mode];if(S.mode==="MAN")S.manSet=Math.round(S.c*100)||40;log("Mode → "+S.mode);}
+ if(k==="up")S.manSet=Math.min(100,S.manSet+5);
+ if(k==="dn")S.manSet=Math.max(0,S.manSet-5);
+ if(k==="reset"){
+   if(!S.trip)return;
+   const still=(F("oilTrip")||F("botFloat")||F("earthSw")||F("safety")||F("scrTemp"));
+   if(still){toast("Cause still present – cannot reset");log("RESET refused: cause present","t");return;}
+   S.trip=null;S.scrHot=false;S.thDrift=0;S.badT=0;log("Fault RESET","g");
+ }
+}
+function quickReady(){Object.assign(S,{supply:true,fsu:true,mcb1:true,mcb2:true,mcb3:true,mcb4:true,mcb5:true,key:true,estop:false});log("All breakers ON, chain healthy (MAKE READY)","g");}
+function clearFaults(){S.faults={};S.hidden=null;S.scrHot=false;renderFaults();log("All injected faults cleared","g");}
+function resetAll(){S=freshState();renderFaults();log("Simulator reset");}
+
+/* ================= DRAWING (SVG) ================= */
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("dwg");
+let H=""; // svg markup buffer
+const live=[]; // [selector,id,fn,cls]
+let uid=0;
+function el(s){H+=s;}
+function L(pts,cls="w",key=null,ph=""){const id="w"+(uid++);H+=`<polyline id="${id}" class="${cls} ${ph}" points="${pts}"/>`;if(key)live.push([id,key]);}
+function T(x,y,s,c="sm",a="start",rot=0){H+=`<text x="${x}" y="${y}" class="${c}" text-anchor="${a}"${rot?` transform="rotate(${rot} ${x} ${y})"`:""}>${s}</text>`;}
+function G(id,x,y,w,h,inner){H+=`<g class="cmp" data-c="${id}"><rect class="hit" x="${x-4}" y="${y-4}" width="${w+8}" height="${h+8}"/>${inner}</g>`;}
+function lampS(cx,cy,id,col){return `<g class="lamp" id="${id}" style="color:${col}"><circle class="lampc" cx="${cx}" cy="${cy}" r="9"/><path d="M${cx-6} ${cy-6}L${cx+6} ${cy+6}M${cx+6} ${cy-6}L${cx-6} ${cy+6}" stroke="#222" stroke-width="1.3"/></g>`;}
+function fuseS(x,y,w=26,v=false){return v?`<rect x="${x-5}" y="${y}" width="10" height="${w}" fill="#fff" stroke="#222"/><line x1="${x}" y1="${y}" x2="${x}" y2="${y+w}" stroke="#222"/>`:`<rect x="${x}" y="${y-5}" width="${w}" height="10" fill="#fff" stroke="#222"/><line x1="${x}" y1="${y}" x2="${x+w}" y2="${y}" stroke="#222"/>`;}
+function contactS(x,y,id,len=30,v=false){ // NO contact, horizontal default
+ if(v)return `<circle cx="${x}" cy="${y}" r="2.5" fill="#222"/><circle cx="${x}" cy="${y+len}" r="2.5" fill="#222"/><line id="${id}" class="blade" x1="${x}" y1="${y+len}" x2="${x+12}" y2="${y+4}" data-v="1" data-x="${x}" data-y="${y}" data-l="${len}"/>`;
+ return `<circle cx="${x}" cy="${y}" r="2.5" fill="#222"/><circle cx="${x+len}" cy="${y}" r="2.5" fill="#222"/><line id="${id}" class="blade" x1="${x}" y1="${y}" x2="${x+len-4}" y2="${y-12}" data-x="${x}" data-y="${y}" data-l="${len}"/>`;}
+function coilS(x,y,id,w=26,h=18){return `<rect id="${id}" class="coil" x="${x}" y="${y}" width="${w}" height="${h}"/><line x1="${x}" y1="${y+h}" x2="${x+w}" y2="${y}" stroke="#222"/>`;}
+function meterS(cx,cy,l){return `<circle cx="${cx}" cy="${cy}" r="13" fill="#fff" stroke="#222" stroke-width="1.4"/><text x="${cx}" y="${cy+4}" text-anchor="middle" class="sm">${l}</text>`;}
+function txS(x,y,w,h,l1,l2,id){ // transformer box with windings
+ let s=`<rect class="box" x="${x}" y="${y}" width="${w}" height="${h}"/>`;
+ const n=Math.max(2,Math.floor(w/16)-1);
+ for(let i=0;i<n;i++){const cx=x+12+i*((w-24)/(n-1||1));s+=`<path d="M${cx-6} ${y+h/2-3}a6 6 0 0 1 12 0" class="w"/><path d="M${cx-6} ${y+h/2+3}a6 6 0 0 0 12 0" class="w"/>`;}
+ s+=`<line x1="${x+6}" y1="${y+h/2}" x2="${x+w-6}" y2="${y+h/2}" stroke="#222" stroke-width="1"/>`;
+ s+=`<text x="${x+w/2}" y="${y-4}" text-anchor="middle" class="md">${id}</text><text x="${x+3}" y="${y+10}" class="tiny">${l1}</text><text x="${x+3}" y="${y+h-3}" class="tiny">${l2}</text>`;return s;}
+function mcbS(x,y,id,label,poles=2,v=true){let s=`<rect class="box" x="${x}" y="${y}" width="${poles*16+10}" height="34" rx="3"/>`;for(let i=0;i<poles;i++){const px=x+10+i*16;s+=`<line id="${id}_${i}" class="blade" x1="${px}" y1="${y+28}" x2="${px+8}" y2="${y+8}"/><circle cx="${px}" cy="${y+28}" r="2" fill="#222"/><circle cx="${px}" cy="${y+6}" r="2" fill="#222"/>`;}s+=`<text x="${x+poles*16+14}" y="${y+14}" class="md">${label.split("|")[0]}</text><text x="${x+poles*16+14}" y="${y+27}" class="tiny">${label.split("|")[1]||""}</text>`;return s;}
+function scrS(x,y,a,b,r){ // box centred on line y
+ return `<g class="scr" id="scr_${a}"><rect x="${x}" y="${y-26}" width="86" height="52" fill="#fff" stroke="#111" stroke-width="3"/>
+ <path class="scrtri" d="M${x+30} ${y-34}l14 7l-14 7z"/><line x1="${x+44}" y1="${y-34}" x2="${x+44}" y2="${y-20}" stroke="#111" stroke-width="2"/><line x1="${x+44}" y1="${y-20}" x2="${x+52}" y2="${y-14}" stroke="#111"/>
+ <path class="scrtri" d="M${x+56} ${y+20}l-14 7l14 7z"/><line x1="${x+42}" y1="${y+20}" x2="${x+42}" y2="${y+34}" stroke="#111" stroke-width="2"/><line x1="${x+42}" y1="${y+20}" x2="${x+34}" y2="${y+14}" stroke="#111"/>
+ <rect x="${x+10}" y="${y-12}" width="18" height="7" fill="#fff" stroke="#222"/><text x="${x+10}" y="${y-15}" class="tiny">${r}</text>
+ <line x1="${x+56}" y1="${y-14}" x2="${x+56}" y2="${y-4}" stroke="#222"/><line x1="${x+60}" y1="${y-14}" x2="${x+60}" y2="${y-4}" stroke="#222"/><text x="${x+64}" y="${y-8}" class="tiny">C</text>
+ <rect x="${x+26}" y="${y+2}" width="30" height="8" fill="#fff" stroke="#222"/><line x1="${x+28}" y1="${y+12}" x2="${x+54}" y2="${y}" stroke="#222"/><text x="${x+60}" y="${y+12}" class="tiny">MOV</text>
+ <text x="${x+2}" y="${y-30}" class="sm">${a}</text><text x="${x+60}" y="${y+40}" class="sm">${b}</text></g>`;}
+function ctS(x,y){return `<path d="M${x-14} ${y}a7 9 0 0 1 14 0a7 9 0 0 1 14 0" fill="none" stroke="#222" stroke-width="1.6"/>`;}
+
+function buildDrawing(){
+ H="";uid=0;live.length=0;
+ const Ly=[100,150,200],PH=["R","Y","B"];
+ el(`<rect x="0" y="0" width="1500" height="1010" fill="#f4f1e8"/>`);
+ el(`<rect x="8" y="8" width="1484" height="994" fill="none" stroke="#999"/>`);
+ T(20,30,"POWER SCHEMATIC – TRCC PANEL  (TRAINING REDRAW)","md");
+ T(20,55,"415 V AC ±10 %, 50 Hz","sm");
+ // incoming terminals
+ G("LT123",18,80,40,135,Ly.map((y,i)=>`<rect x="22" y="${y-8}" width="14" height="16" fill="#111"/><text x="22" y="${y-12}" class="sm">LT${i+1}</text>`).join(""));
+ // power line segments
+ Ly.forEach((y,i)=>{
+   L(`36,${y} 270,${y}`,"pw","in"+i,PH[i]);
+   L(`304,${y} 400,${y}`,"pw","af"+i,PH[i]);
+   const sx=[520,620,720][i];
+   L(`432,${y} ${sx},${y}`,"pw","k1o"+i,PH[i]);
+   L(`${sx+86},${y} 1180,${y}`,"pw","scr"+i,PH[i]);
+ });
+ // phase lamps
+ G("PL123",60,112,175,130,Ly.map((y,i)=>{const by=y+24;return `<polyline class="w" points="70,${y} 70,${by} 100,${by}"/>${fuseS(100,by,26)}<text x="98" y="${by+16}" class="tiny">F${4+i} 200mA</text><polyline class="w" points="126,${by} 160,${by}"/>${lampS(170,by,"plS"+i,["#ff2b2b","#ffcc00","#2b7bff"][i])}<text x="183" y="${by-8}" class="tiny">PL${i+1}</text><polyline class="w" points="179,${by} 222,${by}"/>`}).join("")+`<line x1="222" y1="124" x2="222" y2="224" stroke="#222"/><circle cx="222" cy="174" r="3" fill="#111"/><text x="226" y="178" class="tiny">27</text>`);
+ // FSU1
+ G("FSU1",262,72,48,140,`<rect class="dbox" x="262" y="72" width="48" height="140"/><text x="262" y="66" class="md">FSU1</text>`+Ly.map((y,i)=>`${fuseS(272,y,26)}<text x="276" y="${y-8}" class="tiny">F${i+1}</text><rect id="fsuB${i}" x="270" y="${y-7}" width="30" height="14" fill="none" stroke="#0a8a43" stroke-width="2" opacity="0"/>`).join(""));
+ L("298,100 304,100","w");L("270,150 272,150","w");L("298,150 304,150","w");L("270,200 272,200","w");L("298,200 304,200","w");
+ // K1
+ G("K1",396,70,46,146,`<rect class="dbox" x="396" y="70" width="46" height="146"/><text x="400" y="64" class="md">K1</text>`+Ly.map((y,i)=>contactS(402,y,"k1c"+i,30)+`<text x="410" y="${y+16}" class="tiny">K1/${i+1}</text>`).join(""));
+ // SCRs
+ G("SCR14",520,66,86,68,scrS(520,100,"SCR1","SCR4","R4"));
+ G("SCR36",620,116,86,68,scrS(620,150,"SCR3","SCR6","R5"));
+ G("SCR52",720,166,86,68,scrS(720,200,"SCR5","SCR2","R6"));
+ // CT4 + TS4
+ G("CT4",835,38,60,66,ctS(865,100)+`<text x="852" y="80" class="md">CT4</text><rect x="842" y="42" width="46" height="16" fill="#fff" stroke="#222"/><text x="892" y="54" class="sm">TS4</text>`);
+ L("852,58 852,94","w");L("878,58 878,94","w");
+ // MCB5 taps
+ [[914,100],[930,150],[946,200]].forEach(([x,y])=>{el(`<circle cx="${x}" cy="${y}" r="3.5" fill="#111"/>`);L(`${x},${y} ${x},268`,"w","mcb5in");});
+ // CT1-3
+ G("CT123",1010,88,60,124,Ly.map((y,i)=>ctS(1040,y)+`<text x="1056" y="${y-10}" class="tiny">CT${i+1}</text>`).join(""));
+ // outputs + TR set
+ Ly.forEach((y,i)=>{el(`<rect x="1180" y="${y-7}" width="12" height="14" fill="#111"/>`);T(1150,y-8,"LT"+(4+i),"tiny");});
+ L("1192,100 1212,100","pw","scr0","R");L("1192,150 1212,150","pw","scr1","Y");L("1192,200 1212,200","pw","scr2","B");
+ G("TR",1212,70,128,150,`<rect x="1212" y="70" width="128" height="150" rx="8" fill="#ffe9c7" stroke="#222" stroke-width="2"/><text x="1276" y="92" text-anchor="middle" class="md">TR SET</text><text x="1276" y="108" text-anchor="middle" class="sm">110 kV / 1000 mA</text>`+txInner(1224,116)+`<text x="1276" y="212" text-anchor="middle" class="tiny">OIL · FLOAT · TEMP</text>`);
+ L("1340,140 1370,140","w dc","hv");
+ G("ESP",1370,60,118,170,espInner());
+ // feedback from TR to TB1
+ L("1300,220 1300,236 1488,236","w dc","fbk");
+ // ---------- middle zone ----------
+ T(20,258,"AUX & CONTROL SUPPLIES","zone");
+ // MCB3 + TX4 (from 62/66 before FSU)
+
+
+ L("246,100 246,240 40,240 40,272","w","tx4in");L("252,200 252,246 56,246 56,272","w","tx4in");
+ el(`<circle cx="246" cy="100" r="3" fill="#111"/><circle cx="252" cy="200" r="3" fill="#111"/>`);T(44,236,"62","tiny");
+ G("TX4",28,268,120,214,mcbS(30,268,"mcb3","MCB3|2P,6A")+txS(30,320,110,56,"415V","120/110V","TX4")+`<polyline class="w" points="40,296 40,320"/><polyline class="w" points="56,296 56,320"/>`+`<polyline class="w" id="tx4o" points="40,376 40,470 135,470 135,376"/>`+lampS(70,400,"ledS","#ffd400")+`<text x="83" y="404" class="tiny">LED+MS1</text><text x="44" y="430" class="tiny">SW2 3-PIN SKT</text>`);
+ G("FAN",20,486,140,40,[0,1,2,3,4].map(i=>`<g id="fan${i}" transform="translate(${34+i*26},505)"><circle r="10" fill="#fff" stroke="#222"/><path class="fanb" d="M0 0L0 -8M0 0L7 4M0 0L-7 4" stroke="#222" stroke-width="2"/></g>`).join("")+`<text x="30" y="530" class="tiny">FAN1–FAN5 (K2/2)</text>`);
+ // MCB2 + TX1 + K1 coil
+ L("318,100 318,256 180,256 180,272","w","tx12in");L("326,200 326,262 196,262 196,272","w","tx12in");L("212,306 290,306 290,284 350,284 350,290","w","tx2o");
+ el(`<circle cx="318" cy="100" r="3" fill="#111"/><circle cx="326" cy="200" r="3" fill="#111"/>`);T(322,250,"72","tiny");T(330,276,"76","tiny");
+ G("TX1",165,268,120,250,mcbS(170,268,"mcb2","MCB2|2P,6A")+txS(170,322,105,52,"415V","120/110V","TX1")+`<polyline class="w" points="180,296 180,322"/><polyline class="w" points="196,296 196,322"/>`);
+ L("180,374 180,400 196,400","w","tx1o");L("226,400 250,400 250,470","w","k1coil");L("180,374 180,400","w","tx1o");
+ el(`<g class="cmp" data-c="K2"><rect class="hit" x="190" y="384" width="40" height="30"/>${contactS(196,400,"k21",30)}<text x="198" y="418" class="tiny">K2/1</text></g>`);
+ el(`<g class="cmp" data-c="K1"><rect class="hit" x="232" y="466" width="40" height="50"/>${coilS(237,470,"k1coilS")}<text x="268" y="484" class="sm">K1</text><text x="236" y="502" class="tiny">+RC</text></g>`);
+ L("250,488 250,510 270,510 270,374","w","tx1o");
+ el(`<g class="cmp" data-c="K1"><rect class="hit" x="190" y="430" width="40" height="30"/>${lampS(210,445,"pl4S","#16d35f")}<text x="176" y="466" class="tiny">PL4 HT ON</text></g>`);
+ L("219,445 250,445","w","k1coil");L("201,445 190,445 190,520 270,520 270,510","w","tx1o");
+ // TX2 + MCB1
+ G("TX2",296,268,110,250,txS(300,290,100,52,"415V","110-0-110V","TX2")+``+mcbS(300,380,"mcb1","MCB1|1P,2A",1)+`<text x="300" y="440" class="sm">P / N CONTROL</text><text x="300" y="454" class="tiny">→ TB3-1,2 120V AC</text><text x="300" y="466" class="tiny">→ TB3-4 0V</text>`);
+ L("310,342 310,380","w","tx2o");L("310,414 310,600","w","ctrlP");
+ L("385,342 385,600","w","tx2o");
+ // MCB4 + SPP
+
+ L("340,150 340,250 434,250 434,268","w","spin");el(`<circle cx="340" cy="150" r="3" fill="#111"/>`);
+ G("SPP",420,262,180,76,mcbS(424,266,"mcb4","MCB4|3P,2A",3)+`<rect x="520" y="266" width="60" height="40" fill="#fff" stroke="#222" stroke-width="1.5"/><text x="550" y="290" text-anchor="middle" class="md">SPP</text><text x="520" y="322" class="tiny">272/274/276</text>`);
+ L("450,296 450,316 600,316","w","spp");L("550,316 550,306","w","spp");
+ // sync TX5-7
+ G("TX567",424,350,210,74,[0,1,2].map(i=>txS(428+i*70,362,58,48,"415","115V","TX"+(5+i))).join(""));
+ L("457,316 457,362","w","spp");L("527,316 527,362","w","spp");L("597,316 597,362","w","spp");
+ L("634,386 650,386 650,320","sig","sync");T(590,432,"261–263 SYNC → CN3","tiny");
+ // firing module
+ G("FM",650,248,220,84,`<rect x="650" y="252" width="220" height="76" fill="#fff" stroke="#222" stroke-width="2"/><text x="760" y="284" text-anchor="middle" class="md">FIRING MODULE</text><text x="760" y="300" text-anchor="middle" class="md">6P11</text><text x="656" y="322" class="tiny">CN1 P/N · CN2 K1/7 · CN3 SYNC</text><text x="656" y="264" class="tiny">CN4 / CN5 → GATES</text>`);
+ // gate wires
+ L("656,252 656,240 612,240 612,128 580,128","sig","gate");L("664,252 664,234 616,234 616,132 590,132","sig","gate");L("700,252 700,184","sig","gate");L("708,252 708,184","sig","gate");L("800,252 800,232","sig","gate");L("808,252 808,232","sig","gate");T(716,246,"177–188 G/K","tiny");
+ // signal conditioning card
+ G("SCC",680,350,160,62,`<rect x="680" y="352" width="160" height="56" fill="#fff" stroke="#222"/><text x="760" y="374" text-anchor="middle" class="sm">SIGNAL CONDITIONING</text><text x="760" y="388" text-anchor="middle" class="sm">CARD J1 / J2</text><text x="760" y="402" text-anchor="middle" class="tiny">277–281 ↔ CN1/CN3</text>`);
+ L("760,328 760,352","sig","fire");L("760,408 760,600","sig","fire");T(764,560,"G1 K1 G2 K2","tiny");
+ // MCB5/VSS/V1/TX3
+ G("MCB5",900,262,110,180,mcbS(904,262,"mcb5","MCB5|3P,2A",3)+`<circle cx="940" cy="330" r="16" fill="#fff" stroke="#222"/><text x="940" y="334" text-anchor="middle" class="sm">VSS</text>`+fuseS(925,352,18,true)+fuseS(955,352,18,true)+`<text x="962" y="366" class="tiny">F7/F8</text>`+meterS(940,400,"V1"));
+ L("914,296 928,316","w","mcb5o");L("946,296 952,316","w","mcb5o");L("925,370 928,392","w","mcb5o");L("955,370 952,392","w","mcb5o");
+ G("TX3",900,440,100,60,txS(904,450,80,40,"600V","20V","TX3"));L("940,413 940,450","w","mcb5o");
+ L("940,490 940,600","sig","pt");T(944,560,"VOLTS(PT)","tiny");
+ L("860,42 860,30 880,30 880,600","sig","ct4");L("870,42 870,24 888,24 888,600","sig","ct4");T(892,540,"CT4","tiny");
+ // ASS + A1
+ G("ASS",1020,250,90,110,`<circle cx="1050" cy="280" r="17" fill="#fff" stroke="#222"/><text x="1050" y="284" text-anchor="middle" class="sm">ASS</text>`+meterS(1050,330,"A1")+`<text x="1074" y="300" class="tiny">207-209</text>`);
+ L("1030,212 1030,264","w","ass");L("1050,297 1050,317","w","ass");
+ // PL6, RL3
+ G("SPP1",1020,372,80,70,`<text x="1022" y="384" class="tiny">SPP1/2</text>`+contactS(1036,390,"spp12",22,true)+lampS(1036,428,"pl6S","#ff2b2b")+`<text x="1050" y="432" class="tiny">PL6</text>`);
+ G("RL3",1020,450,100,90,`<text x="1022" y="462" class="tiny">TH3 TH2 TH1</text><path d="M1030 468v8h8v8h-8v8h8v8h-8v8" class="w"/>`+coilS(1050,500,"rl3S")+`<text x="1080" y="514" class="sm">RL3</text>`);
+ // K2, K3
+ G("K2",440,450,90,60,coilS(450,466,"k2S")+`<text x="482" y="480" class="md">K2</text><text x="446" y="500" class="tiny">TB3-10 CONTACTOR</text>`);
+ L("463,484 463,600","sig","k2cmd");
+ G("K3",560,440,110,80,coilS(566,466,"k3S")+lampS(632,475,"pl5S","#ff8a00")+`<text x="566" y="460" class="md">K3</text><text x="646" y="470" class="tiny">PL5</text><text x="560" y="510" class="tiny">TB3-8/9 FAULT</text>`);
+ L("579,484 579,600","sig","k3cmd");
+ // TB4 DCS
+ T(1130,258,"TB4 · HARDWIRED SIGNALS TO DCS (220V AC 5A)","zone");
+ G("K7",1130,268,170,40,coilS(1136,276,"k7S")+`<text x="1168" y="290" class="md">K7</text><text x="1190" y="284" class="tiny">EXT 230V AC</text><text x="1190" y="296" class="tiny">REMOTE HT ON/OFF</text><text x="1136" y="306" class="tiny">TB4-2/3</text>`);
+ const tb4=[["k14","K1/4","REMOTE HT ON","4-5"],["k32","K3/2","REMOTE ALARM","6-7"],["k31","K3/1+K1/5","REMOTE TRIP","8-9"],["sw1d","SW1","LOCAL/REMOTE","10-12"],["rdy","K3/3+FSU AUX","READY TO START","19-20"],["rap","K4–K6","RAPPER 1–3 (N/A)","13-18"]];
+ G("TB4",1130,316,350,tb4.length*34+6,tb4.map((r,i)=>{const y=330+i*34;return `<rect x="1130" y="${y-12}" width="350" height="30" fill="#fff" stroke="#bbb"/>`+contactS(1140,y+2,"d_"+r[0],24)+`<text x="1176" y="${y}" class="sm">${r[1]}</text><text x="1176" y="${y+13}" class="tiny">TB4-${r[3]}</text><text x="1300" y="${y+6}" class="md" id="dt_${r[0]}">${r[2]}</text>`}).join(""));
+ G("TB7",1130,540,350,40,`<rect x="1130" y="540" width="350" height="36" fill="#fff" stroke="#bbb"/><text x="1140" y="562" class="sm">TB7 CAN HIGH / LOW / SHIELD  ⇄  PREVIOUS / NEXT INTERFACE</text>`);
+ // ---------- CONTROLLER ----------
+ G("CTRL",290,600,830,92,`<rect class="ctrl" x="290" y="600" width="830" height="88" rx="6"/><text x="306" y="628" style="font-size:22px;font-weight:600;fill:#1d3a6b">PRECICON-R3</text><text x="306" y="646" class="sm">INTERFACE UNIT RK3973 VER 2.32</text><text x="306" y="662" class="tiny">TB3 SUPPLY/CONTACTOR/FAULT · TB4 ALARM 1-4 · TB5 INPUT 7-12 · TB6 AMPS/VOLTS · TB1/TB2 FIRING</text><rect x="560" y="610" width="230" height="40" rx="4" fill="#2a3b1d"/><text id="svgLcd1" x="568" y="626" style="fill:#b6ff7a;font-size:11px">--</text><text id="svgLcd2" x="568" y="642" style="fill:#b6ff7a;font-size:11px">--</text><text x="1000" y="626" class="sm">AUTO/MAN/FLASH</text><text id="svgMode" x="1000" y="644" class="md" style="fill:#c2410c">AUTO</text><text x="306" y="680" class="tiny">TB3-11 RUN/START · TB3-8 CONTACTOR STATUS (K1/2) · TB6-1/2 CT · TB6-3/4 PT · TB6-5..10 mA/kV</text>`);
+ // ---------- LOWER ZONE ----------
+ T(20,716,"FEEDBACK & 4–20 mA","zone");
+ G("CONV",20,720,250,120,`<rect x="24" y="726" width="100" height="80" fill="#fff" stroke="#222"/><text x="74" y="756" text-anchor="middle" class="sm">4–20 mA</text><text x="74" y="770" text-anchor="middle" class="sm">CONV (mA)</text><rect x="144" y="726" width="100" height="80" fill="#fff" stroke="#222"/><text x="194" y="756" text-anchor="middle" class="sm">4–20 mA</text><text x="194" y="770" text-anchor="middle" class="sm">CONV (kV)</text><text x="24" y="824" class="tiny">TB3-1/2 mA · TB3-3/4 kV → DCS</text><text x="24" y="836" class="tiny">MAX LOAD 560 Ω · SUPPLY X-Y (TX4)</text><text id="dcsMa" x="74" y="796" text-anchor="middle" class="md" style="fill:#2563eb">4.0</text><text id="dcsKv" x="194" y="796" text-anchor="middle" class="md" style="fill:#2563eb">4.0</text>`);
+ G("TB1",290,720,120,110,`<rect x="294" y="790" width="110" height="26" fill="#fff" stroke="#222"/>${[0,1,2,3,4].map(i=>`<line x1="${294+i*22}" y1="790" x2="${294+i*22}" y2="816" stroke="#222"/><text x="${302+i*22}" y="808" class="tiny">${i+1}</text>`).join("")}<text x="294" y="830" class="tiny">+I IFB · COM · COM · −V VFB · SHLD</text><text x="294" y="784" class="md">TB1</text>`);
+ L("1488,236 1488,696 412,696 412,803 404,803","w dc","fbk");
+ G("MCAL",420,770,200,80,meterS(450,800,"mA")+`<text x="438" y="828" class="tiny">A2 · MCAL1</text>`+meterS(520,800,"kV")+`<text x="506" y="828" class="tiny">V2 · MCAL2</text><text id="svgA2" x="450" y="848" text-anchor="middle" class="md" style="fill:#7b2ff7">0</text><text id="svgV2" x="520" y="848" text-anchor="middle" class="md" style="fill:#7b2ff7">0</text>`);
+ G("OVP1",580,770,60,80,`<circle cx="608" cy="796" r="14" fill="#fff" stroke="#222"/><path d="M598 796l8-5v10zM618 796l-8-5v10z" fill="#222"/><text x="590" y="828" class="tiny">OVP1</text><text x="590" y="840" class="tiny">→ EB1</text>`);
+ L("340,790 340,700 360,700 360,688","sig","fbsig");T(364,700,"TB6-5..10","tiny");
+ G("EB1",20,860,250,40,`<rect x="24" y="872" width="220" height="10" fill="#7c7c7c"/><text x="24" y="896" class="sm">EB1 MAIN EARTH BUSBAR</text>`);
+ // TB2 protections
+ T(660,716,"TR PROTECTIONS (TB2)","zone");
+ const pr=[["botFloat","TX BOTTOM FLOAT TRIP"],["oilTrip","TR OIL TEMP HIGH TRIP"],["topFloat","TX TOP FLOAT ALARM"],["oilAlarm","OIL TEMP HIGH ALARM"],["earthSw","EARTH SWITCH"],["safety","SAFETY LOOP FAIL 1/2"],["scrTemp","SCR TEMP HIGH (RL3/1)"]];
+ G("TB2",656,720,230,pr.length*24+30,`<rect x="656" y="722" width="230" height="${pr.length*24+24}" fill="#fff" stroke="#bbb"/>`+pr.map((r,i)=>{const y=742+i*24;return `<circle cx="668" cy="${y}" r="2.5" fill="#222"/><circle cx="694" cy="${y}" r="2.5" fill="#222"/><line id="pr_${r[0]}" class="blade on" x1="668" y1="${y}" x2="694" y2="${y}"/><text x="702" y="${y+4}" class="tiny" id="prt_${r[0]}">${r[1]}</text>`}).join("")+`<text x="660" y="${742+pr.length*24}" class="tiny">→ DIODE PCB D1–D10 → ALARM 1-4 / INPUT 7-12</text>`);
+ G("RL1",656,920,110,40,coilS(662,926,"rl1S")+`<text x="694" y="940" class="sm">RL1 SAFETY</text>`);
+ // interlock chain
+ T(910,716,"HT ON / OFF INTERLOCK CHAIN","zone");
+ L("920,740 920,760","w","chP");T(912,736,"P","md");
+ G("TS3",900,760,60,50,`<rect x="910" y="764" width="20" height="36" fill="#fff" stroke="#222"/><line x1="910" y1="782" x2="930" y2="782" stroke="#222"/><text x="936" y="786" class="sm">TS3</text><text x="890" y="822" class="tiny">MECH KEY</text>`);
+ L("920,800 920,840 962,840","w","ch1");
+ G("SPP1",958,826,60,30,contactS(962,840,"spp1",30)+`<text x="962" y="830" class="tiny">SPP1</text>`);
+ L("992,840 1042,840","w","ch2");
+ G("PB1",1036,820,70,60,contactS(1042,840,"pb1",30)+`<text x="1036" y="868" class="tiny">EM STOP PB1</text><circle cx="1057" cy="824" r="6" fill="#d00"/>`);
+ L("1072,840 1124,840","w","ch3");
+ G("SW1",1112,800,90,70,`<circle cx="1124" cy="840" r="3" fill="#222"/><circle cx="1170" cy="816" r="3" fill="#222"/><circle cx="1170" cy="864" r="3" fill="#222"/><line id="sw1b" class="blade on" x1="1124" y1="840" x2="1168" y2="818"/><text x="1176" y="814" class="sm">L</text><text x="1176" y="874" class="sm">R</text><text x="1112" y="800" class="tiny">SW1</text>`);
+ L("1170,816 1220,816","w","chL");
+ G("PB2",1216,780,100,70,contactS(1222,816,"pb2",30)+`<text x="1222" y="806" class="tiny">PB2 ON</text>`+contactS(1222,780+0,"rl21",30)+`<text x="1222" y="772" class="tiny">RL2/1 HOLD</text>`);
+ L("1200,816 1200,780 1222,780","w","chL");L("1252,780 1262,780 1262,816","w","rl2h");L("1252,816 1300,816","w","rl2c");
+ G("PB2",1296,800,110,40,coilS(1300,807,"rl2S")+`<text x="1332" y="822" class="md">RL2</text><text x="1360" y="822" class="tiny">→ N</text>`);
+ L("1170,864 1220,864","w","chR");
+ G("K7",1216,850,90,30,contactS(1222,864,"k71",30)+`<text x="1222" y="884" class="tiny">K7/1 REMOTE</text>`);
+ L("1252,864 1430,864 1430,900","w","k7run");
+ G("PB2",1300,880,110,40,`<circle cx="1310" cy="900" r="2.5" fill="#222"/><circle cx="1340" cy="900" r="2.5" fill="#222"/><line id="rl22" class="blade" x1="1310" y1="900" x2="1336" y2="888"/><text x="1306" y="920" class="tiny">RL2/2 (P)</text>`);
+ L("1340,900 1430,900 1430,940 890,940 890,688","sig","run");T(896,934,"→ TB3-11 RUN/START","tiny");L("1290,900 1310,900","w","chP");T(1280,904,"P","sm");
+ T(900,980,"P – TS3 – SPP1 – PB1 – SW1(L) – PB2 / RL2/1 – RL2 coil.  SW1(R) – K7/1 → RUN.","sm");
+ svg.innerHTML=H;
+ svg.querySelectorAll(".cmp").forEach(g=>g.addEventListener("click",e=>{e.stopPropagation();showInfo(g.dataset.c);}));
+}
+function txInner(x,y){let s="";for(let i=0;i<5;i++)s+=`<path d="M${x+10+i*18} ${y+30}a9 9 0 0 1 18 0" class="w"/>`;s+=`<line x1="${x+8}" y1="${y+36}" x2="${x+100}" y2="${y+36}" stroke="#222"/>`;for(let i=0;i<5;i++)s+=`<path d="M${x+10+i*18} ${y+42}a9 9 0 0 0 18 0" class="w"/>`;s+=`<path d="M${x+40} ${y+66}l10 -8l10 8z" fill="#222"/><text x="${x+64}" y="${y+66}" class="tiny">RECT</text>`;return s;}
+function espInner(){let s=`<rect x="1372" y="62" width="114" height="166" rx="6" fill="#e7ecf2" stroke="#222" stroke-width="2"/><text x="1429" y="82" text-anchor="middle" class="md">ESP FIELD</text>`;
+ for(let i=0;i<4;i++){const x=1384+i*30;s+=`<line x1="${x}" y1="92" x2="${x}" y2="214" stroke="#444" stroke-width="4"/>`;}
+ for(let i=0;i<3;i++){const x=1399+i*30;s+=`<line x1="${x}" y1="96" x2="${x}" y2="210" stroke="#7b2ff7" stroke-width="1.5" stroke-dasharray="3 2"/><path id="spk${i}" class="spark" d="M${x} 130l-6 10l8 4l-10 12l9 3l-7 14"/>`;}
+ s+=`<rect id="espGlow" x="1374" y="90" width="110" height="126" fill="#a78bfa" opacity="0"/><text x="1429" y="224" text-anchor="middle" class="tiny">−kV ELECTRODES / PLATES</text>`;return s;}
+
+/* live updates of drawing */
+function liveKey(k){
+ const af=S.af||[],out=S.out||[];
+ switch(true){
+  case /^in\d/.test(k):return S.supply&&(k!=="in1"||!F("phaseLoss"));
+  case /^af\d/.test(k):return af[+k[2]];
+  case /^k1o\d/.test(k):return out[+k[3]];
+  case /^scr\d/.test(k):return out[+k[3]]&&S.c>0.02&&!(k==="scr1"&&F("scrOpen"));
+ }
+ return({hv:S.V>1,fbk:S.V>1,tx4in:S.supply,tx12in:S.af&&S.af[0],tx1o:S.tx1,k1coil:S.tx1&&S.k2,
+  ctrlP:S.ctrlOn,tx2o:S.mcb2&&S.af&&S.af[0]&&S.af[2],spin:S.af&&S.af[1],spp:S.mcb4&&S.af&&S.af[0],sync:S.mcb4&&S.k1,gate:S.k1&&S.c>0.02,
+  fire:S.k1&&S.c>0.02,mcb5in:S.k1,mcb5o:S.mcb5&&S.k1,pt:S.mcb5&&S.k1&&S.c>0.02,ct4:S.k1&&S.c>0.02,ass:S.k1&&S.c>0.02,
+  k2cmd:S.k2,k3cmd:S.k3,fbsig:S.V>1,chP:S.ctrlOn,ch1:S.ctrlOn&&S.key,ch2:S.ctrlOn&&S.key&&S.sppOK,ch3:S.chain,
+  chL:S.chain&&S.sw1==="L",rl2h:S.rl2,rl2c:S.rl2,chR:S.chain&&S.sw1==="R",k7run:S.chain&&S.sw1==="R"&&S.k7,run:S.run})[k];
+}
+function setBlade(id,on){const b=document.getElementById(id);if(!b)return;const x=+b.dataset.x,y=+b.dataset.y,l=+b.dataset.l;b.classList.toggle("on",on);
+ if(b.dataset.v){b.setAttribute("x2",on?x:x+12);b.setAttribute("y2",on?y:y+4);}
+ else if(!isNaN(x)){b.setAttribute("x2",on?x+l:x+l-4);b.setAttribute("y2",on?y:y-12);}}
+function setMcb(id,poles,on){for(let i=0;i<poles;i++){const b=document.getElementById(id+"_"+i);if(!b)continue;const x=+b.getAttribute("x1"),y1=+b.getAttribute("y1");b.setAttribute("x2",on?x:x+8);b.setAttribute("y2",y1-(on?22:20));b.classList.toggle("on",on);}}
+function lampOn(id,on){const e=document.getElementById(id);if(!e)return;e.classList.toggle("on",on);e.querySelector("circle").style.fill=on?getComputedStyle(e).color:"#fff";}
+function updDrawing(){
+ live.forEach(([id,k])=>{const e=document.getElementById(id);if(e)e.classList.toggle("live",!!liveKey(k));});
+ [0,1,2].forEach(i=>{lampOn("plS"+i,S.ph&&S.ph[i]);setBlade("k1c"+i,S.k1);const f=document.getElementById("fsuB"+i);if(f)f.setAttribute("opacity",S.fsu?1:0);});
+ ["14","36","52"].forEach((n,i)=>{const g=document.getElementById("scr_SCR"+["1","3","5"][i]);if(g)g.classList.toggle("on",S.k1&&S.c>0.02&&!(i===1&&F("scrOpen")));});
+ setMcb("mcb1",1,S.mcb1);setMcb("mcb2",2,S.mcb2);setMcb("mcb3",2,S.mcb3);setMcb("mcb4",3,S.mcb4);setMcb("mcb5",3,S.mcb5);
+ setBlade("k21",S.k2);document.getElementById("k1coilS").classList.toggle("on",S.k1);lampOn("pl4S",S.k1);
+ document.getElementById("k2S").classList.toggle("on",S.k2);document.getElementById("k3S").classList.toggle("on",S.k3);lampOn("pl5S",S.k3);
+ lampOn("pl6S",S.pl6);setBlade("spp12",S.pl6);lampOn("ledS",S.tx4&&S.door);
+ document.getElementById("rl3S").classList.toggle("on",S.ctrlOn&&!F("scrTemp")&&!S.scrHot);
+ document.getElementById("rl1S").classList.toggle("on",S.ctrlOn&&!F("safety"));
+ document.getElementById("k7S").classList.toggle("on",S.k7);document.getElementById("rl2S").classList.toggle("on",S.rl2);
+ setBlade("spp1",S.sppOK);setBlade("pb1",!S.estop);setBlade("pb2",false);setBlade("rl21",S.rl2);setBlade("k71",S.k7);setBlade("rl22",S.rl2);
+ const sw=document.getElementById("sw1b");sw.setAttribute("y2",S.sw1==="L"?818:862);
+ const ready=S.fsu&&!S.k3&&S.ctrlOn;
+ setBlade("d_k14",S.k1);setBlade("d_k32",S.k3&&!!S.alarm||S.k3);setBlade("d_k31",S.k3&&!S.k1&&!!S.trip);setBlade("d_sw1d",S.sw1==="R");setBlade("d_rdy",ready);setBlade("d_rap",false);
+ const prMap={botFloat:F("botFloat"),oilTrip:F("oilTrip"),topFloat:F("topFloat"),oilAlarm:F("oilAlarm"),earthSw:F("earthSw"),safety:F("safety"),scrTemp:F("scrTemp")||S.scrHot};
+ Object.entries(prMap).forEach(([k,v])=>{const b=document.getElementById("pr_"+k);const y=+b.getAttribute("y1");b.setAttribute("y2",v?y-12:y);b.setAttribute("x2",v?690:694);b.classList.toggle("on",!v);document.getElementById("prt_"+k).style.fill=v?"#d00":"#1b1b1b";});
+ document.querySelectorAll(".fanb").forEach((f,i)=>{f.style.transformOrigin="0 0";f.style.transform=S.fans?`rotate(${(S.t*720+i*40)%360}deg)`:"";});
+ document.getElementById("svgLcd1").textContent=S.ctrlOn?`${S.state.padEnd(5)} ${S.Vr.toFixed(1)}kV ${Math.round(S.Ir*1000)}mA`:"";
+ document.getElementById("svgLcd2").textContent=S.ctrlOn?(S.trip?S.trip.slice(0,30):S.alarm?S.alarm:`CA ${Math.round(S.c*100)}%  SR ${S.sparks.length}/min`):"";
+ document.getElementById("svgMode").textContent=S.mode;
+ document.getElementById("svgA2").textContent=Math.round(S.Ir*1000);document.getElementById("svgV2").textContent=S.Vr.toFixed(1);
+ document.getElementById("dcsMa").textContent=(4+16*S.Ir).toFixed(1);document.getElementById("dcsKv").textContent=(4+16*S.Vr/110).toFixed(1);
+ const sf=S.sparkFlash>0;[0,1,2].forEach(i=>document.getElementById("spk"+i).classList.toggle("on",sf&&Math.random()>0.3));
+ document.getElementById("espGlow").setAttribute("opacity",Math.min(0.35,S.I*0.35));
+}
+
+/* ================= INFO PANEL ================= */
+function stateText(id){
+ const on=v=>v?"ON":"OFF";
+ return({FSU1:"FSU1 "+(S.fsu?"CLOSED":"OPEN")+(F("fuseF1")?" · F1 BLOWN":""),K1:"K1 "+(S.k1?"CLOSED":"OPEN"),K2:"K2 "+on(S.k2),K3:"K3 "+on(S.k3),
+  SPP:"MCB4 "+on(S.mcb4)+" · SPP "+(S.sppOK?"HEALTHY":"FAIL"),TX4:"MCB3 "+on(S.mcb3)+" · FANS "+on(S.fans),TX1:"MCB2 "+on(S.mcb2),TX2:"MCB1 "+on(S.mcb1)+" · CONTROLLER "+on(S.ctrlOn),
+  MCB5:"MCB5 "+on(S.mcb5)+" · V1 "+Math.round(S.mcb5?S.Vp:0)+" V",CTRL:"STATE "+S.state+" · MODE "+S.mode+(S.trip?" · "+S.trip:""),TS3:"KEY "+(S.key?"IN":"OUT"),PB1:S.estop?"PRESSED":"RELEASED",SW1:S.sw1==="L"?"LOCAL":"REMOTE",PB2:"RL2 "+on(S.rl2),K7:"K7 "+on(S.k7),
+  TR:Math.round(S.Vr*10)/10+" kV · "+Math.round(S.Ir*1000)+" mA",ESP:"SPARK RATE "+S.sparks.length+" /min",CT123:"R "+Math.round(S.Ip[0])+" A · Y "+Math.round(S.Ip[1])+" A · B "+Math.round(S.Ip[2])+" A",
+  SCR14:"CONDUCTION "+Math.round(S.c*100)+" %",SCR36:F("scrOpen")?"SCR3 OPEN (FAULT)":"CONDUCTION "+Math.round(S.c*100)+" %",SCR52:"CONDUCTION "+Math.round(S.c*100)+" %",FAN:"FANS "+on(S.fans),RL3:S.scrHot||F("scrTemp")?"OVER-TEMP":"NORMAL"})[id]||"";
+}
+let selC=null;
+const br=x=>x.replace(/\n/g,"<br>");
+function showInfo(id){
+ const c=C[id];if(!c)return;selC=id;
+ document.querySelectorAll(".cmp").forEach(g=>g.classList.toggle("pick",g.dataset.c===id));
+ document.getElementById("iTag").textContent=c.tag;document.getElementById("iNm").textContent=c.nm;
+ document.getElementById("iBody").innerHTML=`<div class="lbl">LIVE STATUS</div><span class="st" id="iSt">${stateText(id)||"—"}</span><div class="lbl">PURPOSE</div><p>${c.p}</p><div class="lbl">HOW IT IS USED</div><p>${c.u}</p><div class="lbl">BENEFITS</div><p class="ben">${br(c.b)}</p><div class="lbl">IF IT FAILS</div><p class="fail">${c.f}</p><div class="lbl">TEST / CHECK</div><p>${c.t}</p><div class="lbl">RATING / FERRULES (DRAWING)</div><p class="mono" style="font-size:12.5px">${c.s}</p>`;
+ document.getElementById("info").classList.add("show");
+}
+function closeInfo(){document.getElementById("info").classList.remove("show");document.querySelectorAll(".cmp.pick").forEach(g=>g.classList.remove("pick"));selC=null;}
+function locate(id){go("dwg");setTimeout(()=>{const g=[...document.querySelectorAll(".cmp")].find(x=>x.dataset.c===id);if(!g)return;showInfo(id);g.classList.remove("flash");void g.getBBox();g.classList.add("flash");const bb=g.getBBox(),box=document.getElementById("svgbox");box.scrollTo({left:bb.x*zf-box.clientWidth/2+bb.width*zf/2,top:bb.y*zf-box.clientHeight/2,behavior:"smooth"});},60);}
+
+/* zoom */
+let zf=1;
+function zoom(f){const box=document.getElementById("svgbox");if(f===0)zf=Math.max(box.clientWidth/1500,innerWidth<700?0.5:0.3);else zf=Math.min(3,Math.max(0.3,zf*f));svg.setAttribute("width",1500*zf);svg.setAttribute("height",1010*zf);}
+let oz=1;
+function ozoom(f){const img=document.getElementById("origimg"),box=document.getElementById("origbox");if(f===0)oz=box.clientWidth/img.naturalWidth;else oz=Math.min(2,Math.max(0.1,oz*f));img.style.width=img.naturalWidth*oz+"px";}
+
+/* ================= PANEL UI ================= */
+const meters=[["V1 PRIMARY V","V",0,600],["A1 PRIMARY A","A",0,200],["V2 SECONDARY","kV",0,110],["A2 SECONDARY","mA",0,1200]];
+function buildMeters(){
+ document.getElementById("meters").innerHTML=meters.map((m,i)=>`<div class="meter"><svg viewBox="0 0 150 100" width="150" height="100"><rect x="2" y="2" width="146" height="96" rx="6" fill="#fdfcf6" stroke="#333" stroke-width="2"/>${ticks(m[2],m[3])}<line id="nd${i}" x1="75" y1="88" x2="75" y2="22" stroke="#c00" stroke-width="2.4" style="transition:transform .15s;transform-origin:75px 88px"/><circle cx="75" cy="88" r="5" fill="#222"/><text x="140" y="92" text-anchor="end" style="font-size:12px;font-weight:700">${m[1]}</text></svg><div class="mlbl">${m[0]}</div><div class="mono" id="mv${i}">0</div></div>`).join("");
+}
+function ticks(a,b){let s="";for(let i=0;i<=10;i++){const ang=(-60+12*i)*Math.PI/180,x1=75+Math.sin(ang)*62,y1=88-Math.cos(ang)*62,x2=75+Math.sin(ang)*(i%5?56:52),y2=88-Math.cos(ang)*(i%5?56:52);s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#222"/>`;if(i%5===0)s+=`<text x="${75+Math.sin(ang)*44}" y="${88-Math.cos(ang)*44+3}" text-anchor="middle" style="font-size:9px">${Math.round(a+(b-a)*i/10)}</text>`;}return s;}
+const MCBS=[["supply","415V IN","INCOMER"],["fsu","FSU1","MAIN"],["mcb1","MCB1","CTRL P"],["mcb2","MCB2","TX1/TX2"],["mcb3","MCB3","TX4 AUX"],["mcb4","MCB4","SPP/SYNC"],["mcb5","MCB5","V1/PT"],["door","MS1","DOOR"]];
+function buildMcbs(){document.getElementById("mcbs").innerHTML=MCBS.map(m=>`<div class="mcb" id="m_${m[0]}" onclick="toggle('${m[0]}')">${m[1]}<div class="lev"><b></b></div><div class="s">${m[2]}</div></div>`).join("");}
+function renderFaults(){document.getElementById("flist").innerHTML=FAULTS.map(f=>`<label class="fitem ${S.faults[f.id]?"on":""}"><input type="checkbox" ${S.faults[f.id]?"checked":""} onchange="setFault('${f.id}',this.checked)">${f.nm}</label>`).join("");}
+function setFault(id,v){S.faults[id]=v;if(!v&&id==="fanFail"){S.scrHot=false;}log((v?"FAULT INJECTED: ":"Fault removed: ")+FAULTS.find(f=>f.id===id).nm,v?"t":"g");renderFaults();}
+function updPanel(){
+ const vssV=S.mcb5?S.Vp:0,ip=S.Ip[S.ass]||0;
+ const vals=[vssV,ip,S.Vr,S.Ir*1000];
+ vals.forEach((v,i)=>{const m=meters[i];const a=-60+120*Math.min(1,Math.max(0,(v-m[2])/(m[3]-m[2])));document.getElementById("nd"+i).style.transform=`rotate(${a}deg)`;document.getElementById("mv"+i).textContent=(i===2?v.toFixed(1):Math.round(v))+" "+m[1];});
+ [0,1,2].forEach(i=>document.getElementById("pl"+(i+1)).classList.toggle("on",!!(S.ph&&S.ph[i])));
+ document.getElementById("pl4").classList.toggle("on",S.k1);document.getElementById("pl5").classList.toggle("on",S.k3&&(!!S.trip||Math.floor(S.t*2)%2===0));document.getElementById("pl6").classList.toggle("on",!!S.pl6);
+ document.querySelector("#kSW1 i").style.transform=`rotate(${S.sw1==="L"?-45:45}deg)`;document.getElementById("sw1t").textContent=S.sw1==="L"?"LOCAL":"REMOTE";
+ document.querySelector("#kVSS i").style.transform=`rotate(${-45+S.vss*45}deg)`;document.getElementById("vsst").textContent=["RY","YB","BR"][S.vss];
+ document.querySelector("#kASS i").style.transform=`rotate(${-45+S.ass*45}deg)`;document.getElementById("asst").textContent=["R","Y","B"][S.ass];
+ document.querySelector("#kKEY i").style.transform=`rotate(${S.key?0:90}deg)`;document.getElementById("keyt").textContent=S.key?"IN":"OUT";
+ document.getElementById("pbES").classList.toggle("in",S.estop);document.getElementById("est").textContent=S.estop?"PRESSED":"RELEASED";
+ MCBS.forEach(m=>document.getElementById("m_"+m[0]).classList.toggle("on",!!S[m[0]]));
+ document.getElementById("bK7").textContent="DCS REMOTE ON: "+(S.remoteCmd?"ON":"OFF");
+ const lcd=document.getElementById("lcd");lcd.classList.toggle("off",!S.ctrlOn);
+ lcd.textContent=S.ctrlOn?[`PRECICON-R3   MODE:${S.mode}${S.mode==="MAN"?" "+S.manSet+"%":""}`,`STATE:${S.state.padEnd(6)} ${S.sw1==="L"?"LOCAL":"REMOTE"}`,`kV:${S.Vr.toFixed(1).padStart(6)}  mA:${String(Math.round(S.Ir*1000)).padStart(5)}`,`CA:${String(Math.round(S.c*100)).padStart(4)}%  SR:${String(S.sparks.length).padStart(3)}/min`,S.trip?"TRIP: "+S.trip:S.alarm?"ALARM: "+S.alarm:!S.chain?"NOT READY: "+chainWhy():S.k1?"HT ON":"READY – PRESS ON"].join("\n"):"";
+ const set=(id,v)=>document.getElementById(id).textContent=v;
+ set("vKV",S.Vr.toFixed(1));set("vMA",Math.round(S.Ir*1000));set("vCA",Math.round(S.c*100)+" %");set("vSR",S.sparks.length);set("vPV",Math.round(S.Vp));set("vPA",Math.round(Math.max(...S.Ip)));set("vDA",(4+16*S.Ir).toFixed(1));set("vDK",(4+16*S.Vr/110).toFixed(1));
+ set("ilimv",S.ilim+" mA");set("spkv",S.spk+" kV");set("sbv",S.sb+" %");
+ const ch=document.getElementById("chHT");ch.textContent=S.trip?"TRIP":S.k1?"HT ON":"HT OFF";ch.className="chip "+(S.trip?"trip":S.k1?"on":"");
+ set("chKV",S.Vr.toFixed(1)+" kV");set("dwgRead",S.Vr.toFixed(1)+" kV · "+Math.round(S.Ir*1000)+" mA");
+ const ready=S.fsu&&!S.k3&&S.ctrlOn;
+ document.getElementById("dcs").innerHTML=[["TB4-4/5 REMOTE HT ON",S.k1],["TB4-6/7 REMOTE ALARM",S.k3],["TB4-8/9 REMOTE TRIP",S.k3&&!S.k1&&!!S.trip],["TB4-10/11/12 MODE",S.sw1==="L"?"LOCAL":"REMOTE"],["TB4-19/20 READY TO START",ready],["TB3-1/2 mA 4-20",(4+16*S.Ir).toFixed(2)+" mA"],["TB3-3/4 kV 4-20",(4+16*S.Vr/110).toFixed(2)+" mA"]].map(([a,b])=>`${a.padEnd(28," ").replace(/ /g,"&nbsp;")} <b style="color:${b===true?"#2fd27a":b===false?"#8b9bb0":"#f5a524"}">${b===true?"CLOSED":b===false?"OPEN":b}</b>`).join("<br>");
+ if(selC){const e=document.getElementById("iSt");if(e)e.textContent=stateText(selC)||"—";}
+ drawTrend();drawEsp();
+}
+const tc=document.getElementById("trend"),tx=tc.getContext("2d");
+function drawTrend(){
+ const w=tc.width,h=tc.height;tx.clearRect(0,0,w,h);tx.strokeStyle="#1f2a36";tx.lineWidth=1;
+ for(let i=1;i<5;i++){tx.beginPath();tx.moveTo(0,h*i/5);tx.lineTo(w,h*i/5);tx.stroke();}
+ tx.fillStyle="#8b9bb0";tx.font="16px JetBrains Mono";tx.fillText("110 kV / 1200 mA",8,20);
+ const n=120,dx=w/(n-1),hs=S.hist,off=n-hs.length;
+ hs.forEach((p,i)=>{if(p[2]){tx.fillStyle="#a78bfa55";tx.fillRect((i+off)*dx-2,0,4,h);}});
+ [[0,110,"#f5a524"],[1,1200,"#3fa7ff"]].forEach(([k,mx,c])=>{tx.strokeStyle=c;tx.lineWidth=2.5;tx.beginPath();hs.forEach((p,i)=>{const x=(i+off)*dx,y=h-6-(p[k]/mx)*(h-30);i?tx.lineTo(x,y):tx.moveTo(x,y);});tx.stroke();});
+}
+function drawEsp(){
+ const e=document.getElementById("esp");const g=Math.min(1,S.I);const sf=S.sparkFlash>0;
+ let s=`<text x="10" y="18" style="fill:#8b9bb0;font-size:12px">ESP FIELD VIEW – CORONA GLOW ∝ mA · SPARKS</text>`;
+ for(let i=0;i<6;i++){const x=40+i*100;s+=`<rect x="${x}" y="28" width="8" height="84" fill="#5b6b7f"/>`;}
+ for(let i=0;i<5;i++){const x=94+i*100;s+=`<line x1="${x}" y1="28" x2="${x}" y2="112" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 3"/><rect x="${x-40}" y="30" width="80" height="80" fill="#a78bfa" opacity="${g*0.25}"/>`;
+  if(sf&&(i+Math.floor(S.t*10))%3===0)s+=`<path d="M${x} 50l18 12l-14 6l24 14" stroke="#fff" stroke-width="3" fill="none" filter="drop-shadow(0 0 6px #a78bfa)"/>`;}
+ if(F("shortCkt")&&S.k1)s+=`<text x="300" y="75" text-anchor="middle" style="fill:#ff4d4f;font-size:16px;font-weight:700">ELECTRODE SHORTED TO PLATE</text>`;
+ if(F("openCkt")&&S.k1)s+=`<text x="300" y="75" text-anchor="middle" style="fill:#f5a524;font-size:16px;font-weight:700">HV DISCONNECTED – NO CURRENT</text>`;
+ e.innerHTML=s;
+}
+
+/* ================= COMPONENTS TAB ================= */
+let gsel="ALL";
+function renderComps(){
+ const q=document.getElementById("q").value.trim().toLowerCase();
+ document.getElementById("fil").innerHTML=GROUPS.map(g=>`<button class="${g===gsel?"act":""}" onclick="gsel='${g}';renderComps()">${g}</button>`).join("");
+ document.getElementById("cgrid").innerHTML=Object.entries(C).filter(([k,c])=>(gsel==="ALL"||c.g===gsel)&&(!q||(c.tag+c.nm+c.p+c.u+c.b+c.s).toLowerCase().includes(q))).map(([k,c])=>`<div class="cc"><span class="grp">${c.g}</span><div class="tag">${c.tag}</div><div class="nm">${c.nm}</div><p>${c.p}</p><details><summary>HOW IT IS USED · BENEFITS · FAILURE · TEST</summary><div class="lbl2">HOW IT IS USED</div><p>${c.u}</p><div class="lbl2">BENEFITS</div><p class="ben">${br(c.b)}</p><div class="lbl2">IF IT FAILS</div><p class="fail">${c.f}</p><div class="lbl2">TEST / CHECK</div><p class="tst">${c.t}</p><div class="lbl2">RATING / FERRULES</div><p class="mono" style="font-size:12.5px;color:#c6d4e4">${c.s}</p></details><button class="btn" onclick="locate('${k}')">SHOW ON DRAWING</button></div>`).join("")||`<p class="mut">No match.</p>`;
+}
+document.getElementById("q").addEventListener("input",renderComps);
+
+/* ================= TESTS ================= */
+const TESTS=[
+ {nm:"1 · Pre-start checks & local start",steps:[
+  ["Switch ON 415 V incomer and FSU1",()=>S.supply&&S.fsu,"PL1/PL2/PL3 glow when incoming phases are healthy."],
+  ["Switch ON MCB2 then MCB1 – controller powers up",()=>S.ctrlOn,"MCB2 feeds TX1/TX2, MCB1 gives control phase P."],
+  ["Switch ON MCB4 – SPP becomes healthy",()=>S.sppOK,"SPP1 closes in the start chain."],
+  ["Switch ON MCB3 (fans/aux) and MCB5 (voltmeter/PT)",()=>S.mcb3&&S.mcb5,"MCB5 is needed for V1 and controller PT feedback."],
+  ["TS3 key IN, E-STOP released, SW1 in LOCAL",()=>S.key&&!S.estop&&S.sw1==="L","Interlock chain P–TS3–SPP1–PB1–SW1 must be complete."],
+  ["Press PB2 ON – K1 closes, PL4 HT ON",()=>S.k1,"RL2 latches, RUN to controller, K2 picks, K1 closes."],
+  ["Panel fans start (K2/2)",()=>S.fans,"Fans run while HT is ON to cool the SCR stack."],
+  ["kV ramps above 40 kV and mA rises",()=>S.Vr>40&&S.Ir>0.1,"Controller soft-starts the conduction angle."],
+ ]},
+ {nm:"2 · Emergency stop test",steps:[
+  ["HT running (K1 closed)",()=>S.k1],
+  ["Press PB1 EM STOP – K1 must open",()=>S.estop&&!S.k1,"RL2 drops, RUN removed, controller drops K2."],
+  ["Try PB2 while E-STOP pressed – must not start",()=>S.estop&&!S.k1&&!S.rl2],
+  ["Release E-STOP and restart with PB2",()=>!S.estop&&S.k1],
+ ]},
+ {nm:"3 · Mechanical key interlock test",steps:[
+  ["HT running",()=>S.k1],
+  ["Take TS3 key OUT – HT must trip off",()=>!S.key&&!S.k1,"Personnel safety: key out = ESP may be entered."],
+  ["Put key IN, restart",()=>S.key&&S.k1],
+ ]},
+ {nm:"4 · Remote (DCS) start / stop",steps:[
+  ["SW1 to REMOTE",()=>S.sw1==="R","TB4-10/11/12 tells DCS the mode."],
+  ["DCS remote command ON (K7 picks) – HT ON",()=>S.k7&&S.k1,"K7/1 gives RUN to controller."],
+  ["Check TB4 REMOTE HT ON contact closed",()=>S.k1],
+  ["DCS command OFF – HT OFF",()=>!S.k7&&!S.k1],
+  ["Back to LOCAL",()=>S.sw1==="L"],
+ ]},
+ {nm:"5 · Spark control (AUTO / MAN / FLASH)",steps:[
+  ["HT ON in AUTO mode",()=>S.k1&&S.mode==="AUTO"],
+  ["Lower GAS/DUST slider to ~55 kV – watch sparks",()=>S.spk<=58&&S.sparks.length>=2,"Each spark: quench → setback → fast ramp → slow ramp."],
+  ["Press MODE to MAN and set 40 %",()=>S.mode==="MAN"&&S.manSet<=40],
+  ["Press MODE to FLASH – spark rate rises",()=>S.mode==="FLASH"&&S.sparks.length>=4],
+  ["Back to AUTO, slider to 72 kV",()=>S.mode==="AUTO"&&S.spk>=70],
+ ]},
+ {nm:"6 · Protection trip & alarm test",steps:[
+  ["HT ON",()=>S.k1],
+  ["Inject 'TR oil temp high ALARM' – PL5 ON, HT stays ON",()=>F("oilAlarm")&&S.k3&&S.k1,"Alarm only – remote ALARM to DCS."],
+  ["Inject 'TR oil temp high TRIP' – HT trips",()=>F("oilTrip")&&!S.k1&&!!S.trip,"Remote TRIP = K3/1 with K1/5."],
+  ["Try RESET with fault present – refused",()=>F("oilTrip")&&!!S.trip],
+  ["Remove both faults and press RESET",()=>!F("oilTrip")&&!F("oilAlarm")&&!S.trip],
+  ["Restart with PB2",()=>S.k1],
+ ]},
+ {nm:"7 · Single phasing (SPP) test",steps:[
+  ["HT ON",()=>S.k1],
+  ["Inject 'Y phase supply lost' – SPP trips HT, PL6 ON",()=>F("phaseLoss")&&!S.k1&&S.pl6],
+  ["Remove fault – PL6 OFF, restart with PB2",()=>!F("phaseLoss")&&S.k1],
+ ]},
+ {nm:"8 · Field fault recognition",steps:[
+  ["HT ON at normal kV",()=>S.k1&&S.Vr>40],
+  ["Inject 'ESP field short' – controller trips on UNDER VOLTAGE",()=>F("shortCkt")&&S.trip&&S.trip.includes("SHORT"),"Low kV with high mA."],
+  ["Remove fault, RESET, restart",()=>!F("shortCkt")&&S.k1],
+  ["Inject 'HV open circuit' – trips on OPEN CIRCUIT",()=>F("openCkt")&&S.trip&&S.trip.includes("OPEN"),"High kV, zero mA."],
+  ["Remove fault, RESET, restart",()=>!F("openCkt")&&S.k1],
+ ]},
+];
+const tprog=TESTS.map(()=>0);
+function renderTests(){
+ document.getElementById("tests").innerHTML=TESTS.map((t,i)=>`<div class="card test"><div class="hd" onclick="this.parentNode.querySelector('.steps').hidden^=1"><b>${t.nm}</b><span class="prog" id="tp${i}">0/${t.steps.length}</span><button class="btn" onclick="event.stopPropagation();tprog[${i}]=0;go('sim')">START</button></div><ul class="steps" id="ts${i}">${t.steps.map((s,j)=>`<li id="st${i}_${j}"><i>${j+1}</i><div>${s[0]}${s[2]?`<span class="why">${s[2]}</span>`:""}</div></li>`).join("")}</ul></div>`).join("");
+}
+function updTests(){TESTS.forEach((t,i)=>{let p=tprog[i];if(p<t.steps.length&&t.steps[p][1]()){tprog[i]=++p;if(p===t.steps.length)toast("✔ TEST COMPLETE: "+t.nm);}
+ t.steps.forEach((s,j)=>{const li=document.getElementById(`st${i}_${j}`);li.classList.toggle("done",j<p);li.classList.toggle("cur",j===p);li.querySelector("i").textContent=j<p?"✓":j+1;});
+ document.getElementById("tp"+i).textContent=p+"/"+t.steps.length;});}
+// challenge
+let score=[0,0],chal=null;
+const CH_OPTS=FAULTS.filter(f=>!["topFloat","oilAlarm"].includes(f.id));
+function newChallenge(){chal=CH_OPTS[Math.floor(Math.random()*CH_OPTS.length)].id;S.faults={};S.hidden=chal;S.trip=null;S.scrHot=false;renderFaults();
+ document.getElementById("ans").innerHTML=`<option value="">— choose the cause —</option>`+CH_OPTS.map(f=>`<option value="${f.id}">${f.nm}</option>`).sort(()=>Math.random()-0.5).join("");
+ document.getElementById("ansRes").innerHTML=`<div class="res" style="background:#202a36">Hidden fault loaded. Go to SIMULATOR, use MAKE READY and try to start.</div>`;log("CHALLENGE: hidden fault loaded","a");}
+function checkAns(){if(!chal){toast("Press NEW CHALLENGE first");return;}const a=document.getElementById("ans").value;if(!a)return;score[1]++;const ok=a===chal;if(ok)score[0]++;const f=FAULTS.find(x=>x.id===chal);
+ document.getElementById("ansRes").innerHTML=`<div class="res ${ok?"ok":"no"}">${ok?"✔ CORRECT":"✘ NOT CORRECT"} – the fault was: <b>${f.nm}</b></div>`;document.getElementById("score").textContent=`SCORE ${score[0]} / ${score[1]}`;S.hidden=null;chal=null;}
+
+/* ================= TABS + SWIPE ================= */
+const TABS=["dwg","sim","cmp","tst"];let cur="dwg";
+function go(t){cur=t;document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("act",b.dataset.t===t));document.querySelectorAll(".tab").forEach(s=>s.classList.toggle("act",s.id==="t-"+t));
+ try{history.replaceState(null,"","#"+t);}catch(e){}window.scrollTo(0,0);}
+document.getElementById("nav").addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.t);});
+let sx=null,sy=null,st=0;
+document.getElementById("main").addEventListener("touchstart",e=>{if(e.target.closest(".noswipe,input,canvas"))return sx=null;sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();},{passive:true});
+document.getElementById("main").addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6&&Date.now()-st<700){const i=TABS.indexOf(cur)+(dx<0?1:-1);if(i>=0&&i<TABS.length)go(TABS[i]);}sx=null;},{passive:true});
+// two-finger swipe area hint for drawing: edge-swipe on svg box
+let ex=null;
+document.getElementById("svgbox").addEventListener("touchstart",e=>{const box=e.currentTarget;const x=e.touches[0].clientX,r=box.getBoundingClientRect();ex=(x-r.left<24||r.right-x<24)?x:null;},{passive:true});
+document.getElementById("svgbox").addEventListener("touchend",e=>{if(ex===null)return;const dx=e.changedTouches[0].clientX-ex;if(Math.abs(dx)>70){const i=TABS.indexOf(cur)+(dx<0?1:-1);if(i>=0&&i<TABS.length)go(TABS[i]);}ex=null;},{passive:true});
+
+/* ================= INIT ================= */
+try{document.getElementById("cy").textContent=new Date().getFullYear()}catch(e){}
+buildDrawing();buildMeters();buildMcbs();renderFaults();renderComps();renderTests();
+setTimeout(()=>zoom(0),30);window.addEventListener("resize",()=>{});
+const h0=(location.hash||"").slice(1);if(TABS.includes(h0))go(h0);
+log("Trainer ready. Tip: tap MAKE READY, then ON PB2.","a");
+let acc=0,last=performance.now();
+function loop(now){acc+=Math.min(0.5,(now-last)/1000);last=now;let n=0;while(acc>=DT&&n<10){step();acc-=DT;n++;}updDrawing();updPanel();updTests();requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

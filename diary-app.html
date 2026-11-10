@@ -561,7 +561,24 @@ body{background:var(--desk)}
   .pct{width:28px;height:28px;top:3px}.pct::before{inset:3px}.pct::after{font-size:9px}.pct.full::after{font-size:13px}
   .sh-title{font-size:10.5px}.sh-date{font-size:22px;line-height:1.2}.sh-dl{font-size:14px;margin-top:10px}
   .blk textarea{font-size:16.5px}.sx{font-size:12.5px!important}
-  .tgl{height:22px;line-height:22px;font-size:10.5px;padding:0 9px}}
+  .tgl{height:22px;line-height:22px;font-size:10.5px;padding:0 9px}
+  /* compact tools on phones: one slim row each, the text style bar only while a line is being edited */
+  #toolbar{padding:6px 8px;gap:5px}
+  .tb{min-width:40px;height:40px;padding:0 9px;border-radius:12px}.tb .e{font-size:18px}
+  body:not(.edit) #fmtbar{display:none}
+  #fmtbar{padding:0 8px 6px;gap:5px}.fmtb,#fmtbar .fsel{height:36px}.fmtb{min-width:36px;padding:0 9px;font-size:13px}#fmtbar .fsel{font-size:12.5px;max-width:132px}
+  #desk{padding-top:6px}
+  #nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;margin:0 -8px 8px;padding:2px 8px}
+  #nav::-webkit-scrollbar{display:none}
+  #nav>*{flex:none}#nav .sp{display:none}
+  #nav .btn,#nav .pill{min-height:36px;height:36px;padding:0 11px;font-size:13px;border-radius:11px}
+  #carry{margin-bottom:8px}.carrybar{padding:4px 6px 4px 12px;font-size:13px;border-radius:13px}.carrybar .btn{min-height:34px;padding:0 10px;font-size:13px}
+  .shead{padding-top:14px;padding-bottom:8px}
+  .sh-date{font-size:19px}.sh-dl{display:none}
+  .blk textarea{font-size:15px}
+  .who{font-size:11.5px;height:24px;line-height:24px;max-width:84px}
+  .topts{height:56px}.topts button{min-height:38px;padding:0 11px;font-size:13px}
+  .task.sel .who:empty,.task.sel .tgl:empty{display:none}}
 @media print{
   #top,#nav,#chips,#bSpace,#toast,#modal,.acts,#ring,#pad,#sumhead{display:none!important}
   :root[data-theme]{--paper:#fff;--ink:#111;--muted:#555;--line:#ddd;--desk:#fff;--accent:#1f3d91;--btn:#f3f3f3;--shadow:none}
@@ -1461,8 +1478,9 @@ function setSel(id) {
   if (!el) { selId = null; return; }
   el.classList.add('sel');
   lastFocusId = id; showFmt(id);
+  requestAnimationFrame(autosizeAll);
 }
-function clearSel() { if (selId) { const o = elMap.get(selId); if (o) o.classList.remove('sel'); selId = null; } document.body.classList.remove('taskfmt'); }
+function clearSel() { if (selId) { const o = elMap.get(selId); if (o) o.classList.remove('sel'); selId = null; requestAnimationFrame(autosizeAll); } document.body.classList.remove('taskfmt'); }
 function focusBlock(id, toEnd = true) {
   const el = elMap.get(id); const ta = el && el.querySelector('textarea');
   if (!ta) return;
@@ -3811,6 +3829,10 @@ $('#bEraser').onclick = () => { tool = 'eraser'; setMode('pen'); };
     }
   }, { passive: true });
 })();
+
+/* phones show the text style bar only while a line is being edited */
+document.addEventListener('focusin', e => { const t = e.target; if (t.closest && t.closest('#sheet textarea')) document.body.classList.add('edit'); });
+document.addEventListener('focusout', () => setTimeout(() => { const a = document.activeElement; if (!a || !a.closest || !(a.closest('#sheet') || a.closest('#fmtbar'))) document.body.classList.remove('edit'); }, 250));
 $('#bTask').onclick = addTask;
 $('#bSection').onclick = addSection;
 $('#bUndo').onclick = undo;

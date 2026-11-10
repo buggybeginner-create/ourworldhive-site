@@ -112,7 +112,7 @@ main{padding-top:8px;padding-bottom:8px}.card{padding:8px;margin-bottom:8px}.car
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">Version: 10 Nov 2026 o, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">Version: 10 Nov 2026 p, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
 </section>
 </main>
 <nav id="nav"><button data-tab="canvas" class="on"><span>🖌️</span>Design</button><button data-tab="maker"><span>🎨</span>Maker</button><button data-tab="gallery"><span>🖼️</span>Gallery</button><button data-tab="comm"><span>👥</span>Community</button><button data-tab="rank"><span>🏆</span>Ranking</button><button data-tab="saved"><span>♥</span>Saved</button><button data-tab="more"><span>⚙️</span>More</button></nav>
@@ -726,14 +726,7 @@ function genItems(n,k){if(!ak('Mandala bloom'))return genOld(n,k);const key=n+k;
   /* fingers: one filler pattern chained along every finger, tall pieces pointing to the fingertip */
   const fingersOld=(nm,dense)=>{const q=ak(nm);if(!q)return;const ridge=cp.ridge.map(p=>({p,a:(p.x-c.x)*d.x+(p.y-c.y)*d.y})).filter(z=>z.a>c.r*.55).sort((x,y)=>y.a-x.a);const placed=[];
    for(const z of ridge){const p=z.p,wh=Math.min(p.d*.9,9);const s=Math.max(.2,Math.min(.8,(2*wh)/Math.max(q.w,6)));const half=q.h*s/2;if(half<5)continue;let ok=true;for(const o of placed)if(Math.hypot(p.x-o[0],p.y-o[1])<half+o[2]+(dense?.5:3)){ok=false;break}if(!ok||dk(p.x,p.y)<wh*.6)continue;placed.push([p.x,p.y,half]);out.push({k:q.k,x:+p.x.toFixed(1),y:+p.y.toFixed(1),rad:half,s:+s.toFixed(2),r:Math.round(up),fx:0,pi:0})}};
-  const RD=(()=>{const o=[],others=an.filter(z=>z!==cp),u={x:-d.y,y:d.x};for(let y=2;y<520;y+=2)for(let x=2;x<330;x+=2){const a=(x-c.x)*d.x+(y-c.y)*d.y;if(a<c.r*.55||a>260)continue;const w=dk(x,y);if(w<1.1||w>13)continue;if(others.some(z=>Math.hypot(x-z.c.x,y-z.c.y)<Math.hypot(x-c.x,y-c.y)))continue;if(w+.9<dk(x+u.x*2,y+u.y*2)||w+.9<dk(x-u.x*2,y-u.y*2))continue;o.push({x,y,d:w})}return o})();
-  const near=(p,r)=>RD.filter(q=>Math.hypot(q.x-p.x,q.y-p.y)<r);
-  const dirOf=p=>{const nb=near(p,13),n=nb.length;if(n<3)return{x:d.x,y:d.y};let sx=0,sy=0,sxx=0,syy=0,sxy=0;nb.forEach(q=>{sx+=q.x;sy+=q.y});const mx=sx/n,my=sy/n;nb.forEach(q=>{const dx=q.x-mx,dy=q.y-my;sxx+=dx*dx;syy+=dy*dy;sxy+=dx*dy});const th=.5*Math.atan2(2*sxy,sxx-syy);let ux=Math.cos(th),uy=Math.sin(th);if(ux*(p.x-c.x)+uy*(p.y-c.y)<0){ux=-ux;uy=-uy}return{x:ux,y:uy}};
-  /* every finger gets full-width bands (lattice, dots, leaves...) and a dark tip, like real mehendi */
-  const fingerBands=dense=>{const ridge=RD.map(p=>({p,a:(p.x-c.x)*d.x+(p.y-c.y)*d.y})).sort((x,y)=>y.a-x.a),placed=[],caps=[],T=dense?['bndL','bndD','bndLf','bndS','bndZ','bndC']:['bndL','bndD','bndLf','bndZ'],off=R.i(0,T.length-1);
-   for(const z of ridge){const p=z.p,wh=Math.min(p.d,9),s=2*wh*1.25/72,thk=20*s;if(thk<2)continue;let ok=true;for(const o of placed)if(Math.hypot(p.x-o[0],p.y-o[1])<(thk+o[2])*.5){ok=false;break}if(!ok)continue;const dr=dirOf(p);placed.push([p.x,p.y,thk]);out.push({k:T[(Math.round(z.a/thk)+off)%T.length],x:+p.x.toFixed(1),y:+p.y.toFixed(1),rad:thk/2,s:+s.toFixed(3),r:Math.round(Math.atan2(dr.y,dr.x)*180/Math.PI+90),fx:0,pi:0})}
-   for(const z of ridge){const p=z.p;if(z.a<c.r*.9)continue;if(caps.some(q=>Math.hypot(q[0]-p.x,q[1]-p.y)<10))continue;if(ridge.some(q=>q.a>z.a+2&&Math.hypot(q.p.x-p.x,q.p.y-p.y)<13))continue;const dr=dirOf(p);if(dk(p.x+dr.x*(p.d*1.5+3),p.y+dr.y*(p.d*1.5+3))>.5)continue;caps.push([p.x,p.y]);const w=2*Math.min(p.d,9)*1.05,s=w/60;out.push({k:'tipcap',x:+(p.x+dr.x*p.d*.25).toFixed(1),y:+(p.y+dr.y*p.d*.25).toFixed(1),rad:w/2,s:+s.toFixed(3),r:Math.round(Math.atan2(dr.y,dr.x)*180/Math.PI+90),fx:0,pi:0})}};
-  const fingers=(nm,dense)=>{if(st===7)return fingersOld(nm,dense);fingerBands(dense)};
+  const fingers=(nm,dense)=>{if(st===7)return fingersOld(nm,dense)};
   const ring=(nm,hr,N,dist,size)=>{const t0=R.i(0,359);for(let i=0;i<N;i++){const a=(t0+i*360/N)*Math.PI/180,x=c.x+Math.cos(a)*hr*dist,y=c.y+Math.sin(a)*hr*dist;put(nm,x,y,hr*size,a*180/Math.PI+90,{min:5})}};
   const arm=(a,nm,rad,rot)=>{const q=wd(a);if(q.w<30)return;put(nm,q.x,q.y,Math.min(rad,q.w/2*.8),rot==null?up:rot,{fx:0,min:10})};
   const palmR=c.r;
@@ -749,17 +742,49 @@ function genItems(n,k){if(!ak('Mandala bloom'))return genOld(n,k);const key=n+k;
   else if(st===7){/* Simple */put(pick(['Five petal flower','Cherry blossom','Lotus','Daisy','Flower','Hibiscus']),c.x,c.y,palmR*.42,R.i(0,359),{force:1});put(pick(SPR),...P(-palmR*.6,palmR*.45),palmR*.3,up+20,{min:6});border(-(palmR+16),pick(BORD))}
   else {/* Peacock */put('Peacock fan',...P(palmR*.1,-palmR*.05),palmR*.7,up,{force:1,fx:0});put(pick(['Peacock feather','Peacock feather long']),...P(-palmR*.9,palmR*.5),palmR*.5,up-25,{min:6});put('Peacock feather',...P(-palmR*.9,-palmR*.5),palmR*.5,up+25,{min:6});fingers(pick(FIL),0);border(-(palmR+14),pick(BORD));arm(-(palmR+52),'Peacock',34)}
  });
+ const TMf=TM[k],dist2=(()=>{if(!TMf||!TMf.ln)return null;if(TMf.d2)return TMf.d2;const{sw,sh,dist,ln}=TMf,D=new Float32Array(sw*sh);for(let i=0;i<sw*sh;i++)D[i]=(dist[i]&&!ln[i])?1e6:0;
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const i=y*sw+x;if(!D[i])continue;let v=D[i];if(x>0)v=Math.min(v,D[i-1]+1);if(y>0){v=Math.min(v,D[i-sw]+1);if(x>0)v=Math.min(v,D[i-sw-1]+1.414);if(x<sw-1)v=Math.min(v,D[i-sw+1]+1.414)}D[i]=v}
+  for(let y=sh-1;y>=0;y--)for(let x=sw-1;x>=0;x--){const i=y*sw+x;if(!D[i])continue;let v=D[i];if(x<sw-1)v=Math.min(v,D[i+1]+1);if(y<sh-1){v=Math.min(v,D[i+sw]+1);if(x<sw-1)v=Math.min(v,D[i+sw+1]+1.414);if(x>0)v=Math.min(v,D[i+sw-1]+1.414)}D[i]=v}return TMf.d2=D})(),
+  dk2=(x,y)=>{if(!dist2)return dk(x,y);const px=Math.floor(x/330*TMf.sw),py=Math.floor(y/330*TMf.sw);if(px<0||py<0||px>=TMf.sw||py>=TMf.sh)return 0;return dist2[py*TMf.sw+px]*330/TMf.sw};
+ /* fingers: found from the hand mask itself. Every finger gets one straight axis, bands stacked square to it in a steady pattern, and a dark tip on top */
+ const FP=[],onF=(x,y)=>FP.some(q=>Math.hypot(x-q.x,y-q.y)<q.d+3);
+ if(st!==7&&out.length){const dense=st===1||st===2||st===3,SQ=['bndL','bndLf','bndS','bndZ','bndC'],A1=R.p(SQ),B1=R.p(SQ.filter(z=>z!==A1)),seq=dense?[A1,'bndD',B1,'bndD']:[A1,'bndD'];
+  an.forEach(cmp=>{const c=cmp.c,d=cmp.d,others=an.filter(z=>z!==cmp);
+   /* thin parts of the mask (nothing wider than a finger fits inside) are the fingers; each separate piece is one finger */
+   const NX=166,NY=262,G=new Float32Array(NX*NY),H1=new Float32Array(NX*NY),M1=new Float32Array(NX*NY);
+   for(let y=0;y<NY;y++)for(let x=0;x<NX;x++)G[y*NX+x]=dk2(x*2,y*2);
+   for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){let m=0;for(let i=Math.max(0,x-6);i<=Math.min(NX-1,x+6);i++){const v=G[y*NX+i];if(v>m)m=v}H1[y*NX+x]=m}
+   for(let y=0;y<NY;y++)for(let x=0;x<NX;x++){let m=0;for(let i=Math.max(0,y-6);i<=Math.min(NY-1,y+6);i++){const v=H1[i*NX+x];if(v>m)m=v}M1[y*NX+x]=m}
+   const TMk=TM[k],bar=(X,Y)=>{if(!TMk||!TMk.ln)return 0;const px=Math.floor(X/330*TMk.sw),py=Math.floor(Y/330*TMk.sw);return px<0||py<0||px>=TMk.sw||py>=TMk.sh?0:TMk.ln[py*TMk.sw+px]},cell=new Int32Array(NX*NY).fill(-1),pts=[];
+   for(let y=1;y<NY-1;y++)for(let x=1;x<NX-1;x++){const g=G[y*NX+x];if(g<1||M1[y*NX+x]>13.5)continue;const X=x*2,Y=y*2,a=(X-c.x)*d.x+(Y-c.y)*d.y;if(a<c.r*.4||a>260||bar(X,Y))continue;if(others.some(z=>Math.hypot(X-z.c.x,Y-z.c.y)<Math.hypot(X-c.x,Y-c.y)))continue;cell[y*NX+x]=pts.length;pts.push({x:X,y:Y,d:g,gx:x,gy:y})}
+   const seen=new Array(pts.length).fill(0);
+   for(let i=0;i<pts.length;i++){if(seen[i])continue;const cl=[i];seen[i]=1;for(let q=0;q<cl.length;q++){const p=pts[cl[q]];for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const j=cell[(p.gy+dy)*NX+p.gx+dx];if(j>=0&&!seen[j]&&!bar(p.x+dx,p.y+dy)){seen[j]=1;cl.push(j)}}}
+    const P=cl.map(j=>pts[j]),n=P.length;if(n<25)continue;let mx=0,my=0;P.forEach(p=>{mx+=p.x;my+=p.y});mx/=n;my/=n;let sxx=0,syy=0,sxy=0;P.forEach(p=>{sxx+=(p.x-mx)**2;syy+=(p.y-my)**2;sxy+=(p.x-mx)*(p.y-my)});
+    const th=.5*Math.atan2(2*sxy,sxx-syy);let ax={x:Math.cos(th),y:Math.sin(th)};const ml=Math.hypot(mx-c.x,my-c.y)||1;if(ax.x*(mx-c.x)+ax.y*(my-c.y)<0)ax={x:-ax.x,y:-ax.y};if(ax.x*(mx-c.x)/ml+ax.y*(my-c.y)/ml<.5)continue
+    const tf=p=>(p.x-mx)*ax.x+(p.y-my)*ax.y,ts=P.map(tf),t0=Math.min(...ts),t1=Math.max(...ts);if(t1-t0<12)continue
+    const lat=Math.sqrt(P.reduce((q,p)=>q+((p.x-mx)*-ax.y+(p.y-my)*ax.x)**2,0)/n);if(lat>9)continue
+    const g0=Math.atan2(ax.y,ax.x);
+    const loc=tt=>{const W=P.filter(p=>Math.abs(tf(p)-tt)<14);if(W.length<4)return g0;let ux=0,uy=0;W.forEach(p=>{ux+=p.x;uy+=p.y});ux/=W.length;uy/=W.length;let a=0,b=0,e=0;W.forEach(p=>{a+=(p.x-ux)**2;b+=(p.y-uy)**2;e+=(p.x-ux)*(p.y-uy)});let g=.5*Math.atan2(2*e,a-b);if(Math.cos(g-g0)<0)g+=Math.PI;let df=g-g0;while(df>Math.PI)df-=2*Math.PI;while(df<-Math.PI)df+=2*Math.PI;return g0+Math.max(-.26,Math.min(.26,df))};
+    /* width of the finger across the axis, measured on the mask itself, so fragments of the ridge never leave gaps */
+    let span=(x,y,g)=>{if(dk2(x,y)<=.5)return null;const nx=-Math.sin(g),ny=Math.cos(g);let hi=0,lo=0;while(hi<16&&dk2(x+nx*(hi+1),y+ny*(hi+1))>.5)hi++;while(lo>-16&&dk2(x+nx*(lo-1),y+ny*(lo-1))>.5)lo--;return{x:x+nx*(hi+lo)/2,y:y+ny*(hi+lo)/2,half:(hi-lo)/2}};
+    const AX=t=>[mx+ax.x*t,my+ax.y*t],span1=span;span=(x,y,g,tc)=>{const r=span1(x,y,g);if(r&&r.half<=12.5)return r;const Lp=P.filter(p=>Math.abs(tf(p)-tc)<4);if(Lp.length<2)return r;return{x:Lp.reduce((q,p)=>q+p.x,0)/Lp.length,y:Lp.reduce((q,p)=>q+p.y,0)/Lp.length,half:Lp.reduce((q,p)=>q+p.d,0)/Lp.length}};let tipT=t1;while(tipT<t1+40&&dk2(...AX(tipT+2))>.5)tipT+=2;
+    const s0=span(...AX(tipT-8),g0,tipT-8);if(!s0||s0.half<2.5||s0.half>12.5)continue
+    const tcen=span(...AX(tipT-s0.half),g0,tipT-s0.half)||s0,hw=Math.min(tcen.half,9);let start=tipT-3;
+    if(!FP.some(q=>q.cap&&Math.hypot(q.x-tcen.x,q.y-tcen.y)<8)){const w=2*hw*1.05;out.push({k:'tipcap',x:+(tcen.x+ax.x*tcen.half*.25).toFixed(1),y:+(tcen.y+ax.y*tcen.half*.25).toFixed(1),rad:w/2,s:+(w/60).toFixed(3),r:Math.round(g0*180/Math.PI+90),fx:0,pi:0,fg:1});FP.push({x:tcen.x,y:tcen.y,d:tcen.half,cap:1});start=tipT-hw*1.55-3}
+    let tt=start,bi=0,guard=0;while(tt>t0-40&&guard++<90){const g=loc(tt),sp=span(...AX(tt),g,tt);if(!sp||sp.half>12.5||(sp.x-c.x)*d.x+(sp.y-c.y)*d.y<c.r*.85)break;if(sp.half<2.9){tt-=3;continue}
+     const wh=Math.min(sp.half,9),sc=2*wh*1.25/72,thk=20*sc;if(FP.some(q=>!q.cap&&Math.hypot(q.x-sp.x,q.y-sp.y)<thk*.55)){tt-=thk*1.03;continue}
+     FP.push({x:sp.x,y:sp.y,d:sp.half});out.push({k:seq[bi%seq.length],x:+sp.x.toFixed(1),y:+sp.y.toFixed(1),rad:thk/2,s:+sc.toFixed(3),r:Math.round(g*180/Math.PI+90),fx:0,pi:0,fg:1});bi++;tt-=thk*1.03}}})}
  /* fill pass: leaves radiate from the palm, small flowers and dots take the rest, so the hand looks fully covered */
  if(an[0]&&st!==6&&st!==7&&out.length){const cp=an[0],c=cp.c,d=cp.d,pr=c.r,up=cp.ang+90,hx=out.map(o=>[o.x,o.y,o.rad||6]),vis=new Set(),Q=[[Math.round(c.x),Math.round(c.y)]],key=(x,y)=>x*1000+y,cand=[];
   vis.add(key(Q[0][0],Q[0][1]));for(let qi=0;qi<Q.length;qi++){const[x,y]=Q[qi];if(x%6===0&&y%6===0){const w=dk(x,y);if(w>3.5)cand.push([x,y,w])}for(const[dx,dy]of[[2,0],[-2,0],[0,2],[0,-2]]){const nx=x+dx,ny=y+dy,kk=key(nx,ny);if(nx<0||ny<0||nx>330||ny>520||vis.has(kk))continue;if(dk(nx,ny)>.5){vis.add(kk);Q.push([nx,ny])}}}
   cand.sort((a,b)=>b[2]-a[2]);const SPR=Array.from({length:13},(_,i)=>'Leaf spray '+(i+1)),SMALL=['Dot flower','Five petal flower','Cherry blossom','Daisy','Flower'],free=(x,y,r)=>{for(const o of hx)if(Math.hypot(x-o[0],y-o[1])<o[2]+r*.9)return false;return true};let n=0;
-  for(const[x,y,w]of cand){if(n>=70)break;const a=(x-c.x)*d.x+(y-c.y)*d.y;if(a>pr*1.15)continue;const palm=a>-pr*.9;let r=Math.min(w*.9,palm?pr*.3:pr*.26);if(r<5.5||!free(x,y,r))continue;
+  for(const[x,y,w]of cand){if(n>=70)break;const a=(x-c.x)*d.x+(y-c.y)*d.y;if(a>pr*1.15||onF(x,y))continue;const palm=a>-pr*.9;let r=Math.min(w*.9,palm?pr*.3:pr*.26);if(r<5.5||!free(x,y,r))continue;
    let it;if(r>=10&&n%3===0)it=put(pick(SMALL),x,y,r,R.i(0,359),{min:5});else if(palm&&r>=7)it=put(pick(SPR),x,y,r,Math.atan2(y-c.y,x-c.x)*180/Math.PI+90,{min:5});else if(r>=7)it=put(pick(['Leaf spray 1','Leaf spray 2','Leaf spray 3','Leaf spray 4']),x,y,r,up+(n%2?12:-12),{min:5});else it=put(pick(['Dot cluster','Dot flower']),x,y,r,R.i(0,359),{min:4});
    if(it){hx.push([it.x,it.y,it.rad||r]);n++}}}
  /* every other hand gets the same design as the first, mirrored if it is the opposite hand */
- if(an.length>1&&out.length){const A0=an[0],base=out.slice(),proj=(cp,p)=>{const dx=p.x-cp.c.x,dy=p.y-cp.c.y;return[dx*cp.d.x+dy*cp.d.y,-dx*cp.d.y+dy*cp.d.x]},from=(cp,a,b)=>[cp.c.x+cp.d.x*a-cp.d.y*b,cp.c.y+cp.d.y*a+cp.d.x*b];
+ if(an.length>1&&out.length){const A0=an[0],base=out.filter(z=>!z.fg),proj=(cp,p)=>{const dx=p.x-cp.c.x,dy=p.y-cp.c.y;return[dx*cp.d.x+dy*cp.d.y,-dx*cp.d.y+dy*cp.d.x]},from=(cp,a,b)=>[cp.c.x+cp.d.x*a-cp.d.y*b,cp.c.y+cp.d.y*a+cp.d.x*b];
   for(let ci=1;ci<an.length;ci++){const B=an[ci],ratio=B.c.r/A0.c.r,sc=[0,0];[1,-1].forEach((sg,si)=>base.forEach(it=>{const[a,b]=proj(A0,it),[x,y]=from(B,a*ratio,sg*b*ratio);if(dk(x,y)>1)sc[si]++}));const sg=sc[0]>=sc[1]?1:-1;
-   base.forEach(it=>{const[a,b]=proj(A0,it),[x,y]=from(B,a*ratio,sg*b*ratio);if(dk(x,y)<1)return;out.push(Object.assign({},it,{x:+x.toFixed(1),y:+y.toFixed(1),s:+(it.s*ratio).toFixed(2),rad:it.rad*ratio,r:Math.round(B.ang+90+sg*(it.r-(A0.ang+90))),fx:sg<0?(it.fx?0:1):it.fx}))})}}
+   base.forEach(it=>{const[a,b]=proj(A0,it),[x,y]=from(B,a*ratio,sg*b*ratio);if(dk(x,y)<1||onF(x,y))return;out.push(Object.assign({},it,{x:+x.toFixed(1),y:+y.toFixed(1),s:+(it.s*ratio).toFixed(2),rad:it.rad*ratio,r:Math.round(B.ang+90+sg*(it.r-(A0.ang+90))),fx:sg<0?(it.fx?0:1):it.fx}))})}}
  return LAY[key]=out}
 function tplSvgStr(k,items,o){const t=TPLS.find(x=>x.k===k)||TPLS[0],vw=330,vh=Math.round(vw*t.h/t.w*10)/10,id='m'+(++UID),B='henna-hands/'+t.f;
  const body=items.map(it=>`<g transform="translate(${f1(it.x)} ${f1(it.y)}) rotate(${f1(it.r)}) scale(${(it.fx?-1:1)*it.s} ${it.s})">${dcSvg(it.k,o.ink,it.pi,it)}</g>`).join('');
@@ -787,7 +812,7 @@ function tplLoad(t){tplLoad.p=tplLoad.p||{};if(TM[t.k]||tplLoad.p[t.k])return;tp
  for(let y=0;y<sh;y++)for(let xx=0;xx<sw;xx++){const i=y*sw+xx;if(d[i*4+3]>128){dist[i]=1e6;if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}}
  for(let y=0;y<sh;y++)for(let xx=0;xx<sw;xx++){const i=y*sw+xx;if(!dist[i])continue;let v=dist[i];if(xx>0)v=Math.min(v,dist[i-1]+1);if(y>0){v=Math.min(v,dist[i-sw]+1);if(xx>0)v=Math.min(v,dist[i-sw-1]+1.414);if(xx<sw-1)v=Math.min(v,dist[i-sw+1]+1.414)}dist[i]=v}
  let best=0,bi=0;for(let y=sh-1;y>=0;y--)for(let xx=sw-1;xx>=0;xx--){const i=y*sw+xx;if(!dist[i])continue;let v=dist[i];if(xx<sw-1)v=Math.min(v,dist[i+1]+1);if(y<sh-1){v=Math.min(v,dist[i+sw]+1);if(xx<sw-1)v=Math.min(v,dist[i+sw+1]+1.414);if(xx>0)v=Math.min(v,dist[i+sw-1]+1.414)}dist[i]=v;if(v>best){best=v;bi=i}}
- const k=330/sw;TM[t.k]={d,sw,sh,dist,bb:{x:x0*k,y:y0*k,w:(x1-x0)*k,h:(y1-y0)*k},palm:{x:(bi%sw)*k,y:Math.floor(bi/sw)*k,r:best*k}};tplRefresh()}catch(e){}};im.src='henna-hands/'+t.f+'-m.png'}
+ const k=330/sw;TM[t.k]={d,sw,sh,dist,bb:{x:x0*k,y:y0*k,w:(x1-x0)*k,h:(y1-y0)*k},palm:{x:(bi%sw)*k,y:Math.floor(bi/sw)*k,r:best*k}};tplRefresh();const il=new Image();il.onload=()=>{try{const c2=document.createElement('canvas');c2.width=sw;c2.height=sh;const x2=c2.getContext('2d');x2.drawImage(il,0,0,sw,sh);const dd=x2.getImageData(0,0,sw,sh).data,ln=new Uint8Array(sw*sh);for(let i=0;i<sw*sh;i++)if(dd[i*4+3]>40)ln[i]=1;TM[t.k].ln=ln;delete TM[t.k].d2;for(const q in LAY)delete LAY[q];tplRefresh()}catch(e){}};il.src='henna-hands/'+t.f+'-l.png'}catch(e){}};im.src='henna-hands/'+t.f+'-m.png'}
 function tplRefresh(){clearTimeout(tplRefresh.t);tplRefresh.t=setTimeout(()=>{try{refreshArt()}catch(e){}},40)}
 function dcFit(x,y,k){const m=TM[DC.mode];if(!m)return 1.1;const px=Math.floor(x/330*m.sw),py=Math.floor(y/330*m.sw);if(px<0||py<0||px>=m.sw||py>=m.sh)return .5;const d=m.dist[py*m.sw+px]*330/m.sw*.95,rad=String(k).slice(0,4)==='img:'?32:34;return Math.max(.15,Math.min(3,Math.round(d/rad*100)/100))}
 function tplIn(x,y){const m=TM[DC.mode];if(!m)return true;const px=Math.floor(x/330*m.sw),py=Math.floor(y/330*m.sw);if(px<0||py<0||px>=m.sw||py>=m.sh)return false;return m.d[(py*m.sw+px)*4+3]>128}

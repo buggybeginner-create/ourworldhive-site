@@ -3805,7 +3805,7 @@ $('#bText').onclick = () => {
 $('#bPen').onclick = () => { tool = 'pen'; setMode('pen'); };
 $('#bEraser').onclick = () => { tool = 'eraser'; setMode('pen'); };
 
-/* swipe gestures (phone and tablet): swipe right = next day, left = previous day, up at the page end = more writing space, down at the top = earlier pending tasks */
+/* swipe gestures (phone and tablet): swipe left = next day, right = previous day, up at the page end = more writing space, down at the top = earlier pending tasks */
 (() => {
   let g = null;
   document.addEventListener('touchstart', e => {
@@ -3818,7 +3818,7 @@ $('#bEraser').onclick = () => { tool = 'eraser'; setMode('pen'); };
   document.addEventListener('touchend', e => {
     const s = g; g = null; if (!s || !e.changedTouches.length || Date.now() - s.t > 900) return;
     const t = e.changedTouches[0], dx = t.clientX - s.x, dy = t.clientY - s.y, ax = Math.abs(dx), ay = Math.abs(dy);
-    if (ax >= 110 && ay < 60 && ax > ay * 2.2) { (dx > 0 ? $('#bNext') : $('#bPrev')).click(); return; }
+    if (ax >= 110 && ay < 60 && ax > ay * 2.2) { (dx < 0 ? $('#bNext') : $('#bPrev')).click(); return; }
     if (ay >= 90 && ax < 60 && ay > ax * 2.2) {
       if (dy < 0 && s.bot) { $('#bSpace').click(); toast('Writing space added'); }
       else if (dy > 0 && s.top) {

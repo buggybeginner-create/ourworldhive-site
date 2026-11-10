@@ -122,19 +122,19 @@ const loadScript=(u)=>new Promise((ok,no)=>{const s=document.createElement('scri
 const imgEl=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('img'));i.src=u});
 function prepAI(img,maxS){const sc=Math.min(1,maxS/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*sc),h=Math.round(img.naturalHeight*sc),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);return c}
 /* photo of a monitor: grey, stretch the contrast, then a light blur hides the screen pixel pattern; about 3400 px wide reads best */
-function prep(img,T,crisp){const sc=T/Math.max(img.naturalWidth,img.naturalHeight),w=Math.round(img.naturalWidth*sc),h=Math.round(img.naturalHeight*sc),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,w,h);
+function prep(img,T){const sc=T/Math.max(img.naturalWidth,img.naturalHeight),w=Math.round(img.naturalWidth*sc),h=Math.round(img.naturalHeight*sc),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,w,h);
  const d=x.getImageData(0,0,w,h),a=d.data,H=new Uint32Array(256);for(let i=0;i<a.length;i+=4){const g=(a[i]*299+a[i+1]*587+a[i+2]*114)/1000|0;a[i]=g;H[g]++}
  const n=w*h;let lo=0,hi=255,s0=0;while(lo<255&&s0+H[lo]<n*.02){s0+=H[lo];lo++}s0=0;while(hi>0&&s0+H[hi]<n*.02){s0+=H[hi];hi--}if(hi<=lo+8){lo=0;hi=255}
  const k=255/(hi-lo);for(let i=0;i<a.length;i+=4){const v=Math.max(0,Math.min(255,((a[i]-lo)*k)|0));a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0);
- const c2=document.createElement('canvas');c2.width=w;c2.height=h;const y=c2.getContext('2d');if(!crisp)y.filter='blur('+(w*.00045).toFixed(2)+'px)';y.drawImage(c,0,0);return c2}
+ const c2=document.createElement('canvas');c2.width=w;c2.height=h;const y=c2.getContext('2d');y.filter='blur('+(w*.00045).toFixed(2)+'px)';y.drawImage(c,0,0);return c2}
 async function ocr(canvas,prog){if(!window.Tesseract)await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
  const w=await Tesseract.createWorker('eng',1,{langPath:'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng/4.0.0_best_int',logger:m=>{if(m.status==='recognizing text')prog(m.progress)}});
  try{await w.setParameters({tessedit_pageseg_mode:'6',preserve_interword_spaces:'1'});const r=await w.recognize(canvas);return r.data.text||''}finally{await w.terminate()}}
 const sst=(m,p)=>{$('sst').textContent=m;$('spb').hidden=p==null;if(p!=null)$('spb').firstChild.style.width=Math.round(p*100)+'%'};
-async function scanFiles(files,screen){files=[...files];if(!files.length)return;$('thumbs').innerHTML='';let all=[],txt='';
+async function scanFiles(files){files=[...files];if(!files.length)return;$('thumbs').innerHTML='';let all=[],txt='';
  for(let i=0;i<files.length;i++){try{sst('Reading photo '+(i+1)+' of '+files.length+'... first time needs internet to load the reader',0);const im=await imgEl(files[i]);
   const th=document.createElement('img');th.src=im.src;th.style.cssText='height:54px;border-radius:8px';$('thumbs').appendChild(th);SCN.img=prepAI(im,1400).toDataURL('image/jpeg',.8);
-  const t=await ocr(prep(im,screen?Math.min(3800,Math.max(im.naturalWidth,im.naturalHeight)*2):3400,screen),p=>sst('Reading photo '+(i+1)+' of '+files.length+'...',p));txt+=t+'\n';all=all.concat(readText(t))}catch(e){sst('Could not read this photo. Check internet and try again, or use Paste text.');return}}
+  const t=await ocr(prep(im,3400),p=>sst('Reading photo '+(i+1)+' of '+files.length+'...',p));txt+=t+'\n';all=all.concat(readText(t))}catch(e){sst('Could not read this photo. Check internet and try again, or use Paste text.');return}}
  const seen=new Set();all=all.filter(r=>{const k=keyOf(r);if(seen.has(k))return false;seen.add(k);return true});
  SCN.rows=all;SCN.text=txt;sst(all.length?all.length+' item(s) found. Check them, then add.':'No items found in this photo. Try a closer, straighter photo, or use AI / Paste text.');drawReview()}
 async function aiRead(){const u=($('ai').value||LS.get('owh_mt_ai','')).trim();if(!u){toast('Set the AI scan address in More first');return}if(!SCN.img){toast('Scan a photo first');return}
@@ -149,10 +149,6 @@ function addReviewed(){const take=[];document.querySelectorAll('[data-ri]').forE
  if(!take.length){toast('Nothing selected');return}const k=upsert(take);SCN={rows:[],text:'',img:null};$('thumbs').innerHTML='';sst(k.added+' added, '+k.updated+' updated.');drawReview();redraw();toast(k.added+' added, '+k.updated+' updated');goTab('list')}
 function pasteSheet(){sheet('<h2>Paste text</h2><div class="mut" style="margin-bottom:6px">Copy rows from the SAP list (select, Ctrl+C) and paste them here.</div><textarea id="pt" rows="9" placeholder="Paste here..." style="font:12px ui-monospace,monospace"></textarea><div class="row" style="margin-top:8px"><button class="btn p" id="pgo">Read</button></div>');$('pgo').onclick=()=>{const t=$('pt').value;SCN.text=t;SCN.rows=readText(t);$('sh').hidden=true;sst(SCN.rows.length?SCN.rows.length+' item(s) found.':'Nothing found in that text.');drawReview()}}
 
-async function capScreen(){try{const st=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false}),v=document.createElement('video');v.srcObject=st;v.muted=true;await v.play();await new Promise(r=>setTimeout(r,600));
-  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);st.getTracks().forEach(t=>t.stop());
-  c.toBlob(b=>{if(b)scanFiles([new File([b],'screen.png',{type:'image/png'})],true)},'image/png')}catch(e){toast('Screen capture was cancelled')}}
-document.addEventListener('paste',e=>{const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(x=>x.type&&x.type.indexOf('image/')===0);if(!it||e.target.closest('input,textarea'))return;const f=it.getAsFile();if(f){goTab('scan');scanFiles([f],true)}});
 /* ---------- export, import ---------- */
 function dl(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function exportCsv(){const hdr=COLS.map(c=>c[1]),keys=COLS.map(c=>c[0]);const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
@@ -197,7 +193,7 @@ document.addEventListener('click',e=>{const t=e.target;let x;
  if((x=t.closest('[data-th]')))return setTheme(x.dataset.th);
  if(t.id==='add'||t.id==='add2')return editRow(null);
  if(t.id==='vt'){VIEW=VIEW==='table'?'cards':'table';LS.set('owh_mt_view',VIEW);return drawList()}
- if(t.id==='scr')return capScreen();if(t.id==='cam')return $('fc').click();if(t.id==='gal')return $('fg').click();if(t.id==='pst')return pasteSheet();
+ if(t.id==='cam')return $('fc').click();if(t.id==='gal')return $('fg').click();if(t.id==='pst')return pasteSheet();
  if(t.id==='radd')return addReviewed();if(t.id==='rai')return aiRead();if(t.id==='rclr'){SCN={rows:[],text:'',img:null};$('thumbs').innerHTML='';sst('');return drawReview()}
  if(t.id==='rre'){SCN.text=$('rtx').value;SCN.rows=readText(SCN.text);sst(SCN.rows.length+' item(s) found.');return drawReview()}
  if(t.id==='lg')return Cloud.login();if(t.id==='lo'){Cloud.auth&&Cloud.auth.signOut();return}if(t.id==='sy')return Cloud.sync(true);
@@ -210,7 +206,7 @@ $('fc').onchange=e=>{scanFiles(e.target.files);e.target.value=''};$('fg').onchan
 $('ai').value=LS.get('owh_mt_ai','');$('ai').onchange=e=>LS.set('owh_mt_ai',e.target.value.trim());
 (function(){let x0=0,y0=0,ok=false;document.addEventListener('touchstart',e=>{ok=e.touches.length===1&&!e.target.closest('.tw,input,select,textarea,.sheet,.chips,details');const t=e.touches[0];x0=t.clientX;y0=t.clientY},{passive:true});
  document.addEventListener('touchend',e=>{if(!ok||!$('sh').hidden)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;const i=TABS.indexOf(CT)+(dx<0?1:-1);if(i>=0&&i<TABS.length)goTab(TABS[i])},{passive:true})})();
-$('ver').textContent='Version: '+VER;if(!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia)||matchMedia('(pointer:coarse)').matches)$('scr').hidden=true;
+$('ver').textContent='Version: '+VER;
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('mat-sw.js',{scope:'./mat-tracker.html'}).catch(()=>{});
 window.MT={parseList,parseDetail,readText,upsert,get rows(){return ROWS}};
 drawList();setThemeBtns();Cloud.init().catch(()=>{});

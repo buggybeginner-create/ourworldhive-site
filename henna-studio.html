@@ -107,7 +107,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 k, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 l, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -706,7 +706,7 @@ function genItems(n,k){if(!ak('Mandala bloom'))return genOld(n,k);const key=n+k;
  const R=rng(n*131+(+k[1])*977),st=styleOf(n),out=[],dk=(x,y)=>tplDistK(k,x,y);
  const put=(nm,x,y,rad,rot,o)=>{const q=ak(nm);if(!q)return null;const half=Math.max(q.w,q.h)/2*((o&&o.wide)?1:1);let r=rad;if(!(o&&o.force)){const dd=dk(x,y)*.92;if(dd<r)r=dd}if(r<(o&&o.min||6))return null;const it={k:q.k,x:+x.toFixed(1),y:+y.toFixed(1),rad:r,s:+Math.max(.1,r/half).toFixed(2),r:Math.round(rot),fx:(o&&o.fx!=null)?o.fx:R.i(0,1),pi:0};out.push(it);return it};
  const pick=a=>R.p(a);
- an.forEach((cp,ci)=>{const c=cp.c,d=cp.d,u={x:-d.y,y:d.x},A=cp.ang,P=(a,b)=>[c.x+d.x*a+u.x*b,c.y+d.y*a+u.y*b],up=A+90;
+ an.forEach((cp,ci)=>{if(ci>0)return;const c=cp.c,d=cp.d,u={x:-d.y,y:d.x},A=cp.ang,P=(a,b)=>[c.x+d.x*a+u.x*b,c.y+d.y*a+u.y*b],up=A+90;
   const wd=a=>{const [px,py]=P(a,0);let lo=0,hi=0;while(dk(px+u.x*(hi+1),py+u.y*(hi+1))>.5&&hi<160)hi++;while(dk(px+u.x*(lo-1),py+u.y*(lo-1))>.5&&lo>-160)lo--;return{w:hi-lo,x:px+u.x*(hi+lo)/2,y:py+u.y*(hi+lo)/2}};
   const border=(a,nm,k2)=>{const q=wd(a);if(q.w<30)return false;const it=ak(nm);if(!it)return false;put(nm,q.x,q.y,q.w/2*.94,up,{force:1,fx:0});return true};
   const BORD=['Border strip 1','Border strip 2','Border strip 3','Border strip 4','Border strip 5','Border strip 6','Border strip 7','Border strip 8','Anklet 2','Anklet 3'];
@@ -729,6 +729,10 @@ function genItems(n,k){if(!ak('Mandala bloom'))return genOld(n,k);const key=n+k;
   else if(st===7){/* Simple */put(pick(['Five petal flower','Cherry blossom','Lotus','Daisy','Flower','Hibiscus']),c.x,c.y,palmR*.42,R.i(0,359),{force:1});put(pick(SPR),...P(-palmR*.6,palmR*.45),palmR*.3,up+20,{min:6});border(-(palmR+16),pick(BORD))}
   else {/* Peacock */put('Peacock fan',...P(palmR*.1,-palmR*.05),palmR*.7,up,{force:1,fx:0});put(pick(['Peacock feather','Peacock feather long']),...P(-palmR*.9,palmR*.5),palmR*.5,up-25,{min:6});put('Peacock feather',...P(-palmR*.9,-palmR*.5),palmR*.5,up+25,{min:6});fingers(pick(FIL),0);border(-(palmR+14),pick(BORD));arm(-(palmR+52),'Peacock',34)}
  });
+ /* every other hand gets the same design as the first, mirrored if it is the opposite hand */
+ if(an.length>1&&out.length){const A0=an[0],base=out.slice(),proj=(cp,p)=>{const dx=p.x-cp.c.x,dy=p.y-cp.c.y;return[dx*cp.d.x+dy*cp.d.y,-dx*cp.d.y+dy*cp.d.x]},from=(cp,a,b)=>[cp.c.x+cp.d.x*a-cp.d.y*b,cp.c.y+cp.d.y*a+cp.d.x*b];
+  for(let ci=1;ci<an.length;ci++){const B=an[ci],ratio=B.c.r/A0.c.r,sc=[0,0];[1,-1].forEach((sg,si)=>base.forEach(it=>{const[a,b]=proj(A0,it),[x,y]=from(B,a*ratio,sg*b*ratio);if(dk(x,y)>1)sc[si]++}));const sg=sc[0]>=sc[1]?1:-1;
+   base.forEach(it=>{const[a,b]=proj(A0,it),[x,y]=from(B,a*ratio,sg*b*ratio);if(dk(x,y)<1)return;out.push(Object.assign({},it,{x:+x.toFixed(1),y:+y.toFixed(1),s:+(it.s*ratio).toFixed(2),rad:it.rad*ratio,r:Math.round(B.ang+90+sg*(it.r-(A0.ang+90))),fx:sg<0?(it.fx?0:1):it.fx}))})}}
  return LAY[key]=out}
 function tplSvgStr(k,items,o){const t=TPLS.find(x=>x.k===k)||TPLS[0],vw=330,vh=Math.round(vw*t.h/t.w*10)/10,id='m'+(++UID),B='henna-hands/'+t.f;
  const body=items.map(it=>`<g transform="translate(${f1(it.x)} ${f1(it.y)}) rotate(${f1(it.r)}) scale(${(it.fx?-1:1)*it.s} ${it.s})">${dcSvg(it.k,o.ink,it.pi,it)}</g>`).join('');

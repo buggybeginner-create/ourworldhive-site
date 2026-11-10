@@ -57,9 +57,10 @@ footer{text-align:center;color:var(--mut);font-size:12px;padding:10px 16px 14px}
 .toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}.toast.on{opacity:1}
 .skc{width:34px;height:34px;padding:0;border:2px solid var(--line);border-radius:50%;background:none;cursor:pointer;flex:none}.skc::-webkit-color-swatch-wrapper{padding:0}.skc::-webkit-color-swatch{border:0;border-radius:50%}.skc::-moz-color-swatch{border:0;border-radius:50%}.skc.on{outline:3px solid var(--p2);outline-offset:2px}
 .dcg{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}.dcg>.card{margin-bottom:0}@media(min-width:820px){.dcg{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.dcg>.stage{grid-column:1;grid-row:1/span 4}.dcg>.card{grid-column:2}}
-#dstage>svg{width:100%;max-width:520px;max-height:50dvh;height:auto;display:block;margin:0 auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 12px 16px rgba(80,30,20,.22))}@media(min-width:820px){#dstage>svg{max-height:74dvh}}
-.dpal{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
-.dtile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;text-align:center;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}.dtile svg{width:100%;height:46px;display:block;border-radius:8px}.dtile small{display:block;font:700 9.5px var(--fb);color:var(--mut);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+#d-hand2 .btn{padding:7px 4px;font-size:11px;white-space:nowrap}.dcg>.stage .row .btn.sm{padding:6px 10px}
+#dstage>svg{width:100%;max-width:520px;max-height:38dvh;height:auto;display:block;margin:0 auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 12px 16px rgba(80,30,20,.22))}@media(min-width:820px){#dstage>svg{max-height:74dvh}}
+.dpal{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:76px;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:6px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.dpal>*{scroll-snap-align:start}.dpal .mut{grid-row:1/span 2;width:240px}
+.dtile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;text-align:center;cursor:grab;touch-action:pan-x;user-select:none;-webkit-user-select:none}.dtile svg{width:100%;height:46px;display:block;border-radius:8px}.dtile small{display:block;font:700 9.5px var(--fb);color:var(--mut);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .dghost{position:fixed;width:64px;height:64px;transform:translate(-50%,-50%);pointer-events:none;z-index:60;opacity:.92;background:var(--card);border:1px solid var(--p2);border-radius:12px;padding:3px}.dghost svg{width:100%;height:100%;border-radius:8px}
 .dcr{display:flex;align-items:center;gap:10px;margin:6px 0}.dcr label{width:44px;font:700 12px var(--fb);text-transform:uppercase;color:var(--mut)}.dcr input{flex:1;min-width:0}
 nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
@@ -85,9 +86,10 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
  </div>
 </section>
 <section class="tab" id="t-canvas"><div class="dcg">
- <div class="card"><h3>Shapes &bull; drag onto the hand, or tap</h3><input type="search" id="d-q" placeholder="Search stamps: peacock, flower, border..." style="width:100%;margin-bottom:8px"><div class="chips" id="dcat"></div><div class="dpal" id="dpal" style="margin-top:8px"></div><input type="file" id="d-file" accept="image/*" hidden></div>
- <div class="stage"><div class="row" style="justify-content:center;margin-bottom:8px"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="redo">↷ Redo</button><button class="btn sm" data-dc="new">✦ New</button><button class="btn sm p" data-dc="share">📲 Share</button></div><div class="seg" id="d-hand2" style="margin-bottom:8px"></div><div id="dstage"></div><p class="cap" id="dcap"></p>
+<div class="stage"><div class="row" style="justify-content:center;margin-bottom:8px"><button class="btn sm" data-dc="undo">↶ Undo</button><button class="btn sm" data-dc="redo">↷ Redo</button><button class="btn sm" data-dc="new">✦ New</button><button class="btn sm p" data-dc="share">📲 Share</button></div><div class="seg" id="d-hand2" style="margin-bottom:8px"></div><div id="dstage"></div><p class="cap" id="dcap"></p>
   <div class="row" style="justify-content:center;margin-top:8px"><button class="btn sm" data-dc="zout" aria-label="Zoom out">－</button><span class="mut" id="dzv" style="min-width:64px;text-align:center">Zoom 100%</span><button class="btn sm" data-dc="zin" aria-label="Zoom in">＋</button><button class="btn sm" data-dc="zfit">Fit hand</button></div></div>
+ <div class="card"><h3>Stamps &bull; swipe sideways, tap to add, or drag up onto the hand</h3><input type="search" id="d-q" placeholder="Search stamps: peacock, flower, border..." style="width:100%;margin-bottom:8px"><div class="chips" id="dcat"></div><div class="dpal" id="dpal" style="margin-top:8px"></div><input type="file" id="d-file" accept="image/*" hidden></div>
+ 
  <div class="card" id="dctl"></div>
  <div class="card"><h3>Hand</h3><div class="seg" id="d-hand"></div>
   <h3 style="margin-top:12px">Skin tone</h3><div class="row" id="d-skin"></div>
@@ -105,7 +107,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 c, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 d, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -289,7 +291,7 @@ function drawMaker(){$('stage').innerHTML=hand(ST.n);mzView();$('cap').innerHTML
  try{history.replaceState(null,'','?d='+ST.n+'&h='+ST.hand)}catch(e){}}
 function build(){$('c-ink').innerHTML=Object.keys(INK).map(k=>`<button class="sw" data-ink="${k}" title="${INK[k][1]}" aria-label="${INK[k][1]}" style="background:${INK[k][0]}"></button>`.replace('class="sw"',k==='multi'?'class="sw multi"':'class="sw"')).join('');
  $('c-skin').innerHTML=skinHtml();
- const chips=(a,gal)=>[['All',-1]].concat(STYLES.map((s,i)=>[s,i])).map(x=>`<button class="chip" data-s="${x[1]}"${gal?' data-g="1"':''}>${x[0]}</button>`).join('');
+ const chips=gal=>[['All',-1]].concat(STYLES.map((s,i)=>[s,i])).map(x=>`<button class="chip" data-s="${x[1]}"${gal?' data-g="1"':''}>${x[0]}</button>`).join('');
  $('c-style').innerHTML=chips();$('g-style').innerHTML=chips(1)}
 const isFav=()=>favs().some(f=>f.n===ST.n);
 function pick(n){ST.n=((n-1+TOTAL)%TOTAL)+1;drawMaker()}
@@ -379,7 +381,7 @@ document.addEventListener('click',e=>{if(e.target.closest('a[data-a]'))e.prevent
  if(t.dataset.s!==undefined){const v=+t.dataset.s;if(t.dataset.g){ST.gstyle=v;drawGallery(1)}else{ST.style=v;if(v>=0&&styleOf(ST.n)!==v)pick(randIn());else drawMaker()}}});
 $('goto').addEventListener('keydown',e=>{if(e.key==='Enter')A.go()});
 /* swipe between tabs */
-(function(){let x0=0,y0=0,ok=true;document.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!e.target.closest('.chips,input,#dstage,.dtile')},{passive:true});
+(function(){let x0=0,y0=0,ok=true;document.addEventListener('touchstart',e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY;ok=!e.target.closest('.chips,input,#dstage,#stage,.dpal,.dtile')},{passive:true});
  document.addEventListener('touchend',e=>{if(!ok)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.5)return;const i=TABS.indexOf(ST.tab)+(dx<0?1:-1);if(i>=0&&i<TABS.length)tab(TABS[i])},{passive:true})})();
 /* ---------- Design canvas: drag shapes onto a blank hand, they wrap around it ---------- */
 const DCS=[];
@@ -804,7 +806,7 @@ async function dcExport(a){try{toast('Making your 4K image...');if(!DC.items.len
 /* drag a tile from the shape list onto the hand */
 (function(){let d=null,ghost=null;
  document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('[data-delimg]'))return;const t=e.target.closest&&e.target.closest('.dtile');if(!t)return;d={k:t.dataset.k,x:e.clientX,y:e.clientY,on:false,html:t.querySelector('svg').outerHTML}});
- document.addEventListener('pointermove',e=>{if(!d)return;if(!d.on&&Math.hypot(e.clientX-d.x,e.clientY-d.y)>7){d.on=true;ghost=document.createElement('div');ghost.className='dghost';ghost.innerHTML=d.html;document.body.appendChild(ghost)}
+ document.addEventListener('pointermove',e=>{if(!d)return;if(!d.on){const dx=e.clientX-d.x,dy=e.clientY-d.y;if(e.pointerType==='mouse'?Math.hypot(dx,dy)>7:(Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)*.8))d.on=true;else{if(Math.abs(dx)>10)d=null;return}}if(d.on&&!ghost){ghost=document.createElement('div');ghost.className='dghost';ghost.innerHTML=d.html;document.body.appendChild(ghost)}
   if(d.on&&ghost){ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';e.preventDefault()}});
  const end=e=>{if(!d)return;const k=d.k,on=d.on;d=null;if(ghost){ghost.remove();ghost=null}
   if(on){const sv=$('dsvg');if(!sv)return;const r=sv.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){const p=dcPt(e);dcAdd(k,p.x,p.y)}}

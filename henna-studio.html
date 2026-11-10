@@ -107,7 +107,7 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <section class="tab" id="t-saved"><div class="grid" id="s-grid"></div><div class="empty" id="s-empty">No saved designs yet. Tap “Save” on a design you like.</div></section>
 <section class="tab" id="t-more">
  <div class="card"><h3>Theme</h3><div class="mut">Choose how the app looks. Auto follows your phone.</div><div class="seg" id="c-theme" style="margin-top:8px"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
- <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 f, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" data-a="upd">↻ Get latest version</button><button class="btn" data-a="don">♥ Support / Donate</button></div><div class="mut" style="margin-top:8px">If you do not see a new feature, tap Get latest version once. Your saved designs stay safe on this phone.<br>Version: 10 Nov 2026 g, new hands in Design and Maker, image stamps.</div><div class="dnc" id="dnc" hidden></div></div>
  <div class="card"><h3>About</h3><div class="mut">Henna Studio draws mehendi patterns by itself. Every design number from 1 to 1,999 always gives the same design, so you can note the number or share the link. The Maker draws patterns to give you ideas. In Community, real people post photos of their own mehendi work; you need to sign in with Google to post or rate.</div></div>
 </section>
 </main>
@@ -117,8 +117,8 @@ nav button{font-size:9.5px;letter-spacing:.02em;padding:8px 0 7px}
 <div class="toast" id="toast"></div>
 <script>
 'use strict';
-const $=id=>document.getElementById(id),TOTAL=1999,NS=8;
-const STYLES=['Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple'];
+const $=id=>document.getElementById(id),TOTAL=1999,NS=9;
+const STYLES=['Mandala','Arabic','Bridal','Floral','Paisley','Geometric','Finger tips','Simple','Peacock'];
 const INK={brown:['#5b2a12','Dark brown'],maroon:['#7a1f2b','Maroon'],black:['#1d1511','Black'],red:['#b3202c','Red'],rose:['#d6457a','Rose pink'],gold:['#c8921a','Gold'],blue:['#2a5fb0','Blue'],green:['#2e7d4f','Green'],purple:['#6a3a9e','Purple'],multi:['#5b2a12','Multicolour']};
 const SKIN={light:['#f2d3b3','#d8aa80','Light'],wheat:['#e0b58a','#bd8758','Wheatish'],medium:['#dcaa7c','#b97f52','Medium'],brown:['#c6926a','#9a6a44','Brown'],dbrown:['#a97344','#7e502b','Dark brown'],deep:['#80522f','#5a3519','Deep'],custom:['#b9825a','#8e5a38','Custom']};
 function skinHtml(){return Object.keys(SKIN).filter(k=>k!=='custom').map(k=>`<button class="sw" data-skin="${k}" title="${SKIN[k][2]}" aria-label="${SKIN[k][2]}" style="background:${SKIN[k][0]}"></button>`).join('')+`<input type="color" class="skc" data-cskin="1" value="${SKIN.custom[0]}" title="Pick any skin colour" aria-label="Pick any skin colour">`}
@@ -685,7 +685,7 @@ const RC=[{hero:['mand1','mand2','mand3'],hs:.62,ring:'teardrop',rn:[8,10],rho:1
  {hero:['burst','marigold','daisy'],hs:.34,fing:['dot','teardrop','dot'],bands:1,bk:['band1']},
  {hero:['burst','lotus','marigold'],hs:.5,fing:['dot'],fs:1.8,bands:1,bk:['band1']}];
 const EXT={mand1:42,mand2:42,mand3:42,band0:34,band1:34,band2:34,band3:34,dot:28,circle:30,leaf:32,diamond:32,teardrop:34,pais1:34,pais2:36,pais3:30,vine:34,sprig:34};
-function genItems(n,k){const key=n+k;if(LAY[key])return LAY[key];const an=tplAn(k);if(!an)return[];
+function genOld(n,k){const key=n+k;if(LAY[key])return LAY[key];const an=tplAn(k);if(!an)return[];
  const R=rng(n*131+(+k[1])*977),rc=RC[styleOf(n)],out=[],dk=(x,y)=>tplDistK(k,x,y),rad2=a=>a*Math.PI/180;
  const free=(x,y,r,g)=>{if(dk(x,y)<r*.85)return false;for(const o of out)if(Math.hypot(x-o.x,y-o.y)<r+o.rad+(g||0))return false;return true};
  const add=(kk,x,y,r,rot,pi)=>{out.push({k:kk,x:+x.toFixed(1),y:+y.toFixed(1),rad:r,s:+Math.max(.12,r/(EXT[kk]||34)).toFixed(2),r:Math.round(rot),fx:R.i(0,1),pi:pi||0})};
@@ -696,6 +696,35 @@ function genItems(n,k){const key=n+k;if(LAY[key])return LAY[key];const an=tplAn(
   const wd=(a)=>{let lo=0,hi=0;const px=c.x+d.x*a,py=c.y+d.y*a;while(dk(px+u.x*(hi+1),py+u.y*(hi+1))>.5&&hi<160)hi++;while(dk(px+u.x*(lo-1),py+u.y*(lo-1))>.5&&lo>-160)lo--;return{w:hi-lo,mx:px+u.x*(hi+lo)/2,my:py+u.y*(hi+lo)/2}};
   let a=-(c.r+12);for(let i=0;i<rc.bands;i++,a-=20){const q=wd(a);if(q.w<30)break;const kk=rc.bk[i%rc.bk.length];add(kk,q.mx,q.my,q.w/2*.9,A+90,ci+i)}
   if(rc.arm){const a2=a-20,q=wd(a2);if(q.w>=34){const kk=R.p(rc.arm),r=Math.min(q.w/2*.7,36);if(dk(q.mx,q.my)>=r*.8)add(kk,q.mx,q.my,r,/^(pais|vine|sprig)/.test(kk)?A+90:R.i(0,359),ci+2)}}});
+ return LAY[key]=out}
+const AK={};function ak(n){if(AK[n])return AK[n];const q=DCS.find(d=>d.art&&d.name===n+' art');if(q)AK[n]=q;return q||null}
+function genItems(n,k){if(!ak('Mandala bloom'))return genOld(n,k);const key=n+k;if(LAY[key])return LAY[key];const an=tplAn(k);if(!an)return[];
+ const R=rng(n*131+(+k[1])*977),st=styleOf(n),out=[],dk=(x,y)=>tplDistK(k,x,y);
+ const put=(nm,x,y,rad,rot,o)=>{const q=ak(nm);if(!q)return null;const half=Math.max(q.w,q.h)/2*((o&&o.wide)?1:1);let r=rad;if(!(o&&o.force)){const dd=dk(x,y)*.92;if(dd<r)r=dd}if(r<(o&&o.min||6))return null;const it={k:q.k,x:+x.toFixed(1),y:+y.toFixed(1),rad:r,s:+Math.max(.1,r/half).toFixed(2),r:Math.round(rot),fx:(o&&o.fx!=null)?o.fx:R.i(0,1),pi:0};out.push(it);return it};
+ const pick=a=>R.p(a);
+ an.forEach((cp,ci)=>{const c=cp.c,d=cp.d,u={x:-d.y,y:d.x},A=cp.ang,P=(a,b)=>[c.x+d.x*a+u.x*b,c.y+d.y*a+u.y*b],up=A+90;
+  const wd=a=>{const [px,py]=P(a,0);let lo=0,hi=0;while(dk(px+u.x*(hi+1),py+u.y*(hi+1))>.5&&hi<160)hi++;while(dk(px+u.x*(lo-1),py+u.y*(lo-1))>.5&&lo>-160)lo--;return{w:hi-lo,x:px+u.x*(hi+lo)/2,y:py+u.y*(hi+lo)/2}};
+  const border=(a,nm,k2)=>{const q=wd(a);if(q.w<30)return false;const it=ak(nm);if(!it)return false;put(nm,q.x,q.y,q.w/2*.94,up,{force:1,fx:0});return true};
+  const BORD=['Border strip 1','Border strip 2','Border strip 3','Border strip 4','Border strip 5','Border strip 6','Border strip 7','Border strip 8','Anklet 2','Anklet 3'];
+  const FIL=['Filler 2','Filler 3','Filler 4','Filler 5','Filler 6','Filler 7','Filler 8','Filler 9'],MAN=['Mandala','Mandala bloom','Dotted mandala','Mandala star'],SPR=Array.from({length:13},(_,i)=>'Leaf spray '+(i+1)),PAI=Array.from({length:6},(_,i)=>'Paisley '+(i+1));
+  /* fingers: one filler pattern chained along every finger, tall pieces pointing to the fingertip */
+  const fingers=(nm,dense)=>{const q=ak(nm);if(!q)return;const ridge=cp.ridge.map(p=>({p,a:(p.x-c.x)*d.x+(p.y-c.y)*d.y})).filter(z=>z.a>c.r*.55).sort((x,y)=>y.a-x.a);const placed=[];
+   for(const z of ridge){const p=z.p,wh=Math.min(p.d*.9,9);const s=Math.max(.2,Math.min(.8,(2*wh)/Math.max(q.w,6)));const half=q.h*s/2;if(half<5)continue;let ok=true;for(const o of placed)if(Math.hypot(p.x-o[0],p.y-o[1])<half+o[2]+(dense?.5:3)){ok=false;break}if(!ok||dk(p.x,p.y)<wh*.6)continue;placed.push([p.x,p.y,half]);out.push({k:q.k,x:+p.x.toFixed(1),y:+p.y.toFixed(1),rad:half,s:+s.toFixed(2),r:Math.round(up),fx:0,pi:0})}};
+  const ring=(nm,hr,N,dist,size)=>{const t0=R.i(0,359);for(let i=0;i<N;i++){const a=(t0+i*360/N)*Math.PI/180,x=c.x+Math.cos(a)*hr*dist,y=c.y+Math.sin(a)*hr*dist;put(nm,x,y,hr*size,a*180/Math.PI+90,{min:5})}};
+  const arm=(a,nm,rad,rot)=>{const q=wd(a);if(q.w<30)return;put(nm,q.x,q.y,Math.min(rad,q.w/2*.8),rot==null?up:rot,{fx:0,min:10})};
+  const palmR=c.r;
+  if(st===0){/* Mandala */const hr=palmR*.66;put(pick(MAN),c.x,c.y,hr,R.i(0,359),{force:1});ring(pick(SPR),hr,8,1.28,.34);fingers(pick(FIL),0);border(-(palmR+14),pick(BORD));border(-(palmR+30),pick(BORD));arm(-(palmR+62),pick(['Lotus','Mandala motif','Floral drop','Lotus motif']),30)}
+  else if(st===1){/* Arabic: bold diagonal vine from wrist to the index finger side */const N=5,p0=[-palmR*1.0,palmR*.42],p1=[palmR*.85,-palmR*.38],ang=Math.atan2((p1[1]-p0[1])*1,(p1[0]-p0[0]));const dir=[d.x*Math.cos(ang)-u.x*0+0,0];
+   for(let i=0;i<N;i++){const t=i/(N-1),a=p0[0]+(p1[0]-p0[0])*t,b=p0[1]+(p1[1]-p0[1])*t,[x,y]=P(a,b),rot=up+Math.atan2(p1[1]-p0[1],p1[0]-p0[0])*180/Math.PI*-1+0;put(pick(SPR),x,y,palmR*.42,up-(Math.atan2(p1[1]-p0[1],p1[0]-p0[0])*180/Math.PI)+(i%2?8:-8),{min:6});if(i===1||i===3){const [fx,fy]=P(a+palmR*.1,b-palmR*.28);put(pick(['Hibiscus','Five petal flower','Lotus','Daisy']),fx,fy,palmR*.3,R.i(0,359),{min:6})}}
+   put('Big paisley',...P(palmR*.1,palmR*.05),palmR*.42,up+R.i(-25,25),{min:8});fingers(pick(FIL),0);border(-(palmR+16),pick(BORD));arm(-(palmR+50),pick(['Peacock feather','Peacock feather long','Paisley 1','Paisley 2']),32)}
+  else if(st===2){/* Bridal: heavy, everything covered */const hr=palmR*.6;put(pick(['Mandala bloom','Mandala star','Dotted mandala']),c.x,c.y,hr,R.i(0,359),{force:1});ring(pick(SPR),hr,10,1.3,.32);fingers(pick(FIL),1);for(let i=0;i<3;i++)border(-(palmR+10+i*14),pick(BORD));arm(-(palmR+72),pick(['Peacock','Lotus motif','Arch motif','Mandala motif']),34);arm(-(palmR+108),pick(BORD),34)}
+  else if(st===3){/* Floral */const hr=palmR*.55;put(pick(['Rose','Lotus','Hibiscus','Sunflower','Tulip','Lily']),c.x,c.y,hr,R.i(0,359),{force:1});for(let i=0;i<4;i++){const a=(45+i*90+R.i(-15,15))*Math.PI/180;put(pick(SPR),c.x+Math.cos(a)*hr*1.3,c.y+Math.sin(a)*hr*1.3,hr*.55,a*180/Math.PI+90,{min:6})}fingers(pick(['Filler 2','Filler 3']),0);border(-(palmR+16),pick(BORD));arm(-(palmR+52),pick(['Flower stem','Floral spray','Leafy flower','Rose bunch']),30)}
+  else if(st===4){/* Paisley */put('Big paisley',...P(palmR*.05,0),palmR*.62,up+R.i(-20,20),{min:8});put(pick(PAI),...P(-palmR*.55,palmR*.62),palmR*.34,up+R.i(-30,30),{min:6});put(pick(PAI),...P(palmR*.5,-palmR*.62),palmR*.3,up+R.i(-30,30),{min:6});fingers(pick(FIL),0);border(-(palmR+14),pick(BORD));arm(-(palmR+50),pick(PAI),30)}
+  else if(st===5){/* Geometric */const hr=palmR*.62;put(pick(['Concentric circles','Hexagon flower','Maze square','Nested diamond','Triangle rings','Checkerboard','Dot cluster']),c.x,c.y,hr,R.i(0,2)*45,{force:1});fingers(pick(FIL),0);border(-(palmR+14),pick(['Border strip 1','Border strip 4','Border strip 6','Border strip 8']));border(-(palmR+30),pick(['Border strip 2','Border strip 7','Border strip 8']));arm(-(palmR+62),pick(['Hexagon flower','Concentric circles','Nested diamond']),28)}
+  else if(st===6){/* Finger tips: only fingers plus a small palm flower and a wrist band */fingers(pick(FIL),1);put(pick(['Dot flower','Daisy','Five petal flower','Cherry blossom']),c.x,c.y,palmR*.3,R.i(0,359),{force:1});border(-(palmR+14),pick(BORD))}
+  else if(st===7){/* Simple */put(pick(['Five petal flower','Cherry blossom','Lotus','Daisy','Flower','Hibiscus']),c.x,c.y,palmR*.42,R.i(0,359),{force:1});put(pick(SPR),...P(-palmR*.6,palmR*.45),palmR*.3,up+20,{min:6});border(-(palmR+16),pick(BORD))}
+  else {/* Peacock */put('Peacock fan',...P(palmR*.1,-palmR*.05),palmR*.7,up,{force:1,fx:0});put(pick(['Peacock feather','Peacock feather long']),...P(-palmR*.9,palmR*.5),palmR*.5,up-25,{min:6});put('Peacock feather',...P(-palmR*.9,-palmR*.5),palmR*.5,up+25,{min:6});fingers(pick(FIL),0);border(-(palmR+14),pick(BORD));arm(-(palmR+52),'Peacock',34)}
+ });
  return LAY[key]=out}
 function tplSvgStr(k,items,o){const t=TPLS.find(x=>x.k===k)||TPLS[0],vw=330,vh=Math.round(vw*t.h/t.w*10)/10,id='m'+(++UID),B='henna-hands/'+t.f;
  const body=items.map(it=>`<g transform="translate(${f1(it.x)} ${f1(it.y)}) rotate(${f1(it.r)}) scale(${(it.fx?-1:1)*it.s} ${it.s})">${dcSvg(it.k,o.ink,it.pi,it)}</g>`).join('');

@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#c9d0cb" id="themeColor">
+<meta name="theme-color" content="#dfe2ee" id="themeColor">
 <title>My Diary | Ourworldhive</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="icon" type="image/png" href="/favicon-48.png" sizes="48x48"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%93%3C/text%3E%3C/svg%3E">
@@ -403,8 +403,16 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 .task.sub .topts [data-act="outdent"]{display:inline-block}
 /* progress bar above each task + percentage left of the tick box */
 .task{position:relative}
-.pct{position:absolute;top:9px;width:32px;text-align:right;font:700 11px/1 var(--sans);color:var(--muted);pointer-events:none;letter-spacing:-.02em}
-.task.done .pct,.pct.full{color:var(--accent)}
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+.pct{position:absolute;top:2px;width:32px;height:32px;border-radius:50%;pointer-events:none;z-index:1;
+  background:conic-gradient(var(--pc,#1fa354) calc(var(--p,0)*1%),var(--line) 0);transition:--p .55s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 2px 6px rgba(20,30,60,.16)}
+.pct::before{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--paper)}
+.pct::after{content:attr(data-v);position:absolute;inset:0;display:grid;place-items:center;font:800 10px/1 var(--sans);letter-spacing:-.04em;color:var(--pc,var(--muted))}
+.pct[data-z="1"]::after{color:var(--muted);font-weight:700}
+.pct.full{animation:pctpop .5s ease-out;box-shadow:0 0 0 3px rgba(31,163,84,.18),0 2px 8px rgba(31,163,84,.35)}
+.pct.full::after{font-size:14px}
+@keyframes pctpop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 .pbar{position:absolute;left:40px;right:0;top:-5px;height:16px;cursor:pointer;touch-action:none;z-index:2;-webkit-tap-highlight-color:transparent}
 .pbar::before{content:"";position:absolute;left:0;right:0;top:5px;height:5px;border-radius:3px;background:var(--line)}
 .pbar i{position:absolute;left:0;top:5px;height:5px;border-radius:3px;background:linear-gradient(90deg,#9be0b4,#1fa354);width:0;transition:width .18s}
@@ -414,7 +422,6 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 .pfw.z i{border-right-width:0}
 .task .trow{z-index:1}
 .task.done .pfw i{background:rgba(46,184,100,.2)}
-.pct.full,.task.done .pct{color:#1b8a48}
 .pbar.drag i{transition:none}
 .task.haskids .pbar{pointer-events:none;cursor:default}
 .task.done .pbar i{opacity:.6}
@@ -501,6 +508,36 @@ body.inkon .cvt{pointer-events:none}
   .btn{padding:0 12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+/* ---------- modern diary polish ---------- */
+:root{--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
+  --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
+:root[data-theme="dark"]{--desk:#0d0f17;--paper:#1a1d29;--line:#2a3045;--ink:#eceaf4;--muted:#8d96b3;--accent:#9aa3ff;--accent-soft:#272c49;--margin:#7f4358;--btn:rgba(40,45,64,.92);--bar:rgba(16,18,27,.86);
+  --shadow:0 2px 4px rgba(0,0,0,.5),0 22px 56px rgba(0,0,0,.55)}
+body{background:var(--desk)}
+#sheet{border-radius:14px 28px 28px 14px;box-shadow:var(--shadow),inset 0 5px 0 var(--accent);background-image:linear-gradient(180deg,rgba(75,79,216,.045),transparent 160px)}
+.sh-title{font:800 11.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.sh-date{font-size:38px;letter-spacing:-.02em}
+.sh-dl{font-size:16px}
+.tb,.btn{border-radius:14px;box-shadow:0 1px 2px rgba(30,35,80,.08),inset 0 0 0 1px rgba(30,35,80,.07)}
+.tb.on,.btn.primary{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 62%,#c04cff));color:var(--accent-ink);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 38%,transparent)}
+.tb.primary{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.tb:not(:disabled):hover,.btn:hover{transform:translateY(-1px)}
+.chip{border-radius:99px}
+.task{transition:background .2s;border-radius:10px}
+.task.sel{background:linear-gradient(90deg,var(--accent-soft),transparent 92%);box-shadow:inset 3px 0 0 var(--accent)}
+.chk .box{rx:8px}
+.task.done .chk .box{fill:var(--accent)}
+.secblk{background:linear-gradient(90deg,var(--accent) 0,var(--accent) 56px,var(--line) 56px) left bottom/100% 3px no-repeat;border-radius:0}
+.sx{font-family:var(--sans)!important;font-weight:800!important;letter-spacing:.04em;text-transform:uppercase;font-size:15px!important;color:var(--accent)}
+.panel{border-radius:26px;border:1px solid rgba(75,79,216,.12)}
+.panel h2{letter-spacing:-.01em}
+#modal{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#toast{border-radius:22px;padding:12px 20px;background:rgba(22,26,48,.94)}
+.topts button{border-radius:99px;box-shadow:0 1px 2px rgba(30,35,80,.1),inset 0 0 0 1px rgba(30,35,80,.1)}
+.pbar::before{height:6px;top:4px;border-radius:4px}.pbar i{height:6px;top:4px;border-radius:4px;background:linear-gradient(90deg,#8fa2ff,#4b4fd8 55%,#1fa354)}
+.pfw i{background:linear-gradient(90deg,rgba(75,79,216,.06),rgba(75,79,216,.2));border-right-color:rgba(75,79,216,.5)}
+.pfw{border-radius:10px}
+@media (max-width:640px){.sh-date{font-size:31px}}
 @media print{
   #top,#nav,#chips,#bSpace,#toast,#modal,.acts,#ring,#pad,#sumhead{display:none!important}
   :root[data-theme]{--paper:#fff;--ink:#111;--muted:#555;--line:#ddd;--desk:#fff;--accent:#1f3d91;--btn:#f3f3f3;--shadow:none}
@@ -1317,7 +1354,7 @@ function syncBlockEl(el, b) {
   el.style.marginLeft = lv * 26 + 'px'; el.classList.toggle('sub', lv > 0);
   el.querySelector('.prog').textContent = pg ? `${pg.d}/${pg.t}` : '';
   { const pv = pctMap.has(b.id) ? pctMap.get(b.id) : (done ? 100 : (b.pc || 0)), pe = el.querySelector('.pct'), bar = el.querySelector('.pbar');
-    pe.textContent = pv + '%'; pe.style.left = (-38 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
+    pe.textContent = ''; pe.dataset.v = pv >= 100 ? '✓' : String(pv); pe.dataset.z = pv <= 0 ? '1' : ''; pe.style.setProperty('--p', pv); pe.style.setProperty('--pc', pv <= 0 ? '' : 'hsl(' + Math.round(pv * 1.25) + ' 68% 42%)'); pe.style.left = (-45 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
     bar.firstChild.style.width = pv + '%';
     { const pf = el.querySelector('.pfw'); pf.firstChild.style.width = pv + '%'; pf.classList.toggle('z', pv <= 0); } bar.setAttribute('aria-valuenow', String(pv));
     bar.title = pg ? 'Progress follows the sub-tasks (' + pg.d + ' of ' + pg.t + ' done)' : 'Tap or drag to set how much is done';
@@ -4267,7 +4304,7 @@ function openMore() {
 function applyTheme() {
   const t = S.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.dataset.theme = t;
-  $('#themeColor').setAttribute('content', t === 'dark' ? '#0f1114' : '#c9d0cb');
+  $('#themeColor').setAttribute('content', t === 'dark' ? '#0d0f17' : '#dfe2ee');
   updateToolbar();
   if (cur) { redrawInk(); elMap.forEach((el, id) => { const b = getBlock(id); if (b) syncBlockEl(el, b); }); updateFmt(); }
 }

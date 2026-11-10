@@ -404,7 +404,7 @@ body.pen #fmtbar,body.sumview #fmtbar,body.tplview #fmtbar{display:none}
 /* progress bar above each task + percentage left of the tick box */
 .task{position:relative}
 @property --p{syntax:'<number>';inherits:false;initial-value:0}
-.pct{position:absolute;top:2px;width:32px;height:32px;border-radius:50%;pointer-events:none;z-index:1;
+.pct{position:absolute;top:3px;width:30px;height:30px;border-radius:50%;pointer-events:none;z-index:1;
   background:conic-gradient(var(--pc,#1fa354) calc(var(--p,0)*1%),var(--line) 0);transition:--p .55s cubic-bezier(.2,.8,.2,1);
   box-shadow:0 2px 6px rgba(20,30,60,.16)}
 .pct::before{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--paper)}
@@ -508,6 +508,22 @@ body.inkon .cvt{pointer-events:none}
   .btn{padding:0 12px}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+.lbl{flex:none;align-self:flex-start;margin-top:5px;height:24px;max-width:112px;padding:0 11px;border:0;border-radius:12px;font:800 11.5px/24px var(--sans);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 3px rgba(20,30,60,.22)}
+.lbl:empty{display:none}
+.task.sel .lbl:empty{display:block;background:var(--accent-soft);color:var(--accent);box-shadow:none;font-weight:700}
+.task.sel .lbl:empty::before{content:'🏷️ Label';opacity:.85}
+body.inkon .lbl{pointer-events:none}
+.lbrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.lbchip{display:inline-flex;align-items:center;gap:2px}
+.lbchip .lbl{margin:0;height:32px;line-height:32px;border-radius:16px;max-width:none;font-size:13px}
+.lbx{width:26px;height:26px;border:0;border-radius:50%;background:transparent;color:var(--muted);font-size:12px;padding:0}
+.lbsw{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.sw2{position:relative;width:34px;height:34px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),0 1px 3px rgba(20,30,60,.3);display:grid;place-items:center}
+.sw2[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.sw2.custom{background:conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);overflow:hidden;cursor:pointer}
+.sw2.custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.sw2.custom span{font-size:15px;pointer-events:none}
+@media (max-width:640px){.lbl{max-width:84px}}
 /* ---------- modern diary polish ---------- */
 :root{--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
   --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
@@ -765,7 +781,7 @@ const ALLC = COLORS.concat(HL_COLORS);
 const HL_SIZES = [12, 20, 32];
 const SIZES = [2.4, 3.8, 6.5];      // pen widths in page units (page is 1000 units wide)
 const ERAS = [14, 24, 42];          // eraser radii in page units
-const S = Object.assign({ statuses: ['In progress', 'Waiting for parts', 'Waiting for approval', 'On hold'], notify: false, theme: null, fingerDraw: true, fingerSet: false, color: 'auto', size: 1, penMode: 'text', hlColor: 'hy', shapes: true, padAuto: true, padAs: 'text', penv: 0, carryHidden: false, lang: 'en', onlineOK: false, autoSave: true, autoBackup: true, lastBackup: 0, hadData: false }, (() => {
+const S = Object.assign({ statuses: ['In progress', 'Waiting for parts', 'Waiting for approval', 'On hold'], labels: [{ t: 'Urgent', c: '#e5484d' }, { t: 'Work', c: '#3e63dd' }, { t: 'Home', c: '#30a46c' }, { t: 'Waiting', c: '#f5a524' }, { t: 'Idea', c: '#8e4ec6' }], notify: false, theme: null, fingerDraw: true, fingerSet: false, color: 'auto', size: 1, penMode: 'text', hlColor: 'hy', shapes: true, padAuto: true, padAs: 'text', penv: 0, carryHidden: false, lang: 'en', onlineOK: false, autoSave: true, autoBackup: true, lastBackup: 0, hadData: false }, (() => {
   try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; }
 })());
 const saveSettings = () => { try { localStorage.setItem(SKEY + (S.__uid ? '-' + S.__uid : ''), JSON.stringify(S)); } catch (e) {} };
@@ -878,6 +894,7 @@ function sanitizePage(p) {
       if (Number(b.rem)) { o.rem = Number(b.rem); if (b.remOk) o.remOk = true; }
       if (/^\d{4}-\d{2}-\d{2}$/.test(b.from || '')) o.from = b.from;
       if (Array.isArray(b.cm)) { const cm = b.cm.map(c => c && { t: Number(c.t) || Date.now(), x: String(c.x || '').slice(0, 500) }).filter(c => c && c.x.trim()).slice(-50); if (cm.length) o.cm = cm; }
+      if (b.lb && typeof b.lb === 'object') { const lt = String(b.lb.t || '').trim().slice(0, 24); if (lt) o.lb = { t: lt, c: /^#[0-9a-f]{6}$/i.test(b.lb.c) ? b.lb.c : '#3e63dd' }; }
       const lvn = parseInt(b.lv, 10); if (lvn > 0) o.lv = Math.min(2, lvn);
       if (typeof b.dep === 'string' && b.dep) o.dep = b.dep.slice(0, 40);
       { const pcn = Math.round(Number(b.pc)); if (pcn > 0 && pcn < 100 && !o.done) o.pc = pcn; }
@@ -1306,10 +1323,10 @@ function makeBlockEl(b) {
     el.innerHTML =
       '<div class="pfw" aria-hidden="true"><i></i></div><span class="pct" aria-hidden="true"></span><div class="pbar" role="slider" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100"><i></i></div>' +
       '<div class="trow">' +
-      '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
+      '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><button class="lbl" type="button" data-act="label" aria-label="Label"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
       '<div class="topts" role="toolbar" aria-label="Task options">' +
-      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="outdent">⇤ Promote</button>' +
+      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="outdent">⇤ Promote</button>' +
       '<button type="button" data-act="up" aria-label="Move up">↑</button><button type="button" data-act="down" aria-label="Move down">↓</button>' +
       '<button type="button" data-act="details">⚙ Details</button><button type="button" data-act="comment">💬 Comment</button>' +
       '<button type="button" class="dh" data-drag="1" aria-label="Drag up or down to move, sideways to make a sub-task" title="Drag to move">⠿ Move</button>' +
@@ -1337,6 +1354,7 @@ function syncBlockEl(el, b) {
   c.setAttribute('aria-label', done ? 'Mark task as not done' : 'Mark task as done');
   const w = el.querySelector('.who'), nm = b.who || '';
   w.textContent = nm ? '👤 ' + nm : '';
+  { const lb = el.querySelector('.lbl'); if (lb) { const L = b.lb; lb.textContent = L ? L.t : ''; lb.style.background = L ? L.c : ''; lb.style.color = L ? lbInk(L.c) : ''; } }
   el.classList.toggle('haswho', !!nm);
   el.classList.toggle('isrep', !!b.rid);
   if (b.rid) { const r = rules.get(b.rid); el.querySelector('.rep').title = r ? ruleDesc(r) : 'Repeated job'; }
@@ -1354,7 +1372,7 @@ function syncBlockEl(el, b) {
   el.style.marginLeft = lv * 26 + 'px'; el.classList.toggle('sub', lv > 0);
   el.querySelector('.prog').textContent = pg ? `${pg.d}/${pg.t}` : '';
   { const pv = pctMap.has(b.id) ? pctMap.get(b.id) : (done ? 100 : (b.pc || 0)), pe = el.querySelector('.pct'), bar = el.querySelector('.pbar');
-    pe.textContent = ''; pe.dataset.v = pv >= 100 ? '✓' : String(pv); pe.dataset.z = pv <= 0 ? '1' : ''; pe.style.setProperty('--p', pv); pe.style.setProperty('--pc', pv <= 0 ? '' : 'hsl(' + Math.round(pv * 1.25) + ' 68% 42%)'); pe.style.left = (-45 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
+    pe.textContent = ''; pe.dataset.v = pv >= 100 ? '✓' : String(pv); pe.dataset.z = pv <= 0 ? '1' : ''; pe.style.setProperty('--p', pv); pe.style.setProperty('--pc', pv <= 0 ? '' : 'hsl(' + Math.round(pv * 1.25) + ' 68% 42%)'); pe.style.left = (-54 - lv * 26) + 'px'; pe.classList.toggle('full', pv >= 100);
     bar.firstChild.style.width = pv + '%';
     { const pf = el.querySelector('.pfw'); pf.firstChild.style.width = pv + '%'; pf.classList.toggle('z', pv <= 0); } bar.setAttribute('aria-valuenow', String(pv));
     bar.title = pg ? 'Progress follows the sub-tasks (' + pg.d + ' of ' + pg.t + ' done)' : 'Tap or drag to set how much is done';
@@ -1729,6 +1747,58 @@ function openWho(id, pid) {
     if (w.dataset.w === 'ok') save(inp.value); else if (w.dataset.w === 'rm') save(''); else closeModal();
   });
   inp.focus(); try { inp.select(); } catch (_) {}
+}
+
+/* labels: a short coloured tag on any task or sub-task, with your own colours */
+const LB_COLORS = ['#e5484d', '#f76b15', '#f5a524', '#30a46c', '#12a594', '#3e63dd', '#8e4ec6', '#d6409f', '#6f6f7a', '#1c2a48'];
+function lbInk(c) { const n = parseInt(String(c).slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) > 165 ? '#1b1b1b' : '#ffffff'; }
+function applyLabel(id, L, pid) {
+  const other = pid && (!cur || pid !== cur.id);
+  const b = other ? ((pages.get(pid) || { blocks: [] }).blocks.find(x => x.id === id)) : getBlock(id); if (!b) return;
+  if (!other) begin();
+  if (L) b.lb = { t: String(L.t).trim().slice(0, 24), c: L.c }; else delete b.lb;
+  if (other) { touchOther(pages.get(pid)); renderCarry(); return; }
+  const el = elMap.get(id); if (el) syncBlockEl(el, b);
+  commit();
+}
+function openLabel(id) {
+  const b = getBlock(id); if (!b) return;
+  begin();
+  if (!Array.isArray(S.labels)) S.labels = [];
+  let pick = b.lb ? b.lb.c : LB_COLORS[5];
+  const chipH = l => `<span class="lbchip"><button class="lbl on" type="button" data-use="${esc(l.t)}|${esc(l.c)}" style="background:${esc(l.c)};color:${lbInk(l.c)}">${esc(l.t)}</button><button class="lbx" type="button" data-del="${esc(l.t)}|${esc(l.c)}" aria-label="Remove ${esc(l.t)} from my list">✕</button></span>`;
+  openModal(`<h2>Label</h2><p class="msg">A coloured tag for <b>${esc(b.text.trim() || 'this task')}</b>. Tap one of your labels, or make a new one with your own colour.</p>
+    <div class="lbrow" id="lbList"></div>
+    <div class="fld"><span class="dl">New label</span>
+      <input id="lbIn" class="qin" type="text" maxlength="24" placeholder="Label name, e.g. Shutdown" autocomplete="off" enterkeyhint="done" value="${esc(b.lb ? b.lb.t : '')}">
+      <div class="lbsw" id="lbSw">${LB_COLORS.map(c => `<button type="button" class="sw2" data-c="${c}" style="background:${c}" aria-label="Colour ${c}"></button>`).join('')}<label class="sw2 custom" title="Any colour"><input id="lbCol" type="color" value="${esc(pick)}"><span>🎨</span></label></div>
+      <p class="hint">Preview: <span class="lbl on" id="lbPrev"></span></p></div>
+    <div class="btns" style="margin-top:14px">${b.lb ? '<button class="btn" type="button" data-lb="rm">Remove label</button>' : ''}<button class="btn" type="button" data-lb="x">Cancel</button><button class="btn primary" type="button" data-lb="ok">Save label</button></div>`);
+  const P = $('.panel', modal), q = x => $(x, P);
+  const draw = () => {
+    q('#lbList').innerHTML = S.labels.length ? S.labels.map(chipH).join('') : '<span class="hint">No saved labels yet.</span>';
+    const nm = q('#lbIn').value.trim() || 'Label', pv = q('#lbPrev');
+    pv.textContent = nm; pv.style.background = pick; pv.style.color = lbInk(pick);
+    P.querySelectorAll('#lbSw .sw2[data-c]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c === pick)));
+    q('#lbCol').value = pick;
+  };
+  draw();
+  q('#lbIn').addEventListener('input', draw);
+  q('#lbCol').addEventListener('input', e => { pick = e.target.value; draw(); });
+  const save = () => {
+    const t = q('#lbIn').value.trim().slice(0, 24); if (!t) { toast('Type a name for the label.'); return; }
+    if (!S.labels.some(l => l.t.toLowerCase() === t.toLowerCase() && l.c === pick)) { S.labels = S.labels.filter(l => l.t.toLowerCase() !== t.toLowerCase()); S.labels.push({ t, c: pick }); if (S.labels.length > 30) S.labels.shift(); saveSettings(); }
+    closeModal(); applyLabel(id, { t, c: pick });
+  };
+  q('#lbIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+  P.addEventListener('click', e => {
+    let x;
+    if ((x = e.target.closest('[data-use]'))) { const [t, c] = x.dataset.use.split('|'); closeModal(); applyLabel(id, { t, c }); return; }
+    if ((x = e.target.closest('[data-del]'))) { const [t, c] = x.dataset.del.split('|'); S.labels = S.labels.filter(l => !(l.t === t && l.c === c)); saveSettings(); draw(); return; }
+    if ((x = e.target.closest('#lbSw .sw2[data-c]'))) { pick = x.dataset.c; draw(); return; }
+    if ((x = e.target.closest('[data-lb]'))) { if (x.dataset.lb === 'ok') save(); else if (x.dataset.lb === 'rm') { closeModal(); applyLabel(id, null); } else closeModal(); }
+  });
+  q('#lbIn').focus();
 }
 
 function openRepeat(id) {
@@ -2124,6 +2194,7 @@ els.sheet.addEventListener('click', e => {
   else if (a === 'openlink') { const bb = getBlock(id), u = bb && linkOf(bb); if (u) window.open(u, '_blank', 'noopener'); }
   else if (a === 'del') deleteBlock(id);
   else if (a === 'who') openWho(id);
+  else if (a === 'label') openLabel(id);
   else if (a === 'repeat') openRepeat(id);
 });
 els.sheet.addEventListener('input', e => {

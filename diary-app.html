@@ -3787,13 +3787,12 @@ $('#bText').onclick = () => {
 $('#bPen').onclick = () => { tool = 'pen'; setMode('pen'); };
 $('#bEraser').onclick = () => { tool = 'eraser'; setMode('pen'); };
 
-/* tablet gestures: swipe right = next day, left = previous day, up at the page end = more writing space, down at the top = earlier pending tasks */
+/* swipe gestures (phone and tablet): swipe right = next day, left = previous day, up at the page end = more writing space, down at the top = earlier pending tasks */
 (() => {
   let g = null;
-  const tablet = () => window.matchMedia('(min-width:600px)').matches;
   document.addEventListener('touchstart', e => {
     g = null;
-    if (!tablet() || mode === 'pen' || e.touches.length !== 1 || !modal.hidden) return;
+    if (mode === 'pen' || e.touches.length !== 1 || !modal.hidden || document.body.classList.contains('sumview')) return;
     if (e.target.closest && e.target.closest('input,select,#fmtbar,#toolbar,#nav,.topts,.pbar,.carrylist,.tw,[data-drag],.dh,#remind')) return;
     const t = e.touches[0], de = document.documentElement;
     g = { x: t.clientX, y: t.clientY, top: window.scrollY <= 2, bot: window.scrollY + window.innerHeight >= de.scrollHeight - 8, t: Date.now() };

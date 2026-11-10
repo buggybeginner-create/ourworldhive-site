@@ -7,7 +7,8 @@ var d=document,h=d.head||d.documentElement;
 var path=location.pathname,page=path.split('/').pop()||'index.html';
 if(!/\.html$/.test(page))return;
 var sc=d.currentScript,OWN=!!(sc&&sc.getAttribute('data-own'))||!!d.querySelector('link[rel="manifest"]'); /* page already has its own app setup: only add the INSTALL button */
-if(!/diary-app\.html|parcel-ledger\.html/.test(page))installBtn();
+var framed=false;try{framed=window.top!==window}catch(e){framed=true}
+if(!framed&&!/parcel-ledger\.html/.test(page))installBtn(); /* never inside a frame: an embedded page cannot be installed */
 donateInit();
 if(OWN)return;
 if(path.slice(-1)==='/'){try{history.replaceState(history.state,'',page+location.search+location.hash)}catch(e){}}

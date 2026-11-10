@@ -16,7 +16,7 @@ var APPS=[
 {id:'pp',icon:'📊',name:'Project Planner',tag:'Plan, track and approve with your whole team.',def:'d',href:'project-planner.html',cta:'Open Project Planner',price:'pp',ac:'#3b82f6',url:'ourworldhive.com/project-planner',
  fl:['📅 ✅ ❌ ➕ calendar','👥 Roles and approvals','📈 Planned vs actual %'],
  s:[['Gantt with planned and actual bars','Dependencies across sections, critical path and the percentage inside every actual bar.'],['A calendar that tells the truth','✅ done as planned, ❌ planned but not done, ➕ extra work. Tap a day for the report and share it.'],['Dashboard for all or each section','S-curve, task status and section progress, overall or one section at a time.'],['Manpower, budget and resources','Supervisors log, managers approve. Planned and actual side by side.']]},
-{id:'diary',icon:'📓',name:'My Diary',tag:'A paper-style diary that follows you.',def:'m',price:'diary',href:'diary.html',cta:'Open My Diary',ac:'#f59e0b',url:'ourworldhive.com/diary',
+{id:'diary',icon:'📓',name:'My Diary',tag:'A paper-style diary that follows you.',def:'m',price:'diary',href:'diary-app.html',cta:'Open My Diary',ac:'#f59e0b',url:'ourworldhive.com/diary',
  fl:['✍️ Type or use a pen','☁️ Syncs to every device','☑️ Tasks inside the page'],
  s:[['Write about your day','Ruled pages, auto-save and a new page for every day.'],['Tasks live in your diary','Add tasks, assign them and tick them off without leaving the page.']]},
 {id:'games',icon:'🎮',name:'Games',tag:'Play alone or against real players.',def:'d',href:'games.html',cta:'Play now',ac:'#a855f7',url:'ourworldhive.com/games',fl:['🏆 Weekly rankings','🎯 Multiplayer','🥇 Medals'],

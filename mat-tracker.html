@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta name="robots" content="noai, noimageai"><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Material Tracker | Ourworldhive</title>
+<meta name="description" content="Material Tracker reads SAP purchase requisition screens from a camera photo, builds your material list, and lets you track PO, received quantity, Z amount, responsibility and status in a table or card view.">
+<meta name="theme-color" content="#b45309"><script>(function(){try{var m=localStorage.getItem("owh_mt_theme");m=m?JSON.parse(m):"light";var d=m==="dark"||(m==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()</script>
+<link rel="manifest" href="mat-manifest.webmanifest"><link rel="apple-touch-icon" href="mat-icon-192.png"><link rel="icon" href="mat-icon-192.png" type="image/png">
+<script src="firebase-config.js"></script>
+<style>
+:root{--p:#b45309;--p2:#0f766e;--bg:#fbf3e8;--card:#fff;--ink:#2b1a0a;--mut:#7a6552;--line:#ead9c3;--red:#dc2626;--grn:#15803d;--amb:#d97706;--blu:#2563eb;--r:14px;color-scheme:light}
+html[data-theme=dark]{--p:#e0852b;--p2:#2dd4bf;--bg:#17110a;--card:#231a10;--ink:#f6e9d8;--mut:#bba58d;--line:#3a2b1b;--red:#f87171;--grn:#4ade80;--amb:#fbbf24;--blu:#60a5fa;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%}
+body{font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+header{flex:none;background:linear-gradient(135deg,#7c3a06,var(--p));color:#fff;padding:6px max(12px,env(safe-area-inset-right)) 6px max(12px,env(safe-area-inset-left));padding-top:calc(6px + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;min-height:46px}
+header img{width:28px;height:28px;border-radius:8px}header h1{margin:0;font-size:16px;letter-spacing:.05em;text-transform:uppercase}header .sp{flex:1}
+header a{color:#fff;background:#fff2;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;text-transform:uppercase;text-decoration:none}
+#view{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+.tab{display:none;max-width:1280px;margin:0 auto;padding:8px max(10px,env(safe-area-inset-right)) 14px max(10px,env(safe-area-inset-left))}.tab.on{display:block}
+nav{flex:none;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:6px 1px 5px;font:700 10.5px system-ui;letter-spacing:.04em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:1px}nav button span{font-size:18px}
+nav button.on{color:var(--p);background:color-mix(in srgb,var(--p) 13%,transparent);box-shadow:inset 0 3px 0 var(--p);border-radius:0 0 12px 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px}
+.card h3{margin:0 0 6px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.grow{flex:1;min-width:0}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:11px;padding:8px 12px;font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;min-height:36px}
+.btn.p{background:var(--p);border-color:var(--p);color:#fff}.btn.g{background:var(--grn);border-color:var(--grn);color:#fff}.btn.red{color:var(--red);border-color:var(--red)}.btn.sm{min-height:30px;padding:4px 9px;font-size:11px}.btn:disabled{opacity:.5}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+.chips{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}.chip.on{background:var(--p);border-color:var(--p);color:#fff}
+.mut{color:var(--mut);font-size:12px}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);max-height:calc(100dvh - 250px)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px}
+th{position:sticky;top:0;z-index:2;background:color-mix(in srgb,var(--p) 12%,var(--card));text-align:left;padding:7px 8px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--line);cursor:pointer}
+td{padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}td.tx{white-space:normal;min-width:170px;max-width:260px}
+tr.rw:active td{background:color-mix(in srgb,var(--p) 10%,transparent)}tr.chk td{background:color-mix(in srgb,var(--amb) 14%,transparent)}
+td.u{background:color-mix(in srgb,var(--p2) 9%,transparent)}th.u{background:color-mix(in srgb,var(--p2) 22%,var(--card))}
+th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:var(--card)}th:first-child{z-index:3;background:color-mix(in srgb,var(--p) 12%,var(--card))}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.bd{display:inline-block;border-radius:99px;padding:2px 9px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+.s-Pending{background:#a16207}.s-Ordered{background:var(--blu)}.s-Received{background:var(--grn)}.s-Closed{background:#64748b}.s-Overdue{background:var(--red)}
+.cg{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}.cd.chk{border-color:var(--amb)}
+.cd h4{margin:3px 0 6px;font-size:14px;overflow-wrap:anywhere}.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 8px;font-size:12px}.kv b{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:700}.kv div{min-width:0;overflow-wrap:anywhere}
+.tiles{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));margin-bottom:8px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:left}.tile b{display:block;font-size:22px}.tile span{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.sheet{position:fixed;inset:0;background:#000a;z-index:30;display:flex;align-items:flex-end;justify-content:center}.sheet[hidden]{display:none}
+.sb{background:var(--bg);width:100%;max-width:640px;max-height:94dvh;overflow:auto;border-radius:18px 18px 0 0;padding:12px max(14px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));position:relative}
+@media(min-width:700px){.sheet{align-items:center}.sb{border-radius:18px}}
+.sb h2{margin:0 36px 8px 0;font-size:15px;text-transform:uppercase;letter-spacing:.05em}.sb .cl{position:absolute;top:8px;right:10px;border:0;background:var(--card);width:32px;height:32px;border-radius:50%;font-size:18px}
+.fg{display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}.fg label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:700;display:block}.fg .w2{grid-column:1/-1}
+.pb{height:8px;border-radius:9px;background:var(--line);overflow:hidden}.pb i{display:block;height:100%;width:0;background:var(--p);transition:width .2s}
+.toast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:99px;font-weight:700;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw;text-align:center}.toast.on{opacity:1}
+.tg{font-size:9.5px;font-weight:800;border-radius:6px;padding:1px 6px;text-transform:uppercase;color:#fff}.tg.n{background:var(--grn)}.tg.u{background:var(--blu)}.tg.c{background:var(--amb)}
+.ban{background:color-mix(in srgb,var(--red) 12%,var(--card));border:1px solid var(--red);border-radius:12px;padding:7px 10px;margin-bottom:8px;font-size:12.5px}
+.rv input{padding:5px 6px;font-size:12px;border-radius:7px}.rv td{padding:3px 4px}
+footer{text-align:center;color:var(--mut);font-size:11px;padding:4px 10px 8px}
+</style></head><body>
+<header><img src="mat-icon-192.png" alt=""><h1>Material Tracker</h1><span class="sp"></span><a href="marketplace.html">Hive Apps</a></header>
+<div id="view">
+<section class="tab on" id="t-list">
+ <div id="ovb"></div>
+ <div class="card" style="padding:8px">
+  <div class="row"><input id="q" class="grow" placeholder="Search material, PR, PO, text, responsibility..." style="min-width:150px"><button class="btn sm" id="vt">Table</button><button class="btn sm p" id="add">+ Add</button></div>
+  <div class="chips" id="sf" style="margin-top:6px"></div>
+  <div class="row" style="margin-top:4px"><select id="rf" style="width:auto;flex:1"></select><select id="so" style="width:auto;flex:1"><option value="req">Sort: Req. date</option><option value="po">Sort: PO date</option><option value="val">Sort: Value</option><option value="due">Sort: Due date</option><option value="st">Sort: Status</option><option value="mat">Sort: Material</option></select><span class="mut" id="cnt"></span></div>
+ </div>
+ <div id="lv"></div>
+</section>
+<section class="tab" id="t-scan">
+ <div class="card"><h3>Scan SAP screen</h3>
+  <div class="row"><button class="btn p" id="cam">📷 Camera</button><button class="btn p" id="scr">🖥 Capture screen</button><button class="btn" id="gal">🖼 Photos</button><button class="btn" id="pst">📋 Paste text</button></div>
+  <input type="file" id="fc" accept="image/*" capture="environment" hidden><input type="file" id="fg" accept="image/*" multiple hidden>
+  <div class="mut" id="stip" style="margin-top:6px">On a PC: open the SAP list, tap Capture screen. Or press Win+Shift+S, select the list, then paste here with Ctrl+V. A screen capture reads far better than a phone photo.</div><div id="sst" class="mut" style="margin-top:6px"></div><div class="pb" id="spb" hidden><i></i></div>
+  <div id="thumbs" class="row" style="margin-top:6px"></div>
+ </div>
+ <div id="rvw"></div>
+</section>
+<section class="tab" id="t-sum"><div id="sm"></div></section>
+<section class="tab" id="t-more">
+ <div class="card"><h3>Account and sync</h3><div id="acct" class="mut">Not signed in</div><div class="row" style="margin-top:6px"><button class="btn p" id="lg">Sign in with Google</button><button class="btn" id="sy" hidden>↻ Sync now</button><button class="btn" id="lo" hidden>Sign out</button></div></div>
+ <div class="card"><h3>Theme</h3><div class="row"><button class="btn" data-th="light">Light</button><button class="btn" data-th="dark">Dark</button><button class="btn" data-th="auto">Auto</button></div></div>
+ <div class="card"><h3>Data</h3><div class="row"><button class="btn" id="exc">⬇ Export Excel (CSV)</button><button class="btn" id="exj">⬇ Backup</button><button class="btn" id="imp">⬆ Import / Restore</button></div><input type="file" id="fi" accept=".csv,.json,text/csv,application/json" hidden></div>
+ <div class="card"><h3>AI scan (optional)</h3><div class="mut" style="margin-bottom:6px">Address of your AI scan Worker. Used when the free reader cannot read a photo.</div><input id="ai" placeholder="https://mat-ai.yourname.workers.dev"></div>
+ <div class="card"><h3>App</h3><div class="row"><button class="btn" id="upd">↻ Get latest version</button><button class="btn" id="cnx">✉ Contact us / Feature request</button></div><div class="mut" style="margin-top:6px" id="ver"></div></div>
+ <div class="card"><h3>About</h3><div class="mut">Material Tracker reads SAP purchase requisition screens and keeps your material list. Your data stays on this phone and syncs to your Google account if you sign in.</div></div>
+</section>
+</div>
+<nav id="nav"><button data-tab="list" class="on"><span>📦</span>List</button><button data-tab="scan"><span>📷</span>Scan</button><button data-tab="sum"><span>📊</span>Summary</button><button data-tab="more"><span>⚙️</span>More</button></nav>
+<footer>&copy; DUKEKRRISH. All rights reserved.</footer>
+<div class="sheet" id="sh" hidden><div class="sb" id="sb"></div></div><div class="toast" id="toast"></div>
+<script src="mat-app.js"></script>
+</body></html>

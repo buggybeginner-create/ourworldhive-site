@@ -243,11 +243,19 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void scanSms(final int days) { ui.post(new Runnable() { public void run() { scan(days); } }); }
         @JavascriptInterface public void scheduleReminders(String json) { RemindReceiver.schedule(MainActivity.this, json); }
         @JavascriptInterface public void ack(final int n) { Store.ack(MainActivity.this, n); }
+        @JavascriptInterface public void openAppSettings() { ui.post(new Runnable() { public void run() { try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings > Apps > Expenses.", Toast.LENGTH_LONG).show(); } } }); }
         @JavascriptInterface public void googleToken(final String req, final String kind, final String email) { ui.post(new Runnable() { public void run() { askToken(req, kind, email); } }); }
         @JavascriptInterface public void dropToken(final String token) { try { AccountManager.get(MainActivity.this).invalidateAuthToken("com.google", token); } catch (Exception ignored) { } }
     }
 
-    @Override public void onRequestPermissionsResult(int code, String[] perms, int[] res) { super.onRequestPermissionsResult(code, perms, res); if (code == 2) refreshPage(); }
+    @Override public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        super.onRequestPermissionsResult(code, perms, res);
+        if (code != 2) return;
+        boolean ok = res != null && res.length > 0;
+        if (res != null) for (int r : res) if (r != PackageManager.PERMISSION_GRANTED) ok = false;
+        if (!ok) Toast.makeText(this, "SMS permission was not given. In app settings tap the three dots, Allow restricted settings, then Permissions, SMS, Allow.", Toast.LENGTH_LONG).show();
+        refreshPage();
+    }
     @Override protected void onResume() { super.onResume(); LIVE = new WeakReference<>(this); refreshPage(); deliver(); }
     @Override protected void onSaveInstanceState(Bundle out) { super.onSaveInstanceState(out); if (web != null) web.saveState(out); }
     @Override public void onBackPressed() { if (popup != null) { closePopup(); return; } if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed(); }

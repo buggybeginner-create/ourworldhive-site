@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MapMark | Draw, Mark and Measure on the Map | Ourworldhive</title>
+<meta name="description" content="MapMark: drop pins, draw lines, areas and free-hand marks on the map, write text, measure distance and land area, add photos, and sync and share your maps.">
+<meta name="theme-color" content="#0c4a6e">
+<link rel="canonical" href="https://ourworldhive.com/mapmark.html">
+<link rel="manifest" href="mapmark-manifest.webmanifest">
+<link rel="icon" type="image/png" href="mapmark-icon-192.png">
+<link rel="apple-touch-icon" href="mapmark-apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MapMark">
+<script>(function(){try{var m=localStorage.getItem("owh_mapmark_theme")||"light",d=m==="dark"||(m==="auto"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);if(d)document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()</script>
+<script src="owh-pwa.js" data-own="1"></script>
+<script src="firebase-config.js"></script>
+<script src="owh-pricing.js"></script>
+<script src="owh-contact.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+:root{--p:#0c4a6e;--p2:#f97316;--ac:#0e7490;--bg:#eef4f7;--card:#fff;--ink:#0f1f2b;--mut:#5b6f7d;--line:#d5e1e8;--red:#dc2626;--grn:#16a34a;--sh:0 6px 20px rgba(12,40,60,.16);color-scheme:light}
+html[data-theme=dark]{--p:#38bdf8;--p2:#fb923c;--ac:#22d3ee;--bg:#08131c;--card:#10212e;--ink:#e5f0f6;--mut:#94a9b8;--line:#1f3646;--red:#f87171;--grn:#4ade80;--sh:0 6px 20px rgba(0,0,0,.5);color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+header.top{display:flex;align-items:center;gap:10px;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px;background:var(--p);color:#fff}
+html[data-theme=dark] header.top{background:#0b2a3c}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.06em;font-size:15px}.logo img{width:28px;height:28px;border-radius:7px}
+.mapname{flex:1;min-width:0;text-align:left;background:rgba(255,255,255,.12);border:0;border-radius:10px;padding:6px 10px;color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.st{font-size:11px;font-weight:800;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.18);white-space:nowrap}
+nav.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line)}
+nav.tabs button{flex:1;border:0;background:none;padding:10px 4px;font-weight:800;font-size:12.5px;letter-spacing:.06em;color:var(--mut);border-bottom:3px solid transparent;cursor:pointer}
+nav.tabs button.on{color:var(--p);border-bottom-color:var(--p2)}
+#pages{flex:1;min-height:0;position:relative;overflow:hidden}
+.pg{position:absolute;inset:0;overflow:auto;display:none}.pg.on{display:block}
+#pgMap.on{display:flex}
+.mapwrap{position:relative;flex:1;min-width:0}
+#map{position:absolute;inset:0;background:#cfdde6}
+.side{display:none;width:330px;border-left:1px solid var(--line);background:var(--card);overflow:auto}
+@media(min-width:900px){.side{display:block}#tbItems{display:none}}
+.wrapin{max-width:760px;margin:0 auto;padding:12px 12px 90px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card h3{margin:0 0 6px;font-size:14px;letter-spacing:.06em}
+.mut{color:var(--mut);font-size:13px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 13px;font-weight:700;font-size:13px;letter-spacing:.03em;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center;text-decoration:none;color:var(--ink)}
+.btn.pri{background:var(--p);border-color:var(--p);color:#fff}html[data-theme=dark] .btn.pri{color:#06202d}
+.btn.or{background:var(--p2);border-color:var(--p2);color:#fff}
+.btn.red{color:var(--red);border-color:var(--red)}
+.btn.sm{padding:6px 10px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg .btn.on{background:var(--p);color:#fff;border-color:var(--p)}html[data-theme=dark] .seg .btn.on{color:#06202d}
+input[type=text],input[type=email],input[type=search],textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:16px}
+textarea{min-height:80px;resize:vertical}
+label.f{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;color:var(--mut);margin:10px 0 4px}
+/* map tools */
+.tb{position:absolute;left:10px;top:10px;z-index:500;display:flex;flex-direction:column;gap:6px;max-height:calc(100% - 20px);overflow:auto;padding-bottom:4px}
+.tb button{width:52px;min-height:50px;border:0;border-radius:12px;background:var(--card);box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:var(--ink);cursor:pointer;padding:5px 2px}
+.tb button svg{width:22px;height:22px}
+.tb button.on{background:var(--p2);color:#fff}
+.tr{position:absolute;right:10px;top:10px;z-index:500;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.fab{width:44px;height:44px;border:0;border-radius:12px;background:var(--card);box-shadow:var(--sh);display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.fab svg{width:22px;height:22px}
+.search{position:absolute;left:72px;right:66px;top:10px;z-index:501;max-width:420px}
+.search input{box-shadow:var(--sh);background:var(--card);border:0;padding:11px 12px}
+.sres{background:var(--card);border-radius:10px;box-shadow:var(--sh);margin-top:6px;overflow:hidden}
+.sres button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 12px;font-size:14px;cursor:pointer}
+.colors{position:absolute;left:72px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:500;display:flex;gap:6px;background:var(--card);padding:6px;border-radius:999px;box-shadow:var(--sh)}
+.colors i{width:24px;height:24px;border-radius:50%;display:block;cursor:pointer;border:2px solid transparent}
+.colors i.on{border-color:var(--ink);transform:scale(1.12)}
+.dbar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:600;background:var(--card);box-shadow:var(--sh);border-radius:14px;padding:10px 12px;width:min(94%,520px);display:none}
+.dbar.on{display:block}.dbar .h{font-size:13px;margin-bottom:8px}.dbar b{font-size:15px}
+.menu{position:absolute;right:62px;top:10px;z-index:700;background:var(--card);border-radius:12px;box-shadow:var(--sh);padding:6px;min-width:200px;display:none}
+.menu.on{display:block}.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:.03em;cursor:pointer}.menu button.on{background:var(--bg);color:var(--p)}
+.menu .t{font-size:11px;color:var(--mut);font-weight:800;letter-spacing:.06em;padding:6px 10px 2px}
+.banner{position:absolute;left:72px;right:66px;top:58px;z-index:499;background:#fef3c7;color:#78350f;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:600;display:none;max-width:420px}
+.banner.on{display:block}
+/* markers */
+.pinI svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.txtI{transform:translate(-50%,-50%);white-space:nowrap;font-weight:800;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px #fff;pointer-events:auto}
+.leaflet-tooltip.nmT{font-weight:700;font-size:12px;padding:2px 6px;border-radius:6px}
+.vtx{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--p2);margin:-6px 0 0 -6px}
+.me{width:16px;height:16px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb55;margin:-8px 0 0 -8px}
+/* lists */
+.it{display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.it .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.it .nm{font-weight:700}.it .sb{font-size:12px;color:var(--mut)}
+.it .gr{flex:1;min-width:0}.it .gr div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;letter-spacing:.04em;cursor:pointer}
+.chip.on{background:var(--p);border-color:var(--p);color:#fff}html[data-theme=dark] .chip.on{color:#06202d}
+.mrow{display:flex;gap:10px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line)}
+.mrow .gr{flex:1;min-width:0}.mrow .nm{font-weight:800}
+.tag{font-size:10.5px;font-weight:800;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--line);margin-left:4px}
+.tag.cur{background:var(--p2);color:#fff;border-color:var(--p2)}
+.sec{font-size:12px;font-weight:800;letter-spacing:.07em;color:var(--mut);margin:14px 0 4px}
+/* sheet */
+.ov{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:var(--sh)}
+@media(min-width:900px){.ov{align-items:center}.sheet{border-radius:18px}}
+.sheet h2{margin:0;font-size:16px;letter-spacing:.05em}
+.shh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.x{border:0;background:var(--bg);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;margin-left:auto}
+.meas{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:13.5px;margin:8px 0}
+.phs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.phs .ph{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;background:var(--bg)}
+.phs img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}.phs .ph button{position:absolute;top:3px;right:3px;border:0;border-radius:50%;width:22px;height:22px;background:#000a;color:#fff;cursor:pointer;font-size:13px;line-height:1}
+.cpick{display:flex;gap:8px;flex-wrap:wrap}.cpick i{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;display:block}.cpick i.on{border-color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:3000;background:#0f1f2b;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:90%;box-shadow:var(--sh);opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+.big{position:fixed;inset:0;z-index:2600;background:#000e;display:none;align-items:center;justify-content:center}.big.on{display:flex}.big img{max-width:96%;max-height:92%}
+.foot{text-align:center;color:var(--mut);font-size:12px;padding:10px 0 30px}
+.don a{display:inline-block;margin:4px 6px 4px 0;padding:7px 11px;border:1px solid var(--line);border-radius:10px;text-decoration:none;font-weight:700;color:var(--ink)}
+.don .note{color:var(--mut);font-size:13px}
+.ulist .mrow{font-size:13px}
+.plan{font-size:15px;font-weight:700;margin:4px 0 8px}
+.leaflet-container{font:inherit}
+.leaflet-control-attribution{font-size:10px}
+.leaflet-bottom.leaflet-right{margin-bottom:env(safe-area-inset-bottom,0px)}
+</style></head>
+<body><div class="app">
+<header class="top">
+ <div class="logo"><img src="mapmark-icon-192.png" alt="" width="28" height="28"><span>MAPMARK</span></div>
+ <button class="mapname" id="mapName" title="Change map">My Map</button>
+ <span class="st" id="sync">ON THIS PHONE</span>
+</header>
+<nav class="tabs" role="tablist">
+ <button data-tab="map" class="on">MAP</button><button data-tab="maps">MY MAPS</button><button data-tab="items" id="tbItems">ITEMS</button><button data-tab="me">PROFILE</button>
+</nav>
+<div id="pages">
+ <!-- MAP -->
+ <section class="pg on" id="pgMap"><div class="mapwrap noswipe">
+  <div id="map"></div>
+  <div class="tb" id="tools"></div>
+  <div class="search"><input type="search" id="q" placeholder="Search a place or type lat, long" autocomplete="off" enterkeyhint="search"><div class="sres" id="sres" hidden></div></div>
+  <div class="banner" id="banner"></div>
+  <div class="tr">
+   <button class="fab" id="bLayers" title="Map type" aria-label="Map type"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5z"/><path d="m2 13 10 5 10-5"/></svg></button>
+   <button class="fab" id="bLocate" title="My location" aria-label="My location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+   <button class="fab" id="bUndo" title="Undo" aria-label="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+   <button class="fab" id="bFit" title="Show all my marks" aria-label="Show all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+   <button class="fab" id="bShare" title="Share this map" aria-label="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+  </div>
+  <div class="menu" id="layers"></div>
+  <div class="colors" id="colors"></div>
+  <div class="dbar" id="dbar"><div class="h" id="dhint"></div><div class="row" id="dbtn"></div></div>
+ </div><aside class="side" id="side"></aside></section>
+ <!-- MY MAPS -->
+ <section class="pg" id="pgMaps"><div class="wrapin">
+  <div class="card"><h3>MY MAPS</h3><div class="mut">Each map keeps its own pins, lines, areas, drawings and text. Maps on this phone work without sign-in. Sign in to save maps to the cloud, open them on every device and share them.</div>
+   <div class="row" style="margin-top:10px"><button class="btn pri" id="bNew">+ NEW MAP</button><button class="btn" id="bImport">IMPORT KML / GEOJSON</button><button class="btn" id="bExport">EXPORT THIS MAP</button><input type="file" id="fImport" accept=".kml,.geojson,.json,application/vnd.google-earth.kml+xml,application/geo+json,application/json" hidden></div></div>
+  <div class="card" id="mapsList"></div>
+  <div class="foot">© 2026 DUKEKRRISH. All rights reserved.</div>
+ </div></section>
+ <!-- ITEMS -->
+ <section class="pg" id="pgItems"><div class="wrapin"><div class="card" id="itemsBox"></div><div class="foot">© 2026 DUKEKRRISH. All rights reserved.</div></div></section>
+ <!-- PROFILE -->
+ <section class="pg" id="pgMe"><div class="wrapin">
+  <div class="card" id="acct"></div>
+  <div class="card" id="planBox"></div>
+  <div class="card"><h3>THEME</h3><div class="mut">Auto follows your phone.</div><div class="seg" id="sTheme" style="margin-top:8px"><button class="btn" data-v="light">LIGHT</button><button class="btn" data-v="dark">DARK</button><button class="btn" data-v="auto">AUTO</button></div></div>
+  <div class="card"><h3>UNITS</h3><div class="seg" id="sUnits" style="margin-top:6px"><button class="btn" data-v="metric">METRE / KM / HECTARE</button><button class="btn" data-v="imperial">FEET / MILE / ACRE</button></div>
+   <h3 style="margin-top:14px">NAMES ON MAP</h3><div class="seg" id="sNames"><button class="btn" data-v="1">SHOW</button><button class="btn" data-v="0">HIDE</button></div></div>
+  <div class="card"><h3>APP</h3><div class="row"><button class="btn" id="bUpd">GET LATEST VERSION</button><button class="btn" id="bContact">CONTACT US / FEATURE REQUEST</button></div>
+   <div class="mut" style="margin-top:8px">Install MapMark as its own app: use the INSTALL button, or the browser menu → "Install app" / "Add to Home screen".</div></div>
+  <div class="card don" id="donate"></div>
+  <div class="card" id="ownerBox" hidden></div>
+  <div class="foot">MapMark · © 2026 DUKEKRRISH. All rights reserved.<br>Map data © OpenStreetMap contributors · Satellite © Esri · Google Maps © Google</div>
+ </div></section>
+</div></div>
+
+<div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="big" id="big"><img id="bigImg" alt=""></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="fPhoto" accept="image/*" hidden>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+/* MapMark · Copyright DUKEKRRISH. All rights reserved. */
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const OWNER='er.krushnananda@gmail.com',PRE='owh_mapmark_',TOOL='mm',DAY=864e5;
+const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#0ea5e9','#2563eb','#a855f7','#111827'];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const nice=s=>String(s||'').trim().toLowerCase().replace(/\b\p{L}/gu,c=>c.toUpperCase());
+let tt;function toast(m,ms){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),ms||2600)}
+function ldS(u){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=()=>no(new Error('load '+u));document.head.appendChild(e)})}
+const LS={get(k,d){try{const v=localStorage.getItem(PRE+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(PRE+k,JSON.stringify(v))}catch(e){}}};
+let SET=Object.assign({units:'metric',names:1,layer:'street',color:COLORS[0],view:null,cur:null},LS.get('set',{}));
+const saveSet=()=>LS.set('set',SET);
+
+/* ---------- small key/value store on this phone (IndexedDB) ---------- */
+const KV={db:null,open(){if(this.db)return Promise.resolve(this.db);return new Promise((ok,no)=>{const r=indexedDB.open('mapmark',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{this.db=r.result;ok(this.db)};r.onerror=()=>no(r.error)})},
+ async get(k){const db=await this.open();return new Promise(ok=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(undefined)})},
+ async set(k,v){const db=await this.open();return new Promise((ok,no)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>no(t.error)})},
+ async del(k){const db=await this.open();return new Promise(ok=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=ok})}};
+
+/* ---------- measuring ---------- */
+const R=6371008.8,rad=d=>d*Math.PI/180;
+function dist(a,b){const dl=rad(b[0]-a[0]),dn=rad(b[1]-a[1]),h=Math.sin(dl/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(h)))}
+function plen(p,closed){let s=0;for(let i=1;i<p.length;i++)s+=dist(p[i-1],p[i]);if(closed&&p.length>2)s+=dist(p[p.length-1],p[0]);return s}
+function parea(p){if(p.length<3)return 0;let a=0;for(let i=0;i<p.length;i++){const p1=p[i],p2=p[(i+1)%p.length];a+=rad(p2[1]-p1[1])*(2+Math.sin(rad(p1[0]))+Math.sin(rad(p2[0])))}return Math.abs(a*R*R/2)}
+const n0=(v,d)=>v.toLocaleString('en-IN',{maximumFractionDigits:d,minimumFractionDigits:0});
+function fLen(m){if(SET.units==='imperial'){const ft=m*3.28084;return ft<5280?n0(ft,0)+' ft':n0(ft/5280,2)+' mi'}return m<1000?n0(m,m<10?1:0)+' m':n0(m/1000,2)+' km'}
+function fArea(m2){if(SET.units==='imperial'){const ac=m2/4046.856;return ac<1?n0(m2*10.7639,0)+' sq ft':n0(ac,2)+' acre'}return m2<10000?n0(m2,0)+' m²':n0(m2/1e4,2)+' ha'}
+function fAreaAll(m2){return n0(m2,0)+' m² · '+n0(m2/1e4,3)+' hectare · '+n0(m2/4046.856,3)+' acre · '+n0(m2/40.4686,2)+' decimal · '+n0(m2*10.7639,0)+' sq ft'}
+function measText(it,all){if(it.type==='area'){const a=parea(it.pts);return (all?fAreaAll(a):fArea(a))+' · edge '+fLen(plen(it.pts,true))}if(it.type==='line'||it.type==='pen')return fLen(plen(it.pts));if(it.pts)return '';return n0(it.lat,6)+', '+n0(it.lng,6)}
+const TYPE={pin:'PIN',line:'LINE',area:'AREA',pen:'DRAWING',text:'TEXT'};
+
+/* ---------- state ---------- */
+let LOCAL=[];            // maps on this phone [{id,title,items,ts,local:true}]
+let CLOUD={};            // cloud maps by id
+let CUR=null;            // the open map
+let USER=null,LIC=null,OWNERON=false,db=null,auth=null;
+let UNDO=[];
+const isOwner=()=>!!(USER&&USER.email&&USER.email.toLowerCase()===OWNER&&USER.emailVerified);
+const planOk=()=>isOwner()||!!(LIC&&(LIC.plan==='permanent'||LIC.expiresMs>Date.now()));
+function roleOf(m){if(!m)return'none';if(m.local)return'own';const e=USER&&(USER.email||'').toLowerCase();if(USER&&m.uid===USER.uid)return'own';if(e&&(m.editors||[]).includes(e))return'edit';return'view'}
+function canEdit(){if(!CUR)return false;const r=roleOf(CUR);if(CUR.local)return true;if(r==='own')return planOk();if(r==='edit')return true;return false}
+async function saveLocal(){try{await KV.set('maps',LOCAL)}catch(e){toast('Could not save on this phone')}}
+
+/* ---------- map ---------- */
+const map=L.map('map',{zoomControl:false,attributionControl:true,doubleClickZoom:true,worldCopyJump:true}).setView(SET.view?[SET.view[0],SET.view[1]]:[22.5,82.5],SET.view?SET.view[2]:5);
+L.control.zoom({position:'bottomright'}).addTo(map);L.control.scale({position:'bottomright',imperial:false}).addTo(map);
+map.on('moveend',()=>{const c=map.getCenter();SET.view=[+c.lat.toFixed(5),+c.lng.toFixed(5),map.getZoom()];saveSet()});
+const BASE={
+ street:{n:'STREET',mk:()=>L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'})},
+ sat:{n:'SATELLITE',mk:()=>L.layerGroup([L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18,attribution:'Imagery © Esri'}),L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18})])},
+ terrain:{n:'TERRAIN',mk:()=>L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenTopoMap, © OpenStreetMap contributors'})},
+ groad:{n:'GOOGLE ROAD',g:'roadmap'},gsat:{n:'GOOGLE SATELLITE',g:'satellite'},ghyb:{n:'GOOGLE HYBRID',g:'hybrid'}};
+let baseL=null,GKEY='',gLoading=null;
+function loadGoogle(){if(gLoading)return gLoading;if(!GKEY)return Promise.reject(new Error('nokey'));
+ gLoading=new Promise((ok,no)=>{window.__mmG=ok;ldS('https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(GKEY)+'&v=weekly&loading=async&callback=__mmG').catch(no)})
+  .then(()=>ldS('https://unpkg.com/leaflet.gridlayer.googlemutant@0.14.1/dist/Leaflet.GoogleMutant.js')).catch(e=>{gLoading=null;throw e});return gLoading}
+async function setBase(k){const B=BASE[k]||BASE.street;
+ if(B.g){if(!GKEY){toast('Google map is not switched on yet. Using the free map.',4000);if(k!==SET.layer)return;k='street'}
+  else{try{await loadGoogle()}catch(e){toast('Google map could not load. Using the free map.',4000);k='street'}}}
+ if(baseL)map.removeLayer(baseL);const B2=BASE[k];baseL=B2.g?L.gridLayer.googleMutant({type:B2.g,maxZoom:21}):B2.mk();baseL.addTo(map);if(baseL.bringToBack)baseL.bringToBack();
+ SET.layer=k;saveSet();drawLayers()}
+function drawLayers(){$('layers').innerHTML='<div class="t">FREE MAPS</div>'+['street','sat','terrain'].map(k=>`<button data-l="${k}" class="${SET.layer===k?'on':''}">${BASE[k].n}</button>`).join('')+'<div class="t">GOOGLE MAPS'+(GKEY?'':' (NOT ON YET)')+'</div>'+['groad','gsat','ghyb'].map(k=>`<button data-l="${k}" class="${SET.layer===k?'on':''}">${BASE[k].n}</button>`).join('')}
+$('layers').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(!b)return;setBase(b.dataset.l);$('layers').classList.remove('on')});
+$('bLayers').onclick=e=>{e.stopPropagation();drawLayers();$('layers').classList.toggle('on')};
+map.on('click',()=>$('layers').classList.remove('on'));
+
+/* ---------- tools ---------- */
+const IC={
+ pan:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12m0-6.5v-1a1.5 1.5 0 0 1 3 0V12m0-5.5a1.5 1.5 0 0 1 3 0V13m0-3.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1a7 7 0 0 1-5.6-2.8L4.3 16a1.5 1.5 0 0 1 2.4-1.8L8 16"/>',
+ pin:'<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+ line:'<path d="M4 19 10 9l5 6 5-10"/><circle cx="4" cy="19" r="1.6"/><circle cx="20" cy="5" r="1.6"/>',
+ area:'<path d="M5 7 12 3l7 5-2 11H7z"/>',
+ pen:'<path d="M3 21c3-1 4-4 7-4s3 3 6 2 4-6 5-8"/><path d="m15 3 3 3-8 8H7v-3z"/>',
+ text:'<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
+ meas:'<path d="M3 17 17 3l4 4L7 21z"/><path d="m7 13 2 2M10 10l2 2M13 7l2 2"/>'};
+const TOOLS=[['pan','MOVE'],['pin','PIN'],['line','LINE'],['area','AREA'],['pen','PEN'],['text','TEXT'],['meas','MEASURE']];
+let tool='pan';
+$('tools').innerHTML=TOOLS.map(t=>`<button data-t="${t[0]}" title="${t[1]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[t[0]]}</svg>${t[1]}</button>`).join('');
+$('tools').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)setTool(b.dataset.t)});
+function drawColors(){$('colors').innerHTML=COLORS.map(c=>`<i data-c="${c}" style="background:${c}" class="${SET.color===c?'on':''}"></i>`).join('')}
+$('colors').addEventListener('click',e=>{const i=e.target.closest('[data-c]');if(!i)return;SET.color=i.dataset.c;saveSet();drawColors();if(DR.tmp&&DR.tmp.setStyle)DR.tmp.setStyle({color:SET.color,fillColor:SET.color})});
+const HINT={pin:'Tap the map to drop a pin.',line:'Tap points on the map to draw a line.',area:'Tap the corners of the area. At least 3 points.',pen:'Draw on the map with your finger or mouse. Pinch zoom is off while the pen is on.',text:'Tap the map where you want to write text.',meas:'Tap points to measure distance. 3 or more points also show the area.'};
+const DR={pts:[],tmp:null,vtx:L.layerGroup().addTo(map),pen:false};
+function setTool(t){if(t!=='pan'&&!canEdit()&&t!=='meas'){toast(CUR&&!CUR.local&&roleOf(CUR)==='own'?'Your plan has ended. Renew it in PROFILE to edit.':'You can only view this map.',3500);t='pan'}
+ clearDraw();tool=t;document.querySelectorAll('#tools [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+ const pen=t==='pen';pen?(map.dragging.disable(),map.touchZoom.disable(),map.doubleClickZoom.disable()):(map.dragging.enable(),map.touchZoom.enable(),map.doubleClickZoom.enable());
+ $('map').style.cursor=t==='pan'?'':'crosshair';render();drawBar()}
+function clearDraw(){DR.pts=[];if(DR.tmp){map.removeLayer(DR.tmp);DR.tmp=null}DR.vtx.clearLayers()}
+function drawBar(){const b=$('dbar');if(tool==='pan'){b.classList.remove('on');return}b.classList.add('on');
+ let h=HINT[tool],btn='';const n=DR.pts.length;
+ if(tool==='line'||tool==='area'||tool==='meas'){
+  if(n>1){const L1=plen(DR.pts,tool==='area');h=(tool==='area'&&n>2?'<b>'+fArea(parea(DR.pts))+'</b> · edge '+fLen(L1):'<b>'+fLen(L1)+'</b>')+(tool==='meas'&&n>2?' · area '+fArea(parea(DR.pts)):'')+' · '+n+' points'}
+  btn=`<button class="btn sm" data-d="undo" ${n?'':'disabled'}>UNDO POINT</button>`+(tool==='meas'?`<button class="btn sm" data-d="clear">CLEAR</button><button class="btn sm pri" data-d="saveline" ${n>1?'':'disabled'}>SAVE AS LINE</button><button class="btn sm pri" data-d="savearea" ${n>2?'':'disabled'}>SAVE AS AREA</button>`:`<button class="btn sm pri" data-d="done" ${n>=(tool==='area'?3:2)?'':'disabled'}>FINISH</button>`)}
+ btn+=`<button class="btn sm" data-d="exit">DONE / CLOSE TOOL</button>`;
+ $('dhint').innerHTML=h;$('dbtn').innerHTML=btn}
+$('dbtn').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=b.dataset.d;
+ if(d==='undo'){DR.pts.pop();drawTmp()}else if(d==='clear'){clearDraw();drawBar()}else if(d==='exit')setTool('pan');
+ else if(d==='done')finishShape(tool);else if(d==='saveline'){if(!canEdit())return toast('You can only view this map.');finishShape('line')}else if(d==='savearea'){if(!canEdit())return toast('You can only view this map.');finishShape('area')}});
+function drawTmp(){if(DR.tmp){map.removeLayer(DR.tmp);DR.tmp=null}DR.vtx.clearLayers();const p=DR.pts;
+ if(p.length){const isA=(tool==='area'||(tool==='meas'&&p.length>2));DR.tmp=(isA?L.polygon(p,{color:SET.color,weight:3,dashArray:'6 6',fillOpacity:.15,interactive:false}):L.polyline(p,{color:SET.color,weight:3,dashArray:'6 6',interactive:false})).addTo(map);
+  p.forEach(q=>L.marker(q,{icon:L.divIcon({className:'',html:'<div class="vtx"></div>',iconSize:[0,0]}),interactive:false}).addTo(DR.vtx))}drawBar()}
+function addPt(ll){const q=DR.pts[DR.pts.length-1];if(q&&Math.abs(q[0]-ll.lat)<1e-7&&Math.abs(q[1]-ll.lng)<1e-7)return;DR.pts.push([+ll.lat.toFixed(6),+ll.lng.toFixed(6)]);drawTmp()}
+function finishShape(type){const p=DR.pts.slice();if(p.length<(type==='area'?3:2))return;clearDraw();const it={id:uid(),type,pts:p,color:SET.color,name:'',note:''};putItem(it);if(tool==='meas')setTool('pan');else drawBar();openSheet(it.id)}
+map.on('click',e=>{if(tool==='pan'||tool==='pen')return;
+ if(tool==='pin'||tool==='text'){if(!canEdit())return;const it={id:uid(),type:tool,lat:+e.latlng.lat.toFixed(6),lng:+e.latlng.lng.toFixed(6),color:SET.color,name:tool==='text'?'Text':'',note:''};if(tool==='text')it.size=18;putItem(it);openSheet(it.id,tool==='text');return}
+ addPt(e.latlng)});
+map.on('dblclick',e=>{if((tool==='line'||tool==='area')&&DR.pts.length>=(tool==='area'?3:2)){L.DomEvent.stop(e);finishShape(tool)}});
+/* free-hand pen */
+(function(){const el=$('map');let pts=null,line=null,pid=null;
+ el.addEventListener('pointerdown',e=>{if(tool!=='pen'||!canEdit()||e.button>0)return;if(e.target.closest('.leaflet-control'))return;pid=e.pointerId;try{el.setPointerCapture(pid)}catch(x){}
+  const ll=map.mouseEventToLatLng(e);pts=[ll];line=L.polyline(pts,{color:SET.color,weight:4,interactive:false}).addTo(map);e.preventDefault();e.stopPropagation()},true);
+ el.addEventListener('pointermove',e=>{if(!pts||e.pointerId!==pid)return;pts.push(map.mouseEventToLatLng(e));line.setLatLngs(pts);e.preventDefault()},true);
+ const end=e=>{if(!pts||e.pointerId!==pid)return;const P=pts;pts=null;map.removeLayer(line);line=null;if(P.length<2)return;
+  const px=L.LineUtil.simplify(P.map(q=>map.latLngToLayerPoint(q)),1.2).map(q=>map.layerPointToLatLng(q));
+  putItem({id:uid(),type:'pen',pts:px.map(q=>[+q.lat.toFixed(6),+q.lng.toFixed(6)]),color:SET.color,name:'',note:''})};
+ el.addEventListener('pointerup',end,true);el.addEventListener('pointercancel',end,true)})();
+
+/* ---------- drawing the saved items ---------- */
+const LG=L.featureGroup().addTo(map);let LYR={};
+function pinIcon(c){return L.divIcon({className:'pinI',iconSize:[30,40],iconAnchor:[15,38],tooltipAnchor:[0,-34],html:`<svg width="30" height="40" viewBox="0 0 30 40"><path d="M15 39s13-12.4 13-23.5a13 13 0 0 0-26 0C2 26.6 15 39 15 39z" fill="${c}" stroke="#fff" stroke-width="2"/><circle cx="15" cy="15.5" r="5" fill="#fff"/></svg>`})}
+function itemsArr(){return CUR?Object.values(CUR.items||{}).sort((a,b)=>(a.ts||0)-(b.ts||0)):[]}
+function render(){LG.clearLayers();LYR={};if(!CUR)return;const ed=canEdit()&&tool==='pan';
+ itemsArr().forEach(it=>{let l;const c=it.color||COLORS[0];
+  if(it.type==='pin'){l=L.marker([it.lat,it.lng],{icon:pinIcon(c),draggable:ed});l.on('dragend',()=>{const p=l.getLatLng();putItem(Object.assign({},it,{lat:+p.lat.toFixed(6),lng:+p.lng.toFixed(6)}))})}
+  else if(it.type==='text'){l=L.marker([it.lat,it.lng],{icon:L.divIcon({className:'',iconSize:null,html:`<div class="txtI" style="color:${c};font-size:${it.size||18}px">${esc(it.name||'Text')}</div>`}),draggable:ed});l.on('dragend',()=>{const p=l.getLatLng();putItem(Object.assign({},it,{lat:+p.lat.toFixed(6),lng:+p.lng.toFixed(6)}))})}
+  else if(it.type==='area')l=L.polygon(it.pts,{color:c,weight:3,fillOpacity:.22});
+  else l=L.polyline(it.pts,{color:c,weight:it.type==='pen'?4:4,lineCap:'round'});
+  l.on('click',e=>{if(tool==='pan'){L.DomEvent.stop(e);openSheet(it.id)}else if(it.type==='pin'&&(tool==='line'||tool==='area'||tool==='meas')){addPt(l.getLatLng())}});
+  if(SET.names&&it.type!=='text'){const lab=(it.name||'')+(it.type==='area'||it.type==='line'?(it.name?' · ':'')+(it.type==='area'?fArea(parea(it.pts)):fLen(plen(it.pts))):'');if(lab)l.bindTooltip(esc(lab),{permanent:true,direction:it.type==='pin'?'top':'center',className:'nmT',opacity:.92})}
+  l.addTo(LG);LYR[it.id]=l});
+ drawItems()}
+function fitAll(){const b=LG.getBounds();if(b.isValid())map.fitBounds(b.pad(.15),{maxZoom:18});else toast('This map has no marks yet.')}
+function zoomTo(id){const l=LYR[id];if(!l)return;if(l.getBounds)map.fitBounds(l.getBounds().pad(.3),{maxZoom:19});else map.setView(l.getLatLng(),Math.max(map.getZoom(),17))}
+
+/* ---------- saving items (this phone or cloud) ---------- */
+function putItem(it,noUndo){if(!CUR)return;if(!canEdit()){toast('You can only view this map.');return}
+ const before=CUR.items[it.id]?JSON.parse(JSON.stringify(CUR.items[it.id])):null;if(!noUndo){UNDO.push({m:CUR.id,b:before,id:it.id});if(UNDO.length>40)UNDO.shift()}
+ it.ts=it.ts||Date.now();it.upd=Date.now();if(USER)it.by=USER.uid;CUR.items[it.id]=it;render();
+ if(CUR.local){CUR.ts=Date.now();saveLocal()}else cloudItem(CUR.id,it.id,it)}
+function delItem(id,noUndo){if(!CUR||!CUR.items[id])return;if(!canEdit())return toast('You can only view this map.');
+ if(!noUndo)UNDO.push({m:CUR.id,b:JSON.parse(JSON.stringify(CUR.items[id])),id});delete CUR.items[id];render();
+ if(CUR.local){CUR.ts=Date.now();saveLocal()}else cloudItem(CUR.id,id,null)}
+$('bUndo').onclick=()=>{if(DR.pts.length){DR.pts.pop();drawTmp();return}
+ const u=UNDO.pop();if(!u)return toast('Nothing to undo.');if(!CUR||u.m!==CUR.id)return toast('Undo works on the open map only.');if(u.b)putItem(u.b,true);else delItem(u.id,true);toast('Undone.')};
+$('bFit').onclick=fitAll;
+
+/* ---------- item sheet ---------- */
+let SH=null,shT=null;
+function openSheet(id,focusName){const it=CUR&&CUR.items[id];if(!it)return;SH=id;const ed=canEdit();const c=it.color||COLORS[0];
+ const ctr=it.pts?L.latLngBounds(it.pts).getCenter():{lat:it.lat,lng:it.lng};const ll=n0(ctr.lat,6)+','+n0(ctr.lng,6);const llq=ctr.lat.toFixed(6)+','+ctr.lng.toFixed(6);
+ let h=`<div class="shh"><span class="tag" style="background:${c};color:#fff;border-color:${c}">${TYPE[it.type]}</span><h2>${it.type==='text'?'TEXT ON MAP':'DETAILS'}</h2><button class="x" data-s="close" aria-label="Close">×</button></div>`;
+ const m=measText(it,true);if(m)h+=`<div class="meas">${it.type==='area'?'<b>AREA</b> ':it.pts?'<b>LENGTH</b> ':'<b>LAT, LONG</b> '}${m}</div>`;
+ h+=`<label class="f">${it.type==='text'?'TEXT':'NAME'}</label><input type="text" id="iName" maxlength="120" value="${esc(it.name)}" ${ed?'':'readonly'} placeholder="${it.type==='text'?'Write your text':'Give it a name'}">`;
+ if(it.type==='text')h+=`<label class="f">TEXT SIZE</label><div class="seg" id="iSize">${[12,16,18,24,32].map(s=>`<button class="btn sm ${+it.size===s?'on':''}" data-z="${s}" ${ed?'':'disabled'}>${s}</button>`).join('')}</div>`;
+ else h+=`<label class="f">NOTE</label><textarea id="iNote" maxlength="2000" ${ed?'':'readonly'} placeholder="Write a note">${esc(it.note)}</textarea>`;
+ h+=`<label class="f">COLOUR</label><div class="cpick" id="iCol">${COLORS.map(x=>`<i data-c="${x}" style="background:${x}" class="${x===c?'on':''}"></i>`).join('')}</div>`;
+ if(it.type!=='text')h+=`<label class="f">PHOTOS</label><div class="phs" id="iPh"></div>${ed?`<button class="btn sm" data-s="photo" style="margin-top:8px">+ ADD PHOTO</button>`:''}`;
+ h+=`<div class="row" style="margin-top:14px"><button class="btn sm" data-s="zoom">ZOOM TO IT</button><a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${llq}">OPEN IN GOOGLE MAPS</a><a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${llq}">DIRECTIONS</a><button class="btn sm" data-s="wa">SHARE ON WHATSAPP</button>${ed?'<button class="btn sm red" data-s="del">DELETE</button>':''}</div>`;
+ h+=`<div class="mut" style="margin-top:8px">${ll}${it.upd?' · saved '+new Date(it.upd).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):''}</div>`;
+ $('sheet').innerHTML=h;$('ov').classList.add('on');drawPhotos(it);
+ if(focusName&&ed)setTimeout(()=>{const i=$('iName');i.focus();i.select()},60);
+ const sv=()=>{clearTimeout(shT);shT=setTimeout(()=>{const cur=CUR&&CUR.items[id];if(!cur||!ed)return;const nn=$('iName').value.trim().slice(0,120),no=$('iNote')?$('iNote').value.slice(0,2000):cur.note;if(nn===cur.name&&no===cur.note)return;putItem(Object.assign({},cur,{name:nn,note:no}))},500)};
+ $('iName').addEventListener('input',sv);if($('iNote'))$('iNote').addEventListener('input',sv)}
+function closeSheet(){if(SH&&CUR&&CUR.items[SH]&&canEdit()&&$('iName')){const cur=CUR.items[SH],nn=$('iName').value.trim().slice(0,120),no=$('iNote')?$('iNote').value.slice(0,2000):cur.note;if(nn!==cur.name||no!==cur.note){clearTimeout(shT);putItem(Object.assign({},cur,{name:nn,note:no}))}}SH=null;$('ov').classList.remove('on')}
+$('ov').addEventListener('click',e=>{if(e.target===$('ov'))closeSheet()});
+$('sheet').addEventListener('click',async e=>{const t=e.target;const it=SH&&CUR&&CUR.items[SH];
+ const col=t.closest('#iCol [data-c]');if(col&&it){if(!canEdit())return;putItem(Object.assign({},it,{color:col.dataset.c}));document.querySelectorAll('#iCol i').forEach(i=>i.classList.toggle('on',i===col));return}
+ const z=t.closest('#iSize [data-z]');if(z&&it){putItem(Object.assign({},it,{size:+z.dataset.z}));document.querySelectorAll('#iSize .btn').forEach(b=>b.classList.toggle('on',b===z));return}
+ const img=t.closest('.ph img');if(img){$('bigImg').src=img.src;$('big').classList.add('on');return}
+ const rm=t.closest('[data-rmph]');if(rm&&it){if(!await ask('Remove this photo?','REMOVE'))return;const pid=rm.dataset.rmph;putItem(Object.assign({},it,{ph:(it.ph||[]).filter(x=>x!==pid)}));delPhoto(CUR,pid);drawPhotos(CUR.items[SH]);return}
+ const b=t.closest('[data-s]');if(!b)return;const s=b.dataset.s;
+ if(s==='close')closeSheet();else if(s==='zoom'){closeSheet();showTab('map');setTimeout(()=>zoomTo(it.id),80)}
+ else if(s==='del'){if(!await ask('Delete this '+TYPE[it.type].toLowerCase()+'? You can bring it back with UNDO.','DELETE'))return;closeSheet();delItem(it.id)}
+ else if(s==='photo'){if((it.ph||[]).length>=6)return toast('Up to 6 photos for each mark.');if(!CUR.local&&!planOk()&&roleOf(CUR)==='own')return toast('Renew your plan to add photos.');$('fPhoto').click()}
+ else if(s==='wa'){const ctr=it.pts?L.latLngBounds(it.pts).getCenter():{lat:it.lat,lng:it.lng};const txt=(it.name?it.name+'\n':'')+(measText(it)?measText(it)+'\n':'')+(it.note?it.note+'\n':'')+'https://www.google.com/maps/search/?api=1&query='+ctr.lat.toFixed(6)+','+ctr.lng.toFixed(6);window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')}});
+$('big').onclick=()=>$('big').classList.remove('on');
+
+/* ---------- photos ---------- */
+const PHC={};
+function shrink(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const M=1000,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);let q=.72,d=c.toDataURL('image/jpeg',q);while(d.length>300000&&q>.35){q-=.1;d=c.toDataURL('image/jpeg',q)}ok(d)};im.onerror=no;im.src=r.result};r.onerror=no;r.readAsDataURL(file)})}
+$('fPhoto').onchange=async e=>{const f=e.target.files[0];e.target.value='';const it=SH&&CUR&&CUR.items[SH];if(!f||!it)return;
+ try{toast('Adding photo...');const d=await shrink(f),pid='p'+uid();
+  if(CUR.local)await KV.set('ph:'+pid,d);else await db.collection('mm_maps').doc(CUR.id).collection('ph').doc(pid).set({d,uid:USER.uid,ts:Date.now()});
+  PHC[pid]=d;putItem(Object.assign({},CUR.items[it.id],{ph:(it.ph||[]).concat(pid)}));drawPhotos(CUR.items[it.id]);toast('Photo added.')}catch(x){toast('Could not add the photo. '+(x&&x.code==='permission-denied'?'Ask the map owner for edit rights.':'Try again.'),4000)}};
+async function getPhoto(m,pid){if(PHC[pid])return PHC[pid];try{if(m.local)PHC[pid]=await KV.get('ph:'+pid);else{const d=await db.collection('mm_maps').doc(m.id).collection('ph').doc(pid).get();PHC[pid]=d.exists?d.data().d:''}}catch(e){return''}return PHC[pid]}
+async function delPhoto(m,pid){try{if(m.local)await KV.del('ph:'+pid);else await db.collection('mm_maps').doc(m.id).collection('ph').doc(pid).delete()}catch(e){}}
+async function drawPhotos(it){const box=$('iPh');if(!box||!it)return;const ed=canEdit(),m=CUR;box.innerHTML=(it.ph||[]).map(p=>`<div class="ph" data-p="${p}"></div>`).join('')||'<span class="mut">No photos yet.</span>';
+ for(const p of it.ph||[]){const d=await getPhoto(m,p);const el=box.querySelector(`[data-p="${p}"]`);if(el)el.innerHTML=d?`<img src="${d}" alt="Photo">${ed?`<button data-rmph="${p}" aria-label="Remove">×</button>`:''}`:'<span class="mut" style="font-size:11px;padding:4px;display:block">Photo not found</span>'}}
+
+/* ---------- items list ---------- */
+let IF={q:'',t:'all'};
+function itemsHTML(){const A=itemsArr();let tl=0,ta=0;A.forEach(it=>{if(it.type==='line')tl+=plen(it.pts);if(it.type==='area')ta+=parea(it.pts)});
+ const F=A.filter(it=>(IF.t==='all'||it.type===IF.t)&&(!IF.q||((it.name||'')+' '+(it.note||'')).toLowerCase().includes(IF.q))).reverse();
+ return `<h3>ITEMS ON “${esc(CUR?CUR.title:'')}”</h3><div class="mut">${A.length} marks${tl?' · lines '+fLen(tl):''}${ta?' · areas '+fArea(ta):''}</div>
+ <input type="search" data-iq placeholder="Search names and notes" value="${esc(IF.q)}" style="margin-top:8px">
+ <div class="chips">${[['all','ALL'],['pin','PINS'],['line','LINES'],['area','AREAS'],['pen','DRAWINGS'],['text','TEXT']].map(c=>`<button class="chip ${IF.t===c[0]?'on':''}" data-it="${c[0]}">${c[1]}</button>`).join('')}</div>
+ ${F.map(it=>`<div class="it" data-open="${it.id}"><span class="dot" style="background:${it.color}"></span><div class="gr"><div class="nm">${esc(it.name||(it.type==='pin'?'Pin':it.type==='text'?'Text':TYPE[it.type][0]+TYPE[it.type].slice(1).toLowerCase()))}</div><div class="sb">${TYPE[it.type]}${measText(it)?' · '+esc(measText(it)):''}${(it.ph||[]).length?' · 📷 '+it.ph.length:''}</div></div></div>`).join('')||'<div class="mut" style="padding:14px 0">Nothing here yet. Use the tools on the map to add pins, lines, areas, drawings and text.</div>'}`}
+function drawItems(){['itemsBox','side'].forEach(k=>{const el=$(k);if(!el)return;const f=document.activeElement&&document.activeElement.hasAttribute('data-iq')&&el.contains(document.activeElement);el.innerHTML=k==='side'?'<div style="padding:12px">'+itemsHTML()+'</div>':itemsHTML();if(f){const i=el.querySelector('[data-iq]');i.focus();i.setSelectionRange(i.value.length,i.value.length)}})}
+document.addEventListener('input',e=>{if(e.target.hasAttribute&&e.target.hasAttribute('data-iq')){IF.q=e.target.value.trim().toLowerCase();drawItems()}});
+document.addEventListener('click',e=>{const c=e.target.closest('[data-it]');if(c){IF.t=c.dataset.it;drawItems();return}
+ const o=e.target.closest('[data-open]');if(o){const id=o.dataset.open;if(!document.getElementById('pgMap').classList.contains('on'))showTab('map');setTimeout(()=>{zoomTo(id);openSheet(id)},80)}});
+
+/* ---------- tabs and swipe ---------- */
+const TABS=['map','maps','items','me'],PG={map:'pgMap',maps:'pgMaps',items:'pgItems',me:'pgMe'};let TAB='map';
+function showTab(t){if(t==='items'&&innerWidth>=900)t='map';TAB=t;document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));Object.entries(PG).forEach(([k,v])=>$(v).classList.toggle('on',k===t));
+ if(t==='map')setTimeout(()=>map.invalidateSize(),30);if(t==='maps')drawMaps();if(t==='me')drawMe();if(t==='items')drawItems()}
+document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)showTab(b.dataset.tab)});
+(function(){let x0=null,y0=0,ok=false;const P=$('pages');
+ P.addEventListener('touchstart',e=>{const t=e.target;ok=!(t.closest('.noswipe')||t.closest('input,textarea,select'));if(e.touches.length!==1){ok=false;return}x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+ P.addEventListener('touchend',e=>{if(!ok||x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*.6)return;
+  const vis=TABS.filter(t=>!(t==='items'&&innerWidth>=900));let i=vis.indexOf(TAB)+(dx<0?1:-1);if(i>=0&&i<vis.length)showTab(vis[i])},{passive:true})})();
+/* edge swipe on the map tab: start within 22px of the screen edge */
+(function(){const W=$('pgMap');let x0=null,y0=0;W.addEventListener('touchstart',e=>{const x=e.touches[0].clientX;if(e.touches.length===1&&(x<22||x>innerWidth-22)&&tool==='pan'){x0=x;y0=e.touches[0].clientY}else x0=null},{passive:true});
+ W.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)>70&&Math.abs(dy)<Math.abs(dx)*.6&&dx<0)showTab('maps')},{passive:true})})();
+
+/* ---------- search and location ---------- */
+let sT,sMark=null;
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doSearch()}});
+$('q').addEventListener('input',()=>{clearTimeout(sT);if($('q').value.trim().length<3){$('sres').hidden=true;return}sT=setTimeout(doSearch,700)});
+async function doSearch(){const q=$('q').value.trim();if(!q)return;const m=q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+ if(m){const la=+m[1],lo=+m[2];if(Math.abs(la)<=90&&Math.abs(lo)<=180){goPlace(la,lo,q);return}}
+ try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=6&q='+encodeURIComponent(q),{headers:{'Accept-Language':'en'}}).then(r=>r.json());
+  $('sres').innerHTML=r.length?r.map(x=>`<button data-g="${x.lat},${x.lon}" data-n="${esc(x.display_name)}">${esc(x.display_name)}</button>`).join(''):'<button disabled>No place found.</button>';$('sres').hidden=false}catch(e){toast('Search needs internet.')}}
+$('sres').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;const [a,o]=b.dataset.g.split(',').map(Number);goPlace(a,o,b.dataset.n)});
+function goPlace(la,lo,name){$('sres').hidden=true;$('q').blur();map.setView([la,lo],16);if(sMark)map.removeLayer(sMark);
+ sMark=L.marker([la,lo],{icon:pinIcon('#64748b')}).addTo(map);const div=document.createElement('div');div.innerHTML=`<div style="max-width:220px;font-size:13px">${esc(String(name).slice(0,120))}</div>`+(canEdit()?'<button class="btn sm pri" style="margin-top:6px">ADD PIN HERE</button>':'');
+ const b=div.querySelector('button');if(b)b.onclick=()=>{map.removeLayer(sMark);sMark=null;const it={id:uid(),type:'pin',lat:+la.toFixed(6),lng:+lo.toFixed(6),color:SET.color,name:String(name).split(',')[0].slice(0,120),note:''};putItem(it);openSheet(it.id)};
+ sMark.bindPopup(div).openPopup()}
+let meL=null;
+$('bLocate').onclick=()=>{if(!navigator.geolocation)return toast('Location is not available on this device.');toast('Finding your location...');
+ navigator.geolocation.getCurrentPosition(p=>{const ll=[p.coords.latitude,p.coords.longitude];if(meL)map.removeLayer(meL);meL=L.layerGroup([L.circle(ll,{radius:p.coords.accuracy,weight:1,fillOpacity:.08}),L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[0,0]})}).on('click',()=>{if(tool==='pan'&&canEdit()){const it={id:uid(),type:'pin',lat:+ll[0].toFixed(6),lng:+ll[1].toFixed(6),color:SET.color,name:'My location',note:''};putItem(it);openSheet(it.id)}})]).addTo(map);map.setView(ll,Math.max(map.getZoom(),17));toast('Tap the blue dot to drop a pin there.')},
+  e=>toast(e.code===1?'Allow location for this site in your browser settings.':'Could not get your location.',4000),{enableHighAccuracy:true,timeout:15000})};
+
+/* ---------- dialogs ---------- */
+function ask(text,okLabel,input){return new Promise(ok=>{const d=document.createElement('div');d.className='ov on';d.style.zIndex=2500;
+ d.innerHTML=`<div class="sheet" style="max-width:420px"><div style="font-size:15px;margin:4px 0 12px">${esc(text)}</div>${input!=null?`<input type="text" id="askI" maxlength="80" value="${esc(input)}" style="margin-bottom:12px">`:''}<div class="row" style="justify-content:flex-end"><button class="btn" data-a="0">CANCEL</button><button class="btn pri" data-a="1">${esc(okLabel||'OK')}</button></div></div>`;
+ document.body.appendChild(d);const I=d.querySelector('#askI');if(I){I.focus();I.select();I.onkeydown=e=>{if(e.key==='Enter')fin(1)}}
+ function fin(v){d.remove();ok(v?(I?I.value.trim():true):(I?null:false))}d.onclick=e=>{const b=e.target.closest('[data-a]');if(b)fin(+b.dataset.a);else if(e.target===d)fin(0)}})}
+
+/* ---------- maps: open, new, rename, delete, cloud ---------- */
+function allMaps(){return LOCAL.concat(Object.values(CLOUD))}
+function setCur(m){CUR=m;UNDO=[];if(m){SET.cur=(m.local?'L:':'C:')+m.id;saveSet()}$('mapName').textContent=m?m.title:'No map';closeSheet();setTool('pan');render();drawStatus();drawMaps()}
+function drawStatus(){const s=$('sync'),b=$('banner');let t='ON THIS PHONE',bn='';
+ if(CUR&&!CUR.local){const r=roleOf(CUR);t=r==='view'?'VIEW ONLY':(CUR._pend?'SAVING…':(navigator.onLine?'SYNCED':'OFFLINE'));
+  if(r==='own'&&!planOk())bn='Your plan has ended. This map is view only until you renew in PROFILE.';else if(r==='view')bn='You can view this map. Ask the owner for edit rights to change it.'}
+ s.textContent=t;b.textContent=bn;b.classList.toggle('on',!!bn)}
+addEventListener('online',drawStatus);addEventListener('offline',drawStatus);
+$('mapName').onclick=()=>showTab('maps');
+async function newMap(){const t=await ask('Name of the new map','CREATE','My Map '+(allMaps().length+1));if(!t)return;
+ if(USER&&planOk()){try{const ref=db.collection('mm_maps').doc();const d={uid:USER.uid,email:(USER.email||'').toLowerCase(),title:t.slice(0,80),editors:[],viewers:[],pub:false,items:{},ts:Date.now(),upd:Date.now()};ref.set(d).catch(e=>toast('Could not save to cloud: '+(e.code||e.message),5000));const m=Object.assign({id:ref.id},d);CLOUD[ref.id]=m;setCur(m);showTab('map');toast('New map saved to your cloud.');return}catch(e){}}
+ const m={id:uid(),title:t.slice(0,80),items:{},ts:Date.now(),local:true};LOCAL.push(m);await saveLocal();setCur(m);showTab('map');toast(USER?'New map saved on this phone.':'New map saved on this phone. Sign in to sync it.')}
+$('bNew').onclick=newMap;
+function mapRow(m){const n=Object.keys(m.items||{}).length,r=roleOf(m),cur=CUR&&CUR.id===m.id;
+ const tag=m.local?'PHONE':r==='own'?'CLOUD':r==='edit'?'CAN EDIT':'VIEW';
+ return `<div class="mrow"><div class="gr"><div class="nm">${esc(m.title)}${cur?'<span class="tag cur">OPEN</span>':''}<span class="tag">${tag}</span>${m.pub?'<span class="tag">LINK ON</span>':''}</div><div class="mut">${n} marks${m.email&&r!=='own'?' · by '+esc(m.email):''}${m.upd||m.ts?' · '+new Date(m.upd||m.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):''}</div>
+ <div class="row" style="margin-top:6px">${cur?'':`<button class="btn sm pri" data-m="open" data-id="${m.id}">OPEN</button>`}${r==='own'?`<button class="btn sm" data-m="ren" data-id="${m.id}">RENAME</button>`:''}${m.local?`<button class="btn sm" data-m="up" data-id="${m.id}">SAVE TO CLOUD</button>`:''}${r==='own'&&!m.local?`<button class="btn sm" data-m="share" data-id="${m.id}">SHARE</button>`:''}<button class="btn sm" data-m="exp" data-id="${m.id}">EXPORT</button>${r==='own'?`<button class="btn sm red" data-m="del" data-id="${m.id}">DELETE</button>`:r!=='own'&&!m.local?`<button class="btn sm red" data-m="leave" data-id="${m.id}">REMOVE</button>`:''}</div></div></div>`}
+function drawMaps(){const own=Object.values(CLOUD).filter(m=>roleOf(m)==='own'),sh=Object.values(CLOUD).filter(m=>roleOf(m)!=='own'&&!m._link),lk=Object.values(CLOUD).filter(m=>roleOf(m)!=='own'&&m._link);
+ let h='<div class="sec">ON THIS PHONE</div>'+(LOCAL.map(mapRow).join('')||'<div class="mut">No maps on this phone.</div>');
+ h+='<div class="sec">MY CLOUD MAPS</div>'+(USER?(own.map(mapRow).join('')||'<div class="mut">No cloud maps yet. '+(planOk()?'New maps go to your cloud.':'Start your free trial in PROFILE.')+'</div>'):'<div class="mut">Sign in (PROFILE tab) to keep maps in the cloud and use them on every device.</div>');
+ if(sh.length)h+='<div class="sec">SHARED WITH ME</div>'+sh.map(mapRow).join('');if(lk.length)h+='<div class="sec">OPENED FROM A LINK</div>'+lk.map(mapRow).join('');
+ $('mapsList').innerHTML=h}
+$('mapsList').addEventListener('click',async e=>{const b=e.target.closest('[data-m]');if(!b)return;const id=b.dataset.id,m=allMaps().find(x=>x.id===id);if(!m)return;const a=b.dataset.m;
+ if(a==='open'){setCur(m);showTab('map');setTimeout(fitAll,120)}
+ else if(a==='ren'){const t=await ask('New name for the map','SAVE',m.title);if(!t)return;m.title=t.slice(0,80);if(m.local)await saveLocal();else db.collection('mm_maps').doc(id).update({title:m.title,upd:Date.now()}).catch(x=>toast('Could not rename: '+(x.code||x.message)));if(CUR===m)$('mapName').textContent=m.title;drawMaps()}
+ else if(a==='exp')exportMap(m);
+ else if(a==='share')openShare(m);
+ else if(a==='up')uploadMap(m);
+ else if(a==='leave'){delete CLOUD[id];LS.set('links',(LS.get('links',[])).filter(x=>x!==id));if(CUR===m)setCur(LOCAL[0]||Object.values(CLOUD)[0]||null);drawMaps()}
+ else if(a==='del'){const n=Object.keys(m.items||{}).length;if(!await ask(`Delete the map “${m.title}” and its ${n} marks${m.local?'':' for everyone it is shared with'}? This cannot be undone. Export it first if you may need it.`,'DELETE FOR EVER'))return;
+  if(m.local){for(const it of Object.values(m.items||{}))for(const p of it.ph||[])await KV.del('ph:'+p);LOCAL=LOCAL.filter(x=>x!==m);await saveLocal()}
+  else{try{const ps=await db.collection('mm_maps').doc(id).collection('ph').get();for(const d of ps.docs)await d.ref.delete();await db.collection('mm_maps').doc(id).delete();delete CLOUD[id]}catch(x){return toast('Could not delete: '+(x.code||x.message),5000)}}
+  if(CUR===m)setCur(LOCAL[0]||Object.values(CLOUD).find(x=>roleOf(x)==='own')||null);if(!CUR)await ensureMap();drawMaps();toast('Map deleted.')}});
+async function uploadMap(m){if(!USER)return toast('Sign in first (PROFILE tab).');if(!planOk())return toast('Start your free trial or renew your plan in PROFILE to use the cloud.',4000);
+ if(!await ask(`Move “${m.title}” to your cloud? It will sync to all your devices and can be shared. The copy on this phone is removed after the upload.`,'MOVE TO CLOUD'))return;
+ try{toast('Uploading...',8000);const ref=db.collection('mm_maps').doc(),items={};Object.values(m.items||{}).forEach(it=>{items[it.id]=JSON.stringify(it)});
+  await ref.set({uid:USER.uid,email:(USER.email||'').toLowerCase(),title:m.title,editors:[],viewers:[],pub:false,items,ts:m.ts||Date.now(),upd:Date.now()});
+  for(const it of Object.values(m.items||{}))for(const p of it.ph||[]){const d=await KV.get('ph:'+p);if(d)await ref.collection('ph').doc(p).set({d,uid:USER.uid,ts:Date.now()})}
+  for(const it of Object.values(m.items||{}))for(const p of it.ph||[])await KV.del('ph:'+p);
+  LOCAL=LOCAL.filter(x=>x!==m);await saveLocal();const c=Object.assign({id:ref.id,uid:USER.uid,email:(USER.email||'').toLowerCase(),title:m.title,editors:[],viewers:[],pub:false,items:JSON.parse(JSON.stringify(m.items||{}))});CLOUD[ref.id]=c;if(CUR===m)setCur(c);drawMaps();toast('Map moved to your cloud.')}
+ catch(x){toast('Upload failed: '+(x.code||x.message)+'. Your map is still on this phone.',6000)}}
+
+/* ---------- share ---------- */
+function openShare(m){m=m||CUR;if(!m)return;
+ if(m.local){$('sheet').innerHTML=`<div class="shh"><h2>SHARE MAP</h2><button class="x" data-z="x">×</button></div><div style="margin:8px 0 12px">This map is only on this phone. Move it to the cloud to share it with a link or with your team.</div><div class="row"><button class="btn pri" data-z="up">SAVE TO CLOUD</button><button class="btn" data-z="exp">SEND AS KML FILE</button></div>`;$('ov').classList.add('on');
+  $('sheet').onclick=e=>{const b=e.target.closest('[data-z]');if(!b)return;$('sheet').onclick=null;$('ov').classList.remove('on');if(b.dataset.z==='up')uploadMap(m);if(b.dataset.z==='exp')exportMap(m,'kml')};return}
+ const own=roleOf(m)==='own',link=location.origin+location.pathname+'?m='+m.id;
+ const list=(k)=>(m[k]||[]).map(e=>`<div class="mrow" style="padding:6px 0"><div class="gr">${esc(e)}</div>${own?`<button class="btn sm red" data-rm="${k}" data-e="${esc(e)}">REMOVE</button>`:''}</div>`).join('')||'<div class="mut">Nobody yet.</div>';
+ $('sheet').innerHTML=`<div class="shh"><h2>SHARE “${esc(m.title)}”</h2><button class="x" data-z="x">×</button></div>
+ ${own?`<label class="f">ANYONE WITH THE LINK</label><div class="seg"><button class="btn sm ${m.pub?'on':''}" data-pub="1">CAN VIEW</button><button class="btn sm ${m.pub?'':'on'}" data-pub="0">OFF</button></div>`:''}
+ <div class="row" style="margin-top:10px"><button class="btn sm" data-z="copy">COPY LINK</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('Map: '+m.title+'\n'+link)}">SEND ON WHATSAPP</a></div>
+ <div class="mut" style="margin-top:6px">${m.pub?'Anyone with the link can view, even without sign-in.':'Only the people below can open the link.'}</div>
+ <label class="f">CAN EDIT (${(m.editors||[]).length})</label>${list('editors')}
+ <label class="f">CAN VIEW (${(m.viewers||[]).length})</label>${list('viewers')}
+ ${own?`<label class="f">ADD A PERSON BY GOOGLE E-MAIL</label><input type="email" id="shE" placeholder="name@gmail.com"><div class="row" style="margin-top:8px"><button class="btn sm pri" data-add="editors">ADD AS EDITOR</button><button class="btn sm" data-add="viewers">ADD AS VIEWER</button></div><div class="mut" style="margin-top:6px">They sign in to MapMark with that e-mail and find the map under SHARED WITH ME. Editors can add and change marks while your plan is active.</div>`:''}`;
+ $('ov').classList.add('on');
+ $('sheet').onclick=async e=>{const t=e.target;const z=t.closest('[data-z]');
+  if(z){if(z.dataset.z==='x'){$('sheet').onclick=null;$('ov').classList.remove('on')}if(z.dataset.z==='copy'){try{await navigator.clipboard.writeText(link);toast('Link copied.')}catch(x){prompt('Copy this link',link)}}return}
+  const p=t.closest('[data-pub]');const ad=t.closest('[data-add]');const rm=t.closest('[data-rm]');let upd=null;
+  if(p)upd={pub:p.dataset.pub==='1'};
+  if(ad){const em=$('shE').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('Write a correct e-mail.');const k=ad.dataset.add,o=k==='editors'?'viewers':'editors';upd={[k]:Array.from(new Set((m[k]||[]).concat(em))).slice(0,k==='editors'?20:50),[o]:(m[o]||[]).filter(x=>x!==em)}}
+  if(rm){const k=rm.dataset.rm;upd={[k]:(m[k]||[]).filter(x=>x!==rm.dataset.e)}}
+  if(!upd)return;if(!planOk())return toast('Renew your plan to change sharing.');
+  try{upd.upd=Date.now();await db.collection('mm_maps').doc(m.id).update(upd);Object.assign(m,upd);openShare(m);toast('Saved.')}catch(x){toast('Could not save: '+(x.code||x.message),5000)}}}
+$('bShare').onclick=()=>openShare();
+
+/* ---------- export / import ---------- */
+function toGeo(m){return{type:'FeatureCollection',name:m.title,features:Object.values(m.items||{}).map(it=>{const pr={mm_type:it.type,name:it.name||'',note:it.note||'',color:it.color||'',size:it.size||undefined};
+ if(it.pts){const c=it.pts.map(p=>[p[1],p[0]]);return{type:'Feature',properties:pr,geometry:it.type==='area'?{type:'Polygon',coordinates:[c.concat([c[0]])]}:{type:'LineString',coordinates:c}}}
+ return{type:'Feature',properties:pr,geometry:{type:'Point',coordinates:[it.lng,it.lat]}}})}}
+function kmlCol(c){c=(c||'#ef4444').replace('#','');return 'ff'+c.slice(4,6)+c.slice(2,4)+c.slice(0,2)}
+function toKml(m){const x=s=>esc(s);const pm=Object.values(m.items||{}).map(it=>{const st=`<Style><LineStyle><color>${kmlCol(it.color)}</color><width>3</width></LineStyle><PolyStyle><color>${'55'+kmlCol(it.color).slice(2)}</color></PolyStyle><IconStyle><color>${kmlCol(it.color)}</color></IconStyle></Style>`;
+ const g=it.pts?(it.type==='area'?`<Polygon><outerBoundaryIs><LinearRing><coordinates>${it.pts.concat([it.pts[0]]).map(p=>p[1]+','+p[0]+',0').join(' ')}</coordinates></LinearRing></outerBoundaryIs></Polygon>`:`<LineString><coordinates>${it.pts.map(p=>p[1]+','+p[0]+',0').join(' ')}</coordinates></LineString>`):`<Point><coordinates>${it.lng},${it.lat},0</coordinates></Point>`;
+ return `<Placemark><name>${x(it.name||TYPE[it.type])}</name><description>${x(it.note||'')}${measText(it)?' ('+x(measText(it))+')':''}</description>${st}${g}</Placemark>`}).join('\n');
+ return `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${x(m.title)}</name>\n${pm}\n</Document></kml>`}
+function dl(name,text,type){const b=new Blob([text],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+async function exportMap(m,f){m=m||CUR;if(!m)return;if(!f){f=await new Promise(ok=>{$('sheet').innerHTML=`<div class="shh"><h2>EXPORT “${esc(m.title)}”</h2><button class="x" data-f="">×</button></div><div class="mut" style="margin-bottom:10px">KML opens in Google Earth and Google My Maps. GeoJSON opens in QGIS and most GIS apps. Photos are not included.</div><div class="row"><button class="btn pri" data-f="kml">KML FILE</button><button class="btn" data-f="geojson">GEOJSON FILE</button></div>`;$('ov').classList.add('on');$('sheet').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;$('sheet').onclick=null;$('ov').classList.remove('on');ok(b.dataset.f)}})}
+ if(!f)return;const nm=(m.title||'map').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-')||'map';
+ if(f==='kml')dl(nm+'.kml',toKml(m),'application/vnd.google-earth.kml+xml');else dl(nm+'.geojson',JSON.stringify(toGeo(m),null,1),'application/geo+json');toast('File saved to your downloads.')}
+$('bExport').onclick=()=>exportMap(CUR);
+$('bImport').onclick=()=>{if(!canEdit())return toast('Open a map you can edit first.');$('fImport').click()};
+$('fImport').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;let txt;try{txt=await f.text()}catch(x){return toast('Could not read the file.')}
+ let got=[];try{if(/\.kml$/i.test(f.name)||/^\s*<\?xml|<kml/i.test(txt))got=fromKml(txt);else got=fromGeo(JSON.parse(txt))}catch(x){return toast('This file could not be read. Use KML or GeoJSON.',4000)}
+ if(!got.length)return toast('No points, lines or areas found in the file.');if(got.length>1500)got=got.slice(0,1500);
+ if(!await ask(`Add ${got.length} marks from “${f.name}” to the map “${CUR.title}”?`,'ADD'))return;
+ if(CUR.local){got.forEach(it=>{it.ts=it.upd=Date.now();CUR.items[it.id]=it});await saveLocal();render()}else{const up={upd:Date.now()};got.forEach(it=>{it.ts=it.upd=Date.now();it.by=USER&&USER.uid;CUR.items[it.id]=it;up['items.'+it.id]=JSON.stringify(it)});render();db.collection('mm_maps').doc(CUR.id).update(up).catch(x=>toast('Could not save: '+(x.code||x.message),5000))}
+ showTab('map');setTimeout(fitAll,100);toast(got.length+' marks added.')};
+const r6=v=>+(+v).toFixed(6);
+function fromGeo(j){const out=[];const add=(g,p)=>{if(!g)return;p=p||{};const base={name:String(p.name||p.Name||p.title||'').slice(0,120),note:String(p.note||p.description||'').slice(0,2000),color:/^#[0-9a-f]{6}$/i.test(p.color||'')?p.color:SET.color};
+ if(g.type==='Point')out.push(Object.assign({id:uid(),type:p.mm_type==='text'?'text':'pin',lat:r6(g.coordinates[1]),lng:r6(g.coordinates[0])},base,p.mm_type==='text'?{size:+p.size||18}:{}));
+ else if(g.type==='LineString')out.push(Object.assign({id:uid(),type:p.mm_type==='pen'?'pen':'line',pts:g.coordinates.map(c=>[r6(c[1]),r6(c[0])])},base));
+ else if(g.type==='Polygon'){const c=g.coordinates[0].map(c=>[r6(c[1]),r6(c[0])]);if(c.length>1&&c[0][0]===c[c.length-1][0]&&c[0][1]===c[c.length-1][1])c.pop();out.push(Object.assign({id:uid(),type:'area',pts:c},base))}
+ else if(/^Multi/.test(g.type))g.coordinates.forEach(cc=>add({type:g.type.slice(5),coordinates:cc},p));else if(g.type==='GeometryCollection')(g.geometries||[]).forEach(x=>add(x,p))};
+ if(j.type==='FeatureCollection')j.features.forEach(f=>add(f.geometry,f.properties));else if(j.type==='Feature')add(j.geometry,j.properties);else add(j,{});return out}
+function fromKml(t){const d=new DOMParser().parseFromString(t,'application/xml'),out=[];const cs=s=>String(s||'').trim().split(/\s+/).map(x=>x.split(',')).filter(x=>x.length>=2).map(x=>[r6(x[1]),r6(x[0])]);
+ d.querySelectorAll('Placemark').forEach(pm=>{const nm=(pm.querySelector('name')||{}).textContent||'',ds=((pm.querySelector('description')||{}).textContent||'').replace(/<[^>]+>/g,' ').trim(),base={name:nm.slice(0,120),note:ds.slice(0,2000),color:SET.color};
+  pm.querySelectorAll('Point').forEach(p=>{const c=cs((p.querySelector('coordinates')||{}).textContent)[0];if(c)out.push(Object.assign({id:uid(),type:'pin',lat:c[0],lng:c[1]},base))});
+  pm.querySelectorAll('LineString').forEach(p=>{const c=cs((p.querySelector('coordinates')||{}).textContent);if(c.length>1)out.push(Object.assign({id:uid(),type:'line',pts:c},base))});
+  pm.querySelectorAll('Polygon').forEach(p=>{const q=p.querySelector('outerBoundaryIs coordinates')||p.querySelector('coordinates');const c=cs(q&&q.textContent);if(c.length>1&&c[0][0]===c[c.length-1][0]&&c[0][1]===c[c.length-1][1])c.pop();if(c.length>2)out.push(Object.assign({id:uid(),type:'area',pts:c},base))})});return out}
+
+/* ---------- cloud (Firebase) ---------- */
+let cloudReady=null,unsub=[];
+function cloudInit(){if(cloudReady)return cloudReady;cloudReady=(async()=>{if(!window.OWH_FIREBASE)throw new Error('cfg');const b='https://www.gstatic.com/firebasejs/10.12.2/';
+ if(!window.firebase)await ldS(b+'firebase-app-compat.js');if(!firebase.auth)await ldS(b+'firebase-auth-compat.js');if(!firebase.firestore)await ldS(b+'firebase-firestore-compat.js');
+ if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);db=firebase.firestore();try{await db.enablePersistence({synchronizeTabs:true})}catch(e){}auth=firebase.auth();
+ auth.onAuthStateChanged(u=>{USER=u&&!u.isAnonymous?u:null;onUser()})})().catch(e=>{cloudReady=null;throw e});return cloudReady}
+function parseDoc(d){const x=d.data()||{},items={};Object.entries(x.items||{}).forEach(([k,v])=>{try{items[k]=typeof v==='string'?JSON.parse(v):v}catch(e){}});return{id:d.id,uid:x.uid,email:x.email||'',title:x.title||'Map',editors:x.editors||[],viewers:x.viewers||[],pub:!!x.pub,items,ts:x.ts,upd:x.upd,_pend:d.metadata&&d.metadata.hasPendingWrites}}
+function gotDoc(d,link){if(!d.exists){if(CLOUD[d.id]&&!link){delete CLOUD[d.id]}return}const m=parseDoc(d);if(link)m._link=true;const old=CLOUD[d.id];if(old&&old._link&&!link)m._link=false;
+ if(CUR&&CUR.id===d.id&&!CUR.local){Object.assign(CUR,m);CLOUD[d.id]=CUR;if(SH&&!CUR.items[SH])closeSheet();render();drawStatus();$('mapName').textContent=CUR.title}else CLOUD[d.id]=m}
+function cloudItem(mid,id,it){const up={upd:Date.now()};up['items.'+id]=it?JSON.stringify(it):firebase.firestore.FieldValue.delete();if(CUR)CUR._pend=true;drawStatus();
+ db.collection('mm_maps').doc(mid).update(up).then(()=>{if(CUR&&CUR.id===mid){CUR._pend=false;drawStatus()}}).catch(x=>{toast(x.code==='permission-denied'?'Not saved: you have no edit rights or the plan has ended.':'Not saved: '+(x.code||x.message),5000)})}
+async function onUser(){unsub.forEach(f=>{try{f()}catch(e){}});unsub=[];
+ Object.keys(CLOUD).forEach(k=>{if(!CLOUD[k]._link)delete CLOUD[k]});LIC=null;
+ if(USER){const e=(USER.email||'').toLowerCase();
+  try{const ref=db.collection('mm_users').doc(USER.uid),d=await ref.get(),nm=nice(USER.displayName||e.split('@')[0]).slice(0,60);
+   if(!d.exists){LIC={uid:USER.uid,email:e,name:nm,plan:'trial',expiresMs:Date.now()+30*DAY,joined:Date.now(),lastSeen:Date.now()};await ref.set(LIC);toast('Welcome! Your 30-day free trial of cloud sync has started.',4500)}
+   else{LIC=d.data();ref.update({name:nm,email:e,lastSeen:Date.now()}).catch(()=>{})}
+   if(isOwner()&&LIC.plan!=='permanent'){await ref.update({plan:'permanent',expiresMs:0}).catch(()=>{});LIC.plan='permanent'}
+  }catch(x){LIC=null;console.warn(x);if(x&&x.code==='permission-denied')toast('Cloud is not ready yet: the owner must add the MapMark Firestore rules.',6000)}
+  const C=db.collection('mm_maps');const q=[C.where('uid','==',USER.uid)];if(e)q.push(C.where('editors','array-contains',e),C.where('viewers','array-contains',e));
+  q.forEach(qq=>unsub.push(qq.onSnapshot({includeMetadataChanges:true},s=>{s.docChanges().forEach(ch=>{if(ch.type==='removed'){if(CLOUD[ch.doc.id]&&!CLOUD[ch.doc.id]._link)delete CLOUD[ch.doc.id];if(CUR&&CUR.id===ch.doc.id&&!CUR.local&&roleOf(CUR)!=='own'){}}else gotDoc(ch.doc)});pickStart();if(TAB==='maps')drawMaps()},err=>console.warn(err))))}
+ openLinks();pickStart();drawMe();drawMaps();drawStatus()}
+function openLinks(){const ids=Array.from(new Set(LS.get('links',[])));ids.forEach(id=>{unsub.push(db.collection('mm_maps').doc(id).onSnapshot(d=>{if(!d.exists){LS.set('links',LS.get('links',[]).filter(x=>x!==id));return}gotDoc(d,!(USER&&(d.data().uid===USER.uid)));pickStart();if(TAB==='maps')drawMaps()},err=>{if(err.code==='permission-denied'&&LINK===id&&!USER)toast('This map is private. Sign in with an e-mail it was shared with.',6000)}))})}
+let started=false;
+function pickStart(){if(started&&CUR)return;const want=LINK?'C:'+LINK:SET.cur;let m=null;
+ if(want&&want.startsWith('C:'))m=CLOUD[want.slice(2)];else if(want&&want.startsWith('L:'))m=LOCAL.find(x=>x.id===want.slice(2));
+ if(!m&&LINK){return}if(!m&&!started)m=LOCAL[0]||null;if(m&&m!==CUR){started=true;setCur(m);if(LINK)setTimeout(fitAll,150)}}
+async function signIn(){try{await cloudInit();const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});await auth.signInWithPopup(p)}catch(e){toast(e&&e.code==='auth/popup-closed-by-user'?'Sign-in was cancelled.':'Sign-in failed. Check internet and try again.',4000)}}
+async function signOut(){if(!await ask('Sign out? Your cloud maps stay safe in the cloud. Maps on this phone stay on this phone.','SIGN OUT'))return;await auth.signOut();if(CUR&&!CUR.local&&!CUR._link)setCur(LOCAL[0]||null);if(!CUR)await ensureMap();toast('Signed out.')}
+
+/* ---------- profile, plan, owner ---------- */
+function drawMe(){const a=$('acct');
+ if(!USER)a.innerHTML=`<h3>ACCOUNT</h3><div class="mut" style="margin-bottom:10px">You can use MapMark without signing in: maps stay on this phone. Sign in with Google to save maps to the cloud, use them on phone and computer, and share them. New accounts get a 30-day free trial.</div><button class="btn pri" id="bIn">SIGN IN WITH GOOGLE</button>`;
+ else a.innerHTML=`<h3>ACCOUNT</h3><div class="row">${USER.photoURL?`<img src="${esc(USER.photoURL)}" alt="" width="44" height="44" style="border-radius:50%">`:''}<div style="flex:1;min-width:0"><div style="font-weight:800">${esc(nice(USER.displayName||''))||'Signed in'}${isOwner()?' <span class="tag cur">SUPERADMIN</span>':''}</div><div class="mut">${esc(USER.email||'')}</div></div><button class="btn sm" id="bOut">SIGN OUT</button></div>`;
+ if($('bIn'))$('bIn').onclick=signIn;if($('bOut'))$('bOut').onclick=signOut;
+ drawPlan();document.querySelectorAll('#sTheme .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===(localStorage.getItem('owh_mapmark_theme')||'light')));
+ document.querySelectorAll('#sUnits .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===SET.units));document.querySelectorAll('#sNames .btn').forEach(b=>b.classList.toggle('on',+b.dataset.v===+SET.names));
+ $('donate').innerHTML=window.OWHDON?OWHDON.card():'';drawOwner()}
+function drawPlan(){const P=window.OWH_PRICE,cur=P?P.guessCur():'INR',el=$('planBox');let h='<h3>MY PLAN</h3>';
+ const price=k=>P?P.money(TOOL,cur,k):'';
+ h+=`<div class="mut">Free: unlimited maps on this phone with all tools. Plan: cloud sync on every device, sharing with your team, and photos in the cloud. ${P?esc(P.line(TOOL,cur)):''}</div>`;
+ if(!USER)h+='<div class="plan">Sign in to start your 30-day free trial.</div>';
+ else if(isOwner())h+='<div class="plan">FULL VERSION (SUPERADMIN, FREE)</div>';
+ else if(!LIC)h+='<div class="plan">Plan not loaded yet.</div><button class="btn sm" id="bChk">CHECK MY PLAN</button>';
+ else{const ok=planOk(),left=Math.ceil((LIC.expiresMs-Date.now())/DAY);
+  h+=`<div class="plan">${LIC.plan==='permanent'?'PERMANENT ACCESS':ok?(LIC.plan==='trial'?'FREE TRIAL':'ACTIVE')+' · '+left+' day'+(left===1?'':'s')+' left (till '+new Date(LIC.expiresMs).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+')':'PLAN ENDED · cloud maps are view only'}</div>`;
+  if(LIC.plan!=='permanent'){h+=`<div class="row">${['m1','m3','m12'].map(k=>`<button class="btn ${k==='m12'?'or':'pri'}" data-buy="${k}">${k==='m1'?'1 MONTH':k==='m3'?'3 MONTHS':'12 MONTHS'} · ${esc(price(k))}</button>`).join('')}</div>
+   <div class="mut" style="margin-top:8px">Pay online by UPI, card or net banking (India). Days are added to your plan automatically in about a minute. Outside India, use CONTACT US.</div><button class="btn sm" id="bChk" style="margin-top:8px">CHECK MY PLAN</button>`}}
+ if(P){const d=P.discText(TOOL);if(d)h+=`<div style="margin-top:8px;font-weight:800;color:var(--p2)">${esc(d)}</div>`}
+ el.innerHTML=h;if($('bChk'))$('bChk').onclick=checkPlan}
+async function checkPlan(){if(!USER)return;try{const d=await db.collection('mm_users').doc(USER.uid).get({source:'server'});if(d.exists)LIC=d.data();drawPlan();drawStatus();render();toast(planOk()?'Your plan is active.':'Your plan is not active.')}catch(e){toast('Could not check. Try again.')}}
+$('planBox').addEventListener('click',async e=>{const b=e.target.closest('[data-buy]');if(!b||!USER)return;const P=window.OWH_PRICE;if(!P||!P.rzpPay)return toast('Payment could not load. Refresh the app.');
+ try{toast('Opening payment...');const ok=await P.rzpPay({tool:TOOL,plan:b.dataset.buy,idToken:await USER.getIdToken(),email:USER.email});
+  if(!ok)return toast('Payment window closed.');toast('Payment done. Adding days to your plan...',5000);let n=0;const old=LIC&&LIC.expiresMs||0;const t=setInterval(async()=>{n++;try{const d=await db.collection('mm_users').doc(USER.uid).get({source:'server'});if(d.exists)LIC=d.data()}catch(x){}
+   if((LIC&&(LIC.expiresMs>old||LIC.plan==='permanent'))||n>12){clearInterval(t);drawPlan();drawStatus();render();toast(LIC&&LIC.expiresMs>old?'Your plan is updated. Thank you!':'Payment received. If the plan is not updated in a minute, tap CHECK MY PLAN or use CONTACT US.',6000)}},4000)}
+ catch(x){toast('Payment could not start ('+String(x&&x.message||x).slice(0,80)+')',6000)}});
+window.addEventListener('owh-price',()=>{if(TAB==='me')drawPlan()});
+$('sTheme').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;try{localStorage.setItem('owh_mapmark_theme',b.dataset.v)}catch(x){}const d=b.dataset.v==='dark'||(b.dataset.v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');drawMe()};
+$('sUnits').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;SET.units=b.dataset.v;saveSet();render();drawMe();drawBar()};
+$('sNames').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;SET.names=+b.dataset.v;saveSet();render();drawMe()};
+$('bUpd').onclick=()=>{if(window.OWHUPD)OWHUPD.run();else location.reload()};
+$('bContact').onclick=async()=>{try{await cloudInit()}catch(e){}if(window.OWHCONTACT)OWHCONTACT.open({app:'MapMark'});else toast('Contact form could not load.')};
+let OU=null;
+function drawOwner(){const el=$('ownerBox');if(!isOwner()){el.hidden=true;return}el.hidden=false;
+ el.innerHTML=`<h3>SUPERADMIN</h3><div class="mut">Only you see this. Prices and discounts for MapMark are changed in Studio → Prices (MapMark).</div>
+ <label class="f">GOOGLE MAPS API KEY</label><input type="text" id="oKey" value="${esc(GKEY)}" placeholder="AIza... (empty = Google map off)"><div class="row" style="margin-top:8px"><button class="btn sm pri" id="oKeyS">SAVE KEY</button></div>
+ <div class="mut" style="margin-top:6px">Restrict the key in Google Cloud to the website ourworldhive.com/* and to Maps JavaScript API only, and set a budget alert.</div>
+ <label class="f">USERS AND PLANS</label><div class="row"><input type="search" id="oQ" placeholder="Search e-mail" style="flex:1"><button class="btn sm" id="oLoad">LOAD USERS</button></div><div class="ulist" id="oList"></div>`;
+ $('oKeyS').onclick=async()=>{try{await db.collection('mm_config').doc('main').set({gkey:$('oKey').value.trim(),ts:Date.now()},{merge:true});GKEY=$('oKey').value.trim();drawLayers();toast('Saved. Google maps are '+(GKEY?'ON':'OFF')+'.')}catch(x){toast('Could not save: '+(x.code||x.message),5000)}};
+ $('oLoad').onclick=async()=>{try{const s=await db.collection('mm_users').get();OU=s.docs.map(d=>Object.assign({id:d.id},d.data()));drawOU()}catch(x){toast('Could not load: '+(x.code||x.message),5000)}};
+ $('oQ').oninput=drawOU;if(OU)drawOU()}
+function drawOU(){if(!OU)return;const q=($('oQ').value||'').toLowerCase(),now=Date.now();const L=OU.filter(u=>!q||(u.email||'').includes(q)||(u.name||'').toLowerCase().includes(q)).sort((a,b)=>(b.lastSeen||0)-(a.lastSeen||0));
+ $('oList').innerHTML=`<div class="mut" style="margin:6px 0">${OU.length} users · ${OU.filter(u=>u.plan==='permanent'||(u.plan!=='trial'&&u.expiresMs>now)).length} paid · ${OU.filter(u=>u.plan==='trial'&&u.expiresMs>now).length} in trial</div>`+L.slice(0,200).map(u=>`<div class="mrow"><div class="gr"><div class="nm">${esc(nice(u.name))}</div><div class="mut">${esc(u.email)} · ${u.plan==='permanent'?'PERMANENT':(u.expiresMs>now?u.plan.toUpperCase()+' till '+new Date(u.expiresMs).toLocaleDateString('en-IN'):'ENDED')}</div>
+ <div class="row" style="margin-top:6px"><button class="btn sm" data-g="${u.id}" data-k="m1">+1 MONTH</button><button class="btn sm" data-g="${u.id}" data-k="m12">+12 MONTHS</button><button class="btn sm" data-g="${u.id}" data-k="perm">PERMANENT</button><button class="btn sm red" data-g="${u.id}" data-k="stop">STOP</button></div></div></div>`).join('')}
+$('ownerBox').addEventListener('click',async e=>{const b=e.target.closest('[data-g]');if(!b)return;const u=OU.find(x=>x.id===b.dataset.g),k=b.dataset.k;if(!u)return;
+ if(!await ask(`${k==='stop'?'Stop the plan of':'Give '+(k==='perm'?'permanent access':k==='m1'?'1 month':'12 months')+' to'} ${u.email}? Do this only after the payment is fully received.`,'YES'))return;
+ const now=Date.now(),base=Math.max(now,u.expiresMs||0),add=m=>{const d=new Date(base);d.setMonth(d.getMonth()+m);return d.getTime()};
+ const up=k==='perm'?{plan:'permanent',expiresMs:0}:k==='stop'?{plan:'monthly',expiresMs:now-1000}:{plan:'monthly',expiresMs:add(k==='m1'?1:12)};
+ up.payNote='Set by superadmin '+new Date().toLocaleString('en-IN');try{await db.collection('mm_users').doc(u.id).update(up);Object.assign(u,up);drawOU();toast('Saved.')}catch(x){toast('Could not save: '+(x.code||x.message),5000)}});
+
+/* ---------- start ---------- */
+const LINK=(new URLSearchParams(location.search)).get('m');
+async function ensureMap(){if(CUR)return;if(!LOCAL.length){const m={id:uid(),title:'My Map',items:{},ts:Date.now(),local:true};LOCAL.push(m);await saveLocal()}setCur(LOCAL[0])}
+async function loadGKey(){const f=window.OWH_FIREBASE;if(!f)return;try{const j=await fetch('https://firestore.googleapis.com/v1/projects/'+f.projectId+'/databases/(default)/documents/mm_config/main?key='+f.apiKey,{cache:'no-store'}).then(r=>r.ok?r.json():null);GKEY=(j&&j.fields&&j.fields.gkey&&j.fields.gkey.stringValue)||''}catch(e){}}
+(async function(){drawColors();try{LOCAL=(await KV.get('maps'))||[]}catch(e){LOCAL=[];toast('This browser blocks storage. Maps cannot be saved on this phone.',5000)}LOCAL.forEach(m=>{m.local=true;m.items=m.items||{}});
+ if(LINK){const l=LS.get('links',[]);if(!l.includes(LINK)){l.push(LINK);LS.set('links',l.slice(-30))}}
+ if(!SET.cur||SET.cur.startsWith('L:')||!LS.get('signed',0)){if(!LINK)await ensureMap()}
+ setBase(SET.layer).catch(()=>setBase('street'));setTool('pan');drawMe();
+ await loadGKey();if(BASE[SET.layer].g)setBase(SET.layer);drawLayers();
+ try{await cloudInit()}catch(e){if(!CUR)await ensureMap()}
+ auth&&auth.onAuthStateChanged(u=>LS.set('signed',u&&!u.isAnonymous?1:0));
+ setTimeout(async()=>{if(!CUR)await ensureMap()},LINK?7000:3500);
+ if(SET.view==null&&!LINK)setTimeout(()=>{if(navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(p=>{if(p.state==='granted')$('bLocate').click()}).catch(()=>{})},800);
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('mapmark-sw.js',{scope:'./mapmark.html'}).catch(()=>{})})();
+addEventListener('resize',()=>{if(innerWidth>=900&&TAB==='items')showTab('map');map.invalidateSize()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('ov').classList.contains('on'))closeSheet();else if(tool!=='pan')setTool('pan')}});
+})();
+</script>
+</body></html>

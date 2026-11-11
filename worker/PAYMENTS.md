@@ -8,6 +8,7 @@ Razorpay webhook `/webhook` (payment.captured) -> Worker switches the plan on in
 | tool | where the plan lives | what a payment does |
 |---|---|---|
 | calc | cp_users/{uid} | plan = paid |
+| mm | mm_users/{uid} | MapMark: adds 30/90/365 days |
 | diary | diary_users/{uid} | plan = paid |
 | pm | pm_plants/{code} | adds 1/3/12 months (or permanent) |
 | pp | pp_projects/{id} | adds 30/90/365 days (or permanent) |

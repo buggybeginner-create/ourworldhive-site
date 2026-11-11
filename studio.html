@@ -451,7 +451,7 @@ TABS.forEach(function(t,i){ $(t[0]).onclick=function(){ TABS.forEach(function(u,
 
 
 /* ---------- earnings (Razorpay) and user messages ---------- */
-var EA_NAMES={pm:'PM Tracker',pp:'Project Planner',ep:'E-Permit',sf:'Safety Observation',diary:'My Diary',calc:'CalcPad',wallet:'Hive Wallet top-up'},EA_PLAN={m1:'1 month',m3:'3 months',m12:'12 months',perm:'One-time',topup:'Top-up'},eaLoaded=false,cmLoaded=false;
+var EA_NAMES={pm:'PM Tracker',pp:'Project Planner',ep:'E-Permit',sf:'Safety Observation',diary:'My Diary',calc:'CalcPad',mm:'MapMark',wallet:'Hive Wallet top-up'},EA_PLAN={m1:'1 month',m3:'3 months',m12:'12 months',perm:'One-time',topup:'Top-up'},eaLoaded=false,cmLoaded=false;
 function rs(n){ return '\u20b9'+(Math.round(n*100)/100).toLocaleString('en-IN'); }
 function tbl(h,rows){ return '<table style="border-collapse:collapse;min-width:100%;font-size:14px"><thead><tr>'+h.map(function(x){ return '<th style="text-align:left;padding:6px 10px;border-bottom:1px solid var(--sx-line)">'+x+'</th>'; }).join('')+'</tr></thead><tbody>'+rows.map(function(r){ return '<tr>'+r.map(function(x){ return '<td style="padding:6px 10px;border-bottom:1px solid var(--sx-line)">'+x+'</td>'; }).join('')+'</tr>'; }).join('')+'</tbody></table>'; }
 function eaLoad(){ say('eaMsg','Loading...');

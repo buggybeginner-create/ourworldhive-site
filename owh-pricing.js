@@ -1,11 +1,11 @@
-/* Shared prices and discounts for the Ourworldhive tools (PM Tracker and Project Planner).
+/* Shared prices and discounts for the Ourworldhive tools (PM Tracker, Project Planner, MapMark and the others).
    One public Firestore document, pp_config/pricing, holds everything. The owner edits it inside either tool.
    Every screen that shows a price reads it from here, so a change appears everywhere on its own. */
 (function(){
 var CURS=[['INR','₹','India'],['USD','$','USA and rest of the world'],['EUR','€','Europe'],['GBP','£','United Kingdom'],['AED','AED ','UAE'],['SGD','S$','Singapore'],['AUD','A$','Australia'],['CAD','C$','Canada']];
 var PLANS=[['m1','1 month',1],['m3','3 months',3],['m12','12 months',12],['perm','Permanent access',0]];
-var TOOLS=[['pm','PM Tracker'],['pp','Project Planner'],['ep','E-Permit (per plant)'],['sf','Safety Observation (one-time)'],['diary','My Diary (one-time)'],['calc','CalcPad (one-time)'],['sbai','Spark Bench AI drawing read (price per use)']];
-var DEFUPI='8917262863@ybl',ONCE={diary:1,calc:1,sf:1,sbai:1},USE={sbai:1},NOPERM={ep:1};
+var TOOLS=[['pm','PM Tracker'],['pp','Project Planner'],['ep','E-Permit (per plant)'],['sf','Safety Observation (one-time)'],['diary','My Diary (one-time)'],['calc','CalcPad (one-time)'],['mm','MapMark'],['sbai','Spark Bench AI drawing read (price per use)']];
+var DEFUPI='8917262863@ybl',ONCE={diary:1,calc:1,sf:1,sbai:1},USE={sbai:1},NOPERM={ep:1,mm:1};
 var DEF={
  pm:{INR:{m1:199,m3:549,m12:1499,perm:1999},USD:{m1:5,m3:14,m12:37,perm:49},EUR:{m1:4.5,m3:12.9,m12:34,perm:45},GBP:{m1:3.9,m3:10.9,m12:29,perm:39},AED:{m1:19,m3:52,m12:139,perm:179},SGD:{m1:6.5,m3:17.9,m12:49,perm:65},AUD:{m1:7.5,m3:20,m12:55,perm:75},CAD:{m1:7,m3:19,m12:50,perm:65}},
  pp:{INR:{m1:499,m3:1399,m12:4499,perm:5999},USD:{m1:9,m3:25,m12:79,perm:99},EUR:{m1:8,m3:23,m12:72,perm:92},GBP:{m1:7,m3:20,m12:63,perm:79},AED:{m1:33,m3:92,m12:290,perm:365},SGD:{m1:12,m3:33,m12:105,perm:130},AUD:{m1:14,m3:39,m12:120,perm:150},CAD:{m1:13,m3:36,m12:110,perm:140}},
@@ -13,11 +13,12 @@ var DEF={
  ep:{INR:{m1:199,m3:597,m12:2388,perm:0},USD:{m1:3,m3:8.5,m12:30,perm:0},EUR:{m1:2.8,m3:8,m12:27,perm:0},GBP:{m1:2.4,m3:7,m12:23,perm:0},AED:{m1:11,m3:32,m12:110,perm:0},SGD:{m1:4,m3:11,m12:39,perm:0},AUD:{m1:4.5,m3:13,m12:44,perm:0},CAD:{m1:4,m3:11.5,m12:40,perm:0}},
  sf:{INR:{m1:1999,m3:1999,m12:1999,perm:1999},USD:{m1:24,m3:24,m12:24,perm:24},EUR:{m1:22,m3:22,m12:22,perm:22},GBP:{m1:19,m3:19,m12:19,perm:19},AED:{m1:88,m3:88,m12:88,perm:88},SGD:{m1:32,m3:32,m12:32,perm:32},AUD:{m1:37,m3:37,m12:37,perm:37},CAD:{m1:33,m3:33,m12:33,perm:33}},
  sbai:{INR:{m1:10,m3:10,m12:10,perm:10},USD:{m1:0.15,m3:0.15,m12:0.15,perm:0.15},EUR:{m1:0.14,m3:0.14,m12:0.14,perm:0.14},GBP:{m1:0.12,m3:0.12,m12:0.12,perm:0.12},AED:{m1:0.55,m3:0.55,m12:0.55,perm:0.55},SGD:{m1:0.2,m3:0.2,m12:0.2,perm:0.2},AUD:{m1:0.23,m3:0.23,m12:0.23,perm:0.23},CAD:{m1:0.2,m3:0.2,m12:0.2,perm:0.2}},
+ mm:{INR:{m1:49,m3:129,m12:399,perm:0},USD:{m1:1,m3:2.7,m12:8,perm:0},EUR:{m1:0.9,m3:2.5,m12:7.5,perm:0},GBP:{m1:0.8,m3:2.2,m12:6.5,perm:0},AED:{m1:3.7,m3:10,m12:30,perm:0},SGD:{m1:1.3,m3:3.6,m12:11,perm:0},AUD:{m1:1.5,m3:4,m12:12,perm:0},CAD:{m1:1.4,m3:3.7,m12:11,perm:0}},
  calc:{INR:{m1:99,m3:99,m12:99,perm:99},USD:{m1:1.2,m3:1.2,m12:1.2,perm:1.2},EUR:{m1:1.1,m3:1.1,m12:1.1,perm:1.1},GBP:{m1:1,m3:1,m12:1,perm:1},AED:{m1:4.5,m3:4.5,m12:4.5,perm:4.5},SGD:{m1:1.6,m3:1.6,m12:1.6,perm:1.6},AUD:{m1:1.8,m3:1.8,m12:1.8,perm:1.8},CAD:{m1:1.6,m3:1.6,m12:1.6,perm:1.6}}
 };
 var P={cfg:fresh(),loaded:false,CURS:CURS,PLANS:PLANS,TOOLS:TOOLS,DEF:DEF};
 function clone(o){return JSON.parse(JSON.stringify(o))}
-function fresh(){return{prices:clone(DEF),disc:{pm:{pct:0,label:'',until:''},pp:{pct:0,label:'',until:''},ep:{pct:0,label:'',until:''},sf:{pct:0,label:'',until:''},diary:{pct:0,label:'',until:''},calc:{pct:0,label:'',until:''},sbai:{pct:0,label:'',until:''}},upi:DEFUPI,paypal:''}}
+function fresh(){return{prices:clone(DEF),disc:{pm:{pct:0,label:'',until:''},pp:{pct:0,label:'',until:''},ep:{pct:0,label:'',until:''},sf:{pct:0,label:'',until:''},diary:{pct:0,label:'',until:''},calc:{pct:0,label:'',until:''},mm:{pct:0,label:'',until:''},sbai:{pct:0,label:'',until:''}},upi:DEFUPI,paypal:''}}
 function merge(j){var c=fresh();if(!j||typeof j!=='object')return c;
  TOOLS.forEach(function(t){var k=t[0];CURS.forEach(function(u){var s=j.prices&&j.prices[k]&&j.prices[k][u[0]];if(s)PLANS.forEach(function(p){var v=+s[p[0]];if(isFinite(v)&&v>=0)c.prices[k][u[0]][p[0]]=v});});
   var d=j.disc&&j.disc[k];if(d){var pc=Math.max(0,Math.min(95,+d.pct||0));c.disc[k]={pct:pc,label:String(d.label||'').slice(0,60),until:/^\d{4}-\d{2}-\d{2}$/.test(d.until||'')?d.until:''}}});
@@ -31,7 +32,7 @@ P.fmt=function(cur,v){var s=(CURS.filter(function(x){return x[0]===cur})[0]||[0,
 P.money=function(t,cur,plan){return P.fmt(cur,P.final(t,cur,plan))};
 P.untilText=function(u){if(!u)return'';var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],a=u.split('-');return a[2]*1+' '+m[a[1]-1]+' '+a[0]};
 P.discText=function(t){var d=P.disc(t);return d.active?(d.pct+'% off'+(d.label?': '+d.label:'')+(d.until?', till '+P.untilText(d.until):'')):''};
-P.line=function(t,cur){cur=cur||P.guessCur();if(ONCE[t]){var d0=P.disc(t),s0='One-time payment of '+P.money(t,cur,'perm')+'. Use it for ever.';return d0.active?s0+' '+P.discText(t)+'.':s0}var d=P.disc(t),s='Free for 30 days. Then '+P.money(t,cur,'m1')+' a month, or '+P.money(t,cur,'perm')+' once for permanent access.';return d.active?s+' '+P.discText(t)+'.':s};
+P.line=function(t,cur){cur=cur||P.guessCur();if(ONCE[t]){var d0=P.disc(t),s0='One-time payment of '+P.money(t,cur,'perm')+'. Use it for ever.';return d0.active?s0+' '+P.discText(t)+'.':s0}var d=P.disc(t),s='Free for 30 days. Then '+P.money(t,cur,'m1')+' a month'+(NOPERM[t]?'.':', or '+P.money(t,cur,'perm')+' once for permanent access.');return d.active?s+' '+P.discText(t)+'.':s};
 P.tag=function(t,cur){cur=cur||P.guessCur();if(ONCE[t]){var d1=P.disc(t),s1=P.money(t,cur,'perm')+' one-time payment';return d1.active?s1+'. '+P.discText(t):s1}var d=P.disc(t),s='Free for 30 days, then '+P.money(t,cur,'m1')+' a month';return d.active?s+'. '+P.discText(t):s};
 function changed(){try{window.dispatchEvent(new CustomEvent('owh-price'))}catch(e){}}
 P.set=function(j){P.cfg=merge(j);P.loaded=true;changed()};

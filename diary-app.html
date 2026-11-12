@@ -601,6 +601,10 @@ html.inapp #toolbar{padding-top:8px}
 .cfm h2{margin:0 0 6px!important;font:700 21px var(--sans)!important}
 .cfm p{margin:0 0 18px;color:var(--muted);font-size:14.5px;line-height:1.5}
 :root[data-theme="dark"] .shd .ic,:root[data-theme="dark"] .srow2:not(.pri) i,:root[data-theme="dark"] .cfm .ci{filter:saturate(.8) brightness(.72)}
+.rtyp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rtyp button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:18px;border:2px solid transparent;background:var(--paper);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.rtyp button i{font-style:normal;font-size:28px}.rtyp button b{font:700 15px var(--sans)}.rtyp button small{font-size:12px;color:var(--muted)}
+.rtyp button[aria-pressed="true"]{border-color:#4b4fd8;background:linear-gradient(135deg,rgba(106,111,240,.14),rgba(75,79,216,.06));box-shadow:0 4px 14px rgba(75,79,216,.2)}
 /* Contact us and Delete account (shared forms) in the diary's look */
 #owhcnt,#owhacc{background:rgba(15,18,35,.5)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:flex-end!important;padding:0!important;font-family:var(--sans)!important}
 #owhcnt>div,#owhacc>div{background:var(--paper)!important;color:var(--ink)!important;border-radius:28px 28px 0 0!important;max-width:560px!important;padding:22px 18px calc(20px + env(safe-area-inset-bottom))!important;animation:shUp .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,0,0,.2)}
@@ -1027,7 +1031,8 @@ function sanitizePage(p) {
       if (/^\d{4}-\d{2}-\d{2}$/.test(b.due || '')) o.due = b.due;
       if (['h', 'm', 'l'].includes(b.pri)) o.pri = b.pri;
       const stx = String(b.st || '').trim().slice(0, 40); if (stx) o.st = stx;
-      if (Number(b.rem)) { o.rem = Number(b.rem); if (b.remOk) o.remOk = true; }
+      if (Number(b.rem)) { o.rem = Number(b.rem); if (b.remOk) o.remOk = true; if (b.ra === 'a') o.ra = 'a'; }
+      { const ph = String(b.ph || '').replace(/[^\d+ ]/g, '').trim().slice(0, 20); if (ph && o.who) o.ph = ph; if (o.ph && /^content:\/\/com\.android\.contacts\//.test(b.cu || '')) o.cu = String(b.cu).slice(0, 240); }
       if (/^\d{4}-\d{2}-\d{2}$/.test(b.from || '')) o.from = b.from;
       if (Array.isArray(b.cm)) { const cm = b.cm.map(c => c && { t: Number(c.t) || Date.now(), x: String(c.x || '').slice(0, 500) }).filter(c => c && c.x.trim()).slice(-50); if (cm.length) o.cm = cm; }
       if (b.lb && typeof b.lb === 'object') { const lt = String(b.lb.t || '').trim().slice(0, 24); if (lt) o.lb = { t: lt, c: /^#[0-9a-f]{6}$/i.test(b.lb.c) ? b.lb.c : '#3e63dd' }; }
@@ -1462,7 +1467,7 @@ function makeBlockEl(b) {
       '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><button class="tgl" type="button" data-act="label" aria-label="Label"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
       '<div class="topts" role="toolbar" aria-label="Task options">' +
-      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="movedate">📅 Change date</button><button type="button" data-act="outdent">⇤ Promote</button>' +
+      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="remind">⏰ Remind</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="movedate">📅 Change date</button><button type="button" data-act="outdent">⇤ Promote</button>' +
       '<button type="button" data-act="up" aria-label="Move up">↑</button><button type="button" data-act="down" aria-label="Move down">↓</button>' +
       '<button type="button" data-act="details">⚙ Details</button><button type="button" data-act="comment">💬 Comment</button>' +
       '<button type="button" class="dh" data-drag="1" aria-label="Drag up or down to move, sideways to make a sub-task" title="Drag to move">⠿ Move</button>' +
@@ -1489,14 +1494,15 @@ function syncBlockEl(el, b) {
   c.setAttribute('aria-checked', String(done));
   c.setAttribute('aria-label', done ? 'Mark task as not done' : 'Mark task as done');
   const w = el.querySelector('.who'), nm = b.who || '';
-  w.textContent = nm ? '👤 ' + nm : '';
+  w.textContent = nm ? (b.ph ? '📞 ' : '👤 ') + nm : '';
   { const lb = el.querySelector('.tgl'); if (lb) { const L = b.lb; lb.textContent = L ? L.t : ''; lb.style.background = L ? L.c : ''; lb.style.color = L ? lbInk(L.c) : ''; } }
   el.classList.toggle('haswho', !!nm);
   el.classList.toggle('isrep', !!b.rid);
   if (b.rid) { const r = rules.get(b.rid); el.querySelector('.rep').title = r ? ruleDesc(r) : 'Repeated job'; }
   const late = b.due && !done && b.due < today;
   const d = el.querySelector('.due');
-  d.textContent = b.due ? `${b.rem ? '🔔 ' : ''}${late ? 'Overdue · ' : 'Due '}${shortDate(b.due)}` : (b.rem ? '🔔 ' + shortDate(isoOf(new Date(b.rem))) : '');
+  const ri = b.ra === 'a' ? '⏰ ' : '🔔 ';
+  d.textContent = b.due ? `${b.rem ? ri : ''}${late ? 'Overdue · ' : 'Due '}${shortDate(b.due)}` : (b.rem ? ri + remTxt(b.rem) : '');
   d.classList.toggle('late', !!late);
   el.querySelector('.stt').textContent = !done && b.st ? b.st : '';
   ['h', 'm', 'l'].forEach(k => el.classList.toggle('p-' + k, b.pri === k));
@@ -1866,17 +1872,28 @@ function knownNames() {
   return [...set].sort((a, b) => a.localeCompare(b));
 }
 function touchOther(p) { p.updated = Date.now(); dirty.add(p.id); queueSave(); }
-function setWho(id, name, pid) {
+/* phone number and contact link of a person, from any earlier task with that name */
+function personInfo(name) {
+  let r = null; name = String(name || '').trim().toLowerCase(); if (!name) return null;
+  const look = b => { if (!r && b.who && b.ph && b.who.toLowerCase() === name) r = { ph: b.ph, cu: b.cu || '' }; };
+  if (cur) cur.blocks.forEach(look); pages.forEach(p => p.blocks.forEach(look));
+  return r;
+}
+function putWho(b, name, ct) {
+  name = String(name || '').trim().slice(0, 40);
+  if (name) b.who = name; else delete b.who;
+  const inf = ct || (name ? personInfo(name) : null);
+  if (name && inf && inf.ph) { b.ph = String(inf.ph).slice(0, 20); if (inf.cu) b.cu = inf.cu; else delete b.cu; } else { delete b.ph; delete b.cu; }
+}
+function setWho(id, name, pid, ct) {
   if (pid && (!cur || pid !== cur.id)) {
     const p = pages.get(pid), ob = p && p.blocks.find(x => x.id === id); if (!ob) return;
-    name = String(name || '').trim().slice(0, 40);
-    if (name) ob.who = name; else delete ob.who;
+    putWho(ob, name, ct);
     touchOther(p); renderCarry(); return;
   }
   const b = getBlock(id); if (!b) return;
   begin();
-  name = String(name || '').trim().slice(0, 40);
-  if (name) b.who = name; else delete b.who;
+  putWho(b, name, ct);
   const el = elMap.get(id); if (el) syncBlockEl(el, b);
   commit();
 }
@@ -1886,19 +1903,112 @@ function openWho(id, pid) {
   if (!b) return;
   if (!other) begin();
   const names = knownNames();
-  openModal(`<h2>Responsibility</h2><p class="msg">Who is responsible for this job?</p>
+  const canPick = !!((window.OwhNative && OwhNative.pickContact) || (navigator.contacts && navigator.contacts.select));
+  openSheet(sheetHead('👤', '#e3ecff', 'Responsibility', 'Who is responsible for this job?') + `
+    ${canPick ? '<button class="sbtn pri" type="button" data-w="pick" style="margin-bottom:12px">📇 Choose from Contacts</button>' : ''}
     <input id="whoIn" class="qin" type="text" maxlength="40" placeholder="Type a name" value="${esc(b.who || '')}" autocomplete="off" enterkeyhint="done">
+    <input id="whoPh" class="qin" type="tel" maxlength="20" placeholder="Phone number (optional)" value="${esc(b.ph || '')}" autocomplete="off" style="margin-top:8px">
     ${names.length ? `<div class="whochips">${names.slice(0, 16).map(n => `<button class="chip nm" type="button" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>` : ''}
     <div class="btns" style="margin-top:16px">${b.who ? '<button class="btn" type="button" data-w="rm">Remove name</button>' : ''}<button class="btn" type="button" data-w="x">Cancel</button><button class="btn primary" type="button" data-w="ok">Save</button></div>`);
-  const inp = $('#whoIn', modal), save = v => { closeModal(); setWho(id, v, other ? pid : null); };
+  let picked = b.cu ? { cu: b.cu } : null;
+  const inp = $('#whoIn', modal), save = v => { const ph = ($('#whoPh', modal).value || '').replace(/[^\d+ ]/g, '').trim(); const same = v.trim().toLowerCase() === String(b.who || '').toLowerCase(); closeModal(); setWho(id, v, other ? pid : null, ph ? { ph, cu: picked && (same || picked.fresh) ? picked.cu : '' } : null); };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(inp.value); } });
   $('.panel', modal).addEventListener('click', e => {
-    const n = e.target.closest('[data-n]'); if (n) { save(n.dataset.n); return; }
+    const n = e.target.closest('[data-n]'); if (n) { const inf = personInfo(n.dataset.n); inp.value = n.dataset.n; $('#whoPh', modal).value = inf ? inf.ph : ''; picked = inf && inf.cu ? { cu: inf.cu, fresh: 1 } : null; if (!inf) save(n.dataset.n); return; }
     const w = e.target.closest('[data-w]'); if (!w) return;
+    if (w.dataset.w === 'pick') { pickContact().then(c => { if (!c) return; inp.value = c.name || inp.value; $('#whoPh', modal).value = c.ph || ''; picked = { cu: c.cu || '', fresh: 1 }; }).catch(er => toast(er.message || 'Could not open contacts.')); return; }
     if (w.dataset.w === 'ok') save(inp.value); else if (w.dataset.w === 'rm') save(''); else closeModal();
   });
   inp.focus(); try { inp.select(); } catch (_) {}
 }
+
+/* ---- phone contacts: pick a person, then tap their name to call, WhatsApp or open the contact ---- */
+const CTW = {};
+window.owhContact = function (req, json) { const p = CTW[req]; if (!p) return; delete CTW[req]; let c = null; try { c = json ? JSON.parse(json) : null; } catch (_) {} p(c); };
+function pickContact() {
+  if (window.OwhNative && OwhNative.pickContact) return new Promise(res => { const id = 'c' + Date.now(); CTW[id] = res; OwhNative.pickContact(id); });
+  if (navigator.contacts && navigator.contacts.select) return navigator.contacts.select(['name', 'tel'], { multiple: false }).then(r => r && r[0] ? { name: (r[0].name || [])[0] || '', ph: (r[0].tel || [])[0] || '' } : null);
+  return Promise.reject(new Error('This browser cannot open your contacts. Type the name and number.'));
+}
+const telOf = ph => String(ph || '').replace(/[^\d+]/g, '');
+const waOf = ph => { let d = telOf(ph).replace(/^\+/, ''); if (d.length === 10) d = '91' + d; else if (d.length === 11 && d[0] === '0') d = '91' + d.slice(1); return d; };
+function openOut(u) { if (window.OwhNative && OwhNative.openUri) OwhNative.openUri(u); else if (/^https?:/.test(u)) window.open(u, '_blank', 'noopener'); else location.href = u; }
+function openContactCard(pid, bid) {
+  const r = getTaskRef(pid, bid); if (!r || !r.b.who) return;
+  const b = r.b, app = !!(window.OwhNative && OwhNative.openUri);
+  const row = (k, ic, c, t, sub) => `<button class="srow2" type="button" data-ct="${k}"><i style="--c:${c}">${ic}</i><span><b>${t}</b><small>${sub}</small></span></button>`;
+  openSheet(sheetHead(esc(b.who.trim()[0] || '👤').toUpperCase(), '#e3ecff', esc(b.who), esc(b.ph || '') + ' · ' + esc((b.text || '').trim().slice(0, 40))) + `<div class="scard">
+    ${row('call', '📞', '#dff3e6', 'Call', 'Opens the phone dialer')}
+    ${row('wa', '💬', '#dff7e6', 'WhatsApp', 'Send this task on WhatsApp')}
+    ${row('sms', '✉️', '#e3ecff', 'Message', 'Send this task by SMS')}
+    ${app && b.cu ? row('open', '📇', '#fff0d9', 'Open in Contacts', 'See the full contact on this phone') : ''}
+    ${row('edit', '✎', '#ece4ff', 'Change person', 'Pick someone else or edit the number')}</div>`);
+  $('.panel', modal).addEventListener('click', e => {
+    const x = e.target.closest('[data-ct]'); if (!x) return; const k = x.dataset.ct; closeModal();
+    const msg = 'Task: ' + (b.text || '').trim() + (b.due ? ' (due ' + shortDate(b.due) + ')' : '');
+    if (k === 'call') openOut('tel:' + telOf(b.ph));
+    else if (k === 'wa') openOut('https://wa.me/' + waOf(b.ph) + '?text=' + encodeURIComponent(msg));
+    else if (k === 'sms') openOut('sms:' + telOf(b.ph) + '?body=' + encodeURIComponent(msg));
+    else if (k === 'open') OwhNative.openContact(b.cu);
+    else openWho(bid, pid);
+  });
+}
+
+/* ---- reminder: date and time, as a notification or as an alarm that rings until stopped ---- */
+const remTxt = ms => { const d = new Date(ms), t = isoOf(d); return (t === todayISO() ? 'Today' : t === addDays(todayISO(), 1) ? 'Tomorrow' : shortDate(t)) + ' ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
+function openRemind(pid, bid) {
+  const r = getTaskRef(pid, bid); if (!r) return;
+  const b = r.b, app = !!(window.OwhNative && OwhNative.setReminders);
+  let typ = b.ra === 'a' ? 'a' : 'n';
+  const at = (h, m, add) => { const d = new Date(); d.setDate(d.getDate() + (add || 0)); d.setHours(h, m, 0, 0); return d.getTime(); };
+  const q = [['In 15 min', Date.now() + 15 * 60000], ['In 1 hour', Date.now() + 3600000], ['Today 6 PM', at(18, 0)], ['Tomorrow 9 AM', at(9, 0, 1)]].filter(x => x[1] > Date.now());
+  openSheet(sheetHead('⏰', '#fff0d9', 'Reminder', esc((b.text || 'Task').trim().slice(0, 60))) + `
+    <div class="scard"><b>When</b>
+      <input id="rmAt" class="qin" type="datetime-local" style="width:100%">
+      <div class="whochips" style="margin-top:8px">${q.map(([l, t]) => `<button class="chip nm" type="button" data-rq="${t}">${l}</button>`).join('')}</div></div>
+    <div class="scard"><b>Alert type</b><div class="rtyp">
+      <button type="button" data-rt="n"><i>🔔</i><b>Notification</b><small>A message with a sound</small></button>
+      <button type="button" data-rt="a"><i>⏰</i><b>Alarm</b><small>Rings until you stop it</small></button></div>
+      <p class="hint" id="rmHint">${app ? 'Rings on this phone even when My Diary is closed.' : 'On the website it alerts while My Diary is open. For alerts when it is closed, use the My Diary Android app or 📅 Add to Calendar.'}</p>
+      <div id="rmPerm"></div></div>
+    <div class="sbtns">${b.rem ? '<button class="sbtn" type="button" data-rs="rm">Remove</button>' : '<button class="sbtn" type="button" data-rs="cal">📅 Calendar</button>'}<button class="sbtn pri" type="button" data-rs="ok">Save</button></div>`);
+  const P = $('.panel', modal), inp = $('#rmAt', P);
+  inp.value = toLocalInput(b.rem && b.rem > Date.now() ? b.rem : at(9, 0, 1));
+  const sync = () => P.querySelectorAll('[data-rt]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.rt === typ)));
+  sync();
+  if (app && OwhNative.alertStatus) { try { const st = JSON.parse(OwhNative.alertStatus()); let h = '';
+    if (!st.notif) h += '<button class="sbtn" type="button" data-rp="notif" style="margin-top:8px">🔔 Allow notifications</button>';
+    if (!st.exact) h += '<button class="sbtn" type="button" data-rp="exact" style="margin-top:8px">⏱️ Allow exact time (Alarms &amp; reminders)</button>';
+    $('#rmPerm', P).innerHTML = h; } catch (_) {} }
+  P.addEventListener('click', e => {
+    let x;
+    if ((x = e.target.closest('[data-rq]'))) { inp.value = toLocalInput(+x.dataset.rq); return; }
+    if ((x = e.target.closest('[data-rt]'))) { typ = x.dataset.rt; sync(); return; }
+    if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else OwhNative.openExactSettings(); return; }
+    if (!(x = e.target.closest('[data-rs]'))) return;
+    const k = x.dataset.rs;
+    if (k === 'cal') { const t = inp.value ? new Date(inp.value).getTime() : 0; shareICS(Object.assign({}, b, { rem: t || b.rem }), r.p); return; }
+    if (k === 'rm') { closeModal(); withTask(pid, bid, tb => { delete tb.rem; delete tb.remOk; delete tb.ra; }); syncNativeRem(true); toast('Reminder removed'); return; }
+    const t = inp.value ? new Date(inp.value).getTime() : 0;
+    if (!t) { toast('Pick a date and time.'); return; }
+    if (t <= Date.now()) { toast('Pick a time in the future.'); return; }
+    closeModal();
+    withTask(pid, bid, tb => { tb.rem = t; delete tb.remOk; if (typ === 'a') tb.ra = 'a'; else delete tb.ra; });
+    if (!app && typ === 'n' && 'Notification' in window && Notification.permission === 'default') askNotify();
+    syncNativeRem(true);
+    toast((typ === 'a' ? '⏰ Alarm set for ' : '🔔 Reminder set for ') + remTxt(t));
+  });
+}
+/* alarm sound in the browser (while My Diary is open) */
+let alarmCtx = null, alarmT = 0;
+function alarmStart() {
+  try { alarmCtx = alarmCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { return; }
+  alarmStop(true); let n = 0;
+  const beep = () => { const g = alarmCtx.createGain(), o = alarmCtx.createOscillator(); o.type = 'square'; o.frequency.value = n++ % 2 ? 880 : 1175; g.gain.value = .12; o.connect(g); g.connect(alarmCtx.destination); o.start(); o.stop(alarmCtx.currentTime + .22); };
+  beep(); alarmT = setInterval(() => { beep(); if (n > 400) alarmStop(); }, 450);
+  try { navigator.vibrate && navigator.vibrate([400, 200, 400, 200, 400]); } catch (_) {}
+}
+function alarmStop(keep) { clearInterval(alarmT); alarmT = 0; }
 
 /* labels: a short coloured tag on any task or sub-task, with your own colours */
 const LB_COLORS = ['#e5484d', '#f76b15', '#f5a524', '#30a46c', '#12a594', '#3e63dd', '#8e4ec6', '#d6409f', '#6f6f7a', '#1c2a48'];
@@ -2146,7 +2256,7 @@ function openDetails(id, pidIn) {
       const d = draft(), all = q('#dRemAll') && q('#dRemAll').checked;
       closeModal();
       withTask(pid, id, tb => {
-        if (d.who) tb.who = d.who.slice(0, 40); else delete tb.who;
+        if ((d.who || '') !== (tb.who || '')) putWho(tb, d.who);
         if (d.pri) tb.pri = d.pri; else delete tb.pri;
         if (d.st) tb.st = d.st; else delete tb.st;
         if (d.due) tb.due = d.due; else delete tb.due;
@@ -2210,10 +2320,11 @@ async function askNotify() {
 function showReminder(p, b) {
   const box = $('#remind'), card = document.createElement('div');
   card.className = 'rmc';
-  card.innerHTML = `<b>🔔 Reminder</b><div>${esc(b.text || 'Task')}</div><button class="pri" type="button" data-rm="open">Open</button><button type="button" data-rm="done">✔ Done</button><button type="button" data-rm="snooze">Snooze 10 min</button><button type="button" data-rm="x">Dismiss</button>`;
+  const isA = b.ra === 'a'; if (isA) alarmStart();
+  card.innerHTML = `<b>${isA ? '⏰ Alarm' : '🔔 Reminder'}</b><div>${esc(b.text || 'Task')}${b.who ? ' · 👤 ' + esc(b.who) : ''}</div><button class="pri" type="button" data-rm="open">Open</button><button type="button" data-rm="done">✔ Done</button><button type="button" data-rm="snooze">Snooze 10 min</button><button type="button" data-rm="x">Dismiss</button>`;
   card.addEventListener('click', e => {
     const a = e.target.closest('[data-rm]'); if (!a) return;
-    const k = a.dataset.rm;
+    const k = a.dataset.rm; alarmStop();
     if (k === 'open') gotoPage(p.id, b.id);
     else if (k === 'done') setTaskDone(p.id, b.id, true);
     else if (k === 'snooze') withTask(p.id, b.id, tb => { tb.rem = Date.now() + 10 * 60000; delete tb.remOk; });
@@ -2242,11 +2353,12 @@ let natRemSig = '';
 function syncNativeRem(force) {
   if (!(window.OwhNative && OwhNative.setReminders)) return;
   const now = Date.now(), L = [];
-  pages.forEach(p => p.blocks.forEach(b => { if (b.type === 'task' && b.rem && !b.done && b.rem > now) L.push({ id: b.id, at: b.rem, text: (b.text || 'Task').slice(0, 120) }); }));
+  pages.forEach(p => p.blocks.forEach(b => { if (b.type === 'task' && b.rem && !b.done && b.rem > now) L.push({ id: b.id, at: b.rem, text: (b.text || 'Task').slice(0, 120), a: b.ra === 'a' ? 1 : 0, who: b.who || '', ph: b.ph || '' }); }));
   L.sort((x, y) => x.at - y.at); const out = L.slice(0, 60), sig = JSON.stringify(out);
   if (!force && sig === natRemSig) return; natRemSig = sig;
   try { OwhNative.setReminders(sig); } catch (_) {}
 }
+window.owhResume = () => { syncNativeRem(true); try { checkReminders(); } catch (_) {} };
 setInterval(syncNativeRem, 15000); setTimeout(() => syncNativeRem(true), 4000);
 
 /* ---- drag to reorder ---- */
@@ -2378,7 +2490,8 @@ els.sheet.addEventListener('click', e => {
   else if (a === 'outdent') indentTask(id, -1);
   else if (a === 'openlink') { const bb = getBlock(id), u = bb && linkOf(bb); if (u) window.open(u, '_blank', 'noopener'); }
   else if (a === 'del') deleteBlock(id);
-  else if (a === 'who') openWho(id);
+  else if (a === 'who') { const bb = getBlock(id); if (btn.classList.contains('who') && bb && bb.ph) openContactCard(cur.id, id); else openWho(id); }
+  else if (a === 'remind') openRemind(cur.id, id);
   else if (a === 'label') openLabel(id);
   else if (a === 'repeat') openRepeat(id);
 });
@@ -2949,7 +3062,7 @@ carry.addEventListener('click', e => {
   else if (c === 'unhide') { delete b.hid; touchOther(p); renderCarry(); }
   else if (c === 'open') gotoPage(pid, bid);
   else if (c === 'mdate') openMoveDate(pid, bid);
-  else if (c === 'who') openWho(bid, pid);
+  else if (c === 'who') { if (b.ph) openContactCard(pid, bid); else openWho(bid, pid); }
 });
 carry.addEventListener('input', e => {
   if (!e.target.classList.contains('cin')) return;
@@ -4606,7 +4719,6 @@ function openMore() {
     <div class="msh-gt">Account</div>
     <div class="msh-list">
       ${R('out', '🚪', 'Sign Out', '#ece4ff')}
-      ${R('del', '🗑️', 'Delete This Page', '#ffe3e3', 1)}
       ${window.OWH && OWH.cloud ? R('delacc', '⚠️', 'Delete My Account', '#ffe3e3', 1) : ''}
     </div>
     <p class="msh-ft">${(window.OWH && OWH.cloud) ? 'Your diary syncs to your account and also works offline.' : 'Saved on this device only.'}<br>Tip: on iPad, Text mode turns Apple Pencil writing into typed text (Scribble).</p>`);

@@ -19,6 +19,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.provider.ContactsContract;
+import android.provider.Settings;
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.database.Cursor;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +59,7 @@ public class MainActivity extends Activity {
     private FrameLayout root;
     private WebView web;
     private ValueCallback<Uri[]> filePick;
-    private String tokReq, tokScope;
+    private String tokReq, tokScope, ctReq;
     private boolean darkBars, asked;
 
     @Override protected void onCreate(Bundle b) {
@@ -188,6 +193,7 @@ public class MainActivity extends Activity {
             if (name == null) tokenDone(null, null, "No Google account was chosen."); else { rememberAcct(name); fetchToken(name, false); }
             return;
         }
+        if (req == 7) { contactDone(res == RESULT_OK && data != null ? data.getData() : null); return; }
         if (req == 5 && filePick != null) {
             filePick.onReceiveValue(res == RESULT_OK && data != null && data.getData() != null ? new Uri[]{data.getData()} : null);
             filePick = null;
@@ -269,6 +275,38 @@ public class MainActivity extends Activity {
         } catch (Exception e) { Toast.makeText(this, "Could not save the file.", Toast.LENGTH_LONG).show(); }
     }
 
+    /* ---- contacts: the phone's own picker gives just the one chosen contact, no contacts permission needed ---- */
+    private void contactDone(Uri u) {
+        String req = ctReq; ctReq = null; if (web == null || req == null) return;
+        String out = null;
+        if (u != null) {
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(u, new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID, ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY}, null, null, null);
+                if (c != null && c.moveToFirst()) {
+                    JSONObject o = new JSONObject();
+                    o.put("name", c.getString(0) == null ? "" : c.getString(0));
+                    o.put("ph", c.getString(1) == null ? "" : c.getString(1));
+                    try { o.put("cu", ContactsContract.Contacts.getLookupUri(c.getLong(2), c.getString(3)).toString()); } catch (Exception ignored) { }
+                    out = o.toString();
+                }
+            } catch (Exception e) { Toast.makeText(this, "Could not read that contact.", Toast.LENGTH_SHORT).show(); }
+            finally { if (c != null) c.close(); }
+        }
+        web.evaluateJavascript("(function(){try{window.owhContact&&owhContact(" + JSONObject.quote(req) + "," + (out == null ? "null" : JSONObject.quote(out)) + ")}catch(e){}})()", null);
+    }
+
+    private boolean exactOk() {
+        if (Build.VERSION.SDK_INT < 31) return true;
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        return am != null && am.canScheduleExactAlarms();
+    }
+    private boolean notifOk() {
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        return nm == null || nm.areNotificationsEnabled();
+    }
+
     /** What the page can ask the phone to do. */
     private class Bridge {
         @JavascriptInterface public boolean isApp() { return true; }
@@ -280,9 +318,30 @@ public class MainActivity extends Activity {
             catch (Exception e) { Toast.makeText(MainActivity.this, "Nothing on this phone can share text.", Toast.LENGTH_SHORT).show(); }
         } }); }
         @JavascriptInterface public void askNotify() { ui.post(new Runnable() { public void run() {
+            if (notifOk()) return;
             if (Build.VERSION.SDK_INT >= 33 && !asked && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-                { asked = true; requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 3); }
+                { asked = true; requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 3); return; }
+            try { startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName())); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Notifications.", Toast.LENGTH_LONG).show(); }
         } }); }
+        @JavascriptInterface public String alertStatus() {
+            try { JSONObject o = new JSONObject(); o.put("notif", notifOk()); o.put("exact", exactOk()); return o.toString(); } catch (Exception e) { return "{}"; }
+        }
+        @JavascriptInterface public void openExactSettings() { ui.post(new Runnable() { public void run() {
+            if (Build.VERSION.SDK_INT < 31) return;
+            try { startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()))); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Alarms & reminders.", Toast.LENGTH_LONG).show(); }
+        } }); }
+        @JavascriptInterface public void pickContact(final String req) { ui.post(new Runnable() { public void run() {
+            ctReq = req;
+            try { startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI), 7); }
+            catch (Exception e) { ctReq = null; Toast.makeText(MainActivity.this, "No contacts app on this phone.", Toast.LENGTH_SHORT).show(); }
+        } }); }
+        @JavascriptInterface public void openContact(final String uri) { ui.post(new Runnable() { public void run() {
+            try { Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri)); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); startActivity(i); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "That contact is not on this phone.", Toast.LENGTH_SHORT).show(); }
+        } }); }
+        @JavascriptInterface public void openUri(final String uri) { ui.post(new Runnable() { public void run() { openExternal(Uri.parse(uri)); } }); }
         @JavascriptInterface public void setReminders(final String json) {
             RemindReceiver.setAll(MainActivity.this, json);
             if (json != null && json.length() > 4 && Build.VERSION.SDK_INT >= 33) askNotify();
@@ -291,6 +350,12 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onSaveInstanceState(Bundle out) { super.onSaveInstanceState(out); if (web != null) web.saveState(out); }
+    @Override protected void onResume() {
+        super.onResume();
+        RemindReceiver.stopRinging(this);
+        RemindReceiver.restore(this);   /* after "Alarms & reminders" is allowed, set every alarm at its exact time again */
+        if (web != null) web.evaluateJavascript("try{window.owhResume&&owhResume()}catch(e){}", null);
+    }
     @Override protected void onPause() { super.onPause(); CookieManager.getInstance().flush(); }
     @Override protected void onDestroy() { if (web != null) { web.destroy(); web = null; } super.onDestroy(); }
 }

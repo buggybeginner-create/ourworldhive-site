@@ -14,7 +14,7 @@
 //                  service account invited in Play Console > Users and permissions (View financial data, Manage orders).
 //   GET  /prices   not used, returns {}
 // To add a new app later: add one line in APPS below and one small button in that app.
-const DEF_INR={sf:{perm:199},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99}};
+const DEF_INR={sf:{perm:199},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:499},calc:{perm:99}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
 const APPS={
   calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},

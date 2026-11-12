@@ -749,6 +749,15 @@ body{background:var(--desk)}
   .trow .chk{flex:none}
   .trow>.chipx:not(:empty),.trow>.rep,.trow>.who,.trow>.tgl{margin-top:0!important}
 }
+#owhLock{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:20px;background:rgba(12,14,30,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#owhLock .lk{width:min(420px,100%);max-height:92vh;overflow:auto;background:var(--paper);color:var(--ink);border-radius:28px;padding:26px 20px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+#owhLock .lki{width:76px;height:76px;margin:0 auto 12px;border-radius:24px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,#f6a531,#d9741a);box-shadow:0 8px 24px rgba(217,116,26,.35)}
+#owhLock h2{margin:0 0 8px;font:800 22px var(--sans)}#owhLock p{margin:0 0 14px;color:var(--muted);font-size:14.5px;line-height:1.5}
+#owhLock .lkp{font:800 34px var(--sans);margin:4px 0 14px;color:var(--ink)}#owhLock .lkp small{font-size:14px;color:var(--muted);font-weight:600}
+#owhLock .lkx{margin-top:12px;border:0;background:none;color:var(--muted);font:600 14px var(--sans);text-decoration:underline}
+#owhLock .lkc{margin:12px 0 0;font-size:11.5px}
+.trialchip{flex:none;display:inline-flex;align-items:center;height:36px;padding:0 12px;border-radius:12px;font:700 13px var(--sans);background:#fff0d9;color:#8a4b00;white-space:nowrap}
+:root[data-theme="dark"] .trialchip{background:#57411a;color:#ffd18b}
 </style>
 </head>
 <body>
@@ -4340,6 +4349,7 @@ function download(blob, name) {
   a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
+window.OWH_EXPORT = () => exportBackup();
 async function exportBackup() {
   begin();
   const data = { app: 'paper-diary', version: 1, exportedAt: new Date().toISOString(), pages: [...pages.values()], rules: [...rules.values()], templates: templates.slice() };
@@ -4935,17 +4945,46 @@ function Admin(db,u){
   var email=String(u.email||'').toLowerCase(), isOwner=email===OWNER_EMAIL&&u.verified;
   var users=db.collection('diary_users'), me=users.doc(u.uid), cfg=db.collection('config').doc('diary');
   /* record this person so the owner can see who uses the diary (they can never change their own plan) */
+  var LK='owh_diary_lic_'+u.uid;
   me.get().then(function(d){
-    if(!d.exists){ buyBtn('free'); return me.set({uid:u.uid,email:email,name:u.name||'',joined:Date.now(),lastSeen:Date.now(),plan:'free'}); }
-    buyBtn(d.data().plan);
+    if(!d.exists){ var now=Date.now(); licence('free',now); return me.set({uid:u.uid,email:email,name:u.name||'',joined:now,lastSeen:now,plan:'free'}); }
+    licence(d.data().plan,d.data().joined);
     return me.update({email:email,name:u.name||'',lastSeen:Date.now()});
-  }).catch(function(e){ console.warn('diary_users',e&&e.code); });
+  }).catch(function(e){ console.warn('diary_users',e&&e.code); var c=null; try{ c=JSON.parse(localStorage.getItem(LK)||'null'); }catch(x){} if(c) licence(c.plan,c.joined,true); });
+  /* paid version: 30 days free from the first sign-in (everyone who joined before 12 Nov 2026 gets 30 days from that date), then ₹499 one time */
+  var TRIAL_DAYS=30, LAUNCH=Date.UTC(2026,10,12,0,0);
+  function licence(plan,joined,cached){
+    if(!cached){ try{ localStorage.setItem(LK,JSON.stringify({plan:plan,joined:joined||Date.now()})); }catch(e){} }
+    if(isOwner||plan==='paid'){ buyBtn('paid'); var l=document.getElementById('owhLock'); if(l) l.remove(); return; }
+    var start=Math.max(Number(joined)||Date.now(),LAUNCH), left=Math.ceil((start+TRIAL_DAYS*864e5-Date.now())/864e5);
+    buyBtn(plan,left);
+    if(left<=0) lockApp();
+  }
+  /* trial over: the diary is locked until the one-time payment; pages stay safe and a backup can still be saved */
+  function lockApp(){
+    if(document.getElementById('owhLock')) return;
+    var play=window.OWH_PLAY&&window.OWHPLAY&&OWHPLAY.ok();
+    var o=document.createElement('div'); o.id='owhLock';
+    o.innerHTML='<div class="lk"><div class="lki">📔</div><h2>Your Free Trial Has Ended</h2><p>Your 30-day free trial of My Diary is over. Get the full version for a <b>one-time payment</b>, no monthly fees. All your pages, tasks and reminders are safe and come back straight away.</p>'
+      +'<div class="lkp" id="owhLkP">₹499 <small>one time</small></div>'
+      +'<button class="sbtn pri" type="button" id="owhLkBuy">💎 Get My Diary</button>'
+      +'<button class="sbtn" type="button" id="owhLkExp" style="margin-top:10px">📤 Save A Backup Of My Pages</button>'
+      +'<button class="lkx" type="button" id="owhLkOut">Sign Out</button><p class="lkc">© DUKEKRRISH. All rights reserved.</p></div>';
+    document.body.appendChild(o);
+    if(play) OWHPLAY.price('diary_perm').then(function(p){ if(p) document.getElementById('owhLkP').innerHTML=p+' <small>one time</small>'; });
+    else if(window.OWH_PRICE) document.getElementById('owhLkP').innerHTML=OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm')+' <small>one time</small>';
+    document.getElementById('owhLkBuy').onclick=function(){ var b=document.getElementById('owhBuy'); if(b) b.click(); };
+    document.getElementById('owhLkExp').onclick=function(){ if(window.OWH_EXPORT) OWH_EXPORT(); };
+    document.getElementById('owhLkOut').onclick=function(){ if(window.OWH) OWH.signOut(); };
+  }
+  /* after a payment is confirmed, open the diary again without a reload */
+  me.onSnapshot(function(d){ if(d.exists&&d.data().plan==='paid'){ licence('paid',d.data().joined); var b=document.getElementById('owhBuy'); if(b) b.textContent='✅ Full Version'; } },function(){});
   /* Play Store app: Google Play Billing (price set in Play Console, product diary_perm) */
   function playBtn(nav){
     var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button'; b.textContent='💎 Get Full Version';
     nav.insertBefore(b,nav.querySelector('.sp')||nav.firstChild);
     OWHPLAY.price('diary_perm').then(function(p){ if(p) b.textContent='💎 Get Full Version · '+p; });
-    var done=function(){ b.textContent='✅ Full Version'; b.onclick=null; };
+    var done=function(){ b.textContent='✅ Full Version'; b.onclick=null; var l=document.getElementById('owhLock'); if(l) l.remove(); };
     /* already bought on this Google account (new phone, reinstall): switch it on again quietly */
     OWHPLAY.restore('diary').then(function(r){ if(r.done) done(); }).catch(function(){});
     b.onclick=function(){
@@ -4959,17 +4998,18 @@ function Admin(db,u){
     };
   }
   /* one-time payment: price, UPI and PayPal come from the shared price list (owh-pricing.js) */
-  function buyBtn(plan){
+  function buyBtn(plan,left){
     var nav=document.getElementById('nav'); if(isOwner||!nav||document.getElementById('owhBuy')) return;
+    if(plan!=='paid'&&left>0){ var tc=document.createElement('span'); tc.className='trialchip'; tc.textContent='⏳ Free Trial: '+left+' Day'+(left===1?'':'s')+' Left'; nav.insertBefore(tc,nav.querySelector('.sp')||nav.firstChild); }
     if(window.OWH_PLAY&&plan!=='paid'){ if(window.OWHPLAY&&OWHPLAY.ok()) playBtn(nav); return; } /* Play Store app: only Google Play Billing is allowed */
     var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button';
-    function lab(){ b.textContent=plan==='paid'?'✅ Full version':('💎 Get full version'+(window.OWH_PRICE?' · '+OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm'):'')); }
+    function lab(){ b.textContent=plan==='paid'?'✅ Full Version':('💎 Get Full Version'+(window.OWH_PRICE?' · '+OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm'):'')); }
     lab(); window.addEventListener('owh-price',lab);
     nav.insertBefore(b,nav.querySelector('.sp')||nav.firstChild);
     b.onclick=function(){
       var o=document.getElementById('owhBuyV'); if(o) o.remove();
       o=document.createElement('div'); o.id='owhBuyV';
-      o.setAttribute('style','position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px');
+      o.setAttribute('style','position:fixed;inset:0;z-index:2147483002;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px');
       o.innerHTML='<div role="dialog" aria-label="Get My Diary" style="background:var(--card,#fff);color:var(--ink,#222);border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow:auto;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0;font-size:20px">📓 My Diary, full version</h2><button type="button" class="btn" id="owhBuyX">✕</button></div>'+(plan==='paid'?'<p>You already have the full version. Thank you!</p>':'<p style="margin:0 0 10px;font-size:14px;line-height:1.5">Pay once and keep the diary for ever. No monthly fee, no renewal.</p><div id="owhBuyB"></div>')+'</div>';
       document.body.appendChild(o);
       o.querySelector('#owhBuyX').onclick=function(){ o.remove(); };

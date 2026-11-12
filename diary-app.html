@@ -4422,6 +4422,7 @@ function openMore() {
     <button class="mi" type="button" data-do="owhupd"><span>↻</span>Get latest version</button>
     <button class="mi" type="button" data-do="contact"><span>✉️</span>Contact us / Feature request</button>
     <button class="mi" type="button" data-do="out"><span>🚪</span>Sign out (${esc((window.OWH && OWH.name) || 'account')})</button>
+    ${window.OWH && OWH.cloud ? '<button class="mi danger" type="button" data-do="delacc"><span>⚠️</span>Delete my account</button>' : ''}
     <button class="mi danger" type="button" data-do="del"><span>🗑️</span>Delete this page</button>
     <p class="hint">Tip: on iPad, Text mode also turns Apple Pencil writing into typed text through Scribble (Settings › Apple Pencil).</p>
     <p class="hint">${(window.OWH && OWH.cloud) ? 'Signed in. Your diary syncs to your account and also works offline.' : 'Test mode: saved on this device only. Sync switches on when the site is connected to Firebase.'}</p>`);
@@ -4439,6 +4440,18 @@ function openMore() {
     else if (a === 'owhupd') { if (window.OWHUPD) OWHUPD.run(); }
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
     else if (a === 'out') { if (window.OWH) OWH.signOut(); }
+    else if (a === 'delacc') { (function(){var f=function(){OWHACC.open({
+      removes:'your sign-in and <b>every diary page</b>, note, task, handwriting, repeating job and template saved to your account, plus your full-version record.',
+      keep:'nothing in the cloud. Export a backup first (More, Export Backup) if you want to keep your pages.',
+      purge:async function(u){ var db=firebase.firestore(), base=db.collection('users').doc(u.uid);
+        try{ if(OWH.cloud&&OWH.cloud.stop) OWH.cloud.stop(); }catch(e){}
+        var ps=await base.collection('pages').get();
+        for(var i=0;i<ps.docs.length;i++){ var d=ps.docs[i], pr=await d.ref.collection('parts').get(), b=db.batch(); pr.forEach(function(x){ b.delete(x.ref); }); b.delete(d.ref); await b.commit(); }
+        var ms=await base.collection('meta').get(); for(var j=0;j<ms.docs.length;j++) await ms.docs[j].ref.delete();
+        var me=db.collection('diary_users').doc(u.uid);
+        try{ await me.delete(); }catch(e){ try{ await me.update({email:'',name:'',lastSeen:Date.now()}); }catch(x){} } },
+      clean:function(u){ try{ indexedDB.deleteDatabase('paper-diary-'+u.uid); }catch(e){} try{ Object.keys(localStorage).filter(function(k){ return k.indexOf('owh_stamp_'+u.uid)===0||k==='owh_diary_session'; }).forEach(function(k){ localStorage.removeItem(k); }); }catch(e){} }
+    })};if(window.OWHACC)f();else{var s=document.createElement('script');s.src='owh-account.js';s.onload=f;document.head.appendChild(s)}})(); }
     else if (a === 'theme') { S.theme = dark ? 'light' : 'dark'; saveSettings(); applyTheme(); }
     else if (a === 'del') {
       if (!(await confirmDlg('Delete this page?', 'Its notes, tasks and handwriting will be removed. This can’t be undone.', 'Delete page', true))) return;
@@ -4613,6 +4626,7 @@ function Admin(db,u){
   /* one-time payment: price, UPI and PayPal come from the shared price list (owh-pricing.js) */
   function buyBtn(plan){
     var nav=document.getElementById('nav'); if(isOwner||!nav||document.getElementById('owhBuy')) return;
+    if(window.OWH_PLAY&&plan!=='paid') return; /* Play Store app: no other payment buttons allowed */
     var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button';
     function lab(){ b.textContent=plan==='paid'?'✅ Full version':('💎 Get full version'+(window.OWH_PRICE?' · '+OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm'):'')); }
     lab(); window.addEventListener('owh-price',lab);
@@ -4720,10 +4734,13 @@ function Cloud(db,uid){
     }catch(err){ console.warn('push failed',err); badge('off','Could not sync. Your diary is safe on this device.'); }
   }
   self.push=function(p){
+    if(self.stopped) return;
     clearTimeout(timers[p.id]); badge('busy','Saving\u2026');
     if(document.hidden) doPush(p.id); else timers[p.id]=setTimeout(function(){ doPush(p.id); },2500);
   };
   self.flush=function(){ Object.keys(timers).forEach(function(id){ clearTimeout(timers[id]); doPush(id); }); };
+  /* used by Delete my account: drop pending saves so nothing is written back after the delete */
+  self.stop=function(){ Object.keys(timers).forEach(function(id){ clearTimeout(timers[id]); delete timers[id]; }); try{ Object.keys(mT).forEach(function(k){ clearTimeout(mT[k]); delete mT[k]; }); }catch(e){} self.stopped=true; };
   async function wipe(ids){
     var jobs=[]; for(var i=0;i<ids.length;i++){ (function(id){ jobs.push(col.doc(id).collection('parts').get().then(function(q){ var b=db.batch(); q.forEach(function(d){ b.delete(d.ref); }); b.delete(col.doc(id)); return b.commit(); })); })(ids[i]); }
     await Promise.all(jobs);
@@ -4753,6 +4770,7 @@ function Cloud(db,uid){
   function stamp(k){ return +localStorage.getItem(STAMP+k)||0; }
   function setStamp(k,v){ try{ localStorage.setItem(STAMP+k,String(v)); }catch(e){} }
   self.pushMeta=function(k,arr){
+    if(self.stopped) return;
     clearTimeout(mT[k]); badge('busy','Saving\u2026');
     mT[k]=setTimeout(function(){
       var s=Date.now(), json=JSON.stringify(arr);
@@ -4826,7 +4844,12 @@ async function start(){
   wireGate();
   if(CFG){
     try{ var base='https://www.gstatic.com/firebasejs/10.12.2/'; await loadScript(base+'firebase-app-compat.js'); await loadScript(base+'firebase-auth-compat.js'); await loadScript(base+'firebase-firestore-compat.js'); A=Fire(CFG); }
-    catch(e){ console.error(e); A=null; $('owhR').textContent='Could not reach Firebase. Using test mode on this device.'; }
+    catch(e){ console.error(e); A=null; }
+  }
+  if(!A&&CFG){ /* no internet: ask to retry instead of the old on-device test mode */
+    $('owhR').textContent='Could not connect. Check your internet and tap Retry.';
+    $('owhGo').textContent='Retry'; $('owhGo').onclick=function(){ location.reload(); }; $('owhG').onclick=function(){ location.reload(); };
+    $('owhGate').hidden=false; return;
   }
   if(!A) A=Demo();
   if(A.mode==='demo') $('owhTest').hidden=false;

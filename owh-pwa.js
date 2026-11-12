@@ -4,6 +4,13 @@
    The manifest scope is that one page only, so an installed app never captures links to other pages or apps. */
 (function(){
 var d=document,h=d.head||d.documentElement;
+/* Play Store version: the Android app opens the page with ?src=play (or the Play app is the referrer).
+   Google Play does not allow other payment buttons inside a Play app, so buy, renew and donate buttons are hidden there.
+   The flag lives in sessionStorage, so the same page opened in Chrome still shows the normal website with payments. */
+var PLAY=false;
+try{if(/(^|[?&])src=play(&|$)/.test(location.search.slice(1))||/^android-app:\/\/com\.ourworldhive\./.test(d.referrer||''))sessionStorage.setItem('owh_play','1');PLAY=sessionStorage.getItem('owh_play')==='1'}catch(e){}
+window.OWH_PLAY=PLAY;
+if(PLAY){d.documentElement.classList.add('owh-play');var pst=d.createElement('style');pst.textContent='.owh-play [data-a="plans"],.owh-play [data-a="pfdon"],.owh-play .pricebar,.owh-play #owhBuy,.owh-play .owh-noplay{display:none!important}';h.appendChild(pst)}
 var path=location.pathname,page=path.split('/').pop()||'index.html';
 if(!/\.html$/.test(page))return;
 var sc=d.currentScript,OWN=!!(sc&&sc.getAttribute('data-own'))||!!d.querySelector('link[rel="manifest"]'); /* page already has its own app setup: only add the INSTALL button */
@@ -49,6 +56,7 @@ function installBtn(){
 function donateInit(){
   var UPI='8917262863@ybl';
   function card(){
+    if(window.OWH_PLAY)return ''; /* no donate inside the Play Store app */
     var amts=[49,99,199,499],links=amts.map(function(a){return '<a href="upi://pay?pa='+UPI+'&pn=DUKEKRRISH&am='+a+'&cu=INR&tn=Donation">&#8377;'+a+'</a>'}).join('');
     return '<b>&hearts; SUPPORT / DONATE</b><div class="note" style="margin:4px 0">If this app helps you, you can send any amount by UPI. Donating is optional, and every app stays free to try. Thank you!</div><div>'+links+'<a href="upi://pay?pa='+UPI+'&pn=DUKEKRRISH&cu=INR&tn=Donation">OTHER AMOUNT</a></div><div class="note" style="margin-top:8px">UPI ID: <b>'+UPI+'</b> <button type="button" class="chip" data-owhcopy="'+UPI+'">COPY</button></div>';
   }

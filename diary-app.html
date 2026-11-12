@@ -1382,7 +1382,7 @@ function makeBlockEl(b) {
       '<button class="chk" type="button" role="checkbox" data-act="toggle"><svg viewBox="0 0 26 26" width="26" height="26" aria-hidden="true"><rect class="box" x="2" y="2" width="22" height="22" rx="7"/><path class="tick" d="M7.5 13.4l3.8 3.8 7.2-7.6"/></svg></button><textarea class="tt" rows="1" data-x="1" aria-label="Task. Type or write with the Pencil" placeholder="New task"></textarea><span class="chipx prog" title="Sub-tasks done"></span><button class="chipx dep" type="button" data-act="details" aria-label="Waits for another task"></button><button class="chipx stt" type="button" data-act="details" aria-label="Stage"></button><button class="chipx due" type="button" data-act="details" aria-label="Due date"></button><button class="rep" type="button" data-act="repeat" aria-label="Repeat settings"><span>🔁</span><span class="rt"> Repeated</span></button><button class="who" type="button" data-act="who" aria-label="Assignee"></button><button class="tgl" type="button" data-act="label" aria-label="Label"></button><span class="tsec" aria-hidden="true"></span><button class="lkb" type="button" data-act="openlink" hidden aria-label="Open link">🔗</button><button class="cmt" type="button" data-act="comment" aria-label="Comments">💬<b></b></button>' +
       '</div>' +
       '<div class="topts" role="toolbar" aria-label="Task options">' +
-      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="outdent">⇤ Promote</button>' +
+      '<button type="button" data-act="repeat">🔁 Repeat</button><button type="button" data-act="who">👤 Assign</button><button type="button" data-act="label">🏷️ Label</button><button type="button" data-act="addsub">＋ Sub-task</button><button type="button" data-act="indent">⇥ Move under…</button><button type="button" data-act="movedate">📅 Change date</button><button type="button" data-act="outdent">⇤ Promote</button>' +
       '<button type="button" data-act="up" aria-label="Move up">↑</button><button type="button" data-act="down" aria-label="Move down">↓</button>' +
       '<button type="button" data-act="details">⚙ Details</button><button type="button" data-act="comment">💬 Comment</button>' +
       '<button type="button" class="dh" data-drag="1" aria-label="Drag up or down to move, sideways to make a sub-task" title="Drag to move">⠿ Move</button>' +
@@ -1974,25 +1974,46 @@ function openComments(pid, bid) {
   $('#cmIn', modal).focus();
 }
 
-/* ---- move a task to another day ---- */
+/* ---- move a task (with all its sub-tasks) to another day; pending is then counted from the new day ---- */
 function moveTaskTo(pid, bid, date) {
   const r = getTaskRef(pid, bid);
   if (!r || !isDate(date) || date === r.p.date) return;
-  const b = r.b;
-  if (!b.from) b.from = r.p.date;
-  if (r.isCur) { begin(); cur.blocks = cur.blocks.filter(x => x.id !== bid); ensureTrailing(); renderBlocks(true); commit(); }
+  const src = r.p, arr = r.isCur ? cur.blocks : src.blocks;
+  const ids = [bid].concat(r.isCur ? kidIds(bid) : kidsIn(arr, bid)), grp = ids.map(id => arr.find(x => x.id === id)).filter(Boolean);
+  const d0 = r.b.lv || 0;
+  grp.forEach(g => { const v = (g.lv || 0) - d0; if (v > 0) g.lv = v; else delete g.lv; delete g.from; delete g.hid; if (g.type === 'task' && !g.done) g.mv = src.date; });
+  if (r.isCur) { begin(); cur.blocks = cur.blocks.filter(x => !ids.includes(x.id)); fixLevels(); ensureTrailing(); renderBlocks(true); commit(); }
   else {
-    r.p.blocks = r.p.blocks.filter(x => x.id !== bid);
-    const last = r.p.blocks[r.p.blocks.length - 1];
-    if (!last || last.type !== 'text') r.p.blocks.push({ id: uid(), type: 'text', text: '' });
-    touchOther(r.p);
+    src.blocks = src.blocks.filter(x => !ids.includes(x.id)); fixLv(src.blocks);
+    const last = src.blocks[src.blocks.length - 1];
+    if (!last || last.type !== 'text') src.blocks.push({ id: uid(), type: 'text', text: '' });
+    touchOther(src);
   }
   let tp = pagesOn(date)[0];
   if (!tp) { tp = newPage(date); pages.set(tp.id, tp); }
-  const ins = arr => { const last = arr[arr.length - 1]; arr.splice((last && last.type === 'text' && !last.text.trim()) ? arr.length - 1 : arr.length, 0, b); if (arr[arr.length - 1].type !== 'text') arr.push({ id: uid(), type: 'text', text: '' }); };
-  if (cur && cur.id === tp.id) { begin(); ins(cur.blocks); renderBlocks(true); commit(); } else { ins(tp.blocks); touchOther(tp); }
+  const ins = a => { const last = a[a.length - 1]; a.splice((last && last.type === 'text' && !last.text.trim()) ? a.length - 1 : a.length, 0, ...grp); if (a[a.length - 1].type !== 'text') a.push({ id: uid(), type: 'text', text: '' }); };
+  if (cur && cur.id === tp.id) { begin(); ins(cur.blocks); fixLevels(); renderBlocks(true); commit(); } else { ins(tp.blocks); fixLv(tp.blocks); touchOther(tp); }
   refreshViews();
-  toast(`Moved to ${dayShort(date)}`, 'Go there', () => gotoPage(tp.id, bid));
+  const n = grp.length - 1;
+  toast(`Moved to ${dayShort(date)}${n ? ` with ${n} sub-task${n === 1 ? '' : 's'}` : ''}`, 'Go there', () => gotoPage(tp.id, bid));
+}
+/* "📅 Change date": pick a new day for a task (quick choices or any date) */
+function openMoveDate(pid, bid) {
+  const r = getTaskRef(pid, bid); if (!r) return;
+  const t = todayISO(), kids = (r.isCur ? kidIds(bid) : kidsIn(r.p.blocks, bid)).length;
+  const nextMon = (() => { const d = parseISO(t), k = (8 - d.getDay()) % 7 || 7; return addDays(t, k); })();
+  const q = [['Today', t], ['Tomorrow', addDays(t, 1)], ['In 2 days', addDays(t, 2)], ['Next Monday', nextMon], ['In a week', addDays(t, 7)]].filter(x => x[1] !== r.p.date);
+  openModal(`<h2>📅 Change Date</h2><p class="msg"><b>${esc(r.b.text.trim() || 'This task')}</b>${kids ? ` and its ${kids} sub-task${kids === 1 ? '' : 's'}` : ''} will move from <b>${esc(dayShort(r.p.date))}</b> to the day you pick. Pending will be counted from the new day.</p>
+    <div class="whochips">${q.map(([l, d]) => `<button class="chip nm" type="button" data-md="${d}">${l} · ${esc(dayShort(d))}</button>`).join('')}</div>
+    <div class="fld"><span class="dl">Or pick any date</span><div class="rgrid"><input id="mdIn" class="qin sm" type="date" style="width:170px"><button class="btn primary" type="button" data-md="pick">Move</button></div></div>
+    <div class="btns"><button class="btn" type="button" data-md="x">Cancel</button></div>`);
+  const P = $('.panel', modal); $('#mdIn', P).value = addDays(t, 1);
+  P.addEventListener('click', e => {
+    const x = e.target.closest('[data-md]'); if (!x) return;
+    let d = x.dataset.md; if (d === 'x') { closeModal(); return; }
+    if (d === 'pick') { d = $('#mdIn', P).value; if (!isDate(d)) { toast('Pick a date to move to.'); return; } if (d === r.p.date) { toast('It is already on this day.'); return; } }
+    closeModal(); moveTaskTo(pid, bid, d);
+  });
 }
 
 /* ---- task details: priority, stage, due date, reminder, assignee, move ---- */
@@ -2260,6 +2281,7 @@ els.sheet.addEventListener('click', e => {
   else if (a === 'down') moveTask(id, 1);
   else if (a === 'addsub') addSubTask(id);
   else if (a === 'indent') chooseParent(id);
+  else if (a === 'movedate') openMoveDate(cur.id, id);
   else if (a === 'totask') textToTask(id);
   else if (a === 'outdent') indentTask(id, -1);
   else if (a === 'openlink') { const bb = getBlock(id), u = bb && linkOf(bb); if (u) window.open(u, '_blank', 'noopener'); }
@@ -2786,7 +2808,7 @@ function renderCarry() {
       <div class="cm"><input class="cin" type="text" value="${esc(b.text)}" aria-label="Edit job">
         <div class="cmeta"><span class="age">Pending since ${esc(dayShort(b.from || p.date))} (${ageTxt(Math.max(0, dd(b.from || p.date, today)))})</span>${b.st ? ' · ' + esc(b.st) : ''}${b.due ? ' · due ' + esc(shortDate(b.due)) : ''} · <button class="who cwho" type="button" data-c="who">👤 ${b.who ? esc(b.who) : 'Add name'}</button></div></div>
       <span class="agepill ${age >= 7 ? 'a3' : age >= 3 ? 'a2' : 'a1'}" title="Pending since ${esc(dayShort(b.from || p.date))}">${ageTxt(age)}</span>
-      <div class="cact"><button class="ic" type="button" data-c="open" aria-label="Open that day's page" title="Open page">↗</button>${b.hid
+      <div class="cact"><button class="ic" type="button" data-c="mdate" aria-label="Change date" title="Change date">📅</button><button class="ic" type="button" data-c="open" aria-label="Open that day's page" title="Open page">↗</button>${b.hid
         ? '<button class="ic" type="button" data-c="unhide" aria-label="Show again" title="Show again">👁</button>'
         : '<button class="ic" type="button" data-c="hide" aria-label="Hide this job from here" title="Hide from here">🙈</button>'}</div>
     </div>`;
@@ -2834,6 +2856,7 @@ carry.addEventListener('click', e => {
   else if (c === 'hide') { b.hid = true; touchOther(p); renderCarry(); toast('Hidden from this list (still counted in the summary)', 'Undo', () => { delete b.hid; touchOther(p); renderCarry(); }); }
   else if (c === 'unhide') { delete b.hid; touchOther(p); renderCarry(); }
   else if (c === 'open') gotoPage(pid, bid);
+  else if (c === 'mdate') openMoveDate(pid, bid);
   else if (c === 'who') openWho(bid, pid);
 });
 carry.addEventListener('input', e => {

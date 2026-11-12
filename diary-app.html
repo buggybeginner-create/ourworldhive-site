@@ -4260,6 +4260,7 @@ function confirmDlg(title, msg, okLabel, danger, icon) {
   });
 }
 const toastEl = $('#toast'); let toastT = 0;
+window.OWH_TOAST = m => toast(m);
 function toast(msg, actLabel, fn) {
   toastEl.innerHTML = `<span>${esc(msg)}</span>${actLabel ? `<button type="button">${esc(actLabel)}</button>` : ''}`;
   toastEl.hidden = false;
@@ -4880,6 +4881,7 @@ window.OWH_BOOT = boot;
 </script>
 <script src="firebase-config.js"></script>
 <script src="owh-pricing.js"></script>
+<script src="owh-play.js"></script>
 <script>
 (function(){
 'use strict';
@@ -4938,10 +4940,28 @@ function Admin(db,u){
     buyBtn(d.data().plan);
     return me.update({email:email,name:u.name||'',lastSeen:Date.now()});
   }).catch(function(e){ console.warn('diary_users',e&&e.code); });
+  /* Play Store app: Google Play Billing (price set in Play Console, product diary_perm) */
+  function playBtn(nav){
+    var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button'; b.textContent='💎 Get Full Version';
+    nav.insertBefore(b,nav.querySelector('.sp')||nav.firstChild);
+    OWHPLAY.price('diary_perm').then(function(p){ if(p) b.textContent='💎 Get Full Version · '+p; });
+    var done=function(){ b.textContent='✅ Full Version'; b.onclick=null; };
+    /* already bought on this Google account (new phone, reinstall): switch it on again quietly */
+    OWHPLAY.restore('diary').then(function(r){ if(r.done) done(); }).catch(function(){});
+    b.onclick=function(){
+      if(b.textContent.indexOf('✅')===0) return;
+      b.disabled=true;
+      OWHPLAY.buy({tool:'diary',plan:'perm'}).then(function(r){
+        b.disabled=false;
+        if(r.ok){ done(); try{ OWH_TOAST('🎉 Thank you! My Diary Full Version is now on.'); }catch(e){} }
+        else if(r.err){ try{ OWH_TOAST(r.err); }catch(e){} }
+      }).catch(function(e){ b.disabled=false; try{ OWH_TOAST(e.message||'Payment did not finish.'); }catch(x){} });
+    };
+  }
   /* one-time payment: price, UPI and PayPal come from the shared price list (owh-pricing.js) */
   function buyBtn(plan){
     var nav=document.getElementById('nav'); if(isOwner||!nav||document.getElementById('owhBuy')) return;
-    if(window.OWH_PLAY&&plan!=='paid') return; /* Play Store app: no other payment buttons allowed */
+    if(window.OWH_PLAY&&plan!=='paid'){ if(window.OWHPLAY&&OWHPLAY.ok()) playBtn(nav); return; } /* Play Store app: only Google Play Billing is allowed */
     var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button';
     function lab(){ b.textContent=plan==='paid'?'✅ Full version':('💎 Get full version'+(window.OWH_PRICE?' · '+OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm'):'')); }
     lab(); window.addEventListener('owh-price',lab);

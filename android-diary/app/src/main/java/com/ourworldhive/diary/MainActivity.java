@@ -42,6 +42,7 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 import org.json.JSONObject;
+import com.ourworldhive.shared.PlayBilling;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -60,6 +61,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private ValueCallback<Uri[]> filePick;
     private String tokReq, tokScope, ctReq;
+    private PlayBilling play;
     private boolean darkBars, asked;
 
     @Override protected void onCreate(Bundle b) {
@@ -307,6 +309,14 @@ public class MainActivity extends Activity {
         return nm == null || nm.areNotificationsEnabled();
     }
 
+    /* ---- Google Play Billing: answers go to window.owhPlayCb(req, json) ---- */
+    private PlayBilling play() { if (play == null) play = new PlayBilling(this); return play; }
+    private PlayBilling.Callback playCb(final String req) {
+        return new PlayBilling.Callback() { public void done(final String j) { ui.post(new Runnable() { public void run() {
+            if (web != null) web.evaluateJavascript("(function(){try{window.owhPlayCb&&owhPlayCb(" + JSONObject.quote(req) + "," + JSONObject.quote(j) + ")}catch(e){}})()", null);
+        } }); } };
+    }
+
     /** What the page can ask the phone to do. */
     private class Bridge {
         @JavascriptInterface public boolean isApp() { return true; }
@@ -341,6 +351,12 @@ public class MainActivity extends Activity {
             try { Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri)); i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); startActivity(i); }
             catch (Exception e) { Toast.makeText(MainActivity.this, "That contact is not on this phone.", Toast.LENGTH_SHORT).show(); }
         } }); }
+        @JavascriptInterface public String pkg() { return getPackageName(); }
+        @JavascriptInterface public boolean playOk() { return true; }
+        @JavascriptInterface public void playProducts(final String req, final String list) { ui.post(new Runnable() { public void run() { play().products(list, playCb(req)); } }); }
+        @JavascriptInterface public void playBuy(final String req, final String id, final String type, final String account) { ui.post(new Runnable() { public void run() { play().buy(id, type, account, playCb(req)); } }); }
+        @JavascriptInterface public void playOwned(final String req) { ui.post(new Runnable() { public void run() { play().owned(playCb(req)); } }); }
+        @JavascriptInterface public void playAck(final String token) { ui.post(new Runnable() { public void run() { play().ack(token); } }); }
         @JavascriptInterface public void openUri(final String uri) { ui.post(new Runnable() { public void run() { openExternal(Uri.parse(uri)); } }); }
         @JavascriptInterface public void setReminders(final String json) {
             RemindReceiver.setAll(MainActivity.this, json);

@@ -21,4 +21,9 @@ android {
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     lint { abortOnError false; checkReleaseBuilds false }
+    /* shared code for all Ourworldhive apps (Google Play Billing) */
+    sourceSets { main { java.srcDirs += ['../../android-shared/java'] } }
+}
+dependencies {
+    implementation 'com.android.billingclient:billing:8.0.0'
 }

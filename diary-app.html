@@ -586,9 +586,9 @@ html.inapp #toolbar{padding-top:8px}
 .srow2::after{content:"›";font-size:22px;color:var(--muted)}
 .srow2.pri i{background:linear-gradient(135deg,#6a6ff0,#4b4fd8);color:#fff}
 .swrow{display:flex;align-items:center;gap:12px}.swrow>div{flex:1;min-width:0}.swrow b{font:650 15px var(--sans)}.swrow small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
-.sw{flex:none;position:relative;width:52px;height:30px;border-radius:99px;border:0;background:var(--line);transition:background .2s;padding:0}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
-.sw[aria-pressed="true"]{background:linear-gradient(135deg,#34c26b,#1fa354)}.sw[aria-pressed="true"]::after{transform:translateX(22px)}
+.tsw{flex:none;position:relative;width:52px;height:30px;border-radius:99px;border:0;background:var(--line);transition:background .2s;padding:0}
+.tsw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.tsw[aria-pressed="true"]{background:linear-gradient(135deg,#34c26b,#1fa354)}.tsw[aria-pressed="true"]::after{transform:translateX(22px)}
 .sbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:0;border-radius:16px;font:700 15.5px var(--sans);background:var(--btn);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(30,35,80,.12)}
 .sbtn.pri{background:linear-gradient(135deg,#6a6ff0,#4b4fd8);color:#fff;box-shadow:0 4px 14px rgba(75,79,216,.35)}
 .sbtn.red{background:linear-gradient(135deg,#ef5350,#c62828);color:#fff;box-shadow:0 4px 14px rgba(198,40,40,.3)}
@@ -742,6 +742,13 @@ body{background:var(--desk)}
 #owhCPv label input,#owhCPv label textarea{display:block;width:100%;margin-top:5px}
 #owhCPv .msg2{color:var(--muted);font-size:14px;margin:8px 0}
 #owhGate .alt button{background:none;border:0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+/* phones and small tablets: the task text keeps the full width; chips (reminder, person, label) wrap to a line below it */
+@media (max-width:760px){
+  .trow{flex-wrap:wrap;row-gap:4px;column-gap:8px}
+  .trow .tt{flex:1 1 0;min-width:calc(100% - 84px)}
+  .trow .chk{flex:none}
+  .trow>.chipx:not(:empty),.trow>.rep,.trow>.who,.trow>.tgl{margin-top:0!important}
+}
 </style>
 </head>
 <body>
@@ -4485,13 +4492,13 @@ function openBackup() {
     ? `<p class="msg">${app ? 'Your diary syncs to your account. Keep an extra copy now and then.' : 'Pick any place (iCloud, Google Drive, this device) when the share sheet opens. Use Restore to load it again.'}</p>${common}`
     : bkHandle
       ? `<p class="msg">Linked file: <b>${esc(bkHandle.name)}</b> · ${bkState === 'ok' ? '✅ connected' : '⚠️ needs permission'} · last backup ${fmtAgo(S.lastBackup)}</p>
-         <div class="swrow" style="margin-bottom:6px"><div><b>Auto-backup</b><small>Write to this file after every change</small></div><button class="sw" type="button" data-bk="${S.autoBackup ? 'ab0' : 'ab1'}" aria-pressed="${S.autoBackup}" aria-label="Auto-backup"></button></div>
+         <div class="swrow" style="margin-bottom:6px"><div><b>Auto-backup</b><small>Write to this file after every change</small></div><button class="tsw" type="button" data-bk="${S.autoBackup ? 'ab0' : 'ab1'}" aria-pressed="${S.autoBackup}" aria-label="Auto-backup"></button></div>
          ${bkState !== 'ok' ? row('recon', '🔄', '#e9f6d8', 'Reconnect', 'Give permission to the linked file again', 1) : ''}${row('restore', '⬇️', '#dff4f7', 'Load from this file', 'Replace what is here with the file')}${row('unlink', '⛓️‍💥', '#ffe3e3', 'Unlink file', 'Stop writing to this file')}`
       : `<p class="msg">Pick a file once (for example inside a Google Drive, OneDrive or Dropbox folder). The diary is saved there automatically.</p>
          ${row('new', '📄', '#e3ecff', 'Create backup file', 'Choose where the new file goes', 1)}${row('existing', '🔗', '#ece4ff', 'Use existing backup file', 'Link a file you made before')}${common}`;
   openSheet(sheetHead('💾', '#dff3e6', 'Save &amp; Backup', 'Your pages are safe on this device' + (window.OWH && OWH.cloud ? ' and in your account.' : '.')) + `
     <div class="scard"><b>Auto-save</b>
-      <div class="swrow"><div><b>Save every change</b><small>${S.autoSave ? 'On · last saved ' + (lastSaved ? clock(lastSaved) : 'not yet in this session') : 'Off · changes are saved only when you tap Save now'}</small></div><button class="sw" type="button" data-bk="${S.autoSave ? 'as0' : 'as1'}" aria-pressed="${S.autoSave}" aria-label="Auto-save"></button></div>
+      <div class="swrow"><div><b>Save every change</b><small>${S.autoSave ? 'On · last saved ' + (lastSaved ? clock(lastSaved) : 'not yet in this session') : 'Off · changes are saved only when you tap Save now'}</small></div><button class="tsw" type="button" data-bk="${S.autoSave ? 'as0' : 'as1'}" aria-pressed="${S.autoSave}" aria-label="Auto-save"></button></div>
       ${S.autoSave ? '' : '<button class="sbtn pri" type="button" data-bk="now" style="margin-top:12px">💾 Save now</button>'}</div>
     <div class="scard"><b>Backup</b>${loc}</div>`);
   $('.panel', modal).addEventListener('click', async e => {

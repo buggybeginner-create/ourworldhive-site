@@ -1,0 +1,44 @@
+name: My Diary Android app
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['android-diary/**', '.github/workflows/diary-app.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.11.1' }
+      - name: Build the test APK (for your own phone)
+        working-directory: android-diary
+        run: gradle assembleDebug --no-daemon --stacktrace
+      - name: Build the Play Store bundle (.aab)
+        if: env.DIARY_KEY_PASS != ''
+        env: { DIARY_KEY_PASS: '${{ secrets.DIARY_KEY_PASS }}' }
+        working-directory: android-diary
+        run: gradle bundleRelease --no-daemon --stacktrace
+      - name: Name the files
+        env: { DIARY_KEY_PASS: '${{ secrets.DIARY_KEY_PASS }}' }
+        run: |
+          cp android-diary/app/build/outputs/apk/debug/app-debug.apk My-Diary-test.apk
+          if [ -n "$DIARY_KEY_PASS" ]; then cp android-diary/app/build/outputs/bundle/release/app-release.aab My-Diary-PlayStore.aab; fi
+          ls -la *.apk *.aab 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with: { name: My-Diary-app, path: 'My-Diary-*' }
+      - name: Put them on the Releases page
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: diary-app
+          name: My Diary Android app (latest)
+          body: |
+            Build ${{ github.run_number }}.
+            My-Diary-test.apk: install on your own phone to test.
+            My-Diary-PlayStore.aab: upload this file in Google Play Console (Production or Testing, Create new release).
+          files: My-Diary-*
+          make_latest: false

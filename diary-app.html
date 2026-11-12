@@ -536,6 +536,38 @@ body.inkon .tgl{pointer-events:none}
 .dayprog.full .dpr{animation:pctpop .6s ease-out;box-shadow:0 0 0 3px rgba(31,163,84,.2),0 2px 10px rgba(31,163,84,.4)}.dayprog.full .dpr b{font-size:16px}
 @media (max-width:640px){.dpr{width:34px;height:34px}.dpr b{font-size:10px}.dpl{font-size:11.5px}.dayprog{margin-top:6px}}
 @media print{.dayprog{display:none!important}}
+/* ---------- app-style ⋯ button and menu sheet ---------- */
+#top #toolbar>#bMore{background:linear-gradient(135deg,#6a6ff0,#4b4fd8 55%,#3a3ec0);color:#fff;box-shadow:0 4px 12px rgba(75,79,216,.38),inset 0 1px 0 rgba(255,255,255,.25)}
+#bMore .dots{fill:currentColor;transition:transform .25s}#bMore:active .dots{transform:rotate(90deg) scale(.9)}
+:root[data-theme="dark"] #top #toolbar>#bMore{background:linear-gradient(135deg,#8f94ff,#6267ea);color:#0d0f17}
+#modal.bs{align-items:flex-end;padding:0}
+#modal.bs .panel{width:min(560px,100%);max-height:88vh;border-radius:28px 28px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom));animation:shUp .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes shUp{from{transform:translateY(60%);opacity:.4}to{transform:none;opacity:1}}
+@media (min-width:700px){#modal.bs{align-items:center;padding:12px}#modal.bs .panel{border-radius:28px;padding-bottom:18px}}
+.msh-grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 12px}
+.msh-me{display:flex;align-items:center;gap:12px;padding:12px;border-radius:20px;background:linear-gradient(135deg,rgba(106,111,240,.14),rgba(31,163,84,.1));margin-bottom:14px}
+.msh-av{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font:800 19px var(--sans);color:#fff;background:linear-gradient(135deg,#6a6ff0,#1fa354);box-shadow:0 3px 10px rgba(75,79,216,.3)}
+.msh-me .nm{font:700 16px var(--sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msh-me .em{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msh-me>div:not(.msh-av){min-width:0;flex:1}
+.msh-st{flex:none;font:700 11px var(--sans);padding:5px 9px;border-radius:99px;background:rgba(31,163,84,.15);color:#178a45}.msh-st.off{background:rgba(220,140,30,.16);color:#a7650c}
+:root[data-theme="dark"] .msh-st{color:#7fe0a6}:root[data-theme="dark"] .msh-st.off{color:#ffc670}
+.msh-gt{font:800 11px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:14px 6px 8px}
+.msh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.msh-t{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 4px 10px;border:0;border-radius:18px;background:var(--btn);color:var(--ink);font:600 12px/1.2 var(--sans);text-align:center;box-shadow:inset 0 0 0 1px rgba(30,35,80,.07);transition:transform .12s}
+.msh-t:active{transform:scale(.94)}
+.msh-t i{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-style:normal;font-size:21px;background:var(--c,#e6e8ff)}
+.msh-list{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:var(--btn);box-shadow:inset 0 0 0 1px rgba(30,35,80,.07)}
+.msh-r{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border:0;background:transparent;color:var(--ink);font:600 15px var(--sans);text-align:left}
+.msh-r+.msh-r{border-top:1px solid var(--line)}
+.msh-r i{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:17px;background:var(--c,#e6e8ff)}
+.msh-r::after{content:"›";margin-left:auto;font-size:22px;color:var(--muted)}
+.msh-r.mdg{color:#c4312b}
+:root[data-theme="dark"] .msh-t i,:root[data-theme="dark"] .msh-r i{filter:saturate(.8) brightness(.75)}
+.msh-ft{text-align:center;font-size:12px;color:var(--muted);margin:14px 4px 2px;line-height:1.5}
+@media (max-width:380px){.msh-grid{grid-template-columns:repeat(3,1fr)}}
+/* inside the Android app */
+html.inapp #toolbar{padding-top:8px}
 /* ---------- modern diary polish ---------- */
 :root{--rl:-54px;--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
   --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
@@ -688,7 +720,7 @@ body{background:var(--desk)}
     <button class="tb" id="bEraser" type="button" aria-label="Eraser" title="Eraser"><span class="e">🧽</span><span class="lbl">Eraser</span></button>
     <button class="tb" id="bSearch" type="button" aria-label="Search" title="Search"><span class="e">🔍</span><span class="lbl">Search</span></button>
     <button class="tb" id="bSummary" type="button" aria-label="Summary of jobs" title="Summary of jobs"><span class="e">📊</span><span class="lbl">Summary</span></button>
-    <button class="tb" id="bMore" type="button" aria-label="Backup, export and settings" title="Backup, export and settings"><span class="e">⋯</span></button>
+    <button class="tb" id="bMore" type="button" aria-label="Menu: backup, export and settings" title="Menu"><svg class="dots" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="19" cy="12" r="2.1"/></svg></button>
   </div>
   <div id="fmtbar" class="off" role="toolbar" aria-label="Text style">
     <select id="fmFont" class="fsel" aria-label="Font"><option value="">Font: default</option><option value="serif">Serif</option><option value="sans">Clean sans</option><option value="hand">Handwriting style</option><option value="mono">Typewriter</option></select>
@@ -2119,6 +2151,7 @@ async function shareICS(b, p) {
   toast('Calendar file saved. Open it to add the event with an alarm.');
 }
 async function askNotify() {
+  if (window.OwhNative && OwhNative.askNotify) { OwhNative.askNotify(); S.notify = true; saveSettings(); toast('Reminders will ring on this phone, even when My Diary is closed.'); syncNativeRem(true); return; }
   if (!('Notification' in window)) { toast('This browser cannot show notifications. Use Add to Calendar instead.'); return; }
   try {
     const r = await Notification.requestPermission();
@@ -2156,6 +2189,17 @@ function checkReminders() {
   }));
 }
 setInterval(checkReminders, 20000);
+/* Android app: hand all future reminders to the phone so they ring even when the app is closed */
+let natRemSig = '';
+function syncNativeRem(force) {
+  if (!(window.OwhNative && OwhNative.setReminders)) return;
+  const now = Date.now(), L = [];
+  pages.forEach(p => p.blocks.forEach(b => { if (b.type === 'task' && b.rem && !b.done && b.rem > now) L.push({ id: b.id, at: b.rem, text: (b.text || 'Task').slice(0, 120) }); }));
+  L.sort((x, y) => x.at - y.at); const out = L.slice(0, 60), sig = JSON.stringify(out);
+  if (!force && sig === natRemSig) return; natRemSig = sig;
+  try { OwhNative.setReminders(sig); } catch (_) {}
+}
+setInterval(syncNativeRem, 15000); setTimeout(() => syncNativeRem(true), 4000);
 
 /* ---- drag to reorder ---- */
 let drag = null;
@@ -3775,6 +3819,7 @@ function whatsappSummary() {
 }
 async function shareSummary() {
   const m = buildSummary();
+  if (window.OwhNative && OwhNative.shareText) { OwhNative.shareText('My Diary · ' + m.title, waText(m)); return; }
   if (navigator.share) {
     try { await navigator.share({ title: 'My Diary · ' + m.title, text: waText(m) }); return; }
     catch (e) { if (e.name === 'AbortError') return; }
@@ -4013,6 +4058,13 @@ $('#chips').addEventListener('click', e => {
    Modal, toast, dialogs
    ===================================================================== */
 const modal = $('#modal');
+/* Android back button: close the open sheet or view first; returns true when something was closed */
+window.owhBack = function () {
+  if (!modal.hidden) { closeModal(); return true; }
+  if (document.body.classList.contains('sumview')) { const b = document.getElementById('sBack'); if (b) { b.click(); return true; } }
+  if (document.body.classList.contains('edit') && document.activeElement && document.activeElement.blur) { document.activeElement.blur(); return true; }
+  return false;
+};
 let modalOnClose = null;
 function openModal(html) {
   modal.innerHTML = `<div class="scrim" data-close="1"></div><div class="panel" role="dialog" aria-modal="true">${html}</div>`;
@@ -4020,7 +4072,7 @@ function openModal(html) {
 }
 function closeModal() {
   if (modal.hidden) return;
-  modal.hidden = true; modal.innerHTML = '';
+  modal.hidden = true; modal.innerHTML = ''; modal.classList.remove('bs');
   const f = modalOnClose; modalOnClose = null;
   if (f) f();
 }
@@ -4106,6 +4158,11 @@ function openSearch() {
    Backup / import
    ===================================================================== */
 function download(blob, name) {
+  if (window.OwhNative && OwhNative.saveFile) {   /* Android app: save into Downloads */
+    const r = new FileReader();
+    r.onload = () => { try { OwhNative.saveFile(name, blob.type || 'application/octet-stream', String(r.result).split(',')[1] || ''); } catch (_) { toast('Could not save the file.'); } };
+    r.readAsDataURL(blob); return;
+  }
   const a = document.createElement('a'), url = URL.createObjectURL(blob);
   a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
@@ -4479,23 +4536,30 @@ function exportPDF() {
    ===================================================================== */
 function openMore() {
   begin();
-  const dark = themeName() === 'dark';
-  openModal(`<h2>My Diary</h2>
-    <button class="mi" type="button" data-do="bk"><span>💾</span>Save &amp; backup</button>
-    <button class="mi" type="button" data-do="inst"><span>📲</span>Add to Home Screen</button>
-    <button class="mi" type="button" data-do="exp"><span>📤</span>Export Backup</button>
-    <button class="mi" type="button" data-do="imp"><span>📥</span>Import Backup</button>
-    <button class="mi" type="button" data-do="pdf"><span>📄</span>Export page as PDF</button>
-    <button class="mi" type="button" data-do="png"><span>🖼️</span>Export page as PNG</button>
-    <button class="mi" type="button" data-do="ink"><span>✍️</span>Export handwriting only (PNG)</button>
-    <button class="mi" type="button" data-do="theme"><span>${dark ? '☀️' : '🌙'}</span>${dark ? 'Light mode' : 'Dark mode'}</button>
-    <button class="mi" type="button" data-do="owhupd"><span>↻</span>Get latest version</button>
-    <button class="mi" type="button" data-do="contact"><span>✉️</span>Contact us / Feature request</button>
-    <button class="mi" type="button" data-do="out"><span>🚪</span>Sign out (${esc((window.OWH && OWH.name) || 'account')})</button>
-    ${window.OWH && OWH.cloud ? '<button class="mi danger" type="button" data-do="delacc"><span>⚠️</span>Delete my account</button>' : ''}
-    <button class="mi danger" type="button" data-do="del"><span>🗑️</span>Delete this page</button>
-    <p class="hint">Tip: on iPad, Text mode also turns Apple Pencil writing into typed text through Scribble (Settings › Apple Pencil).</p>
-    <p class="hint">${(window.OWH && OWH.cloud) ? 'Signed in. Your diary syncs to your account and also works offline.' : 'Test mode: saved on this device only. Sync switches on when the site is connected to Firebase.'}</p>`);
+  const dark = themeName() === 'dark', app = !!window.OwhNative, nm = (window.OWH && OWH.name) || 'My Diary', em = (window.OWH && OWH.email) || '';
+  const T = (k, ic, l, c) => `<button class="msh-t" type="button" data-do="${k}"><i style="--c:${c}">${ic}</i>${l}</button>`;
+  const R = (k, ic, l, c, dg) => `<button class="msh-r${dg ? ' mdg' : ''}" type="button" data-do="${k}"><i style="--c:${c}">${ic}</i>${l}</button>`;
+  openModal(`<div class="msh-grab"></div>
+    <div class="msh-me"><div class="msh-av">${esc((nm.trim()[0] || 'D').toUpperCase())}</div><div><div class="nm">${esc(nm)}</div><div class="em">${esc(em || 'Signed in')}</div></div><span class="msh-st${window.OWH && OWH.cloud ? '' : ' off'}">${window.OWH && OWH.cloud ? '☁️ Synced' : 'This device'}</span></div>
+    <div class="msh-gt">Quick Actions</div>
+    <div class="msh-grid">
+      ${T('bk', '💾', 'Backup', '#dff3e6')}${T('exp', '📤', 'Export', '#e3ecff')}${T('imp', '📥', 'Import', '#fff0d9')}${T('theme', dark ? '☀️' : '🌙', dark ? 'Light' : 'Dark', '#ece4ff')}
+      ${T('pdf', '📄', 'Page PDF', '#ffe3e3')}${T('png', '🖼️', 'Page PNG', '#dff4f7')}${T('ink', '✍️', 'Handwriting', '#fde7f3')}${T('owhupd', '🔄', 'Update', '#e9f6d8')}
+    </div>
+    <div class="msh-gt">App</div>
+    <div class="msh-list">
+      ${app ? R('share', '📣', 'Share My Diary', '#e3ecff') : R('inst', '📲', 'Add to Home Screen', '#e3ecff')}
+      ${R('contact', '✉️', 'Contact Us / Feature Request', '#fff0d9')}
+      ${R('privacy', '🔒', 'Privacy Policy', '#e6f5ea')}
+    </div>
+    <div class="msh-gt">Account</div>
+    <div class="msh-list">
+      ${R('out', '🚪', 'Sign Out', '#ece4ff')}
+      ${R('del', '🗑️', 'Delete This Page', '#ffe3e3', 1)}
+      ${window.OWH && OWH.cloud ? R('delacc', '⚠️', 'Delete My Account', '#ffe3e3', 1) : ''}
+    </div>
+    <p class="msh-ft">${(window.OWH && OWH.cloud) ? 'Your diary syncs to your account and also works offline.' : 'Saved on this device only.'}<br>Tip: on iPad, Text mode turns Apple Pencil writing into typed text (Scribble).</p>`);
+  modal.classList.add('bs');
   $('.panel', modal).addEventListener('click', async e => {
     const b = e.target.closest('[data-do]'); if (!b) return;
     const a = b.dataset.do;
@@ -4507,7 +4571,9 @@ function openMore() {
     else if (a === 'pdf') exportPDF();
     else if (a === 'png') exportPNG(false);
     else if (a === 'ink') exportPNG(true);
-    else if (a === 'owhupd') { if (window.OWHUPD) OWHUPD.run(); }
+    else if (a === 'owhupd') { if (window.OWHUPD) OWHUPD.run(); else location.reload(); }
+    else if (a === 'share') { if (window.OwhNative && OwhNative.shareText) OwhNative.shareText('My Diary', 'My Diary: a paper-style diary with tasks, sub-tasks, handwriting and reminders. https://ourworldhive.com/diary-app.html'); }
+    else if (a === 'privacy') window.open('https://ourworldhive.com/privacy.html', '_blank');
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
     else if (a === 'out') { if (window.OWH) OWH.signOut(); }
     else if (a === 'delacc') { (function(){var f=function(){OWHACC.open({
@@ -4541,6 +4607,7 @@ function applyTheme() {
   const t = S.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.dataset.theme = t;
   $('#themeColor').setAttribute('content', t === 'dark' ? '#0d0f17' : '#dfe2ee');
+  try { if (window.OwhNative && OwhNative.setBars) OwhNative.setBars(t === 'dark'); } catch (_) {}
   updateToolbar();
   if (cur) { redrawInk(); elMap.forEach((el, id) => { const b = getBlock(id); if (b) syncBlockEl(el, b); }); updateFmt(); }
 }
@@ -4671,7 +4738,7 @@ function Fire(cfg){
   return {
     mode:'firebase', db:db,
     onAuth:function(f){ auth.onAuthStateChanged(function(){ f(cur()); }); },
-    signInGoogle:function(){ return auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()); },
+    signInGoogle:function(){ if(window.OwhNative&&OwhNative.googleToken) return nativeToken().then(function(t){ return auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(null,t)); }); return auth.signInWithPopup((function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p})()); },
     signInEmail:function(e,p){ return auth.signInWithEmailAndPassword(e,p); },
     register:function(e,p,n){ return auth.createUserWithEmailAndPassword(e,p).then(function(c){ return c.user.updateProfile({displayName:n||String(e).split('@')[0]}); }); },
     signOut:function(){ return auth.signOut(); }
@@ -4890,6 +4957,11 @@ function Cloud(db,uid){
   return self;
 }
 
+/* ---------- Android app: Google sign-in through the phone's own Google account ---------- */
+var NTOK={};
+window.owhToken=function(req,tok,email,err){ var p=NTOK[req]; if(!p) return; delete NTOK[req]; if(tok) p.res(tok); else p.rej(new Error(err||'Google sign-in was cancelled')); };
+function nativeToken(){ return new Promise(function(res,rej){ var id='r'+Date.now()+Math.random().toString(36).slice(2,7); NTOK[id]={res:res,rej:rej}; OwhNative.googleToken(id,'login',''); setTimeout(function(){ if(NTOK[id]){ delete NTOK[id]; rej(new Error('Google did not answer. Try again.')); } },180000); }); }
+if(window.OwhNative) document.documentElement.classList.add('inapp');
 /* ---------- sign-in screen ---------- */
 var reg=false;
 function friendly(e){

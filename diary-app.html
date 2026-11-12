@@ -10,6 +10,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#dfe2ee" id="themeColor">
+<script>/* open in the last chosen theme straight away (no white flash) */
+try{var t0=localStorage.getItem('owh_diary_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t0);if(t0==='dark'){document.documentElement.style.background='#0f1114';document.querySelector('#themeColor').setAttribute('content','#0d0f17')}}catch(e){}</script>
 <title>My Diary | Ourworldhive</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="icon" type="image/png" href="/favicon-48.png" sizes="48x48"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%93%3C/text%3E%3C/svg%3E">
@@ -568,6 +570,52 @@ body.inkon .tgl{pointer-events:none}
 @media (max-width:380px){.msh-grid{grid-template-columns:repeat(3,1fr)}}
 /* inside the Android app */
 html.inapp #toolbar{padding-top:8px}
+/* ---------- sheets opened from the ⋯ menu ---------- */
+.shd{display:flex;align-items:center;gap:14px;margin:0 2px 16px}
+.shd .ic{flex:none;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;font-size:26px;background:var(--c,#e3ecff);box-shadow:inset 0 0 0 1px rgba(30,35,80,.06)}
+.shd h2{margin:0!important;font:700 21px/1.2 var(--sans)!important;color:var(--ink)}
+.shd p{margin:3px 0 0;font-size:13.5px;color:var(--muted);line-height:1.4}
+.scard{background:var(--btn);border-radius:20px;padding:14px;box-shadow:inset 0 0 0 1px rgba(30,35,80,.07);margin-bottom:12px}
+.scard>b{display:block;font:800 11px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.scard .msg{margin:0 0 10px;font-size:14px;line-height:1.5;color:var(--ink)}
+.scard .hint{margin:8px 0 0}
+.srow2{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px 4px;border:0;background:transparent;color:var(--ink);text-align:left;font:inherit}
+.srow2+.srow2{border-top:1px solid var(--line)}
+.srow2 i{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-style:normal;font-size:19px;background:var(--c,#e3ecff)}
+.srow2 span{flex:1;min-width:0;display:flex;flex-direction:column}.srow2 span b{font:650 15px var(--sans)}.srow2 span small{font-size:12.5px;color:var(--muted);margin-top:1px;line-height:1.35}
+.srow2::after{content:"›";font-size:22px;color:var(--muted)}
+.srow2.pri i{background:linear-gradient(135deg,#6a6ff0,#4b4fd8);color:#fff}
+.swrow{display:flex;align-items:center;gap:12px}.swrow>div{flex:1;min-width:0}.swrow b{font:650 15px var(--sans)}.swrow small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.sw{flex:none;position:relative;width:52px;height:30px;border-radius:99px;border:0;background:var(--line);transition:background .2s;padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.sw[aria-pressed="true"]{background:linear-gradient(135deg,#34c26b,#1fa354)}.sw[aria-pressed="true"]::after{transform:translateX(22px)}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:0;border-radius:16px;font:700 15.5px var(--sans);background:var(--btn);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(30,35,80,.12)}
+.sbtn.pri{background:linear-gradient(135deg,#6a6ff0,#4b4fd8);color:#fff;box-shadow:0 4px 14px rgba(75,79,216,.35)}
+.sbtn.red{background:linear-gradient(135deg,#ef5350,#c62828);color:#fff;box-shadow:0 4px 14px rgba(198,40,40,.3)}
+.sbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}.sbtns.one{grid-template-columns:1fr}
+.stp{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.stp li{display:flex;align-items:center;gap:12px;font-size:14.5px;line-height:1.4;counter-increment:s}
+.stp li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 13px var(--sans);color:#fff;background:linear-gradient(135deg,#6a6ff0,#4b4fd8)}
+.cfm{text-align:center;padding:6px 4px 2px}
+.cfm .ci{width:68px;height:68px;margin:2px auto 12px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:var(--c,#e3ecff);box-shadow:0 0 0 8px color-mix(in srgb,var(--c,#e3ecff) 45%,transparent)}
+.cfm h2{margin:0 0 6px!important;font:700 21px var(--sans)!important}
+.cfm p{margin:0 0 18px;color:var(--muted);font-size:14.5px;line-height:1.5}
+:root[data-theme="dark"] .shd .ic,:root[data-theme="dark"] .srow2:not(.pri) i,:root[data-theme="dark"] .cfm .ci{filter:saturate(.8) brightness(.72)}
+/* Contact us and Delete account (shared forms) in the diary's look */
+#owhcnt,#owhacc{background:rgba(15,18,35,.5)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:flex-end!important;padding:0!important;font-family:var(--sans)!important}
+#owhcnt>div,#owhacc>div{background:var(--paper)!important;color:var(--ink)!important;border-radius:28px 28px 0 0!important;max-width:560px!important;padding:22px 18px calc(20px + env(safe-area-inset-bottom))!important;animation:shUp .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+@media (min-width:700px){#owhcnt,#owhacc{align-items:center!important;padding:12px!important}#owhcnt>div,#owhacc>div{border-radius:28px!important}}
+#owhcnt h2,#owhacc h2{font:700 21px var(--sans)!important;margin:0 0 6px!important;text-transform:none}
+#owhcnt h2::before{content:"✉️";display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#fff0d9;margin-right:12px;vertical-align:middle;font-size:22px}
+#owhacc h2::before{content:"⚠️";display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#ffe3e3;margin-right:12px;vertical-align:middle;font-size:22px}
+#owhcnt>div>div,#owhacc>div>div{color:var(--muted)!important}
+#owhcnt label{color:var(--ink)!important}
+#owhcnt input,#owhcnt select,#owhcnt textarea,#owhacc input{border:1px solid var(--line)!important;border-radius:14px!important;padding:12px 14px!important;background:var(--btn)!important;color:var(--ink)!important}
+#owhcnt button,#owhacc button{min-height:50px;border-radius:16px!important;font:700 15px var(--sans)!important;text-transform:none}
+#owhcntn,#owhaccno{background:var(--btn)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+#owhcntg,#owhcntx,#owhcntx2{background:linear-gradient(135deg,#6a6ff0,#4b4fd8)!important;color:#fff!important;border:0!important}
+#owhaccgo{background:linear-gradient(135deg,#ef5350,#c62828)!important}
+#owhaccerr,#owhcnte{color:#e5484d!important}
 /* ---------- modern diary polish ---------- */
 :root{--rl:-54px;--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
   --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
@@ -4077,9 +4125,13 @@ function closeModal() {
   if (f) f();
 }
 modal.addEventListener('click', e => { if (e.target.dataset && e.target.dataset.close) closeModal(); });
-function confirmDlg(title, msg, okLabel, danger) {
+/* sheet helpers: same look for everything opened from the ⋯ menu */
+function openSheet(html) { openModal('<div class="msh-grab"></div>' + html); modal.classList.add('bs'); }
+const sheetHead = (ic, c, t, sub) => `<div class="shd"><div class="ic" style="--c:${c}">${ic}</div><div><h2>${t}</h2>${sub ? `<p>${sub}</p>` : ''}</div></div>`;
+function confirmDlg(title, msg, okLabel, danger, icon) {
   return new Promise(res => {
-    openModal(`<h2>${esc(title)}</h2><p class="msg">${esc(msg)}</p><div class="btns"><button class="btn" type="button" data-r="0">Cancel</button><button class="btn ${danger ? 'danger' : 'primary'}" type="button" data-r="1">${esc(okLabel)}</button></div>`);
+    openSheet(`<div class="cfm"><div class="ci" style="--c:${danger ? '#ffe3e3' : '#e3ecff'}">${icon || (danger ? '🗑️' : '✨')}</div><h2>${esc(title)}</h2><p>${esc(msg)}</p>
+      <div class="sbtns btns"><button class="sbtn" type="button" data-r="0">Cancel</button><button class="sbtn ${danger ? 'red' : 'pri'}" type="button" data-r="1">${esc(okLabel)}</button></div></div>`);
     modalOnClose = () => res(false);
     $('.btns', modal).addEventListener('click', e => {
       const b = e.target.closest('[data-r]'); if (!b) return;
@@ -4313,23 +4365,22 @@ async function bkLink(mode) {
 }
 function openBackup() {
   begin();
-  const common = `<div class="btns"><button class="btn" type="button" data-bk="exp">📤 Save backup to Files / Drive</button><button class="btn" type="button" data-bk="imp">📥 Restore from a backup file</button></div>`;
+  const app = !!window.OwhNative;
+  const row = (k, ic, c, t, sub, pri) => `<button class="srow2${pri ? ' pri' : ''}" type="button" data-bk="${k}"><i style="--c:${c}">${ic}</i><span><b>${t}</b><small>${sub}</small></span></button>`;
+  const common = row('exp', '📤', '#e3ecff', app ? 'Save backup to Downloads' : 'Save backup to Files / Drive', app ? 'A copy of every page, saved in Downloads › My Diary' : 'Keep a copy on iCloud, Google Drive or this device') + row('imp', '📥', '#fff0d9', 'Restore from a backup file', 'Bring back pages from a backup you saved');
   const loc = !FSA
-    ? `<p class="msg">This browser cannot save to a chosen folder automatically. Use the buttons below: pick any place (On my iPad, iCloud, Google Drive) when the share sheet opens, and use Restore to load it again.</p>${common}`
+    ? `<p class="msg">${app ? 'Your diary syncs to your account. Keep an extra copy now and then.' : 'Pick any place (iCloud, Google Drive, this device) when the share sheet opens. Use Restore to load it again.'}</p>${common}`
     : bkHandle
-      ? `<p class="msg">Linked file: <b>${esc(bkHandle.name)}</b> · ${bkState === 'ok' ? 'connected' : 'needs permission'} · last backup ${fmtAgo(S.lastBackup)}</p>
-         <div class="btns"><span class="seg"><button type="button" data-bk="ab1" aria-pressed="${S.autoBackup}">Auto-backup on</button><button type="button" data-bk="ab0" aria-pressed="${!S.autoBackup}">Off</button></span>
-         ${bkState !== 'ok' ? '<button class="btn primary" type="button" data-bk="recon">🔄 Reconnect</button>' : ''}<button class="btn" type="button" data-bk="restore">⬇️ Load from this file</button><button class="btn" type="button" data-bk="unlink">Unlink</button></div>
-         <p class="hint">The diary is written to this file after every change and loaded from it when you open the app. Put the file in a Google Drive, OneDrive or Dropbox folder to use it on other devices.</p>`
-      : `<p class="msg">Pick a file once (for example inside a Google Drive, OneDrive or Dropbox folder). The diary is saved there automatically and loaded from it whenever you open the app.</p>
-         <div class="btns"><button class="btn primary" type="button" data-bk="new">📄 Create backup file</button><button class="btn" type="button" data-bk="existing">🔗 Use existing backup file</button></div>
-         <p class="hint" style="margin-top:12px">Other options:</p>${common}`;
-  openModal(`<h2>Save &amp; backup</h2>
-    <div class="set"><b>Auto-save on this device</b>
-      <p class="msg">${S.autoSave ? 'Every change is saved automatically.' : 'Off: changes are saved only when you tap Save now.'}</p>
-      <div class="btns"><span class="seg"><button type="button" data-bk="as1" aria-pressed="${S.autoSave}">On</button><button type="button" data-bk="as0" aria-pressed="${!S.autoSave}">Off</button></span><button class="btn" type="button" data-bk="now">💾 Save now</button></div>
-      <p class="hint">Last saved: ${lastSaved ? clock(lastSaved) : 'not yet in this session'}</p></div>
-    <div class="set"><b>Backup location</b>${loc}</div>`);
+      ? `<p class="msg">Linked file: <b>${esc(bkHandle.name)}</b> · ${bkState === 'ok' ? '✅ connected' : '⚠️ needs permission'} · last backup ${fmtAgo(S.lastBackup)}</p>
+         <div class="swrow" style="margin-bottom:6px"><div><b>Auto-backup</b><small>Write to this file after every change</small></div><button class="sw" type="button" data-bk="${S.autoBackup ? 'ab0' : 'ab1'}" aria-pressed="${S.autoBackup}" aria-label="Auto-backup"></button></div>
+         ${bkState !== 'ok' ? row('recon', '🔄', '#e9f6d8', 'Reconnect', 'Give permission to the linked file again', 1) : ''}${row('restore', '⬇️', '#dff4f7', 'Load from this file', 'Replace what is here with the file')}${row('unlink', '⛓️‍💥', '#ffe3e3', 'Unlink file', 'Stop writing to this file')}`
+      : `<p class="msg">Pick a file once (for example inside a Google Drive, OneDrive or Dropbox folder). The diary is saved there automatically.</p>
+         ${row('new', '📄', '#e3ecff', 'Create backup file', 'Choose where the new file goes', 1)}${row('existing', '🔗', '#ece4ff', 'Use existing backup file', 'Link a file you made before')}${common}`;
+  openSheet(sheetHead('💾', '#dff3e6', 'Save &amp; Backup', 'Your pages are safe on this device' + (window.OWH && OWH.cloud ? ' and in your account.' : '.')) + `
+    <div class="scard"><b>Auto-save</b>
+      <div class="swrow"><div><b>Save every change</b><small>${S.autoSave ? 'On · last saved ' + (lastSaved ? clock(lastSaved) : 'not yet in this session') : 'Off · changes are saved only when you tap Save now'}</small></div><button class="sw" type="button" data-bk="${S.autoSave ? 'as0' : 'as1'}" aria-pressed="${S.autoSave}" aria-label="Auto-save"></button></div>
+      ${S.autoSave ? '' : '<button class="sbtn pri" type="button" data-bk="now" style="margin-top:12px">💾 Save now</button>'}</div>
+    <div class="scard"><b>Backup</b>${loc}</div>`);
   $('.panel', modal).addEventListener('click', async e => {
     const b = e.target.closest('[data-bk]'); if (!b) return;
     const a = b.dataset.bk;
@@ -4368,10 +4419,10 @@ function openInstall() {
   if (standalone) { toast('My Diary is already installed.'); return; }
   if (deferredPrompt) { const d = deferredPrompt; deferredPrompt = null; d.prompt(); return; }
   const file = location.protocol === 'file:';
-  openModal(`<h2>Add to Home Screen</h2>${file ? '<p class="msg">This copy is opened from a file. To install it, first put it online (free hosting steps are in the setup guide), then open that link.</p>' : ''}
-    <p class="msg"><b>iPad / iPhone (Safari):</b></p><ol class="steps"><li>Tap the Share button.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li></ol>
-    <p class="msg"><b>Android (Chrome):</b></p><ol class="steps"><li>Tap the ⋮ menu.</li><li>Choose <b>Install app</b> or <b>Add to Home screen</b>.</li></ol>
-    <div class="btns"><button class="btn primary" type="button" data-close="1">Got it</button></div>`);
+  openSheet(sheetHead('📲', '#e3ecff', 'Add to Home Screen', 'Open My Diary like an app, straight from your home screen.') + (file ? '<div class="scard"><p class="msg">This copy is opened from a file. Put it online first, then open that link.</p></div>' : '') + `
+    <div class="scard"><b>iPad / iPhone · Safari</b><ol class="stp"><li><span>Tap the Share button.</span></li><li><span>Choose <b>Add to Home Screen</b>.</span></li><li><span>Tap <b>Add</b>.</span></li></ol></div>
+    <div class="scard"><b>Android · Chrome</b><ol class="stp"><li><span>Tap the ⋮ menu.</span></li><li><span>Choose <b>Install app</b> or <b>Add to Home screen</b>.</span></li></ol></div>
+    <div class="sbtns one"><button class="sbtn pri" type="button" data-close="1">Got It</button></div>`);
 }
 
 /* =====================================================================
@@ -4571,11 +4622,18 @@ function openMore() {
     else if (a === 'pdf') exportPDF();
     else if (a === 'png') exportPNG(false);
     else if (a === 'ink') exportPNG(true);
-    else if (a === 'owhupd') { if (window.OWHUPD) OWHUPD.run(); else location.reload(); }
+    else if (a === 'owhupd') {
+      if (!(await confirmDlg('Get the latest version?', 'My Diary reloads with the newest design and fixes. Your pages stay safe.', 'Update Now', false, '🔄'))) return;
+      toast('Updating…'); begin(); try { await saveNow(); } catch (_) {}
+      const j = [];
+      try { if (navigator.serviceWorker) j.push(navigator.serviceWorker.getRegistrations().then(r => Promise.all(r.map(x => x.unregister())))); } catch (_) {}
+      try { if (window.caches) j.push(caches.keys().then(k => Promise.all(k.map(c => caches.delete(c))))); } catch (_) {}
+      Promise.all(j).catch(() => {}).then(() => { const u = new URL(location.href); u.searchParams.set('_u', String(Date.now())); location.replace(u.toString()); });
+    }
     else if (a === 'share') { if (window.OwhNative && OwhNative.shareText) OwhNative.shareText('My Diary', 'My Diary: a paper-style diary with tasks, sub-tasks, handwriting and reminders. https://ourworldhive.com/diary-app.html'); }
     else if (a === 'privacy') window.open('https://ourworldhive.com/privacy.html', '_blank');
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
-    else if (a === 'out') { if (window.OWH) OWH.signOut(); }
+    else if (a === 'out') { if (await confirmDlg('Sign out?', 'Your pages stay saved in your account. Sign in again any time to see them.', 'Sign Out', false, '🚪') && window.OWH) OWH.signOut(); }
     else if (a === 'delacc') { (function(){var f=function(){OWHACC.open({
       removes:'your sign-in and <b>every diary page</b>, note, task, handwriting, repeating job and template saved to your account, plus your full-version record.',
       keep:'nothing in the cloud. Export a backup first (More, Export Backup) if you want to keep your pages.',
@@ -4590,7 +4648,7 @@ function openMore() {
     })};if(window.OWHACC)f();else{var s=document.createElement('script');s.src='owh-account.js';s.onload=f;document.head.appendChild(s)}})(); }
     else if (a === 'theme') { S.theme = dark ? 'light' : 'dark'; saveSettings(); applyTheme(); }
     else if (a === 'del') {
-      if (!(await confirmDlg('Delete this page?', 'Its notes, tasks and handwriting will be removed. This can’t be undone.', 'Delete page', true))) return;
+      if (!(await confirmDlg('Delete this page?', 'Its notes, tasks and handwriting will be removed. This can’t be undone.', 'Delete Page', true))) return;
       const id = cur.id, date = cur.date;
       cur.blocks.forEach(forgetOcc);
       pages.delete(id); dirty.delete(id);
@@ -4605,7 +4663,8 @@ function openMore() {
    ===================================================================== */
 function applyTheme() {
   const t = S.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  document.documentElement.dataset.theme = t;
+  document.documentElement.dataset.theme = t; document.documentElement.style.background = '';
+  try { localStorage.setItem('owh_diary_theme', t); } catch (_) {}
   $('#themeColor').setAttribute('content', t === 'dark' ? '#0d0f17' : '#dfe2ee');
   try { if (window.OwhNative && OwhNative.setBars) OwhNative.setBars(t === 'dark'); } catch (_) {}
   updateToolbar();

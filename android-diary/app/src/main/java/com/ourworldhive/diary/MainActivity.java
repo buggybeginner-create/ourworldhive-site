@@ -65,7 +65,8 @@ public class MainActivity extends Activity {
         web = new WebView(this);
         root.addView(web, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(root);
-        darkBars = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        boolean sysDark = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        darkBars = RemindReceiver.sp(this).getBoolean("dark", sysDark);   /* the theme chosen last time, so the app opens in it straight away */
         applyBars();
         /* keep the page clear of the status bar, navigation bar and keyboard */
         root.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -99,6 +100,8 @@ public class MainActivity extends Activity {
     private void applyBars() {
         int bg = darkBars ? Color.rgb(18, 20, 29) : Color.rgb(241, 242, 250);
         root.setBackgroundColor(bg);
+        if (web != null) web.setBackgroundColor(darkBars ? Color.rgb(15, 17, 20) : Color.rgb(201, 208, 203));
+        getWindow().getDecorView().setBackgroundColor(bg);
         Window w = getWindow();
         if (Build.VERSION.SDK_INT < 35) { w.setStatusBarColor(bg); w.setNavigationBarColor(bg); }
         if (Build.VERSION.SDK_INT >= 30) {
@@ -284,7 +287,7 @@ public class MainActivity extends Activity {
             RemindReceiver.setAll(MainActivity.this, json);
             if (json != null && json.length() > 4 && Build.VERSION.SDK_INT >= 33) askNotify();
         }
-        @JavascriptInterface public void setBars(final boolean dark) { ui.post(new Runnable() { public void run() { darkBars = dark; applyBars(); } }); }
+        @JavascriptInterface public void setBars(final boolean dark) { ui.post(new Runnable() { public void run() { darkBars = dark; RemindReceiver.sp(MainActivity.this).edit().putBoolean("dark", dark).apply(); applyBars(); } }); }
     }
 
     @Override protected void onSaveInstanceState(Bundle out) { super.onSaveInstanceState(out); if (web != null) web.saveState(out); }

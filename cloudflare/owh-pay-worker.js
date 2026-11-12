@@ -7,6 +7,7 @@
 //                  (Firestore pp_config/pricing), so an app can never change what it pays.
 //   POST /webhook  Razorpay tells us a payment is captured. We check the signature, read the order from Razorpay,
 //                  and switch the plan on in Firestore. Each payment is counted once (pay_log/{paymentId}).
+//   (MapMark mm added: 1, 3 and 12 month plans for each signed-in user)
 //   POST /play     an Android app from the Play Store sends a Google Play purchase. We ask Google if it is real and paid,
 //                  check it belongs to this user / plant / project, switch the plan on, and confirm it to Google.
 //                  Product IDs: <tool>_<plan>  (diary_perm, calc_perm, sf_perm, pm_m1, pm_m3, pm_m12, pm_perm, ep_m1, pp_m1 ...)
@@ -14,7 +15,7 @@
 //                  service account invited in Play Console > Users and permissions (View financial data, Manage orders).
 //   GET  /prices   not used, returns {}
 // To add a new app later: add one line in APPS below and one small button in that app.
-const DEF_INR={sf:{perm:1999},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:499},calc:{perm:99}};
+const DEF_INR={sf:{perm:1999},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:499},calc:{perm:99},mm:{m1:49,m3:129,m12:399}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
 const APPS={
   calc:{kind:'user',col:'cp_users',label:'CalcPad Full Version',once:true},
@@ -22,7 +23,8 @@ const APPS={
   sf:{kind:'plant',col:'sf_companies',label:'Safety Observation Full Version',once:true},
   ep:{kind:'plant',col:'ep_plants',label:'E-Permit',days:{m1:30,m3:90,m12:360}},
   pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
-  pp:{kind:'project',col:'pp_projects',label:'Project Planner'}
+  pp:{kind:'project',col:'pp_projects',label:'Project Planner'},
+  mm:{kind:'user',col:'mm_users',label:'MapMark',days:{m1:30,m3:90,m12:365},noPerm:true}
 };
 const PLAN_NAME={m1:'1 month',m3:'3 months',m12:'12 months',perm:'Permanent access'};
 const PP_DAYS={m1:30,m3:90,m12:365};
@@ -99,6 +101,11 @@ async function activate(env,at,A,n,payId){
     if(cur.expiresMs>=n.until)return true;
     return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:n.until,payNote:note})).ok;
   }
+  if(A.kind==='user'){ // per-user plans (MapMark): days are added after the current end date
+    const d=A.days&&A.days[n.plan];if(!d)return false;
+    const base=(!(cur.expiresMs>now))?now:cur.expiresMs;
+    return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:base+d*864e5,payNote:note})).ok;
+  }
   if(A.kind==='plant'){
     const base=(!(cur.expiresMs>now))?now:cur.expiresMs;
     if(A.days){const d=A.days[n.plan];if(!d)return false;return (await fsPatch(env,at,path,{plan:'monthly',expiresMs:base+d*864e5})).ok}
@@ -131,7 +138,7 @@ export default{async fetch(req,env){
   if(url.pathname.endsWith('/play')){
     let b;try{b=await req.json()}catch(e){return J({ok:false,err:'bad request'},400)}
     const A=APPS[b.tool];if(!A)return J({ok:false,err:'unknown app'},400);
-    const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan])return J({ok:false,err:'unknown plan'},400);
+    const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan]||(A.noPerm&&plan==='perm'))return J({ok:false,err:'unknown plan'},400);
     const pkg=String(b.pkg||'');if(!/^com\.ourworldhive\.[a-z0-9_]+$/.test(pkg))return J({ok:false,err:'unknown app package'},400);
     const productId=b.tool+'_'+plan,token=String(b.token||'');if(!token||token.length>4000)return J({ok:false,err:'no purchase'},400);
     const subs=!!(PM_MONTHS[plan]&&b.type==='subs');
@@ -174,7 +181,7 @@ export default{async fetch(req,env){
     // PM Tracker sends {plant,plan,currency}; Project Planner sends {tool:'pp',pid,plan}; CalcPad and Diary send {tool,idToken}
     const tool=b.tool||(b.plant?'pm':'');const A=APPS[tool];if(!A)return J({error:'unknown app'},400);
     if(b.currency&&b.currency!=='INR')return J({error:'online payment is for India (INR) only'},400);
-    const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan])return J({error:'unknown plan'},400);
+    const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan]||(A.noPerm&&plan==='perm'))return J({error:'unknown plan'},400);
     const at=await saToken(env);if(!at)return J({error:'server auth'},500);
     let target='',email='';
     if(A.kind==='user'){

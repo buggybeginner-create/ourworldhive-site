@@ -1,6 +1,0 @@
-<resources>
-    <style name="Diary" parent="@android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@android:color/white</item>
-        <item name="android:colorAccent">#4B4FD8</item>
-    </style>
-</resources>

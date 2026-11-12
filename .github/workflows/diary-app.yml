@@ -24,7 +24,8 @@ jobs:
       - name: Build the Play Store bundle (.aab)
         if: env.DIARY_KEY_PASS != ''
         working-directory: android-diary
-        run: gradle bundleRelease --no-daemon --stacktrace
+        run: gradle bundleRelease --no-daemon --stacktrace 2>&1 | tee -a ../build-log.txt; test ${PIPESTATUS[0]} -eq 0
+        shell: bash
       - name: Name the files
         run: |
           cp android-diary/app/build/outputs/apk/debug/app-debug.apk My-Diary-test.apk

@@ -250,6 +250,7 @@ button.cb{border-radius:10px}
 .cr{display:flex;gap:6px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
 .cr.hid{opacity:.6}
 .cm{flex:1;min-width:0}
+.carrybar.donebar{margin-top:6px}.carrydone{margin-top:8px}.cr.dn .cb{color:#1b8a48;font-size:20px;line-height:1;padding:2px 4px}.cr.dn .dtx{font:16px/1.35 var(--serif);text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}.cr.dn .cmeta b{color:var(--ink);font-weight:600}
 .cin{width:100%;border:0;border-bottom:1px dashed var(--line);background:transparent;color:var(--ink);font:17px/1.4 var(--serif);padding:2px 0;outline:0;border-radius:0}
 .cin:focus{border-bottom-color:var(--accent)}
 .cmeta{font:13px/1.45 var(--sans);color:var(--muted);margin-top:3px}
@@ -597,7 +598,7 @@ body{background:var(--desk)}
   .dg h3{font-size:14px}.dayh{font-size:16px}
   .dstat .stc{padding:5px 10px;font-size:12px}.dstat .stc b{font-size:16px}
   table.jt td.dsc{font-size:12px}.job{font-size:12px}
-  .cin{font-size:12px}}
+  .cin{font-size:12px}.cr.dn .dtx{font-size:12px}}
 @media print{
   #top,#nav,#chips,#bSpace,#toast,#modal,.acts,#ring,#pad,#sumhead{display:none!important}
   :root[data-theme]{--paper:#fff;--ink:#111;--muted:#555;--line:#ddd;--desk:#fff;--accent:#1f3d91;--btn:#f3f3f3;--shadow:none}
@@ -1606,6 +1607,7 @@ function toggleTask(id) {
   commit();
   clearTimeout(moveTimers[id]);
   moveTimers[id] = setTimeout(() => renderBlocks(true), b.done ? 460 : 240);   // then glide to/from Completed
+  setTimeout(renderCarry, 520);
   if (kidsDone) toast(`${kidsDone} sub-task${kidsDone === 1 ? '' : 's'} completed too.`);
   else if (warn) toast(`Done. Note: it was waiting for "${warn}", which is not done yet.`);
   else if (allKids) toast('All sub-tasks are done.', 'Complete the main task', () => toggleTask(allKids));
@@ -2720,17 +2722,37 @@ function pendingEarlier(ref) {
   out.sort((x, y) => (y.age - x.age) || (pr[x.b.pri || ''] - pr[y.b.pri || '']) || ((x.b.at || 0) - (y.b.at || 0)));   // longest pending first
   return out;
 }
-let carryRepOpen = false;
+let carryRepOpen = false, carryDoneOpen = false;
+/* tasks finished on a given day (any page), with the main task's name for a sub-task */
+function doneOn(date) {
+  const out = [], seen = new Set(), pg = [...pages.values()]; if (cur && !pages.has(cur.id)) pg.push(cur);
+  pg.forEach(p => p.blocks.forEach(b => {
+    if (b.type !== 'task' || !b.done || !b.doneAt || !b.text.trim() || seen.has(b.id)) return;
+    if (isoOf(new Date(b.doneAt)) !== date) return; seen.add(b.id);
+    const par = subMapsCached(p).parentOf.get(b.id); out.push({ p, b, par: par ? par.text.trim() : '' });
+  }));
+  return out.sort((x, y) => y.b.doneAt - x.b.doneAt);
+}
+function doneCard(list, date) {
+  const lab = date === todayISO() ? 'today' : 'this day';
+  const rows = list.map(({ p, b, par }) => `<div class="cr dn" data-p="${p.id}" data-b="${b.id}"><span class="cb" aria-hidden="true">☑</span><div class="cm"><div class="dtx">${esc(b.text.trim())}</div>
+    <div class="cmeta">${par ? '↳ Main task: <b>' + esc(par) + '</b> · ' : ''}done ${esc(clock(b.doneAt))}${p.date !== date ? ' · from ' + esc(dayShort(p.date)) : ''}${b.who ? ' · 👤 ' + esc(b.who) : ''}</div></div>
+    <div class="cact"><button class="ic" type="button" data-c="open" aria-label="Open that day's page" title="Open page">↗</button></div></div>`).join('');
+  return `<div class="carrycard carrydone"><div class="carryhead"><b>✅ Completed ${lab} (${list.length})</b><button class="btn" type="button" data-c="toggledone">${carryDoneOpen ? 'Hide' : 'Show'}</button></div>${carryDoneOpen ? `<div class="carrylist">${rows}</div>` : ''}</div>`;
+}
 function renderCarry() {
   if (!cur || cur.date < todayISO()) { carry.hidden = true; return; }   // shown on Today and on any later day
   const all = pendingEarlier(cur.date);
   const isRep = x => x.b.rid && rules.get(x.b.rid);
   const one = all.filter(x => !isRep(x)), rep = all.filter(isRep);      // repeats are shown apart, once per task
   const vis = one.filter(x => !x.b.hid), hid = one.filter(x => x.b.hid);
-  if (!all.length) { carry.hidden = true; if (cur) applySize(); return; }
+  const dn = doneOn(cur.date), dlab = cur.date === todayISO() ? 'today' : 'this day';
+  if (!all.length && !dn.length) { carry.hidden = true; if (cur) applySize(); return; }
   carry.hidden = false;
-  if (S.carryHidden) {
-    carry.innerHTML = `<div class="carrybar"><span>${vis.length || !rep.length ? `⏳ ${vis.length} pending from earlier${hid.length ? ` (+${hid.length} hidden)` : ''}` : ''}${rep.length ? `${vis.length ? ' · ' : ''}🔁 ${rep.length} missed repeat${rep.length === 1 ? '' : 's'}` : ''}${all.length ? ` · longest ${ageTxt(all[0].age)}` : ''}</span><button class="btn" type="button" data-c="showall">Show</button></div>`;
+  if (S.carryHidden || !all.length) {
+    const dRows = carryDoneOpen && dn.length ? `<div class="carrycard carrydone" style="margin-top:6px"><div class="carrylist">${doneCard(dn, cur.date).split('<div class="carrylist">')[1] || ''}</div>` : '';
+    carry.innerHTML = (all.length ? `<div class="carrybar"><span>${vis.length || !rep.length ? `⏳ ${vis.length} pending from earlier${hid.length ? ` (+${hid.length} hidden)` : ''}` : ''}${rep.length ? `${vis.length ? ' · ' : ''}🔁 ${rep.length} missed repeat${rep.length === 1 ? '' : 's'}` : ''}${all.length ? ` · longest ${ageTxt(all[0].age)}` : ''}</span><button class="btn" type="button" data-c="showall">Show</button></div>` : '')
+      + (dn.length ? `<div class="carrybar donebar"><span>✅ ${dn.length} completed ${dlab}</span><button class="btn" type="button" data-c="toggledone">${carryDoneOpen ? 'Hide' : 'Show'}</button></div>${dRows}` : '');
     applySize(); return;
   }
   const today = cur.date;   // age is counted up to the day being viewed
@@ -2762,7 +2784,7 @@ function renderCarry() {
   const repCard = groups.size ? `<div class="carrycard carryrep"><div class="carryhead"><b>🔁 Missed repeats (${groups.size} task${groups.size === 1 ? '' : 's'}, ${rep.length} date${rep.length === 1 ? '' : 's'})</b>
       <button class="btn" type="button" data-c="togglerep">${carryRepOpen ? 'Hide list' : 'Show list'}</button></div>
       ${carryRepOpen ? [...groups.entries()].map(grow).join('') : '<p class="hint">A repeating task shows on its own due day. Dates you missed are kept here, one line per task, not on every day.</p>'}</div>` : '';
-  carry.innerHTML = oneCard + repCard;
+  carry.innerHTML = oneCard + repCard + (dn.length ? doneCard(dn, cur.date) : '');
   applySize();
 }
 function skipMissed(rid) {
@@ -2781,6 +2803,7 @@ carry.addEventListener('click', e => {
   if (c === 'showall') { S.carryHidden = false; saveSettings(); renderCarry(); return; }
   if (c === 'togglehid') { carryShowHidden = !carryShowHidden; renderCarry(); return; }
   if (c === 'togglerep') { carryRepOpen = !carryRepOpen; renderCarry(); return; }
+  if (c === 'toggledone') { carryDoneOpen = !carryDoneOpen; renderCarry(); return; }
   if (c === 'skipall') { skipMissed(btn.dataset.rid); return; }
   if (!b) return;
   if (c === 'done') { setTaskDone(pid, bid, true); renderCarry(); toast('Marked completed', 'Undo', () => { setTaskDone(pid, bid, false); renderCarry(); }); }

@@ -1622,7 +1622,7 @@ $('shX').addEventListener('click',closeSheet);$('sheetbg').addEventListener('cli
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
 
 /* ================= MODEL SELECT ================= */
-const OTHER=[['ACS550','vfd-acs550-sim.html'],['ACS580',''],['ACS800','vfd-acs800-sim.html']];
+const OTHER=[['ACS550','vfd-acs550-sim.html'],['ACS560','vfd-acs560-sim.html'],['ACS580',''],['ACS800','vfd-acs800-sim.html']];
 function buildDrv(){
   let h=`<optgroup label="ACS880-01 · 380…415 V">`+RAT.map((r,i)=>`<option value="${i}">ACS880-01-${r[0]} · ${r[2]} kW · ${r[1]} A · ${r[3]}</option>`).join('')+`</optgroup>`;
   h+=`<optgroup label="${esc(t('other'))}">`+OTHER.map(o=>o[1]?`<option value="go:${o[1]}">${o[0]} →</option>`:`<option disabled>${o[0]} — ${esc(t('soon'))}</option>`).join('')+`</optgroup>`;

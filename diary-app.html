@@ -526,6 +526,16 @@ body.inkon .tgl{pointer-events:none}
 .sw2.custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .sw2.custom span{font-size:15px;pointer-events:none}
 @media (max-width:640px){.tgl{max-width:84px}}
+@property --dp{syntax:'<number>';inherits:true;initial-value:0}
+.dayprog{display:flex;align-items:center;gap:10px;margin-top:8px;--dp:0;transition:--dp .7s cubic-bezier(.2,.8,.2,1)}
+.dpr{position:relative;flex:none;width:40px;height:40px;border-radius:50%;background:conic-gradient(var(--dc,#1fa354) calc(var(--dp)*1%),var(--line) 0);box-shadow:0 2px 8px rgba(20,30,60,.18)}
+.dpr i{position:absolute;inset:4px;border-radius:50%;background:var(--paper)}
+.dpr b{position:absolute;inset:0;display:grid;place-items:center;font:800 11px/1 var(--sans);color:var(--dc,#1fa354);letter-spacing:-.03em}
+.dpt{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.dpl{font:600 13px var(--sans);color:var(--muted)}
+.dpbar{display:block;height:6px;border-radius:4px;background:var(--line);overflow:hidden;max-width:320px}.dpbar i{display:block;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,#8fa2ff,var(--dc,#1fa354));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.dayprog.full .dpr{animation:pctpop .6s ease-out;box-shadow:0 0 0 3px rgba(31,163,84,.2),0 2px 10px rgba(31,163,84,.4)}.dayprog.full .dpr b{font-size:16px}
+@media (max-width:640px){.dpr{width:34px;height:34px}.dpr b{font-size:10px}.dpl{font-size:11.5px}.dayprog{margin-top:6px}}
+@media print{.dayprog{display:none!important}}
 /* ---------- modern diary polish ---------- */
 :root{--rl:-54px;--desk:#dfe2ee;--paper:#fffdf9;--line:#d9e0f0;--ink:#1d2342;--muted:#7a84a3;--accent:#4b4fd8;--accent-soft:#e9eafc;--margin:#f0a9b6;--btn:rgba(255,255,255,.92);--bar:rgba(246,247,253,.82);
   --shadow:0 2px 4px rgba(30,35,80,.08),0 22px 56px rgba(40,45,110,.2)}
@@ -741,6 +751,7 @@ body{background:var(--desk)}
       <div class="sh-title" data-x="1">📓 My Diary</div>
       <div class="sh-dl" data-x="1">Date:</div>
       <div class="sh-date" id="dateText" data-x="1"></div>
+      <div class="dayprog" id="dayProg" hidden aria-live="polite"><div class="dpr"><i></i><b></b></div><div class="dpt"><span class="dpl"></span><span class="dpbar"><i></i></span></div></div>
     </div>
     <div class="sbody" id="body">
       <div id="blocks"></div>
@@ -1478,6 +1489,7 @@ function renderBlocks(animate = true) {
   });
   autosizeAll();
   if (selId && !live.has(selId)) selId = null;
+  updDayProg();
 
   if (doAnim) {
     elMap.forEach((el, id) => {
@@ -1491,6 +1503,18 @@ function renderBlocks(animate = true) {
   }
 }
 
+/* overall completed % of the page's tasks (a task half done counts as 50%), shown under the date */
+function updDayProg() {
+  const el = document.getElementById('dayProg'); if (!el || !cur) return;
+  const T = cur.blocks.filter(b => b.type === 'task' && b.text.trim());
+  if (!T.length) { el.hidden = true; return; }
+  const v = Math.round(T.reduce((a, b) => a + (b.done ? 100 : (pctMap.has(b.id) ? pctMap.get(b.id) : (b.pc || 0))), 0) / T.length), d = T.filter(b => b.done).length;
+  const col = v >= 100 ? '#1fa354' : 'hsl(' + Math.round(v * 1.25) + ' 70% 45%)';
+  el.hidden = false; el.style.setProperty('--dp', v); el.style.setProperty('--dc', col); el.classList.toggle('full', v >= 100);
+  el.querySelector('b').textContent = v >= 100 ? '✓' : v + '%';
+  el.querySelector('.dpl').textContent = (v >= 100 ? 'All done! ' : v + '% completed · ') + d + ' of ' + T.length + ' task' + (T.length === 1 ? '' : 's') + ' done';
+  el.querySelector('.dpbar i').style.width = v + '%';
+}
 function setSel(id) {
   if (selId && selId !== id) { const o = elMap.get(selId); if (o) o.classList.remove('sel'); }
   selId = id;

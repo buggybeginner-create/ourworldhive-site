@@ -4760,6 +4760,7 @@ function openMore() {
     <div class="msh-gt">Account</div>
     <div class="msh-list">
       ${R('out', '🚪', 'Sign Out', '#ece4ff')}
+      ${R('deldata', '🧹', 'Delete My Data', '#fff0d9')}
       ${window.OWH && OWH.cloud ? R('delacc', '⚠️', 'Delete My Account', '#ffe3e3', 1) : ''}
     </div>
     <p class="msh-ft">${(window.OWH && OWH.cloud) ? 'Your diary syncs to your account and also works offline.' : 'Saved on this device only.'}<br>Tip: on iPad, Text mode turns Apple Pencil writing into typed text (Scribble).</p>`);
@@ -4785,6 +4786,7 @@ function openMore() {
     }
     else if (a === 'share') { if (window.OwhNative && OwhNative.shareText) OwhNative.shareText('My Diary', 'My Diary: a paper-style diary with tasks, sub-tasks, handwriting and reminders. https://ourworldhive.com/diary-app.html'); }
     else if (a === 'privacy') window.open('https://ourworldhive.com/privacy.html', '_blank');
+    else if (a === 'deldata') window.open('https://ourworldhive.com/delete-data.html', '_blank');
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
     else if (a === 'out') { if (await confirmDlg('Sign out?', 'Your pages stay saved in your account. Sign in again any time to see them.', 'Sign Out', false, '🚪') && window.OWH) OWH.signOut(); }
     else if (a === 'delacc') { (function(){var f=function(){OWHACC.open({

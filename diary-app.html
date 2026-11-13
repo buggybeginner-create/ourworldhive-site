@@ -478,10 +478,15 @@ body.inkon .cvt{pointer-events:none}
 .tir select{height:44px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:600 14px var(--sans);padding:0 8px;width:172px}
 .tir .tit{flex:1;min-width:150px;width:auto;max-width:none}
 .tir .tiw{width:120px}
+.tir select.tiv{width:150px}
+.tir.tsub{border-left:3px solid var(--accent);padding-left:6px}
+.tpreview .sbm{color:var(--muted)}
 .tir .ic{width:40px;height:40px}
 .tpreview li.txt{list-style:none;margin-left:-20px;color:var(--muted);font-style:italic}
-.tpreview li.chk{list-style:none;margin-left:-20px}
-.tpreview li.chk::before{content:'☐ ';color:var(--accent)}
+.tpreview li.tck{list-style:none;margin-left:-20px}
+.tpreview li.tck.sub::before{content:''}
+.tpreview li.tck.sub .sbm::after{content:' ☐';color:var(--accent)}
+.tpreview li.tck::before{content:'☐ ';color:var(--accent)}
 
 /* ---------- how long a job has been waiting ---------- */
 .agepill{flex:none;align-self:flex-start;margin-top:4px;height:26px;padding:0 10px;border-radius:13px;font:700 12px/26px var(--sans);white-space:nowrap}
@@ -3098,7 +3103,7 @@ function sanitizeTemplates(arr) {
   return (Array.isArray(arr) ? arr : []).map(t => {
     if (!t || typeof t.id !== 'string') return null;
     const items = (Array.isArray(t.items) ? t.items : []).map(i => i && String(i.text || '').trim()
-      ? { k: i.k === 's' ? 's' : i.k === 'x' ? 'x' : 't', text: String(i.text).trim().slice(0, 300), who: i.k === 'x' || i.k === 's' ? '' : String(i.who || '').trim().slice(0, 40) } : null).filter(Boolean).slice(0, 200);
+      ? Object.assign({ k: i.k === 's' ? 's' : i.k === 'x' ? 'x' : 't', text: String(i.text).trim().slice(0, 300), who: i.k === 'x' || i.k === 's' ? '' : String(i.who || '').trim().slice(0, 40) }, i.k !== 'x' && i.k !== 's' && parseInt(i.lv, 10) > 0 ? { lv: Math.min(2, parseInt(i.lv, 10)) } : {}) : null).filter(Boolean).slice(0, 200);
     return { id: t.id, name: String(t.name || 'Template').slice(0, 80), items, created: Number(t.created) || Date.now(), updated: Number(t.updated) || Date.now() };
   }).filter(Boolean);
 }
@@ -3123,13 +3128,14 @@ function mergeTemplates(list) {
   if (ch) saveTemplates();
   return ch;
 }
-const tplToText = items => items.map(i => i.k === 's' ? '# ' + i.text : i.k === 'x' ? '- ' + i.text : i.text + (i.who ? ' @' + i.who : '')).join('\n');
+const tplToText = items => items.map(i => i.k === 's' ? '# ' + i.text : i.k === 'x' ? '- ' + i.text : '>'.repeat(i.lv || 0) + (i.lv ? ' ' : '') + i.text + (i.who ? ' @' + i.who : '')).join('\n');
 function textToItems(txt) {
   return String(txt).split('\n').map(l => l.trim()).filter(Boolean).map(l => {
     if (/^#+\s*/.test(l)) return { k: 's', text: l.replace(/^#+\s*/, '').trim(), who: '' };
     if (/^[-•]\s+/.test(l)) return { k: 'x', text: l.replace(/^[-•]\s+/, '').trim(), who: '' };
+    const g = l.match(/^(>{1,2})\s*/), lv = g ? g[1].length : 0; if (g) l = l.slice(g[0].length);
     const m = l.match(/^(.*?)\s+@(.+)$/);
-    return m ? { k: 't', text: m[1].trim(), who: m[2].trim() } : { k: 't', text: l, who: '' };
+    return Object.assign(m ? { k: 't', text: m[1].trim(), who: m[2].trim() } : { k: 't', text: l, who: '' }, lv ? { lv } : {});
   }).filter(i => i.text);
 }
 function renderTemplates() {
@@ -3137,7 +3143,7 @@ function renderTemplates() {
   if (!templates.length) { box.innerHTML = '<p class="empty">No templates yet. Tap <b>＋ New template</b>, or open a diary day and use <b>Save this page as template</b>.</p>'; return; }
   box.innerHTML = templates.map(t => {
     const nt = t.items.filter(i => i.k === 't').length, nx = t.items.filter(i => i.k === 'x').length, ns = t.items.filter(i => i.k === 's').length;
-    const prev = t.items.slice(0, 8).map(i => i.k === 's' ? `<li class="sec">${esc(i.text)}</li>` : i.k === 'x' ? `<li class="txt">${esc(i.text)}</li>` : `<li class="chk">${esc(i.text)}${i.who ? ` <small>· ${esc(i.who)}</small>` : ''}</li>`).join('') + (t.items.length > 8 ? `<li><small>… and ${t.items.length - 8} more</small></li>` : '');
+    const prev = t.items.slice(0, 8).map(i => i.k === 's' ? `<li class="sec">${esc(i.text)}</li>` : i.k === 'x' ? `<li class="txt">${esc(i.text)}</li>` : `<li class="tck${i.lv ? ' sub' : ''}"${i.lv ? ` style="padding-left:${i.lv * 22}px"` : ''}>${i.lv ? '<span class="sbm">↳</span> ' : ''}${esc(i.text)}${i.who ? ` <small>· ${esc(i.who)}</small>` : ''}</li>`).join('') + (t.items.length > 8 ? `<li><small>… and ${t.items.length - 8} more</small></li>` : '');
     return `<section class="card" data-tid="${t.id}"><h3>${esc(t.name)} <span class="cnt">${nt} checkbox task${nt === 1 ? '' : 's'}${nx ? `, ${nx} text line${nx === 1 ? '' : 's'}` : ''}${ns ? `, ${ns} section${ns === 1 ? '' : 's'}` : ''}</span></h3><ul class="tpreview">${prev}</ul>
       <div class="btns" style="justify-content:flex-start"><button class="btn primary" type="button" data-tp="add">＋ Add to ${esc(dayShort(cur.date))}</button>${cur.date !== today ? '<button class="btn" type="button" data-tp="addtoday">Add to Today</button>' : ''}<button class="btn" type="button" data-tp="edit">✎ Edit</button><button class="btn" type="button" data-tp="del">🗑️ Delete</button></div></section>`;
   }).join('');
@@ -3157,9 +3163,9 @@ function applyTemplate(tid, date) {
   if (date && date !== cur.date) openDate(date);
   begin(); setMode('text');
   const now = Date.now();
-  const blocks = t.items.map(i => i.k === 's' ? { id: uid(), type: 'section', text: i.text } : i.k === 'x' ? { id: uid(), type: 'text', text: i.text } : Object.assign({ id: uid(), type: 'task', text: i.text, done: false, at: now }, i.who ? { who: i.who } : {}));
+  const blocks = t.items.map(i => i.k === 's' ? { id: uid(), type: 'section', text: i.text } : i.k === 'x' ? { id: uid(), type: 'text', text: i.text } : Object.assign({ id: uid(), type: 'task', text: i.text, done: false, at: now }, i.who ? { who: i.who } : {}, i.lv ? { lv: i.lv } : {}));
   if (!blocks.length) return;
-  cur.blocks.splice(insertAt(), 0, ...blocks);
+  cur.blocks.splice(insertAt(), 0, ...blocks); fixLevels();
   ensureTrailing(); renderBlocks(true); commit();
   const first = elMap.get(blocks[0].id); if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
   const n = blocks.filter(b => b.type === 'task').length, nx = blocks.filter(b => b.type === 'text').length;
@@ -3171,20 +3177,21 @@ function openTemplateEditor(id, prefill) {
   if (!items.length) items = [{ k: 't', text: '', who: '' }];
   openModal(`<h2>${ex ? 'Edit template' : 'New template'}</h2>
     <div class="fld"><label class="dl" for="tName">Template name</label><input id="tName" class="qin" type="text" maxlength="80" placeholder="e.g. Morning round"></div>
-    <div class="fld"><span class="dl">Items. Choose for each line: checkbox task, plain text, or section heading</span>
+    <div class="fld"><span class="dl">Items. Choose for each line: checkbox task, plain text, or section heading. For a task, choose Main Task or Sub-Task</span>
       <div id="tRows"></div>
-      <div class="rgrid"><button class="btn" type="button" data-ta2="t">＋ Checkbox task</button><button class="btn" type="button" data-ta2="x">＋ Text line</button><button class="btn" type="button" data-ta2="s">＋ Section</button></div>
+      <div class="rgrid"><button class="btn" type="button" data-ta2="t">＋ Checkbox task</button><button class="btn" type="button" data-ta2="sub">＋ Sub-Task</button><button class="btn" type="button" data-ta2="x">＋ Text line</button><button class="btn" type="button" data-ta2="s">＋ Section</button></div>
       <details class="occ"><summary>Paste many lines at once</summary>
-        <textarea id="tBulk" class="qin" rows="5" style="height:auto;padding:10px 14px;font:15px/1.5 var(--sans)" placeholder="# Section heading&#10;- Plain text line&#10;Checkbox task @Ravi"></textarea>
-        <p class="hint"># makes a section heading, - makes a plain text line, anything else becomes a checkbox task. @Name at the end sets who is responsible.</p>
+        <textarea id="tBulk" class="qin" rows="5" style="height:auto;padding:10px 14px;font:15px/1.5 var(--sans)" placeholder="# Section heading&#10;- Plain text line&#10;Main task @Ravi&#10;&gt; Sub-task"></textarea>
+        <p class="hint"># makes a section heading, - makes a plain text line, anything else becomes a checkbox task. Start with &gt; for a sub-task (&gt;&gt; for a sub-sub-task). @Name at the end sets who is responsible.</p>
         <button class="btn" type="button" data-ta2="bulk">Add these lines</button></details></div>
     <div class="btns">${ex ? '<button class="btn" type="button" data-te="del">Delete</button>' : ''}<button class="btn" type="button" data-te="x">Cancel</button><button class="btn primary" type="button" data-te="ok">Save template</button></div>`);
   const P = $('.panel', modal), rows = $('#tRows', P);
   $('#tName', P).value = ex ? ex.name : '';
   const draw = focusIdx => {
-    rows.innerHTML = items.map((it, i) => `<div class="tir" data-i="${i}">
+    rows.innerHTML = items.map((it, i) => `<div class="tir${it.k === 't' && it.lv ? ' tsub' : ''}" data-i="${i}" style="${it.k === 't' && it.lv ? `margin-left:${it.lv * 18}px` : ''}">
       <select class="tik" aria-label="Line type"><option value="t"${it.k === 't' ? ' selected' : ''}>☐ Checkbox task</option><option value="x"${it.k === 'x' ? ' selected' : ''}>✎ Text line</option><option value="s"${it.k === 's' ? ' selected' : ''}>📑 Section</option></select>
       <input class="qin sm tit" type="text" maxlength="300" placeholder="${it.k === 's' ? 'Section heading' : it.k === 'x' ? 'Text line' : 'Task'}" value="${esc(it.text)}" aria-label="Text">
+      ${it.k === 't' ? `<select class="tiv" aria-label="Main task or sub-task"><option value="0"${!it.lv ? ' selected' : ''}>📌 Main Task</option><option value="1"${it.lv === 1 ? ' selected' : ''}>↳ Sub-Task</option><option value="2"${it.lv === 2 ? ' selected' : ''}>↳↳ Sub-Sub-Task</option></select>` : ''}
       ${it.k === 't' ? `<input class="qin sm tiw" type="text" maxlength="40" placeholder="Assignee" value="${esc(it.who || '')}" aria-label="Assignee">` : ''}
       <button class="ic" type="button" data-ir="up" aria-label="Move up">↑</button><button class="ic" type="button" data-ir="down" aria-label="Move down">↓</button><button class="ic" type="button" data-ir="rm" aria-label="Remove line">✕</button></div>`).join('');
     if (focusIdx != null) { const el = rows.querySelector(`[data-i="${focusIdx}"] .tit`); if (el) el.focus(); }
@@ -3195,8 +3202,10 @@ function openTemplateEditor(id, prefill) {
     if (e.target.classList.contains('tit')) it.text = e.target.value; else if (e.target.classList.contains('tiw')) it.who = e.target.value;
   });
   rows.addEventListener('change', e => {
+    const r = e.target.closest('[data-i]'); if (!r) return;
+    if (e.target.classList.contains('tiv')) { const v = +e.target.value, it = items[+r.dataset.i]; if (v) it.lv = v; else delete it.lv; draw(); return; }
     if (!e.target.classList.contains('tik')) return;
-    const r = e.target.closest('[data-i]'); items[+r.dataset.i].k = e.target.value; draw(+r.dataset.i);
+    items[+r.dataset.i].k = e.target.value; draw(+r.dataset.i);
   });
   rows.addEventListener('click', e => {
     const b = e.target.closest('[data-ir]'); if (!b) return;
@@ -3210,6 +3219,7 @@ function openTemplateEditor(id, prefill) {
     if (add) {
       const k = add.dataset.ta2;
       if (k === 'bulk') { const more = textToItems($('#tBulk', P).value); if (!more.length) { toast('Type or paste some lines first.'); return; } if (items.length === 1 && !items[0].text.trim()) items = []; items = items.concat(more); $('#tBulk', P).value = ''; draw(); toast(`${more.length} line${more.length === 1 ? '' : 's'} added`); return; }
+      if (k === 'sub') { items.push({ k: 't', text: '', who: '', lv: 1 }); draw(items.length - 1); return; }
       items.push({ k, text: '', who: '' }); draw(items.length - 1); return;
     }
     const a = e.target.closest('[data-te]'); if (!a) return;
@@ -3223,7 +3233,8 @@ function openTemplateEditor(id, prefill) {
       return;
     }
     const name = $('#tName', P).value.trim() || 'Template';
-    const clean = items.map(i => ({ k: i.k, text: String(i.text || '').trim(), who: i.k === 't' ? String(i.who || '').trim() : '' })).filter(i => i.text);
+    const clean = items.map(i => Object.assign({ k: i.k, text: String(i.text || '').trim(), who: i.k === 't' ? String(i.who || '').trim() : '' }, i.k === 't' && i.lv ? { lv: i.lv } : {})).filter(i => i.text);
+    { let prev = -1; clean.forEach(i => { if (i.k === 's') { prev = -1; return; } if (i.k !== 't') return; const v = Math.max(0, Math.min(i.lv || 0, prev + 1, 2)); if (v) i.lv = v; else delete i.lv; prev = v; }); }
     if (!clean.length) { toast('Add at least one line.'); return; }
     if (ex) Object.assign(ex, { name, items: clean, updated: Date.now() });
     else templates.push({ id: uid(), name, items: clean, created: Date.now(), updated: Date.now() });
@@ -3235,7 +3246,7 @@ $('#bTpl').onclick = openTemplates;
 $('#tBack').onclick = closeTemplates;
 $('#tNew').onclick = () => openTemplateEditor(null);
 $('#tSave').onclick = () => {
-  const items = cur.blocks.filter(b => b.text.trim()).map(b => ({ k: b.type === 'section' ? 's' : b.type === 'text' ? 'x' : 't', text: b.text.trim(), who: b.type === 'task' ? (b.who || '') : '' }));
+  const items = cur.blocks.filter(b => b.text.trim()).map(b => ({ k: b.type === 'section' ? 's' : b.type === 'text' ? 'x' : 't', text: b.text.trim(), who: b.type === 'task' ? (b.who || '') : '', lv: b.type === 'task' ? (b.lv || 0) : 0 }));
   if (!items.length) { toast('This page has nothing to save yet. Add tasks or text first.'); return; }
   openTemplateEditor(null, items);
 };

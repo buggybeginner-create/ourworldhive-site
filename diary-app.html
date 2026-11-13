@@ -1995,12 +1995,13 @@ function openRemind(pid, bid) {
   if (app && OwhNative.alertStatus) { try { const st = JSON.parse(OwhNative.alertStatus()); let h = '';
     if (!st.notif) h += '<button class="sbtn" type="button" data-rp="notif" style="margin-top:8px">🔔 Allow notifications</button>';
     if (!st.exact) h += '<button class="sbtn" type="button" data-rp="exact" style="margin-top:8px">⏱️ Allow exact time (Alarms &amp; reminders)</button>';
+    if (OwhNative.openBattery && (!st.batt || st.oem)) h += '<button class="sbtn" type="button" data-rp="batt" style="margin-top:8px">🔋 Allow in background (Autostart &amp; Battery)</button><div style="font-size:12px;opacity:.75;margin-top:6px;line-height:1.4">Some phones (Xiaomi, Redmi, Oppo, Vivo, Realme) stop closed apps, so the alarm waits until you open My Diary. Turn ON Autostart, set Battery to No Restrictions, and don\'t swipe My Diary away from Recent apps.</div>';
     $('#rmPerm', P).innerHTML = h; } catch (_) {} }
   P.addEventListener('click', e => {
     let x;
     if ((x = e.target.closest('[data-rq]'))) { inp.value = toLocalInput(+x.dataset.rq); return; }
     if ((x = e.target.closest('[data-rt]'))) { typ = x.dataset.rt; sync(); return; }
-    if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else OwhNative.openExactSettings(); return; }
+    if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else if (x.dataset.rp === 'batt') OwhNative.openBattery(); else OwhNative.openExactSettings(); return; }
     if (!(x = e.target.closest('[data-rs]'))) return;
     const k = x.dataset.rs;
     if (k === 'cal') { const t = inp.value ? new Date(inp.value).getTime() : 0; shareICS(Object.assign({}, b, { rem: t || b.rem }), r.p); return; }

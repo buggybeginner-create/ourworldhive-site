@@ -23,6 +23,7 @@ import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
+import android.os.PowerManager;
 import android.database.Cursor;
 import android.util.Base64;
 import android.view.View;
@@ -304,6 +305,16 @@ public class MainActivity extends Activity {
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         return am != null && am.canScheduleExactAlarms();
     }
+    private boolean battOk() {
+        if (Build.VERSION.SDK_INT < 23) return true;
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        return pm == null || pm.isIgnoringBatteryOptimizations(getPackageName());
+    }
+    private boolean oemStrict() {
+        String m = (Build.MANUFACTURER + " " + Build.BRAND).toLowerCase();
+        for (String x : new String[]{"xiaomi", "redmi", "poco", "oppo", "realme", "vivo", "iqoo", "oneplus", "huawei", "honor", "infinix", "tecno", "itel"}) if (m.contains(x)) return true;
+        return false;
+    }
     private boolean notifOk() {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         return nm == null || nm.areNotificationsEnabled();
@@ -335,12 +346,18 @@ public class MainActivity extends Activity {
             catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Notifications.", Toast.LENGTH_LONG).show(); }
         } }); }
         @JavascriptInterface public String alertStatus() {
-            try { JSONObject o = new JSONObject(); o.put("notif", notifOk()); o.put("exact", exactOk()); return o.toString(); } catch (Exception e) { return "{}"; }
+            try { JSONObject o = new JSONObject(); o.put("notif", notifOk()); o.put("exact", exactOk()); o.put("batt", battOk()); o.put("oem", oemStrict()); return o.toString(); } catch (Exception e) { return "{}"; }
         }
         @JavascriptInterface public void openExactSettings() { ui.post(new Runnable() { public void run() {
             if (Build.VERSION.SDK_INT < 31) return;
             try { startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()))); }
             catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Alarms & reminders.", Toast.LENGTH_LONG).show(); }
+        } }); }
+        /** Battery / Autostart: phones like Xiaomi, Redmi, Oppo, Vivo stop closed apps, so alarms wait until the app opens. */
+        @JavascriptInterface public void openBattery() { ui.post(new Runnable() { public void run() {
+            try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName())));
+                  Toast.makeText(MainActivity.this, "Turn ON Autostart and set Battery saver to No restrictions.", Toast.LENGTH_LONG).show(); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Battery.", Toast.LENGTH_LONG).show(); }
         } }); }
         @JavascriptInterface public void pickContact(final String req) { ui.post(new Runnable() { public void run() {
             ctReq = req;

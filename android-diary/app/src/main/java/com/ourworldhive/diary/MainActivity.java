@@ -315,6 +315,11 @@ public class MainActivity extends Activity {
         for (String x : new String[]{"xiaomi", "redmi", "poco", "oppo", "realme", "vivo", "iqoo", "oneplus", "huawei", "honor", "infinix", "tecno", "itel"}) if (m.contains(x)) return true;
         return false;
     }
+    private boolean fullOk() {
+        if (Build.VERSION.SDK_INT < 34) return true;
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        return nm == null || nm.canUseFullScreenIntent();
+    }
     private boolean notifOk() {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         return nm == null || nm.areNotificationsEnabled();
@@ -346,7 +351,7 @@ public class MainActivity extends Activity {
             catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Notifications.", Toast.LENGTH_LONG).show(); }
         } }); }
         @JavascriptInterface public String alertStatus() {
-            try { JSONObject o = new JSONObject(); o.put("notif", notifOk()); o.put("exact", exactOk()); o.put("batt", battOk()); o.put("oem", oemStrict()); return o.toString(); } catch (Exception e) { return "{}"; }
+            try { JSONObject o = new JSONObject(); o.put("notif", notifOk()); o.put("exact", exactOk()); o.put("batt", battOk()); o.put("oem", oemStrict()); o.put("full", fullOk()); return o.toString(); } catch (Exception e) { return "{}"; }
         }
         @JavascriptInterface public void openExactSettings() { ui.post(new Runnable() { public void run() {
             if (Build.VERSION.SDK_INT < 31) return;
@@ -358,6 +363,12 @@ public class MainActivity extends Activity {
             try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName())));
                   Toast.makeText(MainActivity.this, "Turn ON Autostart and set Battery saver to No restrictions.", Toast.LENGTH_LONG).show(); }
             catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Battery.", Toast.LENGTH_LONG).show(); }
+        } }); }
+        @JavascriptInterface public String takeEvents() { return RemindReceiver.takeEvents(MainActivity.this); }
+        @JavascriptInterface public void openFullScreen() { ui.post(new Runnable() { public void run() {
+            if (Build.VERSION.SDK_INT < 34) return;
+            try { startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + getPackageName()))); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › My Diary › Full screen notifications.", Toast.LENGTH_LONG).show(); }
         } }); }
         @JavascriptInterface public void pickContact(final String req) { ui.post(new Runnable() { public void run() {
             ctReq = req;

@@ -1988,8 +1988,8 @@ function openRemind(pid, bid) {
       <input id="rmAt" class="qin" type="datetime-local" style="width:100%">
       <div class="whochips" style="margin-top:8px">${q.map(([l, t]) => `<button class="chip nm" type="button" data-rq="${t}">${l}</button>`).join('')}</div></div>
     <div class="scard"><b>Alert type</b><div class="rtyp">
-      <button type="button" data-rt="n"><i>🔔</i><b>Notification</b><small>A message with a sound</small></button>
-      <button type="button" data-rt="a"><i>⏰</i><b>Alarm</b><small>Rings until you stop it</small></button></div>
+      <button type="button" data-rt="n"><i>🔔</i><b>Notification</b><small>${app ? 'Shows with your other notifications' : 'A message with a sound'}</small></button>
+      <button type="button" data-rt="a"><i>⏰</i><b>Alarm</b><small>${app ? 'Full screen · rings until you slide to stop' : 'Rings until you stop it'}</small></button></div>
       <p class="hint" id="rmHint">${app ? 'Rings on this phone even when My Diary is closed.' : 'On the website it alerts while My Diary is open. For alerts when it is closed, use the My Diary Android app or 📅 Add to Calendar.'}</p>
       <div id="rmPerm"></div></div>
     <div class="sbtns">${b.rem ? '<button class="sbtn" type="button" data-rs="rm">Remove</button>' : '<button class="sbtn" type="button" data-rs="cal">📅 Calendar</button>'}<button class="sbtn pri" type="button" data-rs="ok">Save</button></div>`);
@@ -2000,13 +2000,14 @@ function openRemind(pid, bid) {
   if (app && OwhNative.alertStatus) { try { const st = JSON.parse(OwhNative.alertStatus()); let h = '';
     if (!st.notif) h += '<button class="sbtn" type="button" data-rp="notif" style="margin-top:8px">🔔 Allow notifications</button>';
     if (!st.exact) h += '<button class="sbtn" type="button" data-rp="exact" style="margin-top:8px">⏱️ Allow exact time (Alarms &amp; reminders)</button>';
+    if (OwhNative.openFullScreen && st.full === false) h += '<button class="sbtn" type="button" data-rp="full" style="margin-top:8px">📱 Allow full-screen alarm</button>';
     if (OwhNative.openBattery && (!st.batt || st.oem)) h += '<button class="sbtn" type="button" data-rp="batt" style="margin-top:8px">🔋 Allow in background (Autostart &amp; Battery)</button><div style="font-size:12px;opacity:.75;margin-top:6px;line-height:1.4">Some phones (Xiaomi, Redmi, Oppo, Vivo, Realme) stop closed apps, so the alarm waits until you open My Diary. Turn ON Autostart, set Battery to No Restrictions, and don\'t swipe My Diary away from Recent apps.</div>';
     $('#rmPerm', P).innerHTML = h; } catch (_) {} }
   P.addEventListener('click', e => {
     let x;
     if ((x = e.target.closest('[data-rq]'))) { inp.value = toLocalInput(+x.dataset.rq); return; }
     if ((x = e.target.closest('[data-rt]'))) { typ = x.dataset.rt; sync(); return; }
-    if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else if (x.dataset.rp === 'batt') OwhNative.openBattery(); else OwhNative.openExactSettings(); return; }
+    if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else if (x.dataset.rp === 'batt') OwhNative.openBattery(); else if (x.dataset.rp === 'full') OwhNative.openFullScreen(); else OwhNative.openExactSettings(); return; }
     if (!(x = e.target.closest('[data-rs]'))) return;
     const k = x.dataset.rs;
     if (k === 'cal') { const t = inp.value ? new Date(inp.value).getTime() : 0; shareICS(Object.assign({}, b, { rem: t || b.rem }), r.p); return; }
@@ -2342,7 +2343,7 @@ async function askNotify() {
 function showReminder(p, b) {
   const box = $('#remind'), card = document.createElement('div');
   card.className = 'rmc';
-  const isA = b.ra === 'a'; if (isA) alarmStart();
+  const isA = b.ra === 'a'; if (isA && !(window.OwhNative && OwhNative.setReminders)) alarmStart();   /* in the Android app the phone itself rings the alarm */
   card.innerHTML = `<b>${isA ? '⏰ Alarm' : '🔔 Reminder'}</b><div>${esc(b.text || 'Task')}${b.who ? ' · 👤 ' + esc(b.who) : ''}</div><button class="pri" type="button" data-rm="open">Open</button><button type="button" data-rm="done">✔ Done</button><button type="button" data-rm="snooze">Snooze 10 min</button><button type="button" data-rm="x">Dismiss</button>`;
   card.addEventListener('click', e => {
     const a = e.target.closest('[data-rm]'); if (!a) return;
@@ -2361,7 +2362,16 @@ function showReminder(p, b) {
     } catch (_) {}
   }
 }
+/* Android app: alarms stopped or snoozed on the full-screen alarm are saved into the diary */
+function takeNativeEvents() {
+  if (!(window.OwhNative && OwhNative.takeEvents) || !pages.size) return;
+  let ev = {}; try { ev = JSON.parse(OwhNative.takeEvents() || '{}'); } catch (_) { return; }
+  const find = id => { for (const p of pages.values()) if (p.blocks.some(x => x.id === id)) return p.id; return cur && cur.blocks.some(x => x.id === id) ? cur.id : null; };
+  (ev.stop || []).forEach(id => { const pid = find(id); if (pid) withTask(pid, id, tb => { tb.remOk = true; }); });
+  Object.keys(ev.snz || {}).forEach(id => { const pid = find(id), at = +ev.snz[id]; if (pid && at) withTask(pid, id, tb => { tb.rem = at; delete tb.remOk; }); });
+}
 function checkReminders() {
+  takeNativeEvents();
   const now = Date.now();
   pages.forEach(p => p.blocks.forEach(b => {
     if (b.type === 'task' && b.rem && !b.done && !b.remOk && b.rem <= now) {
@@ -2374,6 +2384,7 @@ setInterval(checkReminders, 20000);
 let natRemSig = '';
 function syncNativeRem(force) {
   if (!(window.OwhNative && OwhNative.setReminders)) return;
+  takeNativeEvents();
   const now = Date.now(), L = [];
   pages.forEach(p => p.blocks.forEach(b => { if (b.type === 'task' && b.rem && !b.done && b.rem > now) L.push({ id: b.id, at: b.rem, text: (b.text || 'Task').slice(0, 120), a: b.ra === 'a' ? 1 : 0, who: b.who || '', ph: b.ph || '' }); }));
   L.sort((x, y) => x.at - y.at); const out = L.slice(0, 60), sig = JSON.stringify(out);

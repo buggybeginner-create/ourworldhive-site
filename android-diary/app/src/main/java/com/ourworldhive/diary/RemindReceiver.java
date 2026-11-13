@@ -65,6 +65,22 @@ public class RemindReceiver extends BroadcastReceiver {
 
     static void restore(Context c) { setAll(c, sp(c).getString("rem", "[]")); }
 
+    /** What happened while the diary page was closed (stopped / snoozed alarms); the page takes it once and saves it. */
+    static void note(Context c, String id, long snoozeAt) {
+        try {
+            JSONObject ev = new JSONObject(sp(c).getString("ev", "{}"));
+            if (snoozeAt > 0) { JSONObject z = ev.optJSONObject("snz"); if (z == null) z = new JSONObject(); z.put(id, snoozeAt); ev.put("snz", z); }
+            else { JSONArray st = ev.optJSONArray("stop"); if (st == null) st = new JSONArray(); st.put(id); ev.put("stop", st); }
+            sp(c).edit().putString("ev", ev.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+    static String takeEvents(Context c) { String s = sp(c).getString("ev", "{}"); sp(c).edit().remove("ev").apply(); return s; }
+    private static void unring(Context c, String id) {
+        java.util.Set<String> r = new java.util.HashSet<>(sp(c).getStringSet("ring", new java.util.HashSet<String>())); r.remove(id); sp(c).edit().putStringSet("ring", r).apply();
+        AlarmActivity a = AlarmActivity.live == null ? null : AlarmActivity.live.get();
+        if (a != null && id.equals(a.shownId())) a.finish();
+    }
+
     /** Opening the app stops any alarm that is still ringing. */
     static void stopRinging(Context c) {
         try {
@@ -90,11 +106,12 @@ public class RemindReceiver extends BroadcastReceiver {
             NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) return;
             String act = i.getStringExtra("do");
-            if ("stop".equals(act)) { nm.cancel(id.hashCode()); return; }
+            if ("stop".equals(act)) { nm.cancel(id.hashCode()); unring(c, id); if (find(c, id) != null) note(c, id, 0); return; }
             JSONObject o = find(c, id); if (o == null) return;
             if ("snooze".equals(act)) {
-                nm.cancel(id.hashCode());
+                nm.cancel(id.hashCode()); unring(c, id);
                 o.put("at", System.currentTimeMillis() + 10 * 60000L);
+                note(c, id, o.getLong("at"));
                 JSONArray l = new JSONArray(sp(c).getString("rem", "[]")), n = new JSONArray();
                 for (int k = 0; k < l.length(); k++) { JSONObject x = l.optJSONObject(k); n.put(x != null && id.equals(x.optString("id")) ? o : x); }
                 setAll(c, n.toString());
@@ -117,7 +134,11 @@ public class RemindReceiver extends BroadcastReceiver {
                 Intent call = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + ph.replaceAll("[^0-9+]", "")));
                 b.addAction(new Notification.Action.Builder(null, "Call " + (who.isEmpty() ? "" : who.split(" ")[0]), PendingIntent.getActivity(c, ("c" + id).hashCode(), call, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)).build());
             }
-            if (alarm) { b.setOngoing(true).setAutoCancel(false); }
+            if (alarm) {
+                /* full screen over the lock screen; while the phone is in use it shows as a banner, and a tap opens the full screen */
+                PendingIntent full = PendingIntent.getActivity(c, ("f" + id).hashCode(), AlarmActivity.open(c, id), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                b.setOngoing(true).setAutoCancel(false).setFullScreenIntent(full, true).setContentIntent(full);
+            }
             if (Build.VERSION.SDK_INT < 26) {
                 b.setPriority(Notification.PRIORITY_MAX).setVibrate(new long[]{0, 600, 400, 600});
                 if (alarm) b.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM), AudioManager.STREAM_ALARM); else b.setDefaults(Notification.DEFAULT_ALL);
@@ -126,6 +147,7 @@ public class RemindReceiver extends BroadcastReceiver {
             if (alarm) n.flags |= Notification.FLAG_INSISTENT;   /* the alarm sound keeps ringing until Stop or the notification is opened */
             if (alarm) { java.util.Set<String> r = new java.util.HashSet<>(sp(c).getStringSet("ring", new java.util.HashSet<String>())); r.add(id); sp(c).edit().putStringSet("ring", r).apply(); }
             nm.notify(id.hashCode(), n);
+            if (alarm) { try { c.startActivity(AlarmActivity.open(c, id)); } catch (Exception ignored) { } }   /* works when My Diary is open; otherwise the full-screen intent above does it */
         } catch (Exception ignored) { }
     }
 }

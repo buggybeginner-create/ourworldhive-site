@@ -4786,7 +4786,7 @@ function openMore() {
     }
     else if (a === 'share') { if (window.OwhNative && OwhNative.shareText) OwhNative.shareText('My Diary', 'My Diary: a paper-style diary with tasks, sub-tasks, handwriting and reminders. https://ourworldhive.com/diary-app.html'); }
     else if (a === 'privacy') window.open('https://ourworldhive.com/privacy.html', '_blank');
-    else if (a === 'deldata') window.open('https://ourworldhive.com/delete-data.html', '_blank');
+    else if (a === 'deldata') openDelData();
     else if (a === 'contact') { (function(){var f=function(){OWHCONTACT.open({app:'My Diary'})};if(window.OWHCONTACT)f();else{var s=document.createElement('script');s.src='owh-contact.js';s.onload=f;document.head.appendChild(s)}})() }
     else if (a === 'out') { if (await confirmDlg('Sign out?', 'Your pages stay saved in your account. Sign in again any time to see them.', 'Sign Out', false, '🚪') && window.OWH) OWH.signOut(); }
     else if (a === 'delacc') { (function(){var f=function(){OWHACC.open({
@@ -4809,6 +4809,64 @@ function openMore() {
       pages.delete(id); dirty.delete(id);
       try { await Store.del(id); } catch (_) {}
       cur = null; openDate(date); toast('Page deleted');
+    }
+  });
+}
+
+/* ---- Delete My Data: pages in chosen dates, or all diary data (the account and full version stay) ---- */
+function openDelData() {
+  const today = todayISO(), all = [...pages.values()];
+  const first = all.length ? all.map(p => p.date).sort()[0] : today;
+  const mStart = today.slice(0, 8) + '01';
+  const quick = [['This Page', cur ? cur.date : today, cur ? cur.date : today], ['Last 7 Days', addDays(today, -6), today], ['This Month', mStart, today], ['Older Than 1 Year', first, addDays(today, -366)], ['All Dates', first, addDays(today, 3650)]];
+  openSheet(sheetHead('🧹', '#fff0d9', 'Delete My Data', 'Your account and full version stay. Deleted pages are removed from every device.') + `
+    <div class="scard"><b>Delete Pages Between Dates</b>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:6px">
+        <label style="font:600 12px var(--sans);color:var(--muted);min-width:0">From<input id="ddFrom" class="qin" type="date" style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:0 8px"></label>
+        <label style="font:600 12px var(--sans);color:var(--muted);min-width:0">To<input id="ddTo" class="qin" type="date" style="width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:0 8px"></label></div>
+      <div class="whochips" style="margin-top:8px">${quick.map(([l, f, t]) => `<button class="chip nm" type="button" data-dq="${f}|${t}">${l}</button>`).join('')}</div>
+      <p class="hint" id="ddCount"></p>
+      <button class="sbtn red" type="button" data-dd="range">🗑️ Delete These Pages</button></div>
+    <div class="scard"><b>Delete All Diary Data</b>
+      <p class="hint" style="margin-top:4px">Every page, note, task, handwriting, reminder, repeating job and template. Type <b>DELETE</b> to confirm.</p>
+      <input id="ddAll" class="qin" type="text" autocomplete="off" placeholder="Type DELETE" style="width:100%;margin-bottom:8px">
+      <button class="sbtn red" type="button" data-dd="all">⚠️ Delete All My Data</button></div>
+    <div class="sbtns"><button class="sbtn" type="button" data-dd="bk">💾 Backup First</button><button class="sbtn" type="button" data-dd="info">ℹ️ How It Works</button></div>`);
+  const P = $('.panel', modal), F = $('#ddFrom', P), T = $('#ddTo', P);
+  F.value = cur ? cur.date : today; T.value = F.value;
+  const inRange = () => { const f = F.value, t = T.value; if (!f || !t) return []; const a = f <= t ? f : t, b = f <= t ? t : f; return [...pages.values()].filter(p => p.date >= a && p.date <= b && !isBlank(p)); };
+  const upd = () => { const n = inRange().length; $('#ddCount', P).textContent = n ? `${n} page${n === 1 ? '' : 's'} with writing in these dates.` : 'No pages with writing in these dates.'; };
+  F.oninput = T.oninput = upd; upd();
+  P.addEventListener('click', async e => {
+    let x;
+    if ((x = e.target.closest('[data-dq]'))) { const [f, t] = x.dataset.dq.split('|'); if (t < f) { F.value = T.value = t; } else { F.value = f; T.value = t; } upd(); return; }
+    if (!(x = e.target.closest('[data-dd]'))) return;
+    const k = x.dataset.dd;
+    if (k === 'bk') { closeModal(); openBackup(); return; }
+    if (k === 'info') { window.open('https://ourworldhive.com/delete-data.html', '_blank'); return; }
+    if (k === 'range') {
+      const list = inRange(); if (!list.length) { toast('No pages with writing in these dates.'); return; }
+      const a = F.value <= T.value ? F.value : T.value, b = F.value <= T.value ? T.value : F.value;
+      closeModal();
+      if (!(await confirmDlg(`Delete ${list.length} page${list.length === 1 ? '' : 's'}?`, `Notes, tasks, handwriting and reminders from ${shortDate(a)} to ${shortDate(b)} will be removed from every device. This can’t be undone.`, 'Delete', true))) return;
+      const date = cur ? cur.date : today; let hitCur = false;
+      for (const p of list) {
+        p.blocks.forEach(forgetOcc); pages.delete(p.id); dirty.delete(p.id);
+        if (cur && cur.id === p.id) hitCur = true;
+        try { await Store.del(p.id); } catch (_) {}
+      }
+      if (hitCur) { cur = null; openDate(date); } else refreshViews();
+      syncNativeRem(true); toast(`${list.length} page${list.length === 1 ? '' : 's'} deleted`);
+      return;
+    }
+    if (k === 'all') {
+      if ($('#ddAll', P).value.trim().toUpperCase() !== 'DELETE') { toast('Type DELETE to confirm.'); $('#ddAll', P).focus(); return; }
+      closeModal();
+      if (!(await confirmDlg('Delete all your diary data?', 'Every page, task, handwriting, reminder, repeating job and template will be removed from every device. Your account and full version stay. This can’t be undone.', 'Delete All', true, '⚠️'))) return;
+      const date = cur ? cur.date : today;
+      try { await Store.clear(); } catch (_) {}
+      pages.clear(); dirty.clear(); rules.clear(); saveRules(); templates.length = 0; saveTemplates();
+      cur = null; openDate(date); syncNativeRem(true); toast('All diary data deleted');
     }
   });
 }

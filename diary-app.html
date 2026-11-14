@@ -946,7 +946,7 @@ const HL_SIZES = [12, 20, 32];
 const SIZES = [2.4, 3.8, 6.5];      // pen widths in page units (page is 1000 units wide)
 const ERAS = [14, 24, 42];          // eraser radii in page units
 /* Version of this page. Change it on EVERY update of diary-app.html: open apps compare it with the website and show "Update available". */
-const APP_VER = '2026-11-14.5';
+const APP_VER = '2026-11-14.6';
 const S = Object.assign({ statuses: ['In progress', 'Waiting for parts', 'Waiting for approval', 'On hold'], labels: [{ t: 'Urgent', c: '#e5484d' }, { t: 'Work', c: '#3e63dd' }, { t: 'Home', c: '#30a46c' }, { t: 'Waiting', c: '#f5a524' }, { t: 'Idea', c: '#8e4ec6' }], notify: false, theme: null, fingerDraw: true, fingerSet: false, color: 'auto', size: 1, penMode: 'text', hlColor: 'hy', shapes: true, padAuto: true, padAs: 'text', penv: 0, carryHidden: false, lang: 'en', onlineOK: false, autoSave: true, autoBackup: true, lastBackup: 0, hadData: false }, (() => {
   try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; }
 })());
@@ -4770,6 +4770,8 @@ function openMore() {
     </div>
     <div class="msh-gt">Account</div>
     <div class="msh-list">
+      ${(() => { const L = window.OWH_LIC; if (!L || L.owner) return ''; return L.plan === 'paid' ? R('lic', '✅', 'Full Version Active', '#dff3e6') : R('buy', '💎', 'Get Full Version' + (L.left > 0 ? ` · ${L.left} Day${L.left === 1 ? '' : 's'} Free Left` : ''), '#fff0d9'); })()}
+      ${window.OWH_PLAY ? R('restore', '♻️', 'Restore Purchase', '#e3ecff') : ''}
       ${R('out', '🚪', 'Sign Out', '#ece4ff')}
       ${R('deldata', '🧹', 'Delete My Data', '#fff0d9')}
       ${window.OWH && OWH.cloud ? R('delacc', '⚠️', 'Delete My Account', '#ffe3e3', 1) : ''}
@@ -4788,6 +4790,9 @@ function openMore() {
     else if (a === 'png') exportPNG(false);
     else if (a === 'ink') exportPNG(true);
     else if (a === 'btns') openButtons();
+    else if (a === 'buy') { if (window.OWH_BUY) OWH_BUY(); }
+    else if (a === 'restore') { if (window.OWH_RESTORE) OWH_RESTORE(); }
+    else if (a === 'lic') toast('✅ My Diary Full Version is on for this account.');
     else if (a === 'owhupd') {
       if (!(await confirmDlg('Get the latest version?', 'My Diary reloads with the newest design and fixes. Your pages stay safe.', 'Update Now', false, '🔄'))) return;
       doUpdate();
@@ -5108,6 +5113,20 @@ function Admin(db,u){
     buyBtn(plan,left);
     if(left<=0) lockApp();
   }
+  /* one place to start a purchase (lock screen, ⋯ menu, top button) */
+  window.OWH_BUY=function(){
+    var b=document.getElementById('owhPlayBuy')||document.getElementById('owhBuy');
+    if(b&&b.textContent.indexOf('✅')!==0){ b.click(); return; }
+    if(isOwner){ try{ OWH_TOAST('You are the owner: the full version is always on for you.'); }catch(e){} return; }
+    if(b){ try{ OWH_TOAST('✅ Full version is already on.'); }catch(e){} return; }
+    if(window.OWH_PLAY&&!(window.OWHPLAY&&OWHPLAY.ok())){ try{ OWH_TOAST('Payment needs the latest My Diary app. Please update it from Play Store.'); }catch(e){} return; }
+    try{ OWH_TOAST('Payment is loading, please try again in a moment.'); }catch(e){}
+  };
+  window.OWH_RESTORE=function(){
+    if(!(window.OWH_PLAY&&window.OWHPLAY&&OWHPLAY.ok())){ try{ OWH_TOAST('Restore works in the My Diary app from Play Store.'); }catch(e){} return; }
+    try{ OWH_TOAST('Checking your Google Play purchases…'); }catch(e){}
+    OWHPLAY.restore('diary').then(function(r){ try{ OWH_TOAST(r.done?'🎉 Full version restored.':'No purchase found on this Google account.'); }catch(e){} }).catch(function(){ try{ OWH_TOAST('Could not check purchases. Try again.'); }catch(e){} });
+  };
   /* trial over: the diary is locked until the one-time payment; pages stay safe and a backup can still be saved */
   function lockApp(){
     if(document.getElementById('owhLock')) return;
@@ -5121,15 +5140,15 @@ function Admin(db,u){
     document.body.appendChild(o);
     if(play) OWHPLAY.price('diary_perm').then(function(p){ if(p) document.getElementById('owhLkP').innerHTML=p+' <small>one time</small>'; });
     else if(window.OWH_PRICE) document.getElementById('owhLkP').innerHTML=OWH_PRICE.money('diary',OWH_PRICE.guessCur(),'perm')+' <small>one time</small>';
-    document.getElementById('owhLkBuy').onclick=function(){ var b=document.getElementById('owhBuy'); if(b) b.click(); };
+    document.getElementById('owhLkBuy').onclick=function(){ window.OWH_BUY(); };
     document.getElementById('owhLkExp').onclick=function(){ if(window.OWH_EXPORT) OWH_EXPORT(); };
     document.getElementById('owhLkOut').onclick=function(){ if(window.OWH) OWH.signOut(); };
   }
   /* after a payment is confirmed, open the diary again without a reload */
-  me.onSnapshot(function(d){ if(d.exists&&d.data().plan==='paid'){ licence('paid',d.data().joined); var b=document.getElementById('owhBuy'); if(b) b.textContent='✅ Full Version'; } },function(){});
+  me.onSnapshot(function(d){ if(d.exists&&d.data().plan==='paid'){ licence('paid',d.data().joined); ['owhBuy','owhPlayBuy'].forEach(function(i){ var b=document.getElementById(i); if(b) b.textContent='✅ Full Version'; }); } },function(){});
   /* Play Store app: Google Play Billing (price set in Play Console, product diary_perm) */
   function playBtn(nav){
-    var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button'; b.textContent='💎 Get Full Version';
+    var b=document.createElement('button'); b.className='btn primary'; b.id='owhPlayBuy'; b.type='button'; b.textContent='💎 Get Full Version';
     nav.insertBefore(b,nav.querySelector('.sp')||nav.firstChild);
     OWHPLAY.price('diary_perm').then(function(p){ if(p) b.textContent='💎 Get Full Version · '+p; });
     var done=function(){ b.textContent='✅ Full Version'; b.onclick=null; var l=document.getElementById('owhLock'); if(l) l.remove(); };
@@ -5147,7 +5166,7 @@ function Admin(db,u){
   }
   /* one-time payment: price, UPI and PayPal come from the shared price list (owh-pricing.js) */
   function buyBtn(plan,left){
-    var nav=document.getElementById('nav'); if(isOwner||!nav||document.getElementById('owhBuy')) return;
+    var nav=document.getElementById('nav'); window.OWH_LIC={plan:plan,left:left,owner:isOwner}; if(isOwner||!nav||document.getElementById('owhBuy')||document.getElementById('owhPlayBuy')) return;
     if(plan!=='paid'&&left>0){ var tc=document.createElement('span'); tc.className='trialchip'; tc.textContent='⏳ Free Trial: '+left+' Day'+(left===1?'':'s')+' Left'; nav.insertBefore(tc,nav.querySelector('.sp')||nav.firstChild); }
     if(window.OWH_PLAY&&plan!=='paid'){ if(window.OWHPLAY&&OWHPLAY.ok()) playBtn(nav); return; } /* Play Store app: only Google Play Billing is allowed */
     var b=document.createElement('button'); b.className='btn primary'; b.id='owhBuy'; b.type='button';

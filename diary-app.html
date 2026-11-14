@@ -3588,8 +3588,8 @@ function buildDay(date) {
   const doneDay = t => t.doneAt ? isoOf(new Date(t.doneAt)) : t.date;
   const done = all.filter(t => t.done && doneDay(t) === date);
   const od = [], stg = new Map(), td = [], er = [], mr = new Map();
-  all.filter(t => !t.done && t.date <= date).forEach(t => {
-    if (t.date < date && date < today) return;                       // past days: only what was written that day
+  /* everything still pending on that day: written on or before it, and not finished by the end of it */
+  all.filter(t => t.date <= date && (!t.done || (date < today && doneDay(t) > date))).forEach(t => {
     if (t.rid && rules.get(t.rid) && t.date < date) {                // missed repeats: one line per task
       const g = mr.get(t.rid) || { text: t.text, rep: t.rep, who: t.who, dates: [] }; g.dates.push(t.date); mr.set(t.rid, g); return;
     }

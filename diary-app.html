@@ -138,6 +138,9 @@ body.inkon .blk textarea,body.inkon .chk,body.inkon .acts,body.inkon .who{pointe
 .res .mk{font-family:var(--sans)}
 mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 1px}
 .hint,.empty{color:var(--muted);font-size:14px;margin:12px 6px 0}
+#updPill{position:fixed;left:calc(14px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:119;display:flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;border-radius:24px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font:700 14px var(--sans);box-shadow:0 8px 22px rgba(194,65,12,.4);animation:updIn .35s ease-out}
+#updPill button{border:0;background:transparent;color:#fff;font:inherit;min-height:34px;padding:0 6px}#updPill .x{opacity:.8;font-size:16px}
+@keyframes updIn{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
 #toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:120;background:#1d2534;color:#fff;
   padding:12px 18px;border-radius:16px;display:flex;gap:16px;align-items:center;font:600 15px var(--sans);max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:pop .2s ease-out}
 #toast button{background:none;border:0;color:#a9c0ff;font:700 15px var(--sans);min-height:34px;padding:0 4px}
@@ -942,6 +945,8 @@ const ALLC = COLORS.concat(HL_COLORS);
 const HL_SIZES = [12, 20, 32];
 const SIZES = [2.4, 3.8, 6.5];      // pen widths in page units (page is 1000 units wide)
 const ERAS = [14, 24, 42];          // eraser radii in page units
+/* Version of this page. Change it on EVERY update of diary-app.html: open apps compare it with the website and show "Update available". */
+const APP_VER = '2026-11-14.5';
 const S = Object.assign({ statuses: ['In progress', 'Waiting for parts', 'Waiting for approval', 'On hold'], labels: [{ t: 'Urgent', c: '#e5484d' }, { t: 'Work', c: '#3e63dd' }, { t: 'Home', c: '#30a46c' }, { t: 'Waiting', c: '#f5a524' }, { t: 'Idea', c: '#8e4ec6' }], notify: false, theme: null, fingerDraw: true, fingerSet: false, color: 'auto', size: 1, penMode: 'text', hlColor: 'hy', shapes: true, padAuto: true, padAs: 'text', penv: 0, carryHidden: false, lang: 'en', onlineOK: false, autoSave: true, autoBackup: true, lastBackup: 0, hadData: false }, (() => {
   try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; }
 })());
@@ -4785,11 +4790,7 @@ function openMore() {
     else if (a === 'btns') openButtons();
     else if (a === 'owhupd') {
       if (!(await confirmDlg('Get the latest version?', 'My Diary reloads with the newest design and fixes. Your pages stay safe.', 'Update Now', false, '🔄'))) return;
-      toast('Updating…'); begin(); try { await saveNow(); } catch (_) {}
-      const j = [];
-      try { if (navigator.serviceWorker) j.push(navigator.serviceWorker.getRegistrations().then(r => Promise.all(r.map(x => x.unregister())))); } catch (_) {}
-      try { if (window.caches) j.push(caches.keys().then(k => Promise.all(k.map(c => caches.delete(c))))); } catch (_) {}
-      Promise.all(j).catch(() => {}).then(() => { const u = new URL(location.href); u.searchParams.set('_u', String(Date.now())); location.replace(u.toString()); });
+      doUpdate();
     }
     else if (a === 'share') { if (window.OwhNative && OwhNative.shareText) OwhNative.shareText('My Diary', 'My Diary: a paper-style diary with tasks, sub-tasks, handwriting and reminders. https://ourworldhive.com/diary-app.html'); }
     else if (a === 'privacy') window.open('https://ourworldhive.com/privacy.html', '_blank');
@@ -4819,6 +4820,32 @@ function openMore() {
     }
   });
 }
+
+/* ---- updates: reload with the newest version, and tell the user when one is on the website ---- */
+async function doUpdate() {
+  toast('Updating…'); try { begin(); await saveNow(); } catch (_) {}
+  const j = [];
+  try { if (navigator.serviceWorker) j.push(navigator.serviceWorker.getRegistrations().then(r => Promise.all(r.map(x => x.unregister())))); } catch (_) {}
+  try { if (window.caches) j.push(caches.keys().then(k => Promise.all(k.map(c => caches.delete(c))))); } catch (_) {}
+  Promise.all(j).catch(() => {}).then(() => { const u = new URL(location.href); u.searchParams.set('_u', String(Date.now())); location.replace(u.toString()); });
+}
+let updShown = false, updLast = 0;
+async function checkUpdate() {
+  if (updShown || !navigator.onLine || !/^https?:$/.test(location.protocol) || Date.now() - updLast < 60000) return;
+  updLast = Date.now();
+  try {
+    const t = await (await fetch('diary-app.html?v=' + Date.now(), { cache: 'no-store' })).text();
+    const m = t.match(/const APP_VER = '([^']+)'/);
+    if (!m || m[1] === APP_VER) return;
+    updShown = true;
+    const d = document.createElement('div'); d.id = 'updPill'; d.setAttribute('role', 'status');
+    d.innerHTML = '<button type="button" data-u="go">🔄 Update Available · Tap To Update</button><button class="x" type="button" data-u="x" aria-label="Later">✕</button>';
+    d.addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; d.remove(); if (b.dataset.u === 'go') doUpdate(); });
+    document.body.appendChild(d);
+  } catch (_) {}
+}
+setTimeout(checkUpdate, 8000); setInterval(checkUpdate, 30 * 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
 
 /* ---- Customize Buttons: hide any button you don't use (saved on this device, per account) ---- */
 const BTN_GROUPS = [

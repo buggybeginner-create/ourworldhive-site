@@ -841,7 +841,7 @@ body{background:var(--desk)}
     <button class="btn" id="bNext" type="button">Next day ›</button>
     <span class="sp"></span>
     <button class="pill" id="saveState" type="button" aria-live="polite"></button>
-    <label class="btn" title="Pick a date">📅 Date<input type="date" id="datePick" aria-label="Pick a date"></label>
+    <label class="btn" id="bDate" title="Pick a date">📅 Date<input type="date" id="datePick" aria-label="Pick a date"></label>
     <button class="btn" id="bDay" type="button">📤 Day status</button>
     <button class="btn" id="bTpl" type="button">📋 Templates</button>
     <button class="btn primary" id="bNew" type="button">＋ New page</button>
@@ -2502,9 +2502,10 @@ $('#fmLink').onclick = () => {
 els.sheet.addEventListener('click', e => {
   const btn = e.target.closest('[data-act]');
   if (!btn) {
-    const trow = e.target.closest('.task');
+    const trow = e.target.closest('.task') || (downTask && downTask.isConnected && els.sheet.contains(downTask) ? downTask : null);
     if (!trow) return;
-    if (e.target.classList.contains('tt') || e.target.closest('.pbar')) return;   // typing / writing inside the task, or the progress bar
+    if (e.target.closest('.pbar')) return;   // the progress bar
+    if (e.target.classList.contains('tt')) { if (selId !== trow.dataset.id || !trow.classList.contains('sel')) setSel(trow.dataset.id); return; }   // tapping the words always shows the task's options, also when the text box still had focus
     setSel(trow.dataset.id);
     return;
   }
@@ -2564,8 +2565,11 @@ els.sheet.addEventListener('focusin', e => {
   }
 });
 els.sheet.addEventListener('focusout', () => begin());
+/* a tap that started on a task belongs to that task, even when its options bar opening moves the page under the finger */
+let downTask = null;
+document.addEventListener('pointerdown', e => { downTask = e.target.closest ? e.target.closest('.task') : null; }, true);
 document.addEventListener('click', e => {
-  if (selId && e.target.isConnected && !e.target.closest('.task') && !e.target.closest('#top') && !e.target.closest('#modal') && !e.target.closest('#toast')) clearSel();
+  if (selId && e.target.isConnected && !e.target.closest('.task') && !(downTask && downTask.isConnected) && !e.target.closest('#top') && !e.target.closest('#modal') && !e.target.closest('#toast')) clearSel();
 });
 
 /* =====================================================================
@@ -3646,7 +3650,7 @@ function dayHTML(m, inter) {
   return stats + '<div class="dgs">' + cards.join('') + '</div>';
 }
 function waDay(m) {
-  const L = [`*📓 My Diary · Day status*`, `*${m.label === 'Today' ? 'Today, ' : ''}${dayShort(m.date)}*${m.whoLabel ? ' · ' + m.whoLabel : ''}`,
+  const L = [`*${m.label === 'Today' ? 'Today, ' : ''}${dayShort(m.date)}*${m.whoLabel ? ' · ' + m.whoLabel : ''}`,
     `✅ Done ${m.stat.done}  |  ⏳ Pending ${m.stat.pend}${m.stat.over ? `  |  ⚠ Overdue ${m.stat.over}` : ''}${m.stat.prog ? `  |  🔄 In progress ${m.stat.prog}` : ''}`, ''];
   m.groups.forEach(g => {
     L.push(`*${g.icon} ${g.title.toUpperCase()} (${g.items.length})*`);
@@ -3841,7 +3845,7 @@ function bodyHTML(m, inter) {
 }
 /* WhatsApp-style text: *bold* and _italic_ render in WhatsApp */
 function waTasks(m) {
-  const L = [`*📓 My Diary · ${m.title}*`, `_${m.period}${m.whoLabel ? ' · ' + m.whoLabel : ''}_`, `📋 Tasks: ${m.groups.length}  |  Planned: ${m.tot.planned}  |  ✅ Done: ${m.tot.completed}  |  ⏳ Pending: ${m.tot.pending}  |  Upcoming: ${m.tot.upcoming}`, ''];
+  const L = [`*${m.title}*`, `_${m.period}${m.whoLabel ? ' · ' + m.whoLabel : ''}_`, `📋 Tasks: ${m.groups.length}  |  Planned: ${m.tot.planned}  |  ✅ Done: ${m.tot.completed}  |  ⏳ Pending: ${m.tot.pending}  |  Upcoming: ${m.tot.upcoming}`, ''];
   if (!m.groups.length) L.push('No tasks in this selection.', '');
   m.groups.forEach((g, i) => {
     L.push(`${i + 1}. *${g.name}*${g.rule ? ' 🔁 ' + ruleDesc(g.rule) : ''}`);
@@ -3878,7 +3882,7 @@ function waText(m) {
     if (t.cm) a.push(`   💬 Latest comment (${dtFull(t.cm.t)}): ${t.cm.x}`);
     return a.join('\n');
   };
-  const L = [`*📓 My Diary · ${m.title}*`, `_${m.period}${m.whoLabel ? ' · ' + m.whoLabel : ''}_`, `✅ Completed: ${m.stat.done}  |  ⏳ Pending: ${m.stat.pend}`, ''];
+  const L = [`*${m.title}*`, `_${m.period}${m.whoLabel ? ' · ' + m.whoLabel : ''}_`, `✅ Completed: ${m.stat.done}  |  ⏳ Pending: ${m.stat.pend}`, ''];
   if (m.kind === 'sections') {
     if (!m.groups.length) L.push('No jobs in this selection.', '');
     m.groups.forEach(g => { L.push(`*📑 ${g.name}* (${g.done} done, ${g.pend} pending)`); g.rows.forEach((t, i) => L.push(item(t, i))); L.push(''); });
@@ -4755,6 +4759,7 @@ function openMore() {
     <div class="msh-gt">App</div>
     <div class="msh-list">
       ${app ? R('share', '📣', 'Share My Diary', '#e3ecff') : R('inst', '📲', 'Add to Home Screen', '#e3ecff')}
+      ${R('btns', '🎛️', 'Customize Buttons', '#ece4ff')}
       ${R('contact', '✉️', 'Contact Us / Feature Request', '#fff0d9')}
       ${R('privacy', '🔒', 'Privacy Policy', '#e6f5ea')}
     </div>
@@ -4777,6 +4782,7 @@ function openMore() {
     else if (a === 'pdf') exportPDF();
     else if (a === 'png') exportPNG(false);
     else if (a === 'ink') exportPNG(true);
+    else if (a === 'btns') openButtons();
     else if (a === 'owhupd') {
       if (!(await confirmDlg('Get the latest version?', 'My Diary reloads with the newest design and fixes. Your pages stay safe.', 'Update Now', false, '🔄'))) return;
       toast('Updating…'); begin(); try { await saveNow(); } catch (_) {}
@@ -4811,6 +4817,37 @@ function openMore() {
       try { await Store.del(id); } catch (_) {}
       cur = null; openDate(date); toast('Page deleted');
     }
+  });
+}
+
+/* ---- Customize Buttons: hide any button you don't use (saved on this device, per account) ---- */
+const BTN_GROUPS = [
+  ['Top Toolbar', [['bText', '⌨️ Text', '#bText'], ['bPen', '✍️ Pen', '#bPen'], ['bTask', '☑️ Task', '#bTask'], ['bSection', '📑 Section', '#bSection'], ['bUndo', '↶ Undo', '#bUndo'], ['bRedo', '↷ Redo', '#bRedo'], ['bEraser', '🧽 Eraser', '#bEraser'], ['bSearch', '🔍 Search', '#bSearch'], ['bSummary', '📊 Summary', '#bSummary']]],
+  ['Day Bar', [['bPrev', '‹ Previous Day', '#bPrev'], ['bToday', 'Today', '#bToday'], ['bNext', 'Next Day ›', '#bNext'], ['saveState', '✓ Auto-save Status', '#saveState'], ['bDate', '📅 Date', '#bDate'], ['bDay', '📤 Day Status', '#bDay'], ['bTpl', '📋 Templates', '#bTpl'], ['bNew', '＋ New Page', '#bNew']]],
+  ['Task Options', [['t:repeat', '🔁 Repeat'], ['t:remind', '⏰ Remind'], ['t:who', '👤 Assign'], ['t:label', '🏷️ Label'], ['t:addsub', '＋ Sub-task'], ['t:indent', '⇥ Move Under'], ['t:movedate', '📅 Change Date'], ['t:outdent', '⇤ Promote'], ['t:up', '↑ Move Up'], ['t:down', '↓ Move Down'], ['t:details', '⚙ Details'], ['t:comment', '💬 Comment'], ['t:drag', '⠿ Move (drag)'], ['t:del', '🗑️ Delete']]]
+];
+const btnSel = k => k === 't:drag' ? '.topts .dh' : k.startsWith('t:') ? `.topts [data-act="${k.slice(2)}"]` : BTN_GROUPS.flatMap(g => g[1]).find(x => x[0] === k)[2];
+function applyButtons() {
+  let st = document.getElementById('btnHide'); if (!st) { st = document.createElement('style'); st.id = 'btnHide'; document.head.appendChild(st); }
+  const hid = (S.hideBtns || []).filter(k => BTN_GROUPS.some(g => g[1].some(x => x[0] === k)));
+  st.textContent = hid.length ? hid.map(btnSel).join(',') + '{display:none!important}' : '';
+}
+function openButtons() {
+  const draw = () => sheetHead('🎛️', '#ece4ff', 'Customize Buttons', 'Switch off the buttons you don’t use. The ⋯ menu always stays.') +
+    BTN_GROUPS.map(([g, list]) => `<div class="scard"><b>${g}</b>${list.map(([k, l]) => { const on = !(S.hideBtns || []).includes(k);
+      return `<div class="swrow"><div><b>${esc(l)}</b></div><button class="tsw" type="button" data-hb="${k}" aria-pressed="${on}" aria-label="${esc(l)}"></button></div>`; }).join('')}</div>`).join('') +
+    `<div class="sbtns"><button class="sbtn" type="button" data-hb="__all">Show All Buttons</button><button class="sbtn pri" type="button" data-hb="__ok">Done</button></div>`;
+  openSheet(draw());
+  const P = $('.panel', modal);
+  P.addEventListener('click', e => {
+    const x = e.target.closest('[data-hb]'); if (!x) return;
+    const k = x.dataset.hb;
+    if (k === '__ok') { closeModal(); return; }
+    let h = (S.hideBtns || []).slice();
+    if (k === '__all') h = []; else if (h.includes(k)) h = h.filter(y => y !== k); else h.push(k);
+    S.hideBtns = h; saveSettings(); applyButtons();
+    if (k === '__all') P.querySelectorAll('[data-hb]').forEach(b => { if (!b.dataset.hb.startsWith('__')) b.setAttribute('aria-pressed', 'true'); });
+    else x.setAttribute('aria-pressed', String(!h.includes(k)));
   });
 }
 
@@ -4919,7 +4956,7 @@ window.addEventListener('error', e => { if (/ResizeObserver/i.test(e.message || 
 async function boot(uid) {
   try {
   Store.uid = uid; loadUserSettings(uid);
-  applyTheme();
+  applyTheme(); try { applyButtons(); } catch (_) {}
   await Store.init();
   try {
     const all = await Store.all();
@@ -4963,7 +5000,7 @@ async function boot(uid) {
   await bkInit();
   setTimeout(checkReminders, 1500);
   if (!pages.size && S.hadData && !bkHandle) askRestore();
-  else if (pages.size && !bkHandle && Date.now() - S.lastBackup > 2 * 864e5) {
+  else if (pages.size && !bkHandle && !(window.OWH && OWH.cloud) && Date.now() - S.lastBackup > 2 * 864e5) {   // signed in: the diary syncs to the account, so no backup nagging
     setTimeout(() => toast(S.lastBackup ? `Last backup was ${fmtAgo(S.lastBackup)}.` : 'You have not backed up yet.', 'Back up', exportBackup), 3500);
   }
   } catch (err) {

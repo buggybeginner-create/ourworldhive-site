@@ -300,6 +300,23 @@ public class MainActivity extends Activity {
         web.evaluateJavascript("(function(){try{window.owhContact&&owhContact(" + JSONObject.quote(req) + "," + (out == null ? "null" : JSONObject.quote(out)) + ")}catch(e){}})()", null);
     }
 
+    /** Open the phone's own Contacts app directly, so a wrong "Always" choice (for example a file manager) can never take over.
+     *  If no contacts app is found by name, ask every time with a chooser instead of using a saved default. */
+    private Intent contactPicker() {
+        Intent pick = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+        try {
+            java.util.List<android.content.pm.ResolveInfo> all = getPackageManager().queryIntentActivities(pick, 0);
+            String best = null; int score = -1;
+            for (android.content.pm.ResolveInfo r : all) {
+                String pk = r.activityInfo == null ? "" : r.activityInfo.packageName, lc = pk.toLowerCase();
+                int sc = lc.contains("contacts") ? 3 : (lc.contains("dialer") || lc.contains("phone") || lc.contains("incallui")) ? 2 : lc.startsWith("com.android.") || lc.startsWith("com.google.android.") ? 1 : 0;
+                if (sc > score && sc > 0) { score = sc; best = pk; }
+            }
+            if (best != null) return new Intent(pick).setPackage(best);
+        } catch (Exception ignored) { }
+        return Intent.createChooser(pick, "Choose a contact");
+    }
+
     private boolean exactOk() {
         if (Build.VERSION.SDK_INT < 31) return true;
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -372,7 +389,7 @@ public class MainActivity extends Activity {
         } }); }
         @JavascriptInterface public void pickContact(final String req) { ui.post(new Runnable() { public void run() {
             ctReq = req;
-            try { startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI), 7); }
+            try { startActivityForResult(contactPicker(), 7); }
             catch (Exception e) { ctReq = null; Toast.makeText(MainActivity.this, "No contacts app on this phone.", Toast.LENGTH_SHORT).show(); }
         } }); }
         @JavascriptInterface public void openContact(final String uri) { ui.post(new Runnable() { public void run() {

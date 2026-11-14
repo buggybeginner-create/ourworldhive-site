@@ -3001,7 +3001,8 @@ const carry = $('#carry');
 let carryShowHidden = false;
 function pendingEarlier(ref) {
   const out = [];
-  pages.forEach(p => { if (p.date < ref) p.blocks.forEach(b => { if (b.type === 'task' && !b.done && b.text.trim()) out.push({ p, b, age: Math.max(0, dd(b.from || p.date, ref)) }); }); });
+  const past = ref < todayISO();   /* on a past day, a task finished after that day was still pending then */
+  pages.forEach(p => { if (p.date < ref) p.blocks.forEach(b => { if (b.type === 'task' && b.text.trim() && (!b.done || (past && b.doneAt && isoOf(new Date(b.doneAt)) > ref))) out.push({ p, b, age: Math.max(0, dd(b.from || p.date, ref)) }); }); });
   const pr = { h: 0, m: 1, l: 2, '': 3 };
   out.sort((x, y) => (y.age - x.age) || (pr[x.b.pri || ''] - pr[y.b.pri || '']) || ((x.b.at || 0) - (y.b.at || 0)));   // longest pending first
   return out;
@@ -3025,7 +3026,7 @@ function doneCard(list, date) {
   return `<div class="carrycard carrydone"><div class="carryhead"><b>✅ Completed ${lab} (${list.length})</b><button class="btn" type="button" data-c="toggledone">${carryDoneOpen ? 'Hide' : 'Show'}</button></div>${carryDoneOpen ? `<div class="carrylist">${rows}</div>` : ''}</div>`;
 }
 function renderCarry() {
-  if (!cur || cur.date < todayISO()) { carry.hidden = true; return; }   // shown on Today and on any later day
+  if (!cur) { carry.hidden = true; return; }   // shown on every day; on a past day it lists what was still pending on that day
   const all = pendingEarlier(cur.date);
   const isRep = x => x.b.rid && rules.get(x.b.rid);
   const one = all.filter(x => !isRep(x)), rep = all.filter(isRep);      // repeats are shown apart, once per task
@@ -3042,9 +3043,9 @@ function renderCarry() {
   const today = cur.date;   // age is counted up to the day being viewed
   const row = ({ p, b, age }) => {
     return `<div class="cr${age >= 3 ? ' old' : ''}${b.hid ? ' hid' : ''}" data-p="${p.id}" data-b="${b.id}">
-      <button class="cb" type="button" data-c="done" aria-label="Mark completed">☐</button>
+      <button class="cb" type="button" data-c="done" aria-label="Mark completed"${b.done ? ' disabled' : ''}>${b.done ? '☑' : '☐'}</button>
       <div class="cm"><input class="cin" type="text" value="${esc(b.text)}" aria-label="Edit job">
-        <div class="cmeta"><span class="age">Pending since ${esc(dayShort(b.from || p.date))} (${ageTxt(Math.max(0, dd(b.from || p.date, today)))})</span>${b.st ? ' · ' + esc(b.st) : ''}${b.due ? ' · due ' + esc(shortDate(b.due)) : ''} · <button class="who cwho" type="button" data-c="who">👤 ${b.who ? esc(b.who) : 'Add name'}</button></div></div>
+        <div class="cmeta"><span class="age">Pending since ${esc(dayShort(b.from || p.date))} (${ageTxt(Math.max(0, dd(b.from || p.date, today)))})</span>${b.done ? ' · ✔ Done ' + esc(dayShort(isoOf(new Date(b.doneAt)))) : ''}${b.st ? ' · ' + esc(b.st) : ''}${b.due ? ' · due ' + esc(shortDate(b.due)) : ''} · <button class="who cwho" type="button" data-c="who">👤 ${b.who ? esc(b.who) : 'Add name'}</button></div></div>
       <span class="agepill ${age >= 7 ? 'a3' : age >= 3 ? 'a2' : 'a1'}" title="Pending since ${esc(dayShort(b.from || p.date))}">${ageTxt(age)}</span>
       <div class="cact"><button class="ic" type="button" data-c="mdate" aria-label="Change date" title="Change date">📅</button><button class="ic" type="button" data-c="open" aria-label="Open that day's page" title="Open page">↗</button>${b.hid
         ? '<button class="ic" type="button" data-c="unhide" aria-label="Show again" title="Show again">👁</button>'

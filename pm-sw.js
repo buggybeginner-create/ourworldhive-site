@@ -9,7 +9,7 @@ self.addEventListener('install',function(){self.skipWaiting()});self.addEventLis
 var PMC='pm-app-v5';
 /* Firebase files have a fixed version number, so the phone keeps them and uses them straight away (fast start).
    The app files open from the saved copy at once and update in the background. */
-self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com'||u.hostname==='cdnjs.cloudflare.com';
+self.addEventListener('fetch',function(e){var r=e.request;if(r.cache==='no-store')return; /* the Update Available check asks the website directly */if(r.method!=='GET')return;var u=new URL(r.url),same=u.origin===self.location.origin,ext=u.hostname==='www.gstatic.com'||u.hostname==='cdnjs.cloudflare.com';
  if(!same&&!ext)return;if(same&&!/\/(pm\.html|pm-config\.js|firebase-config\.js|pm-manifest\.webmanifest|pm-icon-\d+\.png)$/.test(u.pathname))return;
  var keep=function(res){if(res&&(res.ok||res.type==='opaque')){var c=res.clone();caches.open(PMC).then(function(x){x.put(r,c)}).catch(function(){})}return res};
  var cached=function(){return caches.open(PMC).then(function(c){return c.match(r,{ignoreSearch:true})})};

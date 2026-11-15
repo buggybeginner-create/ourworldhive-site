@@ -17,6 +17,7 @@ var sc=d.currentScript,OWN=!!(sc&&sc.getAttribute('data-own'))||!!d.querySelecto
 var framed=false;try{framed=window.top!==window}catch(e){framed=true}
 if(!framed&&!/parcel-ledger\.html/.test(page))installBtn(); /* never inside a frame: an embedded page cannot be installed */
 donateInit();
+if(!framed)updWatch();
 if(OWN)return;
 if(path.slice(-1)==='/'){try{history.replaceState(history.state,'',page+location.search+location.hash)}catch(e){}}
 var base=page.slice(0,-5);
@@ -63,10 +64,31 @@ function donateInit(){
   d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-owhcopy]');if(!b)return;e.preventDefault();var v=b.getAttribute('data-owhcopy');try{navigator.clipboard.writeText(v).then(function(){b.textContent='COPIED'},function(){b.textContent=v})}catch(x){b.textContent=v}});
   window.OWHDON={card:card,upi:UPI};
   /* Get latest version: clears the saved copy of the app on this phone and reloads. Data stays safe. */
-  function upd(){try{if(!confirm('Get the latest version of this app? Your data stays safe.'))return}catch(e){}
+  function upd(now){if(now!==true){try{if(!confirm('Get the latest version of this app? Your data stays safe.'))return}catch(e){}}
     var j=[];try{if(navigator.serviceWorker)j.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}
     try{if(window.caches)j.push(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}))}catch(e){}
     Promise.all(j).catch(function(){}).then(function(){var u=new URL(location.href);u.searchParams.set('_u',String(Date.now()));location.replace(u.toString())})}
   window.OWHUPD={run:upd};
+}
+/* ---- Update Available pill (all apps): when a newer version of this page is on the website, a small pill
+   appears at the bottom left; one tap loads the new version. Data stays safe. My Diary has its own pill. ---- */
+function updWatch(){
+  if(/^diary-app\.html$/.test(page)||!window.fetch)return;
+  var url=location.href.split('#')[0],base=null,last=0,shown=false;
+  function hash(t){var x=5381;for(var i=0;i<t.length;i++)x=((x<<5)+x+t.charCodeAt(i))|0;return t.length+':'+x}
+  function get(mode){var u=mode==='no-store'?url+(url.indexOf('?')<0?'?':'&')+'_v='+Date.now():url;
+    return fetch(u,{cache:mode,credentials:'same-origin'}).then(function(r){if(!r.ok)throw 0;return r.text()}).then(hash)}
+  function pill(){if(shown||!d.body)return;shown=true;var st=d.createElement('style');
+    st.textContent='#owhUpd{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:2147483001;display:flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;border-radius:24px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font:700 14px/1.2 system-ui,sans-serif;box-shadow:0 8px 22px rgba(194,65,12,.4);animation:owhUpdIn .35s ease-out;max-width:calc(100vw - 28px)}#owhUpd button{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:6px 4px}#owhUpd .x{opacity:.85;font-size:17px;padding:4px 9px}@keyframes owhUpdIn{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}';
+    d.head.appendChild(st);var b=d.createElement('div');b.id='owhUpd';b.setAttribute('role','status');
+    b.innerHTML='<button type="button">🔄 Update Available · Tap To Update</button><button type="button" class="x" aria-label="Close">×</button>';
+    b.children[0].onclick=function(){b.children[0].textContent='⏳ Updating…';window.OWHUPD.run(true)};
+    b.children[1].onclick=function(){b.remove()};d.body.appendChild(b)}
+  function check(){if(shown||d.hidden)return;var now=Date.now();if(now-last<120000)return;last=now;
+    (base?Promise.resolve(base):get('force-cache').then(function(h){base=h;return h})).then(function(){return get('no-store')}).then(function(h){if(base&&h!==base)pill()}).catch(function(){})}
+  function start(){setTimeout(check,4000)}
+  if(d.readyState==='complete')start();else window.addEventListener('load',start);
+  d.addEventListener('visibilitychange',function(){if(!d.hidden)check()});
+  setInterval(check,15*60000);
 }
 })();

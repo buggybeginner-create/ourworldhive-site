@@ -697,8 +697,24 @@ function runFunc(code){
 
 /* ================= KEY HANDLER ================= */
 const DIG={'0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','DOT':'.','SIGN':'-'};
+function numEdit(ed,k,neg){
+  if(ed.c==null)ed.c=ed.buf.length;
+  const ch=DIG[k];
+  if(ch!=null){
+    if(ed.fresh){ed.buf='';ed.c=0;ed.fresh=false}
+    if(ch==='-'){if(!neg)return true;if(ed.buf.startsWith('-')){ed.buf=ed.buf.slice(1);ed.c=Math.max(0,ed.c-1)}else{ed.buf='-'+ed.buf;ed.c++}}
+    else if(!(ch==='.'&&ed.buf.includes('.'))&&ed.buf.length<10){ed.buf=ed.buf.slice(0,ed.c)+ch+ed.buf.slice(ed.c);ed.c++}
+    ed.err=null;return true}
+  if(k==='DEL'){ed.fresh=false;if(ed.c>0){ed.buf=ed.buf.slice(0,ed.c-1)+ed.buf.slice(ed.c);ed.c--}ed.err=null;return true}
+  if(k==='LEFT'){ed.fresh=false;ed.c=Math.max(0,ed.c-1);return true}
+  if(k==='RIGHT'){ed.fresh=false;ed.c=Math.min(ed.buf.length,ed.c+1);return true}
+  return false;
+}
+function edHtml(ed){const c=ed.c==null?ed.buf.length:ed.c;return esc(ed.buf.slice(0,c))+'<span class="cur"></span>'+esc(ed.buf.slice(c))}
 function key(k){
   const u=S.ui;
+  /* I / O keys act directly on any screen (manual: switch on/off if pre-selected) */
+  if((k==='START'||k==='STOP')&&!u.pw&&u.scr!=='home'&&!(u.scr==='prog'&&u.prog&&u.prog.st==='run')){keyHome(k);return}
   if(k==='FUNC'&&(u.pw||u.scr!=='home'))k='ESC';
   if(u.info){u.info=null}
   /* password entry overlay */
@@ -719,8 +735,7 @@ function key(k){
     case 'svc':if(k==='UP')u.svc=Math.max(0,u.svc-1);else if(k==='DOWN')u.svc=Math.min(SVC().length-5,u.svc+1);else if(k==='ESC'||k==='ENTER'){u.scr='home'}else hintKey(k);return;
     case 'evlist':if(k==='UP')u.evlist=Math.max(0,u.evlist-1);else if(k==='DOWN')u.evlist=Math.min(Math.max(0,S.log.length-6),u.evlist+1);else if(k==='ESC'||k==='ENTER')u.scr='home';else hintKey(k);return;
     case 'sp':{const ed=u.spbuf;
-      if(DIG[k]&&DIG[k]!=='-'){if(ed.fresh){ed.buf='';ed.fresh=false}if(!(DIG[k]==='.'&&ed.buf.includes('.'))&&ed.buf.length<8)ed.buf+=DIG[k];ed.err=null}
-      else if(k==='DEL'){ed.fresh=false;ed.buf=ed.buf.slice(0,-1)}
+      if(numEdit(ed,k,false)){}
       else if(k==='ESC'){u.scr='home'}
       else if(k==='ENTER'){const v=parseFloat(ed.buf);const mx=S.P['02.02']*1.2;if(!isFinite(v)||v<0||v>mx){ed.err='Range 0 … '+fmtN(mx,0);return}S.sp=+v.toFixed(1);u.scr='home';showHint({en:'Setpoint '+fmtN(S.sp,1)+' t/h accepted.',hg:'Setpoint '+fmtN(S.sp,1)+' t/h set ho gaya.'},'ok')}
       else hintKey(k);return}
@@ -777,9 +792,7 @@ function keyPar(k){
       else if(k==='ESC')pp.edit=null;else hintKey(k);
       return;
     }
-    if(DIG[k]){if(ed.fresh){ed.buf='';ed.fresh=false}const ch=DIG[k];if(ch==='-'){ed.buf=ed.buf.startsWith('-')?ed.buf.slice(1):'-'+ed.buf}else if(!(ch==='.'&&ed.buf.includes('.'))&&ed.buf.length<10)ed.buf+=ch;ed.err=null}
-    else if(k==='DEL'){ed.fresh=false;ed.buf=ed.buf.slice(0,-1);ed.err=null}
-    else if(k==='LEFT'||k==='RIGHT'){ed.fresh=false}
+    if(numEdit(ed,k,d.min<0)){}
     else if(k==='ESC')pp.edit=null;
     else if(k==='ENTER'){const v=parseFloat(ed.buf);if(!isFinite(v)){ed.err='Invalid';return}if(v<d.min||v>d.max){ed.err='Range '+d.min+' … '+d.max;return}S.P[d.id]=+v.toFixed(d.dec);pp.edit=null;afterParChange(d.id)}
     else hintKey(k);
@@ -887,8 +900,8 @@ function renderLCD(){
     else{low=rdRow('Feedrate',fmtN(S.m.If,1),'t/h',S.m.If/P('02.02'))+rdRow('Belt Load',fmtN(S.m.q,2),'kg/m',S.m.q/qo())+rdRow('Belt Speed',fmtN(S.m.v,3),'m/s',S.m.v/P('02.05'))+rdRow('Totalizer 1',fmtTot(S.tot.t1),'t',null)}
     h=hdr((S.scale.on?cr+' ':'')+P('01.05'))+evLine()+`<div class="lb">${up}${low}</div><div class="foothelp">${S.scale.on?'SCALE ON':'SCALE OFF'} · ▲▼ upper · ◀▶ lower · ▣ menu</div>`;
   }else if(u.scr==='menu'){
-    const m1=MENU[u.f1];
-    h=hdr('Functions')+evLine()+`<div class="lb"><div class="menu"><ul>${u.lvl===2?m1.s.map((s,i)=>`<li class="${i===u.f2?'sel':''}">${esc(s[0])}</li>`).join(''):m1.s.map(s=>`<li class="off">${esc(s[0])}</li>`).join('')}</ul><ul>${MENU.map((m,i)=>`<li class="${i===u.f1?(u.lvl===2?'sel2':'sel'):''}">${esc(m.n)}</li>`).join('')}</ul></div></div><div class="foothelp">${u.lvl===1?'▲▼ select · ◀/ENTER open · ▣ back':'▲▼ select · ENTER start · ▶ back · ▣ back'}</div>`;
+    const m1=MENU[u.f1];const lab=x=>x[1]==='vol'?x[0]+' ['+(S.mode.vol?'VOL':'GRAV')+']':x[1]==='kbd'?x[0]+' ['+(S.mode.kbd?'ON':'OFF')+']':x[1]==='sim'?x[0]+' ['+(S.mode.sim?'ON':'OFF')+']':x[0];
+    h=hdr('Functions')+evLine()+`<div class="lb"><div class="menu"><ul>${u.lvl===2?m1.s.map((s,i)=>`<li class="${i===u.f2?'sel':''}">${esc(lab(s))}</li>`).join(''):m1.s.map(s=>`<li class="off">${esc(lab(s))}</li>`).join('')}</ul><ul>${MENU.map((m,i)=>`<li class="${i===u.f1?(u.lvl===2?'sel2':'sel'):''}">${esc(m.n)}</li>`).join('')}</ul></div></div><div class="foothelp">${u.lvl===1?'▲▼ select · ◀/ENTER open · ▣ back':'▲▼ select · ENTER start · ▶ back · ▣ back'}</div>`;
   }else if(u.scr==='par'){
     const pp=u.par,B=BLOCKS[pp.b];
     if(pp.lvl==='b'){
@@ -896,8 +909,8 @@ function renderLCD(){
       h=hdr(pp.mode==='read'?'Read Parameters':'Change Parameters')+evLine()+`<div class="lb"><ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px">${BLOCKS.slice(st,st+6).map((b,j)=>`<li class="${st+j===pp.b?'sel':''}" style="padding:2px 5px;border-radius:3px;font-size:11px;background:${st+j===pp.b?'#ffd84a':'#eceff1'}">${b.n} - ${esc(b.name)}</li>`).join('')}</ul></div><div class="foothelp">▲▼ block · ▶/ENTER open · ▣ back</div>`;
     }else{
       const d=B.p[pp.i];const ed=pp.edit;
-      let val=ed?`<div class="inp">${esc(ed.buf)}${d.t==='enum'?' ◆':'<span class="cur"></span>'}</div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}`:`<div class="inp" style="border-color:#cfd5da">${esc(fmtP(d.id))}</div>`;
-      h=hdr(B.n+' - '+B.name)+evLine()+`<div class="lb"><div class="scr-t">P${d.id}</div><div style="font-weight:700;font-size:12.5px">${esc(d.name)}</div>${val}<div style="font-size:10px;color:#5b6875">${d.t==='num'?'Min '+d.min+' · Max '+d.max+(d.def!=null?' · Default '+d.def:''):d.t==='enum'?'Options: '+d.o.join(' / '):''}</div><div style="font-size:10px;color:#5b6875">${pp.i+1} / ${B.p.length}</div></div><div class="foothelp">${ed?(d.t==='enum'?'▲▼ choose · ENTER save · ▣ cancel':'0-9 . ± type · DEL delete · ENTER save · ▣ cancel'):(pp.mode==='chg'?'▲▼ parameter · DATA change · ◀ blocks · ▣ back':'▲▼ parameter · ◀ blocks · ▣ back')}</div>`;
+      let val=ed?`<div class="inp">${d.t==='enum'?esc(ed.buf)+' ◆':edHtml(ed)}</div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}`:`<div class="inp" style="border-color:#cfd5da">${esc(fmtP(d.id))}</div>`;
+      h=hdr(B.n+' - '+B.name)+evLine()+`<div class="lb"><div class="scr-t">P${d.id}</div><div style="font-weight:700;font-size:12.5px">${esc(d.name)}</div>${val}<div style="font-size:10px;color:#5b6875">${d.t==='num'?'Min '+d.min+' · Max '+d.max+(d.def!=null?' · Default '+d.def:''):d.t==='enum'?'Options: '+d.o.join(' / '):''}</div><div style="font-size:10px;color:#5b6875">${pp.i+1} / ${B.p.length}</div></div><div class="foothelp">${ed?(d.t==='enum'?'▲▼ choose · ENTER save · ▣ cancel':'0-9 . − type · ◀▶ cursor · ✱ delete · ↵ save · ▣ cancel'):(pp.mode==='chg'?'▲▼ parameter · DATA change · ◀ blocks · ▣ back':'▲▼ parameter · ◀ blocks · ▣ back')}</div>`;
     }
   }else if(u.scr==='prog'){
     const pr=S.ui.prog,nm=PROGS[pr.kind];let body='',head=nm;
@@ -921,7 +934,7 @@ function renderLCD(){
     }else if(pr.st==='abort'){head='Aborted !';body=`<div class="scr-t">${esc(nm)}</div><span class="msg bad">Aborted !</span><div style="font-size:11px">${esc(L(pr.why))}. Result not taken over.</div><span class="msg info">ENTER / ▣ = back</span>`}
     h=hdr(head)+evLine()+`<div class="lb">${body}</div>`;
   }else if(u.scr==='sp'){const ed=u.spbuf;
-    h=hdr('Feedrate Setpoint')+evLine()+`<div class="lb"><div class="scr-t">Setpoint</div><div class="inp">${esc(ed.buf)}<span class="cur"></span> <span style="font-size:12px">t/h</span></div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}<div style="font-size:10.5px">Nominal ${fmtN(P('02.02'),0)} t/h · Mode ${S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC'}</div></div><div class="foothelp">0-9 . type · ✱ delete · ↵ save · ▣ cancel</div>`;
+    h=hdr('Feedrate Setpoint')+evLine()+`<div class="lb"><div class="scr-t">Setpoint</div><div class="inp">${edHtml(ed)} <span style="font-size:12px">t/h</span></div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}<div style="font-size:10.5px">Nominal ${fmtN(P('02.02'),0)} t/h · Mode ${S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC'}</div></div><div class="foothelp">0-9 . type · ◀▶ cursor · ✱ delete · ↵ save · ▣ cancel</div>`;
   }else if(u.scr==='svc'){
     const rows=SVC().slice(u.svc,u.svc+6);
     h=hdr('Service Values')+evLine()+`<div class="lb">${rows.map(r=>`<div class="kv"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('')}</div><div class="foothelp">▲▼ scroll · ▣ back</div>`;

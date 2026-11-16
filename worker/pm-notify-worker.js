@@ -5,8 +5,8 @@
    WA_LANG (default en), WA_CC (default 91), WA_AT (default send time 08:00), WA_WINDOW (minutes, default 30).
    Run the worker every 15 minutes (a cron trigger that fires every 15 minutes). Phone alerts then go once a day at PUSH_AT (for example 08:00); if PUSH_AT is not set they go at every run.
    Who gets the daily phone alert (Nov 2026):
-     - users: their own jobs (and jobs of their groups)
-     - managers: the jobs of their own department(s); a manager with no department gets the whole plant
+     - users: their own jobs (and jobs of their groups) + every job of their own section
+     - managers: the jobs of their sections (departments they manage + sections they own, can be many); a manager with none gets the whole plant
      - the plant Admin (plant owner): no daily alert
    Copyright DUKEKRRISH. All rights reserved. */
 const FS='https://firestore.googleapis.com/v1/projects/';
@@ -28,13 +28,16 @@ const planOk=(p,now)=>p.plan==='permanent'||((p.plan==='trial'||p.plan==='monthl
 /* manager = role manager or admin, but never the plant owner (the plant Admin gets no daily alert) */
 const isOwner=(plant,m)=>!!plant.ownerUid&&m.id===plant.ownerUid;
 const isMgrM=m=>m.role==='manager'||m.role==='admin';
-/* sections a manager looks after: the sections of the departments where he is a manager; null = whole plant */
-function mgrSecs(cfg,m){const D=((cfg&&cfg.depts)||[]).filter(d=>d&&(d.mgrs||[]).indexOf(m.id)>=0);if(!D.length)return null;const s=new Set();D.forEach(d=>(d.secs||[]).forEach(x=>s.add(x)));return s}
+/* sections a manager looks after: sections of the departments he manages + sections where he (or his group) is the owner; null = whole plant (can be many sections) */
+function mgrSecs(cfg,m){const s=new Set();((cfg&&cfg.depts)||[]).forEach(d=>{if(d&&(d.mgrs||[]).indexOf(m.id)>=0)(d.secs||[]).forEach(x=>s.add(x))});((cfg&&cfg.sections)||[]).forEach(x=>{const o=x&&x.owner||'';if(o&&(o===m.id||(o.slice(0,2)==='g_'&&(GM[o]||[]).indexOf(m.id)>=0)))s.add(x.id)});return s.size?s:null}
 const forMgr=(cfg,m)=>{const S=mgrSecs(cfg,m);return t=>!S||S.has(t.sec)};
+/* a user's own section (members keep the section name): users get their own jobs + every job of their section */
+function userSec(cfg,m){const n=String(m.sec||'').trim().toLowerCase();if(!n||n.indexOf('dept: ')===0)return'';const x=((cfg&&cfg.sections)||[]).find(y=>y&&String(y.name||'').toLowerCase()===n);return x?x.id:''}
+const forUser=(cfg,m)=>{const sec=userSec(cfg,m);return t=>isMine(t,m.id)||(!!sec&&t.sec===sec)};
 /* Build one message per person: users get their own tasks, managers get their department (or the whole plant). */
 function buildMessages(plant,cfg,members,tasks,today,appUrl){const A=plant.alertDays==null?7:plant.alertDays,out=[];
  const open=tasks.filter(t=>t.active!==false&&!t.closed&&t.due&&t.due<=addDays(today,A));
- members.filter(m=>m.status==='active'&&m.tokens&&m.tokens.length&&!isOwner(plant,m)).forEach(m=>{const mgr=isMgrM(m),inScope=forMgr(cfg,m),mine=open.filter(t=>mgr?inScope(t):isMine(t,m.id));if(!mine.length)return;
+ members.filter(m=>m.status==='active'&&m.tokens&&m.tokens.length&&!isOwner(plant,m)).forEach(m=>{const mgr=isMgrM(m),inScope=mgr?forMgr(cfg,m):forUser(cfg,m),mine=open.filter(inScope);if(!mine.length)return;
   const over=mine.filter(t=>t.due<today),tod=mine.filter(t=>t.due===today),soon=mine.filter(t=>t.due>today);
   if(!over.length&&!tod.length&&!(soon.length&&!mgr))return;
   const bits=[];if(over.length)bits.push(over.length+' overdue');if(tod.length)bits.push(tod.length+' due today');if(soon.length)bits.push(soon.length+' due soon');

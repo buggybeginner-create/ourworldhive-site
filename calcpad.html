@@ -52,7 +52,7 @@ nav button span{display:grid;place-items:center;width:44px;height:28px;border-ra
 /* sheet */
 #rows{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .rw{display:grid;grid-template-columns:34px minmax(0,1fr) auto 30px;align-items:center;border-bottom:1px solid var(--line);min-height:42px}
-.rw:last-child{border-bottom:0}.rw.act{background:color-mix(in srgb,var(--p) 8%,transparent)}
+.rw:last-child{border-bottom:0}.rw.act{background:color-mix(in srgb,var(--p) 8%,transparent)}.inpv{display:inline-block;padding:2px 8px;border-radius:8px;background:color-mix(in srgb,var(--p) 14%,transparent);font-weight:700}.rs.in{color:var(--mut);font-style:italic;font-size:12px}.rw.pk{background:color-mix(in srgb,#f59e0b 22%,transparent)}.rw.pkx{opacity:.4}#pkbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f59e0b;color:#1c1917;border-radius:12px;margin-bottom:8px;font-weight:700}#pkbar span{flex:1}#pkbar button{border:0;border-radius:10px;padding:9px 14px;font-weight:700}#pkbar .ok{background:#1c1917;color:#fff}#pkbar .no{background:rgba(255,255,255,.6)}.fxg{display:flex;flex-wrap:wrap;gap:6px}.fxg button{font:600 13px var(--mono,monospace)}.fxh{font-size:12px;font-weight:700;color:var(--mut);margin:10px 0 6px}
 .ln{text-align:center;color:var(--p2);font:700 12px var(--mono)}
 .rw input{border:0;background:transparent;border-radius:0;padding:10px 6px;font:15px var(--mono);outline:none;min-width:0}
 .show{padding:9px 6px;min-width:0;overflow-wrap:anywhere;font-size:15px}.show.h{font-weight:800;font-size:17px;color:var(--p)}.show.n{color:var(--mut)}.show .lb{color:var(--mut)}
@@ -93,7 +93,7 @@ footer{flex:none;text-align:center;color:var(--mut);font-size:11.5px;padding:3px
   <div class="mut" id="ast" style="margin-top:4px;font-size:11.5px">✓ Auto saved on this phone</div>
   <div style="margin-top:4px" id="curlabs"></div></div>
  <div id="rows" class="vr"></div>
- <div class="tbar acts"><button class="ib wide" data-a="addrow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add row</span></button><button class="ib wide" data-a="ref"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span>Ref</span></button><button class="ib wide" data-a="fx"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-2a3 3 0 0 0-3 3v13M6 10h7M14 13l5 6M19 13l-5 6"/></svg><span>Functions</span></button><button class="ib wide" data-a="labadd"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg><span>Label</span></button></div>
+ <div class="tbar acts"><button class="ib wide" data-a="addrow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add row</span></button><button class="ib wide" data-a="ref"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span>Ref</span></button><button class="ib wide" data-a="fx"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-2a3 3 0 0 0-3 3v13M6 10h7M14 13l5 6M19 13l-5 6"/></svg><span>Functions</span></button><button class="ib wide" data-a="labadd"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V5a2 2 0 0 1 2-2h7l9 9-9 9z"/><circle cx="8" cy="8" r="1.6"/></svg><span>Label</span></button><button class="ib wide" data-a="mktpl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Template</span></button></div>
  <div class="bar"><div class="sgb" id="sug" hidden></div><div class="sgh" id="sugh" hidden></div><div class="keys" id="keys"></div><div class="tot"><span>TOTAL</span><b id="total">0</b></div></div>
 </section>
 <section class="tab" id="t-calc">
@@ -250,6 +250,7 @@ function evalSheet(rows){const res=new Array(rows.length),st=new Array(rows.leng
   prev(){for(let j=cur-1;j>=0;j--){const r=res[j];if(r&&r.k==='calc'&&typeof r.v==='number')return r.v}throw new Error('No previous result')}};
  const tryRun=e=>{let s=e;sp.forEach(o=>{s=s.replace(o.re,o.key)});return scalar(run(s,ctx))};
  function evalRow(raw){const s=raw.trim();if(!s)return{k:'blank'};
+  {const iv=/^#([A-Za-z_][A-Za-z0-9_]*)\s*$/.exec(s)||/^#([A-Za-z_][A-Za-z0-9_ ]*?)\s*=\s*(.*)$/.exec(s);if(iv&&!/^a\d+$/i.test(iv[1].trim())){const nm=iv[1].trim(),key=nk(nm),dv=iv[2]!=null?iv[2].trim():'';if(/\s/.test(nm)&&!sp.find(o=>o.key===key)){sp.push({key,re:new RegExp('(?<![A-Za-z0-9_])'+nm.split(/\s+/).map(escRe).join('\\s+')+'(?![A-Za-z0-9_])','gi')});sp.sort((a,b)=>b.key.length-a.key.length)}if(dv!==''){try{const v=tryRun(dv);vars[key]=v;return{k:'calc',v,label:nm,noTot:true,isVar:true,inp:true}}catch(e){}}return{k:'inp',name:nm}}}
   if(s[0]==='#')return{k:'head',text:s.replace(/^#+\s*/,'')};
   if(s.startsWith('//')||s[0]==="'"||s[0]==='"')return{k:'note',text:s.replace(/^(\/\/|'|")\s*/,'').replace(/"$/,'')};
   if(s[0]==='='){try{return{k:'calc',v:tryRun(s.slice(1)),label:'',noTot:true}}catch(e){return{k:'err',msg:e.message}}}
@@ -276,13 +277,33 @@ let pushT=0;function touch(){const a=document.getElementById('ast');if(a)a.textC
 /* ================= sheet UI ================= */
 function rowHtml(i){const v=CUR.rows[i];return`<div class="rw" data-i="${i}"><span class="ln">${i+1}</span><div class="mid" style="min-width:0"><input type="text" value="${esc(v)}" data-i="${i}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="Row ${i+1}"><div class="show" data-i="${i}"></div></div><span class="rs" data-i="${i}"></span><button class="dx" data-del="${i}" aria-label="Delete row">×</button></div>`}
 function refInsert(txt){insertAtCaret(txt)}
+/* functions list shared by Sheet and Formulas; common ones first */
+const FXTOP=['SUM','AVERAGE','MIN','MAX','COUNT','ROUND','IF','SQRT','POWER','ABS','PRODUCT','MEDIAN'],PICKF=['SUM','AVERAGE','MIN','MAX','COUNT','PRODUCT','MEDIAN'];
+function fxAll(){return Object.keys(FN).filter(k=>/^[A-Z][A-Z0-9_.]*$/.test(k)).sort()}
+function fxHtml(attr){const all=fxAll(),top=FXTOP.filter(n=>all.includes(n)),rest=all.filter(n=>!top.includes(n));const b=n=>`<button class="btn sm" type="button" data-${attr}="${n}${attr==='top'?'(':''}">${n}</button>`;return`<div class="fxh">Most used</div><div class="fxg">${top.map(b).join('')}</div><div class="fxh">All functions (${all.length})</div><div class="fxg">${rest.map(b).join('')}</div>`}
+/* pick rows for a function: tap rows, then Done -> SUM(A1:A3,A5) */
+const PICK={on:false,fn:'',sel:new Set(),target:-1};
+function pickStart(fn){const tg=LASTIN&&document.body.contains(LASTIN)?+LASTIN.dataset.i:ACT;if(tg<0){toast('Tap the row where the answer should come first');return}PICK.on=true;PICK.fn=fn;PICK.sel=new Set();PICK.target=tg;pickBar();pickMark()}
+function pickBar(){let b=$('pkbar');if(!PICK.on){if(b)b.remove();return}if(!b){b=document.createElement('div');b.id='pkbar';$('rows').parentNode.insertBefore(b,$('rows'))}b.innerHTML=`<span>Tap rows for ${PICK.fn} \u2022 ${PICK.sel.size} picked</span><button class="no" type="button" data-pk="x">Cancel</button><button class="ok" type="button" data-pk="ok">Done</button>`}
+function pickMark(){[...$('rows').children].forEach((rw,i)=>{rw.classList.toggle('pk',PICK.on&&PICK.sel.has(i));rw.classList.toggle('pkx',PICK.on&&i===PICK.target)})}
+function pickRefs(){const a=[...PICK.sel].map(i=>i+1).sort((x,y)=>x-y),o=[];for(let i=0;i<a.length;i++){let j=i;while(j+1<a.length&&a[j+1]===a[j]+1)j++;o.push(j>i+1?'A'+a[i]+':A'+a[j]:j===i+1?'A'+a[i]+',A'+a[j]:'A'+a[i]);i=j}return o.join(',')}
+function pickEnd(ok){const fn=PICK.fn,t=PICK.target,refs=pickRefs();PICK.on=false;pickBar();pickMark();if(!ok)return;if(!refs){toast('No rows picked');return}let v=CUR.rows[t]||'';const ins=fn+'('+refs+')';v=v.trim()?(/[=+\-*/(,]\s*$/.test(v)?v+ins:v+'+'+ins):'='+ins;CUR.rows[t]=v;drawRows();touch();focusRow(t,true)}
+document.addEventListener('click',e=>{if(!PICK.on)return;const k=e.target.closest&&e.target.closest('[data-pk]');if(k){e.preventDefault();e.stopPropagation();pickEnd(k.dataset.pk==='ok');return}const rw=e.target.closest&&e.target.closest('#rows .rw');if(!rw)return;e.preventDefault();e.stopPropagation();const i=+rw.dataset.i;if(i===PICK.target)return;const r=R.res[i];if(!r||r.k!=='calc'){toast('This row has no number');return}PICK.sel.has(i)?PICK.sel.delete(i):PICK.sel.add(i);pickBar();pickMark()},true);
+document.addEventListener('focusin',e=>{if(PICK.on&&e.target.closest&&e.target.closest('#rows')){e.target.blur()}},true);
+/* sheet -> template: #name rows become the inputs, every other row stays as the formula */
+function sheetToTpl(){const rows=CUR.rows.slice();while(rows.length&&!rows[rows.length-1].trim())rows.pop();const r=evalSheet(rows),vars=[];rows.forEach((x,i)=>{const q=r.res[i];if(q&&(q.k==='inp'||(q.inp&&q.isVar))){const m=/^#\s*([A-Za-z_][A-Za-z0-9_ ]*?)\s*(?:=\s*(.*))?$/.exec(x.trim());vars.push({n:(q.name||q.label||'').trim(),d:q.k==='calc'?String(q.v):''})}});
+ if(!vars.length){toast('Start a row with # and a name, like #Power, to make an input');return}
+ const V=vars.length,f=rows.map((x,i)=>{const q=r.res[i];if(q&&(q.k==='inp'||(q.inp&&q.isVar)))return'';return x.replace(/(?<![A-Za-z0-9_])A(\d+)(?![0-9])/gi,(m0,n)=>'A'+(+n+V))}).join('\n');
+ if(!r.res.some(q=>q.k==='calc'&&!q.isVar)){toast('Add at least one formula row that uses the inputs');return}
+ tplEditor({id:uid(),name:CUR.title||'',vars,f,unit:''});toast('Check the template and tap Save')}
 function drawRows(){$('rows').innerHTML=CUR.rows.map((_,i)=>rowHtml(i)).join('');$('rows').className=S.view==='f'?'vf':'vr';paint();if(FIND.hits.length)markFind()}
 function paint(){R=evalSheet(CUR.rows);const E=$('rows');
  CUR.rows.forEach((_,i)=>{const r=R.res[i],rw=E.children[i];if(!rw)return;rw.classList.toggle('act',i===ACT);rw.classList.toggle('emp',r.k==='blank');const sh=rw.querySelector('.show'),rs=rw.querySelector('.rs');let h='',c='rs',t='';
-  if(r.k==='head'){h='<span class="h">'+esc(r.text)+'</span>';sh.className='show h'}
+  if(r.k==='inp'){h='<span class="inpv">\uD83D\uDCE5 '+esc(r.name)+'</span>';sh.className='show';t='input';c='rs in'}
+  else if(r.k==='head'){h='<span class="h">'+esc(r.text)+'</span>';sh.className='show h'}
   else if(r.k==='note'){h=esc(r.text);sh.className='show n'}
   else if(r.k==='blank'){h='&nbsp;';sh.className='show'}
-  else if(r.k==='err'){h='<span class="n">'+esc(CUR.rows[i])+'</span>';sh.className='show n';t=r.msg;c='rs e'}
+  else if(r.k==='err'){const nm=/^Unknown name (.+)$/.exec(r.msg||''),isIn=nm&&R.res.some(q=>q.k==='inp'&&q.name.replace(/\s+/g,'_').toLowerCase()===nm[1].toLowerCase());h='<span class="n">'+esc(CUR.rows[i])+'</span>';sh.className='show n';if(isIn){t='needs '+nm[1];c='rs in'}else{t=r.msg;c='rs e'}}
   else{h=r.label?'<span class="lb">'+esc(r.label)+'</span>':/^\s*=/.test(CUR.rows[i])?'&nbsp;':'<span class="lb">'+esc(CUR.rows[i]).slice(0,60)+'</span>';sh.className='show';t=fmtN(r.v);c='rs'+(r.noTot?' v':'')}
   if(S.view==='f'&&r.k==='head'){h=''}
   sh.innerHTML=h;rs.className=c;rs.textContent=t});
@@ -333,7 +354,7 @@ function slDraw(){const q=($('slq').value||'').toLowerCase();$('slc').innerHTML=
  $('sll').innerHTML=L.length?L.map(h=>`<div class="sli"><div class="row"><b class="grow">${esc(h.k==='calc'?h.rows[0]+' = '+h.out:(h.title||'Untitled'))}</b><button class="btn sm p" data-ho="${h.id}">Open</button></div><div><span class="src">${SRC[hSrc(h)]}</span>${(h.labels||[]).map(l=>`<span class="lab">${esc(l)}</span>`).join('')}<span class="mut">${fdt(h.ts)}</span></div></div>`).join(''):'<div class="empty">Nothing saved yet.</div>'}
 function drawSheetHead(){$('ttl').value=CUR.title;drawLabs();[...document.querySelectorAll('#vseg .btn')].forEach(b=>b.classList.toggle('on',b.dataset.v===S.view))}
 /* ================= text / share / pdf ================= */
-function sheetLines(e){if(e.k==='calc')return{L:[{l:e.rows[0],r:e.out}],total:null};const r=evalSheet(e.rows),L=[];e.rows.forEach((s,i)=>{const x=r.res[i];if(x.k==='blank'){L.push({l:'',r:''});return}if(x.k==='head')L.push({l:x.text.toUpperCase(),r:'',b:1});else if(x.k==='note')L.push({l:x.text,r:''});else if(x.k==='err')L.push({l:s,r:'Error'});else L.push({l:s.replace(/^=/,'= ').trim(),r:fmtN(x.v)})});return{L,total:r.total}}
+function sheetLines(e){if(e.k==='calc')return{L:[{l:e.rows[0],r:e.out}],total:null};const r=evalSheet(e.rows),L=[];e.rows.forEach((s,i)=>{const x=r.res[i];if(x.k==='blank'){L.push({l:'',r:''});return}if(x.k==='inp')L.push({l:x.name,r:'(input)'});else if(x.k==='head')L.push({l:x.text.toUpperCase(),r:'',b:1});else if(x.k==='note')L.push({l:x.text,r:''});else if(x.k==='err')L.push({l:s,r:'Error'});else L.push({l:s.replace(/^=/,'= ').trim(),r:fmtN(x.v)})});return{L,total:r.total}}
 function toText(e){const x=sheetLines(e);let t=(e.title||'Calculation')+'\n'+fdt(e.ts||e.upd||Date.now())+(e.labels&&e.labels.length?'\nLabels: '+e.labels.join(', '):'')+'\n\n';x.L.forEach(o=>{t+=o.l+(o.r?'  =  '+o.r:'')+'\n'});return t+(x.total===null?'':'\nTotal: '+fmtN(x.total))+'\n\nMade with CalcPad, ourworldhive.com'}
 async function makeImage(es){const W=900,P=36,LH=34,hdr=70,pad=26;let H=P*2+60;const blocks=es.map(e=>{const x=sheetLines(e);return{e,x,h:hdr+x.L.length*LH+(x.total===null?0:LH+14)+pad}});blocks.forEach(b=>H+=b.h);
  const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);let y=P;
@@ -528,25 +549,29 @@ function tplEditor(t){t=t||{id:uid(),name:'',vars:[],f:'',unit:''};const V=t.var
  <div class="mut" style="margin-top:10px">Category (tab where this template will show)</div><select id="tcat" style="width:100%"><option value="">No category (only My templates)</option>${[...new Set(FORM.map(f=>f[0]))].filter(c=>c!=='Laws').map(c=>`<option value="${esc(c)}"${t.cat===c?' selected':''}>${esc(c)}</option>`).join('')}${FTABS.map(tb=>`<option value="c:${tb.id}"${t.cat==='c:'+tb.id?' selected':''}>${esc(tb.name)} (my tab)</option>`).join('')}<option value="__new">＋ New category…</option></select><input type="text" id="tcn" maxlength="24" placeholder="New category name" hidden style="margin-top:6px">
  <div class="row" style="margin-top:12px"><div class="mut grow"><b>Variables</b> <span id="vcount"></span><br>Values you type each time you use the template.</div><button class="btn sm p" type="button" id="vadd">+ Add variable</button></div><div id="vlist"></div>
  <div class="mut" style="margin-top:10px"><b>Formula</b>: tap a variable below to put it in. The last line is the answer.</div><div class="sgb" id="vch" style="padding:6px 0"></div><textarea id="tf" rows="3" placeholder="kW*1000/(sqrt(3)*V*pf)" autocapitalize="off" spellcheck="false">${esc(t.f)}</textarea>
- <div class="sgb" id="tops" style="padding:6px 0">${['+','−','×','÷','^','(',')','SQRT(','SUM(','ROUND(','IF(','PI()'].map(k=>`<button type="button" data-top="${k}">${k}</button>`).join('')}</div>
+ <div class="sgb" id="tsug" style="padding:4px 0"></div><div class="sgb" id="tops" style="padding:6px 0">${['+','−','×','÷','^','(',')',','].map(k=>`<button type="button" data-top="${k}">${k}</button>`).join('')}<button type="button" id="tfx" style="font-weight:700">\u0192x Functions \u25BE</button></div><div id="tfxp" hidden style="margin-bottom:6px">${fxHtml('top')}</div>
  <div class="mut" style="margin-top:6px">Unit of answer (optional)</div><input type="text" id="tu" maxlength="12" placeholder="A, kW, Rs" value="${esc(t.unit||'')}">
  <div class="out" id="tprev" style="margin-top:8px"></div><div class="row" style="margin-top:10px"><button class="btn p grow" id="tok">Save template</button></div><div class="mut" id="terr" style="margin-top:6px;color:var(--red)"></div></div>`;$('sm').hidden=false;$('sm')._e=null;
- const okV=()=>V.filter(v=>/^[A-Za-z_][A-Za-z0-9_ ]*$/.test(v.n)&&!/^a\d+$/i.test(v.n)&&v.d!==''&&!isNaN(Number(v.d)));
- const drawV=()=>{$('vlist').innerHTML=V.map((v,k)=>`<div class="vr2"><input type="text" data-vn="${k}" placeholder="Name, e.g. Motor power" maxlength="30" autocapitalize="off" spellcheck="false" value="${esc(v.n)}"><input type="text" inputmode="decimal" data-vd="${k}" placeholder="Value" value="${esc(v.d)}"><button class="btn sm red" type="button" data-vx="${k}" aria-label="Remove variable">×</button></div>`).join('');$('vcount').textContent='('+V.length+')';chips()};
+ const okV=()=>V.filter(v=>/^[A-Za-z_][A-Za-z0-9_ ]*$/.test(v.n)&&!/^a\d+$/i.test(v.n)&&(v.d===''||!isNaN(Number(v.d))));
+ const drawV=()=>{$('vlist').innerHTML=V.map((v,k)=>`<div class="vr2"><input type="text" data-vn="${k}" placeholder="Name, e.g. Motor power" maxlength="30" autocapitalize="off" spellcheck="false" value="${esc(v.n)}"><input type="text" inputmode="decimal" data-vd="${k}" placeholder="Value (optional)" value="${esc(v.d)}"><button class="btn sm red" type="button" data-vx="${k}" aria-label="Remove variable">×</button></div>`).join('');$('vcount').textContent='('+V.length+')';chips()};
  const chips=()=>{$('vch').innerHTML=V.filter(v=>v.n).map(v=>`<button type="button" data-top="${esc(v.n)}">${esc(v.n)}</button>`).join('')||'<span class="mut">Add variables above first</span>'};
- const prev=()=>{const vs=okV(),f=$('tf').value.trim().replace(/^=/,'');if(!vs.length||!f){$('tprev').textContent='';return}const r=tplEval({vars:vs,f},vs.map(v=>v.d));$('tprev').textContent=r.out===null?(r.err?'Not yet: '+r.err:''):'Answer with these values = '+fmtN(r.out)+' '+($('tu').value||'')};
+ const prev=()=>{const vs=okV(),f=$('tf').value.trim().replace(/^=/,'');tsug();if(!vs.length||!f){$('tprev').textContent='';return}if(vs.some(v=>v.d==='')){$('tprev').textContent='Type test values above to check the answer (values are optional for saving).';return}const r=tplEval({vars:vs,f},vs.map(v=>v.d));$('tprev').textContent=r.out===null?(r.err?'Not yet: '+r.err:''):'Answer with these values = '+fmtN(r.out)+' '+($('tu').value||'')};
  drawV();prev();
  const tew=$('tew');
  tew.onclick=e=>{const b=e.target.closest('button');if(!b)return;
   if(b.id==='vadd'){V.push({n:'',d:''});drawV();const q=tew.querySelectorAll('[data-vn]');q[q.length-1].focus();return}
   if(b.dataset.vx!==undefined){V.splice(+b.dataset.vx,1);if(!V.length)V.push({n:'',d:''});drawV();prev();return}
   if(b.dataset.top!==undefined){const ta=$('tf'),s=ta.selectionStart==null?ta.value.length:ta.selectionStart,en=ta.selectionEnd==null?s:ta.selectionEnd;ta.value=ta.value.slice(0,s)+b.dataset.top+ta.value.slice(en);const q=s+b.dataset.top.length;ta.focus();ta.setSelectionRange(q,q);prev();return}
+  if(b.id==='tfx'){const p=$('tfxp');p.hidden=!p.hidden;return}
+  if(b.dataset.ts!==undefined){const ta=$('tf'),pos=ta.selectionStart==null?ta.value.length:ta.selectionStart,before=ta.value.slice(0,pos),m=/([A-Za-z_][A-Za-z0-9_]*)$/.exec(before),st=m?pos-m[1].length:pos,ins=b.dataset.ts;ta.value=ta.value.slice(0,st)+ins+ta.value.slice(pos);const q=st+ins.length;ta.focus();ta.setSelectionRange(q,q);prev();return}
   if(b.id==='tok')save()};
+ function tsug(){const ta=$('tf'),box=$('tsug');if(!ta||!box)return;const pos=ta.selectionStart==null?ta.value.length:ta.selectionStart,m=/([A-Za-z_][A-Za-z0-9_]*)$/.exec(ta.value.slice(0,pos)),w=m?m[1].toUpperCase():'';if(!w){box.innerHTML='';return}const L=fxAll().filter(n=>n.startsWith(w)).slice(0,8).map(n=>[n+'(',n]).concat(V.filter(v=>v.n&&v.n.toUpperCase().replace(/\s+/g,'_').startsWith(w)).map(v=>[v.n,v.n]));box.innerHTML=L.map(x=>`<button type="button" data-ts="${esc(x[0])}">${esc(x[1])}</button>`).join('')}
+ $('tf').addEventListener('keyup',tsug);$('tf').addEventListener('click',tsug);
  tew.oninput=e=>{const x=e.target;if(x.id==='tcat'){$('tcn').hidden=x.value!=='__new';return}if(x.dataset.vn!==undefined){V[+x.dataset.vn].n=x.value.replace(/\s+/g,' ').trim();chips()}else if(x.dataset.vd!==undefined)V[+x.dataset.vd].d=x.value.trim();prev()};
- tew.addEventListener('pointerdown',e=>{if(e.target.closest('[data-top]'))e.preventDefault()});
+ tew.addEventListener('pointerdown',e=>{if(e.target.closest('[data-top],[data-ts]'))e.preventDefault()});
  const save=()=>{const name=$('tn').value.trim(),f=$('tf').value.trim();let bad='';const vars=[],seen={};
-  V.forEach(v=>{if(!v.n&&v.d==='')return;if(!/^[A-Za-z_][A-Za-z0-9_ ]*$/.test(v.n)||/^a\d+$/i.test(v.n))bad=bad||'Variable name "'+v.n+'" must start with a letter. Spaces are fine, but not like A1';else if(seen[v.n.toLowerCase()])bad=bad||'Variable "'+v.n+'" is used twice';else if(v.d===''||isNaN(Number(v.d)))bad=bad||'Variable '+v.n+' needs a number value';else{seen[v.n.toLowerCase()]=1;vars.push({n:v.n,d:v.d})}});
-  if(!name)bad=bad||'Please type a name';if(!vars.length)bad=bad||'Add at least one variable';if(!f)bad=bad||'Please type the formula';if(!bad){const r=tplEval({vars,f},vars.map(v=>v.d));if(r.out===null)bad='Formula does not give an answer'+(r.err?': '+r.err:'')}
+  V.forEach(v=>{if(!v.n&&v.d==='')return;if(!/^[A-Za-z_][A-Za-z0-9_ ]*$/.test(v.n)||/^a\d+$/i.test(v.n))bad=bad||'Variable name "'+v.n+'" must start with a letter. Spaces are fine, but not like A1';else if(seen[v.n.toLowerCase()])bad=bad||'Variable "'+v.n+'" is used twice';else if(v.d!==''&&isNaN(Number(v.d)))bad=bad||'Variable '+v.n+': the value must be a number';else{seen[v.n.toLowerCase()]=1;vars.push({n:v.n,d:v.d})}});
+  if(!name)bad=bad||'Please type a name';if(!vars.length)bad=bad||'Add at least one variable';if(!f)bad=bad||'Please type the formula';if(!bad&&vars.every(v=>v.d!=='')){const r=tplEval({vars,f},vars.map(v=>v.d));if(r.out===null)bad='Formula does not give an answer'+(r.err?': '+r.err:'')}
   let cat=$('tcat').value;if(cat==='__new'){const nn=($('tcn').value||'').trim();if(!nn)bad=bad||'Type the new category name';else if(!bad){let tb=FTABS.find(x=>x.name.toLowerCase()===nn.toLowerCase());if(!tb){tb={id:uid(),name:nn,items:[]};FTABS.push(tb);saveFT()}cat='c:'+tb.id}}
   if(bad){$('terr').textContent=bad;return}
   Object.assign(t,{name,vars,f:f.replace(/^=/,''),unit:$('tu').value.trim(),cat,upd:Date.now(),del:false});if(!TPL.find(x=>x.id===t.id))TPL.push(t);saveTpl();drawTpl();$('sm').hidden=true;toast('Template saved');Cloud.sync()}}
@@ -630,7 +655,8 @@ const A={
  newsheet(){const has=CUR.rows.some(r=>r.trim());if(has&&!licensed()){return askConfirm('New sheet','This clears your current sheet. In the full version it is kept in History. Back it up first if you need it.','Start new',()=>{CUR={id:uid(),title:'',rows:[''],labels:[],upd:Date.now()};ACT=-1;touch();drawRows();drawSheetHead();toast('New sheet')})}if(has){HIST.push({id:uid(),title:CUR.title||('Calculation '+fdt(Date.now())),rows:CUR.rows.slice(),labels:CUR.labels.slice(),ts:Date.now(),upd:Date.now()});saveHist()}CUR={id:uid(),title:'',rows:[''],labels:[],upd:Date.now()};ACT=-1;touch();drawRows();drawSheetHead();toast(has?'Old sheet saved in History':'New sheet')},
  addrow(){if(!lockCheck())return;insertRow(CUR.rows.length,'');focusRow(CUR.rows.length-1)},
  labadd(){if(!licensed())return needPaid('Labels');askText('Add label','e.g. Home, Office, Site',v=>{if(!CUR.labels.includes(v))CUR.labels.push(v);touch();drawLabs();Cloud.sync()})},
- fx(){const L=['SUM','AVERAGE','MIN','MAX','COUNT','ROUND','ROUNDUP','ROUNDDOWN','ABS','SQRT','POWER','MOD','INT','IF','AND','OR','LOG','LOG10','LN','EXP','SIN','COS','TAN','ASIN','ACOS','ATAN','DEGREES','RADIANS','FACT','COMBIN','PERMUT','GCD','LCM','MEDIAN','PRODUCT','TODAY'];$('smc').innerHTML='<h2>Functions</h2><div class="mut" style="margin-bottom:8px">Tap a function to add it to the row.</div><div class="row">'+L.map(n=>`<button class="btn sm" data-fn="${n}">${n}</button>`).join('')+'</div>';$('sm').hidden=false;$('sm')._e=null},
+ fx(){$('smc').innerHTML='<h2>Functions</h2><div class="mut" style="margin-bottom:4px">Tap a function. For <b>SUM, AVERAGE, MIN, MAX</b> and similar you then simply tap the rows you want.</div>'+fxHtml('fn');$('sm').hidden=false;$('sm')._e=null},
+ mktpl(){sheetToTpl()},
  ref(){const rs=R.res||[],o=[];let h='<h2>Insert reference</h2><div class="mut">Tap anything to put it in your formula. Rows come in as A1, A2 and so on, so the answer follows when that row changes.</div>';
   const ok=r=>r&&r.k==='calc'&&typeof r.v!=='undefined';
   const rr=rs.map((r,i)=>({r,i})).filter(x=>ok(x.r)&&!(CT==='sheet'&&x.i===ACT));
@@ -666,7 +692,7 @@ document.addEventListener('click',e=>{if(e.target===$('sm')){$('sm').hidden=true
  if(t.dataset.k!==undefined)return insertAtCaret(t.dataset.k);
  if(t.dataset.v){S.view=t.dataset.v;saveS();ACT=-1;drawSheetHead();$('rows').className=S.view==='f'?'vf':'vr';paint();return}
  if(t.dataset.rl){e.preventDefault();CUR.labels=CUR.labels.filter(x=>x!==t.dataset.rl);touch();drawLabs();return}
- if(t.dataset.fn){$('sm').hidden=true;refInsert(t.dataset.fn+'(');return}
+ if(t.dataset.fn){$('sm').hidden=true;if(PICKF.includes(t.dataset.fn))pickStart(t.dataset.fn);else refInsert(t.dataset.fn+'(');return}
  if(t.dataset.sg){sugPick(t.dataset.sg,+t.dataset.w||0);return}
  if(t.dataset.ref){$('sm').hidden=true;refInsert(t.dataset.ref);return}
  if(t.dataset.th){setTheme(t.dataset.th);return}

@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="owh-pwa.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noai, noimageai"><meta name="ai-use" content="no-training, no-scraping without written approval">
+<title>Tersus Weighfeeder Simulator | Ourworldhive Hands-On Hub</title>
+<meta name="description" content="Interactive weighfeeder and beltweigher training: Intecont Tersus style operating panel, function menu, parameters, LB / TW / CW / Zero calibration, live belt simulation with trend, and event troubleshooting from manual BV-H2464 GB.">
+<meta name="theme-color" content="#1b1f23"><link rel="canonical" href="https://ourworldhive.com/tersus-weighfeeder-sim.html">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Ourworldhive"><meta property="og:title" content="Beltweigher Simulator | Ourworldhive Training Hub"><meta property="og:url" content="https://ourworldhive.com/tersus-weighfeeder-sim.html"><meta property="og:image" content="https://ourworldhive.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg1:#22262a;--bg2:#15181b;--card:#1d2226;--card2:#262c31;--line:#343c43;--ink:#eef1f3;--mute:#9aa5ae;--gold:#ffc857;
+  --case:#2b3238;--case2:#20262b;--case-edge:#46515a;--key:#e9ecee;--key-ink:#1d2329;--key-sh:#9aa3aa;
+  --lcd:#f7f8f4;--lcd-ink:#15202a;--lcd-head:#1f3a5a;--lcd-mute:#5b6875;
+  --go:#2fa84f;--stop:#d8382f;--alm:#e5372d;--w1:#f08a24;--w2:#f2cf2a;--ok:#3cb46e;--info:#5aa7e6;
+  --f-h:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;--f-b:Barlow,system-ui,sans-serif;--f-m:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 90% at 50% 10%,var(--bg1),var(--bg2));color:var(--ink);font:14px/1.45 var(--f-b);
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:10px max(16px,env(safe-area-inset-left,0px)) 6px}
+.brand{font:700 18px/1.1 var(--f-h);letter-spacing:.04em}
+.brand small{display:block;font:500 11.5px/1.3 var(--f-b);color:var(--mute);letter-spacing:0;margin-top:2px}
+.backlink{display:block;margin-bottom:3px;color:var(--gold)!important;font:600 12px var(--f-h);letter-spacing:.06em;text-decoration:none}
+.lang{font-size:11px;color:var(--mute);display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.lang select{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 6px;font:500 13px var(--f-b)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px max(12px,env(safe-area-inset-left,0px)) 6px;border-bottom:1px solid var(--line);position:relative}
+.tabs::after{content:'';position:absolute;bottom:-1px;left:calc(max(12px,env(safe-area-inset-left,0px)) + var(--ti,0) * (100% - 2 * max(12px,env(safe-area-inset-left,0px))) / 4);width:calc((100% - 2 * max(12px,env(safe-area-inset-left,0px))) / 4);height:2px;background:var(--gold);transition:left .22s}
+.tab{background:none;border:0;border-radius:10px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font:600 12px var(--f-h);letter-spacing:.05em;color:var(--mute);cursor:pointer}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--ink);background:var(--card2)}
+.tab[aria-selected="true"] svg{stroke:var(--gold)}
+main{flex:1;min-height:0;position:relative;overflow:hidden}
+.pane.in-r{animation:inR .22s ease-out}.pane.in-l{animation:inL .22s ease-out}
+@keyframes inR{from{transform:translateX(28%);opacity:.3}}@keyframes inL{from{transform:translateX(-28%);opacity:.3}}
+@media (max-height:520px) and (orientation:landscape){.hdr{padding-top:4px;padding-bottom:2px}.brand{font-size:15px}.brand small,.backlink{display:none}.lang span{display:none}.tab{flex-direction:row;padding:4px;gap:6px}.tab svg{width:18px;height:18px}.swipehint{display:none}}
+.swipehint{font-size:11px;color:var(--mute);text-align:center;margin:3px 0 0}
+input[type=range]{touch-action:none}
+.pane{position:absolute;inset:0;overflow:auto;overscroll-behavior-x:contain;touch-action:pan-y pinch-zoom;padding:12px max(14px,env(safe-area-inset-left,0px)) calc(70px + env(safe-area-inset-bottom,0px))}
+.col{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card h2{font:700 15px var(--f-h);letter-spacing:.05em;margin:0 0 8px;text-transform:uppercase}
+.card h3{font:700 13.5px var(--f-h);letter-spacing:.04em;margin:10px 0 4px;text-transform:uppercase;color:var(--gold)}
+.mute{color:var(--mute)}
+.small{font-size:12px}
+.pill{display:inline-block;font:700 10.5px var(--f-h);letter-spacing:.06em;padding:2px 7px;border-radius:99px;background:var(--card2);color:var(--mute);vertical-align:middle;text-transform:uppercase}
+.pill.A{background:var(--alm);color:#fff}.pill.W1{background:var(--w1);color:#1a1100}.pill.W2{background:var(--w2);color:#1a1600}.pill.IG{background:#555;color:#eee}
+.pill.ok{background:var(--ok);color:#04150b}.pill.bad{background:var(--alm);color:#fff}.pill.wait{background:#3a4652;color:#dbe4ea}
+.btn{border:1px solid var(--line);background:var(--card2);border-radius:10px;padding:8px 12px;font:600 13px var(--f-h);letter-spacing:.04em;cursor:pointer;text-transform:uppercase}
+.btn.on{background:#21452f;border-color:#2f7a4a;color:#c9f5d9}
+.btn.red{background:#4a1f1d;border-color:#8a302a;color:#ffd6d2}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#221a00}
+.btn:active{transform:translateY(1px)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.disc{font-size:11.5px;color:var(--mute);text-align:center}
+.foot{font-size:11.5px;color:var(--mute);text-align:center}
+.foot a{color:var(--mute)}
+
+/* ---------- operating panel ---------- */
+.opwrap{container-type:inline-size;width:100%;max-width:1000px;margin:0 auto}
+.op{width:100%;margin:0 auto;position:relative;background:#555b60;border-radius:16px;padding:9px;box-shadow:0 0 0 1px #6c7277,0 14px 34px rgba(0,0,0,.55)}
+.op>.face{background:linear-gradient(180deg,#1f8c84,#17766f 60%,#136a64);border-radius:9px;padding:10px 14px 14px;box-shadow:inset 0 0 0 1px #2aa197;position:relative;overflow:hidden}
+.op>.face::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 calc(25% - 1px),#ffffff26 calc(25% - 1px) 25%);background-size:100% 100%;pointer-events:none;mask:linear-gradient(90deg,#000 0 100%);opacity:.0}
+  box-shadow:0 0 0 1px #6b737b,0 0 0 5px #2b3036,0 16px 40px rgba(0,0,0,.55)}
+.op::before,.op::after{display:none}
+
+.face{display:grid;gap:10px 9px;align-items:center;grid-template-columns:3.3fr 1fr 1.6fr 2.7fr;grid-template-areas:"br br br br" "lcd lcd lcd lcd" "num yel fn pad"}
+.opwrap.row .face{gap:8px 12px;grid-template-columns:3.1fr 1fr 6.4fr 1.5fr 2.6fr;grid-template-areas:"br br br br br" "num yel lcd fn pad"}
+.opwrap.row .k.n,.opwrap.row .k.y{font-size:clamp(12px,2.3cqw,21px)}.opwrap.row .big .val{font-size:clamp(16px,3.2cqw,32px)}
+.opwrap.row #lcd{aspect-ratio:16/10}
+.brandl{grid-area:br;font:800 15px var(--f-b);letter-spacing:.01em;color:#fff;display:flex;justify-content:space-between;align-items:baseline}
+.brandl i{font:600 12px var(--f-b);font-style:normal;color:#e8f6f4;letter-spacing:0}
+.brandl sup{font-size:8px}
+.brandl span{font-weight:500}
+.bezel{background:#2b3236;border-radius:5px;padding:5px;box-shadow:inset 0 1px 3px #000,0 0 0 1px #0e4e49}
+#lcd{background:var(--lcd);color:var(--lcd-ink);border-radius:4px;aspect-ratio:4/3;overflow:hidden;display:flex;flex-direction:column;font:500 12px/1.25 var(--f-m);cursor:pointer;position:relative}
+#lcd.dim{filter:brightness(.72)}
+.lh{background:var(--lcd-head);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:3px 6px;font:700 11px var(--f-m);gap:6px;white-space:nowrap}
+.lh .md{background:#ffffff26;border-radius:3px;padding:0 4px;font-size:10px}
+.le{padding:2px 6px;font:700 11px var(--f-m);min-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid #d6dbe0}
+.le.A{background:var(--alm);color:#fff}.le.W1{background:var(--w1);color:#1a1100}.le.W2{background:var(--w2);color:#1a1600}.le.none{color:var(--lcd-mute)}
+.le.blink{animation:blk 1s steps(2,start) infinite}
+@keyframes blk{to{filter:brightness(1.45) saturate(.6)}}
+.lb{flex:1;display:flex;flex-direction:column;padding:4px 7px;gap:3px;min-height:0}
+.big{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.big .lab{font:700 10.5px var(--f-m);color:var(--lcd-mute);text-transform:uppercase}
+.big .val{font:700 clamp(20px,7cqw,34px)/1 var(--f-m);letter-spacing:-.02em}
+.big .un{font:700 12px var(--f-m);color:var(--lcd-mute)}
+.cross{display:inline-block;width:12px;text-align:center;font-weight:700;color:var(--lcd-head)}
+.rd{display:grid;grid-template-columns:1fr auto;gap:0 6px;align-items:center;font-size:11px}
+.rd .bar{grid-column:1/-1;height:5px;background:#dde2e6;border-radius:3px;overflow:hidden;margin-bottom:2px}
+.rd .bar i{display:block;height:100%;background:#2d6ea8}
+.rd b{font-weight:700}
+.menu{display:grid;grid-template-columns:1fr 1.25fr;gap:5px;flex:1;min-height:0}
+.menu ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.menu li{padding:2px 5px;border-radius:3px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#eceff1}
+.menu li.sel{background:#ffd84a;font-weight:700}
+.menu li.sel2{background:#ff9f3a;font-weight:700}
+.menu li.off{color:#9aa4ad}
+.scr-t{font:700 12px var(--f-m);color:var(--lcd-head);text-transform:uppercase}
+.kv{display:flex;justify-content:space-between;gap:6px;font-size:11.5px;border-bottom:1px dotted #cfd5da;padding:1px 0}
+.kv b{font-weight:700}
+.inp{font:700 18px var(--f-m);background:#fff;border:1.5px solid var(--lcd-head);border-radius:3px;padding:2px 6px;min-height:28px}
+.inp .cur{display:inline-block;width:8px;height:18px;background:var(--lcd-head);vertical-align:-3px;animation:blk2 1s steps(2,start) infinite}
+@keyframes blk2{to{opacity:0}}
+.prog{height:8px;background:#dde2e6;border-radius:4px;overflow:hidden}
+.prog i{display:block;height:100%;background:#2d6ea8}
+.msg{font:700 12px var(--f-m);padding:2px 6px;border-radius:3px;display:inline-block}
+.msg.bad{background:var(--alm);color:#fff}.msg.ok{background:var(--ok);color:#03130a}.msg.info{background:#dbe7f3;color:var(--lcd-head)}
+.foothelp{font-size:9.5px;color:var(--lcd-mute);border-top:1px solid #d6dbe0;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.num{grid-area:num;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.yel{grid-area:yel;display:grid;gap:9px}
+.fnc{grid-area:fn;display:grid;gap:9px;justify-items:end}
+.fnc .k{width:70%}.fnc .k.ent{width:70%}
+.lcdz{grid-area:lcd;display:flex;gap:6px;align-items:stretch}
+.lcdz .vs{display:none}
+.lcdz .bezel{flex:1;min-width:0}
+.pad{grid-area:pad;position:relative;aspect-ratio:1}
+.pad svg.ring{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:none}
+.pad::before{content:"";position:absolute;left:30%;right:30%;top:45%;height:10%;background:#e9f4f2;border-radius:2px}
+.k{position:relative;border:0;border-radius:7px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;line-height:1;touch-action:manipulation;user-select:none;-webkit-user-select:none;aspect-ratio:1;min-width:0}
+.k.n{background:transparent;color:#fff;border:0;border-bottom:3px solid #e9f4f2;border-radius:0;font:800 clamp(14px,4.4cqw,21px) var(--f-b);box-shadow:none;aspect-ratio:1.25}
+.k.y{background:transparent;color:#f4e04a;border:0;border-bottom:3px solid #f4e04a;border-radius:0;font:800 clamp(16px,5cqw,24px) var(--f-b);box-shadow:none;aspect-ratio:1.25}
+.k.y svg{width:62%;height:74%;fill:none;stroke:#f4e04a;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pad .k{position:absolute;width:33%;height:33%;aspect-ratio:auto;background:transparent;color:#fff;font-size:clamp(13px,4cqw,20px);border-radius:50%}
+.pad .k[data-k=UP]{left:33.5%;top:1%}.pad .k[data-k=DOWN]{left:33.5%;bottom:1%}.pad .k[data-k=LEFT]{left:1%;top:33.5%}.pad .k[data-k=RIGHT]{right:1%;top:33.5%}
+.k:active,.k.press{background:#ffffff2e!important;transform:translateY(1px)}
+.pad .k:active,.pad .k.press{transform:none;background:#ffffff2e}
+.k.hl{outline:3px solid var(--gold);outline-offset:2px}
+.legend{max-width:1000px;margin:0 auto;font-size:11.5px;color:var(--mute);text-align:center;line-height:1.7}
+.legend b{display:inline-block;min-width:18px;padding:0 5px;border-radius:3px;background:#17766f;color:#f4e04a;font:800 11px var(--f-h);box-shadow:inset 0 -2px 0 #f4e04a}
+.legend b.n{background:#17766f;color:#fff;box-shadow:inset 0 -2px 0 #e9f4f2}
+.hintline{max-width:1000px;margin:0 auto;width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 11px;font-size:13px;min-height:40px;display:flex;gap:8px;align-items:flex-start}
+.hintline .dotk{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none;background:var(--info)}
+.hintline.warn .dotk{background:var(--w1)}.hintline.bad .dotk{background:var(--alm)}.hintline.ok .dotk{background:var(--ok)}
+.guide h2 .pill{margin-left:6px}
+.guide ul,.guide ol,.steps{margin:4px 0 0;padding-left:20px}
+.guide li,.steps li{margin:3px 0}
+.kc{display:inline-block;font:700 11px var(--f-h);letter-spacing:.04em;background:#e9ecee;color:#1d2329;border-radius:5px;padding:1px 6px;margin:0 1px;box-shadow:0 2px 0 #8d969d}
+.kc.y{background:#17766f;color:#f4e04a;box-shadow:inset 0 -2px 0 #f4e04a}
+.kc{background:#17766f;color:#fff;box-shadow:inset 0 -2px 0 #e9f4f2}
+.task{border:1px dashed #6b5a26;background:#2a2512;border-radius:10px;padding:8px 10px;margin-top:8px}
+.task b{color:var(--gold)}
+
+/* ---------- belt ---------- */
+.beltsvg{width:100%;height:auto;display:block;background:#11161a;border-radius:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ro{background:var(--card2);border-radius:10px;padding:7px 9px}
+.ro .t{font:600 10.5px var(--f-h);letter-spacing:.06em;color:var(--mute);text-transform:uppercase}
+.ro .v{font:700 17px var(--f-m)}
+.ro .s{font-size:11px;color:var(--mute)}
+.slider{width:100%;accent-color:var(--gold)}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl label{font:600 12px var(--f-h);letter-spacing:.05em;color:var(--mute);text-transform:uppercase;display:flex;justify-content:space-between}
+.seg3{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg3 button{border:0;background:var(--card2);padding:7px 11px;font:600 12.5px var(--f-h);cursor:pointer}
+.seg3 button[aria-pressed="true"]{background:var(--gold);color:#221a00}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--card2);border-radius:99px;padding:6px 11px;font:600 12px var(--f-h);letter-spacing:.03em;cursor:pointer}
+.chip[aria-pressed="true"]{background:#4a1f1d;border-color:#c0453c;color:#ffd6d2}
+canvas.trend{width:100%;height:190px;display:block;background:#11161a;border-radius:10px}
+.lg{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--mute);margin-top:6px}
+.lg i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+
+/* ---------- calibrate ---------- */
+.stp{display:grid;grid-template-columns:28px 1fr;gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.stp:first-of-type{border-top:0}
+.stp .no{width:26px;height:26px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font:700 13px var(--f-h)}
+.stp.done .no{background:var(--ok);color:#04150b}
+.stp.warn .no{background:var(--w1);color:#1a1100}
+.stp h4{margin:2px 0 2px;font:700 14px var(--f-h);letter-spacing:.03em;text-transform:uppercase}
+.stp p{margin:2px 0}
+.plate{font:500 12.5px var(--f-m);background:#11161a;border-radius:10px;padding:8px 10px}
+.plate div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted #2d353c;padding:2px 0}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc input{width:100%;background:#11161a;border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:7px 8px;font:600 14px var(--f-m)}
+.calc label{font:600 11px var(--f-h);letter-spacing:.05em;color:var(--mute);text-transform:uppercase;display:flex;flex-direction:column;gap:3px}
+.res{font:700 16px var(--f-m);color:var(--gold)}
+
+/* ---------- events ---------- */
+.srch{width:100%;background:#11161a;border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:9px 11px;font:500 14px var(--f-b)}
+.ev{border-top:1px solid var(--line);padding:9px 0}
+.ev:first-child{border-top:0}
+.ev summary{cursor:pointer;list-style:none;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.ev summary::-webkit-details-marker{display:none}
+.ev .code{font:700 13px var(--f-m);min-width:42px}
+.ev .nm{font:600 13.5px var(--f-b);flex:1;min-width:120px}
+.ev.act{background:linear-gradient(90deg,#3a1715,transparent 70%);border-radius:8px;padding-left:6px}
+.sub{font:700 11px var(--f-h);letter-spacing:.07em;color:var(--mute);text-transform:uppercase;margin-top:7px}
+.log{font:500 12px var(--f-m);max-height:200px;overflow:auto;background:#11161a;border-radius:10px;padding:6px 8px}
+.log div{border-bottom:1px dotted #2d353c;padding:2px 0}
+
+@media (min-width:900px){
+  .col{max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+  .col>*{min-width:0}
+  #p-panel .col{display:flex;max-width:1000px}
+  .span2{grid-column:1/-1}
+}
+</style>
+</head><body>
+<header class="hdr">
+  <div class="brand"><a class="backlink" href="training.html">‹ HANDS-ON HUB</a>TERSUS WEIGHFEEDER<small>Intecont / Disocont Tersus style panel · gravimetric + volumetric</small></div>
+  <label class="lang"><span>Language</span><select id="lang"><option value="en">English</option><option value="hg">Hinglish</option></select></label>
+</header>
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" data-i="0" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="2.5" width="17" height="19" rx="2.5"/><rect x="6.5" y="5.5" width="11" height="6" rx=".8"/><path d="M7.5 15h1M11.5 15h1M15.5 15h1M7.5 18h1M11.5 18h1M15.5 18h1"/></svg><span>PANEL</span></button>
+  <button class="tab" role="tab" data-i="1" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="15" r="2.5"/><circle cx="18.5" cy="15" r="2.5"/><path d="M5.5 12.5h13M5.5 17.5h13"/><path d="M9 12.5V9h6v3.5"/></svg><span>BELT</span></button>
+  <button class="tab" role="tab" data-i="2" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M12 4v12"/><path d="M6 8h12"/><path d="M6 8l-3 6h6zM18 8l-3 6h6z"/></svg><span>CALIBRATE</span></button>
+  <button class="tab" role="tab" data-i="3" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5M12 17.2v.3"/></svg><span>EVENTS</span></button>
+</nav>
+<p class="swipehint" id="swh">‹ Swipe left / right to change tabs ›</p>
+<main>
+
+<section class="pane" id="p-panel"><div class="col">
+  <div class="opwrap"><div class="op" id="op">
+    <span id="led-on" hidden></span><span id="led-alm" hidden></span>
+    <div class="face" id="keys">
+      <div class="brandl"><span>INTECONT<sup>®</sup> <span style="font-weight:500">Tersus</span></span></div>
+      <div class="num">
+        <button class="k n" data-k="7">7</button><button class="k n" data-k="8">8</button><button class="k n" data-k="9">9</button>
+        <button class="k n" data-k="4">4</button><button class="k n" data-k="5">5</button><button class="k n" data-k="6">6</button>
+        <button class="k n" data-k="1">1</button><button class="k n" data-k="2">2</button><button class="k n" data-k="3">3</button>
+        <button class="k n" data-k="SIGN">−</button><button class="k n" data-k="0">0</button><button class="k n" data-k="DOT">.</button>
+      </div>
+      <div class="yel">
+        <button class="k y" data-k="DEL" aria-label="Delete / acknowledge"><svg viewBox="0 0 24 24"><path d="M12 3.5v17M6 7l12 10M18 7 6 17"/></svg></button>
+        <button class="k y" data-k="STOP" aria-label="Stop">O</button>
+        <button class="k y" data-k="START" aria-label="Start">I</button>
+      </div>
+      <div class="lcdz"><i class="vs"></i><div class="bezel"><div id="lcd" role="button" tabindex="0" aria-label="Display. Tap for explanation."></div></div><i class="vs"></i></div>
+      <div class="fnc">
+        <button class="k y" data-k="DATA" aria-label="Data"><svg viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/><path d="M15.5 12H8.5M11 9.5 8.5 12l2.5 2.5"/></svg></button>
+        <button class="k y" data-k="FUNC" aria-label="Function (also back)"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><rect x="7.5" y="7.5" width="9" height="9"/><path d="M3.5 3.5l4 4M20.5 3.5l-4 4M3.5 20.5l4-4M20.5 20.5l-4-4"/></svg></button>
+        <button class="k y ent" data-k="ENTER" aria-label="Enter"><svg viewBox="0 0 24 24" style="width:40%"><path d="M19 7v5H6"/><path d="M10 8l-4 4 4 4"/></svg></button>
+      </div>
+      <div class="pad">
+        <svg class="ring" viewBox="0 0 100 100"><path d="M50 3 70 25 50 45 30 25z M97 50 75 70 55 50 75 30z M50 97 30 75 50 55 70 75z M3 50 25 30 45 50 25 70z"/></svg>
+        <button class="k" data-k="UP" aria-label="Up">▲</button><button class="k" data-k="LEFT" aria-label="Left">◀</button>
+        <button class="k" data-k="RIGHT" aria-label="Right">▶</button><button class="k" data-k="DOWN" aria-label="Down">▼</button>
+      </div>
+    </div>
+  </div></div>
+  <p class="legend" id="legend"><b>✱</b> DELETE / ACK · <b>O</b> STOP · <b>I</b> START · <b>◇</b> DATA · <b>▣</b> FUNCTION (also back / ESC in this simulator) · <b>↵</b> ENTER · <b class="n">▲▼◀▶</b> SCROLL · <b class="n">0-9</b> DISPLAY / NUMBERS · <b class="n">− .</b> BRIGHTNESS</p>
+  <div class="hintline" id="hint"><span class="dotk"></span><span id="hinttxt"></span></div>
+  <div class="card guide" id="guide"></div>
+  <p class="disc">Training purpose only. Not affiliated with the equipment manufacturer or supplier. Panel layout is a training representation, not an exact replica.</p>
+  <p class="foot">© 2026 DUKEKRRISH. All rights reserved. <a href="terms.html#training">Terms</a></p>
+</div></section>
+
+<section class="pane" id="p-belt" hidden><div class="col">
+  <div class="card span2">
+    <h2>Live Belt</h2>
+    <svg class="beltsvg" id="beltsvg" viewBox="0 0 640 230" aria-label="Belt conveyor with weighing idler"></svg>
+    <div class="grid2" style="margin-top:8px" id="ro"></div>
+  </div>
+  <div class="card">
+    <h2>Plant Controls</h2>
+    <div class="ctl">
+      <label>Feeder Local Jog (nominal speed)<span id="beltst"></span></label>
+      <div class="row"><button class="btn on" id="b-belt-on">Jog ON</button><button class="btn red" id="b-belt-off">Jog OFF</button></div>
+      <label>Run Enable From Downstream<span id="enst"></span></label>
+      <div class="row"><button class="btn" id="b-en">Toggle Run Enable</button></div>
+      <label>Hopper Gate / Material Layer<span id="feedv"></span></label>
+      <input type="range" min="0" max="130" step="1" value="80" class="slider" id="feed">
+      <label>DCS Setpoint<span id="spv"></span></label>
+      <input type="range" min="0" max="540" step="5" value="300" class="slider" id="spsl">
+      <label>Control Mode<span id="vmst"></span></label>
+      <div class="seg3" id="vm"><button data-v="0" aria-pressed="true">Gravimetric</button><button data-v="1" aria-pressed="false">Volumetric</button></div>
+      <label>Calibration Weight<span id="cwst"></span></label>
+      <div class="row"><button class="btn" id="b-cw">Hang / Remove Weight</button></div>
+      <label>DCS Feeder Command (Normal Mode)<span id="dcsst"></span></label>
+      <div class="row"><button class="btn on" id="b-dcs-on">Scale ON</button><button class="btn red" id="b-dcs-off">Scale OFF</button></div>
+      <label>Simulation Speed</label>
+      <div class="seg3" id="spd"><button data-s="1" aria-pressed="true">×1</button><button data-s="10" aria-pressed="false">×10</button><button data-s="60" aria-pressed="false">×60</button></div>
+      <label>Scenario</label>
+      <div class="row"><button class="btn" id="b-sc1">New Commissioning</button><button class="btn" id="b-sc2">Calibrated Plant</button><button class="btn" id="b-pwr">Power Cycle</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Inject Faults</h2>
+    <div class="chips" id="faults"></div>
+    <p class="small mute" style="margin:8px 0 0" id="faultnote"></p>
+  </div>
+  <div class="card span2">
+    <h2>Trend</h2>
+    <canvas class="trend" id="trend" width="900" height="260"></canvas>
+    <div class="lg"><span><i style="background:#ffffff"></i>Setpoint</span><span><i style="background:#ffc857"></i>Indicated Feedrate</span><span><i style="background:#7fd1ff"></i>True Feedrate</span><span><i style="background:#9be38a"></i>Belt Speed %</span><span><i style="background:#ff8a7a"></i>Belt Load %</span></div>
+  </div>
+  <p class="disc span2">Training purpose only. Not affiliated with the equipment manufacturer or supplier.</p>
+</div></section>
+
+<section class="pane" id="p-cal" hidden><div class="col">
+  <div class="card">
+    <h2>Commissioning Steps</h2>
+    <p class="small mute" style="margin:0 0 4px" id="calintro"></p>
+    <div id="steps"></div>
+  </div>
+  <div class="card">
+    <h2>Plant Data Sheet</h2>
+    <div class="plate" id="plate"></div>
+    <h3>Belt Circuit Stopwatch</h3>
+    <p class="small mute" style="margin:2px 0 6px" id="swtxt"></p>
+    <div class="row"><button class="btn" id="b-sw">Start Stopwatch</button><span class="res" id="swv">--.- s</span></div>
+    <h3>Material Test (Range Correction)</h3>
+    <p class="small mute" style="margin:2px 0 6px" id="mttxt"></p>
+    <div class="row"><button class="btn" id="b-mt">Start Material Test</button><span class="small" id="mtst"></span></div>
+    <div class="calc" style="margin-top:8px">
+      <label>Weighbridge MW (t)<input id="c-mw" inputmode="decimal"></label>
+      <label>Counter Progression MA (t)<input id="c-ma" inputmode="decimal"></label>
+      <label>Old P04.02<input id="c-old" inputmode="decimal"></label>
+      <label>New P04.02 = Old × MW / MA<span class="res" id="c-new">—</span></label>
+    </div>
+  </div>
+  <p class="disc span2">Training purpose only. Not affiliated with the equipment manufacturer or supplier. Always follow your plant procedure and the original manual.</p>
+</div></section>
+
+<section class="pane" id="p-ev" hidden><div class="col">
+  <div class="card">
+    <h2>Event Messages</h2>
+    <input class="srch" id="evq" placeholder="Search code or text, e.g. IL01, slip, tare">
+    <div class="row" style="margin:8px 0 2px" id="evf"><button class="chip" data-f="all" aria-pressed="true">All</button><button class="chip" data-f="act" aria-pressed="false">Active</button><button class="chip" data-f="A" aria-pressed="false">Alarm</button><button class="chip" data-f="W" aria-pressed="false">Warning</button></div>
+    <div id="evlist"></div>
+  </div>
+  <div class="card">
+    <h2>Event Classes</h2>
+    <div id="evclass"></div>
+    <h3>Event Log</h3>
+    <div class="log" id="evlog"></div>
+  </div>
+  <p class="disc span2">Training purpose only. Not affiliated with the equipment manufacturer or supplier.</p>
+</div></section>
+
+</main>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let LANG='en';
+try{const l=localStorage.getItem('tersus-lang');if(l==='en'||l==='hg')LANG=l}catch(e){}
+const L=o=>o==null?'':(typeof o==='string'?o:(o[LANG]||o.en));
+
+/* ================= PLANT (hidden "real" values) ================= */
+const REAL={beltLen:48,v0:1.0,ppm:48.70,cap:450,leff:1.04,angle:8,tare:21.6,calW:40,lcCap:220,lcChar:2.85,lever:1};
+const PW='7353';
+
+/* ================= PARAMETERS ================= */
+const ACC=['active','not active'];
+const BLOCKS=[
+ {n:'01',name:'Dialog Behaviour',p:[
+  {id:'01.01',name:'Language',t:'enum',o:['ENGLISH','DEUTSCH','FRANCAIS'],def:'ENGLISH',d:{en:'Display language. Factory default is DEUTSCH; the simulator always shows English.',hg:'Display ki language. Factory default DEUTSCH hai; simulator hamesha English dikhata hai.'}},
+  {id:'01.04',name:'Units',t:'enum',o:['Metric','English'],def:'Metric',d:{en:'SI (kg, t/h, m) or Non-SI units. Simulator shows metric only.',hg:'SI (kg, t/h, m) ya Non-SI units. Simulator sirf metric dikhata hai.'}},
+  {id:'01.05',name:'Scale Name',t:'fix',def:'Tersus Weighfeeder',d:{en:'Name shown in the header line.',hg:'Header line me dikhne wala naam.'}},
+  {id:'01.08',name:'Feeder ON/OFF',t:'enum',o:ACC,def:'active',d:{en:'Access to switching the scale ON/OFF from the panel. "not active" locks the START/STOP keys.',hg:'Panel se scale ON/OFF karne ki permission. "not active" par START/STOP keys lock ho jaati hain.'}},
+  {id:'01.09',name:'Switch Keyboard-/Normal Mode',t:'enum',o:ACC,def:'active',d:{en:'Access to the Keyboard Mode function (FUNCTION ▸ Mode).',hg:'Keyboard Mode function (FUNCTION ▸ Mode) ki permission.'}}]},
+ {n:'02',name:'Rated Data',p:[
+  {id:'02.01',name:'Flow Rate Units',t:'fix',def:'------ t/h',d:{en:'Display format of the feed rate.',hg:'Feed rate ka display format.'}},
+  {id:'02.02',name:'Nominal Flow Rate',t:'num',u:'t/h',def:400,min:0.001,max:99999,dec:1,d:{en:'Io, rated feed rate of the scale. Reference for limits and the analog output. Changing it changes P04.01 and needs a new LB program.',hg:'Io, scale ka rated feed rate. Limits aur analog output ka reference. Badalne par P04.01 badalta hai aur LB dobara chalana padta hai.'}},
+  {id:'02.03',name:'Speed Measurement',t:'fix',def:'DI VCU1.DI5 High',d:{en:'Input that reads the speed sensor pulses (a NAMUR sensor can be used).',hg:'Speed sensor ke pulse padhne wala input (NAMUR sensor laga sakte hain).'}},
+  {id:'02.04',name:'Pulses per length',t:'num',u:'I/m',def:50.26,min:0.001,max:99999,dec:2,d:{en:'Speed sensor pulses per metre of belt travel. Wrong value = wrong belt speed and wrong feed rate. Change → run LB again.',hg:'Belt ke har metre par speed sensor ke pulse. Galat value = galat speed aur galat feed rate. Badalne par LB dobara chalao.'}},
+  {id:'02.05',name:'Nominal Speed',t:'num',u:'m/s',def:1,min:0.01,max:20,dec:2,d:{en:'v0, rated belt speed. Used for P04.01 and speed limits. Change → run LB again.',hg:'v0, rated belt speed. P04.01 aur speed limits me use hota hai. Badalne par LB dobara chalao.'}},
+  {id:'02.07',name:'Counter 1 Unit',t:'enum',o:['------- t','-----.- t','----.-- t','---.--- t'],def:'------- t',d:{en:'Display format of Totalizer 1. Use more decimals (---.--- t) for a material test.',hg:'Totalizer 1 ka format. Material test ke liye zyada decimal (---.--- t) rakho.'}}]},
+ {n:'03',name:'Calibration Data',p:[
+  {id:'03.01',name:'Belt Circuit No.',t:'num',u:'',def:1,min:1,max:100,dec:0,d:{en:'Number of whole belt circuits used by Zero Set, TW and CW programs.',hg:'Zero Set, TW aur CW program kitne poore belt chakkar tak chalenge.'}},
+  {id:'03.02',name:'Belt Circuit Time',t:'num',u:'s',def:30,min:1,max:9999,dec:1,d:{en:'Measuring time of the LB program. Must equal one measured belt circuit (stopwatch on the belt mark).',hg:'LB program ka measuring time. Belt ka ek chakkar jitna time stopwatch se naapo, wahi daalo.'}},
+  {id:'03.03',name:'LC Characteristic Value',t:'num',u:'mV/V',def:2.85,min:0.01,max:9.9999,dec:4,d:{en:'Sensitivity of the load cell (from the load cell label / test certificate).',hg:'Load cell ki sensitivity (load cell ke label / certificate se).'}},
+  {id:'03.04',name:'LC Rated Capacity',t:'num',u:'kg',def:220,min:0.5,max:220000,dec:1,d:{en:'Sum of the rated loads of all load cells of the platform.',hg:'Platform ke saare load cells ki rated capacity ka total.'}},
+  {id:'03.05',name:'Effective Platform Length',t:'num',u:'m',def:1,min:0.1,max:50,dec:3,d:{en:'Leff. Single idler platform: half the distance between the two neighbouring (non-weighing) idlers.',hg:'Leff. Single idler platform me: dono taraf ke (non-weighing) idlers ke beech ki doori ka aadha.'}},
+  {id:'03.06',name:'Lever Ratio',t:'num',u:'',def:1,min:0.01,max:2,dec:3,d:{en:'Lever ratio between the weighing force and the load cell force (1 = direct).',hg:'Weighing force aur load cell force ke beech lever ratio (1 = seedha).'}},
+  {id:'03.07',name:'Angle',t:'num',u:'Grad',def:0,min:0,max:60,dec:1,d:{en:'Belt inclination for a load cell mounted perpendicular to the belt. α = tan⁻¹(h / l).',hg:'Belt ka jhukav (load cell belt ke perpendicular ho tab). α = tan⁻¹(h / l).'}},
+  {id:'03.08',name:'Calibration Weight',t:'num',u:'kg',def:50,min:0.001,max:22000,dec:2,d:{en:'Test weight as it acts on the load cell. Should be 30 % … 100 % of Qo (rated platform load).',hg:'Test weight jitna load cell par lagta hai. Qo (rated platform load) ka 30 % … 100 % hona chahiye.'}}]},
+ {n:'04',name:'Calibrat. Results',p:[
+  {id:'04.01',name:'Nominal Belt Load',t:'calc',u:'kg/m',dec:2,d:{en:'qo = Io / v0. Calculated from P02.02 and P02.05 (read only).',hg:'qo = Io / v0. P02.02 aur P02.05 se calculate hota hai (sirf padh sakte ho).'}},
+  {id:'04.02',name:'Range Correction',t:'num',u:'',def:1,min:0.5,max:2,dec:4,d:{en:'Multiplies the measured belt load. Set 1 at initial calibration. After a material test: new = old × MW / MA.',hg:'Measured belt load ko multiply karta hai. Pehli calibration me 1 rakho. Material test ke baad: naya = purana × MW / MA.'}},
+  {id:'04.03',name:'Tare (TW Result)',t:'res',u:'kg',dec:2,d:{en:'Result stored by the TW: Tare program (simulator result view; numbering on your unit may differ).',hg:'TW: Tare program ka result (simulator view; aapke unit me number alag ho sakta hai).'}},
+  {id:'04.04',name:'Pulses/Belt (LB Result)',t:'res',u:'I',dec:0,d:{en:'Result stored by the LB: Pulses/Belt program (simulator result view).',hg:'LB: Pulses/Belt program ka result (simulator view).'}}]},
+ {n:'05',name:'Analog Outputs',p:[
+  {id:'05.02',name:'Flow Rate Offset',t:'num',u:'mA',def:4,min:0,max:20,dec:1,d:{en:'Output current at 0 % feed rate.',hg:'0 % feed rate par output current.'}},
+  {id:'05.03',name:'Flow Rate Range',t:'num',u:'mA',def:20,min:0,max:20,dec:1,d:{en:'Output current at 100 % feed rate (P02.02).',hg:'100 % feed rate (P02.02) par output current.'}}]},
+ {n:'06',name:'Limit Values',p:[
+  {id:'06.01',name:'Limit: Actual Flow Rate MIN',t:'num',u:'% Io',def:5,min:-10,max:200,dec:1,d:{en:'Below this → LO02 (only while the scale is ON).',hg:'Isse kam → LO02 (sirf scale ON hone par).'}},
+  {id:'06.03',name:'Limit: Actual Flow Rate MAX',t:'num',u:'% Io',def:120,min:-10,max:200,dec:1,d:{en:'Above this → HI02.',hg:'Isse zyada → HI02.'}},
+  {id:'06.05',name:'Limit: Load MIN',t:'num',u:'% qo',def:5,min:-10,max:200,dec:1,d:{en:'Below this → LO03 (simulator default).',hg:'Isse kam → LO03 (simulator default).'}},
+  {id:'06.07',name:'Limit: Load MAX',t:'num',u:'% qo',def:130,min:-10,max:200,dec:1,d:{en:'Above this → HI03 (simulator default).',hg:'Isse zyada → HI03 (simulator default).'}},
+  {id:'06.09',name:'Limit: Speed MIN',t:'num',u:'% v0',def:50,min:0,max:200,dec:1,d:{en:'Below this → LO04 (simulator default).',hg:'Isse kam → LO04 (simulator default).'}},
+  {id:'06.11',name:'Limit: Speed MAX',t:'num',u:'% v0',def:115,min:0,max:200,dec:1,d:{en:'Above this → HI04 (simulator default).',hg:'Isse zyada → HI04 (simulator default).'}}]},
+ {n:'07',name:'Filters',p:[
+  {id:'07.01',name:'Filter: Actual Flow Rate',t:'num',u:'s',def:3,min:0,max:600,dec:1,d:{en:'Filter time for the displayed feed rate.',hg:'Display wale feed rate ka filter time.'}},
+  {id:'07.02',name:'Filter: Actual Flow Rate analog',t:'num',u:'s',def:3,min:0,max:600,dec:1,d:{en:'Filter time for the 4–20 mA output.',hg:'4–20 mA output ka filter time.'}}]},
+ {n:'08',name:'Auto Zero Set',p:[
+  {id:'08.01',name:'Auto Zero Active',t:'enum',o:['NO','YES'],def:'NO',d:{en:'Automatic zeroing when the belt runs empty.',hg:'Belt khaali chale tab automatic zeroing.'}},
+  {id:'08.03',name:'Mean Limit Value',t:'num',u:'% Q',def:1,min:0,max:100,dec:2,d:{en:'Belt is treated as empty only below this load.',hg:'Isse kam load par hi belt ko khaali maana jaata hai.'}},
+  {id:'08.04',name:'Zeroing Limit',t:'num',u:'% Q',def:4,min:0,max:100,dec:2,d:{en:'Maximum total zero correction. More → CA06 (auto zero) or the Zero Set result is refused (simulator default).',hg:'Zero correction ki maximum seema. Zyada → CA06 (auto zero) ya Zero Set result accept nahi hota (simulator default).'}}]},
+ {n:'14',name:'Events',p:[
+  {id:'14.10',name:'Event: Simulation active',t:'enum',o:['A','W1','W2','IG'],def:'W2',d:{en:'Event class of SY14 Simulation active.',hg:'SY14 Simulation active ki event class.'}}]}
+];
+const PDEF={};BLOCKS.forEach(b=>b.p.forEach(p=>PDEF[p.id]=p));
+
+/* ================= STATE ================= */
+let S;
+function freshState(){
+  const P={};BLOCKS.forEach(b=>b.p.forEach(p=>{if('def' in p)P[p.id]=p.def}));
+  return {t:0,speed:1,P,
+    plant:{belt:false,vm:0,pos:0,runEn:true,feed:80,y:0,calW:false,f:{lc:false,tacho:false,slip:false,build:false,drift:false,jam:false,mem:false},driftT:0},
+    scale:{on:false,dcs:false},sp:300,mode:{kbd:false,sim:false,vol:false},
+    cal:{lb:0,tare:0,zero:0,lbDirty:false},
+    m:{fnet:0,q:0,v:0,I:0,If:0,Ia:0,lcmv:0,raw:0,hz:0,qTrue:0,Itrue:0,kgInd:0,mA:4},
+    tot:{t1:0,t2:0,t3:0,trueM:0},
+    ev:{},log:[],
+    ui:{scr:'home',upper:0,view:1,f1:0,f2:0,lvl:1,pw:null,par:null,prog:null,info:null,bright:1,evlist:0,svc:0,test:0},
+    task:null,sw:null,mt:null,history:[],progress:{}
+  };
+}
+S=freshState();
+const P=id=>id==='04.01'?qo():id==='04.03'?S.cal.tare:id==='04.04'?S.cal.lb:S.P[id];
+const qo=()=>S.P['02.02']/3.6/S.P['02.05'];          /* kg/m */
+const Qo=()=>qo()*S.P['03.05'];                        /* kg on platform */
+
+/* ================= EVENTS ================= */
+const EV={
+ IL01:{g:'Interlock',c:'A',n:'Run Disabled',live:1,
+   m:{en:'No run release from the source set in P16.01 (Source Run Enable). The downstream transport equipment is probably not running.',hg:'P16.01 (Source Run Enable) se run release nahi aa raha. Shayad aage wala conveyor chalu nahi hai.'},
+   c2:['Downstream conveyor stopped','Run enable wire / relay open','Wrong DI assigned in P16.01'],
+   s:{en:['Start the downstream equipment (BELT tab: Toggle Run Enable).','Acknowledge with DEL.','Switch the scale ON again.'],hg:['Aage wala equipment chalu karo (BELT tab: Toggle Run Enable).','DEL se acknowledge karo.','Scale ko phir se ON karo.']}},
+ WE01:{g:'Electrical System',c:'W1',n:'Power Failure',live:1,
+   m:{en:'Shown after the supply comes back. The scale does not switch ON by itself, whatever the event class.',hg:'Supply wapas aane par dikhta hai. Scale apne aap ON nahi hota, chahe class kuch bhi ho.'},
+   c2:['Mains / 24 V DC supply interrupted'],
+   s:{en:['Acknowledge with DEL.','Give the start command again (panel START in keyboard mode, or DCS).'],hg:['DEL se acknowledge karo.','Start command dobara do (keyboard mode me panel START, ya DCS se).']}},
+ CA01:{g:'Calibration',c:'A',n:'Error LC Input',live:1,
+   m:{en:'The load cell input has a fault.',hg:'Load cell input me fault hai.'},
+   c2:['Cable miswired, disconnected or broken','Load cell defective'],
+   s:{en:['Check load cell cable and terminals.','Check the load cell (resistance / mV signal).','If the scale still cannot be switched ON after repair, switch the supply OFF and ON.'],hg:['Load cell cable aur terminal check karo.','Load cell check karo (resistance / mV signal).','Repair ke baad bhi scale ON na ho to supply OFF-ON karo.']}},
+ WE09:{g:'Electrical System',c:'A',n:'NAMUR Error Tacho',live:1,
+   m:{en:'Short circuit or break in the speed sensor cable. Internal speed is set to 0.',hg:'Speed sensor cable me short ya break. Andar ki speed 0 maan li jaati hai.'},
+   c2:['Speed sensor cable broken / shorted','Sensor faulty','Non-NAMUR sensor connected (then set the event to IG)'],
+   s:{en:['Check sensor cable and shield.','Check the sensor and its gap to the wheel.','Look at the frequency in Service Values (FUNCTION ▸ Setup).'],hg:['Sensor cable aur shield check karo.','Sensor aur wheel ka gap check karo.','Service Values me frequency dekho (FUNCTION ▸ Setup).']}},
+ CA02:{g:'Calibration',c:'W1',n:'Tachometer Input',live:0,
+   m:{en:'The speed pulse frequency is outside its specified range.',hg:'Speed pulse ki frequency range se bahar hai.'},
+   c2:['Sensor cable fault (shield, wiring)','Sensor incorrectly set'],
+   s:{en:['Check shielding and wiring of the sensor cable.'],hg:['Sensor cable ki shielding aur wiring check karo.']}},
+ WM02:{g:'Mechanic',c:'W1',n:'Slip',live:1,
+   m:{en:'Belt movement does not match the motor revolutions.',hg:'Belt ki chaal motor ke chakkar se match nahi kar rahi.'},
+   c2:['Slip at the drive pulley','Too high withdrawal forces','Defective gearing','Very dirty belt or pulley'],
+   s:{en:['Visually check the belt and material flow.','Clean the drive pulley, check belt tension and lagging.'],hg:['Belt aur material flow ko dekh kar check karo.','Drive pulley saaf karo, belt tension aur lagging check karo.']}},
+ WM04:{g:'Mechanic',c:'W1',n:'Belt Drift',live:1,
+   m:{en:'The belt has run off beyond its tolerance.',hg:'Belt apni tolerance se zyada side me chala gaya hai.'},
+   c2:['Dirt on tail / drive pulleys','Belt misaligned','Faulty belt monitoring sensor'],
+   s:{en:['Clean the tail and drive pulleys.','Realign the belt.','Check the belt sensor service value.'],hg:['Tail aur drive pulley saaf karo.','Belt ko seedha (align) karo.','Belt sensor ki service value check karo.']}},
+ WM03:{g:'Mechanic',c:'A',n:'Belt Skew',live:1,
+   m:{en:'The belt has run off-centre so far that it can no longer operate.',hg:'Belt itna side me chala gaya ki ab chal nahi sakta.'},
+   c2:['Belt drift not corrected'],
+   s:{en:['Do the Belt Drift (WM04) steps.','Acknowledge and restart after alignment.'],hg:['Belt Drift (WM04) wale steps karo.','Align karne ke baad acknowledge karke restart karo.']}},
+ HI01:{g:'MAX',c:'A',n:'LC Input > MAX',live:1,
+   m:{en:'Load on the load cell is above 110 % of the total load cell rating.',hg:'Load cell par load uski total rating ke 110 % se zyada hai.'},
+   c2:['Force shunts / material jam on the platform','Incorrect cabling','Faulty load cell'],
+   s:{en:['Stop and clear material from the weigh idler and platform.','Check cabling and the load cell.'],hg:['Weigh idler aur platform se material hatao.','Cabling aur load cell check karo.']}},
+ HI02:{g:'MAX',c:'W2',n:'Actual Flow Rate MAX',live:1,
+   m:{en:'Actual feed rate is above P06.03.',hg:'Actual feed rate P06.03 se zyada hai.'},
+   c2:['Material shooting out of the chute','Disturbance forces on the weighing equipment','Too much material fed'],
+   s:{en:['Reduce the feed from upstream.','Check the platform for force shunts.'],hg:['Upar se feed kam karo.','Platform par force shunt check karo.']}},
+ LO02:{g:'MIN',c:'W2',n:'Actual Flow Rate MIN',live:1,
+   m:{en:'Actual feed rate is below P06.01.',hg:'Actual feed rate P06.01 se kam hai.'},
+   c2:['No material','Disturbance forces','Feed too low'],
+   s:{en:['Normal when the belt runs empty with the scale ON.','Check the material supply.'],hg:['Belt khaali chal raha ho aur scale ON ho to normal hai.','Material supply check karo.']}},
+ HI03:{g:'Mechanic',c:'W2',n:'Load MAX',live:1,
+   m:{en:'Belt load is above P06.07.',hg:'Belt load P06.07 se zyada hai.'},
+   c2:['Material spilling from the chute','Disturbance forces on the weighing equipment'],
+   s:{en:['Reduce feed, check chute and skirt boards.'],hg:['Feed kam karo, chute aur skirt board check karo.']}},
+ LO03:{g:'MIN',c:'W2',n:'Load MIN',live:1,
+   m:{en:'Belt load is below P06.05.',hg:'Belt load P06.05 se kam hai.'},
+   c2:['No material','Disturbance forces'],
+   s:{en:['Check material supply.'],hg:['Material supply check karo.']}},
+ HI04:{g:'Mechanic',c:'W2',n:'Speed MAX',live:1,
+   m:{en:'Belt speed is above P06.11. On a weighfeeder in GRAVIMETRIC mode this means the controller is at its limit: the material layer is too thin to reach the setpoint.',hg:'Belt speed P06.11 se zyada. GRAVIMETRIC weighfeeder me iska matlab controller limit par hai: material layer itni patli hai ki setpoint tak nahi pahunch sakta.'},
+   c2:['Hopper empty / gate too low / material bridging','Setpoint too high','Wrong P02.04 / P02.05'],
+   s:{en:['Check P02.04 and P02.05 against the plant data.'],hg:['P02.04 aur P02.05 ko plant data se milao.']}},
+ LO04:{g:'MIN',c:'W1',n:'Speed MIN',live:0,
+   m:{en:'Belt speed is below P06.09 while the scale is ON.',hg:'Scale ON hai aur belt speed P06.09 se kam hai.'},
+   c2:['Belt stopped while the scale is ON','Speed sensor problem','Wrong P02.04'],
+   s:{en:['Check the belt drive and speed sensor.','Switch the scale OFF before stopping the belt.'],hg:['Belt drive aur speed sensor check karo.','Belt rokne se pehle scale OFF karo.']}},
+ LO01:{g:'MIN',c:'W1',n:'LC Input < MIN',live:1,
+   m:{en:'Load cell load is below 3 % of the total load cell rating.',hg:'Load cell load uski total rating ke 3 % se kam hai.'},
+   c2:['Force shunts lifting the platform','Incorrect cabling','Faulty load cell'],
+   s:{en:['Check that the platform is free.','Check cabling and load cell.'],hg:['Platform free hai ya nahi check karo.','Cabling aur load cell check karo.']}},
+ CA06:{g:'Calibration',c:'W1',n:'Tare Correction',live:1,
+   m:{en:'Automatic zeroing found a tare change larger than P08.04 Zeroing Limit.',hg:'Auto zeroing ne P08.04 Zeroing Limit se bada tare badlav dekha.'},
+   c2:['Material build-up on idlers / platform','Material left on the belt','Fault in the weighing mechanics'],
+   s:{en:['Visually check belt and weighing system, clean the idlers.','Run TW: Tare (base tare).','Check with the calibration weight (CW).'],hg:['Belt aur weighing system dekho, idlers saaf karo.','TW: Tare (base tare) chalao.','Calibration weight (CW) se check karo.']}},
+ SY14:{g:'System Message',c:'W2',n:'Simulation active',live:1,
+   m:{en:'Simulation operation is ON (FUNCTION ▸ Mode ▸ Simulation).',hg:'Simulation operation ON hai (FUNCTION ▸ Mode ▸ Simulation).'},
+   c2:['Simulation switched on for start-up tests'],
+   s:{en:['Switch simulation OFF before normal operation.'],hg:['Normal operation se pehle simulation OFF karo.']}},
+ SY01:{g:'System Message',c:'A',n:'Memory',live:1,
+   m:{en:'Program / parameter memory check failed. The scale will no longer work correctly.',hg:'Program / parameter memory check fail. Scale ab sahi kaam nahi karega.'},
+   c2:['Memory corruption','Hardware fault'],
+   s:{en:['Load factory defaults (FUNCTION ▸ Parameter ▸ Load Factory Defaults).','Enter all parameters again and recalibrate.','If it comes back, the hardware normally has to be replaced.'],hg:['Factory defaults load karo (FUNCTION ▸ Parameter ▸ Load Factory Defaults).','Saare parameters dobara daalo aur recalibrate karo.','Phir bhi aaye to hardware badalna padta hai.']}},
+ CO09:{g:'Controller',c:'W1',n:'Batch > Setpoint',live:0,m:{en:'Batch actual value exceeded the setpoint by the P09.04 tolerance.',hg:'Batch actual value setpoint se P09.04 tolerance se zyada ho gayi.'},c2:['Batch mode overrun'],s:{en:['Check batch setpoint and correction quantity.'],hg:['Batch setpoint aur correction check karo.']}},
+ CA05:{g:'Calibration',c:'W1',n:'Linearization Error',live:0,m:{en:'Linearization curve is not monotonically increasing.',hg:'Linearization curve lagataar badhti hui nahi hai.'},c2:['Wrong linearization points (block 15)'],s:{en:['Check P15 points.'],hg:['P15 ke points check karo.']}},
+ CA12:{g:'Controller',c:'W1',n:'Tare Difference > MAX',live:0,m:{en:'Zero-set difference out of range.',hg:'Zero-set difference range se bahar.'},c2:['Large tare change'],s:{en:['Clean, then run TW: Tare.'],hg:['Saaf karo, phir TW: Tare chalao.']}},
+ MF06:{g:'Material Flow',c:'W1',n:'Out of Tolerance',live:0,m:{en:'Batch result outside the allowed tolerance.',hg:'Batch result tolerance se bahar.'},c2:['Irregular material flow','Changed discharge behaviour','Disturbance forces'],s:{en:['Check material flow and weighing.'],hg:['Material flow aur weighing check karo.']}},
+ SC03:{g:'Sequence Monitoring',c:'W2',n:'Maint. Feeder Run',live:0,m:{en:'Running time exceeds the maintenance interval.',hg:'Running time maintenance interval se zyada.'},c2:['Maintenance due'],s:{en:['Do the service work, reset the interval.'],hg:['Service karo, interval reset karo.']}},
+ SY08:{g:'System Message',c:'W1',n:'Cyclic Communication',live:0,m:{en:'Cyclic communication with the plant control system interrupted longer than P19.02.',hg:'DCS ke saath cyclic communication P19.02 se zyada time band.'},c2:['Fieldbus cable / DCS down'],s:{en:['Check the communication cables.'],hg:['Communication cable check karo.']}},
+ WE10:{g:'Electrical System',c:'W1',n:'NAMUR Error Sensor',live:0,m:{en:'Sensor signal level at the input is not permissible.',hg:'Input par sensor signal level galat hai.'},c2:['Broken cable','Faulty sensor','Short circuit'],s:{en:['Check sensor and cable.'],hg:['Sensor aur cable check karo.']}}
+};
+const CLS={A:{en:'Alarm: switches the scale OFF. Must be acknowledged.',hg:'Alarm: scale OFF kar deta hai. Acknowledge karna zaroori.'},
+ W1:{en:'Warning 1: scale keeps running. Must be acknowledged.',hg:'Warning 1: scale chalta rehta hai. Acknowledge karna zaroori.'},
+ W2:{en:'Warning 2: scale keeps running. Shown only while active, no acknowledge.',hg:'Warning 2: scale chalta rehta hai. Sirf active rehne tak dikhta hai, acknowledge nahi chahiye.'},
+ IG:{en:'Ignore: no message, contact output still switches.',hg:'Ignore: message nahi, par contact output switch hota hai.'}};
+const evCls=c=>c==='SY14'?S.P['14.10']:EV[c].c;
+function stamp(){const d=new Date();return d.toTimeString().slice(0,8)}
+function setEv(code,on){
+  let e=S.ev[code];
+  if(on){
+    if(!e||!e.active){
+      const cls=evCls(code);
+      S.ev[code]={active:true,acked:cls==='W2'||cls==='IG',since:stamp()};
+      S.log.unshift(stamp()+'  '+code+'  '+EV[code].n+'  ['+cls+']');S.log.length=Math.min(S.log.length,80);
+      if(cls==='A'&&S.scale.on){S.scale.on=false;S.scale.dcs=false;showHint({en:code+' alarm switched the scale OFF.',hg:code+' alarm ne scale OFF kar diya.'},'bad')}
+    }
+  }else if(e&&e.active){e.active=false;if(e.acked)delete S.ev[code]}
+}
+function ackAll(){let n=0;for(const c in S.ev){const e=S.ev[c];if(!e.acked){e.acked=true;n++}if(c==='WE01')e.active=false;if(!e.active)delete S.ev[c]}return n}
+function shownEvents(){
+  const out=[];for(const c in S.ev){const e=S.ev[c],cls=evCls(c);if(cls==='IG')continue;if(cls==='W2'&&!e.active)continue;out.push({c,cls,e})}
+  const r={A:0,W1:1,W2:2};out.sort((a,b)=>(a.e.acked-b.e.acked)||(r[a.cls]-r[b.cls]));return out;
+}
+const alarmPending=()=>Object.keys(S.ev).some(c=>evCls(c)==='A'&&(S.ev[c].active||!S.ev[c].acked));
+
+/* ================= PHYSICS ================= */
+function tick(dt){
+  const pl=S.plant,f=pl.f,m=S.m;
+  S.t+=dt;
+  /* belt motor ramp */
+  const prun=S.ui.prog&&S.ui.prog.st==='run';
+  const Io=S.P['02.02'];
+  if(S.scale.on&&!prun){
+    if(S.mode.vol){pl.y=Math.max(0,Math.min(1.2,S.sp/Io))}
+    else{const e=(S.sp-m.If)/Io;pl.yi=(pl.yi||0)+0.12*e*dt;pl.yi=Math.max(-0.2,Math.min(1.2,pl.yi));pl.y=Math.max(0,Math.min(1.2,pl.yi+0.6*e+S.sp/Io*0.0))}
+  }else{pl.yi=0;pl.y=0}
+  const vTarget=(pl.belt||prun)?REAL.v0:pl.y*REAL.v0;pl.vm+= (vTarget-pl.vm)*Math.min(1,dt/2.5);if(Math.abs(pl.vm)<1e-3&&!pl.belt)pl.vm=0;
+  const v=pl.vm*(f.slip?0.86:1);
+  pl.pos=(pl.pos+v*dt)%REAL.beltLen;
+  /* weighfeeder: hopper gate gives a material layer; feed = layer x belt speed */
+  const qLayer=pl.feed/100*REAL.cap/3.6/REAL.v0;
+  m.qTrue=v>0.02?qLayer:0;const feedT=m.qTrue*v*3.6;m.Itrue=feedT;
+  /* raw platform force (kg, perpendicular on load cell) */
+  const ph=pl.pos/REAL.beltLen*2*Math.PI;
+  const tareR=REAL.tare+(f.build?5.2:0)+0.32*Math.sin(ph)+0.18*Math.sin(3*ph+0.7)+(v>0.05?0:0);
+  const cosR=Math.cos(REAL.angle*Math.PI/180);
+  let raw=tareR+m.qTrue*REAL.leff*cosR+(pl.calW?REAL.calW:0)+(f.jam?250:0);
+  raw+= (Math.random()-.5)*(v>0.05?0.25:0.03)+(m.qTrue>0?(Math.random()-.5)*m.qTrue*0.03:0);
+  m.raw=raw;
+  m.lcmv=f.lc?-0.42:raw/REAL.lcCap*REAL.lcChar;        /* mV/V */
+  /* indicator */
+  m.kgInd=m.lcmv/P('03.03')*P('03.04')*P('03.06');
+  const cosP=Math.cos(P('03.07')*Math.PI/180);
+  m.fnet=m.kgInd-S.cal.tare;
+  m.q=(m.fnet/cosP/P('03.05'))*P('04.02')-S.cal.zero;
+  m.hz=f.tacho?0:v*REAL.ppm;
+  m.v=m.hz/P('02.04');
+  m.I=m.q*m.v*3.6;
+  const k1=1-Math.exp(-dt/Math.max(0.05,P('07.01'))),k2=1-Math.exp(-dt/Math.max(0.05,P('07.02')));
+  m.If+=(m.I-m.If)*k1;m.Ia+=(m.I-m.Ia)*k2;
+  const pct=m.Ia/P('02.02');m.mA=Math.max(0,Math.min(21.5,P('05.02')+(P('05.03')-P('05.02'))*pct));
+  /* totals */
+  if(S.scale.on){const dm=m.I*dt/3600;S.tot.t1+=dm;S.tot.t2+=dm;S.tot.t3+=dm}
+  S.tot.trueM+=feedT*dt/3600;
+  if(S.mt&&S.mt.run){S.mt.ma+=S.scale.on?m.I*dt/3600:0;S.mt.mw+=feedT*dt/3600;S.mt.t+=dt;if(S.mt.t>=S.mt.dur){S.mt.run=false;S.mt.done=true;onMtDone()}}
+  /* auto zero */
+  if(P('08.01')==='YES'&&pl.belt&&v>0.5&&m.qTrue===0&&!S.ui.prog&&!pl.calW){
+    const tgt=S.cal.zero+m.q;
+    if(Math.abs(tgt)>P('08.04')/100*qo())setEv('CA06',true);
+    else{S.cal.zero+=m.q*Math.min(1,dt/30);setEv('CA06',false)}
+  }
+  /* drift timer */
+  if(f.drift&&pl.belt)pl.driftT+=dt;else if(!f.drift)pl.driftT=0;
+  /* calibration program */
+  if(S.ui.prog)progTick(dt);
+  /* stopwatch */
+  if(S.sw&&S.sw.run){S.sw.t+=dt;if(S.sw.t>=S.sw.target){S.sw.run=false;S.sw.t=S.sw.target}}
+  evalEvents();
+}
+function evalEvents(){
+  const m=S.m,pl=S.plant,f=pl.f,on=S.scale.on;
+  setEv('CA01',f.lc);
+  setEv('WE09',f.tacho&&pl.belt);
+  setEv('WM02',f.slip&&pl.belt);
+  setEv('WM04',f.drift&&pl.belt);
+  if(pl.driftT>40)setEv('WM03',true);else if(!f.drift)setEv('WM03',false);
+  setEv('HI01',!f.lc&&m.lcmv/REAL.lcChar>1.1);
+  setEv('LO01',!f.lc&&m.lcmv/REAL.lcChar<0.03);
+  setEv('SY01',f.mem);
+  setEv('SY14',S.mode.sim);
+  const If=m.If/P('02.02')*100,Lq=m.q/qo()*100,Vs=m.v/P('02.05')*100;
+  setEv('HI02',on&&If>P('06.03'));
+  setEv('LO02',on&&If<P('06.01'));
+  setEv('HI03',on&&Lq>P('06.07'));
+  setEv('LO03',on&&Lq<P('06.05'));
+  setEv('HI04',on&&Vs>P('06.11'));
+  setEv('LO04',false);
+  if(on&&!pl.runEn&&!S.mode.sim)setEv('IL01',true);
+  if(pl.runEn)setEv('IL01',false);
+}
+
+/* ================= SCALE ON/OFF ================= */
+function scaleStart(src){
+  if(alarmPending()){const c=Object.keys(S.ev).find(c=>evCls(c)==='A'&&(S.ev[c].active||!S.ev[c].acked));showHint({en:'Cannot start: alarm '+c+' pending. Fix the cause, press DEL to acknowledge, then start again.',hg:'Start nahi hoga: alarm '+c+' pending hai. Wajah theek karo, DEL se acknowledge karo, phir start karo.'},'bad');return false}
+  if(S.ev.WE01&&!S.ev.WE01.acked){showHint({en:'WE01 Power Failure not acknowledged. Press DEL first, then start.',hg:'WE01 Power Failure acknowledge nahi hua. Pehle DEL dabao, phir start.'},'warn');return false}
+  if(S.ui.prog){showHint({en:'A calibration program is running. Finish or abort it first (ESC).',hg:'Calibration program chal raha hai. Pehle use khatam ya abort (ESC) karo.'},'warn');return false}
+  if(!S.plant.runEn&&!S.mode.sim){S.scale.on=true;setEv('IL01',true);return false}
+  S.scale.on=true;S.plant.yi=S.sp/S.P['02.02'];showHint({en:'Feeder ON ('+src+'), '+(S.mode.vol?'VOLUMETRIC: belt speed is set from the setpoint only, the weight is not used for control.':'GRAVIMETRIC: the controller changes belt speed until the measured feed rate equals the setpoint.'),hg:'Feeder ON ('+src+'), '+(S.mode.vol?'VOLUMETRIC: belt speed sirf setpoint se set hoti hai, weight control me use nahi hota.':'GRAVIMETRIC: controller belt speed badalta hai jab tak measured feed rate setpoint ke barabar na ho.')},'ok');return true;
+}
+function scaleStop(src){if(S.scale.on){S.scale.on=false;showHint({en:'Scale OFF ('+src+'). Totalizers stopped.',hg:'Scale OFF ('+src+'). Totalizer ruk gaye.'},'info')}}
+
+/* ================= CALIBRATION PROGRAMS ================= */
+const PROGS={zero:'>0< Zero Set',lb:'LB: Pulses/Belt',tw:'TW: Tare',cw:'CW: Span Calibration'};
+function progStart(kind){
+  const pl=S.plant;
+  if(S.scale.on){S.scale.on=false}
+  if(kind!=='lb'&&!S.cal.lb){S.ui.prog={kind,st:'nolb'};return}
+  const pr={kind,st:'run',el:0,n:0,sum:0,sum2:0,pulses:0};
+  if(kind==='lb')pr.dur=P('03.02');
+  else pr.target=S.cal.lb*P('03.01');
+  S.ui.prog=pr;S.m.mAhold=true;
+}
+function progTick(dt){
+  const pr=S.ui.prog;if(pr.st!=='run')return;
+  const m=S.m;
+  if(S.plant.f.tacho){pr.st='abort';pr.why={en:'No speed pulses',hg:'Speed pulse nahi'};return}
+  if(S.plant.f.lc){pr.st='abort';pr.why={en:'LC input error',hg:'LC input error'};return}
+  if(!pr.go){if(S.plant.vm<0.985*REAL.v0)return;pr.go=true}pr.el+=dt;pr.pulses+=m.hz*dt;
+  if(pr.kind==='lb'){pr.pct=Math.min(100,pr.el/pr.dur*100);if(pr.el>=pr.dur){pr.st='done';pr.res=Math.round(pr.pulses)}return}
+  const val=pr.kind==='tw'?m.kgInd:pr.kind==='cw'?m.fnet/P('03.05'):m.q;
+  pr.sum+=val*dt;pr.n+=dt;pr.mean=pr.sum/pr.n;
+  pr.pct=Math.min(100,pr.pulses/pr.target*100);
+  if(pr.pulses>=pr.target){
+    pr.st='done';
+    if(pr.kind==='tw'){pr.res=pr.mean;pr.dev=(pr.mean-S.cal.tare)/Qo()*100}
+    if(pr.kind==='zero'){pr.res=S.cal.zero+pr.mean;pr.dev=pr.mean/qo()*100;pr.over=Math.abs(pr.res)>P('08.04')/100*qo()}
+    if(pr.kind==='cw'){pr.set=P('03.08')/P('03.05');pr.act=pr.mean-S.cal.zero;pr.dev=(pr.act-pr.set)/pr.set*100;pr.kor=pr.act?pr.set/pr.act:0}
+  }
+}
+function progAccept(){
+  const pr=S.ui.prog;
+  if(pr.kind==='lb'){S.cal.lb=pr.res;S.cal.lbDirty=false;S.progress.lb=true}
+  if(pr.kind==='tw'){S.cal.tare=pr.res;S.cal.zero=0;S.progress.tw=true;setEv('CA06',false);if(S.ev.CA06)delete S.ev.CA06}
+  if(pr.kind==='zero'){if(pr.over)return false;S.cal.zero=pr.res;S.progress.zero=true}
+  if(pr.kind==='cw'){S.progress.cw={dev:pr.dev,kor:pr.kor}}
+  return true;
+}
+
+/* ================= FUNCTION DISTRIBUTOR ================= */
+const MENU=[
+ {n:'Setup',s:[['Display Test','test'],['Service Values','svc'],['Event List','evlist'],['Brightness +','b+'],['Brightness −','b-']]},
+ {n:'Totals',s:[['Reset Totalizer 2','r2'],['Reset Totalizer 3','r3'],['Totalizer Record','rec']]},
+ {n:'Mode',s:[['Gravimetric / Volumetric','vol'],['Keyboard Mode ON/OFF','kbd'],['Simulation ON/OFF','sim']]},
+ {n:'Calibration',s:[['>0< Zero Set','zero'],['LB: Pulses/Belt','lb'],['TW: Tare','tw'],['CW: Span Calibration','cw'],['Set Time','time']]},
+ {n:'Parameter',s:[['Read Parameters','pread'],['Change Parameters','pchg'],['Load Factory Defaults','fact']]},
+ {n:'Operation',s:[['Feedrate Setpoint','spset'],['Scale ON','on'],['Scale OFF','off'],['Acknowledge Events','ack']]}
+];
+const NEEDPW={spset:0,vol:0,zero:1,lb:1,tw:1,cw:1,pchg:1,fact:1,r2:0};
+
+function runFunc(code){
+  const u=S.ui;
+  switch(code){
+    case 'test':u.scr='test';u.test=S.t;break;
+    case 'svc':u.scr='svc';u.svc=0;break;
+    case 'evlist':u.scr='evlist';u.evlist=0;break;
+    case 'b+':u.bright=1;u.scr='home';showHint({en:'Brightness increased.',hg:'Brightness badhayi.'},'info');break;
+    case 'b-':u.bright=0;u.scr='home';showHint({en:'Brightness reduced.',hg:'Brightness kam ki.'},'info');break;
+    case 'r2':S.tot.t2=0;u.scr='home';showHint({en:'Totalizer 2 reset to 0. (Totalizer 1 cannot be reset — it is the main counter.)',hg:'Totalizer 2 zero ho gaya. (Totalizer 1 reset nahi hota — wo main counter hai.)'},'ok');break;
+    case 'r3':S.tot.t3=0;u.scr='home';showHint({en:'Totalizer 3 reset to 0.',hg:'Totalizer 3 zero ho gaya.'},'ok');break;
+    case 'rec':u.scr='rec';break;
+    case 'vol':S.mode.vol=!S.mode.vol;if(S.scale.on)S.progress.vol=true;u.scr='home';S.plant.yi=S.plant.y;
+      showHint(S.mode.vol?{en:'VOLUMETRIC mode: belt speed = setpoint / P02.02 × nominal speed. The load cell still measures, but does not correct the speed. If the material layer changes, the real feed rate goes wrong (watch Deviation).',hg:'VOLUMETRIC mode: belt speed = setpoint / P02.02 × nominal speed. Load cell naapta hai par speed correct nahi karta. Layer badli to asli feed rate galat ho jaata hai (Deviation dekho).'}:{en:'GRAVIMETRIC mode: the controller compares measured feed rate with the setpoint and corrects belt speed. Deviation goes back to about 0 %.',hg:'GRAVIMETRIC mode: controller measured feed rate ko setpoint se milata hai aur belt speed theek karta hai. Deviation lagbhag 0 % par aa jaata hai.'},'ok');break;
+    case 'spset':u.scr='sp';u.spbuf={buf:String(S.sp),fresh:true,err:null};break;
+    case 'kbd':
+      if(P('01.09')==='not active'){showHint({en:'Locked: P01.09 Switch Keyboard-/Normal Mode = not active.',hg:'Lock hai: P01.09 = not active.'},'warn');u.scr='home';break}
+      S.mode.kbd=!S.mode.kbd;u.scr='home';
+      showHint(S.mode.kbd?{en:'KEYBOARD mode: START / STOP keys on the panel now switch the scale. DCS commands are ignored.',hg:'KEYBOARD mode: ab panel ke START / STOP se scale ON/OFF hoga. DCS command ignore honge.'}:{en:'NORMAL mode: scale ON/OFF comes from the DCS / digital inputs.',hg:'NORMAL mode: scale ON/OFF DCS / digital input se hoga.'},'ok');break;
+    case 'sim':S.mode.sim=!S.mode.sim;u.scr='home';showHint(S.mode.sim?{en:'Simulation ON (SY14). In this simulator the scale can be started without Run Enable for start-up tests.',hg:'Simulation ON (SY14). Is simulator me start-up test ke liye bina Run Enable ke scale start ho sakta hai.'}:{en:'Simulation OFF.',hg:'Simulation OFF.'},'ok');break;
+    case 'zero':case 'lb':case 'tw':case 'cw':u.scr='prog';S.ui.prog={kind:code,st:'ready'};break;
+    case 'time':u.scr='time';break;
+    case 'pread':u.scr='par';u.par={mode:'read',b:0,i:0,lvl:'b',edit:null};break;
+    case 'pchg':u.scr='par';u.par={mode:'chg',b:0,i:0,lvl:'b',edit:null};break;
+    case 'fact':u.scr='fact';break;
+    case 'on':u.scr='home';scaleStart('panel');break;
+    case 'off':u.scr='home';scaleStop('panel');break;
+    case 'ack':u.scr='home';{const n=ackAll();showHint(n?{en:n+' event(s) acknowledged.',hg:n+' event acknowledge hue.'}:{en:'Nothing to acknowledge.',hg:'Acknowledge karne ko kuch nahi.'},'info')}break;
+  }
+}
+
+/* ================= KEY HANDLER ================= */
+const DIG={'0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','DOT':'.','SIGN':'-'};
+function key(k){
+  const u=S.ui;
+  if(k==='FUNC'&&(u.pw||u.scr!=='home'))k='ESC';
+  if(u.info){u.info=null}
+  /* password entry overlay */
+  if(u.pw){
+    const pw=u.pw;
+    if(DIG[k]&&/\d/.test(DIG[k])){if(pw.buf.length<6)pw.buf+=DIG[k];pw.err=0}
+    else if(k==='DEL')pw.buf=pw.buf.slice(0,-1);
+    else if(k==='ESC'){u.pw=null;u.scr='menu';}
+    else if(k==='ENTER'){if(pw.buf===PW){const f=pw.f;u.pw=null;runFunc(f)}else{pw.err=1;pw.buf=''}}
+    else hintKey(k);
+    return;
+  }
+  switch(u.scr){
+    case 'home':return keyHome(k);
+    case 'menu':return keyMenu(k);
+    case 'par':return keyPar(k);
+    case 'prog':return keyProg(k);
+    case 'svc':if(k==='UP')u.svc=Math.max(0,u.svc-1);else if(k==='DOWN')u.svc=Math.min(SVC().length-5,u.svc+1);else if(k==='ESC'||k==='ENTER'){u.scr='home'}else hintKey(k);return;
+    case 'evlist':if(k==='UP')u.evlist=Math.max(0,u.evlist-1);else if(k==='DOWN')u.evlist=Math.min(Math.max(0,S.log.length-6),u.evlist+1);else if(k==='ESC'||k==='ENTER')u.scr='home';else hintKey(k);return;
+    case 'sp':{const ed=u.spbuf;
+      if(DIG[k]&&DIG[k]!=='-'){if(ed.fresh){ed.buf='';ed.fresh=false}if(!(DIG[k]==='.'&&ed.buf.includes('.'))&&ed.buf.length<8)ed.buf+=DIG[k];ed.err=null}
+      else if(k==='DEL'){ed.fresh=false;ed.buf=ed.buf.slice(0,-1)}
+      else if(k==='ESC'){u.scr='home'}
+      else if(k==='ENTER'){const v=parseFloat(ed.buf);const mx=S.P['02.02']*1.2;if(!isFinite(v)||v<0||v>mx){ed.err='Range 0 … '+fmtN(mx,0);return}S.sp=+v.toFixed(1);u.scr='home';showHint({en:'Setpoint '+fmtN(S.sp,1)+' t/h accepted.',hg:'Setpoint '+fmtN(S.sp,1)+' t/h set ho gaya.'},'ok')}
+      else hintKey(k);return}
+    case 'test':case 'rec':case 'time':if(k==='ESC'||k==='ENTER')u.scr='home';else hintKey(k);return;
+    case 'fact':
+      if(k==='ENTER'){const keep={speed:S.speed,plant:S.plant,tot:S.tot,log:S.log,history:S.history,t:S.t};const ns=freshState();Object.assign(ns,keep);ns.plant.f.mem=false;ns.mode={kbd:false,sim:false};S=ns;S.ui.scr='home';
+        showHint({en:'Factory defaults loaded. All parameters and calibration results are back to default — enter the plant data and recalibrate (CALIBRATE tab).',hg:'Factory defaults load ho gaye. Saare parameters aur calibration default par — plant data daalo aur dobara calibrate karo (CALIBRATE tab).'},'warn');buildFaults()}
+      else if(k==='ESC')u.scr='menu';else hintKey(k);return;
+  }
+}
+function keyHome(k){
+  const u=S.ui;
+  if(k==='UP')u.upper=(u.upper+UPPER.length-1)%UPPER.length;
+  else if(k==='DOWN')u.upper=(u.upper+1)%UPPER.length;
+  else if(k==='SIGN'){u.bright=0}
+  else if(k==='DOT'){u.bright=1}
+  else if(k==='LEFT'||k==='RIGHT'){let i=LOWSEQ.indexOf(u.view);if(i<0)i=0;u.view=LOWSEQ[(i+(k==='RIGHT'?1:LOWSEQ.length-1))%LOWSEQ.length]}
+  else if(DIG[k]&&/\d/.test(DIG[k])){u.view=+DIG[k];if(u.view===4)showHint({en:'Batch actual value is used in batch mode only (off here), so it shows ---.',hg:'Batch value sirf batch mode me hoti hai (yahan off), isliye --- dikhta hai.'},'info')}
+  else if(k==='FUNC'){u.scr='menu';u.lvl=1}
+  else if(k==='DEL'){const n=ackAll();showHint(n?{en:n+' event(s) acknowledged.',hg:n+' event acknowledge hue.'}:{en:'DEL acknowledges events. No unacknowledged event now.',hg:'DEL events acknowledge karta hai. Abhi koi pending event nahi.'},'info')}
+  else if(k==='START'||k==='STOP'){
+    if(P('01.08')==='not active'){showHint({en:'START/STOP locked: P01.08 Feeder ON/OFF = not active.',hg:'START/STOP lock: P01.08 = not active.'},'warn');return}
+    if(!S.mode.kbd){showHint({en:'NORMAL mode: the panel START/STOP keys are ignored, the DCS switches the scale. Use FUNCTION ▸ Mode ▸ Keyboard Mode, or the DCS buttons on the BELT tab.',hg:'NORMAL mode: panel ke START/STOP kaam nahi karte, DCS scale chalata hai. FUNCTION ▸ Mode ▸ Keyboard Mode karo, ya BELT tab ke DCS button use karo.'},'warn');return}
+    if(k==='START')scaleStart('panel');else scaleStop('panel');
+  }
+  else if(k==='DATA'){if(!S.mode.kbd){showHint({en:'NORMAL mode: the feed rate setpoint comes from the DCS (BELT tab). Switch to KEYBOARD mode (▣ ▸ Mode) to key it in here.',hg:'NORMAL mode: setpoint DCS se aata hai (BELT tab). Yahan daalne ke liye KEYBOARD mode karo (▣ ▸ Mode).'},'warn');return}u.scr='sp';u.spbuf={buf:String(S.sp),fresh:true,err:null}}
+  else hintKey(k);
+}
+function keyMenu(k){
+  const u=S.ui;const m1=MENU[u.f1];
+  if(u.lvl===1){
+    if(k==='UP')u.f1=(u.f1+MENU.length-1)%MENU.length;
+    else if(k==='DOWN')u.f1=(u.f1+1)%MENU.length;
+    else if(k==='RIGHT'||k==='ENTER'){u.lvl=2;u.f2=0}
+    else if(k==='ESC'||k==='FUNC')u.scr='home';
+    else hintKey(k);
+  }else{
+    if(k==='UP')u.f2=(u.f2+m1.s.length-1)%m1.s.length;
+    else if(k==='DOWN')u.f2=(u.f2+1)%m1.s.length;
+    else if(k==='LEFT')u.lvl=1;
+    else if(k==='ESC')u.scr='home';
+    else if(k==='ENTER'||k==='RIGHT'){const f=m1.s[u.f2][1];if(NEEDPW[f])u.pw={f,buf:'',err:0};else runFunc(f)}
+    else hintKey(k);
+  }
+}
+function curPar(){const p=S.ui.par;return BLOCKS[p.b].p[p.i]}
+function keyPar(k){
+  const pp=S.ui.par;
+  if(pp.edit){
+    const d=curPar(),ed=pp.edit;
+    if(d.t==='enum'){
+      if(k==='UP'||k==='DOWN'){let i=d.o.indexOf(ed.buf);i=(i+(k==='UP'?d.o.length-1:1))%d.o.length;ed.buf=d.o[i]}
+      else if(k==='ENTER'){S.P[d.id]=ed.buf;pp.edit=null;afterParChange(d.id)}
+      else if(k==='ESC')pp.edit=null;else hintKey(k);
+      return;
+    }
+    if(DIG[k]){if(ed.fresh){ed.buf='';ed.fresh=false}const ch=DIG[k];if(ch==='-'){ed.buf=ed.buf.startsWith('-')?ed.buf.slice(1):'-'+ed.buf}else if(!(ch==='.'&&ed.buf.includes('.'))&&ed.buf.length<10)ed.buf+=ch;ed.err=null}
+    else if(k==='DEL'){ed.fresh=false;ed.buf=ed.buf.slice(0,-1);ed.err=null}
+    else if(k==='LEFT'||k==='RIGHT'){ed.fresh=false}
+    else if(k==='ESC')pp.edit=null;
+    else if(k==='ENTER'){const v=parseFloat(ed.buf);if(!isFinite(v)){ed.err='Invalid';return}if(v<d.min||v>d.max){ed.err='Range '+d.min+' … '+d.max;return}S.P[d.id]=+v.toFixed(d.dec);pp.edit=null;afterParChange(d.id)}
+    else hintKey(k);
+    return;
+  }
+  if(pp.lvl==='b'){
+    if(k==='UP')pp.b=(pp.b+BLOCKS.length-1)%BLOCKS.length;
+    else if(k==='DOWN')pp.b=(pp.b+1)%BLOCKS.length;
+    else if(k==='RIGHT'||k==='ENTER'){pp.lvl='p';pp.i=0}
+    else if(k==='ESC'||k==='LEFT')S.ui.scr='home';
+    else hintKey(k);
+  }else{
+    const B=BLOCKS[pp.b];
+    if(k==='UP')pp.i=(pp.i+B.p.length-1)%B.p.length;
+    else if(k==='DOWN')pp.i=(pp.i+1)%B.p.length;
+    else if(k==='LEFT')pp.lvl='b';
+    else if(k==='ESC')S.ui.scr='home';
+    else if(k==='DATA'||k==='ENTER'){
+      const d=curPar();
+      if(pp.mode==='read'){showHint({en:'Read Parameters is view only. Use FUNCTION ▸ Parameter ▸ Change Parameters (password) to edit.',hg:'Read Parameters sirf dekhne ke liye. Badalne ke liye FUNCTION ▸ Parameter ▸ Change Parameters (password).'},'info');return}
+      if(d.t==='fix'||d.t==='calc'||d.t==='res'){showHint({en:'P'+d.id+' cannot be changed here ('+(d.t==='calc'?'calculated value':d.t==='res'?'set by the calibration program':'fixed in this simulator')+').',hg:'P'+d.id+' yahan nahi badal sakte ('+(d.t==='calc'?'calculated value':d.t==='res'?'calibration program set karta hai':'simulator me fixed')+').'},'info');return}
+      pp.edit={buf:String(S.P[d.id]),fresh:true,err:null};
+    }
+    else hintKey(k);
+  }
+}
+function afterParChange(id){
+  const d=PDEF[id];
+  let msg={en:'P'+id+' '+d.name+' saved: '+fmtP(id),hg:'P'+id+' '+d.name+' save hua: '+fmtP(id)};
+  if(id==='02.04'||id==='02.05'||id==='02.02'){S.cal.lbDirty=true;msg={en:msg.en+'. Run LB: Pulses/Belt again (then TW).',hg:msg.hg+'. LB: Pulses/Belt dobara chalao (phir TW).'}}
+  showHint(msg,'ok');
+}
+function keyProg(k){
+  const pr=S.ui.prog;
+  if(k==='ESC'){
+    if(pr.st==='run'){pr.st='abort';pr.why={en:'Aborted by operator',hg:'Operator ne abort kiya'}}
+    else{S.ui.prog=null;S.ui.scr='menu';S.m.mAhold=false}
+    return;
+  }
+  if(k==='ENTER'){
+    if(pr.st==='ready'||pr.st==='start'||pr.st==='nolb'){progStart(pr.kind);return}
+    if(pr.st==='done'){
+      if(pr.kind==='cw'){S.progress.cw={dev:pr.dev,kor:pr.kor};S.ui.prog=null;S.ui.scr='home';showHint({en:'CW finished. Result is not taken over automatically. Dev '+pr.dev.toFixed(2)+' %. If Dev is large, check mechanics and P03.05 / P03.06 / P03.08.',hg:'CW khatam. Result apne aap apply nahi hota. Dev '+pr.dev.toFixed(2)+' %. Dev bada ho to mechanics aur P03.05 / P03.06 / P03.08 check karo.'},Math.abs(pr.dev)<0.5?'ok':'warn');return}
+      if(!progAccept()){showHint({en:'Zero correction is beyond P08.04 Zeroing Limit. Not accepted. Clean the belt/idlers and run TW: Tare.',hg:'Zero correction P08.04 limit se zyada. Accept nahi hua. Belt/idler saaf karke TW: Tare chalao.'},'bad');return}
+      const nm=PROGS[pr.kind];S.ui.prog=null;S.ui.scr='home';S.m.mAhold=false;showHint({en:nm+' result taken over.',hg:nm+' ka result save ho gaya.'},'ok');return;
+    }
+    if(pr.st==='abort'){S.ui.prog=null;S.ui.scr='menu';return}
+  }
+  hintKey(k);
+}
+function hintKey(k){
+  const map={START:{en:'START works in the normal display only (and only in KEYBOARD mode).',hg:'START sirf normal display me chalta hai (aur sirf KEYBOARD mode me).'},STOP:{en:'STOP works in the normal display. Press ESC first.',hg:'STOP normal display me chalta hai. Pehle ESC dabao.'}};
+  showHint(map[k]||{en:'This key does nothing on this screen. See the guide for the keys that work here.',hg:'Is screen par ye key kuch nahi karti. Guide me dekho yahan kaun si keys chalti hain.'},'info');
+}
+
+/* ================= FORMAT ================= */
+function fmtN(v,d){return (Math.abs(v)<1e-9?0:v).toFixed(d)}
+function fmtP(id){const d=PDEF[id],v=P(id);if(typeof v==='string')return v;return fmtN(v,d.dec)+(d.u?' '+d.u:'')}
+function totDec(){return ['------- t','-----.- t','----.-- t','---.--- t'].indexOf(P('02.07'))}
+function fmtTot(v){const d=Math.max(0,totDec());return fmtN(Math.floor(v*Math.pow(10,d))/Math.pow(10,d),d)}
+const SVC=()=>{const m=S.m;return [
+ ['Software','VWZ20650 · sim 1.0'],['Date / Time',new Date().toLocaleString('en-GB')],
+ ['Operating Mode',(S.mode.kbd?'KEYBOARD':'NORMAL')+(S.mode.sim?' + SIM':'')],['Control Mode',S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC'],['Setpoint',fmtN(S.sp,1)+' t/h'],['Controller Out',fmtN(S.plant.y*100,1)+' %'],['Scale',S.scale.on?'ON':'OFF'],
+ ['LC Signal',fmtN(m.lcmv,3)+' mV/V'],['LC Load',fmtN(m.kgInd,2)+' kg'],['Net Load',fmtN(m.fnet,2)+' kg'],
+ ['Speed Frequency',fmtN(m.hz,1)+' Hz'],['Belt Speed',fmtN(m.v,3)+' m/s'],['Belt Load',fmtN(m.q,2)+' kg/m'],
+ ['Analog Output',fmtN(m.mA,2)+' mA'],['Run Enable DI',S.plant.runEn?'HIGH':'LOW'],['Alarm Relay',alarmPending()?'ACTIVE':'OFF'],
+ ['Zero Correction',fmtN(S.cal.zero,3)+' kg/m'],['Tare',fmtN(S.cal.tare,2)+' kg'],['Pulses/Belt',String(S.cal.lb)]]};
+
+/* ================= DISPLAY ================= */
+const DEV=()=>S.sp>0.5?(S.m.If-S.sp)/S.sp*100:0;
+const UPPER=[
+ [['Setpoint',()=>fmtN(S.sp,1),'t/h'],['Deviation',()=>fmtN(DEV(),2),'%']],
+ [['Totalizer 1',()=>fmtTot(S.tot.t1),'t'],['Belt Speed',()=>fmtN(S.m.v,3),'m/s']],
+ [['Belt Load',()=>fmtN(S.m.q,2),'kg/m'],['Belt Speed',()=>fmtN(S.m.v,3),'m/s']],
+ [['Totalizer 2',()=>fmtTot(S.tot.t2),'t'],['Totalizer 3',()=>fmtTot(S.tot.t3),'t']]];
+const VIEWS={
+ 1:['Feedrate',()=>fmtN(S.m.If,1),'t/h',()=>S.m.If/P('02.02')],
+ 2:['Belt Load',()=>fmtN(S.m.q,2),'kg/m',()=>S.m.q/qo()],
+ 3:['Belt Speed',()=>fmtN(S.m.v,3),'m/s',()=>S.m.v/P('02.05')],
+ 4:['Batch Actual Value',()=>'---','t',null],
+ 5:['Setpoint',()=>fmtN(S.sp,1),'t/h',()=>S.sp/P('02.02')],
+ 6:['---',()=>'',' ',null],7:['---',()=>'',' ',null],
+ 8:['Totalizer 1',()=>fmtTot(S.tot.t1),'t',null],
+ 9:['LC Signal (HMI Value)',()=>fmtN(S.m.lcmv,3),'mV/V',()=>S.m.lcmv/REAL.lcChar]
+};
+const LOWSEQ=[1,2,3,8,9,0];
+function rdRow(lab,val,un,frac){return `<div class="rd"><span>${esc(lab)}</span><b>${esc(val)} ${esc(un)}</b>${frac!=null?`<div class="bar"><i style="width:${Math.max(0,Math.min(100,frac*100)).toFixed(1)}%"></i></div>`:''}</div>`}
+const CROSS=['+','×'];
+function hdr(title){const md=(S.mode.vol?'VOL':'GRAV')+' · '+(S.mode.sim?'SIM':S.mode.kbd?'KBD':'NORM');return `<div class="lh"><span>${esc(title||P('01.05'))}</span><span class="md">${md}</span><span>${new Date().toTimeString().slice(0,5)}</span></div>`}
+function evLine(){
+  const ev=shownEvents();
+  if(!ev.length)return `<div class="le none">${S.ui.prog&&S.ui.prog.st==='run'?esc(PROGS[S.ui.prog.kind].split(':')[0]+': Calibration active'):'No events'}</div>`;
+  const e=ev[0];return `<div class="le ${e.cls}${e.e.acked?'':' blink'}">${e.c} ${esc(EV[e.c].n)}${ev.length>1?' (+'+(ev.length-1)+')':''}</div>`;
+}
+function renderLCD(){
+  const u=S.ui,lcd=$('lcd');lcd.classList.toggle('dim',!u.bright);
+  let h='';
+  if(u.pw){
+    h=hdr('Password')+evLine()+`<div class="lb"><div class="scr-t">${esc(MENU[u.f1].s[u.f2][0])}</div><div class="small" style="font-size:11px">Key in password</div><div class="inp">${'*'.repeat(u.pw.buf.length)}<span class="cur"></span></div>${u.pw.err?'<span class="msg bad">Wrong password</span>':''}</div><div class="foothelp">0-9 digits · DEL delete · ENTER confirm · ▣ cancel</div>`;
+  }else if(u.scr==='home'){
+    const U=UPPER[u.upper];const cr=S.scale.on?CROSS[Math.floor(S.t*2)%2]:'';
+    const up=U.map(x=>`<div class="kv" style="font-size:12px"><span>${esc(x[0])}</span><b>${esc(x[1]())} ${esc(x[2])}</b></div>`).join('');
+    let low='';
+    if(u.view>=1&&u.view<=9){const V=VIEWS[u.view];low=`<div class="big" style="margin-top:2px"><span class="lab">${esc(V[0])}</span></div><div class="big"><span class="val">${esc(V[1]())}</span><span class="un">${esc(V[2])}</span></div>${V[3]?`<div class="rd"><div class="bar"><i style="width:${Math.max(0,Math.min(100,V[3]()*100)).toFixed(1)}%"></i></div></div>`:''}`}
+    else{low=rdRow('Feedrate',fmtN(S.m.If,1),'t/h',S.m.If/P('02.02'))+rdRow('Belt Load',fmtN(S.m.q,2),'kg/m',S.m.q/qo())+rdRow('Belt Speed',fmtN(S.m.v,3),'m/s',S.m.v/P('02.05'))+rdRow('Totalizer 1',fmtTot(S.tot.t1),'t',null)}
+    h=hdr((S.scale.on?cr+' ':'')+P('01.05'))+evLine()+`<div class="lb">${up}${low}</div><div class="foothelp">${S.scale.on?'SCALE ON':'SCALE OFF'} · ▲▼ upper · ◀▶ lower · ▣ menu</div>`;
+  }else if(u.scr==='menu'){
+    const m1=MENU[u.f1];
+    h=hdr('Functions')+evLine()+`<div class="lb"><div class="menu"><ul>${MENU.map((m,i)=>`<li class="${i===u.f1?(u.lvl===2?'sel2':'sel'):''}">${esc(m.n)}</li>`).join('')}</ul><ul>${u.lvl===2?m1.s.map((s,i)=>`<li class="${i===u.f2?'sel':''}">${esc(s[0])}</li>`).join(''):m1.s.map(s=>`<li class="off">${esc(s[0])}</li>`).join('')}</ul></div></div><div class="foothelp">${u.lvl===1?'▲▼ select · ▶/ENTER open · ▣ back':'▲▼ select · ENTER start · ◀ back · ▣ back'}</div>`;
+  }else if(u.scr==='par'){
+    const pp=u.par,B=BLOCKS[pp.b];
+    if(pp.lvl==='b'){
+      const st=Math.max(0,Math.min(pp.b-2,BLOCKS.length-6));
+      h=hdr(pp.mode==='read'?'Read Parameters':'Change Parameters')+evLine()+`<div class="lb"><ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px">${BLOCKS.slice(st,st+6).map((b,j)=>`<li class="${st+j===pp.b?'sel':''}" style="padding:2px 5px;border-radius:3px;font-size:11px;background:${st+j===pp.b?'#ffd84a':'#eceff1'}">${b.n} - ${esc(b.name)}</li>`).join('')}</ul></div><div class="foothelp">▲▼ block · ▶/ENTER open · ▣ back</div>`;
+    }else{
+      const d=B.p[pp.i];const ed=pp.edit;
+      let val=ed?`<div class="inp">${esc(ed.buf)}${d.t==='enum'?' ◆':'<span class="cur"></span>'}</div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}`:`<div class="inp" style="border-color:#cfd5da">${esc(fmtP(d.id))}</div>`;
+      h=hdr(B.n+' - '+B.name)+evLine()+`<div class="lb"><div class="scr-t">P${d.id}</div><div style="font-weight:700;font-size:12.5px">${esc(d.name)}</div>${val}<div style="font-size:10px;color:#5b6875">${d.t==='num'?'Min '+d.min+' · Max '+d.max+(d.def!=null?' · Default '+d.def:''):d.t==='enum'?'Options: '+d.o.join(' / '):''}</div><div style="font-size:10px;color:#5b6875">${pp.i+1} / ${B.p.length}</div></div><div class="foothelp">${ed?(d.t==='enum'?'▲▼ choose · ENTER save · ▣ cancel':'0-9 . ± type · DEL delete · ENTER save · ▣ cancel'):(pp.mode==='chg'?'▲▼ parameter · DATA change · ◀ blocks · ▣ back':'▲▼ parameter · ◀ blocks · ▣ back')}</div>`;
+    }
+  }else if(u.scr==='prog'){
+    const pr=S.ui.prog,nm=PROGS[pr.kind];let body='',head=nm;
+    if(pr.st==='ready')body=`<div class="scr-t">${esc(nm)}</div><div style="font-size:11px">${esc(progPre(pr.kind))}</div><span class="msg info">ENTER = start · ▣ = back</span>`;
+    else if(pr.st==='start'){head='Start !';body=`<div class="scr-t">${esc(nm)}</div><span class="msg bad">Start !</span><div style="font-size:11px">Belt is not running. Start the belt conveyor, then press ENTER.</div>`}
+    else if(pr.st==='nolb'){body=`<div class="scr-t">${esc(nm)}</div><span class="msg bad">LB missing</span><div style="font-size:11px">Run LB: Pulses/Belt first — it defines one belt circuit for this program.</div>`}
+    else if(pr.st==='run'){
+      head=nm.split(':')[0]+': Calibration active';
+      let live='';
+      if(pr.kind==='lb')live=`<div class="kv"><span>Time</span><b>${fmtN(pr.el,1)} / ${fmtN(pr.dur,1)} s</b></div><div class="kv"><span>Pulses</span><b>${Math.round(pr.pulses)}</b></div>`;
+      else if(pr.kind==='tw')live=`<div class="kv"><span>Tare</span><b>${fmtN((pr.mean||0)/Qo()*100,2)} % Qo</b></div>`;
+      else if(pr.kind==='zero')live=`<div class="kv"><span>Zero Dev</span><b>${fmtN((pr.mean||0)/qo()*100,3)} % qo</b></div>`;
+      else live=`<div class="kv"><span>Set</span><b>${fmtN(P('03.08')/P('03.05'),2)} kg/m</b></div><div class="kv"><span>Act</span><b>${fmtN((pr.mean||0)-S.cal.zero,2)} kg/m</b></div>`;
+      body=`<div class="scr-t">${esc(nm)}</div><div class="kv"><span>Remaining</span><b>${fmtN(100-(pr.pct||0),0)} %</b></div><div class="prog"><i style="width:${(pr.pct||0).toFixed(1)}%"></i></div>${live}<span class="msg info">▣ = abort</span>`;
+    }else if(pr.st==='done'){
+      head=nm.split(':')[0]+': wait for Confirmation';
+      if(pr.kind==='lb')body=`<div class="scr-t">${esc(nm)}</div><div class="kv"><span>Pulses/Belt</span><b>${pr.res}</b></div><div class="kv"><span>Old</span><b>${S.cal.lb}</b></div><span class="msg info">ENTER = take over · ▣ = discard</span>`;
+      if(pr.kind==='tw')body=`<div class="scr-t">${esc(nm)}</div><div class="kv"><span>Tare</span><b>${fmtN(pr.res/Qo()*100,2)} % Qo</b></div><div class="kv"><span>Dev to old</span><b>${fmtN(pr.dev,2)} %</b></div><span class="msg info">ENTER = take over · ▣ = discard</span>`;
+      if(pr.kind==='zero')body=`<div class="scr-t">${esc(nm)}</div><div class="kv"><span>Dev</span><b>${fmtN(pr.dev,3)} % qo</b></div><div class="kv"><span>Total zero</span><b>${fmtN(pr.res/qo()*100,2)} % qo</b></div>${pr.over?'<span class="msg bad">Limit exceeded !</span>':'<span class="msg info">ENTER = take over · ▣ = discard</span>'}`;
+      if(pr.kind==='cw')body=`<div class="scr-t">${esc(nm)}</div><div class="kv"><span>Set</span><b>${fmtN(pr.set,2)} kg/m</b></div><div class="kv"><span>Act</span><b>${fmtN(pr.act,2)} kg/m</b></div><div class="kv"><span>Dev</span><b>${fmtN(pr.dev,2)} %</b></div><div class="kv"><span>KOR Set/Act</span><b>${fmtN(pr.kor,4)}</b></div><span class="msg info">ENTER = exit (not taken over)</span>`;
+    }else if(pr.st==='abort'){head='Aborted !';body=`<div class="scr-t">${esc(nm)}</div><span class="msg bad">Aborted !</span><div style="font-size:11px">${esc(L(pr.why))}. Result not taken over.</div><span class="msg info">ENTER / ▣ = back</span>`}
+    h=hdr(head)+evLine()+`<div class="lb">${body}</div>`;
+  }else if(u.scr==='sp'){const ed=u.spbuf;
+    h=hdr('Feedrate Setpoint')+evLine()+`<div class="lb"><div class="scr-t">Setpoint</div><div class="inp">${esc(ed.buf)}<span class="cur"></span> <span style="font-size:12px">t/h</span></div>${ed.err?`<span class="msg bad">${esc(ed.err)}</span>`:''}<div style="font-size:10.5px">Nominal ${fmtN(P('02.02'),0)} t/h · Mode ${S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC'}</div></div><div class="foothelp">0-9 . type · ✱ delete · ↵ save · ▣ cancel</div>`;
+  }else if(u.scr==='svc'){
+    const rows=SVC().slice(u.svc,u.svc+6);
+    h=hdr('Service Values')+evLine()+`<div class="lb">${rows.map(r=>`<div class="kv"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('')}</div><div class="foothelp">▲▼ scroll · ▣ back</div>`;
+  }else if(u.scr==='evlist'){
+    const rows=S.log.slice(u.evlist,u.evlist+7);
+    h=hdr('Event List')+`<div class="lb" style="font-size:10.5px">${rows.length?rows.map(r=>`<div class="kv"><span>${esc(r)}</span></div>`).join(''):'<div>No events since power ON.</div>'}</div><div class="foothelp">▲▼ scroll · ▣ back</div>`;
+  }else if(u.scr==='test'){
+    const ph=Math.floor((S.t-u.test)*1.2)%3;
+    if(ph===0)h=hdr('Display Test')+`<div class="lb"><div class="scr-t">Software Version</div><div class="kv"><span>Firmware</span><b>VWZ20650 (sim)</b></div><div class="kv"><span>Manual</span><b>BV-H2464 GB</b></div></div>`;
+    else if(ph===1)h=`<div style="flex:1;background:repeating-linear-gradient(90deg,#e5372d 0 16%,#2fa84f 16% 33%,#2d6ea8 33% 50%,#f2cf2a 50% 66%,#000 66% 83%,#fff 83% 100%)"></div>`;
+    else h=hdr('Display Test')+`<div class="lb" style="align-items:center;justify-content:center"><div style="font:700 20px var(--f-h);color:#1f3a5a">INTECONT TERSUS</div><div style="font-size:10px">training simulator</div></div>`;
+  }else if(u.scr==='rec'){
+    h=hdr('Totalizer Record')+`<div class="lb" style="font-size:11px"><div class="kv"><span>Date</span><b>${new Date().toLocaleString('en-GB')}</b></div><div class="kv"><span>Totalizer 1</span><b>${fmtTot(S.tot.t1)} t</b></div><div class="kv"><span>Totalizer 2</span><b>${fmtTot(S.tot.t2)} t</b></div><div class="kv"><span>Totalizer 3</span><b>${fmtTot(S.tot.t3)} t</b></div><div style="font-size:10px">Printout saved to file (web server).</div></div><div class="foothelp">▣ back</div>`;
+  }else if(u.scr==='time'){
+    h=hdr('Set Time')+`<div class="lb"><div class="scr-t">Current Time</div><div class="inp">${new Date().toTimeString().slice(0,8)}</div><div style="font-size:10.5px">Simulator follows your device clock. The real clock runs about 5 days without supply.</div></div><div class="foothelp">ENTER / ▣ back</div>`;
+  }else if(u.scr==='fact'){
+    h=hdr('Load Factory Defaults')+evLine()+`<div class="lb"><span class="msg bad">Warning</span><div style="font-size:11px">All parameters and calibration results go back to default. Plant data must be entered again.</div><span class="msg info">ENTER = load · ▣ = cancel</span></div>`;
+  }
+  lcd.innerHTML=h;
+  $('led-on').classList.toggle('on',S.scale.on);
+  $('led-alm').classList.toggle('on',alarmPending()&&Math.floor(S.t*2)%2===0||Object.keys(S.ev).some(c=>evCls(c)==='A'&&S.ev[c].active));
+}
+function progPre(k){return {lb:'The feeder runs at nominal speed by itself (any load). Measures P03.02 seconds and counts the speed pulses of one belt circuit.',tw:'Hopper gate CLOSED (layer 0 %) so the belt runs EMPTY. The feeder runs at nominal speed by itself. Runs P03.01 belt circuits.',cw:'Tare/zero done, layer 0 % (empty belt), calibration weight hung. Feeder runs by itself. Runs P03.01 belt circuits.',zero:'Layer 0 % (empty belt). Feeder runs by itself. Small operational zero correction (limit P08.04).'}[k]}
+
+/* ================= GUIDE ================= */
+const KF={'F':'▣ FUNCTION','ESC':'▣ BACK','DATA':'◇ DATA','DEL':'✱ DELETE','↵':'↵','↵ ENTER':'↵ ENTER','I':'I','O':'O'};
+const kc=(t,b)=>`<span class="kc${KF[t]?' y':''}">${KF[t]||t}</span>`;
+function screenGuide(){
+  const u=S.ui;const G={};
+  if(u.pw){return {t:{en:'Password',hg:'Password'},w:{en:'Calibration and parameter changes are password protected. Password in this simulator: 7353 (from the manual\'s calibration chapter).',hg:'Calibration aur parameter change password se protected hain. Is simulator ka password: 7353 (manual ke calibration chapter se).'},k:[[kc('0-9'),{en:'type digits',hg:'digit daalo'}],[kc('DEL',1),{en:'delete last digit',hg:'aakhri digit mitao'}],[kc('↵ ENTER',1),{en:'confirm',hg:'confirm'}],[kc('ESC',1),{en:'cancel',hg:'cancel'}]]}}
+  switch(u.scr){
+    case 'home':return {t:{en:'Normal Display',hg:'Normal Display'},w:{en:'Line 1 = header (scale name, mode, time). Line 2 = event line (code + text; red alarm, orange W1, yellow W2; blinking = not acknowledged). Upper area = two lines of actual values. Lower area = large value with bar, or four readings. A rotating cross in the header = scale ON and counting.',hg:'Line 1 = header (scale naam, mode, time). Line 2 = event line (code + text; laal alarm, orange W1, peela W2; blink = acknowledge nahi hua). Upar = actual values ki do lines. Neeche = bar ke saath badi value, ya chaar readings. Header me ghoomta cross = scale ON aur gin raha.'},
+      k:[[kc('▲')+kc('▼'),{en:'pre-select the two upper lines',hg:'upar ki do lines chuno'}],[kc('◀')+kc('▶'),{en:'pre-select the lower (large) value',hg:'neeche ki badi value chuno'}],[kc('1')+kc('2')+kc('3'),{en:'Feedrate / Belt Load / Belt Speed, large with bar',hg:'Feedrate / Belt Load / Belt Speed, badi bar ke saath'}],[kc('4')+kc('5'),{en:'Batch Actual Value (---) / Setpoint',hg:'Batch Actual Value (---) / Setpoint'}],[kc('DATA'),{en:'key in the feed rate setpoint (KEYBOARD mode)',hg:'feed rate setpoint daalo (KEYBOARD mode)'}],[kc('8')+kc('9'),{en:'Totalizer 1 large / value from HMI configuration',hg:'Totalizer 1 bada / HMI configuration wali value'}],[kc('0'),{en:'four readings with bars',hg:'chaar readings bar ke saath'}],[kc('−')+kc('.'),{en:'reduce / increase brightness',hg:'brightness kam / zyada'}],[kc('F'),{en:'function distributor (menu)',hg:'function distributor (menu)'}],[kc('DEL'),{en:'acknowledge events',hg:'events acknowledge'}],[kc('I')+kc('O'),{en:'scale ON / OFF (KEYBOARD mode only)',hg:'scale ON / OFF (sirf KEYBOARD mode)'}]]};
+    case 'menu':return {t:{en:'Function Distributor',hg:'Function Distributor'},w:{en:'Left column = first level (yellow = selected, orange = you are in the second level). Right column = functions inside. Only available functions can be started. No key for 60 s returns to the normal display on the real unit.',hg:'Left column = pehla level (peela = selected, orange = aap doosre level me ho). Right column = andar ke functions. Asli unit me 60 s koi key na dabao to normal display par wapas.'},
+      k:[[kc('▲')+kc('▼'),{en:'move',hg:'upar/neeche'}],[kc('▶')+'/'+kc('↵',1),{en:'open / start function',hg:'kholo / function start'}],[kc('◀'),{en:'back to first level',hg:'pehle level par wapas'}],[kc('ESC',1),{en:'back to normal display',hg:'normal display par wapas'}]]};
+    case 'par':{const pp=u.par;const d=pp.lvl==='p'?curPar():null;
+      return {t:{en:pp.mode==='read'?'Read Parameters':'Change Parameters',hg:pp.mode==='read'?'Read Parameters':'Change Parameters'},w:d?{en:'P'+d.id+' '+d.name+': '+d.d.en,hg:'P'+d.id+' '+d.name+': '+d.d.hg}:{en:'Parameters are grouped in blocks. "P03.08" means block 03, parameter 08. Choose a block and open it.',hg:'Parameters blocks me hain. "P03.08" matlab block 03, parameter 08. Block chuno aur kholo.'},
+      k:pp.edit?(curPar().t==='enum'?[[kc('▲')+kc('▼'),{en:'choose option',hg:'option chuno'}],[kc('↵',1),{en:'save',hg:'save'}],[kc('ESC',1),{en:'cancel',hg:'cancel'}]]:[[kc('0-9')+kc('.')+kc('±'),{en:'type the new value (first digit clears the old one)',hg:'nayi value likho (pehla digit purani value hata deta hai)'}],[kc('DEL',1),{en:'delete last character',hg:'aakhri character mitao'}],[kc('↵',1),{en:'save (checks min/max)',hg:'save (min/max check hota hai)'}],[kc('ESC',1),{en:'cancel input',hg:'input cancel'}]]):[[kc('▲')+kc('▼'),{en:pp.lvl==='b'?'choose block':'choose parameter',hg:pp.lvl==='b'?'block chuno':'parameter chuno'}],[pp.lvl==='b'?kc('▶'):kc('DATA',1),{en:pp.lvl==='b'?'open block':(pp.mode==='chg'?'change value':'(read only)'),hg:pp.lvl==='b'?'block kholo':(pp.mode==='chg'?'value badlo':'(sirf padhna)')}],[kc('◀'),{en:'back to blocks',hg:'blocks par wapas'}],[kc('ESC',1),{en:'exit',hg:'bahar'}]]}}
+    case 'prog':{const pr=u.prog;const W={
+       lb:{en:'LB counts the speed sensor pulses during P03.02 seconds = one belt circuit. This number becomes the belt circuit identifier for TW, CW and Zero. Needed at first calibration, after a new belt / big tension change, or after changing P02.04 / P02.05.',hg:'LB P03.02 second tak speed sensor ke pulse ginta hai = belt ka ek chakkar. Yahi number TW, CW aur Zero ke liye ek chakkar ki pehchaan banta hai. Pehli calibration me, naya belt / tension badalne par, ya P02.04 / P02.05 badalne par zaroori.'},
+       tw:{en:'TW records the base tare (belt + idlers on the platform) over whole belt circuits. Belt must be EMPTY and running. Tare correction is unlimited; after TW the zero correction is reset.',hg:'TW poore belt chakkar me base tare (belt + platform ke idlers) record karta hai. Belt KHAALI aur chalta hona chahiye. Tare correction ki koi limit nahi; TW ke baad zero correction reset ho jaata hai.'},
+       cw:{en:'CW checks the span with a known calibration weight. Set = P03.08 / P03.05, Act = measured. Result is shown but NOT applied automatically. Dev > 20 % may mean a mechanical fault (stuck material).',hg:'CW known calibration weight se span check karta hai. Set = P03.08 / P03.05, Act = measured. Result dikhta hai par apne aap apply NAHI hota. Dev > 20 % matlab mechanical fault (material phansa) ho sakta hai.'},
+       zero:{en:'Zero Set corrects small operating zero drift (e.g. dirt). Its correction is limited by P08.04 — a bigger change needs TW: Tare.',hg:'Zero Set chhota operating zero drift (jaise dhool) theek karta hai. Iski limit P08.04 hai — bada badlav ho to TW: Tare chahiye.'}}[pr.kind];
+      return {t:{en:PROGS[pr.kind],hg:PROGS[pr.kind]},w:W,k:[[kc('↵',1),{en:pr.st==='done'?(pr.kind==='cw'?'exit':'take over result'):'start',hg:pr.st==='done'?(pr.kind==='cw'?'exit':'result save'):'start'}],[kc('ESC',1),{en:pr.st==='run'?'abort':'back',hg:pr.st==='run'?'abort':'wapas'}]]}}
+    case 'sp':return {t:{en:'Feedrate Setpoint',hg:'Feedrate Setpoint'},w:{en:'Key in the wanted feed rate in t/h. GRAVIMETRIC: controller holds this rate by weight. VOLUMETRIC: belt speed = setpoint / P02.02 × nominal speed (no weight correction).',hg:'Chahiye wala feed rate t/h me daalo. GRAVIMETRIC: controller weight se ye rate pakad ke rakhta hai. VOLUMETRIC: belt speed = setpoint / P02.02 × nominal speed (weight se correction nahi).'},k:[[kc('0-9')+kc('.'),{en:'type',hg:'likho'}],[kc('DEL'),{en:'delete',hg:'mitao'}],[kc('↵'),{en:'save',hg:'save'}],[kc('ESC'),{en:'cancel',hg:'cancel'}]]};
+    case 'svc':return {t:{en:'Service Values',hg:'Service Values'},w:{en:'Diagnosis readouts that do not disturb weighing: LC signal, speed frequency, analog output, inputs/outputs. Use them when troubleshooting.',hg:'Diagnosis readings jo weighing ko disturb nahi karti: LC signal, speed frequency, analog output, inputs/outputs. Troubleshooting me use karo.'},k:[[kc('▲')+kc('▼'),{en:'scroll',hg:'scroll'}],[kc('ESC',1),{en:'exit',hg:'bahar'}]]};
+    case 'evlist':return {t:{en:'Event List',hg:'Event List'},w:{en:'Every event is stored with a time stamp for later analysis.',hg:'Har event time ke saath save hota hai, baad me analysis ke liye.'},k:[[kc('▲')+kc('▼'),{en:'scroll',hg:'scroll'}],[kc('ESC',1),{en:'exit',hg:'bahar'}]]};
+    case 'fact':return {t:{en:'Load Factory Defaults',hg:'Load Factory Defaults'},w:{en:'Resets the complete parameter set. Used for SY01 memory error. Afterwards all plant data must be entered and the scale recalibrated.',hg:'Poora parameter set reset karta hai. SY01 memory error me use hota hai. Baad me saara plant data daalo aur dobara calibrate karo.'},k:[[kc('↵',1),{en:'load',hg:'load'}],[kc('ESC',1),{en:'cancel',hg:'cancel'}]]};
+    default:return {t:{en:'Display',hg:'Display'},w:{en:'Information screen.',hg:'Information screen.'},k:[[kc('ESC',1),{en:'exit',hg:'bahar'}]]};
+  }
+}
+/* task coach: tells the next key towards a target */
+function navSteps(f1,f2){
+  const u=S.ui;
+  if(u.pw)return {en:'Type the password 7353 and press ENTER.',hg:'Password 7353 likho aur ENTER dabao.'};
+  if(u.scr!=='menu'&&u.scr!=='home')return {en:'Press ▣ (works as back / ESC here) to leave this screen.',hg:'Is screen se nikalne ke liye ▣ dabao (yahan ESC ka kaam karta hai).'};
+  if(u.scr==='home')return {en:'Press ▣ (FUNCTION) to open the menu.',hg:'Menu kholne ke liye ▣ (FUNCTION) dabao.'};
+  if(u.lvl===2&&u.f1!==f1)return {en:'Press ◀ to go back to the first level.',hg:'Pehle level par jaane ke liye ◀ dabao.'};
+  if(u.f1!==f1)return {en:'Press ▼ until "'+MENU[f1].n+'" is yellow, then ▶.',hg:'▼ dabate raho jab tak "'+MENU[f1].n+'" peela na ho, phir ▶.'};
+  if(u.lvl===1)return {en:'Press ▶ to open "'+MENU[f1].n+'".',hg:'"'+MENU[f1].n+'" kholne ke liye ▶ dabao.'};
+  if(u.f2!==f2)return {en:'Press ▼ until "'+MENU[f1].s[f2][0]+'" is yellow.',hg:'▼ dabao jab tak "'+MENU[f1].s[f2][0]+'" peela na ho.'};
+  return {en:'Press ENTER.',hg:'ENTER dabao.'};
+}
+function parSteps(id){
+  const u=S.ui;
+  if(u.scr==='par'&&u.par.mode==='chg'){
+    const pp=u.par,bi=BLOCKS.findIndex(b=>b.n===id.slice(0,2));
+    if(pp.edit&&curPar().id===id)return {en:'Type the value and press ENTER.',hg:'Value likho aur ENTER dabao.'};
+    if(pp.lvl==='b')return pp.b===bi?{en:'Press ▶ to open block '+id.slice(0,2)+'.',hg:'Block '+id.slice(0,2)+' kholne ke liye ▶ dabao.'}:{en:'Press ▼ / ▲ to block '+id.slice(0,2)+'.',hg:'▼ / ▲ se block '+id.slice(0,2)+' par jao.'};
+    if(pp.b!==bi)return {en:'Press ◀ to go back to the blocks.',hg:'◀ dabao, blocks par wapas.'};
+    if(curPar().id!==id)return {en:'Press ▼ / ▲ to P'+id+'.',hg:'▼ / ▲ se P'+id+' par jao.'};
+    return {en:'Press DATA, type the value, ENTER.',hg:'DATA dabao, value likho, ENTER.'};
+  }
+  return navSteps(4,1);
+}
+const TASKS={
+ p0201:{t:{en:'Enter rated data',hg:'Rated data daalo'},next:()=>{for(const id of ['02.02','02.04','02.05'])if(Math.abs(P(id)-PLANT_DATA[id])>1e-6)return {id};return null}},
+ p0302:{t:{en:'Enter belt circuit time',hg:'Belt circuit time daalo'},next:()=>Math.abs(P('03.02')-REAL.beltLen/REAL.v0)>0.6?{id:'03.02'}:null},
+ p03:{t:{en:'Enter calibration data',hg:'Calibration data daalo'},next:()=>{for(const id of ['03.03','03.04','03.05','03.06','03.07','03.08'])if(Math.abs(P(id)-PLANT_DATA[id])>0.051)return {id};return null}},
+ p0402:{t:{en:'Range correction = 1',hg:'Range correction = 1'},next:()=>Math.abs(P('04.02')-1)>1e-6?{id:'04.02'}:null},
+ lb:{t:{en:'Run LB: Pulses/Belt',hg:'LB: Pulses/Belt chalao'},prog:'lb',f2:1},
+ tw:{t:{en:'Run TW: Tare',hg:'TW: Tare chalao'},prog:'tw',f2:2},
+ cw:{t:{en:'Run CW: Span Calibration',hg:'CW: Span Calibration chalao'},prog:'cw',f2:3},
+ vol:{t:{en:'Switch Gravimetric / Volumetric',hg:'Gravimetric / Volumetric badlo'},prog:'vol',f2:0,f1:2},
+ zero:{t:{en:'Run >0< Zero Set',hg:'>0< Zero Set chalao'},prog:'zero',f2:0},
+ mt:{t:{en:'Enter new P04.02',hg:'Naya P04.02 daalo'},next:()=>!S.mt||!S.mt.newRC?{wait:1}:Math.abs(P('04.02')-S.mt.newRC)>0.0006?{id:'04.02',val:S.mt.newRC}:null}
+};
+function taskHtml(){
+  if(!S.task)return '';
+  const T=TASKS[S.task];let step;
+  if(T.prog){
+    const pr=S.ui.prog;
+    if(S.ui.scr==='prog'&&pr&&pr.kind===T.prog){
+      if(pr.st==='ready'||pr.st==='nolb')step={en:'Press ENTER to start.',hg:'Start ke liye ENTER dabao.'};
+      else if(pr.st==='start')step={en:'Start the belt (BELT tab), then ENTER.',hg:'Belt chalu karo (BELT tab), phir ENTER.'};
+      else if(pr.st==='run')step={en:'Running… use ×10 / ×60 speed on the BELT tab to save time.',hg:'Chal raha hai… time bachane ke liye BELT tab par ×10 / ×60 speed lagao.'};
+      else if(pr.st==='done')step={en:'Check the result, then ENTER.',hg:'Result dekho, phir ENTER.'};
+      else step={en:'Aborted. Press ENTER and start again.',hg:'Abort hua. ENTER dabao aur dobara start karo.'};
+    }else step=navSteps(T.f1!=null?T.f1:3,T.f2);
+    if(S.progress[T.prog]&&S.ui.scr==='home'){step={en:'Done ✓',hg:'Ho gaya ✓'}}
+  }else{
+    const n=T.next();
+    if(!n)step={en:'Done ✓',hg:'Ho gaya ✓'};
+    else if(n.wait)step={en:'First run the material test on the CALIBRATE tab (scale ON, feed > 0, ×60 speed).',hg:'Pehle CALIBRATE tab par material test chalao (scale ON, feed > 0, ×60 speed).'};
+    else{const v=n.val!=null?n.val:(n.id==='04.02'?1:PLANT_DATA[n.id]);step={en:'Set P'+n.id+' = '+fmtN(v,PDEF[n.id].dec)+' '+(PDEF[n.id].u||'')+'. ',hg:'P'+n.id+' = '+fmtN(v,PDEF[n.id].dec)+' '+(PDEF[n.id].u||'')+' karo. '};const s=parSteps(n.id);step={en:step.en+s.en,hg:step.hg+s.hg}}
+  }
+  return `<div class="task"><b>${esc(L(T.t))}</b><br>${esc(L(step))} <button class="btn" style="padding:3px 8px;margin-left:4px;font-size:11px" id="taskx">${LANG==='hg'?'Band karo':'Close'}</button></div>`;
+}
+let lastGuide='';
+function renderGuide(){
+  const g=screenGuide();
+  const h=`<h2>${esc(L(g.t))}<span class="pill">${LANG==='hg'?'Guide':'Guide'}</span></h2><p style="margin:0 0 6px">${esc(L(g.w))}</p><div class="sub">${LANG==='hg'?'Yahan chalne wali keys':'Keys on this screen'}</div><ul>${g.k.map(x=>`<li>${x[0]} ${esc(L(x[1]))}</li>`).join('')}</ul>${taskHtml()}`;
+  if(h!==lastGuide){$('guide').innerHTML=h;lastGuide=h;const x=$('taskx');if(x)x.onclick=()=>{S.task=null;renderGuide()}}
+}
+
+/* ================= HINT ================= */
+let lastHint=null;
+function showHint(o,kind){lastHint={o,kind:kind||'info'};paintHint()}
+function paintHint(){const h=$('hint');const o=lastHint||{o:{en:'Tap the display for an explanation. Start on the CALIBRATE tab for guided commissioning.',hg:'Explanation ke liye display par tap karo. Guided commissioning ke liye CALIBRATE tab se shuru karo.'},kind:'info'};h.className='hintline '+o.kind;$('hinttxt').textContent=L(o.o)}
+
+/* ================= BELT TAB ================= */
+function beltSVG(){
+  return `<defs><pattern id="mat" width="18" height="14" patternUnits="userSpaceOnUse" patternTransform="translate(0,0)"><rect width="18" height="14" fill="#8a6a45"/><circle cx="4" cy="5" r="2.2" fill="#a5835a"/><circle cx="12" cy="9" r="2.6" fill="#6f5434"/><circle cx="15" cy="3" r="1.5" fill="#b8956a"/></pattern>
+  <pattern id="belt" width="24" height="6" patternUnits="userSpaceOnUse"><rect width="24" height="6" fill="#2a2f34"/><rect width="3" height="6" fill="#383e44"/></pattern></defs>
+  <text x="14" y="20" fill="#9aa5ae" font-family="Barlow Semi Condensed" font-size="13" letter-spacing="1">FEED CHUTE</text>
+  <path d="M40 28h70l-14 46H54z" fill="#3a434b" stroke="#56626c"/>
+  <g id="fall"></g>
+  <rect x="30" y="118" width="580" height="7" fill="url(#belt)" id="beltTop"/>
+  <rect x="30" y="160" width="580" height="5" fill="#23282c"/>
+  <circle cx="30" cy="141" r="22" fill="#30373d" stroke="#56626c" stroke-width="2"/><circle cx="610" cy="141" r="22" fill="#30373d" stroke="#56626c" stroke-width="2"/>
+  <g id="spokesL"><path d="M30 123v36M12 141h36" stroke="#56626c" stroke-width="2"/></g><g id="spokesR"><path d="M610 123v36M592 141h36" stroke="#56626c" stroke-width="2"/></g>
+  <rect x="30" y="0" width="0" height="0" id="matRect" fill="url(#mat)"/>
+  <g fill="#454e56">${[130,230,430,530].map(x=>`<circle cx="${x}" cy="129" r="6"/>`).join('')}</g>
+  <circle cx="330" cy="129" r="7" fill="#ffc857" id="wid"/>
+  <rect x="318" y="140" width="24" height="16" rx="2" fill="#5aa7e6" id="lcbox"/><text x="330" y="152" text-anchor="middle" font-size="9" font-family="JetBrains Mono" fill="#04121f" font-weight="700">LC</text>
+  <path d="M330 156v18" stroke="#5aa7e6" stroke-width="2"/><path d="M300 176h60" stroke="#56626c" stroke-width="3"/>
+  <text x="330" y="196" text-anchor="middle" fill="#9aa5ae" font-family="Barlow Semi Condensed" font-size="12" letter-spacing="1">WEIGH IDLER · LOAD CELL</text>
+  <g id="cwg"><path d="M330 136v-0" stroke="#ffc857"/><rect x="345" y="140" width="22" height="26" rx="3" fill="#ffc857"/><text x="356" y="157" text-anchor="middle" font-size="9" font-family="JetBrains Mono" font-weight="700" fill="#2a2100">CW</text></g>
+  <g transform="translate(560,190)"><circle r="12" fill="#30373d" stroke="#9be38a" stroke-width="2"/><g id="tacho"><path d="M0-12v24M-12 0h24" stroke="#9be38a" stroke-width="1.5"/></g></g>
+  <text x="520" y="222" fill="#9aa5ae" font-family="Barlow Semi Condensed" font-size="12" letter-spacing="1">SPEED SENSOR</text>
+  <path d="M560 178v-12" stroke="#9be38a" stroke-width="2"/>
+  <g id="flag"><rect x="-3" y="104" width="6" height="14" fill="#ff8a7a"/></g>
+  <text x="608" y="20" text-anchor="end" fill="#9aa5ae" font-family="Barlow Semi Condensed" font-size="13" letter-spacing="1" id="dirtxt">TO DOWNSTREAM ▸</text>
+  <g id="warn"></g>`;
+}
+function initBelt(){$('beltsvg').innerHTML=beltSVG()}
+function renderBelt(){
+  const pl=S.plant,m=S.m;
+  const qn=Math.min(1.6,m.qTrue/125);
+  const hgt=qn*22;const mr=$('matRect');
+  const visStart=55;mr.setAttribute('x',visStart);mr.setAttribute('width',610-visStart-10);mr.setAttribute('y',118-hgt);mr.setAttribute('height',hgt);
+  const off=(pl.pos*40)%18;$('mat').setAttribute('patternTransform','translate('+off.toFixed(1)+',0)');
+  $('belt').setAttribute('patternTransform','translate('+((pl.pos*40)%24).toFixed(1)+',0)');
+  const ang=(pl.pos*40/22*180/Math.PI)%360;
+  $('spokesL').setAttribute('transform','rotate('+ang.toFixed(1)+' 30 141)');$('spokesR').setAttribute('transform','rotate('+ang.toFixed(1)+' 610 141)');
+  $('tacho').setAttribute('transform','rotate('+(S.plant.f.tacho?0:(ang*2.3%360)).toFixed(1)+')');
+  const fx=30+pl.pos*40;$('flag').setAttribute('transform','translate('+fx.toFixed(1)+',0)');$('flag').style.display=fx<605?'':'none';
+  $('cwg').style.display=pl.calW?'':'none';
+  const feeding=m.Itrue>0;$('fall').innerHTML=feeding?Array.from({length:6},(_,i)=>{const y=74+((S.t*90+i*8)%40);return `<circle cx="${68+((i*7)%22)}" cy="${y.toFixed(1)}" r="${2+qn}" fill="#a5835a"/>`}).join(''):'';
+  $('wid').setAttribute('fill',pl.f.build?'#b88a4e':'#ffc857');
+  $('lcbox').setAttribute('fill',pl.f.lc?'#e5372d':pl.f.jam?'#f08a24':'#5aa7e6');
+  const w=[];if(pl.f.drift)w.push('BELT DRIFT');if(pl.f.slip)w.push('PULLEY SLIP');if(pl.f.jam)w.push('MATERIAL JAM');if(pl.f.build)w.push('BUILD-UP ON IDLER');
+  $('warn').innerHTML=w.length?`<text x="320" y="60" text-anchor="middle" fill="#ff8a7a" font-family="Barlow Semi Condensed" font-weight="700" font-size="15" letter-spacing="1">⚠ ${w.join(' · ')}</text>`:'';
+  /* readouts */
+  const ro=[
+   ['Indicated Feedrate',fmtN(m.If,1)+' t/h','True: '+fmtN(m.Itrue,1)+' t/h · Set '+fmtN(S.sp,0)],
+   ['Deviation (Act vs Set)',S.scale.on?fmtN(DEV(),2)+' %':'—','Weighing error: '+(m.Itrue>5?fmtN((m.If-m.Itrue)/m.Itrue*100,2)+' %':'—')],
+   ['Belt Load',fmtN(m.q,2)+' kg/m','True: '+fmtN(m.qTrue,2)+' kg/m'],
+   ['Belt Speed',fmtN(m.v,3)+' m/s','Motor: '+fmtN(pl.vm,3)+' m/s'],
+   ['Totalizer 1',fmtN(S.tot.t1,3)+' t','Truly conveyed: '+fmtN(S.tot.trueM,3)+' t'],
+   ['Analog Output',fmtN(m.mA,2)+' mA','LC '+fmtN(m.lcmv,3)+' mV/V · '+fmtN(m.hz,1)+' Hz'],
+   ['Feeder',S.scale.on?'ON':'OFF',(S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC')+' · '+(S.mode.kbd?'KEYBOARD':'NORMAL')+' · out '+fmtN(S.plant.y*100,0)+' %'],
+   ['Events',String(shownEvents().length),shownEvents().map(e=>e.c).join(' ')||'none']
+  ];
+  $('ro').innerHTML=ro.map(r=>`<div class="ro"><div class="t">${esc(r[0])}</div><div class="v">${esc(r[1])}</div><div class="s">${esc(r[2])}</div></div>`).join('');
+  $('beltst').textContent=pl.belt?'JOG RUNNING':(pl.vm>0.02?'RUN BY SCALE':'STOPPED');$('spv').textContent=fmtN(S.sp,0)+' t/h';$('vmst').textContent=S.mode.vol?'VOLUMETRIC':'GRAVIMETRIC';[...$('vm').children].forEach(x=>x.setAttribute('aria-pressed',(x.dataset.v==='1')===S.mode.vol?'true':'false'));if(document.activeElement!==$('spsl'))$('spsl').value=S.sp;$('enst').textContent=pl.runEn?'HIGH (enabled)':'LOW (disabled)';
+  $('feedv').textContent=pl.feed+' % of nominal layer · '+fmtN(pl.feed/100*REAL.cap/3.6,1)+' kg/m';$('cwst').textContent=pl.calW?'HUNG ON PLATFORM':'REMOVED';
+  $('dcsst').textContent=S.mode.kbd?'ignored (KEYBOARD mode)':'active';
+  if(document.activeElement!==$('feed'))$('feed').value=pl.feed;
+}
+const FAULTS=[['lc',{en:'Load cell cable break',hg:'Load cell cable break'}],['tacho',{en:'Speed sensor cable break',hg:'Speed sensor cable break'}],['slip',{en:'Drive pulley slip',hg:'Drive pulley slip'}],['build',{en:'Material build-up on weigh idler',hg:'Weigh idler par material jama'}],['drift',{en:'Belt running off-centre',hg:'Belt side me chal raha'}],['jam',{en:'Material jam on platform',hg:'Platform par material phansa'}],['mem',{en:'Memory error',hg:'Memory error'}]];
+function buildFaults(){$('faults').innerHTML=FAULTS.map(f=>`<button class="chip" data-f="${f[0]}" aria-pressed="${S.plant.f[f[0]]?'true':'false'}">${esc(L(f[1]))}</button>`).join('')+`<button class="chip" data-f="clear" aria-pressed="false">${LANG==='hg'?'Sab clear':'Clear all'}</button>`;
+  $('faultnote').textContent=LANG==='hg'?'Fault lagao, phir PANEL aur EVENTS tab me dekho kya event aata hai aur kaise theek karte hain.':'Inject a fault, then watch the event on the PANEL and read the fix on the EVENTS tab.'}
+/* trend */
+function sample(){S.history.push([S.m.If,S.m.Itrue,S.m.v/P('02.05')*100,S.m.q/qo()*100,S.scale.on?S.sp:0]);if(S.history.length>300)S.history.shift()}
+function drawTrend(){
+  const c=$('trend'),x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);
+  const top=Math.max(P('02.02')*1.3,10);
+  x.strokeStyle='#2a3238';x.lineWidth=1;x.font='20px JetBrains Mono';x.fillStyle='#6d7880';
+  for(let i=0;i<=4;i++){const y=10+(H-30)*i/4;x.beginPath();x.moveTo(50,y);x.lineTo(W-6,y);x.stroke();x.fillText(Math.round(top*(1-i/4)),2,y+6)}
+  x.fillText('t/h · %',W-130,H-4);
+  const hist=S.history,n=hist.length;if(n<2)return;
+  const line=(idx,col,scale)=>{x.strokeStyle=col;x.lineWidth=3;x.beginPath();hist.forEach((h,i)=>{const X=50+(W-56)*i/299,v=scale?h[idx]/100*P('02.02'):h[idx];const Y=10+(H-30)*(1-Math.max(-0.05,Math.min(1.05,v/top)));i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke()};
+  x.setLineDash([8,6]);line(4,'#ffffff');x.setLineDash([]);line(2,'#9be38a',1);line(3,'#ff8a7a',1);line(1,'#7fd1ff');line(0,'#ffc857');
+}
+
+/* ================= CALIBRATE TAB ================= */
+const PLANT_DATA={'02.02':450,'02.04':48.70,'02.05':1,'03.03':2.85,'03.04':220,'03.05':1,'03.06':1,'03.07':8,'03.08':40};
+function renderPlate(){
+  const r=[['Nominal flow rate Io','450 t/h'],['Belt speed v0','1.00 m/s'],['Speed sensor','48.70 pulses / m'],['Load cell','1 × 220 kg, 2.85 mV/V'],['Platform','Single idler, idler pitch 2.0 m'],['Lever','none (direct)'],['Belt incline','h = 1.40 m over l = 10.0 m'],['Calibration weight','40.0 kg (acts directly on LC)'],['Belt length','48 m (measure circuit time!)']];
+  $('plate').innerHTML=r.map(x=>`<div><span>${esc(x[0])}</span><b>${esc(x[1])}</b></div>`).join('');
+}
+const STEPS=[
+ {id:'p0201',t:{en:'Rated data',hg:'Rated data'},b:{en:'Block 02: P02.02 Nominal Flow Rate, P02.04 Pulses per length, P02.05 Nominal Speed from the data sheet.',hg:'Block 02: data sheet se P02.02 Nominal Flow Rate, P02.04 Pulses per length, P02.05 Nominal Speed.'},ok:()=>!TASKS.p0201.next()},
+ {id:'p0302',t:{en:'Belt circuit time',hg:'Belt circuit time'},b:{en:'Put a chalk mark on the belt, time one full circuit with a stopwatch (below), enter it in P03.02.',hg:'Belt par chalk ka nishaan lagao, ek poora chakkar stopwatch se naapo (neeche), P03.02 me daalo.'},ok:()=>!TASKS.p0302.next()},
+ {id:'p03',t:{en:'Calibration data',hg:'Calibration data'},b:{en:'Block 03: LC values, Leff = half of idler pitch (2.0 m → 1.0 m), lever 1, angle α = tan⁻¹(1.4 / 10) ≈ 8.0°, calibration weight 40 kg.',hg:'Block 03: LC values, Leff = idler pitch ka aadha (2.0 m → 1.0 m), lever 1, angle α = tan⁻¹(1.4 / 10) ≈ 8.0°, calibration weight 40 kg.'},ok:()=>!TASKS.p03.next()},
+ {id:'p0402',t:{en:'Range correction = 1',hg:'Range correction = 1'},b:{en:'At initial calibration P04.02 must be 1.',hg:'Pehli calibration me P04.02 = 1 hona chahiye.'},ok:()=>S.mt?true:!TASKS.p0402.next()},
+ {id:'lb',t:{en:'LB: Pulses/Belt',hg:'LB: Pulses/Belt'},b:{en:'Calibration ▸ LB (the feeder runs by itself). Result = pulses in one belt circuit.',hg:'Calibration ▸ LB (feeder khud chalta hai). Result = ek chakkar ke pulse.'},ok:()=>S.cal.lb>0&&!S.cal.lbDirty,warn:()=>S.cal.lb>0&&Math.abs(S.cal.lb-REAL.beltLen*REAL.ppm)/(REAL.beltLen*REAL.ppm)>0.02?{en:'Pulses/Belt does not match one real circuit — was P03.02 correct before LB?',hg:'Pulses/Belt ek asli chakkar se match nahi — LB se pehle P03.02 sahi tha?'}:null},
+ {id:'tw',t:{en:'TW: Tare',hg:'TW: Tare'},b:{en:'Hopper gate closed: material layer 0 % (BELT tab). Calibration ▸ TW. Records the base tare.',hg:'Hopper gate band: material layer 0 % (BELT tab). Calibration ▸ TW. Base tare record hota hai.'},ok:()=>!!S.progress.tw&&Math.abs(S.cal.tare-REAL.tare*REAL.lcChar/REAL.lcCap/P('03.03')*P('03.04')*P('03.06'))<1,warn:()=>S.progress.tw&&Math.abs(S.cal.tare-REAL.tare)>1?{en:'Stored tare looks wrong — was the belt empty and the calibration weight removed?',hg:'Save hua tare galat lag raha — belt khaali tha aur calibration weight hata tha?'}:null},
+ {id:'cw',t:{en:'CW: Span check',hg:'CW: Span check'},b:{en:'Layer 0 %, hang the weight (BELT tab). Calibration ▸ CW. Dev should be small (< ±0.5 %).',hg:'Layer 0 %, weight latkao (BELT tab). Calibration ▸ CW. Dev chhota hona chahiye (< ±0.5 %).'},ok:()=>S.progress.cw&&Math.abs(S.progress.cw.dev)<0.5,warn:()=>S.progress.cw&&Math.abs(S.progress.cw.dev)>=0.5?{en:'Last CW Dev = '+S.progress.cw.dev.toFixed(2)+' %. Check P03.05 / P03.06 / P03.08, weight hung?, TW done?',hg:'Pichhla CW Dev = '+S.progress.cw.dev.toFixed(2)+' %. P03.05 / P03.06 / P03.08 check karo, weight laga?, TW hua?'}:null},
+ {id:'mt',t:{en:'Material test → P04.02',hg:'Material test → P04.02'},b:{en:'Remove the weight, layer back to 80 %. Feeder ON in GRAVIMETRIC, run the material test below. Compare weighbridge MW with counter MA and enter the new P04.02.',hg:'Weight hatao, layer wapas 80 %. Feeder ON GRAVIMETRIC me, neeche material test chalao. Weighbridge MW ko counter MA se milao aur naya P04.02 daalo.'},ok:()=>S.mt&&S.mt.newRC&&Math.abs(P('04.02')-S.mt.newRC)<0.0006},
+ {id:'vol',t:{en:'Gravimetric vs Volumetric',hg:'Gravimetric vs Volumetric'},b:{en:'Feeder ON, setpoint 300 t/h. Change the layer 80 → 60 %: GRAVIMETRIC speeds up and holds 300 t/h. Switch to VOLUMETRIC (▣ ▸ Mode) and change the layer again: the real feed rate follows the layer, Deviation grows.',hg:'Feeder ON, setpoint 300 t/h. Layer 80 → 60 % karo: GRAVIMETRIC speed badha ke 300 t/h pakadta hai. VOLUMETRIC (▣ ▸ Mode) karo aur layer phir badlo: asli feed rate layer ke saath badalta hai, Deviation badhta hai.'},ok:()=>!!S.progress.vol},
+ {id:'zero',t:{en:'Zero Set (routine)',hg:'Zero Set (routine)'},b:{en:'In daily operation: empty running belt, Calibration ▸ >0< Zero Set. Corrects small drift only.',hg:'Roz ke kaam me: khaali chalta belt, Calibration ▸ >0< Zero Set. Sirf chhota drift theek karta hai.'},ok:()=>!!S.progress.zero}
+];
+function renderSteps(){
+  $('calintro').textContent=LANG==='hg'?'BELT tab par "New Commissioning" se shuru karo. Har step par "Panel par dikhao" dabao — PANEL tab guide aapko key-by-key batayega.':'Start with "New Commissioning" on the BELT tab. On each step press "Show on panel" — the PANEL guide then tells you key by key.';
+  const h=STEPS.map((s,i)=>{const ok=s.ok(),w=s.warn&&s.warn();return `<div class="stp ${ok?'done':w?'warn':''}"><div class="no">${ok?'✓':i+1}</div><div><h4>${esc(L(s.t))} ${ok?'<span class="pill ok">OK</span>':w?'<span class="pill W1">CHECK</span>':'<span class="pill wait">TO DO</span>'}</h4><p class="small">${esc(L(s.b))}</p>${w?`<p class="small" style="color:#ffb27a">${esc(L(w))}</p>`:''}<button class="btn" data-task="${s.id}" style="margin-top:4px;padding:5px 10px;font-size:12px">${LANG==='hg'?'Panel par dikhao':'Show on panel'}</button></div></div>`}).join('');
+  if(h!==renderSteps.last){$('steps').innerHTML=h;renderSteps.last=h}
+  $('swtxt').textContent=LANG==='hg'?'BELT tab par Jog ON karo, phir stopwatch chalao. Lal flag ek poora chakkar lagaye tab tak time ginti hoga.':'Switch Jog ON on the BELT tab, then start the stopwatch. It times the red flag for one full belt circuit.';
+  $('mttxt').textContent=LANG==='hg'?'Feeder ON, setpoint aur layer > 0 hona chahiye. Test 15 simulated minute chalta hai (×60 speed lagao). Phir MW aur MA apne aap bhar jaate hain.':'Feeder must be ON with setpoint and layer > 0. The test runs 15 simulated minutes (use ×60 speed). MW and MA are filled in afterwards.';
+  if(S.sw)$('swv').textContent=fmtN(S.sw.t,1)+' s'+(S.sw.run?' …':'');
+  if(S.mt)$('mtst').textContent=S.mt.run?(LANG==='hg'?'Chal raha: ':'Running: ')+fmtN(S.mt.t/60,1)+' / 15 min':(S.mt.done?(LANG==='hg'?'Ho gaya. MW '+fmtN(S.mt.mw,3)+' t, MA '+fmtN(S.mt.ma,3)+' t':'Done. MW '+fmtN(S.mt.mw,3)+' t, MA '+fmtN(S.mt.ma,3)+' t'):'');
+}
+function calcRC(){const mw=parseFloat($('c-mw').value),ma=parseFloat($('c-ma').value),old=parseFloat($('c-old').value);if(mw>0&&ma>0&&old>0){const n=old*mw/ma;$('c-new').textContent=n.toFixed(4)+(n<0.5||n>2?'  (out of 0.5…2!)':'');if(S.mt)S.mt.newRC=+n.toFixed(4)}else $('c-new').textContent='—'}
+function onMtDone(){$('c-mw').value=S.mt.mw.toFixed(3);$('c-ma').value=S.mt.ma.toFixed(3);$('c-old').value=String(P('04.02'));calcRC();renderSteps()}
+
+/* ================= EVENTS TAB ================= */
+let evFilter='all';
+function renderEvents(force){
+  const q=$('evq').value.trim().toLowerCase();
+  const list=Object.keys(EV).filter(c=>{const e=EV[c],cls=evCls(c),act=S.ev[c]&&S.ev[c].active;
+    if(evFilter==='act'&&!(S.ev[c]))return false;if(evFilter==='A'&&cls!=='A')return false;if(evFilter==='W'&&!(cls==='W1'||cls==='W2'))return false;
+    return !q||(c+' '+e.n+' '+e.g+' '+L(e.m)+' '+e.c2.join(' ')).toLowerCase().includes(q)});
+  const sig=list.map(c=>c+(S.ev[c]?(S.ev[c].active?'a':'')+(S.ev[c].acked?'k':''):'')).join(',')+LANG+q+evFilter;
+  if(!force&&sig===renderEvents.sig)return;renderEvents.sig=sig;
+  const open=new Set([...document.querySelectorAll('#evlist details[open]')].map(d=>d.dataset.c));
+  $('evlist').innerHTML=list.length?list.map(c=>{const e=EV[c],st=S.ev[c],cls=evCls(c);return `<details class="ev${st&&st.active?' act':''}" data-c="${c}"${open.has(c)||(st&&st.active&&!st.acked)?' open':''}><summary><span class="code">${c}</span><span class="nm">${esc(e.n)}</span><span class="pill ${cls}">${cls}</span>${st?(st.active?'<span class="pill bad">'+(LANG==='hg'?'Active':'Active')+'</span>':'')+(st.acked?'':'<span class="pill W1">'+(LANG==='hg'?'Ack baaki':'Not acked')+'</span>'):''}${e.live?'':'<span class="pill">'+(LANG==='hg'?'Sirf jaankari':'Reference')+'</span>'}</summary>
+  <p class="small mute" style="margin:4px 0 0">${esc(e.g)}</p><p style="margin:4px 0">${esc(L(e.m))}</p><div class="sub">${LANG==='hg'?'Sambhavit kaaran':'Possible causes'}</div><ul class="steps">${e.c2.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="sub">${LANG==='hg'?'Kya karein':'What to do'}</div><ol class="steps">${L(e.s).map(x=>`<li>${esc(x)}</li>`).join('')}</ol></details>`}).join(''):`<p class="mute">${LANG==='hg'?'Kuch nahi mila.':'Nothing found.'}</p>`;
+  $('evclass').innerHTML=['A','W1','W2','IG'].map(c=>`<p style="margin:5px 0"><span class="pill ${c}">${c}</span> ${esc(L(CLS[c]))}</p>`).join('')+`<p class="small mute">${LANG==='hg'?'Simulator ki default classes. Asli unit me har event ki class parameter se set hoti hai.':'Simulator default classes. On the real unit each event class is set by parameter.'}</p>`;
+  $('evlog').innerHTML=S.log.length?S.log.map(l=>`<div>${esc(l)}</div>`).join(''):`<div class="mute">${LANG==='hg'?'Abhi koi event nahi.':'No events yet.'}</div>`;
+}
+
+/* ================= SCENARIOS ================= */
+function scenario(n){
+  const keep={speed:S.speed,history:[]};S=freshState();S.speed=keep.speed;
+  if(n===2){
+    Object.assign(S.P,{'02.02':450,'02.04':48.70,'03.02':48,'03.07':8,'03.08':40,'04.02':0.9615,'02.07':'----.-- t'});
+    S.cal.lb=Math.round(REAL.beltLen*REAL.ppm);S.cal.tare=REAL.tare;S.progress={tw:true};
+    S.plant.vm=REAL.v0*0.75;S.plant.feed=80;S.sp=300;S.plant.yi=0.75;S.m.If=S.m.Ia=S.m.I=300;S.scale.on=true;S.scale.dcs=true;S.tot.t1=15842.5;S.tot.t2=1230.4;S.tot.t3=88.2;
+    showHint({en:'Calibrated plant: feeder ON from DCS, GRAVIMETRIC, setpoint 300 t/h. Change the material layer, switch to VOLUMETRIC, or inject faults on the BELT tab.',hg:'Calibrated plant: feeder DCS se ON, GRAVIMETRIC, setpoint 300 t/h. Material layer badlo, VOLUMETRIC karo, ya BELT tab par fault lagao.'},'ok');
+  }else{
+    showHint({en:'New commissioning: parameters at factory default, no calibration. Follow the CALIBRATE tab step by step.',hg:'New commissioning: parameters factory default par, calibration nahi hui. CALIBRATE tab ko step by step follow karo.'},'warn');
+  }
+  buildFaults();renderSteps.last='';lastGuide='';
+}
+
+/* ================= WIRING UI ================= */
+let curTab=0;
+function setTab(i){const prev=curTab;curTab=i;document.querySelector('.tabs').style.setProperty('--ti',i);
+  const pn=['p-panel','p-belt','p-cal','p-ev'][i];if(prev!==i){const el=$(pn);el.classList.remove('in-r','in-l');void el.offsetWidth;el.classList.add(i>prev?'in-r':'in-l')}document.querySelectorAll('.tab').forEach((t,j)=>t.setAttribute('aria-selected',j===i?'true':'false'));['p-panel','p-belt','p-cal','p-ev'].forEach((id,j)=>$(id).hidden=j!==i);try{history.replaceState(null,'','#'+['panel','belt','calibrate','events'][i])}catch(e){}
+  if(i===3)renderEvents(true);if(i===2){renderSteps.last='';renderSteps()}if(i===1)drawTrend();if(i===0)requestAnimationFrame(fitPanel)}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setTab(+t.dataset.i)));
+$('keys').addEventListener('click',e=>{const b=e.target.closest('.k');if(!b)return;key(b.dataset.k);renderLCD();renderGuide()});
+$('lcd').addEventListener('click',()=>{const g=screenGuide();showHint({en:L(g.t)+': '+g.w.en,hg:L(g.t)+': '+g.w.hg},'info');$('guide').scrollIntoView({behavior:'smooth',block:'nearest'})});
+const KB={ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',Enter:'ENTER',Escape:'ESC',Backspace:'DEL',Delete:'DEL','.':'DOT','-':'SIGN',f:'FUNC',F:'FUNC',d:'DATA',D:'DATA'};
+document.addEventListener('keydown',e=>{if(curTab!==0||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;let k=KB[e.key]||(/^\d$/.test(e.key)?e.key:null);if(!k)return;e.preventDefault();key(k);renderLCD();renderGuide();const b=document.querySelector('.k[data-k="'+k+'"]');if(b){b.classList.add('press');setTimeout(()=>b.classList.remove('press'),120)}});
+$('b-belt-on').onclick=()=>{S.plant.belt=true};
+$('b-belt-off').onclick=()=>{S.plant.belt=false};
+$('spsl').oninput=e=>{if(S.mode.kbd){showHint({en:'DCS setpoint ignored: panel is in KEYBOARD mode. Use DATA on the panel.',hg:'DCS setpoint ignore: panel KEYBOARD mode me hai. Panel par DATA use karo.'},'warn');e.target.value=S.sp;return}S.sp=+e.target.value};
+$('vm').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v==='1';if(v!==S.mode.vol){S.mode.vol=v;S.plant.yi=S.plant.y;showHint(v?{en:'VOLUMETRIC: speed from setpoint only. Now change the material layer and watch the real feed rate drift away.',hg:'VOLUMETRIC: speed sirf setpoint se. Ab material layer badlo aur dekho asli feed rate kaise bhatakta hai.'}:{en:'GRAVIMETRIC: the controller corrects the speed by weight.',hg:'GRAVIMETRIC: controller weight se speed theek karta hai.'},'ok')}});
+$('b-en').onclick=()=>{S.plant.runEn=!S.plant.runEn};
+$('feed').oninput=e=>{S.plant.feed=+e.target.value};
+$('b-cw').onclick=()=>{S.plant.calW=!S.plant.calW};
+$('b-dcs-on').onclick=()=>{if(S.mode.kbd){showHint({en:'DCS command ignored: panel is in KEYBOARD mode.',hg:'DCS command ignore: panel KEYBOARD mode me hai.'},'warn');return}scaleStart('DCS')};
+$('b-dcs-off').onclick=()=>{if(S.mode.kbd){showHint({en:'DCS command ignored: panel is in KEYBOARD mode.',hg:'DCS command ignore: panel KEYBOARD mode me hai.'},'warn');return}scaleStop('DCS')};
+$('spd').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.speed=+b.dataset.s;[...$('spd').children].forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'))});
+$('b-sc1').onclick=()=>scenario(1);$('b-sc2').onclick=()=>scenario(2);
+$('b-pwr').onclick=()=>{S.scale.on=false;S.scale.dcs=false;S.ui={...freshState().ui,bright:S.ui.bright};S.ui.prog=null;setEv('WE01',true);S.ev.WE01.acked=false;showHint({en:'Power came back. WE01 Power Failure: scale stays OFF. Press DEL to acknowledge, then start again.',hg:'Power wapas aayi. WE01 Power Failure: scale OFF rahega. DEL se acknowledge karo, phir start karo.'},'warn')};
+$('faults').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;if(f==='clear'){for(const k in S.plant.f)S.plant.f[k]=false}else S.plant.f[f]=!S.plant.f[f];buildFaults()});
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-task]');if(!b)return;S.task=b.dataset.task;lastGuide='';setTab(0);renderGuide();$('guide').scrollIntoView({behavior:'smooth',block:'start'})});
+$('b-sw').onclick=()=>{if(S.plant.vm<0.9){alert(LANG==='hg'?'Pehle BELT tab par Jog ON karo (nominal speed).':'First switch Jog ON on the BELT tab (nominal speed).');return}S.sw={run:true,t:0,target:REAL.beltLen/REAL.v0/(S.plant.f.slip?0.86:1)}};
+$('b-mt').onclick=()=>{if(!S.scale.on||S.plant.feed<=0||S.sp<=0){alert(LANG==='hg'?'Material test ke liye feeder ON, setpoint > 0 aur layer > 0 chahiye.':'Material test needs: feeder ON, setpoint > 0 and material layer > 0.');return}if(S.plant.calW){alert(LANG==='hg'?'Pehle calibration weight hatao.':'Remove the calibration weight first.');return}S.mt={run:true,t:0,dur:900,ma:0,mw:0,done:false,newRC:null}};
+['c-mw','c-ma','c-old'].forEach(id=>$(id).addEventListener('input',calcRC));
+$('evq').addEventListener('input',()=>renderEvents(true));
+$('evf').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;evFilter=b.dataset.f;[...$('evf').children].forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));renderEvents(true)});
+$('lang').value=LANG;$('lang').onchange=e=>{LANG=e.target.value;try{localStorage.setItem('tersus-lang',LANG)}catch(x){}lastGuide='';renderSteps.last='';buildFaults();paintHint();swh();renderGuide();renderSteps();renderEvents(true)};
+
+/* ================= SWIPE ================= */
+(function(){
+  const mainEl=document.querySelector('main');let sx=0,sy=0,st=0,ok=false;
+  const skip=el=>el.closest('input,select,textarea,canvas,.seg3');
+  mainEl.addEventListener('touchstart',e=>{if(e.touches.length!==1||skip(e.target)){ok=false;return}ok=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
+  mainEl.addEventListener('touchend',e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.6&&Date.now()-st<800){const n=curTab+(dx<0?1:-1);if(n>=0&&n<4)setTab(n)}},{passive:true});
+  /* Windows / laptop: two-finger horizontal swipe on touchpad, or mouse drag on empty space */
+  let acc=0,lock=0;
+  mainEl.addEventListener('wheel',e=>{if(Math.abs(e.deltaX)<=Math.abs(e.deltaY)||skip(e.target))return;const now=Date.now();if(now<lock)return;acc+=e.deltaX;if(Math.abs(acc)>90){const n=curTab+(acc>0?1:-1);acc=0;lock=now+600;if(n>=0&&n<4)setTab(n)}},{passive:true});
+  let md=null;
+  mainEl.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0||e.target.closest('button,input,select,textarea,canvas,a,summary,#lcd'))return;md={x:e.clientX,y:e.clientY}});
+  window.addEventListener('pointerup',e=>{if(!md)return;const dx=e.clientX-md.x,dy=e.clientY-md.y;md=null;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.6){const n=curTab+(dx<0?1:-1);if(n>=0&&n<4)setTab(n)}});
+})();
+/* ================= FIT PANEL TO SCREEN ================= */
+function fitPanel(){
+  const op=$('op'),pane=$('p-panel'),wrap=op.parentNode;if(pane.hidden)return;
+  const land=innerWidth>innerHeight,colW=pane.clientWidth-28;
+  /* landscape (phone or PC) or a wide pane: one long row like the real panel; portrait phone: stacked */
+  wrap.classList.toggle('row',land||colW>=700);
+  op.style.maxWidth='1000px';
+  const w=op.offsetWidth,h=op.offsetHeight;if(!w||!h)return;
+  const reserve=land&&innerHeight<560?10:(innerWidth>=900?150:120);
+  const avail=pane.clientHeight-reserve;
+  const target=Math.max(280,Math.min(1000,Math.floor(w*avail/h)));
+  op.style.maxWidth=target+'px';
+  $('hint').style.maxWidth=target+'px';
+}
+addEventListener('resize',fitPanel);addEventListener('orientationchange',()=>setTimeout(fitPanel,250));
+/* ================= LOOP ================= */
+function swh(){$('swh').textContent=LANG==='hg'?'‹ Tab badalne ke liye left / right swipe karo ›':(matchMedia('(pointer:coarse)').matches?'‹ Swipe left / right to change tabs ›':'‹ Swipe on touchpad or drag left / right to change tabs ›')}
+initBelt();renderPlate();buildFaults();paintHint();swh();
+let last=performance.now(),acc=0,n=0;
+function loop(now){
+  let dt=Math.min(0.25,(now-last)/1000);last=now;
+  let simdt=dt*S.speed;const steps=Math.ceil(simdt/0.1);for(let i=0;i<steps;i++)tick(simdt/steps);
+  acc+=dt;n++;
+  if(acc>=0.2){acc=0;sample();
+    if(curTab===0){renderLCD();renderGuide()}
+    if(curTab===1){renderBelt();drawTrend()}
+    if(curTab===2)renderSteps();
+    if(curTab===3)renderEvents(false);
+  }else if(curTab===1)renderBelt();
+  requestAnimationFrame(loop);
+}
+{const h=['panel','belt','calibrate','events'].indexOf(location.hash.slice(1));setTab(h>=0?h:0)}
+renderLCD();renderGuide();fitPanel();setTimeout(fitPanel,400);requestAnimationFrame(loop);
+window.__tersus={get S(){return S},key,tick,scenario};
+})();
+</script>
+</body></html>

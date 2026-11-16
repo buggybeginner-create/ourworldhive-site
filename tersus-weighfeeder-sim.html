@@ -95,7 +95,7 @@ input[type=range]{touch-action:none}
 .rd .bar{grid-column:1/-1;height:5px;background:#dde2e6;border-radius:3px;overflow:hidden;margin-bottom:2px}
 .rd .bar i{display:block;height:100%;background:#2d6ea8}
 .rd b{font-weight:700}
-.menu{display:grid;grid-template-columns:1fr 1.25fr;gap:5px;flex:1;min-height:0}
+.menu{display:grid;grid-template-columns:1.25fr 1fr;gap:5px;flex:1;min-height:0}
 .menu ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;overflow:hidden}
 .menu li{padding:2px 5px;border-radius:3px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#eceff1}
 .menu li.sel{background:#ffd84a;font-weight:700}
@@ -754,15 +754,15 @@ function keyMenu(k){
   if(u.lvl===1){
     if(k==='UP')u.f1=(u.f1+MENU.length-1)%MENU.length;
     else if(k==='DOWN')u.f1=(u.f1+1)%MENU.length;
-    else if(k==='RIGHT'||k==='ENTER'){u.lvl=2;u.f2=0}
+    else if(k==='LEFT'||k==='ENTER'){u.lvl=2;u.f2=0}
     else if(k==='ESC'||k==='FUNC')u.scr='home';
     else hintKey(k);
   }else{
     if(k==='UP')u.f2=(u.f2+m1.s.length-1)%m1.s.length;
     else if(k==='DOWN')u.f2=(u.f2+1)%m1.s.length;
-    else if(k==='LEFT')u.lvl=1;
+    else if(k==='RIGHT')u.lvl=1;
     else if(k==='ESC')u.scr='home';
-    else if(k==='ENTER'||k==='RIGHT'){const f=m1.s[u.f2][1];if(NEEDPW[f])u.pw={f,buf:'',err:0};else runFunc(f)}
+    else if(k==='ENTER'){const f=m1.s[u.f2][1];if(NEEDPW[f])u.pw={f,buf:'',err:0};else runFunc(f)}
     else hintKey(k);
   }
 }
@@ -888,7 +888,7 @@ function renderLCD(){
     h=hdr((S.scale.on?cr+' ':'')+P('01.05'))+evLine()+`<div class="lb">${up}${low}</div><div class="foothelp">${S.scale.on?'SCALE ON':'SCALE OFF'} · ▲▼ upper · ◀▶ lower · ▣ menu</div>`;
   }else if(u.scr==='menu'){
     const m1=MENU[u.f1];
-    h=hdr('Functions')+evLine()+`<div class="lb"><div class="menu"><ul>${MENU.map((m,i)=>`<li class="${i===u.f1?(u.lvl===2?'sel2':'sel'):''}">${esc(m.n)}</li>`).join('')}</ul><ul>${u.lvl===2?m1.s.map((s,i)=>`<li class="${i===u.f2?'sel':''}">${esc(s[0])}</li>`).join(''):m1.s.map(s=>`<li class="off">${esc(s[0])}</li>`).join('')}</ul></div></div><div class="foothelp">${u.lvl===1?'▲▼ select · ▶/ENTER open · ▣ back':'▲▼ select · ENTER start · ◀ back · ▣ back'}</div>`;
+    h=hdr('Functions')+evLine()+`<div class="lb"><div class="menu"><ul>${u.lvl===2?m1.s.map((s,i)=>`<li class="${i===u.f2?'sel':''}">${esc(s[0])}</li>`).join(''):m1.s.map(s=>`<li class="off">${esc(s[0])}</li>`).join('')}</ul><ul>${MENU.map((m,i)=>`<li class="${i===u.f1?(u.lvl===2?'sel2':'sel'):''}">${esc(m.n)}</li>`).join('')}</ul></div></div><div class="foothelp">${u.lvl===1?'▲▼ select · ◀/ENTER open · ▣ back':'▲▼ select · ENTER start · ▶ back · ▣ back'}</div>`;
   }else if(u.scr==='par'){
     const pp=u.par,B=BLOCKS[pp.b];
     if(pp.lvl==='b'){
@@ -955,8 +955,8 @@ function screenGuide(){
   switch(u.scr){
     case 'home':return {t:{en:'Normal Display',hg:'Normal Display'},w:{en:'Line 1 = header (scale name, mode, time). Line 2 = event line (code + text; red alarm, orange W1, yellow W2; blinking = not acknowledged). Upper area = two lines of actual values. Lower area = large value with bar, or four readings. A rotating cross in the header = scale ON and counting.',hg:'Line 1 = header (scale naam, mode, time). Line 2 = event line (code + text; laal alarm, orange W1, peela W2; blink = acknowledge nahi hua). Upar = actual values ki do lines. Neeche = bar ke saath badi value, ya chaar readings. Header me ghoomta cross = scale ON aur gin raha.'},
       k:[[kc('▲')+kc('▼'),{en:'pre-select the two upper lines',hg:'upar ki do lines chuno'}],[kc('◀')+kc('▶'),{en:'pre-select the lower (large) value',hg:'neeche ki badi value chuno'}],[kc('1')+kc('2')+kc('3'),{en:'Feedrate / Belt Load / Belt Speed, large with bar',hg:'Feedrate / Belt Load / Belt Speed, badi bar ke saath'}],[kc('4')+kc('5'),{en:'Batch Actual Value (---) / Setpoint',hg:'Batch Actual Value (---) / Setpoint'}],[kc('DATA'),{en:'key in the feed rate setpoint (KEYBOARD mode)',hg:'feed rate setpoint daalo (KEYBOARD mode)'}],[kc('8')+kc('9'),{en:'Totalizer 1 large / value from HMI configuration',hg:'Totalizer 1 bada / HMI configuration wali value'}],[kc('0'),{en:'four readings with bars',hg:'chaar readings bar ke saath'}],[kc('−')+kc('.'),{en:'reduce / increase brightness',hg:'brightness kam / zyada'}],[kc('F'),{en:'function distributor (menu)',hg:'function distributor (menu)'}],[kc('DEL'),{en:'acknowledge events',hg:'events acknowledge'}],[kc('I')+kc('O'),{en:'scale ON / OFF (KEYBOARD mode only)',hg:'scale ON / OFF (sirf KEYBOARD mode)'}]]};
-    case 'menu':return {t:{en:'Function Distributor',hg:'Function Distributor'},w:{en:'Left column = first level (yellow = selected, orange = you are in the second level). Right column = functions inside. Only available functions can be started. No key for 60 s returns to the normal display on the real unit.',hg:'Left column = pehla level (peela = selected, orange = aap doosre level me ho). Right column = andar ke functions. Asli unit me 60 s koi key na dabao to normal display par wapas.'},
-      k:[[kc('▲')+kc('▼'),{en:'move',hg:'upar/neeche'}],[kc('▶')+'/'+kc('↵',1),{en:'open / start function',hg:'kholo / function start'}],[kc('◀'),{en:'back to first level',hg:'pehle level par wapas'}],[kc('ESC',1),{en:'back to normal display',hg:'normal display par wapas'}]]};
+    case 'menu':return {t:{en:'Function Distributor',hg:'Function Distributor'},w:{en:'Right column = menus (yellow = selected, orange = you are inside it). Left column = the options of that menu. Only available functions can be started. No key for 60 s returns to the normal display on the real unit.',hg:'Right column = menus (peela = selected, orange = aap uske andar ho). Left column = us menu ke options. Asli unit me 60 s koi key na dabao to normal display par wapas.'},
+      k:[[kc('▲')+kc('▼'),{en:'move',hg:'upar/neeche'}],[kc('◀')+'/'+kc('↵',1),{en:'open menu options / start option',hg:'menu ke options kholo / option start'}],[kc('▶'),{en:'back to the menus',hg:'menus par wapas'}],[kc('ESC',1),{en:'back to normal display',hg:'normal display par wapas'}]]};
     case 'par':{const pp=u.par;const d=pp.lvl==='p'?curPar():null;
       return {t:{en:pp.mode==='read'?'Read Parameters':'Change Parameters',hg:pp.mode==='read'?'Read Parameters':'Change Parameters'},w:d?{en:'P'+d.id+' '+d.name+': '+d.d.en,hg:'P'+d.id+' '+d.name+': '+d.d.hg}:{en:'Parameters are grouped in blocks. "P03.08" means block 03, parameter 08. Choose a block and open it.',hg:'Parameters blocks me hain. "P03.08" matlab block 03, parameter 08. Block chuno aur kholo.'},
       k:pp.edit?(curPar().t==='enum'?[[kc('▲')+kc('▼'),{en:'choose option',hg:'option chuno'}],[kc('↵',1),{en:'save',hg:'save'}],[kc('ESC',1),{en:'cancel',hg:'cancel'}]]:[[kc('0-9')+kc('.')+kc('±'),{en:'type the new value (first digit clears the old one)',hg:'nayi value likho (pehla digit purani value hata deta hai)'}],[kc('DEL',1),{en:'delete last character',hg:'aakhri character mitao'}],[kc('↵',1),{en:'save (checks min/max)',hg:'save (min/max check hota hai)'}],[kc('ESC',1),{en:'cancel input',hg:'input cancel'}]]):[[kc('▲')+kc('▼'),{en:pp.lvl==='b'?'choose block':'choose parameter',hg:pp.lvl==='b'?'block chuno':'parameter chuno'}],[pp.lvl==='b'?kc('▶'):kc('DATA',1),{en:pp.lvl==='b'?'open block':(pp.mode==='chg'?'change value':'(read only)'),hg:pp.lvl==='b'?'block kholo':(pp.mode==='chg'?'value badlo':'(sirf padhna)')}],[kc('◀'),{en:'back to blocks',hg:'blocks par wapas'}],[kc('ESC',1),{en:'exit',hg:'bahar'}]]}}
@@ -979,9 +979,9 @@ function navSteps(f1,f2){
   if(u.pw)return {en:'Type the password 7353 and press ENTER.',hg:'Password 7353 likho aur ENTER dabao.'};
   if(u.scr!=='menu'&&u.scr!=='home')return {en:'Press ▣ (works as back / ESC here) to leave this screen.',hg:'Is screen se nikalne ke liye ▣ dabao (yahan ESC ka kaam karta hai).'};
   if(u.scr==='home')return {en:'Press ▣ (FUNCTION) to open the menu.',hg:'Menu kholne ke liye ▣ (FUNCTION) dabao.'};
-  if(u.lvl===2&&u.f1!==f1)return {en:'Press ◀ to go back to the first level.',hg:'Pehle level par jaane ke liye ◀ dabao.'};
-  if(u.f1!==f1)return {en:'Press ▼ until "'+MENU[f1].n+'" is yellow, then ▶.',hg:'▼ dabate raho jab tak "'+MENU[f1].n+'" peela na ho, phir ▶.'};
-  if(u.lvl===1)return {en:'Press ▶ to open "'+MENU[f1].n+'".',hg:'"'+MENU[f1].n+'" kholne ke liye ▶ dabao.'};
+  if(u.lvl===2&&u.f1!==f1)return {en:'Press ▶ to go back to the menus.',hg:'Menus par jaane ke liye ▶ dabao.'};
+  if(u.f1!==f1)return {en:'Press ▼ until "'+MENU[f1].n+'" is yellow, then ◀.',hg:'▼ dabate raho jab tak "'+MENU[f1].n+'" peela na ho, phir ◀.'};
+  if(u.lvl===1)return {en:'Press ◀ to open "'+MENU[f1].n+'".',hg:'"'+MENU[f1].n+'" kholne ke liye ◀ dabao.'};
   if(u.f2!==f2)return {en:'Press ▼ until "'+MENU[f1].s[f2][0]+'" is yellow.',hg:'▼ dabao jab tak "'+MENU[f1].s[f2][0]+'" peela na ho.'};
   return {en:'Press ENTER.',hg:'ENTER dabao.'};
 }

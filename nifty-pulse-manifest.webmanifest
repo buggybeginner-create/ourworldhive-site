@@ -1,0 +1,19 @@
+{
+ "id": "nifty-pulse.html",
+ "name": "Nifty Pulse",
+ "short_name": "NiftyPulse",
+ "description": "Scan all Nifty 50 stocks at a glance with a heatmap, watchlist and price alerts.",
+ "start_url": "nifty-pulse.html",
+ "scope": "./nifty-pulse.html",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#070b16",
+ "theme_color": "#070b16",
+ "icons": [
+  {"src": "nifty-pulse-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "nifty-pulse-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+  {"src": "nifty-pulse-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+ ],
+ "lang": "en",
+ "categories": ["finance", "productivity"]
+}

@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nifty Pulse | Ourworldhive</title>
+<meta name="description" content="Nifty Pulse: a fast widget to scan all Nifty 50 stocks at a glance, with a heatmap, watchlist and price alerts.">
+<meta name="theme-color" content="#070b16">
+<link rel="manifest" href="nifty-pulse-manifest.webmanifest">
+<link rel="icon" type="image/png" href="nifty-pulse-icon-192.png">
+<link rel="apple-touch-icon" href="nifty-pulse-icon-192.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Nifty Pulse">
+<script src="owh-pwa.js" data-own="1"></script>
+<script src="nifty-pulse-config.js"></script>
+<style>
+:root{--bg:#070b16;--bg2:#0d1424;--card:#111a2e;--card2:#16213a;--line:rgba(255,255,255,.09);--ink:#eaf1ff;--soft:#b8c4e0;--mut:#7d8bad;
+ --up:#16c784;--up2:#0b7a50;--dn:#ff4d5e;--dn2:#9a1f2c;--gold:#ffc857;--acc:#5b8cff;--r:14px;
+ --f:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--mono:ui-monospace,'SF Mono','Roboto Mono',Menlo,monospace}
+html.light{--bg:#f3f6fc;--bg2:#e9eef8;--card:#ffffff;--card2:#f4f7fd;--line:rgba(10,20,50,.1);--ink:#0c1530;--soft:#36456b;--mut:#6b7899;--up:#0a9f63;--dn:#e0283a;--up2:#c9f2df;--dn2:#ffd5da}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.dn{color:var(--dn)}
+/* header */
+header{flex:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-bottom:1px solid var(--line)}
+.logo{width:30px;height:30px;flex:none}
+.ttl{font-weight:800;letter-spacing:.06em;font-size:16px;line-height:1.1}
+.ttl small{display:block;font-weight:600;letter-spacing:.02em;font-size:11px;color:var(--mut)}
+.sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
+.pill.live .dot{background:var(--up);box-shadow:0 0 0 0 rgba(22,199,132,.7);animation:pulse 1.6s infinite}
+.pill.closed .dot{background:var(--gold)}.pill.off .dot{background:var(--dn)}.pill.demo{border-color:var(--gold);color:var(--gold)}.pill.demo .dot{background:var(--gold)}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(22,199,132,0)}100%{box-shadow:0 0 0 0 rgba(22,199,132,0)}}
+.ib{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;flex:none}
+.ib svg{width:18px;height:18px}
+.ib.spin svg{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+/* index strip */
+.strip{flex:none;display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:8px;padding:10px 14px 6px}
+.ix{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;min-width:0}
+.ix .n{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
+.ix .v{font-size:17px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ix .c{font-size:12px;font-weight:700}
+.br .bar{display:flex;height:8px;border-radius:6px;overflow:hidden;margin:7px 0 5px;background:var(--card2)}
+.br .bar i{display:block;height:100%}
+.br .lg{display:flex;justify-content:space-between;font-size:11px;font-weight:700}
+.note{flex:none;margin:4px 14px 0;padding:7px 10px;border-radius:10px;font-size:12.5px;line-height:1.4;border:1px solid var(--gold);background:rgba(255,200,87,.1);color:var(--gold);display:none}
+.note.show{display:block}
+/* tabs */
+.tabs{flex:none;display:flex;gap:4px;padding:8px 14px 0;border-bottom:1px solid var(--line)}
+.tab{flex:1;background:none;border:0;padding:10px 4px 11px;font-size:12.5px;font-weight:800;letter-spacing:.07em;color:var(--mut);position:relative}
+.tab.on{color:var(--ink)}
+.tab.on::after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--gold)}
+.tab b[hidden]{display:none}.tab b{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin-left:4px;border-radius:9px;background:var(--dn);color:#fff;font-size:10px;vertical-align:1px}
+/* swipe panels */
+.pages{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.pages::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;width:100%;overflow-y:auto;scroll-snap-align:start;scroll-snap-stop:always;padding:12px 14px calc(90px + env(safe-area-inset-bottom,0px))}
+.wrapw{max-width:1100px;margin:0 auto}
+/* controls */
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 11px;border-radius:7px;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--mut)}
+.seg button.on{background:var(--card2);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.inp,select.inp{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;min-width:0}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:10px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);padding:6px 11px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--soft)}
+.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(255,200,87,.08)}
+/* heatmap */
+.heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:6px}
+.tile{border-radius:11px;padding:8px 9px;min-height:66px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(255,255,255,.06);color:#fff;text-align:left;transition:transform .12s}
+.tile:active{transform:scale(.97)}
+.tile .s{font-size:11.5px;font-weight:800;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .p{font-size:15px;font-weight:800}
+.tile .l{font-size:11px;opacity:.9}
+.tile .st{float:right;color:var(--gold)}
+.flu{animation:flu .9s}.fld{animation:fld .9s}
+@keyframes flu{0%{box-shadow:inset 0 0 0 2px #7dffc4}100%{box-shadow:inset 0 0 0 2px transparent}}
+@keyframes fld{0%{box-shadow:inset 0 0 0 2px #ff9aa4}100%{box-shadow:inset 0 0 0 2px transparent}}
+/* list */
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr .8fr;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.row:first-child{border-top:0}
+.row .s{font-weight:800;font-size:13.5px;letter-spacing:.02em}
+.row .s small{display:block;font-weight:600;color:var(--mut);font-size:11px;letter-spacing:0}
+.row .v{text-align:right;font-weight:700;font-size:14px}
+.row .c{justify-self:end;min-width:66px;text-align:center;padding:4px 6px;border-radius:7px;font-weight:800;font-size:12.5px;color:#fff}
+.rng{position:relative;height:5px;border-radius:4px;background:var(--card2);margin-top:5px}
+.rng i{position:absolute;top:-3px;width:3px;height:11px;border-radius:2px;background:var(--ink)}
+/* watch cards */
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.wc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;text-align:left;width:100%}
+.wc .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wc .s{font-weight:800;letter-spacing:.03em}
+.wc .v{font-size:20px;font-weight:800}
+.wc svg{width:100%;height:46px;display:block;margin:6px 0 4px}
+.wc .m{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut)}
+.empty{padding:28px 16px;text-align:center;color:var(--mut);font-size:14px;line-height:1.5;background:var(--card);border:1px dashed var(--line);border-radius:var(--r)}
+/* cards, forms */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h3{margin:0 0 10px;font-size:13px;font-weight:800;letter-spacing:.08em}
+.card p.h{margin:-4px 0 10px;color:var(--mut);font-size:12.5px;line-height:1.45}
+.fr{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fr>*{flex:1 1 120px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:800;font-size:12.5px;letter-spacing:.06em;background:var(--card2);border:1px solid var(--line)}
+.btn.g{background:linear-gradient(135deg,#ffc857,#ff9f5a);color:#1a1030;border:0}
+.btn.d{color:var(--dn)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.sw:first-of-type{border-top:0}
+.sw input[type=checkbox]{appearance:none;width:42px;height:24px;border-radius:12px;background:var(--card2);border:1px solid var(--line);position:relative;flex:none;transition:.2s}
+.sw input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--mut);transition:.2s}
+.sw input[type=checkbox]:checked{background:var(--up2);border-color:var(--up)}
+.sw input[type=checkbox]:checked::after{left:20px;background:var(--up)}
+.sw input.inp{width:90px;flex:none;text-align:right}
+.rl{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}
+.rl:first-child{border-top:0}
+.rl .t{flex:1;min-width:0}
+.rl .t small{display:block;color:var(--mut);font-size:11.5px}
+.tag{font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:var(--card2);color:var(--mut)}
+.tag.fired{background:rgba(255,200,87,.15);color:var(--gold)}
+.x{border:0;background:none;color:var(--mut);font-size:18px;padding:4px 8px}
+.log{font-size:13px;line-height:1.5}
+.log div{padding:7px 0;border-top:1px solid var(--line)}.log div:first-child{border-top:0}
+.log time{color:var(--mut);font-size:11.5px;margin-right:6px}
+details{border-top:1px solid var(--line);padding:10px 0}
+details:first-of-type{border-top:0}
+summary{font-weight:800;font-size:13px;letter-spacing:.04em;cursor:pointer}
+details ol,details ul{margin:8px 0 0;padding-left:20px;color:var(--soft);font-size:13.5px;line-height:1.6}
+details p{color:var(--soft);font-size:13.5px;line-height:1.55;margin:8px 0 0}
+code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 5px;border-radius:5px;word-break:break-all}
+.ok{color:var(--up)}.err{color:var(--dn)}
+.copy{text-align:center;color:var(--mut);font-size:12px;margin-top:18px}
+/* sheet */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.mask.show{display:flex}
+.sheet{background:var(--bg2);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));animation:up .2s}
+@media(min-width:760px){.mask{align-items:center}.sheet{border-radius:18px}}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.sh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sh h2{margin:0;font-size:22px;letter-spacing:.02em}
+.big{font-size:28px;font-weight:800;margin-top:4px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.kv div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.kv span{display:block;font-size:10.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)}
+.kv b{font-family:var(--mono);font-size:14px}
+.rbox{margin:10px 0}
+.rbox .lb{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);font-weight:700}
+.rbox .rng{height:7px;margin:5px 0}
+.srcseg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.srcseg button{border:1px solid var(--line);background:var(--card2);border-radius:11px;padding:9px 4px;font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--soft);line-height:1.25}
+.srcseg button small{display:block;font-size:10px;font-weight:600;letter-spacing:0;color:var(--mut);margin-top:2px}
+.srcseg button.on{border-color:var(--gold);color:var(--gold);background:rgba(255,200,87,.08)}
+@media(max-width:420px){.srcseg{grid-template-columns:1fr 1fr}}
+.pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pick span{font-size:11.5px;font-weight:800;letter-spacing:.04em;padding:4px 9px;border-radius:999px;background:var(--card2);border:1px solid var(--line)}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin:10px 0;max-height:46vh;overflow:auto}
+.plist label{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:12.5px;font-weight:800;letter-spacing:.03em;cursor:pointer}
+.plist label.on{border-color:var(--gold);color:var(--gold)}
+.plist input{accent-color:#ffc857}
+.toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;background:var(--card);border:1px solid var(--gold);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:92vw;display:none}
+.toast.show{display:block;animation:up .2s}
+@media(min-width:900px){
+ .strip{grid-template-columns:1fr 1fr 1.4fr;max-width:1100px;margin:0 auto;width:100%;padding-left:14px;padding-right:14px}
+ .heat{grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+ .tile{min-height:80px}
+ .tabs{justify-content:center}.tab{flex:0 0 150px}
+}
+@media(max-width:560px){.strip{grid-template-columns:1fr 1fr;gap:6px}.br{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:6px 10px}.br .n{flex:none}.br .bar{flex:1;margin:0}.br .lg{flex:none;gap:8px}.ix .v{font-size:16px}.ix .c{font-size:11.5px}}
+</style>
+</head>
+<body>
+<header>
+ <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0d1424"/><rect x="13" y="30" width="7" height="18" rx="2" fill="#ff4d5e"/><rect x="28.5" y="20" width="7" height="22" rx="2" fill="#16c784"/><rect x="44" y="14" width="7" height="20" rx="2" fill="#16c784"/><path d="M6 40h10l5-12 7 20 6-26 6 16h18" fill="none" stroke="#ffc857" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+ <div class="ttl">NIFTY PULSE<small id="upd">Starting…</small></div>
+ <div class="sp"></div>
+ <span class="pill" id="pill"><span class="dot"></span><span id="pillT">…</span></span>
+ <button class="ib" id="rf" aria-label="Refresh now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+</header>
+
+<div class="strip" id="strip">
+ <div class="ix"><div class="n">NIFTY 50</div><div class="v num" id="ixN">—</div><div class="c num" id="ixNc">&nbsp;</div></div>
+ <div class="ix"><div class="n">BANK NIFTY</div><div class="v num" id="ixB">—</div><div class="c num" id="ixBc">&nbsp;</div></div>
+ <div class="ix br"><div class="n">MARKET BREADTH</div><div class="bar" id="brBar"><i style="width:50%;background:var(--up)"></i><i style="width:50%;background:var(--dn)"></i></div><div class="lg"><span class="up" id="brA">0 UP</span><span class="dn" id="brD">0 DOWN</span></div></div>
+</div>
+<div class="note" id="note"></div>
+
+<nav class="tabs" id="tabs">
+ <button class="tab on" data-i="0">SCAN</button>
+ <button class="tab" data-i="1">WATCH</button>
+ <button class="tab" data-i="2">ALERTS<b id="badge" hidden>0</b></button>
+ <button class="tab" data-i="3">SETTINGS</button>
+</nav>
+
+<main class="pages" id="pages">
+ <!-- SCAN -->
+ <section class="page"><div class="wrapw">
+  <div class="ctl">
+   <div class="seg" id="viewSeg"><button data-v="heat" class="on">HEATMAP</button><button data-v="list">LIST</button></div>
+   <select class="inp" id="sortSel" aria-label="Sort">
+    <option value="pct">Sort: % Change ↓</option><option value="pctA">Sort: % Change ↑</option><option value="name">Sort: Name A–Z</option>
+    <option value="vol">Sort: Volume</option><option value="hi">Sort: Near 52W High</option><option value="lo">Sort: Near 52W Low</option>
+   </select>
+   <input class="inp" id="q" placeholder="Search stock" style="flex:1 1 120px" autocomplete="off">
+  </div>
+  <div class="chips" id="chips">
+   <button class="chip on" data-f="all">ALL</button><button class="chip" data-f="gain">GAINERS</button><button class="chip" data-f="lose">LOSERS</button>
+   <button class="chip" data-f="big">BIG MOVERS</button><button class="chip" data-f="hi">NEAR 52W HIGH</button><button class="chip" data-f="lo">NEAR 52W LOW</button><button class="chip" data-f="star">★ WATCHLIST</button>
+  </div>
+  <div id="scan"></div>
+ </div></section>
+
+ <!-- WATCH -->
+ <section class="page"><div class="wrapw">
+  <div class="ctl"><div class="sp" style="font-size:12.5px;color:var(--mut)">Tap ☆ on any stock (Scan tab → tap a stock) to add it here. The small chart shows today's move since you opened the app.</div></div>
+  <div id="watch"></div>
+ </div></section>
+
+ <!-- ALERTS -->
+ <section class="page"><div class="wrapw">
+  <div class="card">
+   <h3>NEW PRICE ALERT</h3>
+   <div class="fr">
+    <input class="inp" id="aStock" list="stockList" placeholder="Stock (e.g. RELIANCE)" autocomplete="off" style="text-transform:uppercase">
+    <select class="inp" id="aType"><option value="above">Price goes ABOVE</option><option value="below">Price goes BELOW</option><option value="pctUp">Day change UP by %</option><option value="pctDown">Day change DOWN by %</option></select>
+    <input class="inp" id="aVal" type="number" inputmode="decimal" step="any" placeholder="Value">
+    <button class="btn g" id="aAdd" style="flex:0 0 auto">ADD</button>
+   </div>
+   <datalist id="stockList"></datalist>
+  </div>
+  <div class="card"><h3>MY ALERTS</h3><div id="rules"></div></div>
+  <div class="card">
+   <h3>SCAN ALERTS</h3>
+   <label class="sw">Any stock moves more than ± %<input class="inp" id="gMove" type="number" step="0.1" min="0" placeholder="Off"></label>
+   <label class="sw">NIFTY 50 moves more than ± %<input class="inp" id="gNifty" type="number" step="0.1" min="0" placeholder="Off"></label>
+   <label class="sw">New 52-week HIGH<input type="checkbox" id="gHi"></label>
+   <label class="sw">New 52-week LOW<input type="checkbox" id="gLo"></label>
+   <label class="sw">Check these stocks<select class="inp" id="gScope" style="width:auto"><option value="all">All stocks</option><option value="watch">My watchlist</option><option value="pick">Chosen stocks</option></select></label>
+   <div id="gPickBox" hidden><div class="pick" id="gPickShow"></div><button class="btn" id="gPickBtn" style="margin-top:8px;width:100%">CHOOSE STOCKS FOR SCAN ALERTS</button></div>
+  </div>
+  <div class="card">
+   <h3>HOW TO ALERT ME</h3>
+   <label class="sw">Phone notification<input type="checkbox" id="oNotif"></label>
+   <label class="sw">Sound<input type="checkbox" id="oSound" checked></label>
+   <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
+   <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings once a day. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
+  </div>
+  <div class="card">
+   <h3>TELEGRAM ALERTS (APP CLOSED)</h3>
+   <p class="h">Your worker checks the market every minute and sends alerts to your Telegram even when this app is closed. Set it up once (Settings → Setup guide, step 5).</p>
+   <div class="fr"><input class="inp" id="adminKey" type="password" placeholder="Admin key (from your worker)" autocomplete="off"></div>
+   <div class="fr" style="margin-top:8px"><button class="btn g" id="tgSave">SEND MY ALERTS TO TELEGRAM</button><button class="btn" id="tgTest" style="flex:0 0 auto">TEST</button></div>
+   <div id="tgMsg" style="font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="card"><div class="fr" style="justify-content:space-between"><h3 style="margin:0;flex:1">TODAY'S ALERT LOG</h3><button class="btn" id="logClr" style="flex:0 0 auto">CLEAR</button></div><div class="log" id="log" style="margin-top:8px"></div></div>
+ </div></section>
+
+ <!-- SETTINGS -->
+ <section class="page"><div class="wrapw">
+  <div class="card">
+   <h3>DATA SOURCE</h3>
+   <div class="srcseg" id="srcSeg">
+    <button data-src="auto">AUTO<small>Angel, else Yahoo</small></button>
+    <button data-src="angel">ANGEL ONE<small>All 50 · real-time</small></button>
+    <button data-src="breeze">ICICI BREEZE<small>Chosen stocks</small></button>
+    <button data-src="yahoo">YAHOO<small>No account</small></button>
+   </div>
+   <div id="breezeBox" hidden style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--card2)">
+    <p class="h" style="margin:0 0 8px">ICICI Breeze gives one stock per call (5,000 calls a day), so it shows only the stocks you choose plus your alert stocks (max 20 in all) and refreshes about every <b id="bTtl">60</b> sec. Log in once every morning.</p>
+    <div class="fr"><button class="btn g" id="bLogin">ICICI DAILY LOGIN</button><span id="bState" style="font-size:12.5px;flex:1 1 140px"></span></div>
+    <div class="pick" id="bPickShow"></div>
+    <button class="btn" id="bPickBtn" style="margin-top:8px;width:100%">CHOOSE BREEZE STOCKS</button>
+    <p class="h" style="margin:10px 0 4px">ICICI codes (only if a stock shows "not found"): NSE=ICICI, comma separated.</p>
+    <input class="inp" id="bcodes" placeholder="e.g. ETERNAL=ZOMLIM, INDIGO=INTAVI" style="width:100%;text-transform:uppercase" autocomplete="off" spellcheck="false">
+   </div>
+   <h3 style="margin-top:4px">WORKER LINK</h3>
+   <p class="h">Paste your Cloudflare worker link. Leave it empty to see DEMO data (not real prices).</p>
+   <div class="fr"><input class="inp" id="feed" placeholder="https://nifty-pulse.YOURNAME.workers.dev" autocomplete="off" spellcheck="false"><button class="btn g" id="feedSave" style="flex:0 0 auto">SAVE &amp; TEST</button></div>
+   <div id="feedMsg" style="font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="card">
+   <h3>OWNER KEY</h3>
+   <p class="h">Angel One and ICICI Breeze use your own broker account, so they open only with your key (the ADMIN_KEY you set in the worker). Everyone else sees Yahoo prices.</p>
+   <div class="fr"><input class="inp" id="ownKey" type="password" placeholder="Your ADMIN_KEY" autocomplete="off"><button class="btn g" id="ownSave" style="flex:0 0 auto">SAVE</button></div>
+   <div id="ownMsg" style="font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="card">
+   <h3>SPEED</h3>
+   <label class="sw">Refresh every<select class="inp" id="every" style="width:auto"><option value="2">2 sec</option><option value="3">3 sec</option><option value="5">5 sec</option><option value="10">10 sec</option><option value="30">30 sec</option><option value="60">1 min</option></select></label>
+   <label class="sw">Slow down (1 min) when market is closed<input type="checkbox" id="slow" checked></label>
+   <label class="sw">Big mover limit for scan (%)<input class="inp" id="bigPct" type="number" step="0.1" min="0.1" value="2"></label>
+   <label class="sw">"Near 52W" means within (%)<input class="inp" id="nearPct" type="number" step="0.5" min="0.5" value="3"></label>
+  </div>
+  <div class="card">
+   <h3>LOOK</h3>
+   <label class="sw">Theme<select class="inp" id="theme" style="width:auto"><option value="auto">Auto</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+   <label class="sw">Open Scan as<select class="inp" id="defView" style="width:auto"><option value="heat">Heatmap</option><option value="list">List</option></select></label>
+  </div>
+  <div class="card">
+   <h3>STOCK LIST</h3>
+   <p class="h">Empty = official Nifty 50 list (updates by itself). Or type your own symbols, separated by commas (NSE symbols, max 100).</p>
+   <textarea class="inp" id="custom" rows="3" style="width:100%;resize:vertical;text-transform:uppercase" placeholder="e.g. RELIANCE, TCS, SBIN, TATAPOWER"></textarea>
+   <div class="fr" style="margin-top:8px"><button class="btn g" id="custSave">SAVE LIST</button><button class="btn" id="custReset">RESET TO NIFTY 50</button></div>
+  </div>
+  <div class="card">
+   <h3>SETUP GUIDE (STEP BY STEP)</h3>
+   <details><summary>WHICH DATA SOURCE IS BEST?</summary>
+    <p><b>Angel One SmartAPI (recommended):</b> free, real-time, gives all 50 stocks in one call, and logs in by itself every day with TOTP. Needs a free Angel One demat account.</p>
+    <p><b>ICICI Breeze:</b> free for ICICI Direct customers. One stock per call (100 calls a minute, 5,000 a day), so Nifty Pulse shows only your chosen stocks (max 20) and refreshes every 15–90 sec. You log in once every morning with ICICI DAILY LOGIN.</p>
+    <p><b>Yahoo (built in):</b> no account, unofficial, can be a little delayed. Used automatically when Angel One is not set up.</p>
+   </details>
+   <details><summary>STEP 1 · ANGEL ONE API KEY</summary><ol>
+    <li>Open a free Angel One account (if you don't have one).</li>
+    <li>Go to <code>smartapi.angelone.in</code> → Sign up / Login → <b>Create an App</b>. Type: <b>Market Feeds API</b>. Redirect URL: <code>https://ourworldhive.com</code>.</li>
+    <li>Copy the <b>API Key</b>.</li>
+    <li>Open <code>smartapi.angelone.in/enable-totp</code>, enter client ID + MPIN + OTP. Copy the <b>secret text</b> shown under the QR code (scan the QR in Google Authenticator too).</li>
+   </ol></details>
+   <details><summary>STEP 2 · CREATE THE CLOUDFLARE WORKER</summary><ol>
+    <li>dash.cloudflare.com → <b>Workers &amp; Pages</b> → <b>Create</b> → <b>Create Worker</b>. Name: <code>nifty-pulse</code> → Deploy.</li>
+    <li><b>Edit code</b> → delete everything → paste the file <code>nifty-pulse-worker.js</code> → <b>Deploy</b>.</li>
+    <li>Your link looks like <code>https://nifty-pulse.YOURNAME.workers.dev</code>. Open <code>/quotes</code> on it: you should already see Yahoo data.</li>
+   </ol></details>
+   <details><summary>STEP 3 · ADD YOUR SECRETS</summary><ol>
+    <li>Worker → <b>Settings</b> → <b>Variables and Secrets</b> → Add, type <b>Secret</b>:</li>
+    <li><code>ANGEL_API_KEY</code>, <code>ANGEL_CLIENT</code> (client code), <code>ANGEL_PIN</code> (MPIN), <code>ANGEL_TOTP_SECRET</code> (secret text from step 1), <code>ADMIN_KEY</code> (any long password you make up).</li>
+    <li>Deploy. Open <code>/status</code>: it should say <code>"angel": true</code>. Open <code>/quotes</code>: <code>"src": "angel"</code>.</li>
+   </ol></details>
+   <details><summary>STEP 3B · ICICI BREEZE (OPTIONAL)</summary><ol>
+    <li>Log in at <code>api.icicidirect.com/apiuser/home</code> → <b>Register an App</b>. Redirect URL: <code>https://nifty-pulse.YOURNAME.workers.dev/breeze/callback</code>.</li>
+    <li>Copy the <b>API Key</b> and <b>Secret Key</b>. Worker → Settings → add secrets <code>BREEZE_API_KEY</code> and <code>BREEZE_SECRET</code>.</li>
+    <li>Create the KV namespace and binding <code>NP</code> (see step 5, point 4). Breeze needs it to keep the day's login.</li>
+    <li>In this app: Data source → <b>ICICI BREEZE</b> → <b>CHOOSE BREEZE STOCKS</b> → <b>ICICI DAILY LOGIN</b> every morning before 9:15.</li>
+   </ol></details>
+   <details><summary>STEP 4 · CONNECT THIS APP</summary><ol>
+    <li>Paste the worker link in <b>Worker link</b> above → <b>SAVE &amp; TEST</b>.</li>
+    <li><b>Owner key</b>: type your ADMIN_KEY → <b>SAVE</b>. Only then Angel One and ICICI Breeze open (visitors always get Yahoo).</li>
+    <li>The pill at the top turns <b>LIVE</b> in market hours.</li>
+   </ol></details>
+   <details><summary>STEP 5 · TELEGRAM ALERTS (OPTIONAL)</summary><ol>
+    <li>In Telegram open <b>@BotFather</b> → <code>/newbot</code> → copy the bot token.</li>
+    <li>Send any message to your new bot, then open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> and copy <code>"chat":{"id": …}</code>.</li>
+    <li>Worker → Settings → add secrets <code>TG_BOT_TOKEN</code> and <code>TG_CHAT_ID</code>.</li>
+    <li>Workers &amp; Pages → <b>KV</b> → Create namespace <code>nifty-pulse</code>. Worker → Settings → <b>Bindings</b> → KV namespace, variable name <code>NP</code>.</li>
+    <li>Worker → Settings → <b>Trigger events</b> → Cron: <code>* 3-10 * * 1-5</code>.</li>
+    <li>Alerts tab → type your Admin key → <b>SEND MY ALERTS TO TELEGRAM</b> → <b>TEST</b>.</li>
+   </ol></details>
+  </div>
+  <div class="card">
+   <h3>APP</h3>
+   <div class="fr" id="natBox" hidden style="margin-bottom:8px"><button class="btn g" id="pinW">ADD WIDGET TO HOME SCREEN</button><button class="btn" id="natSet">BACKGROUND ALERTS</button></div>
+   <div class="fr"><button class="btn" id="getLatest">GET LATEST VERSION</button><button class="btn" id="contact">CONTACT US / FEATURE REQUEST</button></div>
+   <p class="h" style="margin:10px 0 0">Prices are for information only, not advice to buy or sell. Data may be delayed. Check with your broker before you trade.</p>
+  </div>
+  <div class="copy">© <span id="yr">2026</span> DUKEKRRISH · Ourworldhive. All rights reserved.</div>
+ </div></section>
+</main>
+
+<div class="mask" id="mask"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+/* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
+var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
+var NATIVE=window.NPNative||null; /* inside the Android app */
+var VERSION='1.0.0';
+var $=function(i){return document.getElementById(i)};
+var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+function today(){var d=new Date(Date.now()+330*6e4);return d.toISOString().slice(0,10)}
+function fmt(n,d){if(n==null||!isFinite(n))return '—';return Number(n).toLocaleString('en-IN',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
+function fmtVol(v){if(!v)return '—';if(v>=1e7)return (v/1e7).toFixed(2)+' Cr';if(v>=1e5)return (v/1e5).toFixed(2)+' L';return fmt(v,0)}
+function sgn(n){return (n>0?'+':'')+fmt(n)}
+function cls(n){return n>0?'up':n<0?'dn':''}
+
+/* ---------- settings ---------- */
+var S=Object.assign({feed:DEFAULT_FEED,src:'auto',every:3,slow:true,bigPct:2,nearPct:3,theme:'auto',defView:'heat',custom:'',
+  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:''},LS.get('set',{}));
+if(!S.feed&&DEFAULT_FEED)S.feed=DEFAULT_FEED;
+function saveS(){LS.set('set',S)}
+var watch=LS.get('watch',['RELIANCE','HDFCBANK','TCS','INFY','SBIN']);
+var rules=LS.get('rules',[]);
+var fired=LS.get('fired',{});if(fired.day!==today())fired={day:today()};
+var log=LS.get('log',{day:today(),items:[]});if(log.day!==today())log={day:today(),items:[]};
+var hist=LS.get('hist',{day:today(),d:{}});if(hist.day!==today())hist={day:today(),d:{}};
+
+/* ---------- theme ---------- */
+function applyTheme(){var t=S.theme==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):S.theme;document.documentElement.classList.toggle('light',t==='light');
+  document.querySelector('meta[name=theme-color]').setAttribute('content',t==='light'?'#f3f6fc':'#070b16')}
+applyTheme();try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',applyTheme)}catch(e){}
+
+/* ---------- state ---------- */
+var ttl=0,needLogin=false,Q={},IDX={},prevLtp={},lastTs=0,src='',market={open:false},busy=false,timer=null,failCount=0,view=S.defView,filter='all',sortBy='pct',search='';
+var cached=LS.get('last',null);
+
+/* ---------- demo data (clearly marked) ---------- */
+var DEMO_LIST=['ADANIENT','ADANIPORTS','APOLLOHOSP','ASIANPAINT','AXISBANK','BAJAJ-AUTO','BAJFINANCE','BAJAJFINSV','BEL','BHARTIARTL','BSE','CIPLA','COALINDIA','DRREDDY','EICHERMOT','ETERNAL','GRASIM','HCLTECH','HDFCBANK','HDFCLIFE','HINDALCO','HINDUNILVR','ICICIBANK','INDIGO','INFY','ITC','JIOFIN','JSWSTEEL','KOTAKBANK','LT','M&M','MARUTI','MAXHEALTH','NESTLEIND','NTPC','ONGC','POWERGRID','RELIANCE','SBILIFE','SBIN','SHRIRAMFIN','SUNPHARMA','TATACONSUM','TMPV','TATASTEEL','TCS','TECHM','TITAN','TRENT','ULTRACEMCO'];
+var demo=null;
+function hash(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
+function demoTick(){
+  var list=customList()||DEMO_LIST;
+  if(!demo){demo={};list.concat(['NIFTY','BANKNIFTY']).forEach(function(s){var h=hash(s),p=s==='NIFTY'?25000:s==='BANKNIFTY'?55000:100+h%4900;demo[s]={prev:p,ltp:p*(1+((h%600)-300)/10000),h52:p*1.25,l52:p*.78}})}
+  var out={ok:true,src:'demo',ts:Date.now(),market:{open:true},stocks:[],index:[]};
+  Object.keys(demo).forEach(function(s){var d=demo[s];if(list.indexOf(s)<0&&s!=='NIFTY'&&s!=='BANKNIFTY')return;
+    d.ltp=Math.max(1,d.ltp*(1+(Math.random()-.5)/(s.indexOf('NIFTY')>=0?900:300)));
+    var q={s:s,ltp:+d.ltp.toFixed(2),prev:d.prev,chg:+(d.ltp-d.prev).toFixed(2),pct:+((d.ltp-d.prev)/d.prev*100).toFixed(2),open:d.prev,high:Math.max(d.prev,d.ltp)*1.003,low:Math.min(d.prev,d.ltp)*.997,vol:(hash(s)%900+50)*10000,h52:d.h52,l52:d.l52,uc:d.prev*1.2,lc:d.prev*.8};
+    if(s==='NIFTY'||s==='BANKNIFTY'){q.n=s==='NIFTY'?'NIFTY 50':'BANK NIFTY';out.index.push(q)}else out.stocks.push(q)});
+  return out;
+}
+function customList(){var c=String(S.custom||'').toUpperCase().split(/[\s,;]+/).map(function(x){return x.trim()}).filter(Boolean);return c.length?c.slice(0,100):null}
+
+/* ---------- fetch ---------- */
+function feedUrl(){var f=String(S.feed||'').trim().replace(/\/+$/,'');if(!f)return '';if(!/^https?:\/\//.test(f))f='https://'+f;return f}
+function load(manual){
+  if(busy)return;busy=true;$('rf').classList.add('spin');
+  var f=feedUrl(),p;
+  if(!f){p=Promise.resolve(demoTick())}
+  else{var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){ctl&&ctl.abort()},8000);
+    var syms=S.src==='breeze'?breezeList():(customList()||[]),extra=S.src==='breeze'?[]:ruleStocks().filter(function(x){return syms.indexOf(x)<0}).slice(0,20);
+    if(S.src==='breeze'&&!syms.length){busy=false;$('rf').classList.remove('spin');showNote('ICICI Breeze: choose your stocks first (Settings → CHOOSE BREEZE STOCKS).');setStatus('off','SETUP');go(3);return}
+    p=fetch(f+'/quotes?src='+encodeURIComponent(S.src)+(syms.length?'&sym='+encodeURIComponent(syms.join(',')):'')+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak','')):'')+(extra.length?'&extra='+encodeURIComponent(extra.join(',')):'')+(S.src==='breeze'&&S.bcodes?'&bcodes='+encodeURIComponent(S.bcodes.replace(/\s+/g,'')):''),{signal:ctl&&ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(to);return r.json()})}
+  p.then(function(d){
+    if(d&&d.needLogin){needLogin=true;showNote('ICICI Breeze needs today\'s login. <button class="btn g" data-blogin style="padding:5px 10px;margin-left:6px">ICICI DAILY LOGIN</button>');setStatus('off','LOGIN');throw {quiet:1}}
+    if(!d||!d.ok)throw new Error(d&&d.error||'No data');
+    needLogin=false;ttl=d.ttl||0;
+    failCount=0;ingest(d);if(d.src!=='demo')LS.set('last',d);
+  }).catch(function(e){failCount++;if(e&&e.quiet){failCount=Math.min(failCount,2);return}setStatus('off',navigator.onLine===false?'OFFLINE':'ERROR');
+    if(manual||failCount===1)toast(navigator.onLine===false?'You are offline. Showing last saved prices.':'Could not get prices: '+(e&&e.message||e));
+  }).then(function(){busy=false;$('rf').classList.remove('spin');schedule()});
+}
+function schedule(){clearTimeout(timer);var sec=Math.max(+S.every||3,ttl||0);if(needLogin)sec=Math.max(sec,60);
+  if(S.slow&&src&&src!=='demo'&&!market.open)sec=Math.max(sec,60);
+  if(document.hidden)sec=Math.max(sec,20);
+  if(failCount)sec=Math.min(60,sec*Math.pow(2,Math.min(failCount,4)));
+  timer=setTimeout(load,sec*1000)}
+
+function ingest(d,fromCache){
+  src=d.src;market=d.market||{open:false};lastTs=d.ts||Date.now();
+  var list=d.src==='breeze'?breezeList():customList();if(list&&d.src!=='breeze')list=list.concat(ruleStocks());
+  (d.stocks||[]).forEach(function(q){if(Q[q.s])prevLtp[q.s]=Q[q.s].ltp;Q[q.s]=q});
+  if(list)Object.keys(Q).forEach(function(s){if(list.indexOf(s)<0)delete Q[s]});
+  (d.index||[]).forEach(function(q){IDX[q.s]=q});
+  if(!fromCache){
+    /* intraday line for watched stocks + indices */
+    var now=Date.now();watch.concat(['NIFTY']).forEach(function(s){var q=Q[s]||IDX[s];if(!q)return;var a=hist.d[s]||(hist.d[s]=[]);var L=a[a.length-1];if(!L||now-L[0]>=15000||L[1]!==q.ltp){a.push([now,q.ltp]);if(a.length>500)a.splice(0,a.length-500)}});
+    LS.set('hist',hist);
+    checkAlerts();
+  }
+  var st=fromCache?'off':d.src==='demo'?'demo':market.open?'live':'closed';
+  setStatus(st,fromCache?'SAVED':d.src==='demo'?'DEMO':market.open?'LIVE':'CLOSED');
+  var nt=$('note');
+  if(d.locked&&!fromCache&&(S.src==='angel'||S.src==='breeze')){nt.innerHTML='Showing Yahoo prices. Angel One / ICICI Breeze open only with your OWNER KEY (Settings).';nt.classList.add('show')}
+  else if(d.src==='breeze'&&!fromCache&&(!d.missing||!d.missing.length)){nt.textContent='ICICI Breeze: '+(d.stocks||[]).length+' chosen stocks, refresh every '+(d.ttl||60)+' sec (ICICI daily limit). 52-week data is not given by Breeze.';nt.classList.add('show')}
+  else if(d.src==='demo'){nt.innerHTML='DEMO DATA — NOT REAL PRICES. Add your data feed in <b>Settings</b> to see live Nifty prices.';nt.classList.add('show')}
+  else if(d.missing&&d.missing.length&&!fromCache){nt.textContent='Not found: '+d.missing.slice(0,8).join(', ')+(d.missing.length>8?'…':'')+' (check the symbol; the worker fixes wrong codes by itself in a few minutes)';nt.classList.add('show')}
+  else nt.classList.remove('show');
+  renderAll();
+}
+function setStatus(c,t){var p=$('pill');p.className='pill '+c;$('pillT').textContent=t;
+  var tm=lastTs?new Date(lastTs).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';
+  $('upd').textContent=(src==='angel'?'Angel One':src==='breeze'?'ICICI Breeze':src==='yahoo'?'Yahoo':src==='demo'?'Demo':'')+(tm?' · '+tm:'')}
+
+/* ---------- colour ---------- */
+function heatBg(p){var a=Math.min(Math.abs(p)/3,1);
+  if(Math.abs(p)<0.05)return 'linear-gradient(160deg,#2a3450,#1e2740)';
+  if(p>0)return 'linear-gradient(160deg,rgba(22,199,132,'+(.35+a*.6)+'),rgba(11,122,80,'+(.45+a*.55)+'))';
+  return 'linear-gradient(160deg,rgba(255,77,94,'+(.35+a*.6)+'),rgba(154,31,44,'+(.45+a*.55)+'))'}
+function pctBg(p){return Math.abs(p)<0.05?'#3b4563':p>0?'#12a56e':'#e23a4c'}
+function pos52(q){if(!q.h52||!q.l52||q.h52<=q.l52)return null;return Math.max(0,Math.min(1,(q.ltp-q.l52)/(q.h52-q.l52)))}
+function nearHi(q){return q.h52?(q.h52-q.ltp)/q.h52*100:999}
+function nearLo(q){return q.l52?(q.ltp-q.l52)/q.l52*100:999}
+
+/* ---------- render ---------- */
+function renderAll(){renderStrip();renderScan();renderWatch();renderRules();renderLog();fillDatalist()}
+function renderStrip(){
+  [['NIFTY','ixN','ixNc'],['BANKNIFTY','ixB','ixBc']].forEach(function(a){var q=IDX[a[0]];if(!q)return;$(a[1]).textContent=fmt(q.ltp);var c=$(a[2]);c.className='c num '+cls(q.chg);c.textContent=sgn(q.chg)+' ('+sgn(q.pct)+'%)'});
+  var all=Object.values(Q),up=all.filter(function(q){return q.pct>0}).length,dn=all.filter(function(q){return q.pct<0}).length,t=all.length||1;
+  var b=$('brBar').children;b[0].style.width=(up/t*100)+'%';b[1].style.width=(dn/t*100)+'%';
+  $('brA').textContent=up+' UP';$('brD').textContent=dn+' DOWN';
+}
+function filtered(){
+  var big=+S.bigPct||2,near=+S.nearPct||3,s=search.toUpperCase();
+  var L=Object.values(Q).filter(function(q){
+    if(s&&q.s.indexOf(s)<0)return false;
+    if(filter==='gain')return q.pct>0;if(filter==='lose')return q.pct<0;if(filter==='big')return Math.abs(q.pct)>=big;
+    if(filter==='hi')return nearHi(q)<=near;if(filter==='lo')return nearLo(q)<=near;if(filter==='star')return watch.indexOf(q.s)>=0;return true});
+  var f={pct:function(a,b){return b.pct-a.pct},pctA:function(a,b){return a.pct-b.pct},name:function(a,b){return a.s<b.s?-1:1},vol:function(a,b){return b.vol-a.vol},hi:function(a,b){return nearHi(a)-nearHi(b)},lo:function(a,b){return nearLo(a)-nearLo(b)}}[sortBy];
+  return L.sort(f);
+}
+function flash(q){var p=prevLtp[q.s];if(p==null||p===q.ltp)return '';return q.ltp>p?' flu':' fld'}
+function renderScan(){
+  var L=filtered(),el=$('scan');
+  if(!Object.keys(Q).length){el.innerHTML='<div class="empty">Loading prices…</div>';return}
+  if(!L.length){el.innerHTML='<div class="empty">No stock matches this filter right now.</div>';return}
+  if(view==='heat'){
+    el.innerHTML='<div class="heat">'+L.map(function(q){var st=watch.indexOf(q.s)>=0?'<span class="st">★</span>':'';
+      return '<button class="tile'+flash(q)+'" data-s="'+esc(q.s)+'" style="background:'+heatBg(q.pct)+'"><div class="s">'+st+esc(q.s)+'</div><div class="p num">'+sgn(q.pct)+'%</div><div class="l num">'+fmt(q.ltp)+'</div></button>'}).join('')+'</div>';
+  }else{
+    el.innerHTML='<div class="list">'+L.map(function(q){var p=pos52(q);
+      return '<button class="row'+flash(q)+'" data-s="'+esc(q.s)+'"><div class="s">'+(watch.indexOf(q.s)>=0?'<span style="color:var(--gold)">★ </span>':'')+esc(q.s)+'<small>Vol '+fmtVol(q.vol)+'</small>'+(p==null?'':'<div class="rng" title="52-week range"><i style="left:calc('+(p*100)+'% - 1px)"></i></div>')+'</div><div class="v num">'+fmt(q.ltp)+'<small style="display:block;font-size:11px" class="'+cls(q.chg)+'">'+sgn(q.chg)+'</small></div><div class="c num" style="background:'+pctBg(q.pct)+'">'+sgn(q.pct)+'%</div></button>'}).join('')+'</div>';
+  }
+}
+function spark(s,q){var a=hist.d[s]||[];if(a.length<2)return '<svg viewBox="0 0 100 40" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="20" stroke="var(--line)" stroke-dasharray="3 3"/></svg>';
+  var v=a.map(function(x){return x[1]}),mn=Math.min.apply(0,v.concat(q.prev||v[0])),mx=Math.max.apply(0,v.concat(q.prev||v[0])),r=mx-mn||1;
+  var pts=a.map(function(x,i){return (i/(a.length-1)*100).toFixed(2)+','+(38-(x[1]-mn)/r*36).toFixed(2)}).join(' ');
+  var py=q.prev?(38-(q.prev-mn)/r*36).toFixed(2):null,col=q.pct>=0?'var(--up)':'var(--dn)';
+  return '<svg viewBox="0 0 100 40" preserveAspectRatio="none">'+(py?'<line x1="0" y1="'+py+'" x2="100" y2="'+py+'" stroke="var(--mut)" stroke-width=".5" stroke-dasharray="2 2"/>':'')+'<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>'}
+function renderWatch(){
+  var el=$('watch');
+  if(!watch.length){el.innerHTML='<div class="empty">Your watchlist is empty.<br>Go to SCAN, tap a stock, then tap ☆ ADD TO WATCHLIST.</div>';return}
+  el.innerHTML='<div class="wgrid">'+watch.map(function(s){var q=Q[s];
+    if(!q)return '<div class="wc"><div class="h"><span class="s">'+esc(s)+'</span><button class="x" data-unw="'+esc(s)+'" aria-label="Remove">×</button></div><div class="m" style="margin-top:8px">Waiting for price… (not in the current list?)</div></div>';
+    var p=pos52(q);
+    return '<button class="wc'+flash(q)+'" data-s="'+esc(s)+'"><div class="h"><span class="s">'+esc(s)+'</span><span class="num '+cls(q.pct)+'" style="font-weight:800">'+sgn(q.pct)+'%</span></div><div class="v num">₹'+fmt(q.ltp)+' <small class="'+cls(q.chg)+'" style="font-size:13px">'+sgn(q.chg)+'</small></div>'+spark(s,q)+
+    '<div class="m"><span>L '+fmt(q.low)+'</span><span>Day range</span><span>H '+fmt(q.high)+'</span></div><div class="rng"><i style="left:calc('+(q.high>q.low?(q.ltp-q.low)/(q.high-q.low)*100:50)+'% - 1px)"></i></div>'+
+    (p==null?'':'<div class="m" style="margin-top:7px"><span>52W '+fmt(q.l52,0)+'</span><span>'+Math.round(p*100)+'%</span><span>'+fmt(q.h52,0)+'</span></div>')+'</button>'}).join('')+'</div>';
+}
+var TYPE={above:'Price above ₹',below:'Price below ₹',pctUp:'Day change ≥ +',pctDown:'Day change ≤ −'};
+function ruleText(r){return TYPE[r.type]+fmt(Math.abs(r.v),r.type.indexOf('pct')===0?1:2)+(r.type.indexOf('pct')===0?'%':'')}
+function renderRules(){
+  var el=$('rules');
+  if(!rules.length){el.innerHTML='<div style="color:var(--mut);font-size:13.5px">No alerts yet. Add one above, or tap a stock and use SET ALERT.</div>';return}
+  el.innerHTML=rules.map(function(r){var q=Q[r.s],f=fired['r'+r.id];
+    return '<div class="rl"><label class="sw" style="border:0;padding:0"><input type="checkbox" data-tog="'+r.id+'"'+(r.on?' checked':'')+'></label><div class="t"><b>'+esc(r.s)+'</b> · '+esc(ruleText(r))+'<small>Now: '+(q?'₹'+fmt(q.ltp)+' ('+sgn(q.pct)+'%)':'—')+'</small></div>'+(f?'<span class="tag fired">RANG TODAY</span><button class="btn" data-rearm="'+r.id+'" style="padding:6px 8px;font-size:11px">RE-ARM</button>':'<span class="tag">'+(r.on?'WATCHING':'OFF')+'</span>')+'<button class="x" data-del="'+r.id+'" aria-label="Delete">×</button></div>'}).join('');
+}
+function renderLog(){var el=$('log');
+  el.innerHTML=log.items.length?log.items.slice().reverse().map(function(x){return '<div><time>'+esc(x.t)+'</time>'+esc(x.m)+'</div>'}).join(''):'<div style="color:var(--mut)">No alerts today yet.</div>';
+  var b=$('badge'),n=LS.get('unseen',0);b.hidden=!n;b.textContent=n}
+function fillDatalist(){var dl=$('stockList'),k=Object.keys(Q).sort().join(',');if(dl.getAttribute('data-k')===k)return;dl.setAttribute('data-k',k);
+  dl.innerHTML=Object.keys(Q).sort().concat(['NIFTY','BANKNIFTY']).map(function(s){return '<option value="'+esc(s)+'">'}).join('')}
+
+/* ---------- alerts ---------- */
+function fire(key,msg){if(fired[key])return;fired[key]=1;LS.set('fired',fired);
+  var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});log.items.push({t:t,m:msg});if(log.items.length>200)log.items.shift();LS.set('log',log);
+  if(cur!==2)LS.set('unseen',LS.get('unseen',0)+1);
+  toast('🔔 '+msg);
+  if(S.sound)beep();if(S.vib&&navigator.vibrate)try{navigator.vibrate([180,80,180])}catch(e){}
+  if(NATIVE){try{NATIVE.notify('Nifty Pulse',msg,key)}catch(e){}}
+  else if(S.notif&&window.Notification&&Notification.permission==='granted'){
+    var o={body:msg,icon:'nifty-pulse-icon-192.png',badge:'nifty-pulse-icon-192.png',tag:key,renotify:true};
+    if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(function(r){r.showNotification('Nifty Pulse',o)}).catch(function(){try{new Notification('Nifty Pulse',o)}catch(e){}});
+    else try{new Notification('Nifty Pulse',o)}catch(e){}
+  }}
+function checkAlerts(){
+  if(src==='demo'&&!LS.get('demoAlerts',true))return;
+  var by=Object.assign({},Q,IDX);
+  rules.forEach(function(r){var q=by[r.s];if(!q||!r.on)return;
+    if(r.type==='above'&&q.ltp>=r.v)fire('r'+r.id,r.s+' crossed ABOVE ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
+    if(r.type==='below'&&q.ltp<=r.v)fire('r'+r.id,r.s+' fell BELOW ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
+    if(r.type==='pctUp'&&q.pct>=r.v)fire('r'+r.id,r.s+' is UP '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
+    if(r.type==='pctDown'&&q.pct<=-Math.abs(r.v))fire('r'+r.id,r.s+' is DOWN '+fmt(q.pct)+'% today (₹'+fmt(q.ltp)+')')});
+  var gm=parseFloat(S.gMove),gn=parseFloat(S.gNifty),only=scopeList();
+  Object.values(Q).forEach(function(q){if(only&&only.indexOf(q.s)<0)return;
+    if(gm>0&&Math.abs(q.pct)>=gm)fire('m'+q.s,q.s+' moved '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
+    if(S.gHi&&q.h52&&q.ltp>=q.h52)fire('h'+q.s,q.s+' made a NEW 52-WEEK HIGH ₹'+fmt(q.ltp));
+    if(S.gLo&&q.l52&&q.ltp<=q.l52)fire('l'+q.s,q.s+' made a NEW 52-WEEK LOW ₹'+fmt(q.ltp))});
+  var n=IDX.NIFTY;if(n&&gn>0&&Math.abs(n.pct)>=gn)fire('nifty','NIFTY 50 moved '+sgn(n.pct)+'% ('+fmt(n.ltp)+')');
+}
+var actx=null;function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var t=actx.currentTime;[0,.18].forEach(function(d,i){var o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=i?1046:784;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.16);o.connect(g);g.connect(actx.destination);o.start(t+d);o.stop(t+d+.17)})}catch(e){}}
+var tt=null;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},3500)}
+
+function addRule(s,type,v){s=String(s||'').trim().toUpperCase();v=parseFloat(v);
+  if(!s){toast('Type a stock symbol');return false}if(!isFinite(v)||v<=0){toast('Type a value more than 0');return false}
+  var q=Q[s]||IDX[s];
+  if(q&&type==='above'&&q.ltp>=v&&!confirm(s+' is already above ₹'+fmt(v)+'. It will ring right away. Add anyway?'))return false;
+  if(q&&type==='below'&&q.ltp<=v&&!confirm(s+' is already below ₹'+fmt(v)+'. It will ring right away. Add anyway?'))return false;
+  rules.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),s:s,type:type,v:v,on:true});LS.set('rules',rules);
+  renderRules();checkAlerts();toast('Alert added: '+s+' · '+ruleText(rules[rules.length-1]));askNotif();return true}
+function askNotif(){if(S.notif||!window.Notification||Notification.permission==='denied'||LS.get('askedN',false))return;LS.set('askedN',true);
+  Notification.requestPermission().then(function(p){if(p==='granted'){S.notif=true;saveS();$('oNotif').checked=true}})}
+
+/* ---------- detail sheet ---------- */
+function openStock(s){var q=Q[s]||IDX[s];if(!q)return;var w=watch.indexOf(s)>=0,p=pos52(q),dr=q.high>q.low?(q.ltp-q.low)/(q.high-q.low):.5;
+  $('sheet').innerHTML='<div class="grab"></div><div class="sh"><div><h2>'+esc(q.n||s)+'</h2><div class="big num">₹'+fmt(q.ltp)+'</div><div class="num '+cls(q.chg)+'" style="font-weight:800">'+sgn(q.chg)+' ('+sgn(q.pct)+'%)</div></div><button class="x" id="shX" aria-label="Close" style="font-size:24px">×</button></div>'+
+  '<div class="rbox"><div class="lb"><span>Day low '+fmt(q.low)+'</span><span>Day high '+fmt(q.high)+'</span></div><div class="rng"><i style="left:calc('+(dr*100)+'% - 1px)"></i></div></div>'+
+  (p==null?'':'<div class="rbox"><div class="lb"><span>52W low '+fmt(q.l52)+'</span><span>52W high '+fmt(q.h52)+'</span></div><div class="rng"><i style="left:calc('+(p*100)+'% - 1px)"></i></div></div>')+
+  '<div class="kv"><div><span>OPEN</span><b>'+fmt(q.open)+'</b></div><div><span>PREV CLOSE</span><b>'+fmt(q.prev)+'</b></div><div><span>VOLUME</span><b>'+fmtVol(q.vol)+'</b></div><div><span>FROM 52W HIGH</span><b>'+(q.h52?'-'+fmt(nearHi(q))+'%':'—')+'</b></div>'+
+  (q.uc?'<div><span>UPPER CIRCUIT</span><b>'+fmt(q.uc)+'</b></div><div><span>LOWER CIRCUIT</span><b>'+fmt(q.lc)+'</b></div>':'')+'</div>'+
+  (IDX[s]?'':'<button class="btn" id="shW" style="width:100%;margin-bottom:8px">'+(w?'★ REMOVE FROM WATCHLIST':'☆ ADD TO WATCHLIST')+'</button>')+
+  '<div class="card" style="margin:0 0 8px"><h3>SET ALERT</h3><div class="fr"><select class="inp" id="shT"><option value="above">Price ABOVE</option><option value="below">Price BELOW</option><option value="pctUp">Day UP by %</option><option value="pctDown">Day DOWN by %</option></select><input class="inp" id="shV" type="number" step="any" inputmode="decimal" value="'+(Math.round(q.ltp*1.02*20)/20)+'"><button class="btn g" id="shA" style="flex:0 0 auto">ADD</button></div></div>'+
+  '<div class="fr"><a class="btn" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.tradingview.com/chart/?symbol=NSE%3A'+encodeURIComponent(IDX[s]?(s==='NIFTY'?'NIFTY':'BANKNIFTY'):s.replace(/&/g,'_').replace(/-/g,'_'))+'">CHART ↗</a><a class="btn" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.nseindia.com/get-quotes/equity?symbol='+encodeURIComponent(s)+'">NSE PAGE ↗</a></div>';
+  $('mask').classList.add('show');
+  $('shX').onclick=closeSheet;
+  if($('shW'))$('shW').onclick=function(){if(w)watch=watch.filter(function(x){return x!==s});else watch.push(s);LS.set('watch',watch);renderAll();paintSrc();openStock(s);toast(w?s+' removed from watchlist':s+' added to watchlist')};
+  $('shT').onchange=function(){$('shV').value=this.value.indexOf('pct')===0?'2':(Math.round(q.ltp*(this.value==='above'?1.02:.98)*20)/20)};
+  $('shA').onclick=function(){if(addRule(s,$('shT').value,$('shV').value))closeSheet()};
+}
+function closeSheet(){$('mask').classList.remove('show')}
+$('mask').addEventListener('click',function(e){if(e.target===this)closeSheet()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()});
+
+/* ---------- tabs + swipe ---------- */
+var cur=0,pages=$('pages'),tabs=[].slice.call(document.querySelectorAll('.tab'));
+function go(i,smooth){cur=i;tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});pages.scrollTo({left:i*pages.clientWidth,behavior:smooth===false?'auto':'smooth'});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}
+tabs.forEach(function(t){t.onclick=function(){go(+t.getAttribute('data-i'))}});
+var st=null;pages.addEventListener('scroll',function(){clearTimeout(st);st=setTimeout(function(){var i=Math.round(pages.scrollLeft/pages.clientWidth);if(i!==cur){cur=i;tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}},90)},{passive:true});
+window.addEventListener('resize',function(){pages.scrollTo({left:cur*pages.clientWidth})});
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(b&&!e.target.closest('[data-unw]')){openStock(b.getAttribute('data-s'));return}
+  var u=e.target.closest('[data-unw]');if(u){watch=watch.filter(function(x){return x!==u.getAttribute('data-unw')});LS.set('watch',watch);renderWatch();return}
+  var d=e.target.closest('[data-del]');if(d){rules=rules.filter(function(r){return r.id!==d.getAttribute('data-del')});LS.set('rules',rules);renderRules();return}
+  var ra=e.target.closest('[data-rearm]');if(ra){delete fired['r'+ra.getAttribute('data-rearm')];if(NATIVE)try{NATIVE.rearm('r'+ra.getAttribute('data-rearm'))}catch(x){}LS.set('fired',fired);renderRules();checkAlerts();return}});
+document.addEventListener('change',function(e){var t=e.target.closest('[data-tog]');if(t){var r=rules.find(function(x){return x.id===t.getAttribute('data-tog')});if(r){r.on=t.checked;LS.set('rules',rules);renderRules()}}});
+[].forEach.call(document.querySelectorAll('#viewSeg button'),function(b){b.onclick=function(){view=b.getAttribute('data-v');[].forEach.call(document.querySelectorAll('#viewSeg button'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
+[].forEach.call(document.querySelectorAll('#chips .chip'),function(b){b.onclick=function(){filter=b.getAttribute('data-f');[].forEach.call(document.querySelectorAll('#chips .chip'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
+$('sortSel').onchange=function(){sortBy=this.value;renderScan()};
+$('q').oninput=function(){search=this.value.trim();renderScan()};
+$('rf').onclick=function(){load(true)};
+$('aAdd').onclick=function(){if(addRule($('aStock').value,$('aType').value,$('aVal').value)){$('aStock').value='';$('aVal').value=''}};
+$('logClr').onclick=function(){log.items=[];LS.set('log',log);renderLog()};
+
+/* settings fields */
+function bind(id,key,num){var el=$(id),chk=el.type==='checkbox';if(chk)el.checked=!!S[key];else el.value=S[key]==null?'':S[key];
+  el.addEventListener('change',function(){S[key]=chk?el.checked:num?(el.value===''?'':+el.value):el.value;saveS();
+    if(key==='theme')applyTheme();if(key==='every'||key==='slow')schedule();if(key==='bigPct'||key==='nearPct')renderScan();if(key.charAt(0)==='g')checkAlerts()})}
+bind('every','every',1);bind('slow','slow');bind('bigPct','bigPct',1);bind('nearPct','nearPct',1);bind('theme','theme');bind('defView','defView');
+bind('oSound','sound');bind('oVib','vib');bind('gMove','gMove',1);bind('gNifty','gNifty',1);bind('gHi','gHi');bind('gLo','gLo');
+$('oNotif').checked=!!S.notif&&window.Notification&&Notification.permission==='granted';
+$('oNotif').onchange=function(){var el=this;if(!el.checked){S.notif=false;saveS();return}
+  if(!window.Notification){toast('This browser cannot show notifications');el.checked=false;return}
+  Notification.requestPermission().then(function(p){S.notif=p==='granted';el.checked=S.notif;saveS();if(!S.notif)toast('Notifications are blocked. Allow them in the browser site settings.')})};
+$('feed').value=S.feed||'';$('custom').value=S.custom||'';
+$('feedSave').onclick=function(){S.feed=$('feed').value.trim();saveS();var m=$('feedMsg'),f=feedUrl();
+  if(!f){m.innerHTML='<span class="err">No link: showing DEMO data.</span>';Q={};IDX={};demo=null;load(true);return}
+  m.textContent='Testing…';
+  fetch(f+'/status',{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){
+    m.innerHTML='<span class="ok">✔ Connected.</span> Angel One: <b>'+(s.angel?'ON':'not set (using Yahoo)')+'</b> · ICICI Breeze: <b>'+(s.breeze?(s.breezeLogin?'ON, logged in today':'ON, login needed'):'not set')+'</b> · Telegram: <b>'+(s.telegram?'ON':'off')+'</b> · KV: <b>'+(s.kv?'ON':'off')+'</b>'+(s.lastError?'<br><span class="err">Last error: '+esc(s.lastError)+'</span>':'');
+    Q={};IDX={};prevLtp={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker. Check the link (it must start with https://) and that the worker is deployed.</span>'})};
+$('custSave').onclick=function(){S.custom=$('custom').value.toUpperCase();saveS();Q={};demo=null;toast('Stock list saved');load(true)};
+$('custReset').onclick=function(){S.custom='';$('custom').value='';saveS();Q={};demo=null;toast('Back to Nifty 50');load(true)};
+
+/* telegram sync */
+$('adminKey').value=LS.get('ak','');$('ownKey').value=LS.get('ak','');
+$('ownSave').onclick=function(){var k=$('ownKey').value.trim();LS.set('ak',k);$('adminKey').value=k;syncNative();var f=feedUrl(),m=$('ownMsg');
+  if(!f){m.innerHTML='<span class="err">Add the worker link first.</span>';return}
+  fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One and ICICI Breeze are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
+function tgCall(path,body){var f=feedUrl(),k=$('adminKey').value.trim(),m=$('tgMsg');
+  if(!f){m.innerHTML='<span class="err">Add your worker link in Settings first.</span>';return}
+  if(!k){m.innerHTML='<span class="err">Type your Admin key.</span>';return}
+  LS.set('ak',k);m.textContent='Sending…';
+  fetch(f+path,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':k},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){
+    m.innerHTML=j.ok?'<span class="ok">✔ '+(path==='/rules'?'Saved '+j.saved+' alerts to your worker. Telegram will ring even when the app is closed.':'Test message sent. Check Telegram.')+'</span>':'<span class="err">✖ '+esc(j.error||'Failed')+'</span>'}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})}
+$('tgSave').onclick=function(){tgCall('/rules',{rules:rules,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()},list:customList(),src:S.src,bcodes:codesObj()})};
+$('tgTest').onclick=function(){tgCall('/test-telegram')};
+
+/* ---------- data source switch ---------- */
+function ruleStocks(){var o=[];rules.forEach(function(r){if(r.on&&r.s!=='NIFTY'&&r.s!=='BANKNIFTY'&&o.indexOf(r.s)<0)o.push(r.s)});if(S.gScope==='pick')(S.gPick||[]).forEach(function(x){if(o.indexOf(x)<0)o.push(x)});return o}
+function breezeList(){var L=(S.bList&&S.bList.length?S.bList:watch).slice();ruleStocks().forEach(function(x){if(L.indexOf(x)<0)L.push(x)});return L.slice(0,20)}
+function scopeList(){return S.gScope==='watch'?watch.slice():S.gScope==='pick'?(S.gPick||[]).slice():null}
+function codesObj(){var o={};String(S.bcodes||'').toUpperCase().split(',').forEach(function(p){var m=p.split(/[=:]/);if(m.length===2&&m[0].trim()&&m[1].trim())o[m[0].trim()]=m[1].trim()});return o}
+function showNote(h){var n=$('note');n.innerHTML=h;n.classList.add('show')}
+function chipsOf(L){return L.length?L.map(function(s){return '<span>'+esc(s)+'</span>'}).join(''):'<span style="opacity:.7">None chosen</span>'}
+function paintSrc(){[].forEach.call(document.querySelectorAll('#srcSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-src')===S.src)});
+  $('breezeBox').hidden=S.src!=='breeze';$('bPickShow').innerHTML=chipsOf(breezeList())+(S.bList&&S.bList.length?'':'<span style="opacity:.7">(using your watchlist)</span>');
+  $('bTtl').textContent=Math.max(15,Math.ceil((breezeList().length+2)*60/12));
+  $('gPickBox').hidden=S.gScope!=='pick';$('gPickShow').innerHTML=chipsOf(S.gPick||[])}
+[].forEach.call(document.querySelectorAll('#srcSeg button'),function(b){b.onclick=function(){var v=b.getAttribute('data-src');if(v===S.src)return;
+  if(v!=='yahoo'&&v!=='auto'&&!feedUrl()){toast('Add your worker link below first, then choose '+b.firstChild.textContent);}
+  S.src=v;saveS();paintSrc();Q={};IDX={};prevLtp={};ttl=0;needLogin=false;failCount=0;renderAll();toast('Data source: '+b.firstChild.textContent);load(true)}});
+document.addEventListener('click',function(e){if(e.target.closest('[data-blogin]'))breezeLogin()});
+function breezeLogin(){var f=feedUrl();if(!f){toast('Add your worker link first');go(3);return}
+  window.open(f+'/breeze/login','_blank','noopener');$('bState').textContent='After login, come back here. Prices load by themselves.';
+  var n=0,iv=setInterval(function(){n++;fetch(f+'/status',{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){if(s.breezeLogin){clearInterval(iv);$('bState').innerHTML='<span class="ok">✔ Logged in for today</span>';needLogin=false;failCount=0;load(true)}}).catch(function(){});if(n>40)clearInterval(iv)},4000)}
+$('bLogin').onclick=breezeLogin;
+$('bcodes').value=S.bcodes||'';$('bcodes').onchange=function(){S.bcodes=this.value.toUpperCase();saveS();load(true)};
+$('gScope').value=S.gScope||'all';$('gScope').onchange=function(){S.gScope=this.value;saveS();paintSrc();checkAlerts();if(S.gScope==='pick'&&!(S.gPick||[]).length)$('gPickBtn').click()};
+function universe(){var u={};DEMO_LIST.concat(Object.keys(Q),watch,customList()||[],S.bList||[],S.gPick||[]).forEach(function(s){u[s]=1});return Object.keys(u).sort()}
+function openPicker(title,sel,max,done){var chosen=sel.slice(),q='';
+  function draw(){var L=universe().concat(chosen).filter(function(s,i,a){return a.indexOf(s)===i}).sort().filter(function(s){return !q||s.indexOf(q)>=0});
+    $('pkList').innerHTML=L.map(function(s){var on=chosen.indexOf(s)>=0;return '<label class="'+(on?'on':'')+'"><input type="checkbox" data-pk="'+esc(s)+'"'+(on?' checked':'')+'>'+esc(s)+'</label>'}).join('')||'<div style="color:var(--mut)">No match. Tap ADD to add "'+esc(q)+'".</div>';
+    $('pkCount').textContent=chosen.length+(max?' / '+max:'')+' CHOSEN'}
+  $('sheet').innerHTML='<div class="grab"></div><div class="sh"><h2 style="font-size:18px">'+esc(title)+'</h2><button class="x" id="shX" style="font-size:24px">×</button></div>'+
+   '<div class="fr" style="margin-top:10px"><input class="inp" id="pkQ" placeholder="Search or type a symbol" style="text-transform:uppercase" autocomplete="off"><button class="btn" id="pkAdd" style="flex:0 0 auto">ADD</button></div>'+
+   '<div class="plist" id="pkList"></div><div class="fr"><span id="pkCount" style="font-size:12px;font-weight:800;color:var(--mut);flex:1"></span><button class="btn" id="pkW" style="flex:0 0 auto">USE WATCHLIST</button><button class="btn" id="pkNone" style="flex:0 0 auto">CLEAR</button><button class="btn g" id="pkOk" style="flex:0 0 auto">SAVE</button></div>';
+  $('mask').classList.add('show');$('shX').onclick=closeSheet;
+  $('pkQ').oninput=function(){q=this.value.trim().toUpperCase();draw()};
+  $('pkAdd').onclick=function(){var v=$('pkQ').value.trim().toUpperCase().replace(/[^A-Z0-9&-]/g,'');if(!v)return;if(chosen.indexOf(v)<0){if(max&&chosen.length>=max){toast('Max '+max+' stocks');return}chosen.push(v)}$('pkQ').value='';q='';draw()};
+  $('pkList').onchange=function(e){var c=e.target.closest('[data-pk]');if(!c)return;var s=c.getAttribute('data-pk');
+    if(c.checked){if(max&&chosen.length>=max){c.checked=false;toast('Max '+max+' stocks for this');return}chosen.push(s)}else chosen=chosen.filter(function(x){return x!==s});draw()};
+  $('pkW').onclick=function(){chosen=watch.slice(0,max||100);draw()};$('pkNone').onclick=function(){chosen=[];draw()};
+  $('pkOk').onclick=function(){done(chosen);closeSheet()};draw()}
+$('bPickBtn').onclick=function(){openPicker('ICICI BREEZE STOCKS (MAX 20)',breezeList(),20,function(L){S.bList=L;saveS();paintSrc();Q={};load(true)})};
+$('gPickBtn').onclick=function(){openPicker('STOCKS FOR SCAN ALERTS',S.gPick||[],0,function(L){S.gPick=L;saveS();paintSrc();checkAlerts()})};
+paintSrc();
+
+/* ---------- Android app: home-screen widget + background alerts ---------- */
+function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
+  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}))}catch(e){}}
+var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400)};
+if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
+  $('pinW').onclick=function(){try{NATIVE.pinWidget()}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}};
+  $('natSet').onclick=function(){try{NATIVE.openAlertSettings()}catch(e){}};
+  setTimeout(syncNative,800)}
+
+/* app buttons */
+$('getLatest').onclick=function(){if(window.OWHUPD){OWHUPD.run();return}
+  if(!confirm('Get the latest version of this app? Your data stays safe.'))return;
+  var j=[];try{if(navigator.serviceWorker)j.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}
+  try{if(window.caches)j.push(caches.keys().then(function(k){return Promise.all(k.map(function(c){return caches.delete(c)}))}))}catch(e){}
+  Promise.all(j).catch(function(){}).then(function(){var u=new URL(location.href);u.searchParams.set('_u',Date.now());location.replace(u.toString())})};
+$('contact').onclick=function(){if(window.OWHCONTACT&&window.firebase&&firebase.apps&&firebase.apps.length){OWHCONTACT.open({app:'Nifty Pulse'});return}
+  location.href='mailto:er.krushnananda@gmail.com?subject='+encodeURIComponent('[Nifty Pulse] Feature request')+'&body='+encodeURIComponent('Hi,\n\n')};
+$('yr').textContent=new Date().getFullYear();
+
+/* visibility: refresh at once when you come back */
+document.addEventListener('visibilitychange',function(){if(!document.hidden)load();else schedule()});
+window.addEventListener('online',function(){load(true)});
+
+/* service worker: offline + installable */
+if('serviceWorker' in navigator&&location.protocol!=='file:')window.addEventListener('load',function(){navigator.serviceWorker.register('nifty-pulse-sw.js',{scope:'./nifty-pulse.html'}).catch(function(){})});
+
+/* start */
+if(view==='list'){[].forEach.call(document.querySelectorAll('#viewSeg button'),function(x){x.classList.toggle('on',x.getAttribute('data-v')==='list')})}
+if(cached&&cached.ok&&feedUrl()){ingest(cached,true)}else renderAll();
+var t0=LS.get('tab',0);if(t0)setTimeout(function(){go(t0,false)},30);
+load();
+window.NP={Q:Q,version:VERSION};
+})();
+</script>
+<script src="owh-contact.js" defer></script>
+</body></html>

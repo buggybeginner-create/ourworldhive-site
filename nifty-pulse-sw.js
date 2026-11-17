@@ -1,0 +1,8 @@
+/* Nifty Pulse service worker: installs and opens without internet. Copyright DUKEKRRISH. All rights reserved.
+   App files: newest first, saved copy when offline. Price data is never cached here (the app keeps the last prices itself). */
+var C='nifty-pulse-v2',F=['nifty-pulse.html','nifty-pulse-config.js','nifty-pulse-manifest.webmanifest','nifty-pulse-icon-192.png','nifty-pulse-icon-512.png','owh-pwa.js','owh-contact.js'];
+self.addEventListener('install',function(e){e.waitUntil(caches.open(C).then(function(c){return Promise.all(F.map(function(f){return c.add(f).catch(function(){})}))}).then(function(){return self.skipWaiting()}))});
+self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(x){return /^nifty-pulse-/.test(x)&&x!==C}).map(function(x){return caches.delete(x)}))}).then(function(){return self.clients.claim()}))});
+self.addEventListener('fetch',function(e){var r=e.request;if(r.method!=='GET')return;var u=new URL(r.url);if(u.origin!==location.origin)return;
+ e.respondWith(fetch(r).then(function(res){if(res&&res.ok){var cp=res.clone();caches.open(C).then(function(c){c.put(r,cp)}).catch(function(){})}return res}).catch(function(){return caches.match(r,{ignoreSearch:true}).then(function(m){return m||caches.match('nifty-pulse.html',{ignoreSearch:true})})}))});
+self.addEventListener('notificationclick',function(e){e.notification.close();e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(function(L){for(var i=0;i<L.length;i++){if(/nifty-pulse\.html/.test(L[i].url)&&'focus' in L[i])return L[i].focus()}return clients.openWindow('nifty-pulse.html')}))});

@@ -119,7 +119,7 @@ final class Pulse {
         try {
             JSONObject d = fetch(c);
             sp(c).edit().putString("last", d.toString()).putString("err", "").apply();
-            if (!FOREGROUND) checkAlerts(c, d);
+            if (!FOREGROUND) { checkAlerts(c, d); checkSignals(c, d); }
         } catch (Exception e) {
             sp(c).edit().putString("err", String.valueOf(e.getMessage())).apply();
         }
@@ -167,6 +167,86 @@ final class Pulse {
         if (n == 0) return;
         String txt = all.toString().trim();
         notify(c, n == 1 ? "🔔 Nifty Pulse alert" : "🔔 " + n + " Nifty Pulse alerts", txt, n == 1 ? txt : null);
+    }
+
+    /* ---------- BUY / SELL signal alerts with the app closed ----------
+       Same rules as the app page: 20 & 50-day averages, MACD (12,26,9) and RSI (14) on daily closes.
+       Daily closes come from the worker once every 3 hours (small, about 40 KB), live price from the normal check. */
+    static double[] ema(double[] a, int n) { double k = 2.0 / (n + 1), e = a[0]; double[] o = new double[a.length]; for (int i = 0; i < a.length; i++) { e = i == 0 ? a[0] : a[i] * k + e * (1 - k); o[i] = e; } return o; }
+    static double rsi(double[] a, int n) {
+        if (a.length < n + 1) return -1; double g = 0, l = 0;
+        for (int i = 1; i <= n; i++) { double d = a[i] - a[i - 1]; if (d > 0) g += d; else l -= d; }
+        g /= n; l /= n;
+        for (int i = n + 1; i < a.length; i++) { double d = a[i] - a[i - 1]; g = (g * (n - 1) + (d > 0 ? d : 0)) / n; l = (l * (n - 1) + (d < 0 ? -d : 0)) / n; }
+        return l == 0 ? 100 : 100 - 100 / (1 + g / l);
+    }
+    /** returns {signal, word}: signal is BUY, SELL or WAIT */
+    static String[] signal(double[] c) {
+        int n = c.length; if (n < 35) return null;
+        double P = c[n - 1]; double[] e20 = ema(c, 20), e50 = ema(c, 50), m12 = ema(c, 12), m26 = ema(c, 26), md = new double[n];
+        for (int i = 0; i < n; i++) md[i] = m12[i] - m26[i];
+        double[] sl = ema(md, 9), h = new double[n]; for (int i = 0; i < n; i++) h[i] = md[i] - sl[i];
+        double H = h[n - 1], R = rsi(c, 14); int sc = 0;
+        sc += P > e20[n - 1] ? 1 : -1; sc += P > e50[n - 1] ? 1 : -1; sc += e20[n - 1] > e50[n - 1] ? 1 : -1; sc += H > 0 ? 1 : -1; sc += H > h[n - 2] ? 1 : -1;
+        if (R >= 0 && R < 70 && R > 30) { if (R > 55) sc++; else if (R < 45) sc--; }
+        boolean up = false, dn = false;
+        for (int i = n - 3; i < n; i++) { if (i < 1) continue; if (h[i - 1] <= 0 && h[i] > 0) up = true; if (h[i - 1] >= 0 && h[i] < 0) dn = true; if (c[i - 1] < e20[i - 1] && c[i] >= e20[i]) up = true; if (c[i - 1] > e20[i - 1] && c[i] <= e20[i]) dn = true; }
+        int dir = sc >= 3 ? 1 : sc <= -3 ? -1 : 0;
+        String word = sc >= 5 ? "strong bullish" : sc >= 3 ? "bullish" : sc <= -5 ? "strong bearish" : sc <= -3 ? "bearish" : "sideways";
+        String sig = "WAIT";
+        if (dir > 0 && (R < 0 || R < 70) && (up || sc >= 5)) sig = "BUY";
+        else if (dir < 0 && (R < 0 || R > 30) && (dn || sc <= -5)) sig = "SELL";
+        return new String[]{sig, word};
+    }
+
+    static JSONObject history(Context c) {
+        try {
+            long at = sp(c).getLong("histAt", 0);
+            if (System.currentTimeMillis() - at < 3 * 3600000L) return new JSONObject(sp(c).getString("hist", "{}"));
+            JSONObject k = cfg(c);
+            String feed = k.optString("feed", "").replaceAll("/+$", "");
+            if (feed.isEmpty()) return null;
+            String sym = join(k.optJSONArray("sym")), extra = join(k.optJSONArray("extra")), all = sym.isEmpty() ? "" : sym + (extra.isEmpty() ? "" : "," + extra);
+            HttpURLConnection hc = (HttpURLConnection) new URL(feed + "/history" + (all.isEmpty() ? "" : "?sym=" + enc(all))).openConnection();
+            hc.setConnectTimeout(10000); hc.setReadTimeout(20000);
+            try {
+                InputStream in = hc.getInputStream(); ByteArrayOutputStream bo = new ByteArrayOutputStream(); byte[] buf = new byte[8192]; int r;
+                while ((r = in.read(buf)) > 0) bo.write(buf, 0, r);
+                JSONObject j = new JSONObject(bo.toString("UTF-8"));
+                JSONObject data = j.optJSONObject("data");
+                if (!j.optBoolean("ok") || data == null) return new JSONObject(sp(c).getString("hist", "{}"));
+                sp(c).edit().putString("hist", data.toString()).putLong("histAt", System.currentTimeMillis()).apply();
+                return data;
+            } finally { hc.disconnect(); }
+        } catch (Exception e) { try { return new JSONObject(sp(c).getString("hist", "{}")); } catch (Exception x) { return null; } }
+    }
+
+    static void checkSignals(Context c, JSONObject d) {
+        JSONObject g = cfg(c).optJSONObject("global");
+        if (g == null || !g.optBoolean("sig") || !marketOpen()) return;
+        JSONArray st = d.optJSONArray("stocks"), only = g.optJSONArray("only");
+        if (st == null) return;
+        JSONObject hist = history(c);
+        if (hist == null) return;
+        StringBuilder buy = new StringBuilder(), sell = new StringBuilder(); int nb = 0, ns = 0;
+        for (int i = 0; i < st.length(); i++) {
+            JSONObject q = st.optJSONObject(i); if (q == null) continue;
+            String s = q.optString("s");
+            if (only != null && only.length() > 0 && !only.toString().contains("\"" + s + "\"")) continue;
+            JSONObject h = hist.optJSONObject(s); if (h == null) continue;
+            JSONArray ca = h.optJSONArray("c"); if (ca == null || ca.length() < 35) continue;
+            double ltp = q.optDouble("ltp", 0); if (ltp <= 0) continue;
+            boolean todayIn = today().equals(h.optString("d"));
+            double[] cl = new double[ca.length() + (todayIn ? 0 : 1)];
+            for (int x = 0; x < ca.length(); x++) cl[x] = ca.optDouble(x, 0);
+            cl[cl.length - 1] = ltp;
+            String[] r = signal(cl); if (r == null || "WAIT".equals(r[0])) continue;
+            if (!markFired(c, "g" + r[0] + s)) continue;
+            String line = s + " ₹" + f2(ltp) + " (" + sg(q.optDouble("pct", 0)) + "%) · " + r[1] + "\n";
+            if ("BUY".equals(r[0])) { nb++; buy.append("▲ ").append(line); } else { ns++; sell.append("▼ ").append(line); }
+        }
+        if (nb > 0) notify(c, "▲ " + nb + " new BUY signal" + (nb > 1 ? "s" : ""), buy.toString().trim() + "\nNot advice. Check before you trade.", "sigbuy" + today() + nb);
+        if (ns > 0) notify(c, "▼ " + ns + " new SELL signal" + (ns > 1 ? "s" : ""), sell.toString().trim() + "\nNot advice. Check before you trade.", "sigsell" + today() + ns);
     }
 
     /* ---------- home-screen widget ---------- */
@@ -248,7 +328,7 @@ final class Pulse {
         for (Class<?> w : new Class<?>[]{PulseSmall.class, PulseWidget.class, PulseLarge.class}) { int[] a = am.getAppWidgetIds(new ComponentName(c, w)); if (a != null) n += a.length; }
         JSONObject k = cfg(c), g = k.optJSONObject("global");
         JSONArray r = k.optJSONArray("rules");
-        boolean alerts = (r != null && r.length() > 0) || (g != null && (g.optDouble("move", 0) > 0 || g.optDouble("nifty", 0) > 0 || g.optBoolean("hi52") || g.optBoolean("lo52")));
+        boolean alerts = (r != null && r.length() > 0) || (g != null && (g.optDouble("move", 0) > 0 || g.optDouble("nifty", 0) > 0 || g.optBoolean("hi52") || g.optBoolean("lo52") || g.optBoolean("sig")));
         return n > 0 || alerts;
     }
 

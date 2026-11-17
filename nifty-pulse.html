@@ -359,7 +359,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-17.6'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-17.7'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -622,7 +622,7 @@ function bind(id,key,num){var el=$(id),chk=el.type==='checkbox';if(chk)el.checke
 bind('every','every',1);bind('slow','slow');bind('bigPct','bigPct',1);bind('nearPct','nearPct',1);bind('theme','theme');bind('defView','defView');
 bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
 bind('tOn','tOn');bind('tSig','tSig');bind('tChart','tChart');bind('tTf','tTf');bind('gSig','gSig');
-['tOn','tSig'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll()})});
+['tOn','tSig','gSig'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll();if(window.__npSync)__npSync()})});
 bind('oSound','sound');bind('oVib','vib');bind('gMove','gMove',1);bind('gNifty','gNifty',1);bind('gHi','gHi');bind('gLo','gLo');
 $('oNotif').checked=!!S.notif&&window.Notification&&Notification.permission==='granted';
 $('oNotif').onchange=function(){var el=this;if(!el.checked){S.notif=false;saveS();return}
@@ -821,7 +821,7 @@ setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEvent
 
 /* ---------- Android app: home-screen widget + background alerts ---------- */
 function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
-  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}))}catch(e){}}
+  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())}}))}catch(e){}}
 var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400)};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
   [].forEach.call(document.querySelectorAll('[data-pin]'),function(b){b.onclick=function(){var z=b.getAttribute('data-pin');try{if(NATIVE.pinSize)NATIVE.pinSize(z);else{NATIVE.pinWidget();if(z!=='m')toast('Update the Android app to get '+(z==='s'?'Small':'Large')+' widgets')}}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}}});

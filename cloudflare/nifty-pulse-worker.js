@@ -19,7 +19,8 @@
    KV BINDING NP: needed for ICICI Breeze (daily session), Telegram alerts and Angel token fixes. Not needed for Angel/Yahoo only.
    ICICI Breeze app Redirect URL:  https://<your-worker>.workers.dev/breeze/callback
 
-   ROUTES:  GET /quotes?src=&sym=&extra=&bcodes=&k=   (k = ADMIN_KEY; without it only Yahoo is served)
+   ROUTES:  GET /candles?s=&tf=5m|15m|1h|1d&k=   GET /history?sym=   (chart and trend notes)
+            GET /quotes?src=&sym=&extra=&bcodes=&k=   (k = ADMIN_KEY; without it only Yahoo is served)
               GET /status   GET /breeze/login   GET|POST /breeze/callback
             POST /rules (X-Admin-Key)   POST /test-telegram (X-Admin-Key)
    CRON (optional, for Telegram alerts):  * 3-10 * * 1-5   (every minute, Mon-Fri, 08:30-16:29 IST)
@@ -86,6 +87,33 @@ export default {
         if (locked) data.locked = true;
         const res = json(data, 200, { 'Cache-Control': 'public, max-age=' + ttl });
         ctx.waitUntil(cache.put(cacheKey, res.clone()));
+        return res;
+      }
+      if (url.pathname === '/candles' || url.pathname === '/history') {
+        const owner = !env.ADMIN_KEY || url.searchParams.get('k') === env.ADMIN_KEY;
+        const isC = url.pathname === '/candles';
+        const sym = isC ? cleanList(url.searchParams.get('s'), 1)[0] : null;
+        const tf = ['5m', '15m', '1h', '1d'].includes(url.searchParams.get('tf')) ? url.searchParams.get('tf') : '1d';
+        const list = isC ? null : cleanList(url.searchParams.get('sym'), 100);
+        const useAngel = isC && owner && hasAngel(env) && url.searchParams.get('src') !== 'yahoo';
+        const key = new Request('https://np-cache' + url.pathname + '?a=' + (useAngel ? 1 : 0) + '&s=' + (sym || '') + '&tf=' + tf + '&l=' + (list || []).join(','));
+        const hit = await caches.default.match(key);
+        if (hit) { const r = new Response(hit.body, hit); Object.entries(cors).forEach(([k, v]) => r.headers.set(k, v)); return r; }
+        let data;
+        try {
+          if (isC) {
+            if (!sym) return json({ ok: false, error: 'No stock' }, 400);
+            let c = null, src = 'yahoo';
+            if (useAngel) { try { c = await angelCandles(env, sym, tf); src = 'angel'; } catch (e) { LAST_ERR = 'Candles: ' + e.message; } }
+            if (!c || !c.length) { c = await yahooCandles(sym, tf); src = 'yahoo'; }
+            data = { ok: true, s: sym, tf, src, candles: c.slice(-160) };
+          } else {
+            data = { ok: true, src: 'yahoo', data: await yahooHistory(list && list.length ? list : await niftyList()) };
+          }
+        } catch (e) { data = { ok: false, error: String(e && e.message || e) }; }
+        const ttl = !data.ok ? 30 : isC ? (tf === '1d' ? 900 : 60) : 3 * 3600;
+        const res = json(data, 200, { 'Cache-Control': 'public, max-age=' + ttl });
+        ctx.waitUntil(caches.default.put(key, res.clone()));
         return res;
       }
       if (url.pathname === '/status') {
@@ -452,4 +480,50 @@ async function breezeQuotes(env, list, fix) {
   /* daily budget: 5,000 calls / 375 market minutes -> about 12 calls a minute */
   const ttl = Math.max(15, Math.ceil(all.length * 60 / 12));
   return { index, stocks, missing, ttl };
+}
+
+/* ---------- candles + daily history (for the chart and the trend notes) ---------- */
+const TFA = { '5m': ['FIVE_MINUTE', 5], '15m': ['FIFTEEN_MINUTE', 20], '1h': ['ONE_HOUR', 60], '1d': ['ONE_DAY', 365] };
+const TFY = { '5m': ['5m', '5d'], '15m': ['15m', '1mo'], '1h': ['60m', '3mo'], '1d': ['1d', '1y'] };
+function istStamp(ms) { return new Date(ms + 330 * 60000).toISOString().slice(0, 16).replace('T', ' '); }
+
+async function angelCandles(env, sym, tf) {
+  const ix = INDEX.find(i => i.s === sym);
+  let tok = ix ? ix.t : null;
+  if (!tok) { const kv = env.NP ? (await env.NP.get('tokens', 'json')) || {} : {}; tok = kv[sym] || TOK[sym]; }
+  if (!tok) throw new Error('no token for ' + sym);
+  const [iv, days] = TFA[tf], now = Date.now();
+  const d = await angelPost(env, '/rest/secure/angelbroking/historical/v1/getCandleData', { exchange: 'NSE', symboltoken: tok, interval: iv, fromdate: istStamp(now - days * 864e5), todate: istStamp(now) });
+  return (d || []).map(r => [Date.parse(r[0]) || 0, num(r[1]), num(r[2]), num(r[3]), num(r[4]), num(r[5])]).filter(r => r[0] && r[4]);
+}
+
+function ySym(s) { const ix = INDEX.find(i => i.s === s); return ix ? encodeURIComponent(ix.y) : s.replace(/&/g, '%26') + '.NS'; }
+
+async function yahooCandles(sym, tf) {
+  const [iv, rg] = TFY[tf];
+  const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + ySym(sym) + '?range=' + rg + '&interval=' + iv, { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } });
+  if (!r.ok) throw new Error('chart HTTP ' + r.status);
+  const j = await r.json(), x = j && j.chart && j.chart.result && j.chart.result[0];
+  if (!x || !x.timestamp) throw new Error('no chart data');
+  const q = (x.indicators && x.indicators.quote && x.indicators.quote[0]) || {};
+  const out = [];
+  x.timestamp.forEach((t, i) => { const c = q.close && q.close[i]; if (c == null) return; out.push([t * 1000, num(q.open[i]), num(q.high[i]), num(q.low[i]), num(c), num(q.volume && q.volume[i])]); });
+  return out;
+}
+
+/* daily closes for the last 6 months for many stocks at once (3 calls for 50 stocks) */
+async function yahooHistory(list) {
+  const all = list.map(s => [s, ySym(s)]).concat(INDEX.map(i => [i.s, encodeURIComponent(i.y)]));
+  const out = {}, chunks = [];
+  for (let i = 0; i < all.length; i += 20) chunks.push(all.slice(i, i + 20));
+  await Promise.all(chunks.map(async c => {
+    const r = await fetch('https://query1.finance.yahoo.com/v7/finance/spark?symbols=' + c.map(x => x[1]).join(',') + '&range=6mo&interval=1d', { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } });
+    if (!r.ok) return;
+    const j = await r.json(), back = {};
+    c.forEach(x => back[decodeURIComponent(x[1])] = x[0]);
+    const put = (ysym, ts, cl) => { const s = back[ysym]; if (!s || !ts || !cl) return; const c2 = [], d2 = []; ts.forEach((t, i) => { if (cl[i] != null) { c2.push(+(+cl[i]).toFixed(2)); d2.push(t); } }); if (c2.length) out[s] = { c: c2, d: new Date((d2[d2.length - 1] + 19800) * 1000).toISOString().slice(0, 10) }; };
+    if (j && j.spark && j.spark.result) j.spark.result.forEach(x => { const rr = x.response && x.response[0]; if (rr) put(x.symbol, rr.timestamp, rr.indicators && rr.indicators.quote && rr.indicators.quote[0] && rr.indicators.quote[0].close); });
+    else Object.keys(j || {}).forEach(k => { const x = j[k]; if (x && x.timestamp) put(x.symbol || k, x.timestamp, x.close); });
+  }));
+  return out;
 }

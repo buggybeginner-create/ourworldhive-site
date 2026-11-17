@@ -14,8 +14,8 @@
      ADMIN_KEY          any long password you choose (protects alert-rule saving)
      BREEZE_API_KEY     (optional) ICICI Breeze app API key
      BREEZE_SECRET      (optional) ICICI Breeze app secret key
-     TG_BOT_TOKEN       (optional) Telegram bot token for background alerts
-     TG_CHAT_ID         (optional) your Telegram chat id
+     TG_BOT_TOKEN       (optional) Telegram bot token for background alerts (people connect with CONNECT TELEGRAM in the app)
+     TG_CHAT_ID         (optional, old way) one fixed Telegram chat id
    KV BINDING NP: needed for ICICI Breeze (daily session), Telegram alerts and Angel token fixes. Not needed for Angel/Yahoo only.
    ICICI Breeze app Redirect URL:  https://<your-worker>.workers.dev/breeze/callback
 
@@ -137,6 +137,50 @@ export default {
         try { await breezeSession(env, ses); return html('✅ ICICI Breeze login done for today. You can close this page and go back to Nifty Pulse.'); }
         catch (e) { return html('✖ ICICI login failed: ' + String(e && e.message || e).replace(/</g, '&lt;')); }
       }
+      /* ---------- Telegram: each person connects their own chat from the app ---------- */
+      if (url.pathname.startsWith('/tg/')) {
+        if (!env.TG_BOT_TOKEN || !env.NP) return json({ ok: false, error: 'Telegram is not set up on the worker yet' });
+        const op = url.pathname.slice(4);
+        if (op === 'info') {
+          let bot = await env.NP.get('botname');
+          if (!bot) { const me = await tgApi(env, 'getMe'); bot = me.result && me.result.username; if (bot) await env.NP.put('botname', bot); }
+          /* make sure Telegram sends /start messages to this worker (set once) */
+          if (!(await env.NP.get('hookset'))) {
+            const r = await tgApi(env, 'setWebhook', { url: url.origin + '/tg/hook', secret_token: await hookSecret(env), allowed_updates: ['message'] });
+            if (r.ok) { await env.NP.put('hookset', '1'); await tgApi(env, 'setMyCommands', { commands: [{ command: 'start', description: 'Connect Nifty Pulse alerts' }, { command: 'stop', description: 'Stop all alerts' }] }); }
+          }
+          return json({ ok: !!bot, bot });
+        }
+        if (op === 'hook' && req.method === 'POST') {
+          if (req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== await hookSecret(env)) return new Response('no', { status: 403 });
+          const up = await req.json().catch(() => ({})), m = up.message || {}, chat = m.chat && m.chat.id, text = String(m.text || '').trim();
+          if (!chat) return new Response('ok');
+          const code = (text.match(/^\/start\s+([a-z0-9]{6,20})$/i) || [])[1];
+          if (code) { await env.NP.put('lk:' + code.toLowerCase(), JSON.stringify({ chat: String(chat), name: (m.chat.first_name || m.chat.title || '').slice(0, 40) }), { expirationTtl: 900 }); await tg(env, '✅ Connected to Nifty Pulse. Go back to the app. Your alerts will come here, even when the app is closed.', chat); }
+          else if (/^\/stop/i.test(text)) { const ids = ((await env.NP.get('users', 'json')) || []).filter(x => x !== String(chat)); await env.NP.put('users', JSON.stringify(ids)); await env.NP.delete('u:' + chat); await tg(env, '🔕 Alerts stopped. Tap CONNECT TELEGRAM in Nifty Pulse to start again.', chat); }
+          else await tg(env, '👋 To get alerts here: open Nifty Pulse → ALERTS → CONNECT TELEGRAM.', chat);
+          return new Response('ok');
+        }
+        if (op === 'link') {
+          const code = String(url.searchParams.get('code') || '').toLowerCase();
+          const v = code ? await env.NP.get('lk:' + code, 'json') : null;
+          if (!v) return json({ ok: false, wait: true });
+          await env.NP.delete('lk:' + code);
+          const token = rid(24), old = (await env.NP.get('u:' + v.chat, 'json')) || {};
+          await env.NP.put('u:' + v.chat, JSON.stringify({ ...old, chat: v.chat, name: v.name, token }));
+          const ids = (await env.NP.get('users', 'json')) || [];
+          if (!ids.includes(v.chat)) { ids.push(v.chat); await env.NP.put('users', JSON.stringify(ids)); }
+          return json({ ok: true, chat: v.chat, name: v.name, token });
+        }
+        if (req.method === 'POST' && ['rules', 'test', 'stop'].includes(op)) {
+          const b = await req.json().catch(() => ({})), u = await env.NP.get('u:' + String(b.chat || ''), 'json');
+          if (!u || !b.token || u.token !== b.token) return json({ ok: false, error: 'Not connected. Tap CONNECT TELEGRAM again.', relink: true });
+          if (op === 'rules') { const c = cleanRules(b); await env.NP.put('u:' + u.chat, JSON.stringify({ ...u, ...c, at: Date.now() })); return json({ ok: true, saved: c.rules.length }); }
+          if (op === 'test') return json({ ok: await tg(env, '✅ NIFTY PULSE: your Telegram alerts are working.', u.chat) });
+          if (op === 'stop') { const ids = ((await env.NP.get('users', 'json')) || []).filter(x => x !== u.chat); await env.NP.put('users', JSON.stringify(ids)); await env.NP.delete('u:' + u.chat); await tg(env, '🔕 Nifty Pulse alerts stopped.', u.chat); return json({ ok: true }); }
+        }
+        return json({ ok: false, error: 'unknown' }, 404);
+      }
       if (url.pathname === '/rules' && req.method === 'POST') {
         if (!env.ADMIN_KEY || req.headers.get('X-Admin-Key') !== env.ADMIN_KEY) return json({ ok: false, error: 'Wrong admin key' }, 401);
         if (!env.NP) return json({ ok: false, error: 'KV binding NP is missing' }, 400);
@@ -159,27 +203,29 @@ export default {
 
   /* Background alerts to Telegram (runs from the cron trigger) */
   async scheduled(evt, env, ctx) {
-    if (!env.NP || !env.TG_BOT_TOKEN || !env.TG_CHAT_ID) return;
+    if (!env.NP || !env.TG_BOT_TOKEN) return;
     const t = istNow();
     if (!t.open) return;
-    const saved = await env.NP.get('rules', 'json');
-    if (!saved) return;
-    let list = saved.list;
-    if (saved.src === 'breeze') { /* Breeze: only the stocks your alerts need, to stay inside the daily call limit */
-      const need = new Set((saved.rules || []).filter(r => r.on && r.s !== 'NIFTY' && r.s !== 'BANKNIFTY').map(r => r.s));
-      ((saved.global || {}).only || []).forEach(s => need.add(s));
-      list = [...need].slice(0, BREEZE_MAX);
-      if (!list.length) return;
-      if (Math.floor(Date.now() / 60000) % Math.max(1, Math.ceil(list.length / 6))) return;
-    }
-    const data = await getQuotes(env, saved.src || 'auto', list, saved.bcodes || {});
+    /* everyone connected with CONNECT TELEGRAM in the app (each with their own alerts) + the owner's old single list */
+    const ids = (await env.NP.get('users', 'json')) || [];
+    const users = [];
+    for (const id of ids.slice(0, 40)) { const u = await env.NP.get('u:' + id, 'json'); if (u && (u.rules || []).length || u && u.global && (u.global.move > 0 || u.global.nifty > 0 || u.global.hi52 || u.global.lo52)) users.push(u); }
+    const legacy = env.TG_CHAT_ID ? await env.NP.get('rules', 'json') : null;
+    if (legacy) users.push({ chat: env.TG_CHAT_ID, legacy: true, ...legacy });
+    if (!users.length) return;
+    /* one price fetch for everybody: Nifty 50 + every extra stock someone has an alert on (Angel One when set up) */
+    const extra = new Set();
+    users.forEach(u => (u.rules || []).forEach(r => { if (r.on && r.s && r.s !== 'NIFTY' && r.s !== 'BANKNIFTY') extra.add(r.s); }));
+    const data = await getQuotes(env, 'auto', null, {}, [...extra].slice(0, 40));
     if (!data.ok) return;
-    const firedKey = 'fired:' + t.day;
-    const fired = (await env.NP.get(firedKey, 'json')) || {};
-    const msgs = evaluate(saved, data, fired);
-    if (!msgs.length) return;
-    await tg(env, '📈 NIFTY PULSE ALERT\n' + msgs.join('\n') + '\n' + t.label);
-    await env.NP.put(firedKey, JSON.stringify(fired), { expirationTtl: 60 * 60 * 30 });
+    for (const u of users) {
+      const fk = (u.legacy ? 'fired:' : 'fired:' + u.chat + ':') + t.day;
+      const fired = (await env.NP.get(fk, 'json')) || {};
+      const msgs = evaluate(u, data, fired);
+      if (!msgs.length) continue;
+      await tg(env, '📈 NIFTY PULSE ALERT\n' + msgs.join('\n') + '\n' + t.label, u.chat);
+      await env.NP.put(fk, JSON.stringify(fired), { expirationTtl: 60 * 60 * 30 });
+    }
   }
 };
 
@@ -210,12 +256,23 @@ function evaluate(saved, data, fired) {
   return out.slice(0, 25);
 }
 
-async function tg(env, text) {
-  if (!env.TG_BOT_TOKEN || !env.TG_CHAT_ID) return false;
+async function tg(env, text, chat) {
+  chat = chat || env.TG_CHAT_ID;
+  if (!env.TG_BOT_TOKEN || !chat) return false;
   const r = await fetch(`https://api.telegram.org/bot${env.TG_BOT_TOKEN}/sendMessage`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: env.TG_CHAT_ID, text })
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chat, text })
   });
   return r.ok;
+}
+async function tgApi(env, method, body) {
+  const r = await fetch(`https://api.telegram.org/bot${env.TG_BOT_TOKEN}/${method}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  return r.json().catch(() => ({}));
+}
+function rid(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return [...a].map(b => (b % 36).toString(36)).join(''); }
+async function hookSecret(env) { return (await sha256hex('np-hook:' + (env.ADMIN_KEY || env.TG_BOT_TOKEN))).slice(0, 40); }
+function cleanRules(b) {
+  return { rules: (Array.isArray(b.rules) ? b.rules : []).slice(0, 100).map(r => ({ id: String(r.id || '').slice(0, 20), s: String(r.s || '').toUpperCase().slice(0, 20), type: ['above', 'below', 'pctUp', 'pctDown'].includes(r.type) ? r.type : 'above', v: +r.v || 0, on: !!r.on })),
+    global: { move: +((b.global || {}).move) || 0, nifty: +((b.global || {}).nifty) || 0, hi52: !!(b.global || {}).hi52, lo52: !!(b.global || {}).lo52, only: Array.isArray((b.global || {}).only) ? b.global.only.slice(0, 100) : null } };
 }
 
 /* ---------- main quote function ---------- */

@@ -272,11 +272,13 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
    <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings once a day. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
   </div>
-  <div class="card owncard">
+  <div class="card">
    <h3>TELEGRAM ALERTS (APP CLOSED)</h3>
-   <p class="h">Your worker checks the market every minute and sends alerts to your Telegram even when this app is closed. Ask the app owner to switch it on.</p>
-   <div class="fr"><input class="inp" id="adminKey" type="password" placeholder="Admin key (from your worker)" autocomplete="off"></div>
-   <div class="fr" style="margin-top:8px"><button class="btn g" id="tgSave">SEND MY ALERTS TO TELEGRAM</button><button class="btn" id="tgTest" style="flex:0 0 auto">TEST</button></div>
+   <p class="h">Get your alerts on Telegram, checked every minute in market hours, even when this app is closed and your phone is asleep. Your alert list above is sent there by itself.</p>
+   <div id="tgOff"><button class="btn g" id="tgConn" style="width:100%">📨 CONNECT TELEGRAM</button><p class="h" style="margin:8px 0 0">Telegram opens → tap <b>START</b> → come back here.</p></div>
+   <div id="tgOn" hidden><div style="font-size:14px;font-weight:700">✔ Connected<span id="tgName"></span></div>
+    <div class="fr" style="margin-top:8px"><button class="btn" id="tgTest">SEND TEST</button><button class="btn" id="tgSync">SEND MY ALERTS NOW</button><button class="btn d" id="tgStop" style="flex:0 0 auto">DISCONNECT</button></div></div>
+   <input type="hidden" id="adminKey">
    <div id="tgMsg" style="font-size:13px;margin-top:8px"></div>
   </div>
   <div class="card"><div class="fr" style="justify-content:space-between"><h3 style="margin:0;flex:1">TODAY'S ALERT LOG</h3><button class="btn" id="logClr" style="flex:0 0 auto">CLEAR</button></div><div class="log" id="log" style="margin-top:8px"></div></div>
@@ -359,7 +361,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-17.7'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-17.8'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -644,14 +646,25 @@ $('ownSave').onclick=function(){var k=$('ownKey').value.trim();LS.set('ak',k);$(
   if(!f){m.innerHTML='<span class="err">Add the worker link first.</span>';return}
   fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One, ICICI Breeze and BUY / SELL signals are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';
   var was=isOwner();LS.set('own',!!s.owner);if(s.owner&&!was){S.tSig=true;saveS();$('tSig').checked=true}paintTrendUI();Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
-function tgCall(path,body){var f=feedUrl(),k=$('adminKey').value.trim(),m=$('tgMsg');
-  if(!f){m.innerHTML='<span class="err">Add your worker link in Settings first.</span>';return}
-  if(!k){m.innerHTML='<span class="err">Type your Admin key.</span>';return}
-  LS.set('ak',k);m.textContent='Sending…';
-  fetch(f+path,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':k},body:JSON.stringify(body||{})}).then(function(r){return r.json()}).then(function(j){
-    m.innerHTML=j.ok?'<span class="ok">✔ '+(path==='/rules'?'Saved '+j.saved+' alerts to your worker. Telegram will ring even when the app is closed.':'Test message sent. Check Telegram.')+'</span>':'<span class="err">✖ '+esc(j.error||'Failed')+'</span>'}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})}
-$('tgSave').onclick=function(){tgCall('/rules',{rules:rules,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()},list:customList(),src:S.src,bcodes:codesObj()})};
-$('tgTest').onclick=function(){tgCall('/test-telegram')};
+/* ---------- TELEGRAM: each person connects their own Telegram ---------- */
+var TG=LS.get('tg',null);
+function tgPaint(){$('tgOff').hidden=!!TG;$('tgOn').hidden=!TG;$('tgName').textContent=TG&&TG.name?' · '+TG.name:''}
+function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
+function tgPost(op,quiet){var f=feedUrl(),m=$('tgMsg');if(!f||!TG)return;if(!quiet)m.textContent='Sending…';
+  fetch(f+'/tg/'+op,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op==='rules'?tgPayload():{chat:TG.chat,token:TG.token})}).then(function(r){return r.json()}).then(function(j){
+    if(j.relink){TG=null;LS.set('tg',null);tgPaint();m.innerHTML='<span class="err">Telegram got disconnected. Tap CONNECT TELEGRAM again.</span>';return}
+    if(op==='stop'){TG=null;LS.set('tg',null);tgPaint();m.innerHTML='<span class="ok">Disconnected.</span>';return}
+    if(!quiet)m.innerHTML=j.ok?'<span class="ok">✔ '+(op==='rules'?'Sent '+j.saved+' alerts. Telegram will ring even when the app is closed.':'Test sent. Check Telegram.')+'</span>':'<span class="err">✖ '+esc(j.error||'Failed')+'</span>'}).catch(function(){if(!quiet)m.innerHTML='<span class="err">✖ No internet.</span>'})}
+var tgT=null;function tgAuto(){if(!TG)return;clearTimeout(tgT);tgT=setTimeout(function(){tgPost('rules',true)},2500)}
+$('tgConn').onclick=function(){var f=feedUrl(),m=$('tgMsg');if(!f){m.innerHTML='<span class="err">Telegram is not available right now.</span>';return}m.textContent='Opening Telegram…';
+  fetch(f+'/tg/info',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){if(!j.ok||!j.bot){m.innerHTML='<span class="err">Telegram alerts are not switched on yet.</span>';return}
+    var code=Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,8);window.open('https://t.me/'+j.bot+'?start='+code,'_blank');
+    m.innerHTML='Waiting… In Telegram tap <b>START</b>, then come back here.';var n=0,iv=setInterval(function(){n++;if(n>60){clearInterval(iv);m.innerHTML='<span class="err">Not connected. Tap CONNECT TELEGRAM and then START in Telegram.</span>';return}
+      fetch(f+'/tg/link?code='+code,{cache:'no-store'}).then(function(r){return r.json()}).then(function(k){if(!k.ok)return;clearInterval(iv);TG={chat:k.chat,token:k.token,name:k.name||''};LS.set('tg',TG);tgPaint();tgPost('rules')}).catch(function(){})},3000)}).catch(function(){m.innerHTML='<span class="err">✖ No internet.</span>'})};
+$('tgTest').onclick=function(){tgPost('test')};$('tgSync').onclick=function(){tgPost('rules')};
+$('tgStop').onclick=function(){if(confirm('Stop Telegram alerts on this device?'))tgPost('stop')};
+tgPaint();
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&TG&&$('tgMsg').textContent.indexOf('Waiting')===0){}});
 
 /* ---------- data source switch ---------- */
 function ruleStocks(){var o=[];rules.forEach(function(r){if(r.on&&r.s!=='NIFTY'&&r.s!=='BANKNIFTY'&&o.indexOf(r.s)<0)o.push(r.s)});if(S.gScope==='pick')(S.gPick||[]).forEach(function(x){if(o.indexOf(x)<0)o.push(x)});return o}
@@ -822,7 +835,7 @@ setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEvent
 /* ---------- Android app: home-screen widget + background alerts ---------- */
 function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
   global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())}}))}catch(e){}}
-var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400)};
+var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400);tgAuto()};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
   [].forEach.call(document.querySelectorAll('[data-pin]'),function(b){b.onclick=function(){var z=b.getAttribute('data-pin');try{if(NATIVE.pinSize)NATIVE.pinSize(z);else{NATIVE.pinWidget();if(z!=='m')toast('Update the Android app to get '+(z==='s'?'Small':'Large')+' widgets')}}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}}});
   $('natSet').onclick=function(){try{NATIVE.openAlertSettings()}catch(e){}};

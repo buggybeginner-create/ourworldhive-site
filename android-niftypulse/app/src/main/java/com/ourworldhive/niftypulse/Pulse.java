@@ -172,14 +172,22 @@ final class Pulse {
     /* ---------- home-screen widget ---------- */
     static final int[][] ROW = {
         {R.id.r1, R.id.s1, R.id.v1, R.id.p1}, {R.id.r2, R.id.s2, R.id.v2, R.id.p2}, {R.id.r3, R.id.s3, R.id.v3, R.id.p3},
-        {R.id.r4, R.id.s4, R.id.v4, R.id.p4}, {R.id.r5, R.id.s5, R.id.v5, R.id.p5}};
+        {R.id.r4, R.id.s4, R.id.v4, R.id.p4}, {R.id.r5, R.id.s5, R.id.v5, R.id.p5}, {R.id.r6, R.id.s6, R.id.v6, R.id.p6},
+        {R.id.r7, R.id.s7, R.id.v7, R.id.p7}, {R.id.r8, R.id.s8, R.id.v8, R.id.p8}, {R.id.r9, R.id.s9, R.id.v9, R.id.p9},
+        {R.id.r10, R.id.s10, R.id.v10, R.id.p10}};
     static int col(double p) { return p > 0.004 ? 0xFF16C784 : p < -0.004 ? 0xFFFF4D5E : 0xFFB8C4E0; }
 
+    /** Every widget size: small (indices only), medium (5 stocks), large (10 stocks). */
     static void render(Context c) {
         AppWidgetManager am = AppWidgetManager.getInstance(c);
-        int[] ids = am.getAppWidgetIds(new ComponentName(c, PulseWidget.class));
+        render(c, am, am.getAppWidgetIds(new ComponentName(c, PulseSmall.class)), R.layout.widget_small, 0);
+        render(c, am, am.getAppWidgetIds(new ComponentName(c, PulseWidget.class)), R.layout.widget_pulse, 5);
+        render(c, am, am.getAppWidgetIds(new ComponentName(c, PulseLarge.class)), R.layout.widget_large, 10);
+    }
+
+    static void render(Context c, AppWidgetManager am, int[] ids, int layout, int nRows) {
         if (ids == null || ids.length == 0) return;
-        RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget_pulse);
+        RemoteViews v = new RemoteViews(c.getPackageName(), layout);
         try {
             JSONObject d = new JSONObject(sp(c).getString("last", "{}"));
             JSONArray ix = d.optJSONArray("index"), st = d.optJSONArray("stocks");
@@ -198,17 +206,18 @@ final class Pulse {
                 by.put(q.optString("s"), q);
                 double p = q.optDouble("pct", 0); if (p > 0) up++; else if (p < 0) dn++;
             }
-            v.setTextViewText(R.id.breadth, st == null ? "" : "▲ " + up + " UP    ▼ " + dn + " DOWN" + ("breeze".equals(d.optString("src")) ? "   · ICICI" : "angel".equals(d.optString("src")) ? "   · ANGEL" : "yahoo".equals(d.optString("src")) ? "   · YAHOO" : ""));
+            if (nRows > 0) v.setTextViewText(R.id.breadth, st == null ? "" : "▲ " + up + " UP    ▼ " + dn + " DOWN" + ("breeze".equals(d.optString("src")) ? "   · ICICI" : "angel".equals(d.optString("src")) ? "   · ANGEL" : "yahoo".equals(d.optString("src")) ? "   · YAHOO" : ""));
             /* rows: your watchlist first, else the biggest movers */
+            if (nRows == 0) throw new RuntimeException("small");   /* small widget: indices only, skip rows and time */
             java.util.ArrayList<JSONObject> rows = new java.util.ArrayList<>();
             JSONArray w = cfg(c).optJSONArray("watch");
-            if (w != null) for (int i = 0; i < w.length() && rows.size() < 5; i++) { JSONObject q = by.get(w.optString(i)); if (q != null) rows.add(q); }
+            if (w != null) for (int i = 0; i < w.length() && rows.size() < nRows; i++) { JSONObject q = by.get(w.optString(i)); if (q != null) rows.add(q); }
             if (rows.isEmpty() && st != null) {
                 java.util.ArrayList<JSONObject> L = new java.util.ArrayList<>(by.values());
                 java.util.Collections.sort(L, (a, b) -> Double.compare(Math.abs(b.optDouble("pct", 0)), Math.abs(a.optDouble("pct", 0))));
-                for (int i = 0; i < L.size() && rows.size() < 5; i++) rows.add(L.get(i));
+                for (int i = 0; i < L.size() && rows.size() < nRows; i++) rows.add(L.get(i));
             }
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < nRows; i++) {
                 if (i < rows.size()) {
                     JSONObject q = rows.get(i); double p = q.optDouble("pct", 0);
                     v.setViewVisibility(ROW[i][0], android.view.View.VISIBLE);
@@ -229,17 +238,18 @@ final class Pulse {
         Intent open = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         v.setOnClickPendingIntent(R.id.root, PendingIntent.getActivity(c, 21, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         Intent rf = new Intent(c, Tick.class).setAction(Tick.REFRESH);
-        v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 22, rf, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+        if (nRows > 0) v.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 22, rf, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         am.updateAppWidget(ids, v);
     }
 
     static boolean needed(Context c) {
         AppWidgetManager am = AppWidgetManager.getInstance(c);
-        int[] ids = am.getAppWidgetIds(new ComponentName(c, PulseWidget.class));
+        int n = 0;
+        for (Class<?> w : new Class<?>[]{PulseSmall.class, PulseWidget.class, PulseLarge.class}) { int[] a = am.getAppWidgetIds(new ComponentName(c, w)); if (a != null) n += a.length; }
         JSONObject k = cfg(c), g = k.optJSONObject("global");
         JSONArray r = k.optJSONArray("rules");
         boolean alerts = (r != null && r.length() > 0) || (g != null && (g.optDouble("move", 0) > 0 || g.optDouble("nifty", 0) > 0 || g.optBoolean("hi52") || g.optBoolean("lo52")));
-        return (ids != null && ids.length > 0) || alerts;
+        return n > 0 || alerts;
     }
 
     /** Next check: every 5 minutes in market hours, else once an hour. Android may delay it a little to save battery. */

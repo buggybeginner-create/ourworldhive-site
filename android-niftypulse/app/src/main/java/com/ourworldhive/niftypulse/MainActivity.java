@@ -86,6 +86,16 @@ public class MainActivity extends Activity {
                 else Toast.makeText(MainActivity.this, "Long-press your home screen → Widgets → Nifty Pulse", Toast.LENGTH_LONG).show();
             } });
         }
+        /** size: "s", "m" or "l" (small, medium, large widget) */
+        @JavascriptInterface public void pinSize(final String size) {
+            runOnUiThread(new Runnable() { public void run() {
+                AppWidgetManager m = AppWidgetManager.getInstance(MainActivity.this);
+                Class<?> k = "s".equals(size) ? PulseSmall.class : "l".equals(size) ? PulseLarge.class : PulseWidget.class;
+                if (Build.VERSION.SDK_INT >= 26 && m.isRequestPinAppWidgetSupported())
+                    m.requestPinAppWidget(new ComponentName(MainActivity.this, k), null, null);
+                else Toast.makeText(MainActivity.this, "Long-press your home screen → Widgets → Nifty Pulse", Toast.LENGTH_LONG).show();
+            } });
+        }
         @JavascriptInterface public void openAlertSettings() {
             runOnUiThread(new Runnable() { public void run() {
                 try {

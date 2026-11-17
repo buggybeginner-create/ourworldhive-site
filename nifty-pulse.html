@@ -269,7 +269,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
   </div>
   <div class="card">
    <h3>TELEGRAM ALERTS (APP CLOSED)</h3>
-   <p class="h">Your worker checks the market every minute and sends alerts to your Telegram even when this app is closed. Set it up once (Settings → Setup guide, step 5).</p>
+   <p class="h">Your worker checks the market every minute and sends alerts to your Telegram even when this app is closed. Ask the app owner to switch it on.</p>
    <div class="fr"><input class="inp" id="adminKey" type="password" placeholder="Admin key (from your worker)" autocomplete="off"></div>
    <div class="fr" style="margin-top:8px"><button class="btn g" id="tgSave">SEND MY ALERTS TO TELEGRAM</button><button class="btn" id="tgTest" style="flex:0 0 auto">TEST</button></div>
    <div id="tgMsg" style="font-size:13px;margin-top:8px"></div>
@@ -317,7 +317,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
    <h3>TREND &amp; SIGNALS</h3>
    <p class="h">Trend notes, BUY / SELL signals and candle charts are worked out from price history (20 &amp; 50-day averages, RSI, MACD, candle patterns). They are not advice. Switch off what you don't want.</p>
    <label class="sw">Trend notes (Bullish / Bearish)<input type="checkbox" id="tOn"></label>
-   <label class="sw">BUY / SELL signals<input type="checkbox" id="tSig"></label>
+   <label class="sw" id="tSigRow" hidden>BUY / SELL signals (owner only)<input type="checkbox" id="tSig"></label>
    <label class="sw">Candle chart<input type="checkbox" id="tChart"></label>
    <label class="sw">Candle chart opens in<select class="inp" id="tTf" style="width:auto"><option value="5m">5 min</option><option value="15m">15 min</option><option value="1h">1 hour</option><option value="1d">1 day</option></select></label>
   </div>
@@ -331,49 +331,6 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
    <p class="h">Empty = official Nifty 50 list (updates by itself). Or type your own symbols, separated by commas (NSE symbols, max 100).</p>
    <textarea class="inp" id="custom" rows="3" style="width:100%;resize:vertical;text-transform:uppercase" placeholder="e.g. RELIANCE, TCS, SBIN, TATAPOWER"></textarea>
    <div class="fr" style="margin-top:8px"><button class="btn g" id="custSave">SAVE LIST</button><button class="btn" id="custReset">RESET TO NIFTY 50</button></div>
-  </div>
-  <div class="card">
-   <h3>SETUP GUIDE (STEP BY STEP)</h3>
-   <details><summary>WHICH DATA SOURCE IS BEST?</summary>
-    <p><b>Angel One SmartAPI (recommended):</b> free, real-time, gives all 50 stocks in one call, and logs in by itself every day with TOTP. Needs a free Angel One demat account.</p>
-    <p><b>ICICI Breeze:</b> free for ICICI Direct customers. One stock per call (100 calls a minute, 5,000 a day), so Nifty Pulse shows only your chosen stocks (max 20) and refreshes every 15–90 sec. You log in once every morning with ICICI DAILY LOGIN.</p>
-    <p><b>Yahoo (built in):</b> no account, unofficial, can be a little delayed. Used automatically when Angel One is not set up.</p>
-   </details>
-   <details><summary>STEP 1 · ANGEL ONE API KEY</summary><ol>
-    <li>Open a free Angel One account (if you don't have one).</li>
-    <li>Go to <code>smartapi.angelone.in</code> → Sign up / Login → <b>Create an App</b>. Type: <b>Market Feeds API</b>. Redirect URL: <code>https://ourworldhive.com</code>.</li>
-    <li>Copy the <b>API Key</b>.</li>
-    <li>Open <code>smartapi.angelone.in/enable-totp</code>, enter client ID + MPIN + OTP. Copy the <b>secret text</b> shown under the QR code (scan the QR in Google Authenticator too).</li>
-   </ol></details>
-   <details><summary>STEP 2 · CREATE THE CLOUDFLARE WORKER</summary><ol>
-    <li>dash.cloudflare.com → <b>Workers &amp; Pages</b> → <b>Create</b> → <b>Create Worker</b>. Name: <code>nifty-pulse</code> → Deploy.</li>
-    <li><b>Edit code</b> → delete everything → paste the file <code>nifty-pulse-worker.js</code> → <b>Deploy</b>.</li>
-    <li>Your link looks like <code>https://nifty-pulse.YOURNAME.workers.dev</code>. Open <code>/quotes</code> on it: you should already see Yahoo data.</li>
-   </ol></details>
-   <details><summary>STEP 3 · ADD YOUR SECRETS</summary><ol>
-    <li>Worker → <b>Settings</b> → <b>Variables and Secrets</b> → Add, type <b>Secret</b>:</li>
-    <li><code>ANGEL_API_KEY</code>, <code>ANGEL_CLIENT</code> (client code), <code>ANGEL_PIN</code> (MPIN), <code>ANGEL_TOTP_SECRET</code> (secret text from step 1), <code>ADMIN_KEY</code> (any long password you make up).</li>
-    <li>Deploy. Open <code>/status</code>: it should say <code>"angel": true</code>. Open <code>/quotes</code>: <code>"src": "angel"</code>.</li>
-   </ol></details>
-   <details><summary>STEP 3B · ICICI BREEZE (OPTIONAL)</summary><ol>
-    <li>Log in at <code>api.icicidirect.com/apiuser/home</code> → <b>Register an App</b>. Redirect URL: <code>https://nifty-pulse.YOURNAME.workers.dev/breeze/callback</code>.</li>
-    <li>Copy the <b>API Key</b> and <b>Secret Key</b>. Worker → Settings → add secrets <code>BREEZE_API_KEY</code> and <code>BREEZE_SECRET</code>.</li>
-    <li>Create the KV namespace and binding <code>NP</code> (see step 5, point 4). Breeze needs it to keep the day's login.</li>
-    <li>In this app: Data source → <b>ICICI BREEZE</b> → <b>CHOOSE BREEZE STOCKS</b> → <b>ICICI DAILY LOGIN</b> every morning before 9:15.</li>
-   </ol></details>
-   <details><summary>STEP 4 · CONNECT THIS APP</summary><ol>
-    <li>Paste the worker link in <b>Worker link</b> above → <b>SAVE &amp; TEST</b>.</li>
-    <li><b>Owner key</b>: type your ADMIN_KEY → <b>SAVE</b>. Only then Angel One and ICICI Breeze open (visitors always get Yahoo).</li>
-    <li>The pill at the top turns <b>LIVE</b> in market hours.</li>
-   </ol></details>
-   <details><summary>STEP 5 · TELEGRAM ALERTS (OPTIONAL)</summary><ol>
-    <li>In Telegram open <b>@BotFather</b> → <code>/newbot</code> → copy the bot token.</li>
-    <li>Send any message to your new bot, then open <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> and copy <code>"chat":{"id": …}</code>.</li>
-    <li>Worker → Settings → add secrets <code>TG_BOT_TOKEN</code> and <code>TG_CHAT_ID</code>.</li>
-    <li>Workers &amp; Pages → <b>KV</b> → Create namespace <code>nifty-pulse</code>. Worker → Settings → <b>Bindings</b> → KV namespace, variable name <code>NP</code>.</li>
-    <li>Worker → Settings → <b>Trigger events</b> → Cron: <code>* 3-10 * * 1-5</code>.</li>
-    <li>Alerts tab → type your Admin key → <b>SEND MY ALERTS TO TELEGRAM</b> → <b>TEST</b>.</li>
-   </ol></details>
   </div>
   <div class="card">
    <h3>APP</h3>
@@ -394,7 +351,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-17.1'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-17.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -407,7 +364,7 @@ function cls(n){return n>0?'up':n<0?'dn':''}
 
 /* ---------- settings ---------- */
 var S=Object.assign({feed:DEFAULT_FEED,src:'auto',every:3,slow:true,bigPct:2,nearPct:3,theme:'auto',defView:'heat',custom:'',
-  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tOn:true,tSig:true,tChart:true,tTf:'15m',gSig:false},LS.get('set',{}));
+  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false},LS.get('set',{}));
 if(!S.feed&&DEFAULT_FEED)S.feed=DEFAULT_FEED;
 function saveS(){LS.set('set',S)}
 var watch=LS.get('watch',['RELIANCE','HDFCBANK','TCS','INFY','SBIN']);
@@ -676,7 +633,8 @@ $('custReset').onclick=function(){S.custom='';$('custom').value='';saveS();Q={};
 $('adminKey').value=LS.get('ak','');$('ownKey').value=LS.get('ak','');
 $('ownSave').onclick=function(){var k=$('ownKey').value.trim();LS.set('ak',k);$('adminKey').value=k;syncNative();var f=feedUrl(),m=$('ownMsg');
   if(!f){m.innerHTML='<span class="err">Add the worker link first.</span>';return}
-  fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One and ICICI Breeze are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
+  fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One, ICICI Breeze and BUY / SELL signals are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';
+  var was=isOwner();LS.set('own',!!s.owner);if(s.owner&&!was){S.tSig=true;saveS();$('tSig').checked=true}paintTrendUI();Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
 function tgCall(path,body){var f=feedUrl(),k=$('adminKey').value.trim(),m=$('tgMsg');
   if(!f){m.innerHTML='<span class="err">Add your worker link in Settings first.</span>';return}
   if(!k){m.innerHTML='<span class="err">Type your Admin key.</span>';return}
@@ -782,7 +740,8 @@ function trendCard(s,t){if(!t)return '<div class="tc"><div class="lg" style="col
   '<ul>'+t.why.map(function(w){return '<li class="'+w[0]+'">'+esc(w[1])+'</li>'}).join('')+'</ul>'+
   '<div class="kv" style="margin:10px 0 0"><div><span>SUPPORT</span><b>'+fmt(t.sup)+'</b></div><div><span>RESISTANCE</span><b>'+fmt(t.res)+'</b></div><div><span>RSI (14)</span><b>'+(t.rsi==null?'—':t.rsi.toFixed(0))+'</b></div><div><span>TREND SCORE</span><b>'+(t.score>0?'+':'')+t.score+' / 7</b></div></div>'+
   '<div class="dis">Worked out from daily prices'+(src==='demo'?' (DEMO data)':'')+'. Information only, not advice to buy or sell. Check with your broker or adviser before you trade.</div></div>'}
-function paintTrendUI(){[].forEach.call(document.querySelectorAll('.tchip'),function(b){b.hidden=!S.tOn&&!S.tSig});[].forEach.call(document.querySelectorAll('.schip'),function(b){b.hidden=!S.tSig});$('gSigRow').style.display=S.tSig?'':'none'}
+function isOwner(){return LS.get('own',false)===true}
+function paintTrendUI(){if(!isOwner()&&S.tSig){S.tSig=false;saveS();$('tSig').checked=false}$('tSigRow').hidden=!isOwner();[].forEach.call(document.querySelectorAll('.tchip'),function(b){b.hidden=!S.tOn&&!S.tSig});[].forEach.call(document.querySelectorAll('.schip'),function(b){b.hidden=!S.tSig});$('gSigRow').style.display=S.tSig?'':'none'}
 paintTrendUI();
 /* daily candles (OHLC) for one stock: better levels + candle pattern */
 function loadDaily(s){getCandles(s,'1d',function(cd){if(!cd||cd.length<35)return;DAILY[s]={o:cd.map(function(r){return r[1]}),h:cd.map(function(r){return r[2]}),l:cd.map(function(r){return r[3]}),c:cd.map(function(r){return r[4]})};

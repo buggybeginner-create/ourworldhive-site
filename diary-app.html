@@ -584,6 +584,8 @@ html.inapp #toolbar{padding-top:8px}
 .shd h2{margin:0!important;font:700 21px/1.2 var(--sans)!important;color:var(--ink)}
 .shd p{margin:3px 0 0;font-size:13.5px;color:var(--muted);line-height:1.4}
 .scard{background:var(--btn);border-radius:20px;padding:14px;box-shadow:inset 0 0 0 1px rgba(30,35,80,.07);margin-bottom:12px}
+.rmhelp{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font:800 14px var(--sans);display:inline-grid;place-items:center;cursor:pointer;letter-spacing:0;padding:0}.rmhelp.on{background:var(--ink);color:var(--btn);border-color:var(--ink)}
+.rmh{background:var(--paper);border-radius:14px;padding:10px 12px;margin:0 0 10px;font-size:13.5px;line-height:1.5;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(30,35,80,.1)}.rmh p{margin:0 0 6px}.rmh ol{margin:0 0 8px;padding-left:20px}.rmh li{margin-bottom:8px}.rmh .sbtn{margin-top:6px;display:block;width:100%}.rmh .rmn{font-size:12.5px;opacity:.8}.rmx{background:#fde2e2;color:#b91c1c;border-radius:6px;padding:0 6px;font-size:11px;font-weight:800}.rmok{background:#dcfce7;color:#15803d;border-radius:6px;padding:0 6px;font-size:11px;font-weight:800}
 .scard>b{display:block;font:800 11px var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .scard .msg{margin:0 0 10px;font-size:14px;line-height:1.5;color:var(--ink)}
 .scard .hint{margin:8px 0 0}
@@ -946,7 +948,7 @@ const HL_SIZES = [12, 20, 32];
 const SIZES = [2.4, 3.8, 6.5];      // pen widths in page units (page is 1000 units wide)
 const ERAS = [14, 24, 42];          // eraser radii in page units
 /* Version of this page. Change it on EVERY update of diary-app.html: open apps compare it with the website and show "Update available". */
-const APP_VER = '2026-11-16.11';
+const APP_VER = '2026-11-18.1';
 const S = Object.assign({ statuses: ['In progress', 'Waiting for parts', 'Waiting for approval', 'On hold'], labels: [{ t: 'Urgent', c: '#e5484d' }, { t: 'Work', c: '#3e63dd' }, { t: 'Home', c: '#30a46c' }, { t: 'Waiting', c: '#f5a524' }, { t: 'Idea', c: '#8e4ec6' }], notify: false, theme: null, fingerDraw: true, fingerSet: false, color: 'auto', size: 1, penMode: 'text', hlColor: 'hy', shapes: true, padAuto: true, padAs: 'text', penv: 0, carryHidden: false, lang: 'en', onlineOK: false, autoSave: true, autoBackup: true, lastBackup: 0, hadData: false }, (() => {
   try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (e) { return {}; }
 })());
@@ -1992,7 +1994,7 @@ function openRemind(pid, bid) {
     <div class="scard"><b>When</b>
       <input id="rmAt" class="qin" type="datetime-local" style="width:100%">
       <div class="whochips" style="margin-top:8px">${q.map(([l, t]) => `<button class="chip nm" type="button" data-rq="${t}">${l}</button>`).join('')}</div></div>
-    <div class="scard"><b>Alert type</b><div class="rtyp">
+    <div class="scard"><b style="display:flex;align-items:center;justify-content:space-between">Alert type<button type="button" class="rmhelp" data-rh="1" aria-label="Help: alarm settings" title="Alarm not ringing or not full screen? Tap for steps">?</button></b><div id="rmHelp" hidden></div><div class="rtyp">
       <button type="button" data-rt="n"><i>🔔</i><b>Notification</b><small>${app ? 'Shows with your other notifications' : 'A message with a sound'}</small></button>
       <button type="button" data-rt="a"><i>⏰</i><b>Alarm</b><small>${app ? 'Full screen · rings until you slide to stop' : 'Rings until you stop it'}</small></button></div>
       <p class="hint" id="rmHint">${app ? 'Rings on this phone even when My Diary is closed.' : 'On the website it alerts while My Diary is open. For alerts when it is closed, use the My Diary Android app or 📅 Add to Calendar.'}</p>
@@ -2012,6 +2014,7 @@ function openRemind(pid, bid) {
     let x;
     if ((x = e.target.closest('[data-rq]'))) { inp.value = toLocalInput(+x.dataset.rq); return; }
     if ((x = e.target.closest('[data-rt]'))) { typ = x.dataset.rt; sync(); return; }
+    if ((x = e.target.closest('[data-rh]'))) { const h = $('#rmHelp', P); if (h.hidden) h.innerHTML = remHelpHTML(app); h.hidden = !h.hidden; x.classList.toggle('on', !h.hidden); return; }
     if ((x = e.target.closest('[data-rp]'))) { if (x.dataset.rp === 'notif') OwhNative.askNotify(); else if (x.dataset.rp === 'batt') OwhNative.openBattery(); else if (x.dataset.rp === 'full') OwhNative.openFullScreen(); else OwhNative.openExactSettings(); return; }
     if (!(x = e.target.closest('[data-rs]'))) return;
     const k = x.dataset.rs;
@@ -2026,6 +2029,25 @@ function openRemind(pid, bid) {
     syncNativeRem(true);
     toast((typ === 'a' ? '⏰ Alarm set for ' : '🔔 Reminder set for ') + remTxt(t));
   });
+}
+/* help steps for alarm settings, shown inside the Reminder sheet */
+function remHelpHTML(app) {
+  if (!app) return `<div class="rmh"><p><b>On the website</b> the alarm rings only while My Diary is open in the browser.</p><ol><li>Keep this tab open and allow notifications when asked.</li><li>For alarms when the browser is closed, install the <b>My Diary Android app</b>, or use <b>📅 Calendar</b> below.</li></ol></div>`;
+  let st = {}; try { st = JSON.parse(OwhNative.alertStatus()); } catch (_) {}
+  const ok = v => v === false ? '<span class="rmx">OFF</span>' : v === true ? '<span class="rmok">ON</span>' : '';
+  const go = (k, l) => `<button class="sbtn" type="button" data-rp="${k}">${l}</button>`;
+  return `<div class="rmh">
+    <p><b>Alarm not ringing, or not full screen?</b> Check these once on this phone:</p>
+    <ol>
+      <li><b>Notifications</b> ${ok(st.notif)}<br>Settings › Apps › My Diary › Notifications › ON. Also turn ON <b>Lock screen</b> and <b>Banner / Pop-up</b>.${st.notif === false ? go('notif', '🔔 Open notification settings') : ''}</li>
+      <li><b>Alarms &amp; reminders</b> ${ok(st.exact)}<br>Settings › Apps › My Diary › Alarms &amp; reminders › Allow. Without it the alarm can come late.${st.exact === false ? go('exact', '⏱️ Open Alarms &amp; reminders') : ''}</li>
+      <li><b>Full screen notifications</b> ${ok(st.full)}<br>Settings › Apps › My Diary › Full screen notifications › Allow. This shows the big alarm screen with <b>Stop</b>, <b>Snooze</b> and <b>📞 Call</b>.${OwhNative.openFullScreen ? go('full', '📱 Open full screen setting') : ''}</li>
+      <li><b>Battery &amp; Autostart</b> ${st.batt === false ? ok(false) : ''}<br>Settings › Apps › My Diary › Battery › <b>No restrictions</b> (Unrestricted). On Xiaomi, Redmi, Realme, Oppo, Vivo also turn ON <b>Autostart</b>, and don't swipe My Diary away from Recent apps.${OwhNative.openBattery ? go('batt', '🔋 Open app settings') : ''}</li>
+      <li><b>Realme / Oppo / Xiaomi only:</b> in the same app settings turn ON <b>Display over other apps</b> (Pop-up windows / Show on lock screen).</li>
+    </ol>
+    <p class="rmn">📞 The <b>Call</b> button is on the full-screen alarm and in the notification, only when the task has a person with a phone number (tap 👤 on the task to add one).</p>
+    <p class="rmn">When you are using the phone, Android shows the alarm as a banner at the top. Tap it to open the full screen. When the phone is locked it opens full screen by itself.</p>
+    <p class="rmn"><b>Test:</b> set an Alarm for 2 minutes from now, lock the phone and wait.</p></div>`;
 }
 /* alarm sound in the browser (while My Diary is open) */
 let alarmCtx = null, alarmT = 0;

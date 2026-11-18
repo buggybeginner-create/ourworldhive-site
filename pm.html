@@ -553,7 +553,7 @@ function taskRow(t,withBtn,no){const s=status(t),k=t.kind==='Calibration'?'c':t.
 /* ---- Today ---- */
 function todayParts(){const L=alertsFor();return{all:L,tod:L.filter(t=>status(t).k==='today'),over:L.filter(t=>status(t).k==='over')}}
 function vToday(){const o=todayOcc('all'),t=tally(o),mo=tally(getOcc('month','all')),q=todayParts(),f=ui.tf||'',tgt=q.tod.length+t.done;
- $('view').innerHTML=`<div class="tiles"><div class="tile blu ${f==='today'?'sel':''}" data-a="tflt" data-v="today" role="button" tabindex="0"><div><b>${tgt}</b><small>Target today (due today)</small></div><button class="tshare" data-a="tshare" data-k="target" aria-label="Share target today on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile grn"><div><b>${t.done}</b><small>Done today</small></div><button class="tshare" data-a="tshare" data-k="done" aria-label="Share done today on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile ${q.over.length?'red':'grn'} ${f==='over'?'sel':''}" data-a="tflt" data-v="over" role="button" tabindex="0"><div><b>${q.over.length}</b><small>Pending (overdue)</small></div><button class="tshare" data-a="tshare" data-k="pending" aria-label="Share pending on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile ${mo.pct<80?'amb':'grn'}"><div><b>${mo.pct}%</b><small>Compliance this month</small></div><button class="tshare" data-a="tshare" data-k="comp" aria-label="Share compliance on WhatsApp" title="Share on WhatsApp">\u27A6</button></div></div>
+ $('view').innerHTML=`<div class="tiles"><div class="tile blu ${f==='today'?'sel':''}" data-a="tflt" data-v="today" role="button" tabindex="0"><div><b>${tgt}</b><small>Target today (due today)</small></div><button class="tshare" data-a="tshare" data-k="target" aria-label="Share target today on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile grn" data-a="tdonel" role="button" tabindex="0"><div><b>${t.done}</b><small>Done today</small></div><button class="tshare" data-a="tshare" data-k="done" aria-label="Share done today on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile ${q.over.length?'red':'grn'} ${f==='over'?'sel':''}" data-a="tflt" data-v="over" role="button" tabindex="0"><div><b>${q.over.length}</b><small>Pending (overdue)</small></div><button class="tshare" data-a="tshare" data-k="pending" aria-label="Share pending on WhatsApp" title="Share on WhatsApp">\u27A6</button></div><div class="tile ${mo.pct<80?'amb':'grn'}" data-a="tcomp" role="button" tabindex="0"><div><b>${mo.pct}%</b><small>Compliance this month</small></div><button class="tshare" data-a="tshare" data-k="comp" aria-label="Share compliance on WhatsApp" title="Share on WhatsApp">\u27A6</button></div></div>
  <div id="fb"></div><div class="h"><span id="thd"></span><small id="tcnt"></small></div><div class="list" id="tl"></div><div id="tp"></div>`;findInit('all');drawToday()}
 function todayGroupText(gk){const f=ui.tf||'',q=todayParts(),P=PL(),me=ME(),td=TODAY(),list=(f==='over'?q.over:q.over.concat(q.tod)).filter(t=>catOf(t)===gk),dn=f==='over'?[]:P.logs.filter(l=>l.done===td&&catOf(l)===gk&&catOk(l)&&(isMgr()||l.doneBy===me.id||l.assignee===me.id)),nm={PM:'Tasks',SD:'Shutdown',CAL:'Calibration'}[gk];
  const line=t=>{const sd=t.cat==='SD'&&t.sd?t.sd+', ':'';return'• '+t.tag+' '+t.name.slice(0,50)+' ('+sd+secName(t.sec)+(t.assignee?', '+mName(t.assignee):'')+')'};
@@ -566,7 +566,7 @@ function drawToday(){const q=todayParts(),f=ui.tf||'',list=(f==='over'?q.over:q.
  $('tl').innerHTML=GR.map(g=>{const L=list.filter(t=>catOf(t)===g[0]),D=dn.filter(l=>catOf(l)===g[0]),key=(f||'t')+g[0],open=ui.tgx[key]!==false;let body='';if(open){if(!L.length&&!D.length)body=`<div class="note" style="padding:6px 10px">${f==='over'?'Nothing overdue.':'Nothing due today.'}</div>`;else{if(g[0]==='SD'){const by={};L.forEach(t=>{(by[t.sd||'Shutdown']=by[t.sd||'Shutdown']||[]).push(t)});const ks=Object.keys(by);body=ks.map(k=>(ks.length>1?`<div class="sdh2">${esc(k)} <small>(${by[k].length})</small></div>`:'')+by[k].map(t=>taskRow(t,true)).join('')).join('')}else body=L.map(t=>taskRow(t,true)).join('');body+=D.map(doneRow).join('')}}
   return`<div class="sdg"><div class="sdh1 sdt" data-a="tgx" data-k="${key}" role="button" tabindex="0" aria-expanded="${open}"><span>${open?'▾':'▸'} ${g[1]}</span><small>${L.length} ${f==='over'?'overdue':'due'}${D.length?' • '+D.length+' completed':''}<button class="gsh" data-a="tgshare" data-k="${g[0]}" aria-label="Share on WhatsApp" title="Share on WhatsApp">\u27A6</button></small></div>${body}</div>`}).join('');$('tp').innerHTML=''}
 /* ---- Tasks ---- */
-function vTasks(){const P=PL(),f=ui.f;$('view').innerHTML=`<div class="tb"><div class="srch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><input id="fq" type="search" placeholder="${EQON()?'Search instrument or equipment':'Search tag or name'}" value="${esc(f.q)}" aria-label="Search"></div><div class="tbb">${isMgr()?'<button class="btn" data-a="tadd" aria-label="Add task">+ Add</button>'+(isAdminU()?'<button class="btn g" data-a="gotoimp">Import</button><button class="btn g" data-a="ex" data-v="pm">CSV</button>':''):''}</div></div>
+function vTasks(){const P=PL(),f=ui.f;$('view').innerHTML=`<div class="tb"><div class="srch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg><input id="fq" type="search" placeholder="${EQON()?'Search instrument or equipment':'Search tag or name'}" value="${esc(f.q)}" aria-label="Search"></div><div class="tbb">${isMgr()?'<button class="btn" data-a="tadd" aria-label="Add task">+ Add</button>'+(isAdminU()?'<button class="btn g" data-a="gotoimp">Import</button>':''):''}<button class="btn g" data-a="pmx" aria-label="Export Excel or PDF">\uD83D\uDCE4 Export</button></div></div>
  <div class="chips hs">${[['all','All'],['over','Overdue'],['soon','Due soon'],['ok','OK'],['cmp','Completed '+doneAll(ui.f.cat||'').length]].map(c=>`<button class="chip ${f.st===c[0]?'on':''}" data-a="fst" data-v="${c[0]}">${c[1]}</button>`).join('')}<button class="chip ${f.mine?'on':''}" data-a="fmine">Mine</button>${rngChip('tasks')}</div>${rngPanel('tasks')}
  <div class="g3"><select id="fs" aria-label="Section"><option value="">All sections</option>${P.sections.map(s=>`<option value="${s.id}" ${f.sec===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select><select id="ft" aria-label="Type"><option value="">All types</option><option value="-" ${f.type==='-'?'selected':''}>No type</option>${P.types.map(s=>`<option value="${s.id}" ${f.type===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select><select id="fc" aria-label="Work category"><option value="">All work</option>${[['CAL','Calibration'],['PM','PM'],['SD','Shutdown']].filter(c=>c[0]==='PM'||modOn(c[0]==='CAL'?'cal':'sd')).map(c=>`<option value="${c[0]}" ${f.cat===c[0]?'selected':''}>${c[1]}</option>`).join('')}</select></div>
  ${dupBanner('')}<div class="list" id="tl"></div><div id="tp"></div>`;
@@ -1348,6 +1348,109 @@ Object.assign(A,{qrgo(d){const t=PL().tasks.find(x=>x.id===d.id);if(!t)return;QR
 READONLY.add('qrgo');READONLY.add('camretry');
 /* Set All To OK turns green once every dropdown is OK */
 function mdAllChk(){const b=document.querySelector('#sheet [data-a=fmall]');if(!b||!fillS||!fillS.f)return;let n=0,ok=0;fillS.f.items.forEach((x,i)=>{if(x.ty==='dd'){const el=$('fa'+i),o=itemOpts(x)[0];if(el){n++;if(el.value===o)ok++}}});const on=n>0&&ok===n;b.style.background=on?'#16a34a':'';b.style.color=on?'#fff':'';b.style.borderColor=on?'#16a34a':'';b.textContent=on?'✓ All OK':'✓ Set All To OK'}
+/* ================= work reports: Done Today, Compliance (who did what, checklist answers) and PM month export (Excel / PDF) ================= */
+/* small PDF writer (A4, portrait or landscape) with tables, colour labels and page breaks */
+function PDFW(land){const W=land?842:595,H=land?595:842,M=30,pages=[];let cur=null,y=0;
+ const A=s=>String(s==null?'':s).replace(/[–—]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/₹/g,'Rs ').replace(/[•·]/g,'|').replace(/☑/g,'[x]').replace(/☐/g,'[ ]').replace(/[^\x20-\x7E\xA0-\xFF]/g,'').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+ const rgb=h=>[0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(' ');
+ const fit=(s,w,sz)=>{s=String(s==null?'':s);const n=Math.max(1,Math.floor(w/(sz*.5)));return s.length>n?s.slice(0,n-1)+'.':s};
+ const wrap=(s,w,sz)=>{const n=Math.max(4,Math.floor(w/(sz*.5))),out=[];String(s==null?'':s).split(/\n/).forEach(p=>{let l='';p.split(/\s+/).forEach(x=>{if((l+' '+x).trim().length>n){if(l)out.push(l);while(x.length>n){out.push(x.slice(0,n));x=x.slice(n)}l=x}else l=(l+' '+x).trim()});out.push(l)});return out};
+ const o={W,H,M,get y(){return y},set y(v){y=v},
+  tx(x,yy,s,sz,b,c,al){s=String(s);if(al==='r')x-=s.length*sz*.5;else if(al==='c')x-=s.length*sz*.25;cur.push(rgb(c||'12302D')+' rg BT /'+(b?'F2':'F1')+' '+sz+' Tf '+x.toFixed(1)+' '+(H-yy).toFixed(1)+' Td ('+A(s)+') Tj ET')},
+  rc(x,yy,w,h,c){cur.push(rgb(c)+' rg '+x.toFixed(1)+' '+(H-yy-h).toFixed(1)+' '+w.toFixed(1)+' '+h.toFixed(1)+' re f')},
+  page(){cur=[];pages.push(cur);y=M},room(n,re){if(y+n>H-M-16){o.page();if(re)re()}},
+  band(title,sub){o.rc(0,0,W,56,'0F766E');o.tx(M,28,fit(title,W-2*M,18),18,true,'FFFFFF');if(sub)o.tx(M,45,fit(sub,W-2*M,9),9,false,'CCFBF1');y=70},
+  head(s,c){o.room(30);y+=4;o.tx(M,y+11,s,11.5,true,c||'0F766E');y+=17},
+  note(s,c){wrap(s,W-2*M,8.5).forEach(l=>{o.room(12);o.tx(M,y+9,l,8.5,false,c||'52605E');y+=11})},
+  kpis(k){const g=6,kw=(W-2*M-g*(k.length-1))/k.length;o.room(48);k.forEach((c,i)=>{const x=M+i*(kw+g);o.rc(x,y,kw,42,'F1F7F6');o.rc(x,y,3,42,c[2]);o.tx(x+9,y+23,c[1],16,true,c[2]);o.tx(x+9,y+35,c[0],7.5,false,'52605E')});y+=50},
+  /* cols: {h,w,r,b,lab:true(colour label),col:fn}; rows: arrays */
+  table(cols,rows,opt){opt=opt||{};const tw=W-2*M,fw=cols.reduce((a,c)=>a+c.w,0),X=[];let x=M;cols.forEach(c=>{c.pw=c.w/fw*tw;X.push(x);x+=c.pw});
+   const hd=()=>{o.rc(M,y,tw,16,'115E59');cols.forEach((c,i)=>o.tx(c.r?X[i]+c.pw-4:X[i]+4,y+11,fit(c.h,c.pw-6,8),8,true,'FFFFFF',c.r?'r':''));y+=16};
+   o.room(34);hd();rows.forEach((r,ri)=>{const lines=cols.map((c,i)=>c.wrap?wrap(r[i],c.pw-8,8).slice(0,6):[fit(r[i],c.pw-6,8)]),h=Math.max(14,4+Math.max(...lines.map(l=>l.length))*10);
+    if(y+h>H-M-16){o.page();if(opt.re)opt.re();hd()}if(ri%2)o.rc(M,y,tw,h,'F3F7F6');
+    cols.forEach((c,i)=>{const v=r[i];if(c.lab&&v){const L=STLAB[v]||['64748B','EEF2F2'],w=String(v).length*8*.52+10;o.rc(X[i]+3,y+2.5,Math.min(w,c.pw-6),11,L[1]);o.tx(X[i]+8,y+10.5,fit(v,c.pw-14,7.5),7.5,true,L[0]);return}
+     lines[i].forEach((l,k)=>o.tx(c.r?X[i]+c.pw-4:X[i]+4,y+10.5+k*10,l,8,c.b,c.col?c.col(v,r):null,c.r?'r':''))});y+=h});
+   if(!rows.length){o.tx(M+4,y+11,opt.empty||'Nothing to show.',8.5,false,'64748B');y+=16}y+=6},
+  blob(foot){pages.forEach((p,i)=>{p.push(rgb('7A8A88')+' rg BT /F1 7.5 Tf '+M+' 14 Td ('+A(foot||'PM Tracker | ourworldhive.com')+') Tj ET');p.push(rgb('7A8A88')+' rg BT /F1 7.5 Tf '+(W-M-50)+' 14 Td (Page '+(i+1)+' of '+pages.length+') Tj ET')});
+   const ob=['<< /Type /Catalog /Pages 2 0 R >>','PAGES','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'],kids=[];
+   pages.forEach(p=>{const b=p.join('\n');ob.push('<< /Length '+b.length+' >>\nstream\n'+b+'\nendstream');ob.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+(ob.length)+' 0 R >>');kids.push(ob.length)});
+   ob[1]='<< /Type /Pages /Count '+kids.length+' /Kids ['+kids.map(k=>k+' 0 R').join(' ')+'] >>';
+   let out='%PDF-1.4\n';const off=[];ob.forEach((s,i)=>{off.push(out.length);out+=(i+1)+' 0 obj\n'+s+'\nendobj\n'});const xr=out.length;
+   out+='xref\n0 '+(ob.length+1)+'\n0000000000 65535 f \n'+off.map(v=>String(v).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(ob.length+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+   const u=new Uint8Array(out.length);for(let i=0;i<out.length;i++)u[i]=out.charCodeAt(i)&255;return new Blob([u],{type:'application/pdf'})}};
+ o.page();return o}
+const STLAB={'On Time':['15803D','DCFCE7'],'Late':['B45309','FEF3C7'],'Pending':['B91C1C','FEE2E2'],'Overdue':['B91C1C','FEE2E2'],'Due':['1D4ED8','DBEAFE'],'Upcoming':['475569','EEF2F2'],'Not Due':['64748B','F1F5F9'],'NOT OK':['B91C1C','FEE2E2'],'OK':['15803D','DCFCE7']};
+
+/* which history entries this person may see */
+function logSeen(l){const S2=scopeSecs(),U=userSecs(),me=S.session.member;return catOk(l)&&(!S2||S2.has(l.sec))&&(isMgr()||!U||U.has(l.sec)||mineOf(l,me)||l.doneBy===me||(l.crew||[]).some(c=>c&&c.m===me))}
+const logSt=l=>doneState(l).ok?'On Time':'Late';
+const logTime=l=>l.ms&&ymd(new Date(l.ms))===l.done?pad(new Date(l.ms).getHours())+':'+pad(new Date(l.ms).getMinutes()):'';
+const kindTx=x=>x.cat==='SD'?'Shutdown':catName(catOf(x));
+function badAns(q){const v=String(ansText(q)).toUpperCase();return /NOT OK|PENDING/.test(v)||q.bad===true}
+
+/* ---- PDF of done work with every checklist answer ---- */
+function workPdf(d){const p=PDFW(false);p.band(d.title,d.sub);
+ p.kpis([['Done',d.logs.length,'0F766E'],['On Time',d.logs.filter(l=>doneState(l).ok).length,'16A34A'],['Late',d.logs.filter(l=>!doneState(l).ok).length,'D97706'],['Not Done',d.pend.length,'DC2626'],...(d.pct!=null?[['Compliance',d.pct+'%','2563EB']]:[])]);
+ p.head('Work Done ('+d.logs.length+')');
+ p.table([{h:'Date',w:15},{h:'Tag',w:11},{h:'Job',w:23,wrap:1},{h:'Kind',w:13,wrap:1},{h:'Done By',w:17,wrap:1},{h:'Status',w:11,lab:1},{h:'Issues',w:7,r:1,col:v=>+v?'DC2626':null}],
+  d.logs.map(l=>[fmt(l.done)+(logTime(l)?' '+logTime(l):''),tg(l),l.name,kindTx(l),crewText(l),logSt(l),l.issues||0]),{empty:'Nothing was done in this period.'});
+ if(d.pend.length){p.head('Not Done Yet ('+d.pend.length+')','DC2626');p.table([{h:'Tag',w:12},{h:'Job',w:30,wrap:1},{h:'Section',w:16},{h:'Assigned To',w:18},{h:'Due Date',w:12},{h:'Status',w:11,lab:1}],
+  d.pend.map(t=>[tg(t),t.name,secName(t.sec),mName(t.assignee),fmt(t.due),t.due<TODAY()?'Overdue':'Due']))}
+ const L=d.logs.filter(l=>l.answers&&l.answers.length);if(L.length){p.head('Checklist Inputs');
+  L.forEach(l=>{p.room(46);p.y+=2;p.tx(p.M,p.y+10,(tg(l)?tg(l)+'  |  ':'')+l.name,10,true,'12302D');p.y+=13;p.tx(p.M,p.y+9,fmt(l.done)+(logTime(l)?' '+logTime(l):'')+'  |  '+kindTx(l)+'  |  By '+crewText(l)+'  |  '+logSt(l)+(l.remark?'  |  Remark: '+l.remark:''),8,false,'52605E');p.y+=13;
+   p.table([{h:'#',w:4},{h:'Checklist Point',w:46,wrap:1},{h:'Result',w:20,b:1,col:(v,r)=>r[4]?'DC2626':'15803D'},{h:'Remark',w:30,wrap:1}],l.answers.map((q,i)=>[i+1,q.t,ansText(q),q.r||'',badAns(q)]))})}
+ return p.blob('PM Tracker  |  '+PL().name+'  |  made '+fmt(TODAY()))}
+
+/* ---- list sheet: Done Today / This Month ---- */
+let WD=null;
+function wdData(k){const P=PL(),td=TODAY(),m0=td.slice(0,8)+'01';
+ if(k==='today'){const logs=P.logs.filter(l=>l.done===td&&logSeen(l)).sort((a,b)=>(b.ms||0)-(a.ms||0));return{k,title:'Done Today',sub:P.name+'  |  '+fmt(td),logs,pend:[],pct:null,file:'pm-done-today-'+td}}
+ const logs=P.logs.filter(l=>l.done>=m0&&l.done<=td&&logSeen(l)&&l.cat!=='SD').sort((a,b)=>(a.done<b.done?1:a.done>b.done?-1:0)||(b.ms||0)-(a.ms||0)),pend=openTasks().filter(t=>t.cat!=='SD'&&t.due<=td&&t.due>=m0).sort((a,b)=>a.due<b.due?-1:1),mo=tally(getOcc('month','all'));
+ return{k,title:'Compliance This Month',sub:P.name+'  |  '+fmt(m0)+' to '+fmt(td),logs,pend,pct:mo.pct,file:'pm-compliance-'+td.slice(0,7)}}
+function wdSheet(k){const d=WD=wdData(k),by={};d.logs.forEach(l=>crewText(l).split(', ').forEach(n=>{by[n]=(by[n]||0)+1}));
+ const who=Object.keys(by).sort((a,b)=>by[b]-by[a]),row=l=>`<div class="row ${doneState(l).ok?'ok':'over'}" data-a="lview" data-id="${l.id}" role="button" tabindex="0"><div class="m"><b>${tg(l)?esc(tg(l))+' • ':''}${esc(cap1(l.name))}</b><small>${k==='today'?'':esc(fmt(l.done))+' · '}${logTime(l)?esc(logTime(l))+' · ':''}${esc(crewText(l))} · <span class="st ${doneState(l).ok?'ok':'late'}" style="color:${doneState(l).ok?'var(--grn)':'var(--amb)'}">${logSt(l)}</span>${l.issues?' · <span style="color:var(--red)">'+l.issues+' issue'+(l.issues>1?'s':'')+'</span>':''}${l.answers&&l.answers.length?' · 📋 '+l.answers.length:''}</small></div></div>`;
+ openSheet(`<h2>${k==='today'?'✅ Done Today':'📊 Compliance This Month'}</h2><div class="note" style="margin-bottom:8px">${esc(d.sub)}<br><b>${d.logs.length}</b> done • <b style="color:var(--grn)">${d.logs.filter(l=>doneState(l).ok).length}</b> on time • <b style="color:var(--amb)">${d.logs.filter(l=>!doneState(l).ok).length}</b> late${k==='month'?` • <b style="color:var(--red)">${d.pend.length}</b> not done • compliance <b>${d.pct}%</b>`:''}</div>
+ ${who.length?`<div class="h"><span>Who Did It</span></div><div class="chips" style="margin-bottom:8px">${who.map(n=>`<span class="chip on" style="cursor:default">${esc(n)} <b>${by[n]}</b></span>`).join('')}</div>`:''}
+ <div class="g2" style="margin-bottom:8px"><button class="btn" data-a="wdpdfs">Share PDF</button><button class="btn g" data-a="wdpdf">Download PDF</button></div><div class="note" style="margin-bottom:6px">The PDF has every checklist input. Tap a job to see its checklist here.</div>
+ <div class="h"><span>Work Done (${d.logs.length})</span></div><div class="list">${d.logs.map(row).join('')||'<div class="empty">Nothing done yet.</div>'}</div>
+ ${d.pend.length?`<div class="h" style="margin-top:8px"><span style="color:var(--red)">Not Done Yet (${d.pend.length})</span></div><div class="list">${d.pend.map(t=>taskRow(t,false)).join('')}</div>`:''}
+ <button class="btn w" style="width:100%;margin-top:10px" data-a="cs">Close</button>`)}
+
+/* ---- PM tab: month export (Excel or PDF) with the screen filters ---- */
+function pmxData(){const P=PL(),f=ui.f,td=TODAY(),mon=ui.pmxM||td.slice(0,7),m0=mon+'-01',m1=ymd(new Date(+mon.slice(0,4),+mon.slice(5,7),0)),stf=ui.pmxS||'all';
+ const T=openTasks().filter(t=>t.cat!=='SD'&&(!f.cat||catOf(t)===f.cat)&&(!f.sec||t.sec===f.sec)&&(f.type==='-'||!f.type||t.type===f.type)&&(!f.mine||mineOf(t,S.session.member)));
+ const rows=[];T.forEach(t=>{const L=P.logs.filter(l=>l.task===t.id&&((l.due>=m0&&l.due<=m1)||(l.done>=m0&&l.done<=m1))),last=latestLog(t),base={t,tag:tg(t),name:t.name,eq:t.eq||'',kind:kindTx(t),sec:secName(t.sec),type:typeName(t.type),freq:t.freq?freqText(t.freq):'One time',who:mName(t.assignee),next:t.due,last:last?last.done:''};
+  L.forEach(l=>rows.push(Object.assign({},base,{due:l.due,st:logSt(l),done:l.done,by:crewText(l),iss:l.issues||0,log:l})));
+  if(t.due>=m0&&t.due<=m1)rows.push(Object.assign({},base,{due:t.due,st:t.due<td?'Pending':t.due===td?'Due':'Upcoming',done:'',by:''}));
+  else if(t.due<m0&&mon<=td.slice(0,7))rows.push(Object.assign({},base,{due:t.due,st:'Pending',done:'',by:''}));
+  else if(!L.length)rows.push(Object.assign({},base,{due:'',st:'Not Due',done:'',by:''}))});
+ const fl=rows.filter(r=>stf==='all'||(stf==='ok'&&r.st==='On Time')||(stf==='late'&&r.st==='Late')||(stf==='pend'&&(r.st==='Pending'||r.st==='Due'))).sort((a,b)=>(a.sec<b.sec?-1:a.sec>b.sec?1:0)||(a.tag<b.tag?-1:1));
+ const c=k=>rows.filter(r=>r.st===k).length,fx=[f.cat?catName(f.cat):'All work',f.sec?secName(f.sec):'All sections',f.type&&f.type!=='-'?typeName(f.type):'',f.mine?'Mine':'',{all:'',ok:'On Time only',late:'Late only',pend:'Pending only'}[stf]].filter(Boolean).join(', ');
+ const mn=new Date(+mon.slice(0,4),+mon.slice(5,7)-1,1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+ return{mon,mn,m0,m1,rows:fl,all:rows,fx,n:{ok:c('On Time'),late:c('Late'),pend:c('Pending')+c('Due'),up:c('Upcoming'),nd:c('Not Due'),eq:T.length},file:'pm-'+mon+'-'+P.code}}
+function pmxSheet(){const td=TODAY();ui.pmxM=ui.pmxM||td.slice(0,7);ui.pmxS=ui.pmxS||'all';const d=pmxData();
+ openSheet(`<h2>📤 Export PM List</h2><div class="note" style="margin-bottom:8px">All equipment and instruments with Frequency, Due Date, Status (On Time / Late / Pending), Done By and Next Due. The filters on the PM screen are used: <b>${esc(d.fx)}</b>.</div>
+ <div class="f"><label><span>Month</span><input type="month" id="pmxm" value="${esc(ui.pmxM)}" max="${td.slice(0,7)}"></label>
+ <div class="chips">${[['all','All'],['ok','On Time'],['late','Late'],['pend','Pending']].map(c=>`<button class="chip ${ui.pmxS===c[0]?'on':''}" data-a="pmxs" data-v="${c[0]}">${c[1]}</button>`).join('')}</div>
+ <div class="note" id="pmxn">${esc(d.mn)}: <b>${d.rows.length}</b> rows • ${d.n.eq} jobs • <span style="color:var(--grn)">${d.n.ok} on time</span> • <span style="color:var(--amb)">${d.n.late} late</span> • <span style="color:var(--red)">${d.n.pend} pending</span></div>
+ <div class="g2"><button class="btn g" data-a="pmxx">📗 Excel</button><button class="btn g" data-a="pmxp">📄 PDF</button></div><button class="btn" data-a="pmxps">Share PDF</button><button class="btn w" data-a="cs">Close</button></div>`);
+ const m=$('pmxm');if(m)m.onchange=e=>{ui.pmxM=e.target.value||td.slice(0,7);pmxSheet()}}
+function pmxXlsx(d){const H=a=>a.map(v=>({v,s:1})),P=PL();
+ const sum=[[{v:'PM List - '+d.mn,s:2}],['Plant',P.name+' ('+P.code+')'],['Month',fmt(d.m0)+' to '+fmt(d.m1)],['Filters',d.fx],[],H(['Jobs','On Time','Late','Pending','Upcoming','Not Due This Month']),[d.n.eq,d.n.ok,d.n.late,d.n.pend,d.n.up,d.n.nd]];
+ const list=[H(['Tag','Equipment','Name','Kind','Section','Type','Frequency','Due Date','Status','Done On','Done By','Issues','Assigned To','Last Done','Next Due'])].concat(d.rows.map(r=>[r.tag,r.eq,r.name,r.kind,r.sec,r.type,r.freq,r.due?fmt(r.due):'',r.st,r.done?fmt(r.done):'',r.by,r.iss||'',r.who,r.last?fmt(r.last):'',fmt(r.next)]));
+ const chk=[H(['Done On','Tag','Name','Done By','Status','Checklist Point','Result','Remark'])];d.rows.filter(r=>r.log&&r.log.answers).forEach(r=>r.log.answers.forEach(q=>chk.push([fmt(r.done),r.tag,r.name,r.by,r.st,q.t,ansText(q),q.r||''])));
+ return makeXlsx([{name:'Summary',rows:sum},{name:'PM List',rows:list,freeze:1}].concat(chk.length>1?[{name:'Checklist Inputs',rows:chk,freeze:1}]:[]))}
+function pmxPdf(d){const p=PDFW(true),P=PL();p.band('PM List - '+d.mn,P.name+' ('+P.code+')  |  '+fmt(d.m0)+' to '+fmt(d.m1)+'  |  '+d.fx);
+ p.kpis([['Jobs',d.n.eq,'2563EB'],['On Time',d.n.ok,'16A34A'],['Late',d.n.late,'D97706'],['Pending',d.n.pend,'DC2626'],['Upcoming',d.n.up,'475569'],['Not Due',d.n.nd,'64748B']]);
+ p.table([{h:'Tag',w:9},{h:'Name',w:20,wrap:1},{h:'Section',w:11},{h:'Type',w:9},{h:'Frequency',w:8},{h:'Due Date',w:8},{h:'Status',w:8,lab:1},{h:'Done On',w:8},{h:'Done By',w:12,wrap:1},{h:'Next Due',w:8}],
+  d.rows.map(r=>[r.tag,r.name,r.sec,r.type,r.freq,r.due?fmt(r.due):'-',r.st,r.done?fmt(r.done):'-',r.by||'-',fmt(r.next)]),{empty:'No jobs match these filters.'});
+ return p.blob('PM Tracker  |  '+P.name+'  |  made '+fmt(TODAY()))}
+
+Object.assign(A,{tdonel(){wdSheet('today')},tcomp(){wdSheet('month')},
+ wdpdf(){const d=WD||wdData('today');dlBlob(workPdf(d),d.file+'.pdf');toast('PDF downloaded.')},wdpdfs(){const d=WD||wdData('today');mgShare(workPdf(d),d.file+'.pdf',d.title+' - '+PL().name)},
+ pmx:pmxSheet,pmxs(d){ui.pmxS=d.v;pmxSheet()},pmxx(){const d=pmxData();dlBlob(pmxXlsx(d),d.file+'.xlsx');toast('Excel downloaded.')},pmxp(){const d=pmxData();dlBlob(pmxPdf(d),d.file+'.pdf');toast('PDF downloaded.')},pmxps(){const d=pmxData();mgShare(pmxPdf(d),d.file+'.pdf','PM list '+d.mn+' - '+PL().name)}});
+['tdonel','tcomp','wdpdf','wdpdfs','pmx','pmxs','pmxx','pmxp','pmxps'].forEach(k=>READONLY.add(k));
+
 /* ================= management report: department wise PDF (clickable contents, bookmarks) and animated PowerPoint (Home / Prev / Next buttons) ================= */
 function mgmtData(){const P=PL(),src=ui.src||'all',o=getOcc(ui.sp,src),td=TODAY();
  let D=statDepts().map(d=>({name:d.name,secs:d.secs||[]})),unit='Department';

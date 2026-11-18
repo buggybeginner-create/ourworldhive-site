@@ -4,7 +4,7 @@
 <style>
 :root{--p:#0f766e;--p2:#14b8a6;--bg:#eef3f3;--card:#fff;--ink:#102a2a;--mut:#5b7070;--line:#d9e3e3;--red:#dc2626;--amb:#d97706;--yel:#ca8a04;--grn:#16a34a;--blu:#2563eb;--pur:#7c3aed;--r:14px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden;font-size:15px}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;height:var(--apph,100dvh);overflow:hidden;font-size:15px}
 button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .top{flex:none;display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 14px 8px;background:var(--p);color:#fff;min-height:52px}
 .top b{font-size:16px;line-height:1.15;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top small{opacity:.85;font-size:12px}
@@ -1311,6 +1311,8 @@ Object.assign(A,{share:shareSheet,wa(){const u='https://wa.me/?text='+encodeURIC
  pdf(){dlBlob(makePdf(reportData()),fname('pdf'));toast('PDF downloaded.')},xlsx(){dlBlob(reportXlsx(reportData()),fname('xlsx'));toast('Excel file downloaded.')},
  async pdfshare(){const d=reportData(),b=makePdf(d),f=new File([b],fname('pdf'),{type:'application/pdf'});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'PM Tracker report',text:'PM Tracker report: '+d.plant+' ('+d.period+')'});return}}catch(e){if(e&&e.name==='AbortError')return}dlBlob(b,fname('pdf'));toast('Sharing files is not supported here. The PDF was downloaded, you can send it from your files.',5000)}});
 
+/* bottom tab bar always on screen: the app height follows the visible screen, even on browsers whose toolbars hide and show while scrolling */
+(function(){let last=0;const fit=()=>{const h=Math.round(window.innerHeight||0);if(h>200&&h!==last){last=h;document.documentElement.style.setProperty('--apph',h+'px')}};fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,300));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(fit,100)});window.addEventListener('pageshow',fit)})();
 /* ================= QR lock: a due PM job can be executed only after its QR is scanned (manager switches it on, in Manage › QR) ================= */
 const QRPASS={};let QRWANT=null;
 function qrMark(tag){if(tag)QRPASS[eqKey(tag)]=Date.now()}

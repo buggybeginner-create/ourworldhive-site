@@ -1,32 +1,74 @@
-# Publishes firestore.rules to Firebase (project ourworldhive) whenever that file changes on main.
-# Needs the repository secret FIREBASE_RULES_KEY (a service account key with the "Firebase Rules Admin" role).
+# Firestore rules for project ourworldhive.
+#  - Every change of firestore.rules on main is published to Firebase automatically.
+#  - Before publishing, the live rules are read from Firebase. If they were changed by hand in the Firebase console
+#    (so they differ from the previous firestore.rules in git), nothing is published and the job stops: no silent overwrite.
+#  - Every run also saves the live rules to the branch "live-rules" (file live.rules), so the live version can always be read.
+#  - Run it by hand (Actions > Publish Firestore rules > Run workflow) with mode "read" to only read the live rules,
+#    or mode "force" to publish even when the console copy was changed by hand.
+# Needs the repository secret FIREBASE_RULES_KEY: a service account key (JSON) with the "Firebase Rules Admin" role.
 # Firebase checks the rules before publishing: if there is a mistake, nothing is published and the live rules stay as they are.
 name: Publish Firestore rules
 on:
   workflow_dispatch:
+    inputs:
+      mode: { description: 'read = only read the live rules; publish = normal; force = publish even if changed in the console', default: 'read', type: choice, options: [read, publish, force] }
   push:
     branches: [main]
-    paths: ['firestore.rules', 'firebase.json', '.github/workflows/firestore-rules.yml']
+    paths: ['firestore.rules']
 permissions:
-  contents: read
+  contents: write
 concurrency: { group: firestore-rules, cancel-in-progress: false }
 jobs:
-  publish:
+  rules:
     runs-on: ubuntu-latest
     env:
       KEY: ${{ secrets.FIREBASE_RULES_KEY }}
+      MODE: ${{ github.event.inputs.mode || 'publish' }}
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
       - name: Stop if the key is not set yet
         if: env.KEY == ''
-        run: echo "FIREBASE_RULES_KEY secret is not set, so nothing was published." && exit 0
-      - uses: actions/setup-node@v4
-        if: env.KEY != ''
-        with: { node-version: '20' }
-      - name: Publish the rules
+        run: echo "FIREBASE_RULES_KEY secret is not set, so nothing was read or published."
+      - name: Read the live rules from Firebase
         if: env.KEY != ''
         run: |
           printf '%s' "$KEY" > "$RUNNER_TEMP/key.json"
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/key.json" --quiet
+          TOK=$(gcloud auth print-access-token)
+          REL=$(curl -sf -H "Authorization: Bearer $TOK" https://firebaserules.googleapis.com/v1/projects/ourworldhive/releases/cloud.firestore)
+          RS=$(echo "$REL" | python3 -c 'import json,sys;print(json.load(sys.stdin)["rulesetName"])')
+          curl -sf -H "Authorization: Bearer $TOK" "https://firebaserules.googleapis.com/v1/$RS" | python3 -c 'import json,sys;d=json.load(sys.stdin);print(d["source"]["files"][0]["content"],end="")' > "$RUNNER_TEMP/live.rules"
+          echo "Live ruleset: $RS ($(wc -l < "$RUNNER_TEMP/live.rules") lines)"
+      - name: Save the live rules to the live-rules branch
+        if: env.KEY != ''
+        run: |
+          cp "$RUNNER_TEMP/live.rules" /tmp/live.rules
+          git config user.name "rules-bot"; git config user.email "rules-bot@users.noreply.github.com"
+          git fetch origin live-rules || true
+          git checkout -B live-rules
+          git rm -rq --cached . >/dev/null 2>&1 || true
+          cp /tmp/live.rules live.rules && git add -f live.rules
+          git commit -qm "live Firestore rules $(date -u +%F' '%H:%M)" || true
+          git push -qf origin live-rules
+          git checkout -q -f "$GITHUB_SHA"
+      - name: Check that nobody changed the rules by hand in the console
+        if: env.KEY != '' && env.MODE == 'publish'
+        run: |
+          norm(){ tr -d '\r' | sed -e 's/[[:space:]]*$//' -e '/^$/d'; }
+          if git cat-file -e HEAD~1:firestore.rules 2>/dev/null; then git show HEAD~1:firestore.rules | norm > /tmp/prev; else : > /tmp/prev; fi
+          norm < /tmp/live.rules > /tmp/live
+          norm < firestore.rules > /tmp/now
+          if cmp -s /tmp/live /tmp/now; then echo "Live rules already match firestore.rules. Nothing to publish."; echo "SKIP=1" >> $GITHUB_ENV; exit 0; fi
+          if ! cmp -s /tmp/live /tmp/prev; then echo "STOP: the live rules were changed outside GitHub (Firebase console). Nothing published."; diff /tmp/prev /tmp/live | head -40 || true; exit 1; fi
+      - uses: actions/setup-node@v4
+        if: env.KEY != '' && env.MODE != 'read' && env.SKIP != '1'
+        with: { node-version: '20' }
+      - name: Publish the rules
+        if: env.KEY != '' && env.MODE != 'read' && env.SKIP != '1'
+        run: |
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/key.json"
           npx --yes firebase-tools@13 deploy --only firestore:rules --project ourworldhive --non-interactive
-          rm -f "$RUNNER_TEMP/key.json"
+      - name: Remove the key file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/key.json"

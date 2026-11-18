@@ -1327,13 +1327,19 @@ Object.assign(A,{share:shareSheet,wa(){const u='https://wa.me/?text='+encodeURIC
 (function(){let last=0;const fit=()=>{const h=Math.round(window.innerHeight||0);if(h>200&&h!==last){last=h;document.documentElement.style.setProperty('--apph',h+'px')}};fit();window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,300));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(fit,100)});window.addEventListener('pageshow',fit)})();
 /* ================= QR lock: a due PM job can be executed only after its QR is scanned (manager switches it on, in Manage › QR) ================= */
 const QRPASS={};let QRWANT=null;
-function qrMark(tag){if(tag)QRPASS[eqKey(tag)]=Date.now()}
+/* a QR holds '~id' (instrument), '@tag' (equipment) or the plain tag: unlock every name it stands for */
+function qrKeys(tag){tag=String(tag||'').trim();const out=new Set();if(!tag)return out;out.add(eqKey(tag));const c=tag.charAt(0);
+ if(c==='~'){const id=tag.slice(1);PL().tasks.forEach(t=>{if(t.iid===id){if(tg(t))out.add(eqKey(tg(t)));if(t.eq)out.add(eqKey(t.eq))}})}
+ else if(c==='@')out.add(eqKey(tag.slice(1)));
+ else PL().tasks.forEach(t=>{if(eqKey(tg(t))===eqKey(tag)&&t.iid)out.add('~'+t.iid)});return out}
+function qrName(k){k=String(k||'');if(k.charAt(0)==='~'){const t=PL().tasks.find(x=>x.iid===k.slice(1));return t?(tg(t)||t.name):'an unknown label'}return k.charAt(0)==='@'?k.slice(1):(k||'?')}
+function qrMark(tag){const n=Date.now();qrKeys(tag).forEach(k=>QRPASS[k]=n)}
 function qrHas(k){const p=k&&QRPASS[eqKey(k)];return !!p&&Date.now()-p<30*60000}
-function qrNeed(t){try{if(!PL().qrl||!t||t.cat==='SD'||t.kind!=='PM'||isMgr())return false;const tag=tg(t);if(!tag&&!t.eq)return false;return !(qrHas(tag)||qrHas(t.eq))}catch(e){return false}}
+function qrNeed(t){try{if(!PL().qrl||!t||t.cat==='SD'||t.kind!=='PM'||isMgr())return false;const tag=tg(t);if(!tag&&!t.eq)return false;return !(qrHas(tag)||qrHas(t.eq)||(t.iid&&qrHas('~'+t.iid)))}catch(e){return false}}
 function qrAsk(t){const tag=tg(t)||t.eq||'';openSheet(`<h2>\uD83D\uDD12 Scan QR To Execute</h2><div class="note" style="margin-bottom:10px">${tagP(t)}${esc(t.name)}<br>Your manager has switched on <b>QR check for PM jobs</b>. Go to the equipment and scan its QR label <b>${esc(t.eq&&t.eq!==tag?t.eq+' / '+tag:tag)}</b>. Then Execute opens.</div><div class="f"><button class="btn" data-a="qrgo" data-id="${t.id}">\uD83D\uDCF7 Scan QR</button>${PL().qrt?'<div class="note">Label damaged or no camera? Tap Scan QR and type the tag in the box there.</div>':''}<button class="btn w" data-a="cs">Close</button></div>`)}
 function qrWantHit(txt){if(!QRWANT)return false;if(Date.now()-QRWANT.at>5*60000){QRWANT=null;return false}const w=QRWANT,s=parseScan(txt),k=eqKey(s.tag);QRWANT=null;const t=PL().tasks.find(x=>x.id===w.id);if(!t)return false;
- if(k&&(k===eqKey(tg(t))||k===eqKey(t.eq))){closeSheet();toast('\u2713 QR matched. You can execute the job now.');wzStart([t.id]);return true}
- toast('Wrong QR: this is '+(s.tag||'?')+'. Scan the QR of '+(tg(t)||t.eq)+'.',5000);qrAsk(t);return true}
+ const ks=qrKeys(s.tag);if(k&&(ks.has(eqKey(tg(t)))||(t.eq&&ks.has(eqKey(t.eq)))||(t.iid&&ks.has('~'+t.iid)))){closeSheet();toast('\u2713 QR matched. You can execute the job now.');wzStart([t.id]);return true}
+ toast('Wrong QR: this is '+qrName(s.tag)+'. Scan the QR of '+(tg(t)||t.eq)+'.',5000);qrAsk(t);return true}
 (function(){const _w=wzStart;wzStart=function(ids,eq,mode){const P=PL(),L=(ids||[]).map(id=>P.tasks.find(t=>t.id===id)).filter(Boolean),lk=L.filter(qrNeed);if(!lk.length)return _w.apply(this,arguments);
  const ok=L.filter(t=>!qrNeed(t));if(ok.length){toast(lk.length+' PM job'+(lk.length>1?'s need':' needs')+' a QR scan first, left out for now.',5000);return _w.call(this,ok.map(t=>t.id),eq,mode)}closeSheet();qrAsk(lk[0])}})();
 if(pendingScan)qrMark(pendingScan.tag);

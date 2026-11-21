@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">Panchang</string>
-    <string name="w_cd">Festival Countdown</string>
-    <string name="w_cd_d">Your festivals and events: Diwali in 9 days</string>
-    <string name="w_month">Hindu Calendar</string>
-    <string name="w_month_d">Month with English date and tithi</string>
-</resources>

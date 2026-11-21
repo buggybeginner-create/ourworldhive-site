@@ -1,6 +1,0 @@
-<resources>
-    <style name="Pm" parent="@android:style/Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:colorAccent">#2DD4BF</item>
-    </style>
-</resources>

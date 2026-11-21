@@ -1,4 +1,4 @@
-package com.ourworldhive.panchang;
+package com.ourworldhive.dindarpan;
 
 import android.Manifest;
 import android.accounts.Account;
@@ -47,13 +47,13 @@ import java.util.Set;
 import java.util.TimeZone;
 
 /**
- * Din Darpan (Panchang) for Android: opens https://ourworldhive.com/panchang.html and adds what a website cannot do:
+ * Din Darpan for Android: opens https://ourworldhive.com/din-darpan.html and adds what a website cannot do:
  * home-screen widgets (festival countdown and month calendar), the phone's own calendars (Google Calendar),
  * festival reminders while the app is closed, Google sign-in with the phone's account and the back button.
  * Copyright DUKEKRRISH. All rights reserved.
  */
 public class MainActivity extends Activity {
-    static final String HOME = "https://ourworldhive.com/panchang.html?src=play";
+    static final String HOME = "https://ourworldhive.com/din-darpan.html?src=play";
     private final Handler ui = new Handler(Looper.getMainLooper());
     private FrameLayout root;
     private WebView web;
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         s.setSupportMultipleWindows(true);
         s.setJavaScriptCanOpenWindowsAutomatically(true);
         s.setTextZoom(100);
-        s.setUserAgentString(s.getUserAgentString() + " OwhApp/panchang");
+        s.setUserAgentString(s.getUserAgentString() + " OwhApp/dindarpan");
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, true);
         web.addJavascriptInterface(new Bridge(), "OwhNative");
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
         if (sc.equals("about") || sc.equals("blob") || sc.equals("data") || sc.equals("file")) return false;
         if ((sc.equals("http") || sc.equals("https")) && ours(u)) {
             String p = u.getPath() == null ? "" : u.getPath();
-            if (p.endsWith("/panchang.html") || p.startsWith("/__/") || !u.getHost().toLowerCase().contains("ourworldhive.com")) return false;
+            if (p.endsWith("/din-darpan.html") || p.endsWith("/panchang.html") || p.startsWith("/__/") || !u.getHost().toLowerCase().contains("ourworldhive.com")) return false;
         }
         openExternal(u);
         return true;
@@ -304,7 +304,7 @@ public class MainActivity extends Activity {
             int n = 0;
             while (c != null && c.moveToNext() && n++ < 600) {
                 String desc = c.getString(5);
-                if (desc != null && desc.contains("Panchang · ourworldhive.com")) continue; /* festivals we added ourselves are already shown */
+                if (desc != null && (desc.contains("Din Darpan · ourworldhive.com") || desc.contains("Panchang · ourworldhive.com"))) continue; /* festivals we added ourselves are already shown */
                 JSONObject o = new JSONObject();
                 o.put("t", c.getString(0) == null ? "(No title)" : c.getString(0));
                 o.put("s", c.getLong(1)); o.put("e", c.getLong(2)); o.put("all", c.getInt(3) == 1); o.put("id", c.getLong(4));
@@ -338,7 +338,7 @@ public class MainActivity extends Activity {
                 ContentValues v = new ContentValues();
                 v.put(CalendarContract.Events.CALENDAR_ID, cal);
                 v.put(CalendarContract.Events.TITLE, t);
-                v.put(CalendarContract.Events.DESCRIPTION, "Panchang · ourworldhive.com");
+                v.put(CalendarContract.Events.DESCRIPTION, "Din Darpan · ourworldhive.com");
                 v.put(CalendarContract.Events.DTSTART, start);
                 v.put(CalendarContract.Events.DTEND, end);
                 v.put(CalendarContract.Events.ALL_DAY, 1);
@@ -362,7 +362,7 @@ public class MainActivity extends Activity {
                 .putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, k.getTimeInMillis())
                 .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, k.getTimeInMillis() + 86400000L)
-                .putExtra(CalendarContract.Events.DESCRIPTION, "Panchang · ourworldhive.com");
+                .putExtra(CalendarContract.Events.DESCRIPTION, "Din Darpan · ourworldhive.com");
             startActivity(i);
         } catch (Exception e) { Toast.makeText(this, "No calendar app on this phone.", Toast.LENGTH_SHORT).show(); }
     }

@@ -1,5 +1,5 @@
 <resources>
-    <style name="Panchang" parent="@android:style/Theme.Material.NoActionBar">
+    <style name="DinDarpan" parent="@android:style/Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:colorAccent">#FFC94D</item>
     </style>

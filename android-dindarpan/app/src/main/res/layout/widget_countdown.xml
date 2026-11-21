@@ -5,7 +5,7 @@
     android:padding="12dp">
     <LinearLayout android:id="@+id/head" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:id="@+id/hDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:textStyle="bold" android:textColor="#FFC94D" android:maxLines="1" android:ellipsize="end" android:text="Panchang" />
+            <TextView android:id="@+id/hDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:textStyle="bold" android:textColor="#FFC94D" android:maxLines="1" android:ellipsize="end" android:text="Din Darpan" />
             <TextView android:id="@+id/hTithi" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12.5sp" android:textColor="#F3EAD8" android:maxLines="2" android:ellipsize="end" android:text="Open the app once to load the calendar" />
         </LinearLayout>
         <TextView android:id="@+id/add" android:layout_width="36dp" android:layout_height="36dp" android:gravity="center" android:text="+" android:textSize="22sp" android:textStyle="bold" android:textColor="#FFC94D" android:background="@drawable/btn_round" />

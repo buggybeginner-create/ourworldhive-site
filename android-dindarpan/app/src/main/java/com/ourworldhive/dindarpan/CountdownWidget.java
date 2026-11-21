@@ -1,4 +1,4 @@
-package com.ourworldhive.panchang;
+package com.ourworldhive.dindarpan;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -40,7 +40,7 @@ public class CountdownWidget extends AppWidgetProvider {
                 String fest = day.optString(3, "");
                 v.setTextViewText(R.id.hTithi, day.optString(5, "") + " · " + day.optString(4, "") + (fest.isEmpty() ? "" : "\n" + day.optString(2, "") + " " + fest));
             } else {
-                v.setTextViewText(R.id.hTithi, "Open Panchang once to load the calendar.");
+                v.setTextViewText(R.id.hTithi, "Open Din Darpan once to load the calendar.");
             }
             v.setTextViewText(R.id.title, hi ? "उलटी गिनती" : "COUNTDOWN");
             v.setTextViewText(R.id.empty, hi ? "+ दबाकर त्योहार चुनें" : "Tap + to choose festivals and events to count down.");

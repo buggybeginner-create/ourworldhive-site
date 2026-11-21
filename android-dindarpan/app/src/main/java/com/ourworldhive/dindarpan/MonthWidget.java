@@ -1,4 +1,4 @@
-package com.ourworldhive.panchang;
+package com.ourworldhive.dindarpan;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -18,7 +18,7 @@ import java.util.Set;
 
 /** Month calendar widget: English date with the tithi under it, festivals marked, ‹ › to change month. Copyright DUKEKRRISH. */
 public class MonthWidget extends AppWidgetProvider {
-    static final String PREV = "com.ourworldhive.panchang.MPREV", NEXT = "com.ourworldhive.panchang.MNEXT", NOW = "com.ourworldhive.panchang.MNOW";
+    static final String PREV = "com.ourworldhive.dindarpan.MPREV", NEXT = "com.ourworldhive.dindarpan.MNEXT", NOW = "com.ourworldhive.dindarpan.MNOW";
 
     @Override public void onUpdate(Context c, AppWidgetManager m, int[] ids) { draw(c, m, ids); Store.midnight(c); }
 
@@ -64,7 +64,7 @@ public class MonthWidget extends AppWidgetProvider {
             v.setTextColor(R.id.next, acc);
             v.setTextViewText(R.id.mTitle, ym.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + ym.getYear());
             v.setTextColor(R.id.mTitle, tx);
-            v.setTextViewText(R.id.mSub, sub.isEmpty() ? "Open Panchang once to load tithis" : sub);
+            v.setTextViewText(R.id.mSub, sub.isEmpty() ? "Open Din Darpan once to load tithis" : sub);
             v.setTextColor(R.id.mSub, head);
             v.setOnClickPendingIntent(R.id.prev, self(c, PREV, 11));
             v.setOnClickPendingIntent(R.id.next, self(c, NEXT, 12));

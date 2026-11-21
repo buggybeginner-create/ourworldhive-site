@@ -1,4 +1,4 @@
-package com.ourworldhive.panchang;
+package com.ourworldhive.dindarpan;
 
 import android.content.Context;
 import android.content.Intent;

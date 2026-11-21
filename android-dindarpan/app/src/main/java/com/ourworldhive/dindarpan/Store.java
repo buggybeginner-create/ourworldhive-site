@@ -1,4 +1,4 @@
-package com.ourworldhive.panchang;
+package com.ourworldhive.dindarpan;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -17,10 +17,10 @@ import java.util.Locale;
 
 /** Data the web page sends for the widgets (calendar days, countdown list), plus the daily refresh. Copyright DUKEKRRISH. */
 public final class Store {
-    static final String TICK = "com.ourworldhive.panchang.TICK";
+    static final String TICK = "com.ourworldhive.dindarpan.TICK";
     private Store() { }
 
-    static SharedPreferences sp(Context c) { return c.getSharedPreferences("panchang", Context.MODE_PRIVATE); }
+    static SharedPreferences sp(Context c) { return c.getSharedPreferences("dindarpan", Context.MODE_PRIVATE); }
 
     static JSONObject data(Context c) {
         try { return new JSONObject(sp(c).getString("w", "{}")); } catch (Exception e) { return new JSONObject(); }

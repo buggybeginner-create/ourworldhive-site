@@ -1,9 +1,9 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'com.ourworldhive.panchang'
+    namespace 'com.ourworldhive.dindarpan'
     compileSdk 36
     defaultConfig {
-        applicationId 'com.ourworldhive.panchang'
+        applicationId 'com.ourworldhive.dindarpan'
         minSdk 26
         targetSdk 36
         /* every build gets a new, higher number, so Play never says "version code already used" */

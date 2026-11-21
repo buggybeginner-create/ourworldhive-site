@@ -17,6 +17,7 @@
  --f:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--mono:ui-monospace,'SF Mono','Roboto Mono',Menlo,monospace}
 html.light{--bg:#f3f6fc;--bg2:#e9eef8;--card:#ffffff;--card2:#f4f7fd;--line:rgba(10,20,50,.1);--ink:#0c1530;--soft:#36456b;--mut:#6b7899;--up:#0a9f63;--dn:#e0283a;--up2:#c9f2df;--dn2:#ffd5da;--e20:#d97706;--e50:#0284c7}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 body{display:flex;flex-direction:column;overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -182,6 +183,13 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
 #updPill{position:fixed;left:calc(14px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:70;display:flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;border-radius:24px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font:700 14px var(--f);box-shadow:0 8px 22px rgba(194,65,12,.4);animation:up .35s ease-out}
 #updPill button{border:0;background:transparent;color:#fff;font:inherit;min-height:34px;padding:0 6px}#updPill .x{opacity:.8;font-size:16px}
 body:not(.own) .owncard{display:none}body:not(.own):not(.unlock) .keycard{display:none}
+.pa .lv{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}.pa .lv:first-of-type{border-top:0}
+.pa .lv b{font-family:var(--mono)}.pa .lv .tg{font-size:10.5px;font-weight:900;letter-spacing:.06em;padding:3px 7px;border-radius:6px;min-width:34px;text-align:center}
+.pa .tg.r{background:rgba(255,77,94,.15);color:var(--dn)}.pa .tg.s{background:rgba(22,199,132,.15);color:var(--up)}.pa .tg.p{background:var(--card2);color:var(--soft)}
+.pa .bar2{height:8px;border-radius:5px;background:linear-gradient(90deg,rgba(22,199,132,.5),var(--card2) 40%,var(--card2) 60%,rgba(255,77,94,.5));position:relative;margin:8px 0 4px}.pa .bar2 i{position:absolute;top:-4px;width:4px;height:16px;border-radius:2px;background:var(--ink)}
+#pgAlarm{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#4a3608,#070b16);color:#fff;padding:24px}
+#pgAlarm .pa-in{max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+#pgAlarm .pa-card{background:rgba(255,255,255,.12);border-radius:18px;padding:16px;font-size:17px;line-height:1.5;width:100%;text-align:left;margin:16px 0 20px;max-height:40vh;overflow:auto}
 .toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;background:var(--card);border:1px solid var(--gold);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:92vw;display:none}
 .toast.show{display:block;animation:up .2s}
 body.ts-s .heat{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:4px}body.ts-s .tile{min-height:52px;padding:6px 7px}body.ts-s .tile .p{font-size:13px}body.ts-s .tile .l{display:none}
@@ -270,6 +278,12 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Phone notification<input type="checkbox" id="oNotif"></label>
    <label class="sw">Sound<input type="checkbox" id="oSound" checked></label>
    <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
+   <div style="margin-top:10px;font-size:11.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)">⏰ FULL-SCREEN ALARM (KEEPS RINGING UNTIL YOU SLIDE TO STOP)</div>
+   <label class="sw">My price alerts<input type="checkbox" id="alR"></label>
+   <label class="sw">Scan alerts (% moves, 52-week, NIFTY move)<input type="checkbox" id="alS"></label>
+   <label class="sw" id="alGRow">BUY / SELL signals<input type="checkbox" id="alG"></label>
+   <div class="fr" style="margin-top:6px"><button class="btn" id="alTest">TEST ALARM</button><button class="btn" id="alPerm" hidden>ALLOW FULL-SCREEN</button></div>
+   <div id="alMsg" class="h" style="margin:6px 0 0;font-size:12px"></div>
    <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings once a day. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
   </div>
   <div class="card">
@@ -326,6 +340,8 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Trend notes (Bullish / Bearish)<input type="checkbox" id="tOn"></label>
    <label class="sw" id="tSigRow" hidden>BUY / SELL signals (owner only)<input type="checkbox" id="tSig"></label>
    <label class="sw">Candle chart<input type="checkbox" id="tChart"></label>
+   <label class="sw">Price action card (structure, support, resistance, breakouts)<input type="checkbox" id="pa"></label>
+   <label class="sw">Support / resistance lines on chart<input type="checkbox" id="paLines"></label>
    <label class="sw">Candle chart opens in<select class="inp" id="tTf" style="width:auto"><option value="5m">5 min</option><option value="15m">15 min</option><option value="1h">1 hour</option><option value="1d">1 day</option></select></label>
   </div>
   <div class="card">
@@ -361,7 +377,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-17.8'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-21.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -374,7 +390,7 @@ function cls(n){return n>0?'up':n<0?'dn':''}
 
 /* ---------- settings ---------- */
 var S=Object.assign({feed:DEFAULT_FEED,src:'auto',every:3,slow:true,bigPct:2,nearPct:3,theme:'auto',defView:'heat',custom:'',
-  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false},LS.get('set',{}));
+  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',pa:true,paLines:true,alR:false,alS:false,alG:false,tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false},LS.get('set',{}));
 if(!S.feed&&DEFAULT_FEED)S.feed=DEFAULT_FEED;
 function saveS(){LS.set('set',S)}
 var watch=LS.get('watch',['RELIANCE','HDFCBANK','TCS','INFY','SBIN']);
@@ -531,7 +547,15 @@ function fillDatalist(){var dl=$('stockList'),k=Object.keys(Q).sort().join(',');
   dl.innerHTML=Object.keys(Q).sort().concat(['NIFTY','BANKNIFTY']).map(function(s){return '<option value="'+esc(s)+'">'}).join('')}
 
 /* ---------- alerts ---------- */
+function alarmKind(key){return key.charAt(0)==='r'?S.alR:key.charAt(0)==='g'?(S.alG&&S.tSig&&isOwner()):S.alS}
+/* in-page full-screen alarm (website, or when the Android app is too old to have its own) */
+var almT=null;function pageAlarm(msg){var o=$('pgAlarm');if(!o){o=document.createElement('div');o.id='pgAlarm';document.body.appendChild(o)}
+  o.innerHTML='<div class="pa-in"><div style="font-size:54px">📈</div><div style="font:800 46px var(--f)">'+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</div><div style="color:#ffc857;font-weight:800;letter-spacing:.18em;font-size:12px">NIFTY PULSE ALARM</div><div class="pa-card">'+esc(msg).replace(/\n/g,'<br>')+'</div><button class="btn g" id="pgStop" style="width:100%;padding:18px;font-size:16px">⏹ STOP ALARM</button></div>';
+  o.style.display='flex';$('pgStop').onclick=function(){o.style.display='none';clearInterval(almT);almT=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}};
+  clearInterval(almT);var ring=function(){beep();beep2();try{navigator.vibrate&&navigator.vibrate([500,300,500])}catch(e){}};ring();almT=setInterval(ring,1600)}
+function beep2(){setTimeout(beep,450)}
 function fire(key,msg){if(fired[key])return;fired[key]=1;LS.set('fired',fired);
+  if(alarmKind(key)&&!(NATIVE&&NATIVE.fullScreenOk))pageAlarm(msg);
   var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});log.items.push({t:t,m:msg});if(log.items.length>200)log.items.shift();LS.set('log',log);
   if(cur!==2)LS.set('unseen',LS.get('unseen',0)+1);
   toast('🔔 '+msg);
@@ -578,6 +602,7 @@ function openStock(s){var q=Q[s]||IDX[s];if(!q)return;var w=watch.indexOf(s)>=0,
   '<div class="rbox"><div class="lb"><span>Day low '+fmt(q.low)+'</span><span>Day high '+fmt(q.high)+'</span></div><div class="rng"><i style="left:calc('+(dr*100)+'% - 1px)"></i></div></div>'+
   (p==null?'':'<div class="rbox"><div class="lb"><span>52W low '+fmt(q.l52)+'</span><span>52W high '+fmt(q.h52)+'</span></div><div class="rng"><i style="left:calc('+(p*100)+'% - 1px)"></i></div></div>')+
   (S.tChart?'<div class="chartbox"><div class="ct"><div class="seg" id="tfSeg"><button data-tf="5m">5M</button><button data-tf="15m">15M</button><button data-tf="1h">1H</button><button data-tf="1d">1D</button></div><span class="lg"><span style="color:var(--e20)">━</span> EMA 20 &nbsp;<span style="color:var(--e50)">━</span> EMA 50</span></div><div class="cinfo" id="cvInfo">Touch or drag on the chart to see values</div><canvas id="cv"></canvas><div class="fr" id="cvAct" style="margin-top:6px" hidden><button class="btn" id="cvReset" style="flex:0 0 auto">✕ RESET LINE</button><button class="btn g" id="cvAlert">🔔 ALERT AT ₹<span id="cvAP"></span></button></div><div id="cvMsg" class="lg" style="text-align:center;padding:4px 0">Loading chart…</div></div>':'')+
+  (S.pa?'<div id="paBox"><div class="tc"><div class="lg" style="color:var(--mut);font-size:12.5px">Price action: loading candles…</div></div></div>':'')+
   (S.tOn?'<div id="trendBox">'+trendCard(s,TA[s])+'</div>':'')+
   '<div class="kv"><div><span>OPEN</span><b>'+fmt(q.open)+'</b></div><div><span>PREV CLOSE</span><b>'+fmt(q.prev)+'</b></div><div><span>VOLUME</span><b>'+fmtVol(q.vol)+'</b></div><div><span>FROM 52W HIGH</span><b>'+(q.h52?'-'+fmt(nearHi(q))+'%':'—')+'</b></div>'+
   (q.uc?'<div><span>UPPER CIRCUIT</span><b>'+fmt(q.uc)+'</b></div><div><span>LOWER CIRCUIT</span><b>'+fmt(q.lc)+'</b></div>':'')+'</div>'+
@@ -588,6 +613,7 @@ function openStock(s){var q=Q[s]||IDX[s];if(!q)return;var w=watch.indexOf(s)>=0,
   $('shX').onclick=closeSheet;
   if(S.tChart){[].forEach.call(document.querySelectorAll('#tfSeg button'),function(b){b.onclick=function(){loadChart(s,b.getAttribute('data-tf'))}});setTimeout(function(){loadChart(s,S.tTf||'15m')},30)}
   if(S.tOn&&(!S.tChart||(S.tTf||'15m')!=='1d'))loadDaily(s);
+  if(S.pa&&!S.tChart)getCandles(s,S.tTf||'15m',function(cd){if(cd)paShow(s,cd,S.tTf||'15m')});
   if($('shW'))$('shW').onclick=function(){if(w)watch=watch.filter(function(x){return x!==s});else watch.push(s);LS.set('watch',watch);renderAll();paintSrc();openStock(s);toast(w?s+' removed from watchlist':s+' added to watchlist')};
   $('shT').onchange=function(){$('shV').value=this.value.indexOf('pct')===0?'2':(Math.round(q.ltp*(this.value==='above'?1.02:.98)*20)/20)};
   $('shA').onclick=function(){if(addRule(s,$('shT').value,$('shV').value))closeSheet()};
@@ -622,9 +648,9 @@ function bind(id,key,num){var el=$(id),chk=el.type==='checkbox';if(chk)el.checke
   el.addEventListener('change',function(){S[key]=chk?el.checked:num?(el.value===''?'':+el.value):el.value;saveS();
     if(key==='theme')applyTheme();if(key==='every'||key==='slow')schedule();if(key==='bigPct'||key==='nearPct')renderScan();if(key.charAt(0)==='g')checkAlerts()})}
 bind('every','every',1);bind('slow','slow');bind('bigPct','bigPct',1);bind('nearPct','nearPct',1);bind('theme','theme');bind('defView','defView');
-bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
+bind('alR','alR');bind('alS','alS');bind('alG','alG');bind('pa','pa');bind('paLines','paLines');bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
 bind('tOn','tOn');bind('tSig','tSig');bind('tChart','tChart');bind('tTf','tTf');bind('gSig','gSig');
-['tOn','tSig','gSig'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll();if(window.__npSync)__npSync()})});
+['tOn','tSig','gSig','alR','alS','alG'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll();if(window.__npSync)__npSync()})});
 bind('oSound','sound');bind('oVib','vib');bind('gMove','gMove',1);bind('gNifty','gNifty',1);bind('gHi','gHi');bind('gLo','gLo');
 $('oNotif').checked=!!S.notif&&window.Notification&&Notification.permission==='granted';
 $('oNotif').onchange=function(){var el=this;if(!el.checked){S.notif=false;saveS();return}
@@ -646,6 +672,14 @@ $('ownSave').onclick=function(){var k=$('ownKey').value.trim();LS.set('ak',k);$(
   if(!f){m.innerHTML='<span class="err">Add the worker link first.</span>';return}
   fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One, ICICI Breeze and BUY / SELL signals are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';
   var was=isOwner();LS.set('own',!!s.owner);if(s.owner&&!was){S.tSig=true;saveS();$('tSig').checked=true}paintTrendUI();Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
+/* ---------- full-screen alarm: test and Android permission ---------- */
+function alPaint(){$('alGRow').style.display=S.tSig&&isOwner()?'':'none';if(NATIVE&&NATIVE.fullScreenOk){var ok=false;try{ok=NATIVE.fullScreenOk()}catch(e){}$('alPerm').hidden=ok;
+  $('alMsg').innerHTML=ok?'Alarms show full screen even on the lock screen, with the app closed.':'<span class="err">Android needs your OK to show alarms on the lock screen. Tap ALLOW FULL-SCREEN.</span>'}
+  else $('alMsg').textContent=NATIVE?'Update the Android app (install the new APK) to get alarms with the app closed. For now the alarm shows only while the app is open.':'On the website the alarm shows only while this page is open. Install the Android app for alarms with the app closed.'}
+alPaint();document.addEventListener('visibilitychange',function(){if(!document.hidden)alPaint()});
+$('alTest').onclick=function(){if(NATIVE&&NATIVE.testAlarm){try{NATIVE.testAlarm()}catch(e){}}else pageAlarm('🔔 TEST ALARM\nThis is how a Nifty Pulse alarm looks and sounds.')};
+$('alPerm').onclick=function(){try{NATIVE.openFullScreen()}catch(e){}};
+
 /* ---------- TELEGRAM: each person connects their own Telegram ---------- */
 var TG=LS.get('tg',null);
 function tgPaint(){$('tgOff').hidden=!!TG;$('tgOn').hidden=!TG;$('tgName').textContent=TG&&TG.name?' · '+TG.name:''}
@@ -657,7 +691,8 @@ function tgPost(op,quiet){var f=feedUrl(),m=$('tgMsg');if(!f||!TG)return;if(!qui
     if(!quiet)m.innerHTML=j.ok?'<span class="ok">✔ '+(op==='rules'?'Sent '+j.saved+' alerts. Telegram will ring even when the app is closed.':'Test sent. Check Telegram.')+'</span>':'<span class="err">✖ '+esc(j.error||'Failed')+'</span>'}).catch(function(){if(!quiet)m.innerHTML='<span class="err">✖ No internet.</span>'})}
 var tgT=null;function tgAuto(){if(!TG)return;clearTimeout(tgT);tgT=setTimeout(function(){tgPost('rules',true)},2500)}
 $('tgConn').onclick=function(){var f=feedUrl(),m=$('tgMsg');if(!f){m.innerHTML='<span class="err">Telegram is not available right now.</span>';return}m.textContent='Opening Telegram…';
-  fetch(f+'/tg/info',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){if(!j.ok||!j.bot){m.innerHTML='<span class="err">Telegram alerts are not switched on yet.</span>';return}
+  fetch(f+'/tg/info',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){if(j&&j.app&&!('bot' in j)){m.innerHTML='<span class="err">The worker in Cloudflare has OLD code (no Telegram part). The owner must update the worker code.</span>';return}
+    if(!j.ok||!j.bot){m.innerHTML='<span class="err">Telegram is not ready: '+esc(j.error||'bot token not found')+'.'+(/KV|NP|set up/i.test(j.error||'')?' The owner must add TG_BOT_TOKEN and the KV binding NP in Cloudflare.':'')+'</span>';return}
     var code=Math.random().toString(36).slice(2,8)+Math.random().toString(36).slice(2,8);window.open('https://t.me/'+j.bot+'?start='+code,'_blank');
     m.innerHTML='Waiting… In Telegram tap <b>START</b>, then come back here.';var n=0,iv=setInterval(function(){n++;if(n>60){clearInterval(iv);m.innerHTML='<span class="err">Not connected. Tap CONNECT TELEGRAM and then START in Telegram.</span>';return}
       fetch(f+'/tg/link?code='+code,{cache:'no-store'}).then(function(r){return r.json()}).then(function(k){if(!k.ok)return;clearInterval(iv);TG={chat:k.chat,token:k.token,name:k.name||''};LS.set('tg',TG);tgPaint();tgPost('rules')}).catch(function(){})},3000)}).catch(function(){m.innerHTML='<span class="err">✖ No internet.</span>'})};
@@ -772,6 +807,55 @@ function loadDaily(s){getCandles(s,'1d',function(cd){if(!cd||cd.length<35)return
   var q=Q[s]||IDX[s];if(q&&q.ltp){var last=new Date(cd[cd.length-1][0]+330*6e4).toISOString().slice(0,10);if(last!==today()){['o','h','l'].forEach(function(k){DAILY[s][k].push(k==='o'?q.open||q.ltp:k==='h'?q.high||q.ltp:q.low||q.ltp)});DAILY[s].c.push(q.ltp)}else DAILY[s].c[DAILY[s].c.length-1]=q.ltp}
   TA[s]=analyze(s,DAILY[s].c,DAILY[s]);var tb=$('trendBox');if(tb)tb.innerHTML=trendCard(s,TA[s])})}
 
+/* ---------- PRICE ACTION: swings, structure, support/resistance zones, breakouts, pivots ---------- */
+var PA=null;
+function atrOf(cd,n){n=n||14;var t=[],i;for(i=1;i<cd.length;i++){var h=cd[i][2],l=cd[i][3],pc=cd[i-1][4];t.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)))}var s2=t.slice(-n);return s2.length?s2.reduce(function(a,b){return a+b},0)/s2.length:0}
+function priceAction(all,tf){if(!all||all.length<25)return null;var cd=all.slice(-160),off=all.length-cd.length,n=cd.length,P=cd[n-1][4],k=tf==='1d'?3:2,atr=atrOf(cd,14),sw=[],i,j;
+  for(i=k;i<n-k;i++){var hh=true,ll=true;for(j=1;j<=k;j++){if(cd[i][2]<=cd[i-j][2]||cd[i][2]<cd[i+j][2])hh=false;if(cd[i][3]>=cd[i-j][3]||cd[i][3]>cd[i+j][3])ll=false}
+    if(hh)sw.push({i:i+off,p:cd[i][2],h:true});if(ll)sw.push({i:i+off,p:cd[i][3],h:false})}
+  /* zones: swing prices that sit close together */
+  var tol=Math.max(P*0.0035,atr*0.6),pts=sw.map(function(w){return {p:w.p,i:w.i}}).sort(function(a,b){return a.p-b.p}),Z=[];
+  pts.forEach(function(x){var z=Z[Z.length-1];if(z&&x.p-z.loP<=tol*1.2){z.ps.push(x.p);z.last=Math.max(z.last,x.i)}else Z.push({ps:[x.p],loP:x.p,last:x.i})});
+  Z=Z.map(function(z){var a=z.ps.reduce(function(s,v){return s+v},0)/z.ps.length;return {p:a,n:z.ps.length,w:Math.min(tol*1.2,Math.max(tol*0.5,Math.max.apply(0,z.ps)-Math.min.apply(0,z.ps))),last:z.last}});
+  /* the strongest nearby levels first: more touches and more recent */
+  Z.forEach(function(z){z.score=z.n*2+(z.last/(n+off))});
+  var sup=Z.filter(function(z){return z.p<P}).sort(function(a,b){return b.p-a.p}),res=Z.filter(function(z){return z.p>P}).sort(function(a,b){return a.p-b.p});
+  /* recent range high / low as extra levels if nothing found */
+  var hiN=Math.max.apply(0,cd.slice(-40).map(function(r){return r[2]})),loN=Math.min.apply(0,cd.slice(-40).map(function(r){return r[3]}));
+  if(!res.length)res=[{p:hiN,n:1,w:tol,last:n,auto:true}];if(!sup.length)sup=[{p:loN,n:1,w:tol,last:n,auto:true}];
+  /* structure: last two swing highs and lows */
+  var H=sw.filter(function(w){return w.h}),L=sw.filter(function(w){return !w.h}),st='RANGE',stTxt='Swings are mixed: price is moving inside a range.';
+  if(H.length>=2&&L.length>=2){var h1=H[H.length-2].p,h2=H[H.length-1].p,l1=L[L.length-2].p,l2=L[L.length-1].p;
+    if(h2>h1&&l2>l1){st='UPTREND';stTxt='Higher highs and higher lows: buyers are in control.'}
+    else if(h2<h1&&l2<l1){st='DOWNTREND';stTxt='Lower highs and lower lows: sellers are in control.'}
+    else if(h2<h1&&l2>l1){st='SQUEEZE';stTxt='Lower highs but higher lows: range is getting tighter, a big move may come.'}
+    else{st='WIDENING';stTxt='Higher highs but lower lows: price is swinging wide, be careful.'}}
+  /* breakout / breakdown / rejection on the last 3 candles */
+  var ev=null,prev=cd[Math.max(0,n-6)][4];
+  Z.forEach(function(z){if(ev||z.n<2)return;if(prev<z.p&&P>z.p+tol*0.3)ev={t:'BREAKOUT',c:'up',txt:'Broke above ₹'+fmt(z.p)+(z.n>1?' (tested '+z.n+' times)':'')+'. If it holds above, that level can now act as support.'};
+    else if(prev>z.p&&P<z.p-tol*0.3)ev={t:'BREAKDOWN',c:'dn',txt:'Fell below ₹'+fmt(z.p)+(z.n>1?' (tested '+z.n+' times)':'')+'. That level can now act as resistance.'}});
+  if(!ev){var lc=cd[n-1],body=Math.abs(lc[4]-lc[1]),up=lc[2]-Math.max(lc[1],lc[4]),dn=Math.min(lc[1],lc[4])-lc[3];
+    if(res[0]&&lc[2]>=res[0].p-tol*0.3&&lc[4]<res[0].p&&up>body)ev={t:'REJECTED AT RESISTANCE',c:'dn',txt:'Price touched ₹'+fmt(res[0].p)+' and was pushed back down (long upper wick).'};
+    else if(sup[0]&&lc[3]<=sup[0].p+tol*0.3&&lc[4]>sup[0].p&&dn>body)ev={t:'BOUNCE FROM SUPPORT',c:'up',txt:'Price touched ₹'+fmt(sup[0].p)+' and buyers pushed it back up (long lower wick).'}}
+  var pat=pattern(cd.map(function(r){return r[1]}),cd.map(function(r){return r[2]}),cd.map(function(r){return r[3]}),cd.map(function(r){return r[4]}));
+  var rng=res[0].p-sup[0].p,pos=rng>0?(P-sup[0].p)/rng:.5,vol=cd.slice(-20).reduce(function(a,r){return a+(r[5]||0)},0)/20,lv=cd[n-1][5]||0;
+  return {all:all,price:P,atr:atr,tol:tol,sw:sw.slice(-14),levels:sup.slice(0,2).concat(res.slice(0,2)),sup:sup,res:res,st:st,stTxt:stTxt,ev:ev,pat:pat,pos:pos,volX:vol?lv/vol:0}}
+function pivots(s){var c=CC[s+'|1d'];if(!c||!c.d||c.d.length<2)return null;var d=c.d,last=d[d.length-1],td=new Date(last[0]+330*6e4).toISOString().slice(0,10),pr=td===today()?d[d.length-2]:last;
+  var H=pr[2],L=pr[3],C=pr[4],P2=(H+L+C)/3;return {P:P2,R1:2*P2-L,S1:2*P2-H,R2:P2+(H-L),S2:P2-(H-L),H:H,L:L}}
+function paShow(s,all,tf){var box=$('paBox');if(!box)return;var a=priceAction(all,tf);if(!a){box.innerHTML='<div class="tc"><div class="lg" style="color:var(--mut)">Price action: not enough candles yet.</div></div>';return}
+  var tfn={'5m':'5-min','15m':'15-min','1h':'1-hour','1d':'daily'}[tf]||tf,P=a.price,pct=function(v){var x=(v/P-1)*100;return (x>0?'+':'')+x.toFixed(2)+'%'};
+  var cls2=a.st==='UPTREND'?'up':a.st==='DOWNTREND'?'dn':'nt',row=function(tg,c,label,v,extra){return '<div class="lv"><span class="tg '+c+'">'+tg+'</span><span style="flex:1">'+label+'</span><b>₹'+fmt(v)+'</b><span class="num" style="width:62px;text-align:right;color:var(--mut);font-size:11.5px">'+pct(v)+'</span>'+(extra||'')+'</div>'};
+  var lv='';a.res.slice(0,2).reverse().forEach(function(z,i,arr){lv+=row('R'+(arr.length-i),'r',z.auto?'Recent high':'Resistance'+(z.n>1?' · tested '+z.n+'×':''),z.p)});
+  lv+='<div class="lv"><span class="tg p">NOW</span><span style="flex:1;font-weight:800">Current price</span><b>₹'+fmt(P)+'</b><span style="width:62px"></span></div>';
+  a.sup.slice(0,2).forEach(function(z,i){lv+=row('S'+(i+1),'s',z.auto?'Recent low':'Support'+(z.n>1?' · tested '+z.n+'×':''),z.p)});
+  var pv=pivots(s),pvH=pv?'<div style="margin-top:10px;font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--mut)">TODAY\'S PIVOTS (FROM YESTERDAY)</div><div class="kv" style="grid-template-columns:repeat(5,1fr);margin:6px 0 0">'+[['S2',pv.S2],['S1',pv.S1],['PIVOT',pv.P],['R1',pv.R1],['R2',pv.R2]].map(function(x){return '<div style="padding:6px"><span>'+x[0]+'</span><b style="font-size:12px">'+fmt(x[1],0)+'</b></div>'}).join('')+'</div>':'';
+  var near=a.res[0]&&(a.res[0].p-P)<=a.atr*0.6?'Price is close to resistance ₹'+fmt(a.res[0].p)+'.':a.sup[0]&&(P-a.sup[0].p)<=a.atr*0.6?'Price is close to support ₹'+fmt(a.sup[0].p)+'.':'Price is between support and resistance.';
+  box.innerHTML='<div class="tc pa"><div class="hd"><span class="tb '+cls2+'">'+(a.st==='UPTREND'?'▲ ':a.st==='DOWNTREND'?'▼ ':'◆ ')+a.st+'</span>'+(a.ev?'<span class="tb '+(a.ev.c==='up'?'up':'dn')+'">'+a.ev.t+'</span>':'')+'<span style="margin-left:auto;font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.06em">PRICE ACTION · '+tfn.toUpperCase()+'</span></div>'+
+    '<p><b>STRUCTURE:</b> '+a.stTxt+' '+near+(a.ev?' <b>'+a.ev.txt+'</b>':'')+(a.pat?' Last candle: <b>'+a.pat.n+'</b> ('+a.pat.t+').':'')+(a.volX>=1.8?' Volume on the last candle is <b>'+a.volX.toFixed(1)+'× normal</b>, so this move has strength.':'')+'</p>'+
+    '<div class="bar2" title="Where price sits between support and resistance"><i style="left:calc('+Math.max(0,Math.min(1,a.pos))*100+'% - 2px)"></i></div><div class="lg" style="display:flex;justify-content:space-between;font-size:10.5px"><span>SUPPORT</span><span>RESISTANCE</span></div>'+
+    '<div style="margin-top:8px">'+lv+'</div>'+pvH+
+    '<div class="dis">Levels come from the turning points (▲ ▼ on the chart) of the '+tfn+' candles. Typical move per candle (ATR): ₹'+fmt(a.atr)+'. Information only, not advice.</div></div>'}
+
 /* ---------- CANDLE CHART ---------- */
 var CC={};
 function demoCandles(s,tf){var q=Q[s]||IDX[s];if(!q)return [];var step={'5m':3e5,'15m':9e5,'1h':36e5,'1d':864e5}[tf],n=120,v=q.ltp,out=[],t=Date.now(),h=hash(s+tf);
@@ -783,7 +867,7 @@ function getCandles(s,tf,cb){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<(tf===
 function loadChart(s,tf){[].forEach.call(document.querySelectorAll('#tfSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf)});var m=$('cvMsg');if(m)m.textContent='Loading chart…';
   getCandles(s,tf,function(cd,err){var m2=$('cvMsg');if(!$('cv'))return;if(!cd){if(m2)m2.textContent='Chart not available'+(err?' ('+err+')':'');return}
     var q=Q[s]||IDX[s];if(q&&q.ltp&&cd.length){cd=cd.slice();var L=cd[cd.length-1].slice();L[4]=q.ltp;L[2]=Math.max(L[2],q.ltp);L[3]=Math.min(L[3],q.ltp);cd[cd.length-1]=L}
-    drawChart(cd,tf,s);if(m2)m2.textContent='';
+    PA=S.pa||S.paLines?priceAction(cd,tf):null;drawChart(cd,tf,s);if(m2)m2.textContent='';if(S.pa)paShow(s,cd,tf);
     if(tf==='1d'&&S.tOn&&cd.length>=35){DAILY[s]={o:cd.map(function(r){return r[1]}),h:cd.map(function(r){return r[2]}),l:cd.map(function(r){return r[3]}),c:cd.map(function(r){return r[4]})};TA[s]=analyze(s,DAILY[s].c,DAILY[s]);var tb=$('trendBox');if(tb)tb.innerHTML=trendCard(s,TA[s])}})}
 var CHX=null; /* crosshair: stays where you leave it until RESET or a new timeframe */
 function drawChart(all,tf,sym){var cv=$('cv');if(!cv)return;var dpr=window.devicePixelRatio||1,W=cv.clientWidth,Hh=cv.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;var g=cv.getContext('2d');
@@ -800,6 +884,10 @@ function drawChart(all,tf,sym){var cv=$('cv');if(!cv)return;var dpr=window.devic
       var bt=Y(Math.max(o,c)),bb=Y(Math.min(o,c));g.fillRect(x-Math.max(1,cw*.32),bt,Math.max(2,cw*.64),Math.max(1,bb-bt));
       if(vmax){var vhh=(r[5]||0)/vmax*vh;g.globalAlpha=.35;g.fillRect(x-Math.max(1,cw*.32),Hh-bot-vhh,Math.max(2,cw*.64),vhh);g.globalAlpha=1}});
     [[e20,C20],[e50,C50]].forEach(function(z){g.strokeStyle=z[1];g.lineWidth=1.5;g.beginPath();d.forEach(function(r,i){var x=i*cw+cw/2,y=Y(z[0][st+i]);i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke()});g.lineWidth=1;
+    if(S.paLines&&PA&&PA.all===all){ /* support / resistance zones + swing points */
+      PA.levels.forEach(function(z){if(z.p<lo||z.p>hi)return;var y=Y(z.p),col=z.p<PA.price?UP:DN;g.globalAlpha=.16;g.fillStyle=col;g.fillRect(0,Y(z.p+z.w/2),W-padR,Math.max(2,Y(z.p-z.w/2)-Y(z.p+z.w/2)));g.globalAlpha=.85;g.strokeStyle=col;g.setLineDash([6,4]);g.beginPath();g.moveTo(0,y);g.lineTo(W-padR,y);g.stroke();g.setLineDash([]);g.globalAlpha=1;
+        g.fillStyle=col;g.font='bold 9.5px ui-monospace,monospace';g.fillText((z.p<PA.price?'S ':'R ')+pf(z.p)+(z.n>1?' ×'+z.n:''),3,y-3);g.font='10px ui-monospace,monospace'});
+      PA.sw.forEach(function(w){var i=w.i-st;if(i<0||i>=d.length)return;var x=i*cw+cw/2;g.fillStyle=w.h?DN:UP;g.beginPath();if(w.h){var y=Y(d[i][2])-4;g.moveTo(x,y);g.lineTo(x-3.5,y-6);g.lineTo(x+3.5,y-6)}else{var y2=Y(d[i][3])+4;g.moveTo(x,y2);g.lineTo(x-3.5,y2+6);g.lineTo(x+3.5,y2+6)}g.fill()})}
     var L=d[d.length-1],lp=L[4],ly=Y(lp);g.setLineDash([3,3]);g.strokeStyle=MU;g.beginPath();g.moveTo(0,ly);g.lineTo(W-padR,ly);g.stroke();g.setLineDash([]);
     g.fillStyle=lp>=L[1]?UP:DN;g.fillRect(W-padR+1,ly-8,padR-1,16);g.fillStyle='#fff';g.fillText(pf(lp),W-padR+3,ly+4);
     g.fillStyle=MU;[0,Math.floor(d.length/2),d.length-1].forEach(function(i){var tx=lab(d[i][0]),w=g.measureText(tx).width,x=Math.min(Math.max(0,i*cw+cw/2-w/2),W-padR-w);g.fillText(tx,x,Hh-3)});
@@ -834,7 +922,7 @@ setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEvent
 
 /* ---------- Android app: home-screen widget + background alerts ---------- */
 function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
-  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())}}))}catch(e){}}
+  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())}}))}catch(e){}}
 var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400);tgAuto()};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
   [].forEach.call(document.querySelectorAll('[data-pin]'),function(b){b.onclick=function(){var z=b.getAttribute('data-pin');try{if(NATIVE.pinSize)NATIVE.pinSize(z);else{NATIVE.pinWidget();if(z!=='m')toast('Update the Android app to get '+(z==='s'?'Small':'Large')+' widgets')}}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}}});

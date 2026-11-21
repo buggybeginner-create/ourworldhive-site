@@ -7,6 +7,7 @@
   native files change. Changes to the web page reach the apps without an upload.
 - **Nifty Pulse (nifty-pulse.html):** change `var APP_VER = '…'` on EVERY edit (e.g. `2026-11-17.2`), same
   "Update Available" pill as My Diary. Its Cloudflare worker code lives in cloudflare/nifty-pulse-worker.js and is
-  pasted into Cloudflare by hand (worker `nifty-pulse` on er-krushnananda.workers.dev); changes there need a re-paste.
+  sent to Cloudflare by .github/workflows/nifty-worker-deploy.yml once the secrets CLOUDFLARE_API_TOKEN,
+  CLOUDFLARE_ACCOUNT_ID and NP_KV_ID are added (worker `nifty-pulse` on er-krushnananda.workers.dev); until then it is pasted by hand.
 - **PM Tracker (pm.html):** change `var PM_VER = '…'` (written `var PM_VER='…'`) on EVERY edit (e.g. `2026-11-21.2`), same
   "Update Available" pill as My Diary. Without a new value, open apps are never told about the update.

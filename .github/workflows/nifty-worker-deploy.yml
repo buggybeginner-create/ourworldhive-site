@@ -1,0 +1,44 @@
+name: Nifty Pulse worker (Cloudflare)
+# Sends cloudflare/nifty-pulse-worker.js to Cloudflare by itself, so nobody has to copy-paste the code.
+# Needs 3 GitHub secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NP_KV_ID (the id of the KV namespace bound as NP).
+# Secrets saved in the Cloudflare dashboard (ANGEL_*, BREEZE_*, ADMIN_KEY, TG_BOT_TOKEN) are kept as they are.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['cloudflare/nifty-pulse-worker.js', '.github/workflows/nifty-worker-deploy.yml']
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NP_KV_ID: ${{ secrets.NP_KV_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secrets are there
+        id: chk
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$NP_KV_ID" ]; then
+            echo "Secrets missing: add CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and NP_KV_ID in GitHub > Settings > Secrets > Actions. Nothing was sent."
+            echo "go=no" >> $GITHUB_OUTPUT
+          else echo "go=yes" >> $GITHUB_OUTPUT; fi
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.go == 'yes'
+        with: { node-version: '20' }
+      - name: Send the worker to Cloudflare
+        if: steps.chk.outputs.go == 'yes'
+        run: |
+          cat > wrangler.toml <<TOML
+          name = "nifty-pulse"
+          main = "cloudflare/nifty-pulse-worker.js"
+          compatibility_date = "2025-09-01"
+          workers_dev = true
+          keep_vars = true
+          [[kv_namespaces]]
+          binding = "NP"
+          id = "${NP_KV_ID}"
+          [triggers]
+          crons = ["* 3-10 * * 1-5"]
+          TOML
+          npx --yes wrangler@4 deploy

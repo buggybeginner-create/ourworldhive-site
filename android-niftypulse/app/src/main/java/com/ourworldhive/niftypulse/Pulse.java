@@ -10,6 +10,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.widget.RemoteViews;
 import org.json.JSONArray;
@@ -70,7 +73,28 @@ final class Pulse {
         try { JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.remove(key); sp(c).edit().putString("fired", f.toString()).apply(); } catch (Exception ignored) { }
     }
 
-    static void notify(Context c, String title, String msg, String key) {
+    static final String CH_ALARM = "np_alarm";
+
+    /** Is a full-screen alarm switched on for this kind of alert? key: r… = my price alerts, g… = BUY/SELL signals, others = scan alerts */
+    static boolean alarmFor(Context c, String key) {
+        JSONObject a = cfg(c).optJSONObject("alarm"); if (a == null || key == null) return false;
+        return key.startsWith("r") ? a.optBoolean("r") : key.startsWith("g") || key.startsWith("sig") ? a.optBoolean("g") : a.optBoolean("s");
+    }
+
+    /** Stop every alarm that is still ringing (slide to stop, Stop button, or opening the app). */
+    static void stopAlarms(Context c) {
+        try {
+            NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (String id : sp(c).getStringSet("ring", new java.util.HashSet<String>())) if (nm != null) nm.cancel(Integer.parseInt(id));
+            sp(c).edit().remove("ring").apply();
+            AlarmActivity a = AlarmActivity.live == null ? null : AlarmActivity.live.get();
+            if (a != null) a.finish();
+        } catch (Exception ignored) { }
+    }
+
+    static void notify(Context c, String title, String msg, String key) { notify(c, title, msg, key, alarmFor(c, key)); }
+
+    static void notify(Context c, String title, String msg, String key, boolean alarm) {
         try {
             NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) return;
@@ -79,13 +103,37 @@ final class Pulse {
                 ch.enableVibration(true); ch.setVibrationPattern(new long[]{0, 180, 80, 180});
                 nm.createNotificationChannel(ch);
             }
+            if (alarm && Build.VERSION.SDK_INT >= 26) {
+                NotificationChannel al = new NotificationChannel(CH_ALARM, "Full-screen price alarms", NotificationManager.IMPORTANCE_HIGH);
+                al.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM), new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+                al.enableVibration(true); al.setVibrationPattern(new long[]{0, 600, 400, 600, 400, 600}); al.setBypassDnd(true);
+                nm.createNotificationChannel(al);
+            }
+            int nid = key == null ? (int) (System.currentTimeMillis() % 100000) : 1000 + (key.hashCode() & 0xffff);
             Intent open = new Intent(c, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pi = PendingIntent.getActivity(c, 11, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CH) : new Notification.Builder(c);
-            b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(msg)
+            Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, alarm ? CH_ALARM : CH) : new Notification.Builder(c);
+            b.setSmallIcon(alarm ? android.R.drawable.ic_lock_idle_alarm : android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(msg)
              .setStyle(new Notification.BigTextStyle().bigText(msg)).setContentIntent(pi).setAutoCancel(true);
-            if (Build.VERSION.SDK_INT < 26) b.setPriority(Notification.PRIORITY_HIGH).setDefaults(Notification.DEFAULT_ALL);
-            nm.notify(key == null ? (int) (System.currentTimeMillis() % 100000) : 1000 + (key.hashCode() & 0xffff), b.build());
+            if (alarm) {
+                /* full screen over the lock screen; while the phone is in use it shows as a banner, a tap opens the full screen */
+                PendingIntent full = PendingIntent.getActivity(c, nid, AlarmActivity.open(c, nid, title, msg), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                Intent st = new Intent(c, Tick.class).setAction(Tick.STOP);
+                b.setOngoing(true).setAutoCancel(false).setFullScreenIntent(full, true).setContentIntent(full).setCategory(Notification.CATEGORY_ALARM)
+                 .addAction(new Notification.Action.Builder(null, "Stop", PendingIntent.getBroadcast(c, 41, st, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)).build());
+            }
+            if (Build.VERSION.SDK_INT < 26) {
+                b.setPriority(alarm ? Notification.PRIORITY_MAX : Notification.PRIORITY_HIGH);
+                if (alarm) { b.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM), AudioManager.STREAM_ALARM); b.setVibrate(new long[]{0, 600, 400, 600}); }
+                else b.setDefaults(Notification.DEFAULT_ALL);
+            }
+            Notification n = b.build();
+            if (alarm) {
+                n.flags |= Notification.FLAG_INSISTENT;   /* keeps ringing until Stop */
+                java.util.Set<String> r = new java.util.HashSet<>(sp(c).getStringSet("ring", new java.util.HashSet<String>())); r.add(String.valueOf(nid)); sp(c).edit().putStringSet("ring", r).apply();
+            }
+            nm.notify(nid, n);
+            if (alarm) { try { c.startActivity(AlarmActivity.open(c, nid, title, msg)); } catch (Exception ignored) { } }   /* works when the app is open; otherwise the full-screen intent above does it */
         } catch (Exception ignored) { }
     }
 
@@ -136,7 +184,7 @@ final class Pulse {
         JSONArray st = d.optJSONArray("stocks"), ix = d.optJSONArray("index");
         if (st != null) for (int i = 0; i < st.length(); i++) { JSONObject q = st.optJSONObject(i); if (q != null) by.put(q.optString("s"), q); }
         if (ix != null) for (int i = 0; i < ix.length(); i++) { JSONObject q = ix.optJSONObject(i); if (q != null) by.put(q.optString("s"), q); }
-        StringBuilder all = new StringBuilder(); int n = 0;
+        StringBuilder all = new StringBuilder(); int n = 0; boolean alarmNow = false, scanAl = alarmFor(c, "m");
         JSONArray rules = k.optJSONArray("rules");
         if (rules != null) for (int i = 0; i < rules.length(); i++) {
             JSONObject r = rules.optJSONObject(i); if (r == null || !r.optBoolean("on", true)) continue;
@@ -147,7 +195,7 @@ final class Pulse {
             else if ("below".equals(t) && ltp <= v) msg = s + " fell BELOW ₹" + f2(v) + " → ₹" + f2(ltp);
             else if ("pctUp".equals(t) && pct >= v) msg = s + " is UP " + sg(pct) + "% today (₹" + f2(ltp) + ")";
             else if ("pctDown".equals(t) && pct <= -Math.abs(v)) msg = s + " is DOWN " + f2(pct) + "% today (₹" + f2(ltp) + ")";
-            if (msg != null && markFired(c, "r" + r.optString("id"))) { n++; all.append(msg).append('\n'); }
+            if (msg != null && markFired(c, "r" + r.optString("id"))) { n++; all.append(msg).append('\n'); if (alarmFor(c, "r")) alarmNow = true; }
         }
         JSONObject g = k.optJSONObject("global"); if (g == null) g = new JSONObject();
         double gm = g.optDouble("move", 0), gn = g.optDouble("nifty", 0);
@@ -158,15 +206,15 @@ final class Pulse {
             String s = q.optString("s");
             if (only != null && only.length() > 0 && !only.toString().contains("\"" + s + "\"")) continue;
             double ltp = q.optDouble("ltp", 0), pct = q.optDouble("pct", 0), h52 = q.optDouble("h52", 0), l52 = q.optDouble("l52", 0);
-            if (gm > 0 && Math.abs(pct) >= gm && markFired(c, "m" + s)) { n++; all.append(s).append(" moved ").append(sg(pct)).append("% today (₹").append(f2(ltp)).append(")\n"); }
-            if (hi && h52 > 0 && ltp >= h52 && markFired(c, "h" + s)) { n++; all.append(s).append(" made a NEW 52-WEEK HIGH ₹").append(f2(ltp)).append('\n'); }
-            if (lo && l52 > 0 && ltp <= l52 && markFired(c, "l" + s)) { n++; all.append(s).append(" made a NEW 52-WEEK LOW ₹").append(f2(ltp)).append('\n'); }
+            if (gm > 0 && Math.abs(pct) >= gm && markFired(c, "m" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" moved ").append(sg(pct)).append("% today (₹").append(f2(ltp)).append(")\n"); }
+            if (hi && h52 > 0 && ltp >= h52 && markFired(c, "h" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK HIGH ₹").append(f2(ltp)).append('\n'); }
+            if (lo && l52 > 0 && ltp <= l52 && markFired(c, "l" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK LOW ₹").append(f2(ltp)).append('\n'); }
         }
         JSONObject nf = by.get("NIFTY");
-        if (nf != null && gn > 0 && Math.abs(nf.optDouble("pct", 0)) >= gn && markFired(c, "nifty")) { n++; all.append("NIFTY 50 moved ").append(sg(nf.optDouble("pct", 0))).append("% (").append(f2(nf.optDouble("ltp", 0))).append(")\n"); }
+        if (nf != null && gn > 0 && Math.abs(nf.optDouble("pct", 0)) >= gn && markFired(c, "nifty")) { n++; alarmNow |= scanAl; all.append("NIFTY 50 moved ").append(sg(nf.optDouble("pct", 0))).append("% (").append(f2(nf.optDouble("ltp", 0))).append(")\n"); }
         if (n == 0) return;
         String txt = all.toString().trim();
-        notify(c, n == 1 ? "🔔 Nifty Pulse alert" : "🔔 " + n + " Nifty Pulse alerts", txt, n == 1 ? txt : null);
+        notify(c, n == 1 ? "🔔 Nifty Pulse alert" : "🔔 " + n + " Nifty Pulse alerts", txt, n == 1 ? txt : null, alarmNow);
     }
 
     /* ---------- BUY / SELL signal alerts with the app closed ----------
@@ -245,8 +293,9 @@ final class Pulse {
             String line = s + " ₹" + f2(ltp) + " (" + sg(q.optDouble("pct", 0)) + "%) · " + r[1] + "\n";
             if ("BUY".equals(r[0])) { nb++; buy.append("▲ ").append(line); } else { ns++; sell.append("▼ ").append(line); }
         }
-        if (nb > 0) notify(c, "▲ " + nb + " new BUY signal" + (nb > 1 ? "s" : ""), buy.toString().trim() + "\nNot advice. Check before you trade.", "sigbuy" + today() + nb);
-        if (ns > 0) notify(c, "▼ " + ns + " new SELL signal" + (ns > 1 ? "s" : ""), sell.toString().trim() + "\nNot advice. Check before you trade.", "sigsell" + today() + ns);
+        boolean al = alarmFor(c, "g");
+        if (nb > 0) notify(c, "▲ " + nb + " new BUY signal" + (nb > 1 ? "s" : ""), buy.toString().trim() + "\nNot advice. Check before you trade.", "sigbuy" + today() + nb, al);
+        if (ns > 0) notify(c, "▼ " + ns + " new SELL signal" + (ns > 1 ? "s" : ""), sell.toString().trim() + "\nNot advice. Check before you trade.", "sigsell" + today() + ns, al);
     }
 
     /* ---------- home-screen widget ---------- */

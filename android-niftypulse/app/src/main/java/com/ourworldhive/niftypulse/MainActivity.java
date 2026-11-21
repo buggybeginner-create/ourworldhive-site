@@ -64,6 +64,12 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onResume() { super.onResume(); Pulse.FOREGROUND = true; }
+    /** Android 14+: full-screen alarms need the user's permission */
+    boolean canFullScreen() {
+        if (Build.VERSION.SDK_INT < 34) return true;
+        android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        return nm == null || nm.canUseFullScreenIntent();
+    }
     @Override protected void onPause() { super.onPause(); Pulse.FOREGROUND = false; Pulse.schedule(this); }
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
@@ -96,6 +102,14 @@ public class MainActivity extends Activity {
                 else Toast.makeText(MainActivity.this, "Long-press your home screen → Widgets → Nifty Pulse", Toast.LENGTH_LONG).show();
             } });
         }
+        @JavascriptInterface public boolean fullScreenOk() { return canFullScreen(); }
+        @JavascriptInterface public void openFullScreen() {
+            runOnUiThread(new Runnable() { public void run() {
+                try { if (Build.VERSION.SDK_INT >= 34) startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:" + getPackageName()))); }
+                catch (Exception e) { try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception ignored) { } }
+            } });
+        }
+        @JavascriptInterface public void testAlarm() { Pulse.notify(MainActivity.this, "🔔 TEST ALARM", "This is how a Nifty Pulse alarm looks and sounds.\nSlide to stop.", "test" + System.currentTimeMillis(), true); }
         @JavascriptInterface public void openAlertSettings() {
             runOnUiThread(new Runnable() { public void run() {
                 try {

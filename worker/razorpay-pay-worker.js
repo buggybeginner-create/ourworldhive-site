@@ -18,6 +18,7 @@
 //   AI_MODEL     (optional) default claude-sonnet-5-5
 //   OWNER_EMAIL  (optional) default er.krushnananda@gmail.com
 //   If ANTHROPIC_KEY is empty but a Workers AI binding named AI exists, the free Workers AI vision model is used (lower quality).
+// Donations: tool 'donate' (any amount Rs 10-50000, no sign-in), saved in donations/{id} and pay_log like every payment.
 // To add a new app later: add one line in APPS below and one small button in that app.
 const DEF_INR={sf:{perm:1999},ep:{m1:199,m3:597,m12:2388},pm:{m1:199,m3:549,m12:1499,perm:1999},pp:{m1:499,m3:1399,m12:4499,perm:5999},diary:{perm:1999},calc:{perm:99},mm:{m1:49,m3:129,m12:399}};
 // kind: 'user' = one document per signed-in user (needs idToken), 'plant' / 'project' = one document per plant / project
@@ -29,11 +30,13 @@ const APPS={
   ep:{kind:'plant',col:'ep_plants',label:'E-Permit',days:{m1:30,m3:90,m12:360}},
   pm:{kind:'plant',col:'pm_plants',label:'PM Tracker'},
   pp:{kind:'project',col:'pp_projects',label:'Project Planner'},
-  wallet:{kind:'wallet',col:'wallet',label:'Hive Wallet top-up'}
+  wallet:{kind:'wallet',col:'wallet',label:'Hive Wallet top-up'},
+  donate:{kind:'donate',col:'donations',label:'Donation to Ourworldhive'} // any amount Rs 10-50000, no sign-in needed, saved in donations/
 };
 const TOPUP_MIN=20,TOPUP_MAX=10000; // rupees
+const DON_MIN=10,DON_MAX=50000;     // donation, rupees
 const USE_DEF_INR={sbai:10};        // default price per AI use (rupees) if the owner has not set one
-const PLAN_NAME={m1:'1 month',m3:'3 months',m12:'12 months',perm:'Permanent access',topup:'Wallet top-up'};
+const PLAN_NAME={m1:'1 month',m3:'3 months',m12:'12 months',perm:'Permanent access',topup:'Wallet top-up',donate:'Donation'};
 const PP_DAYS={m1:30,m3:90,m12:365};
 const PM_MONTHS={m1:1,m3:3,m12:12};
 
@@ -172,6 +175,7 @@ async function priceInr(env,at,tool,plan){
 const addMonths=(ms,n)=>{const d=new Date(ms);d.setMonth(d.getMonth()+n);return d.getTime()};
 async function activate(env,at,A,n,payId){
   if(A.kind==='wallet'){await walletAdd(env,at,n.target,n.amount,{lastPay:'Razorpay '+payId});return true}
+  if(A.kind==='donate'){const r=await fsPatch(env,at,'donations/'+n.target,{amount:n.amount,app:String(n.app||''),uid:String(n.uid||''),payId:String(payId),ts:Date.now()});return r.ok}
   const path=A.col+'/'+n.target,now=Date.now(),note='Razorpay '+payId;
   const cur=await fsGet(env,at,path);
   if(A.once){ // one-time apps: plan = paid (the plant / company must exist unless it is a user document)
@@ -218,6 +222,14 @@ async function handle(req,env){
         body:JSON.stringify({amount:rs*100,currency:'INR',receipt:('wallet_'+u.uid).slice(0,40),notes:{tool:'wallet',target:u.uid,plan:'topup'}})}).then(r=>r.json());
       if(!o.id)return J({error:'order failed'},502);
       return J({orderId:o.id,amount:rs*100,currency:'INR',key:env.RZP_KEY_ID,keyId:env.RZP_KEY_ID,name:'Ourworldhive',label:'Hive Wallet top-up Rs '+rs,email:u.email});
+    }
+    if(A.kind==='donate'){
+      const rs=Math.round(+b.amount||0);if(!(rs>=DON_MIN&&rs<=DON_MAX))return J({error:'donation must be Rs '+DON_MIN+' to Rs '+DON_MAX},400);
+      const u=b.idToken?await whoIs(env,b.idToken):null,app=String(b.app||'').replace(/[^\w .-]/g,'').slice(0,40);
+      const o=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{'content-type':'application/json',authorization:rzpAuth(env)},
+        body:JSON.stringify({amount:rs*100,currency:'INR',receipt:('don_'+Date.now()).slice(0,40),notes:{tool:'donate',target:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),plan:'donate',app,uid:u?u.uid:''}})}).then(r=>r.json());
+      if(!o.id)return J({error:'order failed'},502);
+      return J({orderId:o.id,amount:rs*100,currency:'INR',key:env.RZP_KEY_ID,keyId:env.RZP_KEY_ID,name:'Ourworldhive',label:'Donation Rs '+rs+' - thank you!',email:u?u.email:''});
     }
     const plan=A.once?'perm':String(b.plan||'');if(!PLAN_NAME[plan])return J({error:'unknown plan'},400);
     const at=await saToken(env);if(!at)return J({error:'server auth'},500);
@@ -286,7 +298,7 @@ async function handle(req,env){
     const lg=await fetch(fsBase(env)+'pay_log/'+cleanId(pay.id)+'?currentDocument.exists=false&updateMask.fieldPaths=tool&updateMask.fieldPaths=target&updateMask.fieldPaths=plan&updateMask.fieldPaths=amount&updateMask.fieldPaths=ts',
       {method:'PATCH',headers:{authorization:'Bearer '+at,'content-type':'application/json'},body:JSON.stringify({fields:{tool:fv(n.tool),target:fv(target),plan:fv(n.plan),amount:fv(pay.amount),ts:fv(Date.now())}})});
     if(!lg.ok){const t=await lg.text();if(lg.status===409||/ALREADY_EXISTS|FAILED_PRECONDITION/.test(t))return new Response('already done');return new Response('log failed',{status:500})}
-    let ok=false;try{ok=await activate(env,at,A,{target,plan:n.plan,amount:ord.amount},pay.id)}catch(e){ok=false}
+    let ok=false;try{ok=await activate(env,at,A,{target,plan:n.plan,amount:ord.amount,app:n.app,uid:n.uid},pay.id)}catch(e){ok=false}
     if(!ok){ // let Razorpay retry later
       await fetch(fsBase(env)+'pay_log/'+cleanId(pay.id),{method:'DELETE',headers:{authorization:'Bearer '+at}});
       return new Response('activation failed',{status:500});

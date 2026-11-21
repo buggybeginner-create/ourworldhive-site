@@ -46,6 +46,14 @@ public class CountdownService extends RemoteViewsService {
                 it.c = o.optString("c", "");
                 if (it.d.length() != 10) continue;
                 it.left = Store.daysTo(it.d);
+                /* repeat every year: once the day has passed, show next year's date (worked out by the app) or hide it */
+                if (it.left < 0 && o.optInt("rep", 0) == 1) {
+                    String nx = o.optString("nx", "");
+                    if (nx.length() != 10) continue;
+                    it.d = nx;
+                    it.left = Store.daysTo(nx);
+                    if (it.left < 0) continue;
+                }
                 items.add(it);
             }
             Collections.sort(items, (a, b) -> {

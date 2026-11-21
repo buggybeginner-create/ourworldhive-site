@@ -55,14 +55,23 @@ function installBtn(){
 /* ---- Support / Donate and Get latest version: no popup, no footer link, no floating button.
    Each app shows them inside its own Profile: OWHDON.card() returns the donate block as HTML, OWHUPD.run() refreshes the app. ---- */
 function donateInit(){
-  var UPI='8917262863@ybl';
+  /* Donations go through Razorpay (owh-pay Worker, tool 'donate'). No phone number or UPI ID is shown. */
   function card(){
-    if(window.OWH_PLAY)return ''; /* no donate inside the Play Store app */
-    var amts=[49,99,199,499],links=amts.map(function(a){return '<a href="upi://pay?pa='+UPI+'&pn=DUKEKRRISH&am='+a+'&cu=INR&tn=Donation">&#8377;'+a+'</a>'}).join('');
-    return '<b>&hearts; SUPPORT / DONATE</b><div class="note" style="margin:4px 0">If this app helps you, you can send any amount by UPI. Donating is optional, and every app stays free to try. Thank you!</div><div>'+links+'<a href="upi://pay?pa='+UPI+'&pn=DUKEKRRISH&cu=INR&tn=Donation">OTHER AMOUNT</a></div><div class="note" style="margin-top:8px">UPI ID: <b>'+UPI+'</b> <button type="button" class="chip" data-owhcopy="'+UPI+'">COPY</button></div>';
+    if(window.OWH_PLAY)return ''; /* no donate inside the Play Store app (Google Play rules) */
+    var amts=[51,101,251,501],b=amts.map(function(a){return '<a href="#" data-owhdon="'+a+'">&#8377;'+a+'</a>'}).join('');
+    return '<b>&hearts; SUPPORT / DONATE</b><div class="note" style="margin:4px 0">If this app helps you, you can support it with any amount. Donating is optional, and every app stays free to try. Thank you!</div><div>'+b+'<a href="#" data-owhdon="other">OTHER AMOUNT</a></div><div class="note" style="margin-top:6px">Safe payment by Razorpay: UPI, cards, net banking or wallets.</div>';
   }
-  d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-owhcopy]');if(!b)return;e.preventDefault();var v=b.getAttribute('data-owhcopy');try{navigator.clipboard.writeText(v).then(function(){b.textContent='COPIED'},function(){b.textContent=v})}catch(x){b.textContent=v}});
-  window.OWHDON={card:card,upi:UPI};
+  function loadJs(src){return new Promise(function(a,b){if(window.OWH_PRICE)return a();var e=d.createElement('script');e.src=src;e.onload=a;e.onerror=b;d.head.appendChild(e)})}
+  function donate(rs,btn){
+    var old=btn?btn.innerHTML:'';if(btn)btn.innerHTML='&#8987;';
+    loadJs('owh-pricing.js').then(function(){return window.OWH_PRICE.rzpPay({tool:'donate',plan:'donate',amount:rs,app:(d.title||'').split('|')[0].trim().slice(0,40)})})
+    .then(function(ok){if(btn)btn.innerHTML=old;if(ok)alert('Thank you for your support! 🙏')})
+    .catch(function(e){if(btn)btn.innerHTML=old;var m=(e&&e.message)||'';alert(/unknown app/.test(m)?'Online donation is being set up. Please try again a little later. Thank you!':'Donation could not start: '+(m||'please try again later'))});
+  }
+  d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-owhdon]');if(!b)return;e.preventDefault();var v=b.getAttribute('data-owhdon'),rs=+v;
+    if(v==='other'){var x=prompt('Amount in rupees (10 to 50000):','100');if(x==null)return;rs=Math.round(+x);}
+    if(!(rs>=10&&rs<=50000)){alert('Please enter an amount from Rs 10 to Rs 50000.');return}donate(rs,b)});
+  window.OWHDON={card:card,donate:donate};
   /* Get latest version: clears the saved copy of the app on this phone and reloads. Data stays safe. */
   function upd(now){if(now!==true){try{if(!confirm('Get the latest version of this app? Your data stays safe.'))return}catch(e){}}
     var j=[];try{if(navigator.serviceWorker)j.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}))}catch(e){}

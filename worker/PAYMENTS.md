@@ -13,6 +13,7 @@ Razorpay webhook `/webhook` (payment.captured) -> Worker switches the plan on in
 | pm | pm_plants/{code} | adds 1/3/12 months (or permanent) |
 | pp | pp_projects/{id} | adds 30/90/365 days (or permanent) |
 | ep | ep_plants/{code} | adds 30/90/360 days |
+| donate | donations/{id} | Donation, any amount Rs 10-50000, no sign-in. Every app's Support / Donate card (owh-pwa.js) uses it. No UPI ID or phone number is shown. |
 | sf | sf_companies/{code} | plan = paid (one-time INR 199). Worker ready, app button NOT added yet: decide what the paid version unlocks first |
 
 ## Add payment to a NEW app (3 small steps)

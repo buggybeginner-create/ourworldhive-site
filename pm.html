@@ -1418,30 +1418,38 @@ if(A.acc){const _ac=A.acc;A.acc=function(){const r=_ac.apply(this,arguments);set
 document.addEventListener('change',e=>{const i=e.target;if(!i||!i.dataset)return;if(i.dataset.hsdep!=null){if(CLOUD.cached)return toast('Still syncing. Try again in a few seconds.');A.hsdep({id:i.dataset.hsdep},i)}else if(i.dataset.gsec!=null){if(CLOUD.cached)return toast('Still syncing. Try again in a few seconds.');A.gsec({id:i.dataset.gsec},i)}});
 
 /* ================= Today list as a picture: the whole list, however long (one tall image; very long lists are split) ================= */
-function todayImages(){const q=todayParts(),f=ui.tf||'',list=(f==='over'?q.over:q.over.concat(q.tod)),me=ME(),P=PL(),td=TODAY(),dn=f==='over'?[]:P.logs.filter(l=>l.done===td&&logSeen(l)&&(isMgr()||l.doneBy===me.id||l.assignee===me.id||(l.crew||[]).some(c=>c&&c.m===me.id)));
+function todayImages(o){o=o||{};const q=todayParts(),f=o.mode?(o.mode==='pending'?'over':''):(ui.tf||''),me=ME(),P=PL(),td=TODAY(),mine=l=>logSeen(l)&&(isMgr()||l.doneBy===me.id||l.assignee===me.id||(l.crew||[]).some(c=>c&&c.m===me.id));
+ let list=f==='over'?q.over:q.over.concat(q.tod),dn=f==='over'?[]:P.logs.filter(l=>l.done===td&&mine(l)),ttl=f==='over'?'Overdue jobs':isMgr()?'Today':'My tasks today';
+ if(o.mode==='target'){list=q.tod;ttl='Target today'}else if(o.mode==='done'){list=[];ttl='Done today'}else if(o.mode==='comp'){const w=wdData0('month');list=w.pend;dn=w.logs;ttl='Compliance this month • '+w.pct+'%'}
+ if(o.grp){list=list.filter(t=>catOf(t)===o.grp);dn=dn.filter(l=>catOf(l)===o.grp)}
  const W=1080,PD=36,IW=W-2*PD,F=(sz,w)=>(w||400)+' '+sz+'px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif',HDR=250,GH=70,RH=104,MAXR=260;
  const items=[];[['PM','Tasks'],['SD','Shutdown'],['CAL','Calibration']].forEach(g=>{const L=list.filter(t=>catOf(t)===g[0]),D=dn.filter(l=>catOf(l)===g[0]);if(!L.length&&!D.length)return;items.push({g:g[1],n:L.length,d:D.length});
   L.forEach(t=>{const late=diffDays(td,t.due);items.push({tag:(eqPre(t)?eqPre(t)+' › ':'')+(tg(t)||''),name:t.name,sub:[secName(t.sec),mName(t.assignee),'Due '+fmt(t.due)].filter(Boolean).join('  •  '),pill:late>0?['Overdue '+late+'d','#dc2626']:['Due Today','#2563eb']})});
-  D.forEach(l=>items.push({tag:(eqPre(l)?eqPre(l)+' › ':'')+(tg(l)||''),name:l.name,sub:[secName(l.sec),crewText(l),logTime(l)].filter(Boolean).join('  •  '),pill:[doneState(l).ok?'Done':'Done Late','#16a34a']}))});
+  D.forEach(l=>items.push({tag:(eqPre(l)?eqPre(l)+' › ':'')+(tg(l)||''),name:l.name,sub:[secName(l.sec),crewText(l),o.mode==='comp'?fmt(l.done):'',logTime(l)].filter(Boolean).join('  •  '),pill:[doneState(l).ok?'Done':'Done Late','#16a34a']}))});
  const parts=[];for(let i=0;i<Math.max(1,items.length);i+=MAXR)parts.push(items.slice(i,i+MAXR));
  const mx=document.createElement('canvas').getContext('2d');items.forEach(r=>{if(r.g)return;mx.font=F(24,700);const pw=mx.measureText(r.pill[0]).width+30;mx.font=F(30,700);const t=(r.tag?r.tag+'  •  ':'')+r.name,w=IW-pw-60;r.t1=t;r.t2='';if(mx.measureText(t).width>w){let k=t.length;while(k>1&&mx.measureText(t.slice(0,k)).width>w)k--;const sp=t.lastIndexOf(' ',k);k=sp>k*.5?sp:k;r.t1=t.slice(0,k);r.t2=t.slice(k).trim()}r.h=r.t2?RH+36:RH});
  return parts.map((it,pi)=>{const h=HDR+30+it.reduce((a,r)=>a+(r.g?GH:r.h),0)+(it.length?0:120)+90,c=document.createElement('canvas');c.width=W;c.height=h;const x=c.getContext('2d');
   const fit=(t,w)=>{t=String(t||'');if(x.measureText(t).width<=w)return t;while(t.length>1&&x.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'};
   x.fillStyle='#eef3f2';x.fillRect(0,0,W,h);const gr=x.createLinearGradient(0,0,W,HDR);gr.addColorStop(0,'#0b4f49');gr.addColorStop(1,'#0f766e');x.fillStyle=gr;x.fillRect(0,0,W,HDR);
   x.fillStyle='#ffc857';x.font=F(28,700);x.fillText('PM TRACKER',PD,62);x.fillStyle='#fff';x.font=F(50,700);x.fillText(fit(P.name,IW),PD,124);
-  x.fillStyle='#d6ecea';x.font=F(32,400);x.fillText(fit((f==='over'?'Overdue jobs':isMgr()?'Today':'My tasks today')+'  •  '+fmt(td)+(parts.length>1?'  •  part '+(pi+1)+' of '+parts.length:''),IW),PD,178);
-  x.fillStyle='#fff';x.font=F(30,700);x.fillText(list.length+' open'+(f==='over'?'':'  •  '+dn.length+' done')+'  •  '+q.over.length+' overdue',PD,225);
+  x.fillStyle='#d6ecea';x.font=F(32,400);x.fillText(fit(ttl+'  •  '+fmt(td)+(parts.length>1?'  •  part '+(pi+1)+' of '+parts.length:''),IW),PD,178);
+  x.fillStyle='#fff';x.font=F(30,700);x.fillText(list.length+' open'+(f==='over'?'':'  •  '+dn.length+' done')+'  •  '+list.filter(t=>t.due<td).length+' overdue',PD,225);
   let y=HDR+30;if(!it.length){x.fillStyle='#10302d';x.font=F(34,600);x.fillText(f==='over'?'Nothing overdue.':'Nothing due today.',PD,y+60)}
   it.forEach(r=>{if(r.g){x.fillStyle='#0f766e';x.font=F(32,700);x.fillText(r.g,PD,y+46);x.fillStyle='#52605e';x.font=F(26,400);x.textAlign='right';x.fillText(r.n+' open'+(r.d?'  •  '+r.d+' done':''),W-PD,y+46);x.textAlign='left';y+=GH;return}
    const rh=r.h;x.fillStyle='#fff';x.beginPath();x.roundRect?x.roundRect(PD,y,IW,rh-12,16):x.rect(PD,y,IW,rh-12);x.fill();x.fillStyle=r.pill[1];x.fillRect(PD,y,8,rh-12);
    x.font=F(24,700);const pw=x.measureText(r.pill[0]).width+30;x.fillStyle=r.pill[1];x.beginPath();x.roundRect?x.roundRect(W-PD-pw-16,y+16,pw,40,20):x.rect(W-PD-pw-16,y+16,pw,40);x.fill();x.fillStyle='#fff';x.fillText(r.pill[0],W-PD-pw-1,y+44);
    x.fillStyle='#10302d';x.font=F(30,700);x.fillText(r.t1,PD+24,y+44);if(r.t2)x.fillText(fit(r.t2,IW-48),PD+24,y+80);x.fillStyle='#52605e';x.font=F(24,400);x.fillText(fit(r.sub,IW-48),PD+24,y+(r.t2?116:80));y+=rh});
   x.fillStyle='#7a8a88';x.font=F(22,400);x.fillText('PM Tracker  •  ourworldhive.com',PD,h-36);return c})}
-async function todayImgShare(){const cs=todayImages(),td=TODAY(),nm=i=>'pm-today-'+td+(cs.length>1?'-'+(i+1):'')+'.png',text=(ui.tf==='over'?'Overdue jobs':'Today')+' • '+PL().name+' • '+fmt(td);
+async function todayImgShare(o){o=o||{};const cs=todayImages(o),td=TODAY(),nm=i=>'pm-today-'+td+(cs.length>1?'-'+(i+1):'')+'.png',text=(ui.tf==='over'?'Overdue jobs':'Today')+' • '+PL().name+' • '+fmt(td);
  if(cs.length===1)return shareImage(cs[0],nm(0),text);
  const files=[];for(let i=0;i<cs.length;i++){const b=await new Promise(r=>cs[i].toBlob(r,'image/png'));if(b)files.push(new File([b],nm(i),{type:'image/png'}))}
  if(navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,text});return}catch(e){if(e&&e.name==='AbortError')return}}files.forEach(f=>dlBlob(f,f.name));toast(files.length+' images downloaded. Attach them in WhatsApp.',4500)}
 Object.assign(A,{timg(){todayImgShare()}});READONLY.add('timg');
+/* the share arrows on the tiles and groups ask: text or picture */
+setTimeout(()=>{const _ts=A.tshare,_tg=A.tgshare,ask=(t,txt,img)=>{window.__shT=txt;window.__shI=img;openSheet(`<h2>Share ${esc(t)}</h2><div class="f"><button class="btn" style="background:#128c7e" data-a="shtxt">\uD83D\uDCAC WhatsApp Text</button><button class="btn g" data-a="shimg">\uD83D\uDCF7 Image (whole list)</button><button class="btn w" data-a="cs">Close</button></div>`)};
+ A.tshare=function(d){ask({target:'Target Today',done:'Done Today',pending:'Overdue Jobs',comp:'Compliance'}[d.k]||'',()=>_ts(d),()=>todayImgShare({mode:d.k}))};
+ A.tgshare=function(d){ask({PM:'Tasks',SD:'Shutdown',CAL:'Calibration'}[d.k]||'',()=>_tg(d),()=>todayImgShare({grp:d.k}))};
+ A.shtxt=function(){closeSheet();const f=window.__shT;if(f)f()};A.shimg=function(){closeSheet();const f=window.__shI;if(f)f()};['shtxt','shimg'].forEach(k=>READONLY.add(k))},0);
 /* ================= QR lock: a due PM job can be executed only after its QR is scanned (manager switches it on, in Manage › QR) ================= */
 const QRPASS={};let QRWANT=null;
 /* a QR holds '~id' (instrument), '@tag' (equipment) or the plain tag: unlock every name it stands for */

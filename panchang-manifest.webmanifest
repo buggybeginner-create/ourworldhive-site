@@ -1,0 +1,17 @@
+{
+ "id": "panchang.html",
+ "name": "Panchang - Hindu Calendar",
+ "short_name": "Panchang",
+ "start_url": "panchang.html",
+ "scope": "./panchang.html",
+ "display": "standalone",
+ "background_color": "#0d0b08",
+ "theme_color": "#0d0b08",
+ "icons": [
+  {"src": "panchang-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "panchang-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+  {"src": "panchang-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+ ],
+ "lang": "en",
+ "categories": ["lifestyle", "utilities"]
+}

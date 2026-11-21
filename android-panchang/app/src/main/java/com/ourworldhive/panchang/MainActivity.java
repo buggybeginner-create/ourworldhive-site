@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 /**
- * Panchang for Android: opens https://ourworldhive.com/panchang.html and adds what a website cannot do:
+ * Din Darpan (Panchang) for Android: opens https://ourworldhive.com/panchang.html and adds what a website cannot do:
  * home-screen widgets (festival countdown and month calendar), the phone's own calendars (Google Calendar),
  * festival reminders while the app is closed, Google sign-in with the phone's account and the back button.
  * Copyright DUKEKRRISH. All rights reserved.
@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private String tokReq, tokScope, calReq, geoOrigin;
     private GeolocationPermissions.Callback geoCb;
-    private boolean darkBars = true, asked;
+    private boolean darkBars = false, asked;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
         web = new WebView(this);
         root.addView(web, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(root);
-        darkBars = Store.sp(this).getBoolean("dark", true);
+        darkBars = Store.sp(this).getBoolean("dark", false);
         applyBars();
         root.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             public WindowInsets onApplyWindowInsets(View v, WindowInsets in) {
@@ -131,7 +131,7 @@ public class MainActivity extends Activity {
     }
 
     private void applyBars() {
-        int bg = darkBars ? Color.rgb(13, 11, 8) : Color.rgb(246, 241, 231);
+        int bg = darkBars ? Color.rgb(31, 13, 14) : Color.rgb(122, 31, 31);
         root.setBackgroundColor(bg);
         if (web != null) web.setBackgroundColor(bg);
         getWindow().getDecorView().setBackgroundColor(bg);
@@ -208,7 +208,7 @@ public class MainActivity extends Activity {
             String r = calReq; calReq = null;
             if (web != null && r != null) web.evaluateJavascript("(function(){try{window.owhCal&&owhCal(" + JSONObject.quote(r) + "," + ok + ")}catch(e){}})()", null);
             if (!ok && Build.VERSION.SDK_INT >= 23 && !shouldShowRequestPermissionRationale(Manifest.permission.READ_CALENDAR))
-                Toast.makeText(this, "To allow it later: Settings › Apps › Panchang › Permissions › Calendar.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "To allow it later: Settings › Apps › Din Darpan › Permissions › Calendar.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -388,7 +388,7 @@ public class MainActivity extends Activity {
             if (Build.VERSION.SDK_INT >= 33 && !asked && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 { asked = true; requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 3); return; }
             try { startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName())); }
-            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › Panchang › Notifications.", Toast.LENGTH_LONG).show(); }
+            catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings › Apps › Din Darpan › Notifications.", Toast.LENGTH_LONG).show(); }
         } }); }
         @JavascriptInterface public String calPerm() { return calOk() ? "granted" : "denied"; }
         @JavascriptInterface public void askCal(final String req) { ui.post(new Runnable() { public void run() {

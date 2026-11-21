@@ -1,6 +1,3 @@
 <resources>
-    <color name="bg">#0D0B08</color>
-    <color name="gold">#FFC94D</color>
-    <color name="tx">#F3EAD8</color>
-    <color name="tx2">#B8AA8E</color>
+    <color name="bg">#FBF4E8</color>
 </resources>

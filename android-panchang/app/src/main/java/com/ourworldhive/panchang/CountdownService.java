@@ -2,7 +2,6 @@ package com.ourworldhive.panchang;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
@@ -19,12 +18,13 @@ import java.util.List;
 public class CountdownService extends RemoteViewsService {
     @Override public RemoteViewsFactory onGetViewFactory(Intent intent) { return new Rows(getApplicationContext()); }
 
-    static final class Item { String n, e, d; long left; }
+    static final class Item { String n, e, d, c; long left; }
 
     static final class Rows implements RemoteViewsFactory {
         private final Context c;
         private final List<Item> items = new ArrayList<>();
-        private boolean dark = true, hi = false;
+        private boolean hi = false;
+        private JSONObject d = new JSONObject();
         Rows(Context c) { this.c = c; }
 
         public void onCreate() { }
@@ -32,8 +32,7 @@ public class CountdownService extends RemoteViewsService {
 
         public void onDataSetChanged() {
             items.clear();
-            JSONObject d = Store.data(c);
-            dark = Store.dark(d);
+            d = Store.data(c);
             hi = "hi".equals(d.optString("lang"));
             JSONArray cd = d.optJSONArray("cd");
             if (cd == null) return;
@@ -44,6 +43,7 @@ public class CountdownService extends RemoteViewsService {
                 it.n = o.optString("n", "");
                 it.e = o.optString("e", "⭐");
                 it.d = o.optString("d", "");
+                it.c = o.optString("c", "");
                 if (it.d.length() != 10) continue;
                 it.left = Store.daysTo(it.d);
                 items.add(it);
@@ -62,9 +62,8 @@ public class CountdownService extends RemoteViewsService {
             if (pos >= items.size()) return v;
             Item it = items.get(pos);
             boolean past = it.left < 0;
-            int tx = dark ? Color.parseColor("#F3EAD8") : Color.parseColor("#2B2012");
-            int tx2 = dark ? Color.parseColor("#B8AA8E") : Color.parseColor("#7A6A4E");
-            int gold = dark ? Color.parseColor("#FFC94D") : Color.parseColor("#B86E00");
+            int tx = Store.pc(d, "tx", "#3B1D14"), tx2 = Store.pc(d, "tx2", "#8A6A55");
+            int gold = Store.col(it.c, Store.pc(d, "acc", "#D9480F"));
             String left;
             if (it.left == 0) left = hi ? "आज 🎉" : "Today 🎉";
             else if (it.left == 1) left = hi ? "कल" : "Tomorrow";
@@ -87,7 +86,7 @@ public class CountdownService extends RemoteViewsService {
             if (past) dt = dt + (hi ? " · " + (-it.left) + " दिन पहले" : " · " + (-it.left) + (it.left == -1 ? " day ago" : " days ago"));
             v.setTextViewText(R.id.dt, dt);
             if (left != null) v.setTextViewText(R.id.left, left);
-            v.setTextColor(R.id.n, past ? tx2 : tx);
+            v.setTextColor(R.id.n, past ? tx2 : gold);
             v.setTextColor(R.id.dt, tx2);
             v.setTextColor(R.id.left, past ? tx2 : gold);
             v.setOnClickFillInIntent(R.id.item, new Intent().putExtra("tab", "cd"));

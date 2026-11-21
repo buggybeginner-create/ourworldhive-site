@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta name="copyright" content="&copy; DUKEKRRISH. All rights reserved."><meta charset="utf-8"><script src="owh-pwa.js" data-own="1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Panchang | Hindu Calendar, Festivals &amp; Countdown | Ourworldhive</title>
-<meta name="description" content="Free Hindu calendar with daily Panchang (tithi, nakshatra, yoga, karana), Indian festivals, Choghadiya, Hora, Rahu Kaal and a festival countdown widget. By DUKEKRRISH.">
+<title>Din Darpan | Hindu Calendar, Panchang &amp; Festival Countdown | Ourworldhive</title>
+<meta name="description" content="Din Darpan: free Hindu calendar with daily Panchang (tithi, nakshatra, yoga, karana), Indian festivals, Choghadiya, Hora, Rahu Kaal and a festival countdown widget. By DUKEKRRISH.">
 <link rel="manifest" href="panchang-manifest.webmanifest"><link rel="icon" href="panchang-icon-192.png"><link rel="apple-touch-icon" href="panchang-apple-touch-icon.png">
-<meta name="theme-color" content="#0d0b08"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Panchang">
+<meta name="theme-color" content="#7a1f1f"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Din Darpan">
 <style>
-:root{--bg:#0d0b08;--bg2:#17130d;--card:#1d1810;--card2:#262016;--line:#3a3022;--tx:#f3ead8;--tx2:#b8aa8e;--gold:#ffc94d;--gold2:#ff9f40;--red:#ff6b6b;--grn:#4ade80;--blu:#8ab4ff;--kr:#9fb3d9;--sh:0 6px 18px rgba(0,0,0,.45)}
-html.light{--bg:#f6f1e7;--bg2:#efe6d4;--card:#fffaf0;--card2:#f6ecd8;--line:#e2d3b5;--tx:#2b2012;--tx2:#7a6a4e;--gold:#b86e00;--gold2:#d9480f;--red:#d32f2f;--grn:#15803d;--blu:#2563eb;--kr:#475e8a;--sh:0 4px 14px rgba(120,90,30,.15)}
+:root{--bg:#fbf4e8;--bg2:#f5e8d3;--card:#fffaf2;--card2:#fbeedb;--line:#ecd6b4;--tx:#3b1d14;--tx2:#8a6a55;--gold:#d9480f;--gold2:#f59f00;--red:#b42318;--grn:#2f7d32;--blu:#1d6fa5;--kr:#6b4c9a;--hd:#7a1f1f;--hdt:#fff4e2;--on:#fff;--sh:0 4px 14px rgba(122,31,31,.10)}
+html.dark{--bg:#1f0d0e;--bg2:#2a1214;--card:#301619;--card2:#3d1d20;--line:#5a2d2f;--tx:#fbeee0;--tx2:#d1a98f;--gold:#ff9f45;--gold2:#ffb703;--red:#ff7b6b;--grn:#7bd389;--blu:#8ecae6;--kr:#c3a6ff;--hd:#3a1316;--hdt:#ffd8a8;--on:#2a1214;--sh:0 6px 18px rgba(0,0,0,.45)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari",sans-serif;overscroll-behavior:none}
 body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 button{font:inherit;color:inherit;cursor:pointer}
 input,select,textarea{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;font-size:16px}
-header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:var(--hd);color:var(--hdt);border-bottom:3px solid var(--gold2)}
 header .logo{width:34px;height:34px;border-radius:9px;flex:none}
 header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.02em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-header h1 small{display:block;font-size:11.5px;color:var(--tx2);font-weight:500;letter-spacing:0}
-.ib{appearance:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;white-space:nowrap}
-#views{flex:1;display:flex;overflow:hidden;position:relative}
-.view{flex:none;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;padding:12px 12px 90px;-webkit-overflow-scrolling:touch}
+header h1 small{display:block;font-size:11.5px;color:var(--hdt);opacity:.8;font-weight:500;letter-spacing:0}
+.ib{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;white-space:nowrap}
+#views{flex:1;display:flex;overflow:hidden;position:relative;touch-action:pan-y}
+.view{flex:none;width:100%;min-width:100%;max-width:100%;height:100%;overflow-y:auto;overflow-x:hidden;padding:12px 12px 90px;-webkit-overflow-scrolling:touch}
 #track{display:flex;width:100%;height:100%;transition:transform .28s ease}
 .wrap{max-width:1100px;margin:0 auto}
-nav.tabs{display:flex;background:var(--bg2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs{display:flex;background:var(--card);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.tabs button{flex:1;appearance:none;border:0;background:none;padding:8px 2px 7px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--tx2);display:flex;flex-direction:column;align-items:center;gap:2px}
 nav.tabs button b{font-size:19px;line-height:1;filter:grayscale(.5)}
 nav.tabs button.on{color:var(--gold)}nav.tabs button.on b{filter:none}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
-.card h2{font-size:14px;letter-spacing:.08em;margin:0 0 10px;color:var(--gold);font-weight:800}
+.card{border-top:3px solid var(--gold2)}.card h2{font-size:14px;letter-spacing:.08em;margin:0 0 10px;color:var(--h2,var(--hd));font-weight:800}
 .pill{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:600;font-size:14px}
 .g{color:var(--gold)}.r{color:var(--red)}.mut{color:var(--tx2)}.sm{font-size:12.5px}.b{font-weight:700}
 .hero{text-align:center;padding:14px 10px}
@@ -35,7 +35,7 @@ nav.tabs button.on{color:var(--gold)}nav.tabs button.on b{filter:none}
 .hero .big{font-size:20px;font-weight:700}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
 .chip{flex:none;appearance:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;white-space:nowrap}
-.chip.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.chip.on{background:var(--gold);color:var(--on);border-color:var(--gold)}
 .chip .k{color:var(--tx2);font-weight:500;font-size:12px;margin-left:4px}
 .up{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .upc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;appearance:none}
@@ -48,16 +48,16 @@ table.kv{width:100%;border-collapse:collapse;font-size:14.5px}
 table.kv td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
 table.kv td:first-child{color:var(--tx2);width:38%;font-weight:600}
 table.kv tr:last-child td{border-bottom:0}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .cal .wd{text-align:center;font-size:11.5px;font-weight:800;color:var(--tx2);padding:4px 0;letter-spacing:.06em}
 .cal .wd.su{color:var(--red)}
-.cell{appearance:none;border:1px solid var(--line);background:var(--card);border-radius:10px;min-height:64px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;overflow:hidden}
+.cell{min-width:0;appearance:none;border:1px solid var(--line);background:var(--card);border-radius:10px;min-height:64px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;overflow:hidden}
 .cell .dn{font-size:18px;font-weight:700;line-height:1.1}
-.cell .tt{font-size:10px;line-height:1.15;color:var(--gold);text-align:center;white-space:nowrap;overflow:hidden;max-width:100%}
+.cell .tt{font-size:10px;line-height:1.15;text-align:center;white-space:nowrap;overflow:hidden;max-width:100%}
 .cell .tt.k{color:var(--kr)}
 .cell .fe{font-size:10px;line-height:1.1;color:var(--red);text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cell.su .dn{color:var(--red)}.cell.out{opacity:.35}
-.cell.today{border:2px solid var(--gold);background:var(--card2)}
+.cell.today{border:2px solid var(--gold);background:var(--card2)}.cell{border-top-width:1px}
 .cell.sel{outline:2px solid var(--blu)}
 .cell .dots{position:absolute;top:3px;right:4px;display:flex;gap:2px}.cell .dots i{width:5px;height:5px;border-radius:50%;background:var(--blu)}
 .cell .mo{position:absolute;top:2px;left:3px;font-size:10px}
@@ -69,7 +69,7 @@ table.kv tr:last-child td{border-bottom:0}
 .li .m{flex:1;min-width:0}.li .m b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.li .m span{font-size:12.5px;color:var(--tx2)}
 .li .d{text-align:right;font-weight:700;font-size:13.5px;color:var(--gold);white-space:nowrap}
 .star{appearance:none;border:1px solid var(--line);background:var(--card2);border-radius:10px;padding:6px 9px;font-size:15px}
-.star.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.star.on{background:var(--gold);color:var(--on);border-color:var(--gold)}
 .mh{font-size:12px;letter-spacing:.12em;font-weight:800;color:var(--tx2);margin:14px 4px 4px}
 .cd{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:8px}
 .cd .num{min-width:64px;text-align:center;background:var(--card2);border-radius:12px;padding:6px 4px}
@@ -77,7 +77,7 @@ table.kv tr:last-child td{border-bottom:0}
 .cd.past{opacity:.6}.cd.past .nm,.cd.past .num b{text-decoration:line-through}
 .cd .nm{font-size:16px;font-weight:700}
 .del{appearance:none;border:1px solid var(--line);background:none;border-radius:10px;padding:6px 10px;color:var(--red);font-weight:700}
-.btn{appearance:none;border:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1206;font-weight:800;border-radius:12px;padding:12px 16px;letter-spacing:.04em}
+.btn{appearance:none;border:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-weight:800;border-radius:12px;padding:12px 16px;letter-spacing:.04em}
 .btn2{appearance:none;border:1px solid var(--line);background:var(--card2);font-weight:700;border-radius:12px;padding:11px 14px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .cg{display:grid;grid-template-columns:auto 1fr auto;gap:0;font-size:14px}
@@ -103,10 +103,18 @@ table.kv tr:last-child td{border-bottom:0}
 .don a{display:inline-block;margin:4px 6px 0 0;padding:7px 12px;border-radius:10px;background:var(--card2);border:1px solid var(--line);color:var(--tx);text-decoration:none;font-weight:700}
 .av{width:46px;height:46px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--gold);flex:none;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover}
-.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}.seg button{flex:1;appearance:none;border:0;background:var(--card);padding:9px 6px;font-weight:700;font-size:13px}.seg button.on{background:var(--gold);color:#1a1206}
+.seg{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}.seg button{flex:1;appearance:none;border:0;background:var(--card);padding:9px 6px;font-weight:700;font-size:13px}.seg button.on{background:var(--gold);color:var(--on)}
 .tl{font-variant-numeric:tabular-nums}
+.cell .tt{color:var(--sk)}.cell .tt.k{color:var(--kk)}
+.cell .bar{position:absolute;left:0;right:0;bottom:0;height:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:12px;color:var(--tx2)}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i,.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:6px}.legend i{margin:0}
+.li .m span.tag,.tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:800;letter-spacing:.04em;color:#fff;vertical-align:middle}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.th{appearance:none;border:2px solid;border-radius:12px;padding:10px;text-align:left;font-weight:700;font-size:13px}.th.on{box-shadow:0 0 0 2px var(--gold)}
+.sws{display:flex;gap:3px;margin-bottom:6px}.sws i{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+input[type=color]{width:54px;height:34px;padding:2px;flex:none}
 </style></head><body>
-<header><img class="logo" src="panchang-icon-192.png" alt=""><h1 id="htitle">PANCHANG<small id="hsub"></small></h1><button class="ib" id="locBtn" title="Change location">📍 <span id="locName"></span></button></header>
+<header><img class="logo" src="panchang-icon-192.png" alt=""><h1 id="htitle">DIN DARPAN<small id="hsub"></small></h1><button class="ib" id="locBtn" title="Change location">📍 <span id="locName"></span></button></header>
 <div id="views"><div id="track">
  <section class="view" id="v-home"><div class="wrap" id="home"></div></section>
  <section class="view" id="v-cal"><div class="wrap" id="cal"></div></section>
@@ -366,11 +374,35 @@ var CQ=['bad','mid','good','good','bad','good','bad'];
 var CITIES=[['New Delhi',28.6139,77.209],['Mumbai',19.076,72.8777],['Kolkata',22.5726,88.3639],['Chennai',13.0827,80.2707],['Bengaluru',12.9716,77.5946],['Hyderabad',17.385,78.4867],['Ahmedabad',23.0225,72.5714],['Pune',18.5204,73.8567],['Jaipur',26.9124,75.7873],['Lucknow',26.8467,80.9462],['Varanasi',25.3176,82.9739],['Patna',25.5941,85.1376],['Bhopal',23.2599,77.4126],['Indore',22.7196,75.8577],['Nagpur',21.1458,79.0882],['Raipur',21.2514,81.6296],['Ranchi',23.3441,85.3096],['Guwahati',26.1445,91.7362],['Shillong',25.5788,91.8933],['Bhubaneswar',20.2961,85.8245],['Cuttack',20.4625,85.8828],['Puri',19.8135,85.8312],['Angul',20.8444,85.1511],['Sambalpur',21.4669,83.9812],['Rourkela',22.2604,84.8536],['Berhampur',19.3149,84.7941],['Balasore',21.4942,86.9317],['Chandigarh',30.7333,76.7794],['Amritsar',31.634,74.8723],['Dehradun',30.3165,78.0322],['Haridwar',29.9457,78.1642],['Srinagar',34.0837,74.7973],['Ujjain',23.1765,75.7885],['Surat',21.1702,72.8311],['Vadodara',22.3072,73.1812],['Kochi',9.9312,76.2673],['Thiruvananthapuram',8.5241,76.9366],['Madurai',9.9252,78.1198],['Coimbatore',11.0168,76.9558],['Visakhapatnam',17.6868,83.2185],['Vijayawada',16.5062,80.648],['Mysuru',12.2958,76.6394],['Goa (Panaji)',15.4909,73.8278],['Kathmandu',27.7172,85.324]];
 /* ---------- state ---------- */
 var LS={get:function(k,d){try{var v=localStorage.getItem('hc_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('hc_'+k,JSON.stringify(v))}catch(e){}}};
-var S={loc:LS.get('loc',{n:'New Delhi',lat:28.6139,lon:77.209,tz:5.5}),sys:LS.get('sys','purnimanta'),lang:LS.get('lang','en'),theme:LS.get('theme','dark'),
+var S={loc:LS.get('loc',{n:'New Delhi',lat:28.6139,lon:77.209,tz:5.5}),sys:LS.get('sys','purnimanta'),lang:LS.get('lang','en'),theme:LS.get('theme','saffron'),font:LS.get('font','system'),fs:LS.get('fs','m'),col:LS.get('col',{}),
  cats:LS.get('cats',{major:1,vrat:1,odisha:1,national:1,mine:1}),cd:LS.get('cd',[]),ev:LS.get('ev',[]),
  rem:LS.get('rem',{on:1,before:1,bt:'20:00',same:1,st:'06:00',cats:{major:1,odisha:1,cd:1,mine:1}}),phone:LS.get('phone',0),upd:LS.get('upd',0),wasIn:LS.get('wasIn',0)};
-function save(k){LS.set(k,S[k]);if(['cd','ev','sys','lang','cats','rem','loc'].indexOf(k)>=0){S.upd=Date.now();LS.set('upd',S.upd);cloudSave()}if(['cd','ev','lang','sys','loc','cats','rem','theme'].indexOf(k)>=0)pushNative()}
+function save(k){LS.set(k,S[k]);if(['cd','ev','sys','lang','cats','rem','loc','theme','font','fs','col'].indexOf(k)>=0){S.upd=Date.now();LS.set('upd',S.upd);cloudSave()}if(['cd','ev','lang','sys','loc','cats','rem','theme','col'].indexOf(k)>=0)pushNative()}
 var T=function(){return N[S.lang]||N.en};
+if({light:1,dark:1,auto:1}[S.theme])S.theme=S.theme=='dark'?'maroon':'saffron';
+/* ---------- looks: themes, fonts, colours per event type ---------- */
+var THEMES={
+ saffron:{n:'Temple Saffron',dk:0,v:['#fbf4e8','#f5e8d3','#fffaf2','#fbeedb','#ecd6b4','#3b1d14','#8a6a55','#d9480f','#f59f00','#b42318','#2f7d32','#1d6fa5','#6b4c9a','#7a1f1f','#fff4e2','#ffffff']},
+ maroon:{n:'Temple Night',dk:1,v:['#1f0d0e','#2a1214','#301619','#3d1d20','#5a2d2f','#fbeee0','#d1a98f','#ff9f45','#ffb703','#ff7b6b','#7bd389','#8ecae6','#c3a6ff','#3a1316','#ffd8a8','#2a1214']},
+ sky:{n:'Night Sky',dk:1,v:['#100d24','#17133a','#1c1842','#262056','#3a3370','#eeeaff','#a9a3d6','#ff8a3d','#ffc145','#ff6b8b','#5ee0a0','#7cc4ff','#b7a8ff','#221c55','#ffd6a5','#17133a']},
+ peacock:{n:'Peacock',dk:1,v:['#071d1f','#0b2a2d','#0f3236','#144046','#1f5a60','#e6fbf7','#9cc9c3','#2ec4b6','#e9c46a','#ff7b6b','#8ce99a','#74c0fc','#b197fc','#0b3d40','#e9c46a','#06201f']},
+ lotus:{n:'Lotus',dk:0,v:['#fff5f8','#fde8ef','#ffffff','#fdeef3','#f3c9d7','#3d1630','#8c5a75','#c2255c','#f08c00','#c92a2a','#2b8a3e','#1971c2','#7048e8','#a61e4d','#fff0f6','#ffffff']},
+ mint:{n:'Tulsi Green',dk:0,v:['#f3faf4','#e3f2e6','#ffffff','#eaf6ec','#c8e3cd','#173a22','#5b7a63','#2b8a3e','#f59f00','#c92a2a','#2b8a3e','#1c7ed6','#7048e8','#1e5631','#f1fff3','#ffffff']}};
+var TV=['--bg','--bg2','--card','--card2','--line','--tx','--tx2','--gold','--gold2','--red','--grn','--blu','--kr','--hd','--hdt','--on'];
+var FONTS={system:['System','system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari",sans-serif',''],
+ poppins:['Poppins','Poppins,"Noto Sans Devanagari",sans-serif','Poppins:wght@400;600;700;800'],
+ baloo:['Baloo 2 (Hindi)','"Baloo 2","Noto Sans Devanagari",sans-serif','Baloo+2:wght@400;600;700;800'],
+ mukta:['Mukta (Hindi)','Mukta,"Noto Sans Devanagari",sans-serif','Mukta:wght@400;600;700;800'],
+ merri:['Merriweather','Merriweather,"Noto Serif Devanagari",Georgia,serif','Merriweather:wght@400;700;900'],
+ rounded:['Nunito','Nunito,"Noto Sans Devanagari",sans-serif','Nunito:wght@400;600;700;800']};
+var CATS=[['national','Govt Holidays','#2b7bd6'],['major','Major Festivals','#e8590c'],['vrat','Vrat & Tithi Days','#8e5bd6'],['odisha','Odisha Festivals','#d6336c'],['mine','My Events','#2f9e44'],['phone','Phone Calendar','#0ca678']];
+function ccol(c){if(S.col[c])return S.col[c];for(var i=0;i<CATS.length;i++)if(CATS[i][0]==c)return CATS[i][2];return '#888'}
+function tcol(k){var th=THEMES[S.theme]||THEMES.saffron;return S.col[k]||(k=='sk'?th.v[7]:th.v[12])}
+function look(){var th=THEMES[S.theme]||THEMES.saffron,r=D.documentElement;TV.forEach(function(k,i){r.style.setProperty(k,th.v[i])});r.classList.toggle('dark',!!th.dk);
+ r.style.setProperty('--h2',th.dk?th.v[7]:th.v[13]);r.style.setProperty('--sk',tcol('sk'));r.style.setProperty('--kk',tcol('kk'));CATS.forEach(function(c){r.style.setProperty('--c-'+c[0],ccol(c[0]))});
+ var f=FONTS[S.font]||FONTS.system;if(f[2]&&!D.getElementById('gf-'+S.font)){var l=D.createElement('link');l.id='gf-'+S.font;l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family='+f[2]+'&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap';D.head.appendChild(l)}
+ D.body.style.fontFamily=f[1];D.body.style.zoom={s:0.92,m:1,l:1.1,xl:1.2}[S.fs]||1;
+ var m=D.querySelector('meta[name=theme-color]');if(m)m.content=th.v[13];try{if(APP&&NV().setBars)NV().setBars(!!th.dk)}catch(e){}}
 /* ---------- time helpers (location time zone) ---------- */
 function L(){return S.loc}
 function lt(ms){return new Date(ms+L().tz*3600000)}
@@ -440,6 +472,7 @@ D.addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b
  el.addEventListener('touchstart',function(e){if(e.touches.length!=1)return;var tg=e.target;if(tg.closest&&tg.closest('.chips,.noswipe,input,textarea,select'))return x0=null;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now();lock=null},{passive:true});
  el.addEventListener('touchmove',function(e){if(x0==null)return;var dx=e.touches[0].clientX-x0,dy=e.touches[0].clientY-y0;if(lock==null&&(Math.abs(dx)>10||Math.abs(dy)>10))lock=Math.abs(dx)>Math.abs(dy)*1.3?'x':'y';
   if(lock=='x'){var tr=$('track');tr.style.transition='none';tr.style.transform='translateX(calc('+(-100*cur)+'% + '+dx*0.6+'px))'}},{passive:true});
+ el.addEventListener('touchcancel',function(){if(x0!=null){x0=null;go(cur)}},{passive:true});
  el.addEventListener('touchend',function(e){if(x0==null)return;var dx=e.changedTouches[0].clientX-x0;if(lock=='x'&&Math.abs(dx)>60){go(cur+(dx<0?1:-1))}else{go(cur)}x0=null},{passive:true});
 })();
 /* ---------- sheet ---------- */
@@ -478,7 +511,7 @@ function rHome(){var now=Date.now(),p=hinduToday(),tt=T(),nw=lt(now);
  for(var i=0;i<3;i++){var dd=addD(p.y,p.m,p.d,i),pp=P(dd[0],dd[1],dd[2]);pp.yogas.forEach(function(y){if(y.e>now)yg.push(y)})}
  h+='<div class="mh">UPCOMING</div><div class="up">';
  yg.slice(0,1).forEach(function(y){h+='<button class="upc" data-tab="4"><div class="w">'+whenW(y.s)+'</div><div class="n" style="color:var(--grn)">🟩 '+(S.lang=='hi'?y.h:y.n)+'</div><div class="sm mut">'+dLabel(y.s).slice(0,3)+' '+hm(y.s)+' – '+dLabel(y.e).slice(0,3)+' '+hm(y.e)+'</div></button>'});
- ups.forEach(function(f){var n=daysBetween(tk,f.d);h+='<button class="upc" data-day="'+f.d+'"><div class="w">'+(n<2?inDays(n).toUpperCase():dayW(f.d))+'</div><div class="n">'+f.e+' '+esc(fname(f))+'</div><div class="sm mut">'+(n<2?dayW(f.d):inDays(n))+'</div></button>'});
+ ups.forEach(function(f){var n=daysBetween(tk,f.d);h+='<button class="upc" data-day="'+f.d+'"><div class="w">'+(n<2?inDays(n).toUpperCase():dayW(f.d))+'</div><div class="n" style="color:'+ccol(f.c)+'">'+f.e+' '+esc(fname(f))+'</div><div class="sm mut">'+(n<2?dayW(f.d):inDays(n))+'</div></button>'});
  h+='</div>';
  if(S.cd.length){h+='<div class="mh">MY COUNTDOWN</div>';S.cd.slice().sort(cdSort).slice(0,4).forEach(function(c){h+=cdRow(c,tk,true)})}
  h+='<div class="mh">EXPLORE</div><div class="grid2">'+[[1,'📅 Month View','English + Hindu dates'],[4,'🕉️ Panchang','Sun, Moon, Rahu Kaal, Lagna'],[2,'🪔 Festivals','Festival and vrat dates'],[3,'⏳ Countdown','Festivals on your widget'],[4,'⏱️ Muhurat','Choghadiya and Hora'],[5,'⚙️ Settings','Location, language, reminders']].map(function(x){return '<button class="tile" data-tab="'+x[0]+'"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>'}).join('')+'</div>';
@@ -488,7 +521,7 @@ function dayW(k){var a=pk(k),d=new Date(Date.UTC(a[0],a[1],a[2]));return (WD[d.g
 function whenW(ms){var t=todayYMD(),d=lt(ms),k=key(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()),n=daysBetween(key(t[0],t[1],t[2]),k);return n<=1&&n>=0?inDays(n).toUpperCase():dayW(k)}
 function cdSort(a,b){var t=todayYMD(),tk=key(t[0],t[1],t[2]),pa=a.d<tk,pb=b.d<tk;if(pa!=pb)return pa?1:-1;return a.d<b.d?-1:a.d>b.d?1:0}
 function cdRow(c,tk,mini){var n=daysBetween(tk,c.d),past=n<0;
- return '<div class="cd'+(past?' past':'')+'"><div class="num"><b>'+(n==0?'🎉':Math.abs(n))+'</b><span>'+(n==0?'TODAY':past?'DAYS AGO':n==1?'DAY':'DAYS')+'</span></div><div class="m" style="flex:1;min-width:0"><div class="nm">'+esc(c.e||'⭐')+' '+esc(S.lang=='hi'&&c.h?c.h:c.n)+'</div><div class="sm mut">'+(n==0?'Today':past?'Done · ':(esc(S.lang=='hi'&&c.h?c.h:c.n)+' '+inDays(n)+' · '))+dayW(c.d)+'</div></div>'+(mini?'':'<button class="del" data-a="cddel" data-u="'+esc(c.uid)+'">DELETE</button>')+'</div>'}
+ var cc=ccol(/^my_/.test(c.uid)?'mine':((findF(c.uid)||{}).c||'major'));return '<div class="cd'+(past?' past':'')+'" style="border-left:5px solid '+cc+'"><div class="num"><b>'+(n==0?'🎉':Math.abs(n))+'</b><span>'+(n==0?'TODAY':past?'DAYS AGO':n==1?'DAY':'DAYS')+'</span></div><div class="m" style="flex:1;min-width:0"><div class="nm">'+esc(c.e||'⭐')+' '+esc(S.lang=='hi'&&c.h?c.h:c.n)+'</div><div class="sm mut">'+(n==0?'Today':past?'Done · ':(esc(S.lang=='hi'&&c.h?c.h:c.n)+' '+inDays(n)+' · '))+dayW(c.d)+'</div></div>'+(mini?'':'<button class="del" data-a="cddel" data-u="'+esc(c.uid)+'">DELETE</button>')+'</div>'}
 /* ---------- calendar ---------- */
 var CV=null,SEL=null;
 function rCal(){var t=todayYMD();if(!CV)CV=[t[0],t[1]];var y=CV[0],m=CV[1],tk=key(t[0],t[1],t[2]);
@@ -500,15 +533,16 @@ function rCal(){var t=todayYMD();if(!CV)CV=[t[0],t[1]];var y=CV[0],m=CV[1],tk=ke
  var start=addD(y,m,1,-first);
  for(var i=0;i<42;i++){var dd=addD(start[0],start[1],start[2],i);if(i>=35&&dd[1]!=m)break;var p=P(dd[0],dd[1],dd[2]),k=p.k,fs=festOn(k),out=dd[1]!=m,ph=(PH[k]||[]);
   var tl=p.t0==14?'🌕 '+tShort(14):p.t0==29?'🌑 '+tShort(29):tShort(p.t0);
-  h+='<button class="cell'+(out?' out':'')+(p.wd==0?' su':'')+(k==tk?' today':'')+(k==SEL?' sel':'')+'" data-day="'+k+'"><span class="dn">'+dd[2]+'</span><span class="tt'+(p.t0>=15?' k':'')+'">'+tl+'</span>'+(fs.length?'<span class="fe">'+fs[0].e+' '+esc(fname(fs[0]))+'</span>':'')+(ph.length?'<span class="dots">'+ph.slice(0,3).map(function(){return '<i></i>'}).join('')+'</span>':'')+'</button>'}
- h+='</div><div class="note" style="margin-top:8px"><span class="g">Gold</span> = Shukla Paksha, <span style="color:var(--kr)">blue</span> = Krishna Paksha. Tithi shown is the one at sunrise in '+esc(S.loc.n)+'. Month names: '+(S.sys=='purnimanta'?'Purnimanta (North India)':'Amanta (South/West India)')+'.</div></div>';
+  h+='<button class="cell'+(out?' out':'')+(p.wd==0?' su':'')+(k==tk?' today':'')+(k==SEL?' sel':'')+'" data-day="'+k+'"><span class="dn">'+dd[2]+'</span><span class="tt'+(p.t0>=15?' k':'')+'">'+tl+'</span>'+(fs.length?'<span class="fe" style="color:'+ccol(fs[0].c)+'">'+fs[0].e+' '+esc(fname(fs[0]))+'</span><span class="bar" style="background:'+ccol(fs[0].c)+'"></span>':'')+(ph.length?'<span class="dots">'+ph.slice(0,3).map(function(){return '<i style="background:'+ccol('phone')+'"></i>'}).join('')+'</span>':'')+'</button>'}
+ h+='</div><div class="legend">'+CATS.filter(function(c){return c[0]!='phone'||(APP&&S.phone)}).map(function(c){return '<span><i style="background:'+ccol(c[0])+'"></i>'+c[1]+'</span>'}).join('')+'<span><i style="background:var(--sk)"></i>Shukla</span><span><i style="background:var(--kk)"></i>Krishna</span></div><div class="note" style="margin-top:6px"> Tithi shown is the one at sunrise in '+esc(S.loc.n)+'. Month names: '+(S.sys=='purnimanta'?'Purnimanta (North India)':'Amanta (South/West India)')+'.</div></div>';
  /* this month's list */
  var list=[];for(var d=1;d<=dim;d++){var k2=key(y,m,d);festOn(k2).forEach(function(f){list.push(f)});(PH[k2]||[]).forEach(function(e){list.push({ph:1,n:e.t,d:k2,e:'📆',c:'phone',uid:'ph'+e.id,time:e.all?'':hm(e.s)})})}
  h+='<div class="card"><h2>'+MONF[m].toUpperCase()+' '+y+' · FESTIVALS & EVENTS</h2>'+(list.length?list.map(function(f){return festLi(f,tk)}).join(''):'<div class="note">Nothing in the categories you chose.</div>')+'</div>';
  $('cal').innerHTML=h;var mp=$('mpick');if(mp)mp.onchange=function(){var v=mp.value.split('-');if(v.length==2){CV=[+v[0],+v[1]-1];rCal()}};
  if(S.phone&&APP)loadPhone(y,m)}
+function catName(c){for(var i=0;i<CATS.length;i++)if(CATS[i][0]==c)return CATS[i][1].replace(' Festivals','').replace(' & Tithi Days','');return c}
 function festLi(f,tk){var n=daysBetween(tk,f.d),a=pk(f.d);
- return '<div class="li"><div class="e">'+f.e+'</div><div class="m" data-day="'+f.d+'"><b>'+esc(fname(f))+'</b><span>'+dayW(f.d)+(f.time?' · '+f.time:'')+' · '+tShort(P(a[0],a[1],a[2]).t0)+' '+(P(a[0],a[1],a[2]).t0<15?(S.lang=='hi'?'शु':'S'):(S.lang=='hi'?'कृ':'K'))+'</span></div><div class="d">'+(n>=0?inDays(n):'')+'</div>'+(f.ph?'':'<button class="star'+(inCd(f.uid)?' on':'')+'" data-a="star" data-u="'+esc(f.uid)+'" title="Countdown">⏳</button>')+'</div>'}
+ return '<div class="li" style="border-left:4px solid '+ccol(f.c)+';padding-left:8px"><div class="e">'+f.e+'</div><div class="m" data-day="'+f.d+'"><b>'+esc(fname(f))+'</b><span class="tag" style="background:'+ccol(f.c)+'">'+catName(f.c)+'</span><br><span>'+dayW(f.d)+(f.time?' · '+f.time:'')+' · '+tShort(P(a[0],a[1],a[2]).t0)+' '+(P(a[0],a[1],a[2]).t0<15?(S.lang=='hi'?'शु':'S'):(S.lang=='hi'?'कृ':'K'))+'</span></div><div class="d">'+(n>=0?inDays(n):'')+'</div>'+(f.ph?'':'<button class="star'+(inCd(f.uid)?' on':'')+'" data-a="star" data-u="'+esc(f.uid)+'" title="Countdown">⏳</button>')+'</div>'}
 /* phone calendar (Android app) */
 var PH={},PHM={};
 function loadPhone(y,m){var k=y+'-'+m;if(PHM[k])return;PHM[k]=1;try{var n=NV();if(!n||!n.calEvents)return;if(n.calPerm()!='granted')return;
@@ -536,7 +570,7 @@ function daySheet(k){SEL=k;var a=pk(k),p=P(a[0],a[1],a[2]),tt=T(),fs=festOn(k),p
 var FV={y:null,q:'',c:'all'};
 function rFest(){var t=todayYMD(),tk=key(t[0],t[1],t[2]);if(!FV.y)FV.y=t[0];var y=FV.y;
  var list=festYear(y).concat(evOn(y)).filter(function(f){return (FV.c=='all'?S.cats[f.c]:f.c==FV.c)&&(!FV.q||(f.n+' '+f.h).toLowerCase().indexOf(FV.q.toLowerCase())>=0)});
- var cats=[['all','All'],['major','Major'],['vrat','Vrat'],['odisha','Odisha'],['national','National'],['mine','My Events']];
+ var cats=[['all','All'],['major','Major'],['vrat','Vrat'],['odisha','Odisha'],['national','Govt Holidays'],['mine','My Events']];
  var h='<div class="card"><div class="mhead"><button class="ib" data-a="fprev">‹</button><div class="t"><b>'+y+' FESTIVALS</b><span>'+esc(S.loc.n)+' · tap ⏳ to add to countdown</span></div><button class="ib" data-a="fnext">›</button></div>'
   +'<input id="fq" placeholder="Search festival…" value="'+esc(FV.q)+'"><div class="chips" style="margin-top:8px">'+cats.map(function(c){return '<button class="chip'+(FV.c==c[0]?' on':'')+'" data-a="fcat" data-c="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'
   +'<div class="row"><button class="btn2 sm" data-a="jumpnow">⬇ GO TO TODAY</button>'+(APP?'<button class="btn2 sm" data-a="phoneadd">📆 ADD ALL TO PHONE CALENDAR</button>':'<button class="btn2 sm" data-a="ics">📆 DOWNLOAD FOR GOOGLE CALENDAR (.ics)</button>')+'</div></div>';
@@ -550,7 +584,7 @@ function rCd(){var t=todayYMD(),tk=key(t[0],t[1],t[2]),l=S.cd.slice().sort(cdSor
   +'<div class="row" style="margin-top:10px"><button class="btn" data-a="cdpick">＋ ADD FESTIVAL</button><button class="btn2" data-a="addev">＋ MY EVENT</button></div></div>';
  h+=l.length?l.map(function(c){return cdRow(c,tk)}).join(''):'<div class="card note">No countdown yet. Tap <b>＋ ADD FESTIVAL</b> or the ⏳ button next to any festival.</div>';
  if(l.some(function(c){return c.d<tk}))h+='<button class="btn2" data-a="cdclear" style="width:100%">🗑 DELETE ALL CROSSED ITEMS</button>';
- h+='<div class="card" style="margin-top:12px"><h2>HOME-SCREEN WIDGET</h2><div class="note">'+(APP?'Long-press an empty spot on your home screen → <b>Widgets</b> → <b>Panchang</b>. Choose <b>Festival Countdown</b> (4×6) or <b>Hindu Calendar</b> (month view). The widget updates by itself every day.':'Widgets work in the Android app (Play Store). On the website the countdown is shown here and on the Home tab.')+'</div></div>';
+ h+='<div class="card" style="margin-top:12px"><h2>HOME-SCREEN WIDGET</h2><div class="note">'+(APP?'Long-press an empty spot on your home screen → <b>Widgets</b> → <b>Din Darpan</b>. Choose <b>Festival Countdown</b> (4×6) or <b>Hindu Calendar</b> (month view). The widget updates by itself every day.':'Widgets work in the Android app (Play Store). On the website the countdown is shown here and on the Home tab.')+'</div></div>';
  $('cdv').innerHTML=h}
 function cdPick(){var t=todayYMD(),tk=key(t[0],t[1],t[2]),l=upcoming(tk,80,{major:1,odisha:1,national:1,vrat:1,mine:1});
  sheet('<h2 style="margin-top:0">ADD FESTIVAL TO COUNTDOWN</h2><input id="cpq" placeholder="Search…"><div id="cpl" style="margin-top:8px"></div>');
@@ -574,14 +608,14 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
  if(U){h+='<div class="row"><div class="av">'+(U.photoURL?'<img src="'+esc(U.photoURL)+'" alt="">':esc((U.displayName||U.email||'?')[0].toUpperCase()))+'</div><div style="flex:1;min-width:0"><b>'+esc(nameCase(U.displayName||'User'))+'</b><div class="sm mut">'+esc(U.email||'')+'</div><div class="sm" id="syncSt">'+(SY.st||'')+'</div></div></div>'
   +'<div class="row" style="margin-top:10px"><button class="btn2" data-a="logout">SIGN OUT</button><button class="btn2" data-a="delacc" style="color:var(--red)">DELETE ACCOUNT</button></div>'}
  else h+='<div class="note">Sign in to keep your countdown, events and settings safe and the same on all your phones and computers.</div><button class="btn" data-a="login" style="margin-top:10px;width:100%">SIGN IN WITH GOOGLE</button>';
- h+='<div class="copy">© DUKEKRRISH. All rights reserved. Panchang, its design, calculations and content are protected. Copying, reselling or re-publishing any part without written permission is not allowed.</div></div>';
+ h+='<div class="copy">© DUKEKRRISH. All rights reserved. Din Darpan, its design, calculations and content are protected. Copying, reselling or re-publishing any part without written permission is not allowed.</div></div>';
  h+='<div class="card set"><h2>📍 LOCATION</h2><div class="note">Sunrise, tithi at sunrise and all timings depend on your place.</div><label>City</label><select id="city"><option value="">— '+esc(S.loc.n)+' —</option>'+CITIES.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>'}).join('')+'</select>'
   +'<div class="row" style="margin-top:10px"><button class="btn2" data-a="gps">📡 USE MY LOCATION</button></div><label>Or enter latitude, longitude</label><div class="row"><input id="lat" style="flex:1" inputmode="decimal" placeholder="Latitude" value="'+S.loc.lat+'"><input id="lon" style="flex:1" inputmode="decimal" placeholder="Longitude" value="'+S.loc.lon+'"><button class="btn2" data-a="setll">SAVE</button></div></div>';
  h+='<div class="card set"><h2>🗓️ CALENDAR</h2><label>Month System</label><div class="seg"><button data-a="sys" data-v="purnimanta" class="'+(S.sys=='purnimanta'?'on':'')+'">PURNIMANTA (NORTH)</button><button data-a="sys" data-v="amanta" class="'+(S.sys=='amanta'?'on':'')+'">AMANTA (SOUTH/WEST)</button></div>'
   +'<label>Names</label><div class="seg"><button data-a="lang" data-v="en" class="'+(S.lang=='en'?'on':'')+'">ENGLISH</button><button data-a="lang" data-v="hi" class="'+(S.lang=='hi'?'on':'')+'">हिन्दी</button></div>'
-  +'<label>Theme</label><div class="seg">'+[['dark','DARK'],['light','LIGHT'],['auto','AUTO']].map(function(x){return '<button data-a="theme" data-v="'+x[0]+'" class="'+(S.theme==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
-  +'<label>Show In Calendar</label>'+[['major','Major Festivals'],['vrat','Vrat (Ekadashi, Pradosh, Purnima…)'],['odisha','Odisha Festivals'],['national','National Days'],['mine','My Events']].map(function(x){return '<div class="sw"><span>'+x[1]+'</span><button class="tg'+(S.cats[x[0]]?' on':'')+'" data-a="cat" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
- var r=S.rem;h+='<div class="card set"><h2>🔔 REMINDERS</h2>'+(APP?'':'<div class="note">Reminders ring in the Android app, even when it is closed.</div>')
+  
+  +'<label>Show In Calendar</label>'+[['major','Major Festivals'],['vrat','Vrat (Ekadashi, Pradosh, Purnima…)'],['odisha','Odisha Festivals'],['national','Govt Holidays'],['mine','My Events']].map(function(x){return '<div class="sw"><span><i class="dot" style="background:'+ccol(x[0])+'"></i>'+x[1]+'</span><button class="tg'+(S.cats[x[0]]?' on':'')+'" data-a="cat" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
+ h+=lookCard();var r=S.rem;h+='<div class="card set"><h2>🔔 REMINDERS</h2>'+(APP?'':'<div class="note">Reminders ring in the Android app, even when it is closed.</div>')
   +'<div class="sw"><span>Festival Reminders</span><button class="tg'+(r.on?' on':'')+'" data-a="rem" data-k="on"></button></div>'
   +'<div class="sw"><span>One Day Before<small>at</small></span><input type="time" id="rbt" value="'+r.bt+'" style="width:120px"><button class="tg'+(r.before?' on':'')+'" data-a="rem" data-k="before"></button></div>'
   +'<div class="sw"><span>On The Day<small>at</small></span><input type="time" id="rst" value="'+r.st+'" style="width:120px"><button class="tg'+(r.same?' on':'')+'" data-a="rem" data-k="same"></button></div>'
@@ -592,8 +626,15 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
  h+='<div class="card"><h2>APP</h2><div class="row"><button class="btn2" data-a="contact">✉️ CONTACT US / FEATURE REQUEST</button><button class="btn2" data-a="share">📤 SHARE APP</button><button class="btn2" data-a="latest">🔄 GET LATEST VERSION</button></div>'
   +'<div class="don" style="margin-top:12px">'+(W.OWHDON?W.OWHDON.card():'')+'</div><div class="note" style="margin-top:10px">Calculations: sun and moon positions by standard astronomical formulas, Lahiri ayanamsa. Festival dates follow common rules and can differ by a day between regions; check with your local priest for rituals.</div></div>';
  $('more').innerHTML=h;
+ $('fontSel').onchange=function(){S.font=this.value;save('font');look()};[].forEach.call(D.querySelectorAll('[data-col]'),function(x){x.onchange=function(){S.col[x.getAttribute('data-col')]=x.value;save('col');look();rMore()}});
  $('city').onchange=function(){var i=this.value;if(i==='')return;var c=CITIES[+i];setLoc({n:c[0],lat:c[1],lon:c[2],tz:c[0]=='Kathmandu'?5.75:5.5})};
  $('rbt').onchange=function(){S.rem.bt=this.value||'20:00';save('rem')};$('rst').onchange=function(){S.rem.st=this.value||'06:00';save('rem')}}
+function lookCard(){var h='<div class="card set"><h2>🎨 LOOK & COLOURS</h2><label>Theme</label><div class="themes">'+Object.keys(THEMES).map(function(k){var t=THEMES[k].v;return '<button class="th'+(S.theme==k?' on':'')+'" data-a="theme" data-v="'+k+'" style="background:'+t[0]+';color:'+t[5]+';border-color:'+(S.theme==k?t[7]:t[4])+'"><span class="sws"><i style="background:'+t[13]+'"></i><i style="background:'+t[7]+'"></i><i style="background:'+t[8]+'"></i><i style="background:'+t[2]+'"></i></span>'+THEMES[k].n+'</button>'}).join('')+'</div>'
+ +'<label>Font</label><select id="fontSel">'+Object.keys(FONTS).map(function(k){return '<option value="'+k+'"'+(S.font==k?' selected':'')+'>'+FONTS[k][0]+'</option>'}).join('')+'</select><div class="note" style="margin-top:6px;font-size:16px">Diwali in 9 days · दीपावली · 21 Kartika</div>'
+ +'<label>Text Size</label><div class="seg">'+[['s','SMALL'],['m','NORMAL'],['l','LARGE'],['xl','EXTRA LARGE']].map(function(x){return '<button data-a="fs" data-v="'+x[0]+'" class="'+(S.fs==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
+ +'<label>Colours For Each Type</label>'+CATS.map(function(c){return '<div class="sw"><span><i class="dot" style="background:'+ccol(c[0])+'"></i>'+c[1]+'</span><input type="color" data-col="'+c[0]+'" value="'+ccol(c[0])+'"></div>'}).join('')
+ +[['sk','Shukla Paksha Tithi'],['kk','Krishna Paksha Tithi']].map(function(c){return '<div class="sw"><span><i class="dot" style="background:'+tcol(c[0])+'"></i>'+c[1]+'</span><input type="color" data-col="'+c[0]+'" value="'+tcol(c[0])+'"></div>'}).join('')
+ +'<button class="btn2" data-a="colreset" style="margin-top:8px;width:100%">RESET COLOURS</button></div>';return h}
 function nameCase(s){return String(s).toLowerCase().replace(/(^|\s)\S/g,function(c){return c.toUpperCase()})}
 function setLoc(l){S.loc=l;save('loc');resetCache();PHM={};PH={};hdr();toast('📍 '+l.n);rerender()}
 /* ---------- my events ---------- */
@@ -602,9 +643,9 @@ function evSheet(d){var t=todayYMD();d=d||key(t[0],t[1],t[2]);
   +'<div class="sw"><span>Repeat Every Year</span><button class="tg on" id="evy" data-a="evy"></button></div><div class="sw"><span>Add To Countdown</span><button class="tg on" id="evc" data-a="evy"></button></div></div><button class="btn" data-a="evsave" style="width:100%;margin-top:12px">SAVE</button>')}
 /* ---------- calendar export ---------- */
 function gcalUrl(f){var a=f.d.replace(/-/g,''),n=pk(f.d),b=addD(n[0],n[1],n[2],1),bb=key(b[0],b[1],b[2]).replace(/-/g,'');
- return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(f.n)+'&dates='+a+'/'+bb+'&details='+encodeURIComponent((f.h&&f.h!=f.n?f.h+'\n':'')+'From Panchang · ourworldhive.com/panchang.html')}
+ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(f.n)+'&dates='+a+'/'+bb+'&details='+encodeURIComponent((f.h&&f.h!=f.n?f.h+'\n':'')+'From Din Darpan · ourworldhive.com/panchang.html')}
 function ics(){var y=FV.y||todayYMD()[0],l=festYear(y).concat(evOn(y)).filter(function(f){return S.cats[f.c]});
- var s='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//DUKEKRRISH//Panchang//EN\r\nCALSCALE:GREGORIAN\r\nX-WR-CALNAME:Hindu Festivals '+y+'\r\n';
+ var s='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//DUKEKRRISH//Din Darpan//EN\r\nCALSCALE:GREGORIAN\r\nX-WR-CALNAME:Hindu Festivals '+y+'\r\n';
  l.forEach(function(f){var n=pk(f.d),b=addD(n[0],n[1],n[2],1);s+='BEGIN:VEVENT\r\nUID:'+f.uid+'@ourworldhive.com\r\nDTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z\r\nDTSTART;VALUE=DATE:'+f.d.replace(/-/g,'')+'\r\nDTEND;VALUE=DATE:'+key(b[0],b[1],b[2]).replace(/-/g,'')+'\r\nSUMMARY:'+f.n.replace(/[,;]/g,' ')+'\r\nTRANSP:TRANSPARENT\r\nEND:VEVENT\r\n'});s+='END:VCALENDAR\r\n';
  var blob=new Blob([s],{type:'text/calendar'}),a=D.createElement('a');a.href=URL.createObjectURL(blob);a.download='hindu-festivals-'+y+'.ics';D.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500);toast('Downloaded. Open Google Calendar → Settings → Import.',5000)}
 function phoneAdd(){var n=NV();if(!n||!n.calList)return;ensureCal(function(ok){if(!ok)return;var cals=JSON.parse(n.calList()||'[]');if(!cals.length){toast('No calendar on this phone');return}
@@ -651,16 +692,18 @@ function act(a,b){var t=todayYMD();
  case 'phone':ensureCal(function(ok){if(!ok)return;S.phone=S.phone?0:1;LS.set('phone',S.phone);PHM={};PH={};rMore();toast(S.phone?'Phone calendar events will show in Calendar':'Hidden')});break;
  case 'sys':S.sys=b.getAttribute('data-v');save('sys');resetCache();rMore();break;
  case 'lang':S.lang=b.getAttribute('data-v');save('lang');rMore();tabs();break;
- case 'theme':S.theme=b.getAttribute('data-v');save('theme');theme();rMore();break;
+ case 'theme':S.theme=b.getAttribute('data-v');save('theme');look();rMore();break;
+ case 'fs':S.fs=b.getAttribute('data-v');save('fs');look();rMore();break;
+ case 'colreset':S.col={};save('col');look();rMore();toast('Colours reset');break;
  case 'cat':{var c=b.getAttribute('data-c');S.cats[c]=S.cats[c]?0:1;save('cats');FB={};b.classList.toggle('on');break}
  case 'rem':{var k3=b.getAttribute('data-k');S.rem[k3]=S.rem[k3]?0:1;save('rem');b.classList.toggle('on');if(APP&&S.rem.on&&NV().askNotify)NV().askNotify();break}
  case 'remc':{var c2=b.getAttribute('data-c');S.rem.cats[c2]=S.rem.cats[c2]?0:1;save('rem');b.classList.toggle('on');break}
  case 'gps':gps();break;
  case 'setll':{var la=parseFloat($('lat').value),lo=parseFloat($('lon').value);if(isNaN(la)||isNaN(lo)||Math.abs(la)>66||Math.abs(lo)>180){toast('Please enter a valid latitude and longitude');return}setLoc({n:'Custom '+la.toFixed(2)+', '+lo.toFixed(2),lat:la,lon:lo,tz:-new Date().getTimezoneOffset()/60});break}
  case 'login':login();break;case 'logout':bootFB().then(function(){firebase.auth().signOut()});break;
- case 'delacc':loadJs('owh-account.js').then(function(){W.OWHACC.open({removes:'your sign-in and your saved Panchang countdown, events and settings in the cloud.',keep:'the copy on this phone stays until you clear the app data.',purge:function(u){return firebase.firestore().collection('panchang_data').doc(u.uid).delete().catch(function(){})}})});break;
- case 'contact':bootFB().then(function(){return loadJs('owh-contact.js')}).then(function(){W.OWHCONTACT.open({app:'Panchang'})});break;
- case 'share':{var tx='Panchang: Hindu calendar, festivals, Choghadiya and festival countdown. https://ourworldhive.com/panchang.html';if(APP&&NV().shareText)NV().shareText('Panchang',tx);else if(navigator.share)navigator.share({title:'Panchang',text:tx}).catch(function(){});else{try{navigator.clipboard.writeText(tx);toast('Link copied')}catch(e){}}break}
+ case 'delacc':loadJs('owh-account.js').then(function(){W.OWHACC.open({removes:'your sign-in and your saved Din Darpan countdown, events and settings in the cloud.',keep:'the copy on this phone stays until you clear the app data.',purge:function(u){return firebase.firestore().collection('panchang_data').doc(u.uid).delete().catch(function(){})}})});break;
+ case 'contact':bootFB().then(function(){return loadJs('owh-contact.js')}).then(function(){W.OWHCONTACT.open({app:'Din Darpan'})});break;
+ case 'share':{var tx='Din Darpan: Hindu calendar, Panchang, festivals, Choghadiya and festival countdown. https://ourworldhive.com/panchang.html';if(APP&&NV().shareText)NV().shareText('Din Darpan',tx);else if(navigator.share)navigator.share({title:'Din Darpan',text:tx}).catch(function(){});else{try{navigator.clipboard.writeText(tx);toast('Link copied')}catch(e){}}break}
  case 'latest':if(W.OWHUPD)W.OWHUPD.run();else location.reload();break;
  }}
 function findF(u){var y=+(u.match(/_(\d{4})-\d\d-\d\d$/)||u.match(/_(\d{4})$/)||[0,todayYMD()[0]])[1];var l=festYear(y).concat(evOn(y));for(var i=0;i<l.length;i++)if(l[i].uid==u)return l[i];return null}
@@ -669,7 +712,7 @@ function gps(){if(!navigator.geolocation){toast('Location is not available');ret
   setLoc({n:bd<0.35?best[0]:'My Location',lat:+la.toFixed(4),lon:+lo.toFixed(4),tz:-new Date().getTimezoneOffset()/60})},function(){toast('Could not get your location. Allow location or pick a city.',5000)},{timeout:15000,maximumAge:600000})}
 $('locBtn').onclick=function(){go(5);setTimeout(function(){var c=$('city');if(c)c.scrollIntoView({block:'center'})},300)};
 /* ---------- theme ---------- */
-function theme(){var dk=S.theme=='dark'||(S.theme=='auto'&&!(W.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches));D.documentElement.classList.toggle('light',!dk);var m=D.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#0d0b08':'#f6f1e7';try{if(APP&&NV().setBars)NV().setBars(dk)}catch(e){}}
+function theme(){look()}
 /* ---------- firebase: sign-in + sync ---------- */
 function loadJs(src){return new Promise(function(res,rej){if(D.querySelector('script[src="'+src+'"]')){res();return}var s=D.createElement('script');s.src=src;s.onload=res;s.onerror=rej;D.head.appendChild(s)})}
 var SY={st:'',busy:0,t:null,ok:true};
@@ -683,28 +726,28 @@ function doc(){return firebase.firestore().collection('panchang_data').doc(U.uid
 function cloudLoad(){setSt('☁️ Syncing…');doc().get().then(function(s){if(s.exists){var c=s.data();var cd=JSON.parse(c.cd||'[]'),ev=JSON.parse(c.ev||'[]');
   var m=function(a,b,k){var o={};a.concat(b).forEach(function(x){o[x[k]]=x});return Object.keys(o).map(function(z){return o[z]})};
   S.cd=m(cd,S.cd,'uid');S.ev=m(ev,S.ev,'id');LS.set('cd',S.cd);LS.set('ev',S.ev);
-  if((c.updated||0)>S.upd&&c.set){try{var st=JSON.parse(c.set);['sys','lang','cats','rem','loc'].forEach(function(k){if(st[k]!=null){S[k]=st[k];LS.set(k,S[k])}})}catch(e){}resetCache()}}
+  if((c.updated||0)>S.upd&&c.set){try{var st=JSON.parse(c.set);['sys','lang','cats','rem','loc','theme','font','fs','col'].forEach(function(k){if(st[k]!=null){S[k]=st[k];LS.set(k,S[k])}})}catch(e){}resetCache();look()}}
   SY.ok=true;setSt('☁️ Synced');cloudSave(true);hdr();rerender();pushNative()}).catch(function(e){SY.ok=false;setSt(e&&e.code=='permission-denied'?'☁️ Cloud sync starts after the next website update. Your data is safe on this device.':'☁️ Offline: will sync later')})}
-function cloudSave(now){if(!U||!SY.ok)return;clearTimeout(SY.t);SY.t=setTimeout(function(){doc().set({cd:JSON.stringify(S.cd).slice(0,200000),ev:JSON.stringify(S.ev).slice(0,200000),set:JSON.stringify({sys:S.sys,lang:S.lang,cats:S.cats,rem:S.rem,loc:S.loc}),updated:S.upd||Date.now()}).then(function(){setSt('☁️ Synced')}).catch(function(){setSt('☁️ Will sync later')})},now?100:1500)}
+function cloudSave(now){if(!U||!SY.ok)return;clearTimeout(SY.t);SY.t=setTimeout(function(){doc().set({cd:JSON.stringify(S.cd).slice(0,200000),ev:JSON.stringify(S.ev).slice(0,200000),set:JSON.stringify({sys:S.sys,lang:S.lang,cats:S.cats,rem:S.rem,loc:S.loc,theme:S.theme,font:S.font,fs:S.fs,col:S.col}),updated:S.upd||Date.now()}).then(function(){setSt('☁️ Synced')}).catch(function(){setSt('☁️ Will sync later')})},now?100:1500)}
 /* ---------- Android: widget data + reminders ---------- */
 function pushNative(){var n=NV();if(!n||!n.setWidget)return;clearTimeout(pushNative.t);pushNative.t=setTimeout(function(){try{
  var t=todayYMD(),days={},tt=T();for(var i=-40;i<=400;i++){var d=addD(t[0],t[1],t[2],i),o=FE.day(d[0],d[1],d[2],L()),k=o.k,fs=festOn(k),ti=o.t;
-  days[k]=[ti==14?'🌕':ti==29?'🌑':tShort(ti),ti<15?'S':'K',fs[0]?fs[0].e:'',fs[0]?fname(fs[0]):'',masaName(o.sr,ti),tLong(ti)]}
- var cd=S.cd.map(function(c){return {n:S.lang=='hi'&&c.h?c.h:c.n,d:c.d,e:c.e||'⭐'}});
- var dk=D.documentElement.classList.contains('light')?0:1;
- n.setWidget(JSON.stringify({v:1,lang:S.lang,dark:dk,loc:S.loc.n,cd:cd,days:days,wd:S.lang=='hi'?['रवि','सोम','मंगल','बुध','गुरु','शुक्र','शनि']:['SUN','MON','TUE','WED','THU','FRI','SAT']}));
+  days[k]=[ti==14?'🌕':ti==29?'🌑':tShort(ti),ti<15?'S':'K',fs[0]?fs[0].e:'',fs[0]?fname(fs[0]):'',masaName(o.sr,ti),tLong(ti),fs[0]?ccol(fs[0].c):'']}
+ var cd=S.cd.map(function(c){var cc=/^my_/.test(c.uid)?'mine':(function(){var f=findF(c.uid);return f?f.c:'major'})();return {n:S.lang=='hi'&&c.h?c.h:c.n,d:c.d,e:c.e||'⭐',c:ccol(cc)}});
+ var th=THEMES[S.theme]||THEMES.saffron,dk=th.dk?1:0,pal={bg:th.v[2],tx:th.v[5],tx2:th.v[6],acc:th.v[7],hd:th.v[13],line:th.v[4],sk:tcol('sk'),kk:tcol('kk'),red:th.v[9]};
+ n.setWidget(JSON.stringify({v:2,lang:S.lang,dark:dk,pal:pal,loc:S.loc.n,cd:cd,days:days,wd:S.lang=='hi'?['रवि','सोम','मंगल','बुध','गुरु','शुक्र','शनि']:['SUN','MON','TUE','WED','THU','FRI','SAT']}));
  if(n.setReminders)n.setReminders(JSON.stringify(remList()))}catch(e){console.log(e)}},400)}
 function remList(){var r=S.rem,out=[];if(!r.on)return out;var t=todayYMD(),tk=key(t[0],t[1],t[2]),seen={};
  var at=function(k,hhmm,dd){var a=pk(k),x=addD(a[0],a[1],a[2],dd||0),h=(hhmm||'07:00').split(':');return Date.UTC(x[0],x[1],x[2],+h[0],+h[1])-L().tz*3600000};
- var add=function(k,title,emoji,id){if(seen[id])return;seen[id]=1;if(r.before){var b=at(k,r.bt,-1);if(b>Date.now())out.push({id:id+'_b',at:b,t:emoji+' Tomorrow: '+title,b:dayW(k)+' · Panchang'})}
-  if(r.same){var s=at(k,r.st,0);if(s>Date.now())out.push({id:id+'_s',at:s,t:emoji+' Today: '+title,b:dayW(k)+' · Panchang'})}};
+ var add=function(k,title,emoji,id){if(seen[id])return;seen[id]=1;if(r.before){var b=at(k,r.bt,-1);if(b>Date.now())out.push({id:id+'_b',at:b,t:emoji+' Tomorrow: '+title,b:dayW(k)+' · Din Darpan'})}
+  if(r.same){var s=at(k,r.st,0);if(s>Date.now())out.push({id:id+'_s',at:s,t:emoji+' Today: '+title,b:dayW(k)+' · Din Darpan'})}};
  if(r.cats.cd)S.cd.forEach(function(c){if(c.d>=tk&&daysBetween(tk,c.d)<=60)add(c.d,S.lang=='hi'&&c.h?c.h:c.n,c.e||'⭐',c.uid)});
  upcoming(tk,120,{major:r.cats.major,odisha:r.cats.odisha,vrat:r.cats.vrat,mine:r.cats.mine}).forEach(function(f){if(daysBetween(tk,f.d)<=60)add(f.d,fname(f),f.e,f.uid)});
  out.sort(function(a,b){return a.at-b.at});return out.slice(0,60)}
 W.owhOpen=function(tab,d){var i=TABS.map(function(x){return x[0]}).indexOf(tab);if(i>=0)go(i,true);if(d&&/^\d{4}-\d\d-\d\d$/.test(d))setTimeout(function(){daySheet(d)},50)};
 W.owhResume=function(){hdr();rerender();pushNative()};
 /* ---------- start ---------- */
-theme();if(W.matchMedia)matchMedia('(prefers-color-scheme: light)').addEventListener&&matchMedia('(prefers-color-scheme: light)').addEventListener('change',function(){if(S.theme=='auto')theme()});
+look();
 hdr();tabs();
 var qs=new URLSearchParams(location.search),h0=(location.hash||'').slice(1),st=qs.get('tab')||h0;var i0=TABS.map(function(x){return x[0]}).indexOf(st);go(i0>=0?i0:0,true);
 if(qs.get('d'))setTimeout(function(){daySheet(qs.get('d'))},100);

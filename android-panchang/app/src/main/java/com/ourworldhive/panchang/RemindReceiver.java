@@ -58,7 +58,7 @@ public class RemindReceiver extends BroadcastReceiver {
                 if (at <= now + 60000 && at > now - 6 * 3600000L) {
                     if (nm != null) {
                         Notification n = new Notification.Builder(c, CH).setSmallIcon(R.drawable.ic_mono)
-                            .setContentTitle(o.optString("t", "Panchang")).setContentText(o.optString("b", ""))
+                            .setContentTitle(o.optString("t", "Din Darpan")).setContentText(o.optString("b", ""))
                             .setAutoCancel(true).setContentIntent(Store.open(c, "home", null, 700 + (id.hashCode() & 0xFFF))).build();
                         nm.notify(id.hashCode(), n);
                     }

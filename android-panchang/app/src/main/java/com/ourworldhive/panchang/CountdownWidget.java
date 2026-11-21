@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.widget.RemoteViews;
 import org.json.JSONArray;
@@ -28,9 +27,12 @@ public class CountdownWidget extends AppWidgetProvider {
         boolean hi = "hi".equals(d.optString("lang"));
         for (int id : ids) {
             RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget_countdown);
-            v.setInt(R.id.root, "setBackgroundResource", dark ? R.drawable.wbg_dark : R.drawable.wbg_light);
-            int tx = dark ? Color.parseColor("#F3EAD8") : Color.parseColor("#2B2012");
-            int gold = dark ? Color.parseColor("#FFC94D") : Color.parseColor("#B86E00");
+            Store.bg(v, d);
+            int tx = Store.pc(d, "tx", "#3B1D14"), tx2 = Store.pc(d, "tx2", "#8A6A55");
+            int gold = Store.pc(d, dark ? "acc" : "hd", "#7A1F1F");
+            v.setTextColor(R.id.title, tx2);
+            v.setTextColor(R.id.empty, tx2);
+            v.setTextColor(R.id.add, Store.pc(d, "acc", "#D9480F"));
             v.setTextColor(R.id.hDate, gold);
             v.setTextColor(R.id.hTithi, tx);
             v.setTextViewText(R.id.hDate, Store.niceDate(t));

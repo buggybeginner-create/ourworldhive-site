@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
-    android:background="@drawable/wbg_dark" android:padding="12dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent">
+    <ImageView android:id="@+id/bgimg" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/wbg" android:scaleType="fitXY" />
+<LinearLayout     android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:padding="12dp">
     <LinearLayout android:id="@+id/head" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
             <TextView android:id="@+id/hDate" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:textStyle="bold" android:textColor="#FFC94D" android:maxLines="1" android:ellipsize="end" android:text="Panchang" />
@@ -13,3 +14,4 @@
     <ListView android:id="@+id/list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:divider="@null" android:dividerHeight="0dp" />
     <TextView android:id="@+id/empty" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:textSize="13sp" android:textColor="#B8AA8E" android:text="Tap + to choose festivals and events to count down." />
 </LinearLayout>
+</FrameLayout>

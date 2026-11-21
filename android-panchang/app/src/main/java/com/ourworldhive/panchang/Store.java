@@ -39,7 +39,20 @@ public final class Store {
         try { JSONObject days = d.optJSONObject("days"); return days == null ? null : days.optJSONArray(x.toString()); } catch (Exception e) { return null; }
     }
 
-    static boolean dark(JSONObject d) { return d.optInt("dark", 1) == 1; }
+    static boolean dark(JSONObject d) { return d.optInt("dark", 0) == 1; }
+
+    /** colour from the theme the user chose in the app (bg, tx, tx2, acc, hd, sk, kk, red) */
+    static int pc(JSONObject d, String key, String def) {
+        try { JSONObject p = d.optJSONObject("pal"); String v = p == null ? null : p.optString(key, null); return android.graphics.Color.parseColor(v == null || v.isEmpty() ? def : v); }
+        catch (Exception e) { return android.graphics.Color.parseColor(def); }
+    }
+    static int col(String hex, int def) { try { return hex == null || hex.isEmpty() ? def : android.graphics.Color.parseColor(hex); } catch (Exception e) { return def; } }
+
+    /** paint the rounded widget background in the theme colour */
+    static void bg(android.widget.RemoteViews v, JSONObject d) {
+        v.setInt(R.id.bgimg, "setColorFilter", pc(d, "bg", "#FFFAF2"));
+        v.setInt(R.id.bgimg, "setImageAlpha", 245);
+    }
 
     static String niceDate(LocalDate x) {
         return x.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH) + ", " + x.getDayOfMonth() + " "

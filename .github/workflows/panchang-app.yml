@@ -1,4 +1,4 @@
-name: Panchang Android app
+name: Din Darpan (Panchang) Android app
 on:
   workflow_dispatch:
   push:
@@ -37,7 +37,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: panchang-app
-          name: Panchang Android app (latest)
+          name: Din Darpan Android app (latest)
           body: |
             Build ${{ github.run_number }}.
             Panchang-test.apk: install on your own phone to test.

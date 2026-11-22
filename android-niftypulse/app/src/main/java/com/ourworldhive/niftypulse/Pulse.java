@@ -61,6 +61,7 @@ final class Pulse {
     /* ---------- an alert rings ONE time; at the user's re-arm time it is ready again, but rings only when the
        price crosses the level afresh. Shared with the app page. value: {"t":time rung} or {"w":1} (waiting for a fresh cross) ---------- */
     static long nextReset(Context c, long t) {
+        int mins = cfg(c).optInt("rearmMin", 0); if (mins > 0) return t + mins * 60000L;   /* ready again after a set time */
         String ra = cfg(c).optString("rearm", "09:15"); int h = 9, m = 15;
         try { String[] p = ra.split(":"); h = Integer.parseInt(p[0]); m = Integer.parseInt(p[1]); } catch (Exception ignored) { }
         Calendar k = Calendar.getInstance(IST); k.setTimeInMillis(t); k.set(Calendar.HOUR_OF_DAY, h); k.set(Calendar.MINUTE, m); k.set(Calendar.SECOND, 0); k.set(Calendar.MILLISECOND, 0);
@@ -72,9 +73,14 @@ final class Pulse {
         try {
             JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.remove("day");
             Object v = f.opt(key); JSONObject o = v instanceof JSONObject ? (JSONObject) v : (v != null ? new JSONObject().put("t", System.currentTimeMillis()) : null);
-            if (o != null && o.has("t") && System.currentTimeMillis() >= nextReset(c, o.optLong("t"))) o = new JSONObject().put("w", 1);
             boolean ring = false;
-            if (!cond) { if (o != null && o.has("w")) o = null; }
+            if (o != null && o.has("t") && System.currentTimeMillis() >= nextReset(c, o.optLong("t"))) {
+                /* reminder switch: still true at re-arm time -> ring one more time, then wait for a fresh cross */
+                if (cond && cfg(c).optBoolean("remind") && !o.has("rm")) { o = new JSONObject().put("t", System.currentTimeMillis()).put("rm", 1); ring = true; }
+                else o = new JSONObject().put("w", 1);
+            }
+            if (ring) { }
+            else if (!cond) { if (o != null && o.has("w")) o = null; }
             else if (o == null) { o = new JSONObject().put("t", System.currentTimeMillis()); ring = true; }
             if (o == null) f.remove(key); else f.put(key, o);
             sp(c).edit().putString("fired", f.toString()).apply();

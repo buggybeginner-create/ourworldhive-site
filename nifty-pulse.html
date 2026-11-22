@@ -289,14 +289,16 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Sound<input type="checkbox" id="oSound" checked></label>
    <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
    <div style="margin-top:10px;font-size:11.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)">⏰ FULL-SCREEN ALARM (KEEPS RINGING UNTIL YOU SLIDE TO STOP)</div>
-   <label class="sw">Ring each alert one time, ready again at<input type="time" id="rearmAt" value="09:15" style="width:auto;max-width:120px"></label>
-   <div class="h" style="margin:0 0 6px;font-size:12px">After it rings, an alert stays quiet until this time. Then it rings again only when the price crosses the level afresh (not just because it is still above or below).</div>
+   <label class="sw">Ring each alert one time, ready again after<select id="rearmMin" style="width:auto;max-width:150px"><option value="5">5 Minutes</option><option value="15">15 Minutes</option><option value="30">30 Minutes</option><option value="60">1 Hour</option><option value="120">2 Hours</option><option value="180">3 Hours</option><option value="360">6 Hours</option><option value="1440">1 Day</option><option value="0">At A Fixed Time</option></select></label>
+   <label class="sw" id="rearmAtRow">Fixed time (every day)<input type="time" id="rearmAt" value="09:15" style="width:auto;max-width:120px"></label>
+   <label class="sw">Remind once if still true when ready again<input type="checkbox" id="remind"></label>
+   <div class="h" style="margin:0 0 6px;font-size:12px">After it rings, an alert stays quiet for the time you pick. Then it rings again only when the price crosses the level afresh. Switch on the reminder to get one more ring if the price is still past the level at that moment.</div>
    <label class="sw">My price alerts<input type="checkbox" id="alR"></label>
    <label class="sw">Scan alerts (% moves, 52-week, NIFTY move)<input type="checkbox" id="alS"></label>
    <label class="sw" id="alGRow">BUY / SELL signals<input type="checkbox" id="alG"></label>
    <div class="fr" style="margin-top:6px"><button class="btn" id="alTest">TEST ALARM</button><button class="btn" id="alPerm" hidden>ALLOW FULL-SCREEN</button></div>
    <div id="alMsg" class="h" style="margin:6px 0 0;font-size:12px"></div>
-   <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings one time, then gets ready again at the time you set above and rings only on a fresh cross. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
+   <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings one time, then gets ready again after the time you set above and rings only on a fresh cross. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
   </div>
   <div class="card">
    <h3>TELEGRAM ALERTS (APP CLOSED)</h3>
@@ -312,6 +314,12 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 
  <!-- SETTINGS -->
  <section class="page"><div class="wrapw">
+  <div class="card">
+   <h3>☁ SYNC WITH GOOGLE</h3>
+   <p class="h">Sign in with your Gmail to keep your settings, price alerts and watchlist the same on the website and the Android app. Change them on one, the other gets them the next time it opens.</p>
+   <div id="npAcc" style="font-size:13.5px;margin:6px 0 8px">Not signed in. Settings stay only on this device.</div>
+   <div class="fr"><button class="btn g" id="npIn" style="width:100%">SIGN IN WITH GOOGLE</button><button class="btn" id="npSyncNow" hidden>↻ SYNC NOW</button><button class="btn" id="npOut" hidden>SIGN OUT</button></div>
+  </div>
   <div class="card owncard">
    <h3>DATA SOURCE</h3>
    <div class="srcseg" id="srcSeg">
@@ -428,10 +436,10 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-22.3'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-22.4'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
-var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
+var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
 function today(){var d=new Date(Date.now()+330*6e4);return d.toISOString().slice(0,10)}
 function fmt(n,d){if(n==null||!isFinite(n))return '—';return Number(n).toLocaleString('en-IN',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d})}
@@ -441,7 +449,7 @@ function cls(n){return n>0?'up':n<0?'dn':''}
 
 /* ---------- settings ---------- */
 var S=Object.assign({feed:DEFAULT_FEED,src:'auto',every:3,slow:true,bigPct:2,nearPct:3,theme:'auto',defView:'heat',custom:'',
-  notif:false,sound:true,vib:true,rearmAt:'09:15',gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',pa:true,paLines:true,alR:false,alS:false,alG:false,tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false,xMtf:true,xRng:true,xVol:true,xIdx:true,cLine:false,cE20:true,cE50:true,cVol:true,cSw:true,cPiv:false,cVw:false,cLast:true,cGrid:true},LS.get('set',{}));
+  notif:false,sound:true,vib:true,rearmAt:'09:15',rearmMin:60,remind:false,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',pa:true,paLines:true,alR:false,alS:false,alG:false,tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false,xMtf:true,xRng:true,xVol:true,xIdx:true,cLine:false,cE20:true,cE50:true,cVol:true,cSw:true,cPiv:false,cVw:false,cLast:true,cGrid:true},LS.get('set',{}));
 if(!S.feed&&DEFAULT_FEED)S.feed=DEFAULT_FEED;
 function saveS(){LS.set('set',S)}
 var watch=LS.get('watch',['RELIANCE','HDFCBANK','TCS','INFY','SBIN']);
@@ -449,9 +457,13 @@ var rules=LS.get('rules',[]);
 var fired=LS.get('fired',{});delete fired.day;Object.keys(fired).forEach(function(k){if(fired[k]===1)fired[k]={t:Date.now()}});
 /* an alert rings ONE time; at the re-arm time it gets ready again, but rings only when the price crosses the level afresh */
 function rearmAt(){return /^\d{1,2}:\d{2}$/.test(S.rearmAt||'')?S.rearmAt:'09:15'}
-function nextReset(t){var p=rearmAt().split(':'),d=new Date(t),r=new Date(t);r.setHours(+p[0],+p[1],0,0);if(r<=d)r.setDate(r.getDate()+1);return r.getTime()}
+function hhmm(t){var d=new Date(t),h=d.getHours(),m=d.getMinutes();return (h%12||12)+':'+(m<10?'0':'')+m+(h<12?' AM':' PM')}
+function rearmMin(){var m=+S.rearmMin;return m>0?Math.min(m,10080):0}
+function nextReset(t){if(rearmMin())return t+rearmMin()*6e4;var p=rearmAt().split(':'),d=new Date(t),r=new Date(t);r.setHours(+p[0],+p[1],0,0);if(r<=d)r.setDate(r.getDate()+1);return r.getTime()}
 function gate(key,cond,msg){var f=fired[key];
-  if(f&&f.t&&Date.now()>=nextReset(f.t)){f=fired[key]={w:1};LS.set('fired',fired)}
+  if(f&&f.t&&Date.now()>=nextReset(f.t)){
+    if(cond&&S.remind&&!f.rm){fire(key,'🔁 Reminder · '+msg);fired[key]={t:Date.now(),rm:1};LS.set('fired',fired);return}
+    f=fired[key]={w:1};LS.set('fired',fired)}
   if(!cond){if(f&&f.w){delete fired[key];LS.set('fired',fired)}return}
   if(!f)fire(key,msg)}
 var log=LS.get('log',{day:today(),items:[]});if(log.day!==today())log={day:today(),items:[]};
@@ -596,7 +608,7 @@ function renderRules(){
   var el=$('rules');
   if(!rules.length){el.innerHTML='<div style="color:var(--mut);font-size:13.5px">No alerts yet. Add one above, or tap a stock and use SET ALERT.</div>';return}
   el.innerHTML=rules.map(function(r){var q=Q[r.s],f=fired['r'+r.id];
-    return '<div class="rl"><label class="sw" style="border:0;padding:0"><input type="checkbox" data-tog="'+r.id+'"'+(r.on?' checked':'')+'></label><div class="t"><b>'+esc(r.s)+'</b> · '+esc(ruleText(r))+'<small>Now: '+(q?'₹'+fmt(q.ltp)+' ('+sgn(q.pct)+'%)':'—')+'</small></div>'+(f&&f.t?'<span class="tag fired" title="Re-arms by itself at '+rearmAt()+'">RANG · RE-ARMS '+rearmAt()+'</span><button class="btn" data-rearm="'+r.id+'" style="padding:6px 8px;font-size:11px">RE-ARM</button>':f&&f.w?'<span class="tag" title="Rings when the price crosses the level again">WAITING FOR CROSS</span>':'<span class="tag">'+(r.on?'WATCHING':'OFF')+'</span>')+'<button class="x" data-del="'+r.id+'" aria-label="Delete">×</button></div>'}).join('');
+    return '<div class="rl"><label class="sw" style="border:0;padding:0"><input type="checkbox" data-tog="'+r.id+'"'+(r.on?' checked':'')+'></label><div class="t"><b>'+esc(r.s)+'</b> · '+esc(ruleText(r))+'<small>Now: '+(q?'₹'+fmt(q.ltp)+' ('+sgn(q.pct)+'%)':'—')+'</small></div>'+(f&&f.t?'<span class="tag fired" title="Ready again by itself at '+hhmm(nextReset(f.t))+'">RANG · READY '+hhmm(nextReset(f.t))+'</span><button class="btn" data-rearm="'+r.id+'" style="padding:6px 8px;font-size:11px">RE-ARM</button>':f&&f.w?'<span class="tag" title="Rings when the price crosses the level again">WAITING FOR CROSS</span>':'<span class="tag">'+(r.on?'WATCHING':'OFF')+'</span>')+'<button class="x" data-del="'+r.id+'" aria-label="Delete">×</button></div>'}).join('');
 }
 function renderLog(){var el=$('log');
   el.innerHTML=log.items.length?log.items.slice().reverse().map(function(x){return '<div><time>'+esc(x.t)+'</time>'+esc(x.m)+'</div>'}).join(''):'<div style="color:var(--mut)">No alerts today yet.</div>';
@@ -713,7 +725,7 @@ function bind(id,key,num){var el=$(id),chk=el.type==='checkbox';if(chk)el.checke
   el.addEventListener('change',function(){S[key]=chk?el.checked:num?(el.value===''?'':+el.value):el.value;saveS();
     if(key==='theme')applyTheme();if(key==='every'||key==='slow')schedule();if(key==='bigPct'||key==='nearPct')renderScan();if(key.charAt(0)==='g')checkAlerts()})}
 bind('every','every',1);bind('slow','slow');bind('bigPct','bigPct',1);bind('nearPct','nearPct',1);bind('theme','theme');bind('defView','defView');
-bind('rearmAt','rearmAt');$('rearmAt').addEventListener('change',function(){renderRules();if(window.__npSync)__npSync()});bind('alR','alR');bind('alS','alS');bind('alG','alG');bind('pa','pa');bind('paLines','paLines');bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
+bind('rearmAt','rearmAt');bind('rearmMin','rearmMin');bind('remind','remind');function rearmUI(){$('rearmAtRow').hidden=rearmMin()>0}rearmUI();['rearmAt','rearmMin','remind'].forEach(function(i){$(i).addEventListener('change',function(){if(i==='rearmMin')S.rearmMin=+$(i).value;rearmUI();saveS();renderRules();if(window.__npSync)__npSync()})});bind('alR','alR');bind('alS','alS');bind('alG','alG');bind('pa','pa');bind('paLines','paLines');bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
 bind('xMtf','xMtf');bind('xRng','xRng');bind('xVol','xVol');bind('xIdx','xIdx');bind('tOn','tOn');bind('tSig','tSig');bind('tChart','tChart');bind('tTf','tTf');bind('gSig','gSig');
 ['tOn','tSig','gSig','alR','alS','alG'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll();if(window.__npSync)__npSync()})});
 bind('oSound','sound');bind('oVib','vib');bind('gMove','gMove',1);bind('gNifty','gNifty',1);bind('gHi','gHi');bind('gLo','gLo');
@@ -748,7 +760,7 @@ $('alPerm').onclick=function(){try{NATIVE.openFullScreen()}catch(e){}};
 /* ---------- TELEGRAM: each person connects their own Telegram ---------- */
 var TG=LS.get('tg',null);
 function tgPaint(){$('tgOff').hidden=!!TG;$('tgOn').hidden=!TG;$('tgName').textContent=TG&&TG.name?' · '+TG.name:''}
-function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,rearm:rearmAt(),global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
+function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,rearm:rearmAt(),rearmMin:rearmMin(),remind:!!S.remind,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
 function tgBody(o){if(isSuper()&&LS.get('ak',''))o.k=LS.get('ak','');return o}
 function tgPost(op,quiet){var f=feedUrl(),m=$('tgMsg');if(!f||!TG)return;if(!quiet)m.textContent='Sending…';
   fetch(f+'/tg/'+op,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op==='rules'?tgBody(tgPayload()):{chat:TG.chat,token:TG.token})}).then(function(r){return r.json()}).then(function(j){
@@ -1004,9 +1016,10 @@ function vwapOf(d){var out=[],pv=0,v=0,day='';d.forEach(function(r){var dd=istDa
 var OWNER='er.krushnananda@gmail.com',FB=null,SAU=null,NTOKS={};
 function ldS(u){return new Promise(function(ok,no){var e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=function(){no(new Error('Could not load sign-in. Check internet.'))};document.head.appendChild(e)})}
 function fbInit(){if(FB)return FB;FB=(async function(){if(!window.OWH_FIREBASE)throw new Error('Sign-in is not set up on this page.');var b='https://www.gstatic.com/firebasejs/10.12.2/';
-  if(!window.firebase)await ldS(b+'firebase-app-compat.js');if(!firebase.auth)await ldS(b+'firebase-auth-compat.js');if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
+  if(!window.firebase)await ldS(b+'firebase-app-compat.js');if(!firebase.auth)await ldS(b+'firebase-auth-compat.js');if(!firebase.firestore)await ldS(b+'firebase-firestore-compat.js');if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
   firebase.auth().onAuthStateChanged(function(u){SAU=u;var ok=!!(u&&u.emailVerified&&String(u.email||'').toLowerCase()===OWNER),was=isSuper();
-    if(u&&!ok){$('saMsg').innerHTML='<span class="err">'+esc(u.email||'This account')+' is not the owner account. Signed out.</span>';firebase.auth().signOut()}
+    if(u&&!ok&&LS.get('saTry',false)){$('saMsg').innerHTML='<span class="err">'+esc(u.email||'This account')+' is not the owner account. It is used only for sync.</span>';LS.set('saTry',false)}
+    cloudUser(u);
     LS.set('sa',ok);if(ok&&!was){S.tSig=true;saveS();$('tSig').checked=true;toast('👑 Welcome, superadmin');document.body.classList.remove('unlock')}
     if(ok!==was){paintTrendUI();renderAll();if(window.__npSync)__npSync();if(!ok&&cur===4)go(0)}saPaint()})})().catch(function(e){FB=null;throw e});return FB}
 window.npToken=function(req,tok,err){var p=NTOKS[req];if(!p)return;delete NTOKS[req];if(tok)p.res(tok);else p.rej(new Error(err||'Google sign-in was cancelled'))};
@@ -1019,7 +1032,37 @@ async function saLogin(){var m=$('saMsg');m.textContent='Opening Google…';$('s
   finally{$('saIn').disabled=false}}
 $('saIn').onclick=saLogin;
 $('saOut').onclick=function(){if(!confirm('Sign out of superadmin on this device?'))return;fbInit().then(function(){return firebase.auth().signOut()}).catch(function(){});LS.set('sa',false);S.tSig=false;saveS();paintTrendUI();renderAll();if(window.__npSync)__npSync();go(0);toast('Signed out')};
-if(isSuper()||LS.get('saTry',false))setTimeout(function(){fbInit().catch(function(){})},1500);
+/* ---------- GOOGLE SYNC: settings, price alerts and watchlist follow the Gmail account ---------- */
+var NPU=null,cloudT=null,cloudFirst=false;
+function editAt(){return +(localStorage.getItem('np_editAt')||0)}
+function cloudRef(){return firebase.firestore().collection('np_users').doc(NPU.uid)}
+function cloudData(){var s=Object.assign({},S);delete s.tSig;return {set:JSON.stringify(s),watch:JSON.stringify(watch),rules:JSON.stringify(rules),at:editAt()||Date.now(),dev:devName().slice(0,80)}}
+window.cloudPush=function(){if(!NPU)return;clearTimeout(cloudT);cloudT=setTimeout(function(){cloudRef().set(cloudData()).then(function(){LS.set('cloudAt',Date.now());accPaint()}).catch(function(e){accPaint('Could not sync: '+(e&&e.message||e))})},1500)};
+function applyCloud(x,merge){var cs={},cw=[],cr=[];try{cs=JSON.parse(x.set||'{}');cw=JSON.parse(x.watch||'[]');cr=JSON.parse(x.rules||'[]')}catch(e){return false}
+  if(merge&&localStorage.getItem('np_watch')){var mw=watch.slice();cw.forEach(function(w){if(mw.indexOf(w)<0)mw.push(w)});cw=mw}
+  if(merge){
+    var key=function(r){return r.s+'|'+r.type+'|'+r.v};cr=cr.slice();rules.forEach(function(r){if(!cr.some(function(c){return c.id===r.id||key(c)===key(r)}))cr.push(r)})}
+  cs.tSig=S.tSig;window.__npApplying=true;try{localStorage.setItem('np_set',JSON.stringify(Object.assign({},S,cs)));localStorage.setItem('np_watch',JSON.stringify(cw));localStorage.setItem('np_rules',JSON.stringify(cr));
+    localStorage.setItem('np_editAt',String(merge?Date.now():x.at))}catch(e){}window.__npApplying=false;return true}
+async function cloudPull(){var d=await cloudRef().get(),x=d.exists?d.data():null,loc=editAt();
+  if(!x){if(loc||rules.length||localStorage.getItem('np_watch')||localStorage.getItem('np_set'))cloudPush();return accPaint()}
+  if(!loc){if(applyCloud(x,true)){try{sessionStorage.setItem('np_pulled','1')}catch(e){}NPU&&cloudRef().set(Object.assign(cloudData0(),{at:editAt()})).catch(function(){});toast('☁ Synced with your Google account');setTimeout(function(){location.reload()},700)}return}
+  if((x.at||0)>loc){var once=false;try{once=sessionStorage.getItem('np_pulled')===String(x.at);sessionStorage.setItem('np_pulled',String(x.at))}catch(e){}
+    if(!once&&applyCloud(x,false)){toast('☁ Got your latest settings');setTimeout(function(){location.reload()},700)}return}
+  if((x.at||0)<loc)cloudPush();LS.set('cloudAt',Date.now());accPaint()}
+function cloudData0(){var s={},w=[],r=[];try{s=JSON.parse(localStorage.getItem('np_set')||'{}');w=JSON.parse(localStorage.getItem('np_watch')||'[]');r=JSON.parse(localStorage.getItem('np_rules')||'[]')}catch(e){}delete s.tSig;return {set:JSON.stringify(s),watch:JSON.stringify(w),rules:JSON.stringify(r),dev:devName().slice(0,80)}}
+function cloudUser(u){var was=NPU&&NPU.uid;NPU=u&&!u.isAnonymous?u:null;LS.set('cloud',!!NPU);accPaint();if(NPU&&NPU.uid!==was)cloudPull().catch(function(e){accPaint('Could not sync: '+(e&&e.message||e))})}
+function accPaint(err){var a=$('npAcc');if(!a)return;$('npIn').hidden=!!NPU;$('npOut').hidden=!NPU;$('npSyncNow').hidden=!NPU;
+  a.innerHTML=NPU?'✔ Signed in as <b>'+esc(NPU.email||'')+'</b>. Sync is ON.'+(LS.get('cloudAt',0)?' Last sync: '+ago(LS.get('cloudAt',0))+'.':'')+(err?'<br><span class="err">'+esc(err)+'</span>':''):(err?'<span class="err">'+esc(err)+'</span>':'Not signed in. Settings stay only on this device.')}
+$('npIn').onclick=async function(){var b=this;b.disabled=true;accPaint();$('npAcc').textContent='Opening Google…';
+  try{await fbInit();if(NATIVE&&NATIVE.googleToken){var t=await nativeTok();await firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(null,t))}
+    else{var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});try{await firebase.auth().signInWithPopup(p)}catch(e){if(e&&/popup-blocked|cancelled-popup|operation-not-supported/.test(e.code||'')){LS.set('cloud',true);await firebase.auth().signInWithRedirect(p);return}throw e}}}
+  catch(e){accPaint(e&&e.code==='auth/popup-closed-by-user'?'Sign-in was cancelled.':(e&&e.message)||'Sign-in failed')}finally{b.disabled=false}};
+$('npSyncNow').onclick=function(){if(!NPU)return;$('npAcc').textContent='Syncing…';cloudPull().catch(function(e){accPaint('Could not sync: '+(e&&e.message||e))})};
+$('npOut').onclick=function(){fbInit().then(function(){return firebase.auth().signOut()}).catch(function(){});LS.set('sa',false);LS.set('cloud',false);NPU=null;accPaint();toast('Signed out. Settings stay on this device.')};
+accPaint();
+setTimeout(function(){try{syncNative()}catch(e){}},2500); /* app gets settings that came from the cloud */
+if(isSuper()||LS.get('saTry',false)||LS.get('cloud',false))setTimeout(function(){fbInit().catch(function(){})},1500);
 function devId(){var d=LS.get('did','');if(!d){d=(NATIVE?'app-':'web-')+Math.random().toString(36).slice(2,10);LS.set('did',d)}return d}
 function devName(){var u=navigator.userAgent,m=u.match(/Android [\d.]+; ([^;)]+)/),os=/Android/.test(u)?'Android'+(m?' '+m[1]:''):/iPhone|iPad/.test(u)?'iPhone/iPad':/Windows/.test(u)?'Windows PC':/Mac/.test(u)?'Mac':'Computer';
   var br=NATIVE?'':/Edg\//.test(u)?' · Edge':/Chrome\//.test(u)?' · Chrome':/Firefox\//.test(u)?' · Firefox':/Safari\//.test(u)?' · Safari':'';return (NATIVE?'Nifty Pulse app':'Website')+' · '+os+br}
@@ -1154,7 +1197,7 @@ setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEvent
 
 /* ---------- Android app: home-screen widget + background alerts ---------- */
 function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
-  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())},rearm:rearmAt()}))}catch(e){}}
+  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())},rearm:rearmAt(),rearmMin:rearmMin(),remind:!!S.remind}))}catch(e){}}
 var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400);tgAuto()};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
   [].forEach.call(document.querySelectorAll('[data-pin]'),function(b){b.onclick=function(){var z=b.getAttribute('data-pin');try{if(NATIVE.pinSize)NATIVE.pinSize(z);else{NATIVE.pinWidget();if(z!=='m')toast('Update the Android app to get '+(z==='s'?'Small':'Large')+' widgets')}}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}}});

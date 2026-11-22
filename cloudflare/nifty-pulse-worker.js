@@ -229,7 +229,7 @@ export default {
         if (!env.NP) return json({ ok: false, error: 'KV binding NP is missing' }, 400);
         const body = await req.json();
         const rules = Array.isArray(body.rules) ? body.rules.slice(0, 200) : [];
-        await env.NP.put('rules', JSON.stringify({ rules, rearm: /^\d{1,2}:\d{2}$/.test(String(body.rearm || '')) ? String(body.rearm) : '09:15', global: body.global || {}, list: Array.isArray(body.list) ? body.list.slice(0, 100) : null,
+        await env.NP.put('rules', JSON.stringify({ rules, rearm: /^\d{1,2}:\d{2}$/.test(String(body.rearm || '')) ? String(body.rearm) : '09:15', rearmMin: Math.max(0, Math.min(10080, +body.rearmMin || 0)), remind: !!body.remind, global: body.global || {}, list: Array.isArray(body.list) ? body.list.slice(0, 100) : null,
           src: ['angel', 'breeze', 'yahoo'].includes(body.src) ? body.src : 'auto', bcodes: body.bcodes || {} }));
         return json({ ok: true, saved: rules.length });
       }
@@ -283,6 +283,8 @@ export default {
 /* ---------- alert rules (same logic as the app) ----------
    fired[key] = { t: time rung } (quiet until the re-arm time) or { w: 1 } (ready, waits for a fresh cross) */
 function nextReset(rearm, t) {
+  if (rearm && rearm.min > 0) return t + rearm.min * 6e4;
+  if (rearm && typeof rearm === 'object') rearm = rearm.at;
   const [h, m] = String(rearm || '09:15').split(':').map(Number), IST = 5.5 * 3600e3, d = new Date(t + IST);
   let r = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h || 0, m || 0) - IST;
   if (r <= t) r += 864e5;
@@ -290,13 +292,16 @@ function nextReset(rearm, t) {
 }
 function gate(fired, rearm, key, cond) {
   let f = fired[key];
-  if (f && f.t && Date.now() >= nextReset(rearm, f.t)) f = fired[key] = { w: 1 };
+  if (f && f.t && Date.now() >= nextReset(rearm, f.t)) {
+    if (cond && rearm && rearm.remind && !f.rm) { fired[key] = { t: Date.now(), rm: 1 }; return true; }   /* one reminder */
+    f = fired[key] = { w: 1 };
+  }
   if (!cond) { if (f && f.w) delete fired[key]; return false; }
   if (f) return false;
   fired[key] = { t: Date.now() }; return true;
 }
 function evaluate(saved, data, fired) {
-  const out = [], by = {}, ra = saved.rearm || '09:15';
+  const out = [], by = {}, ra = { at: saved.rearm || '09:15', min: +saved.rearmMin || 0, remind: !!saved.remind };
   data.stocks.concat(data.index).forEach(q => by[q.s] = q);
   (saved.rules || []).forEach(r => {
     const q = by[r.s]; if (!q || !r.on) return;
@@ -336,7 +341,7 @@ function rid(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return
 async function hookSecret(env) { return (await sha256hex('np-hook:' + (env.ADMIN_KEY || env.TG_BOT_TOKEN))).slice(0, 40); }
 function cleanRules(b) {
   return { rules: (Array.isArray(b.rules) ? b.rules : []).slice(0, 100).map(r => ({ id: String(r.id || '').slice(0, 20), s: String(r.s || '').toUpperCase().slice(0, 20), type: ['above', 'below', 'pctUp', 'pctDown'].includes(r.type) ? r.type : 'above', v: +r.v || 0, on: !!r.on })),
-    rearm: /^\d{1,2}:\d{2}$/.test(String(b.rearm || '')) ? String(b.rearm) : '09:15',
+    rearm: /^\d{1,2}:\d{2}$/.test(String(b.rearm || '')) ? String(b.rearm) : '09:15', rearmMin: Math.max(0, Math.min(10080, +b.rearmMin || 0)), remind: !!b.remind,
     global: { move: +((b.global || {}).move) || 0, nifty: +((b.global || {}).nifty) || 0, hi52: !!(b.global || {}).hi52, lo52: !!(b.global || {}).lo52, only: Array.isArray((b.global || {}).only) ? b.global.only.slice(0, 100) : null } };
 }
 

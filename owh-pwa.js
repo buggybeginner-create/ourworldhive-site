@@ -101,3 +101,5 @@ function updWatch(){
   setInterval(check,15*60000);
 }
 })();
+/* every app and game gets the Update Available pill */
+(function(){try{if(window.__owhUpd||document.querySelector('script[src*="owh-update.js"]'))return;var s=document.createElement('script');s.src='owh-update.js';s.async=true;(document.head||document.documentElement).appendChild(s)}catch(e){}})();

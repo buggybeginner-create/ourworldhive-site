@@ -41,3 +41,5 @@ setTimeout(finish,WAIT?30000:12000);/* never trap the visitor */
 tick();
 window.OWH={on:1,gears:gears,hive:hive,done:finish};
 })();
+/* every app and game gets the Update Available pill */
+(function(){try{if(window.__owhUpd||document.querySelector('script[src*="owh-update.js"]'))return;var s=document.createElement('script');s.src='owh-update.js';s.async=true;(document.head||document.documentElement).appendChild(s)}catch(e){}})();

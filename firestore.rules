@@ -119,6 +119,8 @@ match /planner_users/{uid}{allow read,write:if request.auth!=null&&request.auth.
 match /grocery_data/{uid}{allow read,write:if request.auth!=null&&request.auth.uid==uid;}
 match /loan_data/{uid}{allow read,write:if request.auth!=null&&request.auth.uid==uid;}
 match /panchang_data/{uid}{allow read,write:if request.auth!=null&&request.auth.uid==uid;}
+// ===== 📦 PARCEL LEDGER =====
+match /parcel_data/{uid}{allow read,write:if request.auth!=null&&request.auth.uid==uid;}
 // ===== 🌳 VANSH FAMILY TREE =====
 match /family_trees/{uid}{allow read:if request.auth!=null&&(request.auth.uid==uid||request.auth.token.email.lower()in resource.data.get('members',[]));allow create:if request.auth!=null&&request.auth.uid==uid;allow update:if request.auth!=null&&(request.auth.uid==uid||(request.auth.token.email.lower()in resource.data.get('editors',[])&&request.resource.data.get('members',[])==resource.data.get('members',[])&&request.resource.data.get('editors',[])==resource.data.get('editors',[])&&request.resource.data.get('viewers',[])==resource.data.get('viewers',[])&&request.resource.data.get('inviteOn',false)==resource.data.get('inviteOn',false)));allow delete:if request.auth!=null&&request.auth.uid==uid;
 match /requests/{rid}{allow create,update:if request.auth!=null&&request.auth.uid==rid&&request.resource.data.keys().hasOnly(['uid','email','name','ts'])&&request.resource.data.uid==request.auth.uid&&get(/databases/$(database)/documents/family_trees/$(uid)).data.get('inviteOn',false)==true;allow read,delete:if request.auth!=null&&(request.auth.uid==uid||request.auth.uid==rid);}}

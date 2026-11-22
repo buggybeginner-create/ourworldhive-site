@@ -74,6 +74,7 @@ export default {
         /* Angel One and ICICI Breeze are your own broker accounts: only callers with your ADMIN_KEY get them. Everyone else gets Yahoo. */
         const owner = !env.ADMIN_KEY || url.searchParams.get('k') === env.ADMIN_KEY;
         const locked = !owner && want !== 'yahoo';
+        if (owner && env.ADMIN_KEY && env.NP) ctx.waitUntil(seen(env, url, req).catch(() => {}));
         if (locked) want = 'yahoo';
         const sym = cleanList(url.searchParams.get('sym'), want === 'breeze' ? BREEZE_MAX : 100);
         const bcodes = parseCodes(url.searchParams.get('bcodes'));
@@ -96,6 +97,7 @@ export default {
         const tf = ['5m', '15m', '1h', '1d'].includes(url.searchParams.get('tf')) ? url.searchParams.get('tf') : '1d';
         const list = isC ? null : cleanList(url.searchParams.get('sym'), 100);
         const useAngel = isC && owner && hasAngel(env) && url.searchParams.get('src') !== 'yahoo';
+        if (isC && owner && env.ADMIN_KEY && env.NP) ctx.waitUntil(seen(env, url, req).catch(() => {}));
         const key = new Request('https://np-cache' + url.pathname + '?a=' + (useAngel ? 1 : 0) + '&s=' + (sym || '') + '&tf=' + tf + '&l=' + (list || []).join(','));
         const hit = await caches.default.match(key);
         if (hit) { const r = new Response(hit.body, hit); Object.entries(cors).forEach(([k, v]) => r.headers.set(k, v)); return r; }
@@ -156,7 +158,7 @@ export default {
           const up = await req.json().catch(() => ({})), m = up.message || {}, chat = m.chat && m.chat.id, text = String(m.text || '').trim();
           if (!chat) return new Response('ok');
           const code = (text.match(/^\/start\s+([a-z0-9]{6,20})$/i) || [])[1];
-          if (code) { await env.NP.put('lk:' + code.toLowerCase(), JSON.stringify({ chat: String(chat), name: (m.chat.first_name || m.chat.title || '').slice(0, 40) }), { expirationTtl: 900 }); await tg(env, '✅ Connected to Nifty Pulse. Go back to the app. Your alerts will come here, even when the app is closed.', chat); }
+          if (code) { await env.NP.put('lk:' + code.toLowerCase(), JSON.stringify({ chat: String(chat), name: (m.chat.first_name || m.chat.title || '').slice(0, 40), user: (m.chat.username || '').slice(0, 40) }), { expirationTtl: 900 }); await tg(env, '✅ Connected to Nifty Pulse. Go back to the app. Your alerts will come here, even when the app is closed.', chat); }
           else if (/^\/stop/i.test(text)) { const ids = ((await env.NP.get('users', 'json')) || []).filter(x => x !== String(chat)); await env.NP.put('users', JSON.stringify(ids)); await env.NP.delete('u:' + chat); await tg(env, '🔕 Alerts stopped. Tap CONNECT TELEGRAM in Nifty Pulse to start again.', chat); }
           else await tg(env, '👋 To get alerts here: open Nifty Pulse → ALERTS → CONNECT TELEGRAM.', chat);
           return new Response('ok');
@@ -167,7 +169,7 @@ export default {
           if (!v) return json({ ok: false, wait: true });
           await env.NP.delete('lk:' + code);
           const token = rid(24), old = (await env.NP.get('u:' + v.chat, 'json')) || {};
-          await env.NP.put('u:' + v.chat, JSON.stringify({ ...old, chat: v.chat, name: v.name, token }));
+          await env.NP.put('u:' + v.chat, JSON.stringify({ ...old, chat: v.chat, name: v.name, user: v.user || old.user || '', joined: old.joined || Date.now(), token }));
           const ids = (await env.NP.get('users', 'json')) || [];
           if (!ids.includes(v.chat)) { ids.push(v.chat); await env.NP.put('users', JSON.stringify(ids)); }
           return json({ ok: true, chat: v.chat, name: v.name, token });
@@ -175,9 +177,50 @@ export default {
         if (req.method === 'POST' && ['rules', 'test', 'stop'].includes(op)) {
           const b = await req.json().catch(() => ({})), u = await env.NP.get('u:' + String(b.chat || ''), 'json');
           if (!u || !b.token || u.token !== b.token) return json({ ok: false, error: 'Not connected. Tap CONNECT TELEGRAM again.', relink: true });
-          if (op === 'rules') { const c = cleanRules(b); await env.NP.put('u:' + u.chat, JSON.stringify({ ...u, ...c, at: Date.now() })); return json({ ok: true, saved: c.rules.length }); }
+          if (op === 'rules') { const c = cleanRules(b); await env.NP.put('u:' + u.chat, JSON.stringify({ ...u, ...c, owner: !!(env.ADMIN_KEY && b.k === env.ADMIN_KEY), at: Date.now() })); return json({ ok: true, saved: c.rules.length }); }
           if (op === 'test') return json({ ok: await tg(env, '✅ NIFTY PULSE: your Telegram alerts are working.', u.chat) });
           if (op === 'stop') { const ids = ((await env.NP.get('users', 'json')) || []).filter(x => x !== u.chat); await env.NP.put('users', JSON.stringify(ids)); await env.NP.delete('u:' + u.chat); await tg(env, '🔕 Nifty Pulse alerts stopped.', u.chat); return json({ ok: true }); }
+        }
+        return json({ ok: false, error: 'unknown' }, 404);
+      }
+      /* ---------- SUPERADMIN panel: who uses your Angel One data ---------- */
+      if (url.pathname.startsWith('/admin')) {
+        const k = req.headers.get('X-Admin-Key') || url.searchParams.get('k');
+        if (!env.ADMIN_KEY || k !== env.ADMIN_KEY) return json({ ok: false, error: 'Wrong owner key' }, 401);
+        if (!env.NP) return json({ ok: false, error: 'KV binding NP is missing on the worker' });
+        const op = url.pathname.slice(7);
+        if (op === '' || op === '/') {
+          const dev = (await env.NP.get('dev', 'json')) || {}, ids = (await env.NP.get('users', 'json')) || [], tg = [];
+          for (const id of ids.slice(0, 60)) {
+            const u = await env.NP.get('u:' + id, 'json'); if (!u) continue;
+            const g = u.global || {};
+            tg.push({ chat: u.chat, name: u.name || '', user: u.user || '', owner: !!u.owner, joined: u.joined || 0, at: u.at || 0, last: u.last || 0, sent: u.sent || 0,
+              rules: (u.rules || []).filter(r => r.on).map(r => r.s + ' ' + (r.type === 'above' ? '>' : r.type === 'below' ? '<' : r.type === 'pctUp' ? '+%' : '-%') + r.v).slice(0, 30),
+              global: [g.move > 0 ? 'moves ±' + g.move + '%' : '', g.nifty > 0 ? 'NIFTY ±' + g.nifty + '%' : '', g.hi52 ? '52W high' : '', g.lo52 ? '52W low' : ''].filter(Boolean) });
+          }
+          const cfg = (await env.NP.get('cfg', 'json')) || {};
+          return json({ ok: true, now: Date.now(), angel: hasAngel(env), breeze: !!(env.BREEZE_KEY && env.BREEZE_SECRET), telegram: !!env.TG_BOT_TOKEN, ownerChat: env.TG_CHAT_ID || '',
+            legacy: !!(await env.NP.get('rules')), cfg: { tgAngel: cfg.tgAngel !== false },
+            devices: Object.entries(dev).map(([id, d]) => ({ id, ...d })).sort((a, b) => b.last - a.last), tg });
+        }
+        if (req.method !== 'POST') return json({ ok: false, error: 'POST only' }, 405);
+        const b = await req.json().catch(() => ({}));
+        if (op === '/tg-remove') {
+          const chat = String(b.chat || ''); if (!chat) return json({ ok: false, error: 'No chat' });
+          const ids = ((await env.NP.get('users', 'json')) || []).filter(x => x !== chat);
+          await env.NP.put('users', JSON.stringify(ids)); await env.NP.delete('u:' + chat);
+          if (b.tell) await tg(env, '🔕 Nifty Pulse alerts were stopped by the app owner.', chat);
+          return json({ ok: true });
+        }
+        if (op === '/dev-forget') {
+          const dev = (await env.NP.get('dev', 'json')) || {};
+          if (b.id) delete dev[b.id]; else Object.keys(dev).forEach(x => delete dev[x]);
+          await env.NP.put('dev', JSON.stringify(dev)); return json({ ok: true });
+        }
+        if (op === '/cfg') {
+          const cfg = (await env.NP.get('cfg', 'json')) || {};
+          if (typeof b.tgAngel === 'boolean') cfg.tgAngel = b.tgAngel;
+          await env.NP.put('cfg', JSON.stringify(cfg)); return json({ ok: true, cfg: { tgAngel: cfg.tgAngel !== false } });
         }
         return json({ ok: false, error: 'unknown' }, 404);
       }
@@ -216,14 +259,21 @@ export default {
     /* one price fetch for everybody: Nifty 50 + every extra stock someone has an alert on (Angel One when set up) */
     const extra = new Set();
     users.forEach(u => (u.rules || []).forEach(r => { if (r.on && r.s && r.s !== 'NIFTY' && r.s !== 'BANKNIFTY') extra.add(r.s); }));
+    const cfg = (await env.NP.get('cfg', 'json')) || {};
     const data = await getQuotes(env, 'auto', null, {}, [...extra].slice(0, 40));
     if (!data.ok) return;
+    /* the owner can switch friends' alerts to free Yahoo prices (Superadmin tab in the app) */
+    let ydata = null;
+    if (cfg.tgAngel === false && users.some(u => !u.legacy && !u.owner)) { try { ydata = await getQuotes(env, 'yahoo', null, {}, [...extra].slice(0, 40)); } catch (e) { } }
     for (const u of users) {
       const fk = (u.legacy ? 'fired:' : 'fired:' + u.chat + ':') + t.day;
       const fired = (await env.NP.get(fk, 'json')) || {};
-      const msgs = evaluate(u, data, fired);
+      const useY = cfg.tgAngel === false && !u.legacy && !u.owner;
+      if (useY && !(ydata && ydata.ok)) continue;
+      const msgs = evaluate(u, useY ? ydata : data, fired);
       if (!msgs.length) continue;
       await tg(env, '📈 NIFTY PULSE ALERT\n' + msgs.join('\n') + '\n' + t.label, u.chat);
+      if (!u.legacy) { u.last = Date.now(); u.sent = (u.sent || 0) + 1; const keep = { ...u }; await env.NP.put('u:' + u.chat, JSON.stringify(keep)); }
       await env.NP.put(fk, JSON.stringify(fired), { expirationTtl: 60 * 60 * 30 });
     }
   }
@@ -552,6 +602,18 @@ async function angelCandles(env, sym, tf) {
   const [iv, days] = TFA[tf], now = Date.now();
   const d = await angelPost(env, '/rest/secure/angelbroking/historical/v1/getCandleData', { exchange: 'NSE', symboltoken: tok, interval: iv, fromdate: istStamp(now - days * 864e5), todate: istStamp(now) });
   return (d || []).map(r => [Date.parse(r[0]) || 0, num(r[1]), num(r[2]), num(r[3]), num(r[4]), num(r[5])]).filter(r => r[0] && r[4]);
+}
+
+/* remembers which devices use the owner key (at most one write per device every 15 min) */
+async function seen(env, url, req) {
+  const id = String(url.searchParams.get('d') || 'unknown').replace(/[^\w.-]/g, '').slice(0, 40) || 'unknown';
+  const mark = new Request('https://np-seen/' + id);
+  if (await caches.default.match(mark)) return;
+  await caches.default.put(mark, new Response('1', { headers: { 'Cache-Control': 'public, max-age=900' } }));
+  const all = (await env.NP.get('dev', 'json')) || {}, cf = req.cf || {}, now = Date.now(), o = all[id] || { first: now, hits: 0 };
+  all[id] = { ...o, n: String(url.searchParams.get('dn') || o.n || 'Unknown device').slice(0, 70), city: cf.city || o.city || '', cc: cf.country || o.cc || '', last: now, hits: (o.hits || 0) + 1 };
+  const keep = Object.entries(all).sort((a, b) => b[1].last - a[1].last).slice(0, 25);
+  await env.NP.put('dev', JSON.stringify(Object.fromEntries(keep)));
 }
 
 function ySym(s) { const ix = INDEX.find(i => i.s === s); return ix ? encodeURIComponent(ix.y) : s.replace(/&/g, '%26') + '.NS'; }

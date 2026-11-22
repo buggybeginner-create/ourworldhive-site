@@ -11,6 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Nifty Pulse">
 <script src="owh-pwa.js" data-own="1"></script>
 <script src="nifty-pulse-config.js"></script>
+<script src="firebase-config.js"></script>
 <style>
 :root{--bg:#070b16;--bg2:#0d1424;--card:#111a2e;--card2:#16213a;--line:rgba(255,255,255,.09);--ink:#eaf1ff;--soft:#b8c4e0;--mut:#7d8bad;
  --up:#16c784;--up2:#0b7a50;--dn:#ff4d5e;--dn2:#9a1f2c;--gold:#ffc857;--acc:#5b8cff;--r:14px;--e20:#ffc857;--e50:#4fd1ff;
@@ -187,7 +188,10 @@ code{font-family:var(--mono);font-size:12px;background:var(--card2);padding:1px 
 .chartbox .tip{position:absolute;left:12px;top:44px;font:600 11px var(--mono);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px 7px;pointer-events:none;display:none}
 #updPill{position:fixed;left:calc(14px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));z-index:70;display:flex;align-items:center;gap:4px;padding:6px 6px 6px 14px;border-radius:24px;background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;font:700 14px var(--f);box-shadow:0 8px 22px rgba(194,65,12,.4);animation:up .35s ease-out}
 #updPill button{border:0;background:transparent;color:#fff;font:inherit;min-height:34px;padding:0 6px}#updPill .x{opacity:.8;font-size:16px}
-body:not(.own) .owncard{display:none}body:not(.own):not(.unlock) .keycard{display:none}
+body:not(.own) .owncard,body:not(.own) .keycard,body:not(.own) .satab,body:not(.own) .sapage{display:none}body:not(.own):not(.unlock) .sacard{display:none}
+.verd{font:900 26px var(--f);letter-spacing:.04em;padding:6px 14px;border-radius:10px;display:inline-block}.verd.up{background:rgba(22,199,132,.16);color:var(--up)}.verd.dn{background:rgba(255,77,94,.16);color:var(--dn)}.verd.nt{background:var(--card2);color:var(--ink)}
+.pro{border-color:#ffc857}.pa.pro .bar2{background:linear-gradient(90deg,rgba(255,77,94,.6),var(--card2) 50%,rgba(22,199,132,.6))}.pro .plan{background:var(--card2);border-radius:10px;padding:10px;margin-top:8px;font-size:13.5px;line-height:1.55}
+.sarow{border-top:1px solid var(--line);padding:9px 0;font-size:13px;display:flex;gap:8px;align-items:flex-start}.sarow:first-child{border-top:0}.sarow .m{flex:1;min-width:0}.sarow small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px;word-break:break-word}.tagA{font-size:10.5px;font-weight:900;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:rgba(255,200,87,.16);color:#ffc857;white-space:nowrap}.tagY{font-size:10.5px;font-weight:900;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:var(--card2);color:var(--mut);white-space:nowrap}
 .pa .lv{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}.pa .lv:first-of-type{border-top:0}
 .pa .lv b{font-family:var(--mono)}.pa .lv .tg{font-size:10.5px;font-weight:900;letter-spacing:.06em;padding:3px 7px;border-radius:6px;min-width:34px;text-align:center}
 .pa .tg.r{background:rgba(255,77,94,.15);color:var(--dn)}.pa .tg.s{background:rgba(22,199,132,.15);color:var(--up)}.pa .tg.p{background:var(--card2);color:var(--soft)}
@@ -229,6 +233,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
  <button class="tab" data-i="1">WATCH</button>
  <button class="tab" data-i="2">ALERTS<b id="badge" hidden>0</b></button>
  <button class="tab" data-i="3">SETTINGS</button>
+ <button class="tab satab" data-i="4">👑 ADMIN</button>
 </nav>
 
 <main class="pages" id="pages">
@@ -326,9 +331,15 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <div class="fr"><input class="inp" id="feed" placeholder="https://nifty-pulse.YOURNAME.workers.dev" autocomplete="off" spellcheck="false"><button class="btn g" id="feedSave" style="flex:0 0 auto">SAVE &amp; TEST</button></div>
    <div id="feedMsg" style="font-size:13px;margin-top:8px"></div>
   </div>
+  <div class="card sacard">
+   <h3>SUPERADMIN SIGN-IN</h3>
+   <p class="h">For the app owner only. Sign in with the owner's Google account to open BUY / SELL / HOLD guidance and the ADMIN tab.</p>
+   <button class="btn g" id="saIn" style="width:100%">SIGN IN WITH GOOGLE</button>
+   <div id="saMsg" style="font-size:13px;margin-top:8px"></div>
+  </div>
   <div class="card keycard">
    <h3>OWNER KEY</h3>
-   <p class="h">For the app owner only. Type your ADMIN_KEY to open Angel One, ICICI Breeze, Telegram alerts and BUY / SELL signals on this device.</p>
+   <p class="h">Type your ADMIN_KEY once on each of your devices. It opens Angel One, ICICI Breeze and the ADMIN tab's list of who uses your data.</p>
    <div class="fr"><input class="inp" id="ownKey" type="password" placeholder="Your ADMIN_KEY" autocomplete="off"><button class="btn g" id="ownSave" style="flex:0 0 auto">SAVE</button></div>
    <div id="ownMsg" style="font-size:13px;margin-top:8px"></div>
   </div>
@@ -380,6 +391,30 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
   </div>
   <div class="copy">© <span id="yr">2026</span> DUKEKRRISH · Ourworldhive. All rights reserved.</div>
  </div></section>
+
+ <!-- SUPERADMIN (only er.krushnananda@gmail.com) -->
+ <section class="page sapage"><div class="wrapw">
+  <div class="card">
+   <h3>👑 SUPERADMIN</h3>
+   <div id="saWho" style="font-size:13.5px"></div>
+   <div class="fr" style="margin-top:10px"><button class="btn g" id="saRef">↻ REFRESH</button><button class="btn" id="saOut">SIGN OUT</button></div>
+  </div>
+  <div class="card">
+   <h3>WHO GETS YOUR ANGEL ONE DATA</h3>
+   <p class="h">Angel One prices go only to devices that have your owner key, and to the Telegram alerts your worker sends. Website visitors and friends' apps always get free Yahoo prices.</p>
+   <div id="saDev"><div class="h">Loading…</div></div>
+  </div>
+  <div class="card">
+   <h3>TELEGRAM ALERTS FROM YOUR WORKER</h3>
+   <label class="sw">Friends' Telegram alerts use my Angel One prices<input type="checkbox" id="saTgAngel"></label>
+   <p class="h">When OFF, friends get their alerts from free Yahoo prices; only your own chat uses Angel One.</p>
+   <div id="saTg"><div class="h">Loading…</div></div>
+  </div>
+  <div class="card">
+   <h3>WORKER STATUS</h3>
+   <div id="saW" style="font-size:13px"></div>
+  </div>
+ </div></section>
 </main>
 
 <div class="mask" id="mask"><div class="sheet" id="sheet"></div></div>
@@ -391,7 +426,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-22.1'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-22.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -447,7 +482,7 @@ function load(manual){
   else{var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){ctl&&ctl.abort()},8000);
     var syms=S.src==='breeze'?breezeList():(customList()||[]),extra=S.src==='breeze'?[]:ruleStocks().filter(function(x){return syms.indexOf(x)<0}).slice(0,20);
     if(S.src==='breeze'&&!syms.length){busy=false;$('rf').classList.remove('spin');showNote('ICICI Breeze: choose your stocks first (Settings → CHOOSE BREEZE STOCKS).');setStatus('off','SETUP');go(3);return}
-    p=fetch(f+'/quotes?src='+encodeURIComponent(S.src)+(syms.length?'&sym='+encodeURIComponent(syms.join(',')):'')+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak','')):'')+(extra.length?'&extra='+encodeURIComponent(extra.join(',')):'')+(S.src==='breeze'&&S.bcodes?'&bcodes='+encodeURIComponent(S.bcodes.replace(/\s+/g,'')):''),{signal:ctl&&ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(to);return r.json()})}
+    p=fetch(f+'/quotes?src='+encodeURIComponent(S.src)+(syms.length?'&sym='+encodeURIComponent(syms.join(',')):'')+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak',''))+devQ():'')+(extra.length?'&extra='+encodeURIComponent(extra.join(',')):'')+(S.src==='breeze'&&S.bcodes?'&bcodes='+encodeURIComponent(S.bcodes.replace(/\s+/g,'')):''),{signal:ctl&&ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(to);return r.json()})}
   p.then(function(d){
     if(d&&d.needLogin){needLogin=true;showNote('ICICI Breeze needs today\'s login. <button class="btn g" data-blogin style="padding:5px 10px;margin-left:6px">ICICI DAILY LOGIN</button>');setStatus('off','LOGIN');throw {quiet:1}}
     if(!d||!d.ok)throw new Error(d&&d.error||'No data');
@@ -615,6 +650,7 @@ function openStock(s){var q=Q[s]||IDX[s];if(!q)return;var w=watch.indexOf(s)>=0,
   $('sheet').innerHTML='<div class="grab"></div><div class="sh"><div><h2>'+esc(q.n||s)+'</h2><div class="big num">₹'+fmt(q.ltp)+'</div><div class="num '+cls(q.chg)+'" style="font-weight:800">'+sgn(q.chg)+' ('+sgn(q.pct)+'%)</div></div><button class="x" id="shX" aria-label="Close" style="font-size:24px">×</button></div>'+
   '<div class="rbox"><div class="lb"><span>Day low '+fmt(q.low)+'</span><span>Day high '+fmt(q.high)+'</span></div><div class="rng"><i style="left:calc('+(dr*100)+'% - 1px)"></i></div></div>'+
   (p==null?'':'<div class="rbox"><div class="lb"><span>52W low '+fmt(q.l52)+'</span><span>52W high '+fmt(q.h52)+'</span></div><div class="rng"><i style="left:calc('+(p*100)+'% - 1px)"></i></div></div>')+
+  (isSuper()&&S.tSig?'<div id="proBox">'+xWait('👑 Your guide')+'</div>':'')+
   (S.tChart?'<div class="chartbox"><div class="ct"><div class="seg" id="tfSeg"><button data-tf="5m">5M</button><button data-tf="15m">15M</button><button data-tf="1h">1H</button><button data-tf="1d">1D</button></div><button class="btn" id="cvLayB" style="flex:0 0 auto;padding:6px 10px;font-size:11.5px">☰ SHOW ON CHART</button></div><div class="lay" id="cvLay" hidden></div><div class="cinfo" id="cvInfo">Touch or drag on the chart to see values</div><canvas id="cv"></canvas><div class="fr" id="cvAct" style="margin-top:6px" hidden><button class="btn" id="cvReset" style="flex:0 0 auto">✕ RESET LINE</button><button class="btn g" id="cvAlert">🔔 ALERT AT ₹<span id="cvAP"></span></button></div><div id="cvMsg" class="lg" style="text-align:center;padding:4px 0">Loading chart…</div></div>':'')+
   (S.pa?'<div id="paBox"><div class="tc"><div class="lg" style="color:var(--mut);font-size:12.5px">Price action: loading candles…</div></div></div>':'')+
   (S.tOn?'<div id="trendBox">'+trendCard(s,TA[s])+'</div>':'')+
@@ -643,9 +679,9 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()
 
 /* ---------- tabs + swipe ---------- */
 var cur=0,pages=$('pages'),tabs=[].slice.call(document.querySelectorAll('.tab'));
-function go(i,smooth){cur=i;tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});pages.scrollTo({left:i*pages.clientWidth,behavior:smooth===false?'auto':'smooth'});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}
+function go(i,smooth){if(i===4)saLoad();cur=i;tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});pages.scrollTo({left:i*pages.clientWidth,behavior:smooth===false?'auto':'smooth'});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}
 tabs.forEach(function(t){t.onclick=function(){go(+t.getAttribute('data-i'))}});
-var st=null;pages.addEventListener('scroll',function(){clearTimeout(st);st=setTimeout(function(){var i=Math.round(pages.scrollLeft/pages.clientWidth);if(i!==cur){cur=i;tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}},90)},{passive:true});
+var st=null;pages.addEventListener('scroll',function(){clearTimeout(st);st=setTimeout(function(){var i=Math.round(pages.scrollLeft/pages.clientWidth);if(i!==cur){cur=i;if(i===4)saLoad();tabs.forEach(function(t,k){t.classList.toggle('on',k===i)});if(i===2){LS.set('unseen',0);renderLog()}LS.set('tab',i)}},90)},{passive:true});
 window.addEventListener('resize',function(){pages.scrollTo({left:cur*pages.clientWidth})});
 
 /* ---------- events ---------- */
@@ -690,7 +726,7 @@ $('adminKey').value=LS.get('ak','');$('ownKey').value=LS.get('ak','');
 $('ownSave').onclick=function(){var k=$('ownKey').value.trim();LS.set('ak',k);$('adminKey').value=k;syncNative();var f=feedUrl(),m=$('ownMsg');
   if(!f){m.innerHTML='<span class="err">Add the worker link first.</span>';return}
   fetch(f+'/status?k='+encodeURIComponent(k),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){m.innerHTML=s.owner?'<span class="ok">✔ Key is right. Angel One, ICICI Breeze and BUY / SELL signals are open for you on this device.</span>':'<span class="err">✖ Key does not match the worker ADMIN_KEY.</span>';
-  var was=isOwner();LS.set('own',!!s.owner);if(s.owner&&!was){S.tSig=true;saveS();$('tSig').checked=true}paintTrendUI();Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
+  LS.set('own',!!s.owner);paintTrendUI();if(s.owner&&cur===4)saLoad();Q={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ Could not reach the worker.</span>'})};
 /* ---------- full-screen alarm: test and Android permission ---------- */
 function alPaint(){$('alGRow').style.display=S.tSig&&isOwner()?'':'none';if(NATIVE&&NATIVE.fullScreenOk){var ok=false;try{ok=NATIVE.fullScreenOk()}catch(e){}$('alPerm').hidden=ok;
   $('alMsg').innerHTML=ok?'Alarms show full screen even on the lock screen, with the app closed.':'<span class="err">Android needs your OK to show alarms on the lock screen. Tap ALLOW FULL-SCREEN.</span>'}
@@ -703,8 +739,9 @@ $('alPerm').onclick=function(){try{NATIVE.openFullScreen()}catch(e){}};
 var TG=LS.get('tg',null);
 function tgPaint(){$('tgOff').hidden=!!TG;$('tgOn').hidden=!TG;$('tgName').textContent=TG&&TG.name?' · '+TG.name:''}
 function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
+function tgBody(o){if(isSuper()&&LS.get('ak',''))o.k=LS.get('ak','');return o}
 function tgPost(op,quiet){var f=feedUrl(),m=$('tgMsg');if(!f||!TG)return;if(!quiet)m.textContent='Sending…';
-  fetch(f+'/tg/'+op,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op==='rules'?tgPayload():{chat:TG.chat,token:TG.token})}).then(function(r){return r.json()}).then(function(j){
+  fetch(f+'/tg/'+op,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op==='rules'?tgBody(tgPayload()):{chat:TG.chat,token:TG.token})}).then(function(r){return r.json()}).then(function(j){
     if(j.relink){TG=null;LS.set('tg',null);tgPaint();m.innerHTML='<span class="err">Telegram got disconnected. Tap CONNECT TELEGRAM again.</span>';return}
     if(op==='stop'){TG=null;LS.set('tg',null);tgPaint();m.innerHTML='<span class="ok">Disconnected.</span>';return}
     if(!quiet)m.innerHTML=j.ok?'<span class="ok">✔ '+(op==='rules'?'Sent '+j.saved+' alerts. Telegram will ring even when the app is closed.':'Test sent. Check Telegram.')+'</span>':'<span class="err">✖ '+esc(j.error||'Failed')+'</span>'}).catch(function(){if(!quiet)m.innerHTML='<span class="err">✖ No internet.</span>'})}
@@ -782,7 +819,7 @@ function analyze(s,c,x){if(!c||c.length<35)return null;
   if(E20>E50){sc++;why.push(['g','20-day average is above the 50-day: the bigger trend is up'])}else{sc--;why.push(['r','20-day average is below the 50-day: the bigger trend is down'])}
   if(H>0){sc++;why.push(['g','MACD momentum is positive'+(H>h[n-2]?' and rising':' but slowing')])}else{sc--;why.push(['r','MACD momentum is negative'+(H<h[n-2]?' and falling':' but easing')])}
   if(H>h[n-2])sc++;else sc--;
-  if(R!=null){if(R>=70)why.push(['n','RSI '+R.toFixed(0)+': overbought, a pause or dip can come']);else if(R<=30)why.push(['n','RSI '+R.toFixed(0)+': oversold, a bounce can come']);else if(R>55){sc++;why.push(['g','RSI '+R.toFixed(0)+': buyers are stronger'])}else if(R<45){sc--;why.push(['r','RSI '+R.toFixed(0)+': sellers are stronger'])}else why.push(['n','RSI '+R.toFixed(0)+': balanced'])}
+  if(R!=null){if(R>=70)why.push(['n','RSI '+R.toFixed(0)+': overbought zone (above 70)']);else if(R<=30)why.push(['n','RSI '+R.toFixed(0)+': oversold zone (below 30)']);else if(R>55){sc++;why.push(['g','RSI '+R.toFixed(0)+': buyers are stronger'])}else if(R<45){sc--;why.push(['r','RSI '+R.toFixed(0)+': sellers are stronger'])}else why.push(['n','RSI '+R.toFixed(0)+': balanced'])}
   var crossUp=false,crossDn=false;for(var i=n-3;i<n;i++){if(i<1)continue;if(h[i-1]<=0&&h[i]>0)crossUp=true;if(h[i-1]>=0&&h[i]<0)crossDn=true;if(c[i-1]<e20[i-1]&&c[i]>=e20[i])crossUp=true;if(c[i-1]>e20[i-1]&&c[i]<=e20[i])crossDn=true}
   var lo20,hi20,L=Math.max(0,n-20);if(x&&x.l&&x.h&&x.l.length===n){lo20=Math.min.apply(0,x.l.slice(L));hi20=Math.max.apply(0,x.h.slice(L))}else{lo20=Math.min.apply(0,c.slice(L));hi20=Math.max.apply(0,c.slice(L))}
   var pat=x&&x.o?pattern(x.o,x.h,x.l,c):null;if(pat){sc+=pat.g;why.push([pat.g>0?'g':pat.g<0?'r':'n','Candle: '+pat.n+' – '+pat.t])}
@@ -793,8 +830,8 @@ function analyze(s,c,x){if(!c||c.length<35)return null;
   var ch5=n>6?(P/c[n-6]-1)*100:0;
   var nA=s+' looks '+word.toLowerCase()+'. '+(dir>0?'Price is above its averages and momentum is with the buyers.':dir<0?'Price is below its averages and momentum is with the sellers.':'Buyers and sellers are balanced, with no clear direction.')+
     ' In 5 days it moved '+(ch5>0?'+':'')+ch5.toFixed(1)+'%.';
-  var nS=(sig==='BUY'?'Signal: BUY side. Trend and momentum agree; a fall below ₹'+fmt(lo20)+' would cancel it.':sig==='SELL'?'Signal: SELL side. Trend and momentum point down; a rise above ₹'+fmt(hi20)+' would cancel it.':'No clear signal now: better to wait.');
-  var nL='Watch support ₹'+fmt(lo20)+' and resistance ₹'+fmt(hi20)+'.';
+  var nS=(sig==='BUY'?'Signal: BUY side. Trend and momentum agree; a fall below ₹'+fmt(lo20)+' would cancel it.':sig==='SELL'?'Signal: SELL side. Trend and momentum point down; a rise above ₹'+fmt(hi20)+' would cancel it.':'HOLD: no clear signal now.');
+  var nL='20-day support ₹'+fmt(lo20)+', resistance ₹'+fmt(hi20)+'.';
   return {dir:dir,word:word,sig:sig,score:sc,rsi:R,e20:E20,e50:E50,sup:lo20,res:hi20,why:why,pat:pat,note:nA+' '+nS+' '+nL,noteA:nA,noteS:nS,noteL:nL,ch5:ch5}}
 function closesFor(s){var q=Q[s]||IDX[s],d=DH.data[s];if(!d||!d.c||!d.c.length)return null;var c=d.c.slice();if(q&&q.ltp){if(d.d===today())c[c.length-1]=q.ltp;else c.push(q.ltp)}return c}
 function computeTA(){if(!S.tOn&&!S.tSig){TA={};return}Object.keys(Q).concat(['NIFTY','BANKNIFTY']).forEach(function(s){var dd=DAILY[s];
@@ -811,14 +848,15 @@ function sigHtml(t,cls){if(!t)return '';if(S.tSig&&t.sig!=='WAIT')return '<span 
 function tileSig(s){return (S.tOn||S.tSig)?'<div>'+sigHtml(TA[s],'sig')+'</div>':''}
 function rowSig(s){var t=TA[s];if(!t||(!S.tOn&&!S.tSig))return '';return '<span class="tsig '+(t.dir>0?'up':t.dir<0?'dn':'')+'">'+(S.tOn?t.word:'')+(S.tSig&&t.sig!=='WAIT'?(S.tOn?' · ':'')+t.sig:'')+'</span>'}
 function trendCard(s,t){if(!t)return '<div class="tc"><div class="lg" style="color:var(--mut);font-size:12.5px">Trend notes: loading price history…</div></div>';
-  return '<div class="tc"><div class="hd"><span class="tb '+(t.dir>0?'up':t.dir<0?'dn':'nt')+'">'+(t.dir>0?'▲ ':t.dir<0?'▼ ':'◆ ')+t.word+'</span>'+(S.tSig?'<span class="tb '+(t.sig==='BUY'?'up':t.sig==='SELL'?'dn':'nt')+'">'+(t.sig==='WAIT'?'SIGNAL: WAIT':t.sig+' SIGNAL')+'</span>':'')+'</div>'+
+  return '<div class="tc"><div class="hd"><span class="tb '+(t.dir>0?'up':t.dir<0?'dn':'nt')+'">'+(t.dir>0?'▲ ':t.dir<0?'▼ ':'◆ ')+t.word+'</span>'+(S.tSig?'<span class="tb '+(t.sig==='BUY'?'up':t.sig==='SELL'?'dn':'nt')+'">'+(t.sig==='WAIT'?'SIGNAL: HOLD':t.sig+' SIGNAL')+'</span>':'')+'</div>'+
   '<p><b>WHAT\'S GOING ON:</b> '+esc(S.tSig?t.note:t.noteA+' '+t.noteL)+'</p>'+
   '<ul>'+t.why.map(function(w){return '<li class="'+w[0]+'">'+esc(w[1])+'</li>'}).join('')+'</ul>'+
   '<div class="kv" style="margin:10px 0 0"><div><span>SUPPORT</span><b>'+fmt(t.sup)+'</b></div><div><span>RESISTANCE</span><b>'+fmt(t.res)+'</b></div><div><span>RSI (14)</span><b>'+(t.rsi==null?'—':t.rsi.toFixed(0))+'</b></div><div><span>TREND SCORE</span><b>'+(t.score>0?'+':'')+t.score+' / 7</b></div></div>'+
   '<div class="dis">Worked out from daily prices'+(src==='demo'?' (DEMO data)':'')+'. Information only, not advice to buy or sell. Check with your broker or adviser before you trade.</div></div>'}
-function isOwner(){return LS.get('own',false)===true}
+function isOwner(){return isSuper()}
+function isSuper(){return LS.get('sa',false)===true}
 function paintOwner(){document.body.classList.toggle('own',isOwner())}
-(function(){var n=0,t=0;document.querySelector('.ttl').addEventListener('click',function(){var now=Date.now();n=now-t<700?n+1:1;t=now;if(n>=5){n=0;document.body.classList.add('unlock');go(3);setTimeout(function(){var k=document.querySelector('.keycard');if(k)k.scrollIntoView({behavior:'smooth',block:'center'});$('ownKey').focus()},450)}})})();
+(function(){var n=0,t=0;document.querySelector('.ttl').addEventListener('click',function(){var now=Date.now();n=now-t<700?n+1:1;t=now;if(n>=5){n=0;document.body.classList.add('unlock');go(3);setTimeout(function(){var k=document.querySelector(isSuper()?'.keycard':'.sacard');if(k)k.scrollIntoView({behavior:'smooth',block:'center'})},450)}})})();
 function paintTrendUI(){paintOwner();if(!isOwner()&&S.tSig){S.tSig=false;saveS();$('tSig').checked=false}$('tSigRow').hidden=!isOwner();[].forEach.call(document.querySelectorAll('.tchip'),function(b){b.hidden=!S.tOn&&!S.tSig});[].forEach.call(document.querySelectorAll('.schip'),function(b){b.hidden=!S.tSig});$('gSigRow').style.display=S.tSig?'':'none'}
 paintTrendUI();
 /* daily candles (OHLC) for one stock: better levels + candle pattern */
@@ -847,8 +885,8 @@ function priceAction(all,tf){if(!all||all.length<25)return null;var cd=all.slice
   if(H.length>=2&&L.length>=2){var h1=H[H.length-2].p,h2=H[H.length-1].p,l1=L[L.length-2].p,l2=L[L.length-1].p;
     if(h2>h1&&l2>l1){st='UPTREND';stTxt='Higher highs and higher lows: buyers are in control.'}
     else if(h2<h1&&l2<l1){st='DOWNTREND';stTxt='Lower highs and lower lows: sellers are in control.'}
-    else if(h2<h1&&l2>l1){st='SQUEEZE';stTxt='Lower highs but higher lows: range is getting tighter, a big move may come.'}
-    else{st='WIDENING';stTxt='Higher highs but lower lows: price is swinging wide, be careful.'}}
+    else if(h2<h1&&l2>l1){st='SQUEEZE';stTxt='Lower highs but higher lows: range is getting tighter.'}
+    else{st='WIDENING';stTxt='Higher highs but lower lows: price is swinging wide.'}}
   /* breakout / breakdown / rejection on the last 3 candles */
   var ev=null,prev=cd[Math.max(0,n-6)][4];
   Z.forEach(function(z){if(ev||z.n<2)return;if(prev<z.p&&P>z.p+tol*0.3)ev={t:'BREAKOUT',c:'up',txt:'Broke above ₹'+fmt(z.p)+(z.n>1?' (tested '+z.n+' times)':'')+'. If it holds above, that level can now act as support.'};
@@ -870,7 +908,7 @@ function paShow(s,all,tf){var box=$('paBox');if(!box)return;var a=priceAction(al
   var pv=pivots(s),pvH=pv?'<div style="margin-top:10px;font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--mut)">TODAY\'S PIVOTS (FROM YESTERDAY)</div><div class="kv" style="grid-template-columns:repeat(5,1fr);margin:6px 0 0">'+[['S2',pv.S2],['S1',pv.S1],['PIVOT',pv.P],['R1',pv.R1],['R2',pv.R2]].map(function(x){return '<div style="padding:6px"><span>'+x[0]+'</span><b style="font-size:12px">'+fmt(x[1],0)+'</b></div>'}).join('')+'</div>':'';
   var near=a.res[0]&&(a.res[0].p-P)<=a.atr*0.6?'Price is close to resistance ₹'+fmt(a.res[0].p)+'.':a.sup[0]&&(P-a.sup[0].p)<=a.atr*0.6?'Price is close to support ₹'+fmt(a.sup[0].p)+'.':'Price is between support and resistance.';
   box.innerHTML='<div class="tc pa"><div class="hd"><span class="tb '+cls2+'">'+(a.st==='UPTREND'?'▲ ':a.st==='DOWNTREND'?'▼ ':'◆ ')+a.st+'</span>'+(a.ev?'<span class="tb '+(a.ev.c==='up'?'up':'dn')+'">'+a.ev.t+'</span>':'')+'<span style="margin-left:auto;font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.06em">PRICE ACTION · '+tfn.toUpperCase()+'</span></div>'+
-    '<p><b>STRUCTURE:</b> '+a.stTxt+' '+near+(a.ev?' <b>'+a.ev.txt+'</b>':'')+(a.pat?' Last candle: <b>'+a.pat.n+'</b> ('+a.pat.t+').':'')+(a.volX>=1.8?' Volume on the last candle is <b>'+a.volX.toFixed(1)+'× normal</b>, so this move has strength.':'')+'</p>'+
+    '<p><b>STRUCTURE:</b> '+a.stTxt+' '+near+(a.ev?' <b>'+a.ev.txt+'</b>':'')+(a.pat?' Last candle: <b>'+a.pat.n+'</b> ('+a.pat.t+').':'')+(a.volX>=1.8?' Volume on the last candle is <b>'+a.volX.toFixed(1)+'× normal</b>.':'')+'</p>'+
     '<div class="bar2" title="Where price sits between support and resistance"><i style="left:calc('+Math.max(0,Math.min(1,a.pos))*100+'% - 2px)"></i></div><div class="lg" style="display:flex;justify-content:space-between;font-size:10.5px"><span>SUPPORT</span><span>RESISTANCE</span></div>'+
     '<div style="margin-top:8px">'+lv+'</div>'+pvH+
     '<div class="dis">Levels come from the turning points (▲ ▼ on the chart) of the '+tfn+' candles. Typical move per candle (ATR): ₹'+fmt(a.atr)+'. Information only, not advice.</div></div>'}
@@ -883,9 +921,9 @@ function xHd(tag,c,title){return '<div class="hd"><span class="tb '+c+'">'+tag+'
 function xSet(id,h){var b=$(id);if(b)b.innerHTML=h}
 function istDay(t){return new Date(t+19800000).toISOString().slice(0,10)}
 /* load what the cards need, one after another so the feed is not flooded */
-function xLoad(s){var need=[];if(S.xMtf)need=['5m','15m','1h','1d'];else{if(S.xRng||S.xVol)need=['5m','1d']}
+function xLoad(s){var need=[];if(S.xMtf||(isSuper()&&S.tSig))need=['5m','15m','1h','1d'];else{if(S.xRng||S.xVol)need=['5m','1d']}
   var got={},i=0;function next(){if(SHEET!==s)return;if(i>=need.length){done();return}var tf=need[i++];getCandles(s,tf,function(cd){got[tf]=cd||null;if(S.xMtf)xSet('mtfBox',mtfCard(s,got));setTimeout(next,CC[s+'|'+tf]&&Date.now()-CC[s+'|'+tf].at<1500?350:0)})}
-  function done(){if(SHEET!==s)return;if(S.cPiv&&CHART_PAINT)CHART_PAINT();if(S.xMtf)xSet('mtfBox',mtfCard(s,got,true));if(S.xRng)xSet('rngBox',rngCard(s,got['1d'],got['5m']));if(S.xVol&&!IDX[s])xSet('volBox',volCard(s,got['1d'],got['5m']))}
+  function done(){if(SHEET!==s)return;if(isSuper()&&S.tSig)xSet('proBox',proCard(s,got));if(S.cPiv&&CHART_PAINT)CHART_PAINT();if(S.xMtf)xSet('mtfBox',mtfCard(s,got,true));if(S.xRng)xSet('rngBox',rngCard(s,got['1d'],got['5m']));if(S.xVol&&!IDX[s])xSet('volBox',volCard(s,got['1d'],got['5m']))}
   if(need.length)next()}
 function liveClose(s,cd){var c=cd.map(function(r){return r[4]}),q=Q[s]||IDX[s];if(q&&q.ltp&&c.length)c[c.length-1]=q.ltp;return c}
 /* 1. MULTI-TIMEFRAME TREND */
@@ -896,9 +934,9 @@ function mtfCard(s,got,fin){var tfs=[['5m','5 MIN'],['15m','15 MIN'],['1h','1 HO
   tfs.forEach(function(x){var t=tfTrend(s,got[x[0]]);if(t){have++;if(t.d>0)up++;if(t.d<0)dn++}
     rows+='<div class="mt"><b>'+x[1]+'</b><span class="'+(t?(t.d>0?'up':t.d<0?'dn':''):'')+'" style="font-weight:900">'+(t?(t.d>0?'▲ ':t.d<0?'▼ ':'◆ ')+t.w:(got.hasOwnProperty(x[0])?'—':'…'))+'</span><span class="r">'+(t&&t.rsi!=null?'RSI '+Math.round(t.rsi):'')+'</span><span class="r">'+(t?(t.gap>0?'+':'')+t.gap.toFixed(2)+'%':'')+'</span></div>'});
   if(!have&&fin)return xNone('Multi-timeframe trend','candles not available right now.');
-  var tag,c,txt;if(have&&up===have){tag='▲ ALL UP';c='up';txt='Every timeframe points up. Short-term and long-term buyers agree, which is the strongest kind of trend.'}
-  else if(have&&dn===have){tag='▼ ALL DOWN';c='dn';txt='Every timeframe points down. Sellers are in control on short and long charts.'}
-  else{var sh=tfTrend(s,got['15m']),lo=tfTrend(s,got['1d']);tag='◆ MIXED';c='nt';txt=sh&&lo&&sh.d!==lo.d&&sh.d&&lo.d?(lo.d>0?'The big (daily) trend is up but the short-term charts are falling: this often is a dip inside an uptrend.':'The big (daily) trend is down but the short-term charts are rising: this often is a bounce inside a downtrend.'):'Timeframes don\'t agree yet. Wait for them to line up before trusting a move.'}
+  var tag,c,txt;if(have&&up===have){tag='▲ ALL UP';c='up';txt='Every timeframe points up.'+(isSuper()?' Short-term and long-term buyers agree, the strongest kind of trend.':'')}
+  else if(have&&dn===have){tag='▼ ALL DOWN';c='dn';txt='Every timeframe points down.'}
+  else{var sh=tfTrend(s,got['15m']),lo=tfTrend(s,got['1d']);tag='◆ MIXED';c='nt';txt=!isSuper()?'Timeframes don\'t agree right now.':sh&&lo&&sh.d!==lo.d&&sh.d&&lo.d?(lo.d>0?'The big (daily) trend is up but the short-term charts are falling: this often is a dip inside an uptrend.':'The big (daily) trend is down but the short-term charts are rising: this often is a bounce inside a downtrend.'):'Timeframes don\'t agree yet. Wait for them to line up before trusting a move.'}
   return '<div class="tc">'+xHd(tag,c,'MULTI-TIMEFRAME')+'<p>'+txt+'</p>'+rows+'<div class="dis">UP = price above its 20-candle average, 20 above 50 and RSI over 55 (DOWN the other way). Last column: distance from the 20-candle average. Information only, not advice.</div></div>'}
 /* 2. RANGE & VOLATILITY */
 function rngCard(s,dd,m5){var q=Q[s]||IDX[s];if(!q)return '';if(!dd||dd.length<22)return xNone('Range &amp; volatility','daily candles not available right now.');
@@ -911,8 +949,8 @@ function rngCard(s,dd,m5){var q=Q[s]||IDX[s];if(!q)return '';if(!dd||dd.length<2
     '<p style="margin-top:6px">'+(P>oh?'Price broke above the first 15-minute high: buyers took charge after the open.':P<ol?'Price broke below the first 15-minute low: sellers took charge after the open.':'Price is still inside the first 15-minute range: no side has won yet today.')+'</p>'}}
   var tag=used>=100?'BIG DAY':used>=60?'ACTIVE DAY':'QUIET DAY',cl=used>=100?(q.chg>=0?'up':'dn'):'nt';
   return '<div class="tc">'+xHd(tag,cl,'RANGE &amp; VOLATILITY')+
-   '<p>A normal day moves about <b>₹'+fmt(atr)+' ('+atrP.toFixed(2)+'%)</b>. Expected range today: <b>'+fmt(pc-atr)+' – '+fmt(pc+atr)+'</b>. Today has already used <b>'+Math.round(used)+'%</b> of a normal day\'s range'+(used>=100?', so a further big move is less likely without news.':'.')+'</p>'+
-   '<p>'+(sq?'<b>SQUEEZE:</b> price has been unusually calm (Bollinger bands are the narrowest in months). Calm spells usually end with a sharp move, in either direction.':wide?'<b>WIDE SWINGS:</b> daily moves are much bigger than usual right now. Keep stop-losses wider and position size smaller.':'Volatility is normal compared with the last few months.')+'</p>'+or+
+   '<p>A normal day moves about <b>₹'+fmt(atr)+' ('+atrP.toFixed(2)+'%)</b>. Expected range today: <b>'+fmt(pc-atr)+' – '+fmt(pc+atr)+'</b>. Today has already used <b>'+Math.round(used)+'%</b> of a normal day\'s range'+(used>=100&&isSuper()?', so a further big move is less likely without news.':'.')+'</p>'+
+   '<p>'+(sq?'<b>SQUEEZE:</b> price has been unusually calm (Bollinger bands are the narrowest in months).'+(isSuper()?' Calm spells usually end with a sharp move, in either direction.':''):wide?'<b>WIDE SWINGS:</b> daily moves are much bigger than usual right now.'+(isSuper()?' Keep stop-losses wider and position size smaller.':''):'Volatility is normal compared with the last few months.')+'</p>'+or+
    '<div class="dis">From the last 14 daily candles (ATR) and 20-day Bollinger band width. Information only, not advice.</div></div>'}
 /* 3. VOLUME & VWAP */
 function volCard(s,dd,m5){var q=Q[s];if(!q)return '';var today=istDay(Date.now());
@@ -923,9 +961,9 @@ function volCard(s,dd,m5){var q=Q[s];if(!q)return '';var today=istDay(Date.now()
   var upV=0,dnV=0;t.forEach(function(r){if(r[4]>=r[1])upV+=r[5];else dnV+=r[5]});var buyShare=upV+dnV?upV/(upV+dnV)*100:50;
   var tag=gap>=0?'▲ ABOVE VWAP':'▼ BELOW VWAP';
   return '<div class="tc">'+xHd(tag,gap>=0?'up':'dn','VOLUME &amp; VWAP')+
-   '<p>VWAP (average price paid today, weighted by volume) is <b>₹'+fmt(vw)+'</b>. Price is <b>'+(gap>=0?'+':'')+gap.toFixed(2)+'%</b> '+(gap>=0?'above it: today\'s buyers are in profit, which usually supports the price.':'below it: today\'s buyers are in loss, so rallies may meet selling.')+'</p>'+
+   '<p>VWAP (average price paid today, weighted by volume) is <b>₹'+fmt(vw)+'</b>. Price is <b>'+(gap>=0?'+':'')+gap.toFixed(2)+'%</b> '+(gap>=0?'above it'+(isSuper()?': today\'s buyers are in profit, which usually supports the price.':'.'):'below it'+(isSuper()?': today\'s buyers are in loss, so rallies may meet selling.':'.'))+'</p>'+
    '<div class="kv" style="grid-template-columns:repeat(3,1fr);margin:6px 0 0"><div style="padding:6px"><span>VOLUME TODAY</span><b>'+fmtVol(tv)+'</b></div><div style="padding:6px"><span>VS NORMAL</span><b class="'+(rv>=1.5?'up':'')+'">'+(rv?rv.toFixed(1)+'×':'—')+'</b></div><div style="padding:6px"><span>ON GREEN CANDLES</span><b class="'+(buyShare>=55?'up':buyShare<=45?'dn':'')+'">'+Math.round(buyShare)+'%</b></div></div>'+
-   '<p style="margin-top:6px">'+(rv>=2?'Volume is <b>much higher than normal</b> for this time of day: big players are active, so today\'s move carries weight.':rv>=1.3?'Volume is above normal for this time of day.':rv&&rv<0.7?'Volume is light: moves on low volume are easier to reverse.':'Volume is normal for this time of day.')+' '+(buyShare>=60?'Most volume came on rising candles (buying pressure).':buyShare<=40?'Most volume came on falling candles (selling pressure).':'')+'</p>'+
+   '<p style="margin-top:6px">'+(rv>=2?'Volume is <b>much higher than normal</b> for this time of day'+(isSuper()?': big players are active, so today\'s move carries weight.':'.'):rv>=1.3?'Volume is above normal for this time of day.':rv&&rv<0.7?'Volume is light'+(isSuper()?': moves on low volume are easier to reverse.':'.'):'Volume is normal for this time of day.')+' '+(buyShare>=60?'Most volume came on rising candles.':buyShare<=40?'Most volume came on falling candles.':'')+'</p>'+
    '<div class="dis">"Vs normal" compares today\'s volume so far with the 20-day average for the same share of the day. Information only, not advice.</div></div>'}
 /* 4. INDEX MOVERS (approx. index weights, %; others share the rest) */
 var IXW={NIFTY:{HDFCBANK:13,ICICIBANK:9,RELIANCE:8.5,INFY:5,BHARTIARTL:4.5,LT:4,ITC:3.5,TCS:3,SBIN:3,AXISBANK:3,KOTAKBANK:2.8,'M&M':2.5,BAJFINANCE:2.2,HINDUNILVR:2,SUNPHARMA:1.7,HCLTECH:1.6,MARUTI:1.5,NTPC:1.4,TITAN:1.3,ULTRACEMCO:1.2,TATAMOTORS:1.1,TMPV:1.1,POWERGRID:1.1,ETERNAL:1.1,BEL:1,TATASTEEL:1},
@@ -952,13 +990,99 @@ document.addEventListener('change',function(e){var k=e.target.getAttribute&&e.ta
 laySettings();$('paLines').addEventListener('change',function(){laySettings();if(CHART_PAINT)CHART_PAINT()});
 function vwapOf(d){var out=[],pv=0,v=0,day='';d.forEach(function(r){var dd=istDay(r[0]);if(dd!==day){day=dd;pv=0;v=0}pv+=(r[2]+r[3]+r[4])/3*(r[5]||0);v+=r[5]||0;out.push(v?pv/v:null)});return out}
 
+/* ---------- SUPERADMIN: Google sign-in with the owner's account ---------- */
+var OWNER='er.krushnananda@gmail.com',FB=null,SAU=null,NTOKS={};
+function ldS(u){return new Promise(function(ok,no){var e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=function(){no(new Error('Could not load sign-in. Check internet.'))};document.head.appendChild(e)})}
+function fbInit(){if(FB)return FB;FB=(async function(){if(!window.OWH_FIREBASE)throw new Error('Sign-in is not set up on this page.');var b='https://www.gstatic.com/firebasejs/10.12.2/';
+  if(!window.firebase)await ldS(b+'firebase-app-compat.js');if(!firebase.auth)await ldS(b+'firebase-auth-compat.js');if(!firebase.apps.length)firebase.initializeApp(window.OWH_FIREBASE);
+  firebase.auth().onAuthStateChanged(function(u){SAU=u;var ok=!!(u&&u.emailVerified&&String(u.email||'').toLowerCase()===OWNER),was=isSuper();
+    if(u&&!ok){$('saMsg').innerHTML='<span class="err">'+esc(u.email||'This account')+' is not the owner account. Signed out.</span>';firebase.auth().signOut()}
+    LS.set('sa',ok);if(ok&&!was){S.tSig=true;saveS();$('tSig').checked=true;toast('👑 Welcome, superadmin');document.body.classList.remove('unlock')}
+    if(ok!==was){paintTrendUI();renderAll();if(window.__npSync)__npSync();if(!ok&&cur===4)go(0)}saPaint()})})().catch(function(e){FB=null;throw e});return FB}
+window.npToken=function(req,tok,err){var p=NTOKS[req];if(!p)return;delete NTOKS[req];if(tok)p.res(tok);else p.rej(new Error(err||'Google sign-in was cancelled'))};
+function nativeTok(){return new Promise(function(res,rej){var id='r'+Date.now();NTOKS[id]={res:res,rej:rej};NATIVE.googleToken(id);setTimeout(function(){if(NTOKS[id]){delete NTOKS[id];rej(new Error('Google did not answer. Try again.'))}},180000)})}
+async function saLogin(){var m=$('saMsg');m.textContent='Opening Google…';$('saIn').disabled=true;LS.set('saTry',true);
+  try{await fbInit();if(NATIVE&&NATIVE.googleToken){var t=await nativeTok();await firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(null,t))}
+    else{var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});try{await firebase.auth().signInWithPopup(p)}catch(e){if(e&&/popup-blocked|cancelled-popup|operation-not-supported/.test(e.code||'')){await firebase.auth().signInWithRedirect(p);return}throw e}}
+    if(isSuper())m.textContent=''}
+  catch(e){m.innerHTML='<span class="err">'+esc(e&&e.code==='auth/popup-closed-by-user'?'Sign-in was cancelled.':(e&&e.message)||'Sign-in failed')+'</span>'}
+  finally{$('saIn').disabled=false}}
+$('saIn').onclick=saLogin;
+$('saOut').onclick=function(){if(!confirm('Sign out of superadmin on this device?'))return;fbInit().then(function(){return firebase.auth().signOut()}).catch(function(){});LS.set('sa',false);S.tSig=false;saveS();paintTrendUI();renderAll();if(window.__npSync)__npSync();go(0);toast('Signed out')};
+if(isSuper()||LS.get('saTry',false))setTimeout(function(){fbInit().catch(function(){})},1500);
+function devId(){var d=LS.get('did','');if(!d){d=(NATIVE?'app-':'web-')+Math.random().toString(36).slice(2,10);LS.set('did',d)}return d}
+function devName(){var u=navigator.userAgent,m=u.match(/Android [\d.]+; ([^;)]+)/),os=/Android/.test(u)?'Android'+(m?' '+m[1]:''):/iPhone|iPad/.test(u)?'iPhone/iPad':/Windows/.test(u)?'Windows PC':/Mac/.test(u)?'Mac':'Computer';
+  var br=NATIVE?'':/Edg\//.test(u)?' · Edge':/Chrome\//.test(u)?' · Chrome':/Firefox\//.test(u)?' · Firefox':/Safari\//.test(u)?' · Safari':'';return (NATIVE?'Nifty Pulse app':'Website')+' · '+os+br}
+function devQ(){return '&d='+encodeURIComponent(devId())+'&dn='+encodeURIComponent(devName())}
+function ago(t){if(!t)return '—';var m=Math.round((Date.now()-t)/6e4);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'}
+function saPaint(){var u=SAU;$('saWho').innerHTML=isSuper()?'Signed in as <b>'+esc((u&&u.email)||OWNER)+'</b>. This device id: <code>'+esc(devId())+'</code>':'Not signed in.'}
+var SAD=null;
+function saLoad(){if(!isSuper())return;saPaint();var f=feedUrl(),k=LS.get('ak','');
+  if(!f||!k){$('saDev').innerHTML='<div class="h">Add the worker link and your owner key in SETTINGS first.</div>';$('saTg').innerHTML='';$('saW').innerHTML='';return}
+  $('saDev').innerHTML='<div class="h">Loading…</div>';
+  fetch(f+'/admin',{headers:{'X-Admin-Key':k},cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+    if(!j.ok||!j.devices){var msg=j.error||'';$('saDev').innerHTML='<span class="err">'+esc(!msg||/unknown/i.test(msg)?'Your worker is the old version. Run the GitHub "Nifty Pulse worker" action (or paste the new worker) to see this list.':msg)+'</span>';return}
+    SAD=j;saRender()}).catch(function(){$('saDev').innerHTML='<span class="err">Could not reach the worker. If it is the old version, update it first.</span>'})}
+function saRender(){var j=SAD,me=devId();
+  var dv=j.devices.length?j.devices.map(function(d){var bg=/^bg-/.test(d.id);return '<div class="sarow"><span class="tagA">ANGEL</span><div class="m"><b>'+esc(d.n||'Unknown device')+'</b>'+(d.id===me?' <span class="tagY">THIS DEVICE</span>':'')+'<small>Last used '+ago(d.last)+(d.city?' · '+esc(d.city)+(d.cc?', '+esc(d.cc):''):'')+' · first seen '+new Date(d.first).toLocaleDateString('en-IN')+(bg?' · background alerts on the phone':'')+'</small></div><button class="btn" data-devf="'+esc(d.id)+'" style="flex:0 0 auto;padding:6px 9px;font-size:11px">FORGET</button></div>'}).join(''):'<div class="h">No device has used your owner key yet.</div>';
+  dv+='<div class="sarow"><span class="tagY">YAHOO</span><div class="m"><b>Everyone else</b><small>Website visitors and friends without your key get free Yahoo prices. Your Angel One account is not used for them.</small></div></div>';
+  dv+='<p class="h" style="margin-top:8px">Don\'t know a device? Change ADMIN_KEY in Cloudflare (Worker → Settings → Variables), then type the new key on your own devices. "Forget" only clears the list.</p>';
+  $('saDev').innerHTML=dv;
+  $('saTgAngel').checked=!!j.cfg.tgAngel;
+  var fr=j.tg.filter(function(u){return !u.owner}).length;
+  var tg=j.tg.length?j.tg.map(function(u){var a=u.owner||j.cfg.tgAngel;return '<div class="sarow"><span class="'+(a?'tagA':'tagY')+'">'+(a?'ANGEL':'YAHOO')+'</span><div class="m"><b>'+esc(u.name||'Telegram user')+'</b>'+(u.user?' @'+esc(u.user):'')+(u.owner?' <span class="tagY">YOU</span>':'')+
+    '<small>Chat '+esc(u.chat)+' · joined '+(u.joined?new Date(u.joined).toLocaleDateString('en-IN'):'—')+' · last alert '+ago(u.last)+(u.sent?' · '+u.sent+' alerts sent':'')+'</small>'+
+    '<small>'+(u.rules.length?esc(u.rules.join(', ')):'No price alerts')+(u.global.length?' · '+esc(u.global.join(', ')):'')+'</small></div>'+(u.owner?'':'<button class="btn" data-tgrm="'+esc(u.chat)+'" style="flex:0 0 auto;padding:6px 9px;font-size:11px;color:var(--dn)">REMOVE</button>')+'</div>'}).join(''):'<div class="h">Nobody has connected Telegram yet.</div>';
+  if(j.ownerChat)tg+='<div class="sarow"><span class="tagA">ANGEL</span><div class="m"><b>Your old single chat (TG_CHAT_ID)</b><small>Chat '+esc(j.ownerChat)+(j.legacy?' · has saved alerts':'')+'</small></div></div>';
+  $('saTg').innerHTML='<p class="h" style="margin:8px 0 4px">'+j.tg.length+' connected · '+fr+' friend'+(fr===1?'':'s')+'</p>'+tg;
+  $('saW').innerHTML=[['Angel One',j.angel],['ICICI Breeze',j.breeze],['Telegram bot',j.telegram]].map(function(x){return '<div class="sarow"><span class="'+(x[1]?'tagA':'tagY')+'">'+(x[1]?'ON':'OFF')+'</span><div class="m">'+x[0]+'</div></div>'}).join('')+'<p class="h" style="margin-top:6px">Checked '+new Date(j.now).toLocaleTimeString('en-IN')+'</p>'}
+function saPost(op,body,done){fetch(feedUrl()+'/admin/'+op,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':LS.get('ak','')},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(j){if(!j.ok){toast(j.error||'Failed');return}if(done)done(j);saLoad()}).catch(function(){toast('Could not reach the worker')})}
+$('saRef').onclick=saLoad;
+$('saTgAngel').onchange=function(){var v=this.checked;saPost('cfg',{tgAngel:v},function(){toast(v?'Friends use Angel One prices':'Friends now use Yahoo prices')})};
+document.addEventListener('click',function(e){var b=e.target.closest('[data-tgrm]');if(b){if(confirm('Stop Telegram alerts for this person? They can connect again from the app.'))saPost('tg-remove',{chat:b.getAttribute('data-tgrm'),tell:true},function(){toast('Removed')});return}
+  b=e.target.closest('[data-devf]');if(b)saPost('dev-forget',{id:b.getAttribute('data-devf')})});
+
+/* ---------- 👑 YOUR GUIDE (superadmin only): all analysis → BUY / SELL / HOLD with levels ---------- */
+function liveCd(s,cd){var q=Q[s]||IDX[s];cd=cd.slice();if(q&&q.ltp&&cd.length){var L=cd[cd.length-1].slice();L[4]=q.ltp;L[2]=Math.max(L[2],q.ltp);L[3]=Math.min(L[3],q.ltp);cd[cd.length-1]=L}return cd}
+function proCard(s,got){var q=Q[s]||IDX[s];if(!q)return '';var P=q.ltp,t=TA[s],pts=0,max=0,why=[];
+  function add(v,m,txt){pts+=v;max+=m;why.push([v>0.05?'g':v<-0.05?'r':'n',txt])}
+  if(t)add(Math.max(-3,Math.min(3,t.score/2)),3,'Daily trend '+t.word.toLowerCase()+' (score '+(t.score>0?'+':'')+t.score+'/7)'+(t.sig!=='WAIT'?', daily signal '+t.sig:''));
+  var u=0,d=0,h=0;['5m','15m','1h','1d'].forEach(function(x){var r=tfTrend(s,got[x]);if(r){h++;if(r.d>0)u++;if(r.d<0)d++}});
+  if(h)add((u-d)/h*2,2,'Timeframes: '+u+' up, '+d+' down, '+(h-u-d)+' sideways');
+  var pa=got['15m']&&got['15m'].length>25?priceAction(liveCd(s,got['15m']),'15m'):null;
+  if(pa){var v=pa.st==='UPTREND'?1:pa.st==='DOWNTREND'?-1:0;if(pa.ev)v+=pa.ev.c==='up'?1:-1;add(Math.max(-2,Math.min(2,v)),2,'15-min structure '+pa.st.toLowerCase()+(pa.ev?', '+pa.ev.t.toLowerCase():''))}
+  var vw=null;if(!IDX[s]&&got['5m']){var td=istDay(Date.now()),pv=0,vv=0;got['5m'].forEach(function(r){if(istDay(r[0])===td&&r[5]>0){pv+=(r[2]+r[3]+r[4])/3*r[5];vv+=r[5]}});if(vv){vw=pv/vv;add(P>vw?0.75:-0.75,0.75,'Price '+(P>vw?'above':'below')+' today\'s VWAP ₹'+fmt(vw))}}
+  if(t&&t.rsi!=null){if(t.rsi>=75)add(-1,0,'Daily RSI '+t.rsi.toFixed(0)+': overbought, chasing here is risky');else if(t.rsi<=25)add(1,0,'Daily RSI '+t.rsi.toFixed(0)+': oversold, selling here is risky')}
+  if(!max)return xNone('👑 Your guide','not enough data yet.');
+  var sc=Math.max(-10,Math.min(10,pts/max*10)),dd=got['1d'],atrD=dd&&dd.length>15?atrOf(dd.slice(-30),14):P*0.015,a15=pa?pa.atr:atrD/4;
+  var s1=pa&&pa.sup[0]?pa.sup[0].p:P-atrD,s2=pa&&pa.sup[1]?pa.sup[1].p:s1-atrD,r1=pa&&pa.res[0]?pa.res[0].p:P+atrD,r2=pa&&pa.res[1]?pa.res[1].p:r1+atrD;
+  var vd=sc>=5?'STRONG BUY':sc>=2?'BUY':sc<=-5?'STRONG SELL':sc<=-2?'SELL':'HOLD',c=sc>=2?'up':sc<=-2?'dn':'nt',stop,t1,t2,rr,plan,lv,fail;
+  if(sc>=2){stop=Math.max(s1-a15*0.5,P-atrD*1.5);if(stop>=P)stop=P-a15;t1=r1>P*1.002?r1:P+atrD;t2=Math.max(r2,t1+atrD*0.8);rr=(t1-P)/(P-stop);
+    if(rr<1){vd='HOLD · BUY ON DIP';c='nt';plan='Trend is up but the next resistance ₹'+fmt(t1)+' is too close for a good reward. <b>Not holding:</b> wait for a dip near ₹'+fmt(s1)+' or a clean break above ₹'+fmt(r1)+'. <b>Holding:</b> keep it, stop-loss ₹'+fmt(stop)+'.'}
+    else plan='<b>Buy zone:</b> ₹'+fmt(Math.max(s1,P-a15))+' – ₹'+fmt(P)+' (better near the low end). <b>Stop-loss:</b> ₹'+fmt(stop)+'. Book part at ₹'+fmt(t1)+', rest at ₹'+fmt(t2)+'; after target 1, move the stop to your buy price.';
+    fail='This view fails if price closes below ₹'+fmt(stop)+'.'}
+  else if(sc<=-2){stop=Math.min(r1+a15*0.5,P+atrD*1.5);if(stop<=P)stop=P+a15;t1=s1<P*0.998?s1:P-atrD;t2=Math.min(s2,t1-atrD*0.8);rr=(P-t1)/(stop-P);
+    plan='<b>Holding:</b> exit or keep a tight stop-loss at ₹'+fmt(stop)+'. <b>Not holding:</b> don\'t buy yet; next support ₹'+fmt(t1)+', then ₹'+fmt(t2)+'. Short only intraday with a stop-loss at ₹'+fmt(stop)+'.';
+    fail='This view fails if price goes back above ₹'+fmt(stop)+'.'}
+  else{stop=s1-a15*0.5;t1=r1;t2=r2;rr=null;plan='No edge right now. <b>Holding:</b> keep it, stop-loss ₹'+fmt(stop)+'. <b>Not holding:</b> buy only on a break above ₹'+fmt(r1)+' (with volume) or near support ₹'+fmt(s1)+'. A fall below ₹'+fmt(s1)+' turns it bearish.';
+    fail='Signal changes on a break above ₹'+fmt(r1)+' (bullish) or below ₹'+fmt(s1)+' (bearish).'}
+  lv=[['ENTRY',vd.indexOf('BUY')===0?fmt(Math.max(s1,P-a15))+'–'+fmt(P):fmt(P)],['STOP-LOSS',fmt(stop)],['TARGET 1',fmt(t1)],['TARGET 2',fmt(t2)],['RISK : REWARD',rr==null?'—':'1 : '+rr.toFixed(1)]];
+  var conf=Math.round(Math.min(95,40+Math.abs(sc)*5.5));
+  return '<div class="tc pa pro"><div class="hd"><span class="verd '+c+'">'+vd+'</span><span style="margin-left:auto;text-align:right;font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.06em">👑 YOUR GUIDE<br><span style="font-size:13px;color:var(--ink)">'+conf+'% confidence</span></span></div>'+
+    '<div class="bar2" style="margin-top:10px" title="SELL ← → BUY"><i style="left:calc('+((sc+10)/20*100)+'% - 2px)"></i></div><div class="lg" style="display:flex;justify-content:space-between;font-size:10.5px"><span>STRONG SELL</span><span>HOLD</span><span>STRONG BUY</span></div>'+
+    '<div class="plan">'+plan+'</div>'+
+    '<div class="kv" style="grid-template-columns:repeat(auto-fit,minmax(92px,1fr));margin:8px 0 0">'+lv.map(function(x){return '<div style="padding:6px"><span style="font-size:9.5px">'+x[0]+'</span><b style="font-size:12px">'+x[1]+'</b></div>'}).join('')+'</div>'+
+    '<div class="sh2">WHY</div><ul>'+why.map(function(w){return '<li class="'+w[0]+'">'+esc(w[1])+'</li>'}).join('')+'</ul>'+
+    '<p style="margin-top:6px"><b>WATCH:</b> '+fail+' Typical day move ₹'+fmt(atrD)+'.</p>'+
+    '<div class="dis">Only you see this (superadmin). Worked out by rules from the charts; it can be wrong. Never risk more than you can lose on one trade.</div></div>'}
+
 /* ---------- CANDLE CHART ---------- */
 var CC={};
 function demoCandles(s,tf){var q=Q[s]||IDX[s];if(!q)return [];var step={'5m':3e5,'15m':9e5,'1h':36e5,'1d':864e5}[tf],n=120,v=q.ltp,out=[],t=Date.now(),h=hash(s+tf);
   for(var i=0;i<n;i++){var o=v*(1+(((h*(i+3))%101)/101-.5)/(tf==='1d'?40:160)),c=v,hi=Math.max(o,c)*(1+((h*(i+11))%13)/(tf==='1d'?900:3000)),lo=Math.min(o,c)*(1-((h*(i+5))%13)/(tf==='1d'?900:3000));out.unshift([t-i*step,o,hi,lo,c,(h*(i+1))%90000+10000]);v=o}return out}
 function getCandles(s,tf,cb){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<(tf==='1d'?6e5:6e4)){cb(c.d);return}var f=feedUrl();
   if(!f){var d=demoCandles(s,tf);CC[k]={at:Date.now(),d:d};cb(d);return}
-  fetch(f+'/candles?s='+encodeURIComponent(s)+'&tf='+tf+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak','')):''),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+  fetch(f+'/candles?s='+encodeURIComponent(s)+'&tf='+tf+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak',''))+devQ():''),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
     if(j&&j.ok&&j.candles&&j.candles.length){CC[k]={at:Date.now(),d:j.candles};cb(j.candles)}else cb(null,j&&j.error)}).catch(function(){cb(null,'offline')})}
 function loadChart(s,tf){[].forEach.call(document.querySelectorAll('#tfSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf)});var m=$('cvMsg');if(m)m.textContent='Loading chart…';
   getCandles(s,tf,function(cd,err){var m2=$('cvMsg');if(!$('cv'))return;if(!cd){if(m2)m2.textContent='Chart not available'+(err?' ('+err+')':'');return}
@@ -1047,7 +1171,7 @@ if('serviceWorker' in navigator&&location.protocol!=='file:')window.addEventList
 /* start */
 if(view==='list'){[].forEach.call(document.querySelectorAll('#viewSeg button'),function(x){x.classList.toggle('on',x.getAttribute('data-v')==='list')})}
 if(cached&&cached.ok&&feedUrl()){ingest(cached,true)}else renderAll();
-var t0=LS.get('tab',0);if(t0)setTimeout(function(){go(t0,false)},30);
+var t0=LS.get('tab',0);if(t0===4&&!isSuper())t0=0;if(t0)setTimeout(function(){go(t0,false)},30);
 load();
 window.NP={Q:Q,version:VERSION};
 })();

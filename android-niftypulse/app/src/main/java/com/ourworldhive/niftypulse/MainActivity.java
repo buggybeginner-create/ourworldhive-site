@@ -1,6 +1,13 @@
 package com.ourworldhive.niftypulse;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.os.Handler;
+import android.os.Looper;
+import org.json.JSONObject;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -27,6 +34,8 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     static final String HOME = "https://ourworldhive.com/nifty-pulse.html?src=play";
     private WebView web;
+    private final Handler ui = new Handler(Looper.getMainLooper());
+    private String tokReq;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
@@ -74,6 +83,35 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 
+    /* ---- Google sign-in through the phone's own Google account (Google does not allow its sign-in page inside apps) ---- */
+    private void askToken(String req) {
+        tokReq = req;
+        try { startActivityForResult(AccountManager.newChooseAccountIntent(null, null, new String[]{"com.google"}, null, null, null, null), 6); }
+        catch (Exception e) { tokenDone(null, "This phone has no Google account."); }
+    }
+    @Override protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req != 6) return;
+        String name = res == RESULT_OK && data != null ? data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME) : null;
+        if (name == null) { tokenDone(null, "No Google account was chosen."); return; }
+        try {
+            AccountManager.get(this).getAuthToken(new Account(name, "com.google"), "oauth2:openid email profile", null, this, new AccountManagerCallback<Bundle>() {
+                public void run(AccountManagerFuture<Bundle> f) {
+                    try {
+                        String t = f.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+                        if (t == null || t.length() == 0) throw new Exception("Google gave no permission.");
+                        tokenDone(t, null);
+                    } catch (Exception e) { tokenDone(null, "Google sign-in did not work (" + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()) + ")."); }
+                }
+            }, ui);
+        } catch (Exception e) { tokenDone(null, "Google sign-in is not available on this phone."); }
+    }
+    private void tokenDone(String token, String err) {
+        final String req = tokReq; tokReq = null;
+        if (web == null || req == null) return;
+        web.evaluateJavascript("(function(){try{window.npToken&&window.npToken(" + JSONObject.quote(req) + "," + (token == null ? "null" : JSONObject.quote(token)) + "," + (err == null ? "null" : JSONObject.quote(err)) + ")}catch(e){}})()", null);
+    }
+
     /** What the page can ask the phone to do. */
     private class Bridge {
         @JavascriptInterface public void save(String json) {
@@ -119,6 +157,7 @@ public class MainActivity extends Activity {
                 } catch (Exception ignored) { }
             } });
         }
+        @JavascriptInterface public void googleToken(final String req) { ui.post(new Runnable() { public void run() { askToken(req); } }); }
         @JavascriptInterface public String version() { try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { return ""; } }
     }
 }

@@ -149,7 +149,7 @@ final class Pulse {
         String sym = join(k.optJSONArray("sym")), extra = join(k.optJSONArray("extra"));
         String u = feed + "/quotes?src=" + enc(src) + (sym.isEmpty() ? "" : "&sym=" + enc(sym)) + (extra.isEmpty() || "breeze".equals(src) ? "" : "&extra=" + enc(extra))
             + ("breeze".equals(src) && !k.optString("bcodes", "").isEmpty() ? "&bcodes=" + enc(k.optString("bcodes").replaceAll("\\s+", "")) : "")
-            + (k.optString("key", "").isEmpty() ? "" : "&k=" + enc(k.optString("key")));
+            + (k.optString("key", "").isEmpty() ? "" : "&k=" + enc(k.optString("key")) + "&d=" + enc("bg-" + Build.MODEL.replaceAll("[^A-Za-z0-9]", "")) + "&dn=" + enc("App in background · " + Build.MANUFACTURER + " " + Build.MODEL));
         HttpURLConnection h = (HttpURLConnection) new URL(u).openConnection();
         h.setConnectTimeout(10000); h.setReadTimeout(15000); h.setRequestProperty("Accept", "application/json");
         try {

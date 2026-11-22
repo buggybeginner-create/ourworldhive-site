@@ -14,11 +14,11 @@ public class SmsReceiver extends BroadcastReceiver {
             SmsMessage[] ms = Telephony.Sms.Intents.getMessagesFromIntent(i);
             if (ms == null || ms.length == 0) return;
             StringBuilder sb = new StringBuilder();
-            long ts = System.currentTimeMillis();
-            for (SmsMessage m : ms) { if (m == null) continue; sb.append(m.getMessageBody()); if (m.getTimestampMillis() > 0) ts = m.getTimestampMillis(); }
+            long ts = System.currentTimeMillis(); String from = "";
+            for (SmsMessage m : ms) { if (m == null) continue; sb.append(m.getMessageBody()); if (m.getTimestampMillis() > 0) ts = m.getTimestampMillis(); if (from.isEmpty() && m.getOriginatingAddress() != null) from = m.getOriginatingAddress(); }
             String t = sb.toString();
             if (!Store.looksLikeMoney(t)) return;
-            Store.enqueue(c, t, ts, "sms");
+            Store.enqueue(c, t, ts, "sms", from);
             MainActivity.poke();
         } catch (Exception ignored) { }
     }

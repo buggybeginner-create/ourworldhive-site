@@ -17,13 +17,15 @@ final class Store {
 
     static boolean looksLikeMoney(String t) { return t != null && t.length() >= 15 && MONEY.matcher(t).find(); }
 
-    static synchronized void enqueue(Context c, String text, long ts, String src) {
+    static synchronized void enqueue(Context c, String text, long ts, String src) { enqueue(c, text, ts, src, ""); }
+    static synchronized void enqueue(Context c, String text, long ts, String src, String from) {
         try {
             JSONArray a = new JSONArray(sp(c).getString("queue", "[]"));
             JSONObject o = new JSONObject();
             o.put("text", text.length() > 1400 ? text.substring(0, 1400) : text);
             o.put("ts", ts);
             o.put("src", src);
+            if (from != null && !from.isEmpty()) o.put("from", from);
             a.put(o);
             while (a.length() > 400) a.remove(0);
             sp(c).edit().putString("queue", a.toString()).apply();

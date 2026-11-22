@@ -11,3 +11,5 @@
   CLOUDFLARE_ACCOUNT_ID and NP_KV_ID are added (worker `nifty-pulse` on er-krushnananda.workers.dev); until then it is pasted by hand.
 - **PM Tracker (pm.html):** change `var PM_VER = '…'` (written `var PM_VER='…'`) on EVERY edit (e.g. `2026-11-21.2`), same
   "Update Available" pill as My Diary. Without a new value, open apps are never told about the update.
+- **Expense Tracker (expense-tracker.html):** change `var EX_VER='…'` on EVERY edit (e.g. `2026-11-22.2`), same "Update Available" pill.
+  Its Android wrapper (android-expense/) is built by .github/workflows/expense-apk.yml when files there change.

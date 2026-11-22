@@ -172,12 +172,12 @@ public class MainActivity extends Activity {
             final JSONArray all = new JSONArray();
             Cursor c = null;
             try {
-                c = getContentResolver().query(Uri.parse("content://sms/inbox"), new String[]{"body", "date"}, "date > ?", new String[]{String.valueOf(since)}, "date ASC");
+                c = getContentResolver().query(Uri.parse("content://sms/inbox"), new String[]{"body", "date", "address"}, "date > ?", new String[]{String.valueOf(since)}, "date ASC");
                 while (c != null && c.moveToNext() && all.length() < 3000) {
                     String body = c.getString(0);
                     if (!Store.looksLikeMoney(body)) continue;
                     JSONObject o = new JSONObject();
-                    o.put("text", body.length() > 1400 ? body.substring(0, 1400) : body); o.put("ts", c.getLong(1)); o.put("src", "sms");
+                    o.put("text", body.length() > 1400 ? body.substring(0, 1400) : body); o.put("ts", c.getLong(1)); o.put("src", "sms"); try { String a = c.getString(2); if (a != null) o.put("from", a); } catch (Exception ignored) { }
                     all.put(o);
                 }
             } catch (Exception ignored) { } finally { if (c != null) c.close(); }

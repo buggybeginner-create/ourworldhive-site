@@ -21,6 +21,10 @@
             android:launchMode="singleTop" android:taskAffinity="com.ourworldhive.parcel.alarm" android:excludeFromRecents="true"
             android:theme="@android:style/Theme.Material.NoActionBar" />
         <receiver android:name=".RemindReceiver" android:exported="false" />
+        <service android:name=".NotifListener" android:exported="true" android:label="Parcel Ledger: read order and delivery notifications"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
         <receiver android:name=".BootReceiver" android:exported="false">
             <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter>
             <intent-filter><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /></intent-filter>

@@ -19,6 +19,12 @@ android {
         debug { signingConfig signingConfigs.debug }
         release { signingConfig signingConfigs.upload; minifyEnabled false }
     }
+    /* full = phone build (APK) that can read delivery SMS; play = Play Store build without SMS permission */
+    flavorDimensions 'dist'
+    productFlavors {
+        full { dimension 'dist' }
+        play { dimension 'dist' }
+    }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     lint { abortOnError false; checkReleaseBuilds false }
 }

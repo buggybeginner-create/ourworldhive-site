@@ -8,7 +8,9 @@ import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.database.Cursor;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -27,7 +29,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import java.lang.ref.WeakReference;
 
 /**
  * Parcel Ledger for Android: opens https://ourworldhive.com/parcel-ledger.html and adds what a website cannot do:
@@ -39,9 +43,13 @@ public class MainActivity extends Activity {
     private final Handler ui = new Handler(Looper.getMainLooper());
     private String tokReq;
     private ValueCallback<Uri[]> pick;
+    static WeakReference<MainActivity> LIVE = new WeakReference<>(null);
+    /** a new order message arrived: let the page read it */
+    static void poke() { final MainActivity a = LIVE.get(); if (a != null) a.ui.post(() -> { if (a.web != null) a.web.evaluateJavascript("window.plInbox&&plInbox()", null); }); }
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        LIVE = new WeakReference<>(this);
         web = new WebView(this);
         setContentView(web, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         WebSettings s = web.getSettings();
@@ -86,8 +94,43 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onResume() { super.onResume(); RemindReceiver.stopRinging(this); if (web != null) web.evaluateJavascript("window.plResume&&plResume()", null); }
+    @Override public void onRequestPermissionsResult(int req, String[] p, int[] r) { super.onRequestPermissionsResult(req, p, r); if (web != null) web.evaluateJavascript("try{render()}catch(e){}", null); }
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
+
+    private boolean has(String perm) { return checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED; }
+    /** the phone build (APK) can read SMS; the Play Store build cannot */
+    private boolean smsBuild() {
+        try { String[] r = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_PERMISSIONS).requestedPermissions; if (r != null) for (String x : r) if (Manifest.permission.READ_SMS.equals(x)) return true; } catch (Exception ignored) { }
+        return false;
+    }
+    private boolean notifOn() {
+        try { String s = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners"); return s != null && s.contains(new ComponentName(this, NotifListener.class).flattenToString()); }
+        catch (Exception e) { return false; }
+    }
+    private void scan(int days) {
+        if (!smsBuild()) { Toast.makeText(this, "This version cannot read SMS. Use notification access instead.", Toast.LENGTH_LONG).show(); return; }
+        if (!has(Manifest.permission.READ_SMS)) { requestPermissions(new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 2); Toast.makeText(this, "Allow SMS, then press Scan again.", Toast.LENGTH_LONG).show(); return; }
+        final long since = System.currentTimeMillis() - Math.max(1, Math.min(days, 400)) * 86400000L;
+        new Thread(() -> {
+            final JSONArray all = new JSONArray();
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(Uri.parse("content://sms/inbox"), new String[]{"body", "date", "address"}, "date > ?", new String[]{String.valueOf(since)}, "date ASC");
+                while (c != null && c.moveToNext() && all.length() < 2000) {
+                    String body = c.getString(0), from = "";
+                    try { from = c.getString(2); } catch (Exception ignored) { }
+                    if (!Inbox.looksLikeOrder(body + " " + from)) continue;
+                    all.put(new JSONObject().put("text", body.length() > 1400 ? body.substring(0, 1400) : body).put("ts", c.getLong(1)).put("src", "sms").put("from", from == null ? "" : from));
+                }
+            } catch (Exception ignored) { } finally { if (c != null) c.close(); }
+            ui.post(() -> {
+                if (web == null) return;
+                if (all.length() == 0) { web.evaluateJavascript("window.plReceive&&plReceive('[]',1)", null); return; }
+                try { for (int i = 0; i < all.length(); i += 150) { JSONArray part = new JSONArray(); for (int k = i; k < Math.min(all.length(), i + 150); k++) part.put(all.get(k)); web.evaluateJavascript("window.plReceive&&plReceive(" + JSONObject.quote(part.toString()) + "," + (i + 150 >= all.length() ? 1 : 0) + ")", null); } } catch (Exception ignored) { }
+            });
+        }).start();
+    }
 
     boolean canExact() {
         if (Build.VERSION.SDK_INT < 31) return true;
@@ -159,6 +202,15 @@ public class MainActivity extends Activity {
             long at = System.currentTimeMillis() + 5000;
             RemindReceiver.setAll(MainActivity.this, mergeTest(at));
         }
+        @JavascriptInterface public String readStatus() {
+            try { return new JSONObject().put("smsBuild", smsBuild()).put("sms", has(Manifest.permission.READ_SMS)).put("auto", Inbox.auto(MainActivity.this) && has(Manifest.permission.RECEIVE_SMS)).put("notif", notifOn()).put("waiting", Inbox.count(MainActivity.this)).toString(); }
+            catch (Exception e) { return "{}"; }
+        }
+        @JavascriptInterface public String takeInbox() { return Inbox.take(MainActivity.this); }
+        @JavascriptInterface public void scanSms(final int days) { ui.post(() -> scan(days)); }
+        @JavascriptInterface public void requestSms() { ui.post(() -> { if (smsBuild()) requestPermissions(new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 2); }); }
+        @JavascriptInterface public void setAuto(final boolean on) { Inbox.setAuto(MainActivity.this, on); if (on && smsBuild() && !has(Manifest.permission.RECEIVE_SMS)) ui.post(() -> requestPermissions(new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 2)); }
+        @JavascriptInterface public void openNotifAccess() { ui.post(() -> { try { startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)); } catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings, Notification access, and allow Parcel Ledger.", Toast.LENGTH_LONG).show(); } }); }
         @JavascriptInterface public void gmailToken(final String req, final String email) { ui.post(() -> gmailTok(req, email)); }
         @JavascriptInterface public void googleToken(final String req) { ui.post(() -> askToken(req)); }
         @JavascriptInterface public String version() { try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { return ""; } }

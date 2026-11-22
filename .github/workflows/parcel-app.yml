@@ -19,17 +19,17 @@ jobs:
         with: { gradle-version: '8.11.1' }
       - name: Build the APK (for your phone and the website download)
         working-directory: android-parcel
-        run: gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee ../build-log.txt; test ${PIPESTATUS[0]} -eq 0
+        run: gradle assembleFullDebug --no-daemon --stacktrace 2>&1 | tee ../build-log.txt; test ${PIPESTATUS[0]} -eq 0
         shell: bash
       - name: Build the Play Store bundle (.aab)
         if: env.DIARY_KEY_PASS != ''
         working-directory: android-parcel
-        run: gradle bundleRelease --no-daemon --stacktrace 2>&1 | tee -a ../build-log.txt; test ${PIPESTATUS[0]} -eq 0
+        run: gradle bundlePlayRelease --no-daemon --stacktrace 2>&1 | tee -a ../build-log.txt; test ${PIPESTATUS[0]} -eq 0
         shell: bash
       - name: Name the files
         run: |
-          cp android-parcel/app/build/outputs/apk/debug/app-debug.apk Parcel-Ledger.apk
-          if [ -n "$DIARY_KEY_PASS" ]; then cp android-parcel/app/build/outputs/bundle/release/app-release.aab Parcel-Ledger-PlayStore.aab; fi
+          cp android-parcel/app/build/outputs/apk/full/debug/app-full-debug.apk Parcel-Ledger.apk
+          if [ -n "$DIARY_KEY_PASS" ]; then cp android-parcel/app/build/outputs/bundle/playRelease/app-play-release.aab Parcel-Ledger-PlayStore.aab; fi
           ls -la *.apk *.aab 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with: { name: Parcel-Ledger-app, path: 'Parcel-Ledger*' }

@@ -637,13 +637,25 @@ function tShort(i){return T().tsh[i==29?15:i%15]}
 /* ---------- festivals ---------- */
 var FB={},FY={};
 function festYear(y){var k=y+'|'+S.loc.lat+S.loc.lon+'|'+stCode();if(FY[k])return FY[k];var l=FE.build(y,y,L(),{st:stList()});FY[k]=l;return l}
-function evOn(y){var out=[];S.ev.forEach(function(e){var a=pk(e.d);if(e.yr){if(a[0]<=y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:y+e.d.slice(4),uid:'my_'+e.id+'_'+y,mine:e.id})}else if(a[0]==y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:e.d,uid:'my_'+e.id+'_'+e.d,mine:e.id})});return out}
+/* my event repeating by tithi: same lunar month (amanta) + same sunrise tithi every year */
+var TC={};
+function tithiOf(k){var a=pk(k),o=FE.day(a[0],a[1],a[2],L());return {t:o.t,m:o.ms.m,adhik:o.ms.adhik}}
+function tithiNear(Y,mmdd,t,m){var a=pk(Y+mmdd),prev=null,ks=null;
+ for(var i=-34;i<=34;i++){var z=addD(a[0],a[1],a[2],i),o=FE.day(z[0],z[1],z[2],L());
+  if(o.ms.m==m&&!o.ms.adhik){if(o.t==t)return key(z[0],z[1],z[2]);if(!ks&&o.t==(t+1)%30&&prev==(t+29)%30)ks=key(z[0],z[1],z[2])}prev=o.t}
+ return ks}
+function evTithiDates(e,y){var ck=e.id+'|'+y+'|'+S.loc.lat+S.loc.lon;if(TC[ck])return TC[ck];var out=[],md=e.d.slice(4);
+ [y-1,y,y+1].forEach(function(Y){var d=tithiNear(Y,md,e.tt,e.tm);if(d&&+d.slice(0,4)==y&&d>=e.d&&out.indexOf(d)<0)out.push(d)});
+ return (TC[ck]=out)}
+function evMasa(t,m){if(S.sys=='purnimanta'&&t>=15)m=(m+1)%12;return T().masa[m]}
+function evRepTxt(e){if(e.yr==2)return ' · every year on '+tLong(e.tt)+', '+evMasa(e.tt,e.tm);return e.yr?' · every year':''}
+function evOn(y){var out=[];S.ev.forEach(function(e){var a=pk(e.d);if(e.yr==2&&e.tt!=null){if(a[0]<=y)evTithiDates(e,y).forEach(function(d){out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:d,uid:'my_'+e.id+'_'+d.slice(0,4),mine:e.id})})}else if(e.yr){if(a[0]<=y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:y+e.d.slice(4),uid:'my_'+e.id+'_'+y,mine:e.id})}else if(a[0]==y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:e.d,uid:'my_'+e.id+'_'+e.d,mine:e.id})});return out}
 function festMap(y){var m={};festYear(y).concat(evOn(y)).forEach(function(f){if(!S.cats[f.c])return;(m[f.d]=m[f.d]||[]).push(f)});return m}
 var RANK={mine:0,major:1,state:2,national:3,vrat:4};
 function festOn(k){var y=+k.slice(0,4),m=FB[y]||(FB[y]=festMap(y));return (m[k]||[]).slice().sort(function(a,b){return RANK[a.c]-RANK[b.c]})}
 function upcoming(fromK,n,cats){var y=+fromK.slice(0,4),out=[];for(var yy=y;yy<=y+1&&out.length<n;yy++){festYear(yy).concat(evOn(yy)).forEach(function(f){if(f.d>=fromK&&(cats?cats[f.c]:S.cats[f.c]))out.push(f)})}
  out.sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:RANK[a.c]-RANK[b.c]});var big={};out.forEach(function(f){if(f.c!='vrat')big[f.d]=1});out=out.filter(function(f){return f.c!='vrat'||!big[f.d]||f.id=='ekadashi'||f.id=='pradosh'});return out.slice(0,n)}
-function resetCache(){PC={};FB={};FY={};SOLC={}}
+function resetCache(){PC={};FB={};FY={};SOLC={};TC={}}
 /* ---------- countdown ---------- */
 /* countdown repeat: a passed item with rep=1 moves to its next date (festival dates change every year) */
 S.cd.forEach(function(c){if(c.fid==null)c.fid=c.uid.replace(/_\d{4}(-\d\d-\d\d)?$/,'');if(c.rep==null)c.rep=1});
@@ -767,12 +779,13 @@ function daySheet(k){SEL=k;var a=pk(k),p=P(a[0],a[1],a[2]),tt=T(),fs=festOn(k),p
  h+='<div class="card"><h2>🪐 KUNDLI OF THIS DAY</h2><div class="row"><input type="time" id="dkt" value="'+dtm+'" style="width:130px"><span class="sm mut">'+esc(S.loc.n)+'</span><button class="btn2 sm" data-a="dkopen" data-d="'+k+'">OPEN IN KUNDLI ›</button></div><div id="dkbox" style="margin-top:10px"></div></div>';
  sheet(h);var dk=function(){$('dkbox').innerHTML=kChartBlock(kMoment(k,$('dkt').value||'12:00',S.loc),true)};$('dkt').onchange=dk;dk()}
 /* ---------- festivals tab ---------- */
-var FV={y:null,q:'',c:'all'};
+var FV={y:null,q:'',c:'all',w:LS.get('fw','all')};
 function rFest(){var t=todayYMD(),tk=key(t[0],t[1],t[2]);if(!FV.y)FV.y=t[0];var y=FV.y;
- var list=festYear(y).concat(evOn(y)).filter(function(f){return (FV.c=='all'?S.cats[f.c]:f.c==FV.c)&&(!FV.q||(f.n+' '+f.h).toLowerCase().indexOf(FV.q.toLowerCase())>=0)});
+ var list=festYear(y).concat(evOn(y)).filter(function(f){return (FV.c=='all'?S.cats[f.c]:f.c==FV.c)&&(!FV.q||(f.n+' '+f.h).toLowerCase().indexOf(FV.q.toLowerCase())>=0)&&(FV.w=='all'||(FV.w=='up'?f.d>=tk:f.d<tk))});
  var cats=[['all','All'],['major','Major'],['vrat','Vrat'],['state',stName()||'State'],['national','Govt Holidays'],['mine','My Events']];
  var h='<div class="card"><div class="mhead"><button class="ib" data-a="fprev">‹</button><div class="t"><b>'+y+' FESTIVALS</b><span>'+esc(S.loc.n)+' · tap ⏳ to add to countdown</span></div><button class="ib" data-a="fnext">›</button></div>'
   +'<input id="fq" placeholder="Search festival…" value="'+esc(FV.q)+'"><div class="chips" style="margin-top:8px">'+cats.map(function(c){return '<button class="chip'+(FV.c==c[0]?' on':'')+'" data-a="fcat" data-c="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'
+  +'<div class="chips">'+[['all','📋 All'],['up','⏭️ Upcoming'],['past','🕘 Old']].map(function(c){return '<button class="chip'+(FV.w==c[0]?' on':'')+'" data-a="fwhen" data-w="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>'
   +'<div class="row"><button class="btn2 sm" data-a="stpick">🗺️ STATE: '+esc(stLabel()).toUpperCase()+'</button><button class="btn2 sm" data-a="jumpnow">⬇ GO TO TODAY</button>'+(APP?'<button class="btn2 sm" data-a="phoneadd">📆 ADD ALL TO PHONE CALENDAR</button>':'<button class="btn2 sm" data-a="ics">📆 DOWNLOAD FOR GOOGLE CALENDAR (.ics)</button>')+'</div></div>';
  var byM={};list.forEach(function(f){var m=+f.d.slice(5,7)-1;(byM[m]=byM[m]||[]).push(f)});
  if(!FV.open||FV.openY!=y){FV.open={};FV.openY=y;FV.open[y==t[0]?t[1]:0]=1}
@@ -826,7 +839,7 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
   +[['major','Major Festivals'],['state','State Festivals'],['vrat','Vrat Days'],['cd','My Countdown'],['mine','My Events']].map(function(x){return '<div class="sw"><span>'+x[1]+'</span><button class="tg'+(r.cats[x[0]]?' on':'')+'" data-a="remc" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
  if(APP)h+='<div class="card set"><h2>📆 PHONE / GOOGLE CALENDAR</h2><div class="note">Uses the calendars already on this phone (your Google Calendar syncs there). Nothing is sent to us.</div><div class="sw"><span>Show My Phone Calendar Events<small>dots in month view and in the day details</small></span><button class="tg'+(S.phone?' on':'')+'" data-a="phone"></button></div><button class="btn2" data-a="phoneadd" style="margin-top:8px;width:100%">ADD THIS YEAR’S FESTIVALS TO GOOGLE CALENDAR</button></div>';
  else h+='<div class="card set"><h2>📆 GOOGLE CALENDAR</h2><div class="note">Download the festival list and import it in Google Calendar (Settings → Import), or open any day and tap “Add to Google Calendar”. In the Android app, your phone calendar shows inside this calendar.</div><button class="btn2" data-a="ics" style="margin-top:8px;width:100%">DOWNLOAD FESTIVALS (.ics)</button></div>';
- h+='<div class="card"><h2>MY EVENTS</h2>'+(S.ev.length?S.ev.map(function(e){return '<div class="li"><div class="e">'+esc(e.e||'⭐')+'</div><div class="m"><b>'+esc(e.n)+'</b><span>'+dayW(e.d)+' '+e.d.slice(0,4)+(e.yr?' · every year':'')+'</span></div><button class="del" data-a="evdel" data-i="'+esc(e.id)+'">DELETE</button></div>'}).join(''):'<div class="note">Birthdays, anniversaries or any date. They show in the calendar and can be counted down.</div>')+'<button class="btn2" data-a="addev" style="margin-top:8px;width:100%">＋ ADD MY EVENT</button></div>';
+ h+='<div class="card"><h2>MY EVENTS</h2>'+(S.ev.length?S.ev.map(function(e){return '<div class="li"><div class="e">'+esc(e.e||'⭐')+'</div><div class="m"><b>'+esc(e.n)+'</b><span>'+dayW(e.d)+' '+e.d.slice(0,4)+evRepTxt(e)+'</span></div><button class="del" data-a="evdel" data-i="'+esc(e.id)+'">DELETE</button></div>'}).join(''):'<div class="note">Birthdays, anniversaries or any date. They show in the calendar and can be counted down.</div>')+'<button class="btn2" data-a="addev" style="margin-top:8px;width:100%">＋ ADD MY EVENT</button></div>';
  h+='<div class="card"><h2>APP</h2><div class="row"><button class="btn2" data-a="contact">✉️ CONTACT US / FEATURE REQUEST</button><button class="btn2" data-a="share">📤 SHARE APP</button><button class="btn2" data-a="latest">🔄 GET LATEST VERSION</button></div>'
   +'<div class="don" style="margin-top:12px">'+(W.OWHDON?W.OWHDON.card():'')+'</div><div class="note" style="margin-top:10px">Calculations: sun and moon positions by standard astronomical formulas, Lahiri ayanamsa. Festival dates follow common rules and can differ by a day between regions; check with your local priest for rituals.</div></div>';
  $('more').innerHTML=h;
@@ -986,7 +999,10 @@ function horoCard(p){var L=rashifal(p),pf=recProfile();if(HR==null)HR=pf?pf.r:0;
 /* ---------- my events ---------- */
 function evSheet(d){var t=todayYMD();d=d||key(t[0],t[1],t[2]);
  sheet('<h2 style="margin-top:0">＋ MY EVENT</h2><div class="set"><label>Name</label><input id="evn" maxlength="40" placeholder="e.g. Maa\'s Birthday"><label>Date</label><input id="evd" type="date" value="'+d+'"><label>Icon</label><div class="chips" id="eve">'+['⭐','🎂','💍','🎉','🙏','🏠','✈️','🎓','❤️','🪔'].map(function(e,i){return '<button class="chip'+(i==0?' on':'')+'" data-a="evic">'+e+'</button>'}).join('')+'</div>'
-  +'<div class="sw"><span>Repeat Every Year</span><button class="tg on" id="evy" data-a="evy"></button></div><div class="sw"><span>Add To Countdown</span><button class="tg on" id="evc" data-a="evy"></button></div></div><button class="btn" data-a="evsave" style="width:100%;margin-top:12px">SAVE</button>')}
+  +'<label>Repeat</label><div class="chips" id="evr">'+[['1','📅 Same Date'],['2','🌙 Same Tithi'],['0','1️⃣ Once']].map(function(x,i){return '<button class="chip'+(i==0?' on':'')+'" data-a="evrep" data-r="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div class="note" id="evtn" style="margin-top:2px"></div><div class="sw"><span>Add To Countdown</span><button class="tg on" id="evc" data-a="evy"></button></div></div><button class="btn" data-a="evsave" style="width:100%;margin-top:12px">SAVE</button>');$('evd').onchange=evTithiNote;evTithiNote()}
+function evRep(){var b=D.querySelector('#evr .chip.on');return b?+b.getAttribute('data-r'):1}
+function evTithiNote(){var n=$('evtn'),d=$('evd').value;if(!n)return;if(!/^\d{4}-\d\d-\d\d$/.test(d)){n.textContent='';return}var x=tithiOf(d),r=evRep();
+ n.innerHTML='Tithi on this day: <b>'+tLong(x.t)+'</b> · '+(x.adhik?T().adhik+' ':'')+evMasa(x.t,x.m)+' month'+(r==2?'<br>It will come every year on this tithi, so the English date changes each year (like festivals).':r==1?'<br>It will come every year on '+d.slice(8)+' '+MONF[+d.slice(5,7)-1]+'.':'')}
 /* ---------- calendar export ---------- */
 function gcalUrl(f){var a=f.d.replace(/-/g,''),n=pk(f.d),b=addD(n[0],n[1],n[2],1),bb=key(b[0],b[1],b[2]).replace(/-/g,'');
  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(f.n)+'&dates='+a+'/'+bb+'&details='+encodeURIComponent((f.h&&f.h!=f.n?f.h+'\n':'')+'From Din Darpan · ourworldhive.com/din-darpan.html')}
@@ -1046,10 +1062,12 @@ function act(a,b){var t=todayYMD();
  case 'addev':evSheet(b.getAttribute('data-d'));break;
  case 'evic':[].forEach.call(D.querySelectorAll('#eve .chip'),function(c){c.classList.remove('on')});b.classList.add('on');break;
  case 'evy':b.classList.toggle('on');break;
- case 'evsave':{var n=($('evn').value||'').trim(),d=$('evd').value,ic=D.querySelector('#eve .chip.on'),yr=$('evy').classList.contains('on'),cdOn=$('evc').classList.contains('on');
+ case 'evrep':D.querySelectorAll('#evr .chip').forEach(function(x){x.classList.toggle('on',x==b)});evTithiNote();break;
+ case 'fwhen':FV.w=b.getAttribute('data-w');LS.set('fw',FV.w);rFest();break;
+ case 'evsave':{var n=($('evn').value||'').trim(),d=$('evd').value,ic=D.querySelector('#eve .chip.on'),rp=evRep(),yr=rp>0,cdOn=$('evc').classList.contains('on');
   if(!n){toast('Please write a name');return}if(!/^\d{4}-\d\d-\d\d$/.test(d)){toast('Please choose a date');return}
-  var id='e'+Date.now().toString(36),ev={id:id,n:n.slice(0,40),d:d,e:ic?ic.textContent:'⭐',yr:yr?1:0};S.ev.push(ev);save('ev');FB={};
-  if(cdOn){var tk2=key(t[0],t[1],t[2]),dd2=d;if(yr){var yy=t[0];dd2=yy+d.slice(4);if(dd2<tk2)dd2=(yy+1)+d.slice(4)}S.cd.push({uid:'my_'+id+'_'+(yr?dd2.slice(0,4):d),n:ev.n,h:ev.n,d:dd2,e:ev.e,fid:'my_'+id,rep:yr?1:0});save('cd')}
+  var id='e'+Date.now().toString(36),ev={id:id,n:n.slice(0,40),d:d,e:ic?ic.textContent:'⭐',yr:rp};if(rp==2){var tx=tithiOf(d);ev.tt=tx.t;ev.tm=tx.m}S.ev.push(ev);save('ev');FB={};
+  if(cdOn){var tk2=key(t[0],t[1],t[2]),dd2=d;if(rp==1){var yy=t[0];dd2=yy+d.slice(4);if(dd2<tk2)dd2=(yy+1)+d.slice(4)}else if(rp==2&&d<tk2){var nx=nextOf({fid:'my_'+id},tk2);if(nx)dd2=nx.d}S.cd.push({uid:'my_'+id+'_'+(yr?dd2.slice(0,4):d),n:ev.n,h:ev.n,d:dd2,e:ev.e,fid:'my_'+id,rep:yr?1:0});save('cd')}
   closeSheet();toast('Saved ✓');rerender();break}
  case 'evdel':S.ev=S.ev.filter(function(e){return e.id!=b.getAttribute('data-i')});save('ev');FB={};rerender();break;
  case 'gcal':{var k=b.getAttribute('data-d'),fs=festOn(k),f0=fs[0]||{n:'Event',d:k};var u2=gcalUrl(f0);

@@ -229,7 +229,7 @@ export default {
         if (!env.NP) return json({ ok: false, error: 'KV binding NP is missing' }, 400);
         const body = await req.json();
         const rules = Array.isArray(body.rules) ? body.rules.slice(0, 200) : [];
-        await env.NP.put('rules', JSON.stringify({ rules, global: body.global || {}, list: Array.isArray(body.list) ? body.list.slice(0, 100) : null,
+        await env.NP.put('rules', JSON.stringify({ rules, rearm: /^\d{1,2}:\d{2}$/.test(String(body.rearm || '')) ? String(body.rearm) : '09:15', global: body.global || {}, list: Array.isArray(body.list) ? body.list.slice(0, 100) : null,
           src: ['angel', 'breeze', 'yahoo'].includes(body.src) ? body.src : 'auto', bcodes: body.bcodes || {} }));
         return json({ ok: true, saved: rules.length });
       }
@@ -266,43 +266,57 @@ export default {
     let ydata = null;
     if (cfg.tgAngel === false && users.some(u => !u.legacy && !u.owner)) { try { ydata = await getQuotes(env, 'yahoo', null, {}, [...extra].slice(0, 40)); } catch (e) { } }
     for (const u of users) {
-      const fk = (u.legacy ? 'fired:' : 'fired:' + u.chat + ':') + t.day;
+      /* rung alerts are kept across days: each rings once, re-arms at the user's time, then only on a fresh cross */
+      const fk = u.legacy ? 'fired2:' : 'fired2:' + u.chat;
       const fired = (await env.NP.get(fk, 'json')) || {};
       const useY = cfg.tgAngel === false && !u.legacy && !u.owner;
       if (useY && !(ydata && ydata.ok)) continue;
-      const msgs = evaluate(u, useY ? ydata : data, fired);
-      if (!msgs.length) continue;
+      const before = JSON.stringify(fired), msgs = evaluate(u, useY ? ydata : data, fired);
+      if (!msgs.length) { if (JSON.stringify(fired) !== before) await env.NP.put(fk, JSON.stringify(fired), { expirationTtl: 60 * 60 * 24 * 30 }); continue; }
       await tg(env, '📈 NIFTY PULSE ALERT\n' + msgs.join('\n') + '\n' + t.label, u.chat);
       if (!u.legacy) { u.last = Date.now(); u.sent = (u.sent || 0) + 1; const keep = { ...u }; await env.NP.put('u:' + u.chat, JSON.stringify(keep)); }
-      await env.NP.put(fk, JSON.stringify(fired), { expirationTtl: 60 * 60 * 30 });
+      await env.NP.put(fk, JSON.stringify(fired), { expirationTtl: 60 * 60 * 24 * 30 });
     }
   }
 };
 
-/* ---------- alert rules (same logic as the app) ---------- */
+/* ---------- alert rules (same logic as the app) ----------
+   fired[key] = { t: time rung } (quiet until the re-arm time) or { w: 1 } (ready, waits for a fresh cross) */
+function nextReset(rearm, t) {
+  const [h, m] = String(rearm || '09:15').split(':').map(Number), IST = 5.5 * 3600e3, d = new Date(t + IST);
+  let r = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h || 0, m || 0) - IST;
+  if (r <= t) r += 864e5;
+  return r;
+}
+function gate(fired, rearm, key, cond) {
+  let f = fired[key];
+  if (f && f.t && Date.now() >= nextReset(rearm, f.t)) f = fired[key] = { w: 1 };
+  if (!cond) { if (f && f.w) delete fired[key]; return false; }
+  if (f) return false;
+  fired[key] = { t: Date.now() }; return true;
+}
 function evaluate(saved, data, fired) {
-  const out = [], by = {};
+  const out = [], by = {}, ra = saved.rearm || '09:15';
   data.stocks.concat(data.index).forEach(q => by[q.s] = q);
   (saved.rules || []).forEach(r => {
     const q = by[r.s]; if (!q || !r.on) return;
     let hit = false, txt = '';
-    if (r.type === 'above' && q.ltp >= r.v) { hit = true; txt = `${r.s} crossed ABOVE ${r.v} → ${q.ltp}`; }
-    if (r.type === 'below' && q.ltp <= r.v) { hit = true; txt = `${r.s} fell BELOW ${r.v} → ${q.ltp}`; }
-    if (r.type === 'pctUp' && q.pct >= r.v) { hit = true; txt = `${r.s} up ${q.pct.toFixed(2)}% (≥ ${r.v}%)`; }
-    if (r.type === 'pctDown' && q.pct <= -Math.abs(r.v)) { hit = true; txt = `${r.s} down ${q.pct.toFixed(2)}% (≤ -${Math.abs(r.v)}%)`; }
-    const k = 'r' + r.id;
-    if (hit && !fired[k]) { fired[k] = 1; out.push('• ' + txt); }
+    if (r.type === 'above') { hit = q.ltp >= r.v; txt = `${r.s} crossed ABOVE ${r.v} → ${q.ltp}`; }
+    if (r.type === 'below') { hit = q.ltp <= r.v; txt = `${r.s} fell BELOW ${r.v} → ${q.ltp}`; }
+    if (r.type === 'pctUp') { hit = q.pct >= r.v; txt = `${r.s} up ${q.pct.toFixed(2)}% (≥ ${r.v}%)`; }
+    if (r.type === 'pctDown') { hit = q.pct <= -Math.abs(r.v); txt = `${r.s} down ${q.pct.toFixed(2)}% (≤ -${Math.abs(r.v)}%)`; }
+    if (gate(fired, ra, 'r' + r.id, hit)) out.push('• ' + txt);
   });
   const g = saved.global || {};
   const only = Array.isArray(g.only) && g.only.length ? g.only : null;
   data.stocks.forEach(q => {
     if (only && !only.includes(q.s)) return;
-    if (g.move > 0 && Math.abs(q.pct) >= g.move && !fired['m' + q.s]) { fired['m' + q.s] = 1; out.push(`• ${q.s} moved ${q.pct > 0 ? '+' : ''}${q.pct.toFixed(2)}% today (${q.ltp})`); }
-    if (g.hi52 && q.h52 && q.ltp >= q.h52 && !fired['h' + q.s]) { fired['h' + q.s] = 1; out.push(`• ${q.s} NEW 52-WEEK HIGH ${q.ltp}`); }
-    if (g.lo52 && q.l52 && q.ltp <= q.l52 && !fired['l' + q.s]) { fired['l' + q.s] = 1; out.push(`• ${q.s} NEW 52-WEEK LOW ${q.ltp}`); }
+    if (g.move > 0 && gate(fired, ra, 'm' + q.s, Math.abs(q.pct) >= g.move)) out.push(`• ${q.s} moved ${q.pct > 0 ? '+' : ''}${q.pct.toFixed(2)}% today (${q.ltp})`);
+    if (g.hi52 && q.h52 && gate(fired, ra, 'h' + q.s, q.ltp >= q.h52)) out.push(`• ${q.s} NEW 52-WEEK HIGH ${q.ltp}`);
+    if (g.lo52 && q.l52 && gate(fired, ra, 'l' + q.s, q.ltp <= q.l52)) out.push(`• ${q.s} NEW 52-WEEK LOW ${q.ltp}`);
   });
   const n = by.NIFTY;
-  if (n && g.nifty > 0 && Math.abs(n.pct) >= g.nifty && !fired.nifty) { fired.nifty = 1; out.push(`• NIFTY 50 moved ${n.pct.toFixed(2)}% (${n.ltp})`); }
+  if (n && g.nifty > 0 && gate(fired, ra, 'nifty', Math.abs(n.pct) >= g.nifty)) out.push(`• NIFTY 50 moved ${n.pct.toFixed(2)}% (${n.ltp})`);
   return out.slice(0, 25);
 }
 
@@ -322,6 +336,7 @@ function rid(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return
 async function hookSecret(env) { return (await sha256hex('np-hook:' + (env.ADMIN_KEY || env.TG_BOT_TOKEN))).slice(0, 40); }
 function cleanRules(b) {
   return { rules: (Array.isArray(b.rules) ? b.rules : []).slice(0, 100).map(r => ({ id: String(r.id || '').slice(0, 20), s: String(r.s || '').toUpperCase().slice(0, 20), type: ['above', 'below', 'pctUp', 'pctDown'].includes(r.type) ? r.type : 'above', v: +r.v || 0, on: !!r.on })),
+    rearm: /^\d{1,2}:\d{2}$/.test(String(b.rearm || '')) ? String(b.rearm) : '09:15',
     global: { move: +((b.global || {}).move) || 0, nifty: +((b.global || {}).nifty) || 0, hi52: !!(b.global || {}).hi52, lo52: !!(b.global || {}).lo52, only: Array.isArray((b.global || {}).only) ? b.global.only.slice(0, 100) : null } };
 }
 

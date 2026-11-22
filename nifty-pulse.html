@@ -289,12 +289,14 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Sound<input type="checkbox" id="oSound" checked></label>
    <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
    <div style="margin-top:10px;font-size:11.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)">⏰ FULL-SCREEN ALARM (KEEPS RINGING UNTIL YOU SLIDE TO STOP)</div>
+   <label class="sw">Ring each alert one time, ready again at<input type="time" id="rearmAt" value="09:15" style="width:auto;max-width:120px"></label>
+   <div class="h" style="margin:0 0 6px;font-size:12px">After it rings, an alert stays quiet until this time. Then it rings again only when the price crosses the level afresh (not just because it is still above or below).</div>
    <label class="sw">My price alerts<input type="checkbox" id="alR"></label>
    <label class="sw">Scan alerts (% moves, 52-week, NIFTY move)<input type="checkbox" id="alS"></label>
    <label class="sw" id="alGRow">BUY / SELL signals<input type="checkbox" id="alG"></label>
    <div class="fr" style="margin-top:6px"><button class="btn" id="alTest">TEST ALARM</button><button class="btn" id="alPerm" hidden>ALLOW FULL-SCREEN</button></div>
    <div id="alMsg" class="h" style="margin:6px 0 0;font-size:12px"></div>
-   <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings once a day. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
+   <p class="h" style="margin:8px 0 0">Price alerts above work for any stock you type, each with its own value. Each alert rings one time, then gets ready again at the time you set above and rings only on a fresh cross. In-app alerts work while Nifty Pulse is open. For alerts with the app closed, use Telegram below.</p>
   </div>
   <div class="card">
    <h3>TELEGRAM ALERTS (APP CLOSED)</h3>
@@ -426,7 +428,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-22.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-22.3'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -439,12 +441,19 @@ function cls(n){return n>0?'up':n<0?'dn':''}
 
 /* ---------- settings ---------- */
 var S=Object.assign({feed:DEFAULT_FEED,src:'auto',every:3,slow:true,bigPct:2,nearPct:3,theme:'auto',defView:'heat',custom:'',
-  notif:false,sound:true,vib:true,gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',pa:true,paLines:true,alR:false,alS:false,alG:false,tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false,xMtf:true,xRng:true,xVol:true,xIdx:true,cLine:false,cE20:true,cE50:true,cVol:true,cSw:true,cPiv:false,cVw:false,cLast:true,cGrid:true},LS.get('set',{}));
+  notif:false,sound:true,vib:true,rearmAt:'09:15',gMove:'',gNifty:'',gHi:false,gLo:false,gScope:'all',gPick:[],bList:[],bcodes:'',tileSize:'m',pa:true,paLines:true,alR:false,alS:false,alG:false,tOn:true,tSig:false,tChart:true,tTf:'15m',gSig:false,xMtf:true,xRng:true,xVol:true,xIdx:true,cLine:false,cE20:true,cE50:true,cVol:true,cSw:true,cPiv:false,cVw:false,cLast:true,cGrid:true},LS.get('set',{}));
 if(!S.feed&&DEFAULT_FEED)S.feed=DEFAULT_FEED;
 function saveS(){LS.set('set',S)}
 var watch=LS.get('watch',['RELIANCE','HDFCBANK','TCS','INFY','SBIN']);
 var rules=LS.get('rules',[]);
-var fired=LS.get('fired',{});if(fired.day!==today())fired={day:today()};
+var fired=LS.get('fired',{});delete fired.day;Object.keys(fired).forEach(function(k){if(fired[k]===1)fired[k]={t:Date.now()}});
+/* an alert rings ONE time; at the re-arm time it gets ready again, but rings only when the price crosses the level afresh */
+function rearmAt(){return /^\d{1,2}:\d{2}$/.test(S.rearmAt||'')?S.rearmAt:'09:15'}
+function nextReset(t){var p=rearmAt().split(':'),d=new Date(t),r=new Date(t);r.setHours(+p[0],+p[1],0,0);if(r<=d)r.setDate(r.getDate()+1);return r.getTime()}
+function gate(key,cond,msg){var f=fired[key];
+  if(f&&f.t&&Date.now()>=nextReset(f.t)){f=fired[key]={w:1};LS.set('fired',fired)}
+  if(!cond){if(f&&f.w){delete fired[key];LS.set('fired',fired)}return}
+  if(!f)fire(key,msg)}
 var log=LS.get('log',{day:today(),items:[]});if(log.day!==today())log={day:today(),items:[]};
 var hist=LS.get('hist',{day:today(),d:{}});if(hist.day!==today())hist={day:today(),d:{}};
 
@@ -587,7 +596,7 @@ function renderRules(){
   var el=$('rules');
   if(!rules.length){el.innerHTML='<div style="color:var(--mut);font-size:13.5px">No alerts yet. Add one above, or tap a stock and use SET ALERT.</div>';return}
   el.innerHTML=rules.map(function(r){var q=Q[r.s],f=fired['r'+r.id];
-    return '<div class="rl"><label class="sw" style="border:0;padding:0"><input type="checkbox" data-tog="'+r.id+'"'+(r.on?' checked':'')+'></label><div class="t"><b>'+esc(r.s)+'</b> · '+esc(ruleText(r))+'<small>Now: '+(q?'₹'+fmt(q.ltp)+' ('+sgn(q.pct)+'%)':'—')+'</small></div>'+(f?'<span class="tag fired">RANG TODAY</span><button class="btn" data-rearm="'+r.id+'" style="padding:6px 8px;font-size:11px">RE-ARM</button>':'<span class="tag">'+(r.on?'WATCHING':'OFF')+'</span>')+'<button class="x" data-del="'+r.id+'" aria-label="Delete">×</button></div>'}).join('');
+    return '<div class="rl"><label class="sw" style="border:0;padding:0"><input type="checkbox" data-tog="'+r.id+'"'+(r.on?' checked':'')+'></label><div class="t"><b>'+esc(r.s)+'</b> · '+esc(ruleText(r))+'<small>Now: '+(q?'₹'+fmt(q.ltp)+' ('+sgn(q.pct)+'%)':'—')+'</small></div>'+(f&&f.t?'<span class="tag fired" title="Re-arms by itself at '+rearmAt()+'">RANG · RE-ARMS '+rearmAt()+'</span><button class="btn" data-rearm="'+r.id+'" style="padding:6px 8px;font-size:11px">RE-ARM</button>':f&&f.w?'<span class="tag" title="Rings when the price crosses the level again">WAITING FOR CROSS</span>':'<span class="tag">'+(r.on?'WATCHING':'OFF')+'</span>')+'<button class="x" data-del="'+r.id+'" aria-label="Delete">×</button></div>'}).join('');
 }
 function renderLog(){var el=$('log');
   el.innerHTML=log.items.length?log.items.slice().reverse().map(function(x){return '<div><time>'+esc(x.t)+'</time>'+esc(x.m)+'</div>'}).join(''):'<div style="color:var(--mut)">No alerts today yet.</div>';
@@ -603,7 +612,7 @@ var almT=null;function pageAlarm(msg){var o=$('pgAlarm');if(!o){o=document.creat
   o.style.display='flex';$('pgStop').onclick=function(){o.style.display='none';clearInterval(almT);almT=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}};
   clearInterval(almT);var ring=function(){beep();beep2();try{navigator.vibrate&&navigator.vibrate([500,300,500])}catch(e){}};ring();almT=setInterval(ring,1600)}
 function beep2(){setTimeout(beep,450)}
-function fire(key,msg){if(fired[key])return;fired[key]=1;LS.set('fired',fired);
+function fire(key,msg){if(fired[key])return;fired[key]={t:Date.now()};LS.set('fired',fired);
   if(alarmKind(key)&&!(NATIVE&&NATIVE.fullScreenOk))pageAlarm(msg);
   var t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});log.items.push({t:t,m:msg});if(log.items.length>200)log.items.shift();LS.set('log',log);
   if(cur!==2)LS.set('unseen',LS.get('unseen',0)+1);
@@ -619,18 +628,19 @@ function checkAlerts(){
   if(src==='demo'&&!LS.get('demoAlerts',true))return;
   var by=Object.assign({},Q,IDX);
   rules.forEach(function(r){var q=by[r.s];if(!q||!r.on)return;
-    if(r.type==='above'&&q.ltp>=r.v)fire('r'+r.id,r.s+' crossed ABOVE ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
-    if(r.type==='below'&&q.ltp<=r.v)fire('r'+r.id,r.s+' fell BELOW ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
-    if(r.type==='pctUp'&&q.pct>=r.v)fire('r'+r.id,r.s+' is UP '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
-    if(r.type==='pctDown'&&q.pct<=-Math.abs(r.v))fire('r'+r.id,r.s+' is DOWN '+fmt(q.pct)+'% today (₹'+fmt(q.ltp)+')')});
+    var k='r'+r.id;
+    if(r.type==='above')gate(k,q.ltp>=r.v,r.s+' crossed ABOVE ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
+    if(r.type==='below')gate(k,q.ltp<=r.v,r.s+' fell BELOW ₹'+fmt(r.v)+' → ₹'+fmt(q.ltp));
+    if(r.type==='pctUp')gate(k,q.pct>=r.v,r.s+' is UP '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
+    if(r.type==='pctDown')gate(k,q.pct<=-Math.abs(r.v),r.s+' is DOWN '+fmt(q.pct)+'% today (₹'+fmt(q.ltp)+')')});
   var gm=parseFloat(S.gMove),gn=parseFloat(S.gNifty),only=scopeList();
   Object.values(Q).forEach(function(q){if(only&&only.indexOf(q.s)<0)return;
-    if(gm>0&&Math.abs(q.pct)>=gm)fire('m'+q.s,q.s+' moved '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
-    if(S.gHi&&q.h52&&q.ltp>=q.h52)fire('h'+q.s,q.s+' made a NEW 52-WEEK HIGH ₹'+fmt(q.ltp));
-    if(S.gLo&&q.l52&&q.ltp<=q.l52)fire('l'+q.s,q.s+' made a NEW 52-WEEK LOW ₹'+fmt(q.ltp))});
+    if(gm>0)gate('m'+q.s,Math.abs(q.pct)>=gm,q.s+' moved '+sgn(q.pct)+'% today (₹'+fmt(q.ltp)+')');
+    if(S.gHi&&q.h52)gate('h'+q.s,q.ltp>=q.h52,q.s+' made a NEW 52-WEEK HIGH ₹'+fmt(q.ltp));
+    if(S.gLo&&q.l52)gate('l'+q.s,q.ltp<=q.l52,q.s+' made a NEW 52-WEEK LOW ₹'+fmt(q.ltp))});
   if(S.gSig&&S.tSig&&src!=='demo')Object.keys(TA).forEach(function(k){var t=TA[k];if(!t||!Q[k]||(only&&only.indexOf(k)<0))return;
-    if(t.sig==='BUY'||t.sig==='SELL')fire('g'+t.sig+k,k+': new '+t.sig+' signal (₹'+fmt(Q[k].ltp)+') · '+t.word.toLowerCase())});
-  var n=IDX.NIFTY;if(n&&gn>0&&Math.abs(n.pct)>=gn)fire('nifty','NIFTY 50 moved '+sgn(n.pct)+'% ('+fmt(n.ltp)+')');
+    ['BUY','SELL'].forEach(function(sg){gate('g'+sg+k,t.sig===sg,k+': new '+sg+' signal (₹'+fmt(Q[k].ltp)+') · '+String(t.word||'').toLowerCase())})});
+  var n=IDX.NIFTY;if(n&&gn>0)gate('nifty',Math.abs(n.pct)>=gn,'NIFTY 50 moved '+sgn(n.pct)+'% ('+fmt(n.ltp)+')');
 }
 var actx=null;function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();var t=actx.currentTime;[0,.18].forEach(function(d,i){var o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=i?1046:784;g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.16);o.connect(g);g.connect(actx.destination);o.start(t+d);o.stop(t+d+.17)})}catch(e){}}
 var tt=null;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},3500)}
@@ -688,7 +698,7 @@ window.addEventListener('resize',function(){pages.scrollTo({left:cur*pages.clien
 document.addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(b&&!e.target.closest('[data-unw]')){openStock(b.getAttribute('data-s'));return}
   var u=e.target.closest('[data-unw]');if(u){watch=watch.filter(function(x){return x!==u.getAttribute('data-unw')});LS.set('watch',watch);renderWatch();return}
   var d=e.target.closest('[data-del]');if(d){rules=rules.filter(function(r){return r.id!==d.getAttribute('data-del')});LS.set('rules',rules);renderRules();return}
-  var ra=e.target.closest('[data-rearm]');if(ra){delete fired['r'+ra.getAttribute('data-rearm')];if(NATIVE)try{NATIVE.rearm('r'+ra.getAttribute('data-rearm'))}catch(x){}LS.set('fired',fired);renderRules();checkAlerts();return}});
+  var ra=e.target.closest('[data-rearm]');if(ra){fired['r'+ra.getAttribute('data-rearm')]={w:1};toast('Re-armed. It rings again only when the price crosses the level afresh.');if(NATIVE)try{NATIVE.rearm('r'+ra.getAttribute('data-rearm'))}catch(x){}LS.set('fired',fired);renderRules();checkAlerts();return}});
 document.addEventListener('change',function(e){var t=e.target.closest('[data-tog]');if(t){var r=rules.find(function(x){return x.id===t.getAttribute('data-tog')});if(r){r.on=t.checked;LS.set('rules',rules);renderRules()}}});
 [].forEach.call(document.querySelectorAll('#viewSeg button'),function(b){b.onclick=function(){view=b.getAttribute('data-v');[].forEach.call(document.querySelectorAll('#viewSeg button'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
 [].forEach.call(document.querySelectorAll('#chips .chip'),function(b){b.onclick=function(){filter=b.getAttribute('data-f');[].forEach.call(document.querySelectorAll('#chips .chip'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
@@ -703,7 +713,7 @@ function bind(id,key,num){var el=$(id),chk=el.type==='checkbox';if(chk)el.checke
   el.addEventListener('change',function(){S[key]=chk?el.checked:num?(el.value===''?'':+el.value):el.value;saveS();
     if(key==='theme')applyTheme();if(key==='every'||key==='slow')schedule();if(key==='bigPct'||key==='nearPct')renderScan();if(key.charAt(0)==='g')checkAlerts()})}
 bind('every','every',1);bind('slow','slow');bind('bigPct','bigPct',1);bind('nearPct','nearPct',1);bind('theme','theme');bind('defView','defView');
-bind('alR','alR');bind('alS','alS');bind('alG','alG');bind('pa','pa');bind('paLines','paLines');bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
+bind('rearmAt','rearmAt');$('rearmAt').addEventListener('change',function(){renderRules();if(window.__npSync)__npSync()});bind('alR','alR');bind('alS','alS');bind('alG','alG');bind('pa','pa');bind('paLines','paLines');bind('tileSize','tileSize');$('tileSize').addEventListener('change',paintTile);function paintTile(){document.body.classList.remove('ts-s','ts-l');if(S.tileSize!=='m')document.body.classList.add('ts-'+S.tileSize)}paintTile();
 bind('xMtf','xMtf');bind('xRng','xRng');bind('xVol','xVol');bind('xIdx','xIdx');bind('tOn','tOn');bind('tSig','tSig');bind('tChart','tChart');bind('tTf','tTf');bind('gSig','gSig');
 ['tOn','tSig','gSig','alR','alS','alG'].forEach(function(id){$(id).addEventListener('change',function(){paintTrendUI();renderAll();if(window.__npSync)__npSync()})});
 bind('oSound','sound');bind('oVib','vib');bind('gMove','gMove',1);bind('gNifty','gNifty',1);bind('gHi','gHi');bind('gLo','gLo');
@@ -738,7 +748,7 @@ $('alPerm').onclick=function(){try{NATIVE.openFullScreen()}catch(e){}};
 /* ---------- TELEGRAM: each person connects their own Telegram ---------- */
 var TG=LS.get('tg',null);
 function tgPaint(){$('tgOff').hidden=!!TG;$('tgOn').hidden=!TG;$('tgName').textContent=TG&&TG.name?' · '+TG.name:''}
-function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
+function tgPayload(){return {chat:TG.chat,token:TG.token,rules:rules,rearm:rearmAt(),global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList()}}}
 function tgBody(o){if(isSuper()&&LS.get('ak',''))o.k=LS.get('ak','');return o}
 function tgPost(op,quiet){var f=feedUrl(),m=$('tgMsg');if(!f||!TG)return;if(!quiet)m.textContent='Sending…';
   fetch(f+'/tg/'+op,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(op==='rules'?tgBody(tgPayload()):{chat:TG.chat,token:TG.token})}).then(function(r){return r.json()}).then(function(j){
@@ -1144,7 +1154,7 @@ setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEvent
 
 /* ---------- Android app: home-screen widget + background alerts ---------- */
 function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
-  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())}}))}catch(e){}}
+  global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())},rearm:rearmAt()}))}catch(e){}}
 var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400);tgAuto()};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';
   [].forEach.call(document.querySelectorAll('[data-pin]'),function(b){b.onclick=function(){var z=b.getAttribute('data-pin');try{if(NATIVE.pinSize)NATIVE.pinSize(z);else{NATIVE.pinWidget();if(z!=='m')toast('Update the Android app to get '+(z==='s'?'Small':'Large')+' widgets')}}catch(e){toast('Long-press your home screen → Widgets → Nifty Pulse')}}});

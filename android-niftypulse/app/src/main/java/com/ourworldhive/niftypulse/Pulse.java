@@ -58,19 +58,40 @@ final class Pulse {
         return wd != Calendar.SATURDAY && wd != Calendar.SUNDAY && m >= 9 * 60 + 10 && m <= 15 * 60 + 35;
     }
 
-    /* ---------- alert keys already rung today (shared with the app page) ---------- */
+    /* ---------- an alert rings ONE time; at the user's re-arm time it is ready again, but rings only when the
+       price crosses the level afresh. Shared with the app page. value: {"t":time rung} or {"w":1} (waiting for a fresh cross) ---------- */
+    static long nextReset(Context c, long t) {
+        String ra = cfg(c).optString("rearm", "09:15"); int h = 9, m = 15;
+        try { String[] p = ra.split(":"); h = Integer.parseInt(p[0]); m = Integer.parseInt(p[1]); } catch (Exception ignored) { }
+        Calendar k = Calendar.getInstance(IST); k.setTimeInMillis(t); k.set(Calendar.HOUR_OF_DAY, h); k.set(Calendar.MINUTE, m); k.set(Calendar.SECOND, 0); k.set(Calendar.MILLISECOND, 0);
+        if (k.getTimeInMillis() <= t) k.add(Calendar.DAY_OF_MONTH, 1);
+        return k.getTimeInMillis();
+    }
+    /** true = ring now. Call it every check, also when the condition is false (that is how a fresh cross is seen). */
+    static synchronized boolean gate(Context c, String key, boolean cond) {
+        try {
+            JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.remove("day");
+            Object v = f.opt(key); JSONObject o = v instanceof JSONObject ? (JSONObject) v : (v != null ? new JSONObject().put("t", System.currentTimeMillis()) : null);
+            if (o != null && o.has("t") && System.currentTimeMillis() >= nextReset(c, o.optLong("t"))) o = new JSONObject().put("w", 1);
+            boolean ring = false;
+            if (!cond) { if (o != null && o.has("w")) o = null; }
+            else if (o == null) { o = new JSONObject().put("t", System.currentTimeMillis()); ring = true; }
+            if (o == null) f.remove(key); else f.put(key, o);
+            sp(c).edit().putString("fired", f.toString()).apply();
+            return ring;
+        } catch (Exception e) { return false; }
+    }
+    /** the app page rang this one */
     static synchronized boolean markFired(Context c, String key) {
         try {
-            JSONObject f = new JSONObject(sp(c).getString("fired", "{}"));
-            if (!today().equals(f.optString("day"))) f = new JSONObject().put("day", today());
-            if (f.has(key)) return false;
-            f.put(key, 1);
-            sp(c).edit().putString("fired", f.toString()).apply();
-            return true;
+            JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.remove("day"); JSONObject o = f.optJSONObject(key);
+            if (o != null && o.has("t") && System.currentTimeMillis() < nextReset(c, o.optLong("t"))) return false;   /* already rang */
+            f.put(key, new JSONObject().put("t", System.currentTimeMillis())); sp(c).edit().putString("fired", f.toString()).apply(); return true;
         } catch (Exception e) { return true; }
     }
+    /** RE-ARM: ready again, rings on the next fresh cross */
     static synchronized void unfire(Context c, String key) {
-        try { JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.remove(key); sp(c).edit().putString("fired", f.toString()).apply(); } catch (Exception ignored) { }
+        try { JSONObject f = new JSONObject(sp(c).getString("fired", "{}")); f.put(key, new JSONObject().put("w", 1)); sp(c).edit().putString("fired", f.toString()).apply(); } catch (Exception ignored) { }
     }
 
     static final String CH_ALARM = "np_alarm";
@@ -190,12 +211,12 @@ final class Pulse {
             JSONObject r = rules.optJSONObject(i); if (r == null || !r.optBoolean("on", true)) continue;
             JSONObject q = by.get(r.optString("s")); if (q == null) continue;
             double ltp = q.optDouble("ltp", 0), pct = q.optDouble("pct", 0), v = r.optDouble("v", 0);
-            String t = r.optString("type"), s = r.optString("s"), msg = null;
-            if ("above".equals(t) && ltp >= v) msg = s + " crossed ABOVE ₹" + f2(v) + " → ₹" + f2(ltp);
-            else if ("below".equals(t) && ltp <= v) msg = s + " fell BELOW ₹" + f2(v) + " → ₹" + f2(ltp);
-            else if ("pctUp".equals(t) && pct >= v) msg = s + " is UP " + sg(pct) + "% today (₹" + f2(ltp) + ")";
-            else if ("pctDown".equals(t) && pct <= -Math.abs(v)) msg = s + " is DOWN " + f2(pct) + "% today (₹" + f2(ltp) + ")";
-            if (msg != null && markFired(c, "r" + r.optString("id"))) { n++; all.append(msg).append('\n'); if (alarmFor(c, "r")) alarmNow = true; }
+            String t = r.optString("type"), s = r.optString("s"), msg = null; boolean cond = false;
+            if ("above".equals(t)) { cond = ltp >= v; msg = s + " crossed ABOVE ₹" + f2(v) + " → ₹" + f2(ltp); }
+            else if ("below".equals(t)) { cond = ltp <= v; msg = s + " fell BELOW ₹" + f2(v) + " → ₹" + f2(ltp); }
+            else if ("pctUp".equals(t)) { cond = pct >= v; msg = s + " is UP " + sg(pct) + "% today (₹" + f2(ltp) + ")"; }
+            else if ("pctDown".equals(t)) { cond = pct <= -Math.abs(v); msg = s + " is DOWN " + f2(pct) + "% today (₹" + f2(ltp) + ")"; }
+            if (msg != null && gate(c, "r" + r.optString("id"), cond)) { n++; all.append(msg).append('\n'); if (alarmFor(c, "r")) alarmNow = true; }
         }
         JSONObject g = k.optJSONObject("global"); if (g == null) g = new JSONObject();
         double gm = g.optDouble("move", 0), gn = g.optDouble("nifty", 0);
@@ -206,12 +227,12 @@ final class Pulse {
             String s = q.optString("s");
             if (only != null && only.length() > 0 && !only.toString().contains("\"" + s + "\"")) continue;
             double ltp = q.optDouble("ltp", 0), pct = q.optDouble("pct", 0), h52 = q.optDouble("h52", 0), l52 = q.optDouble("l52", 0);
-            if (gm > 0 && Math.abs(pct) >= gm && markFired(c, "m" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" moved ").append(sg(pct)).append("% today (₹").append(f2(ltp)).append(")\n"); }
-            if (hi && h52 > 0 && ltp >= h52 && markFired(c, "h" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK HIGH ₹").append(f2(ltp)).append('\n'); }
-            if (lo && l52 > 0 && ltp <= l52 && markFired(c, "l" + s)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK LOW ₹").append(f2(ltp)).append('\n'); }
+            if (gm > 0 && gate(c, "m" + s, Math.abs(pct) >= gm)) { n++; alarmNow |= scanAl; all.append(s).append(" moved ").append(sg(pct)).append("% today (₹").append(f2(ltp)).append(")\n"); }
+            if (hi && h52 > 0 && gate(c, "h" + s, ltp >= h52)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK HIGH ₹").append(f2(ltp)).append('\n'); }
+            if (lo && l52 > 0 && gate(c, "l" + s, ltp <= l52)) { n++; alarmNow |= scanAl; all.append(s).append(" made a NEW 52-WEEK LOW ₹").append(f2(ltp)).append('\n'); }
         }
         JSONObject nf = by.get("NIFTY");
-        if (nf != null && gn > 0 && Math.abs(nf.optDouble("pct", 0)) >= gn && markFired(c, "nifty")) { n++; alarmNow |= scanAl; all.append("NIFTY 50 moved ").append(sg(nf.optDouble("pct", 0))).append("% (").append(f2(nf.optDouble("ltp", 0))).append(")\n"); }
+        if (nf != null && gn > 0 && gate(c, "nifty", Math.abs(nf.optDouble("pct", 0)) >= gn)) { n++; alarmNow |= scanAl; all.append("NIFTY 50 moved ").append(sg(nf.optDouble("pct", 0))).append("% (").append(f2(nf.optDouble("ltp", 0))).append(")\n"); }
         if (n == 0) return;
         String txt = all.toString().trim();
         notify(c, n == 1 ? "🔔 Nifty Pulse alert" : "🔔 " + n + " Nifty Pulse alerts", txt, n == 1 ? txt : null, alarmNow);
@@ -288,8 +309,9 @@ final class Pulse {
             double[] cl = new double[ca.length() + (todayIn ? 0 : 1)];
             for (int x = 0; x < ca.length(); x++) cl[x] = ca.optDouble(x, 0);
             cl[cl.length - 1] = ltp;
-            String[] r = signal(cl); if (r == null || "WAIT".equals(r[0])) continue;
-            if (!markFired(c, "g" + r[0] + s)) continue;
+            String[] r = signal(cl); String sgl = r == null ? "WAIT" : r[0];
+            boolean gb = gate(c, "gBUY" + s, "BUY".equals(sgl)), gs = gate(c, "gSELL" + s, "SELL".equals(sgl));
+            if (!gb && !gs) continue;
             String line = s + " ₹" + f2(ltp) + " (" + sg(q.optDouble("pct", 0)) + "%) · " + r[1] + "\n";
             if ("BUY".equals(r[0])) { nb++; buy.append("▲ ").append(line); } else { ns++; sell.append("▼ ").append(line); }
         }

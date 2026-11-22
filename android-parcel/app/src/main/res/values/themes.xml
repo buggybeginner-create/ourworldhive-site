@@ -1,0 +1,9 @@
+<resources>
+    <style name="Parcel" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:colorAccent">#2FD3A8</item>
+    </style>
+    <color name="bg">#0B3D34</color>
+</resources>

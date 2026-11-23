@@ -316,7 +316,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.23';
+var PL_VER='2026-11-23.24';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -919,7 +919,7 @@ var _pp0=pgProfile;pgProfile=function(){var h=_pp0(),row='<button type="button" 
  return h.replace('<div class="pgrp"><h4>App</h4>','<div class="pgrp"><h4>App</h4>'+row)};
 
 /* ---------- better reading of older mails + clean-up of broken orders ---------- */
-var _jn0=junkName;junkName=function(n){return _jn0(n)||/^subject:|^\(s\)$|^order confirmation$/i.test(String(n||"").trim())};
+var _jn0=junkName;junkName=function(n){n=String(n||"").trim();return _jn0(n)||/^subject:|^\(s\)$|^order confirmation$|^(?:has|have) been\b|^(?:is|are|was|were) (?:out|on|being|now)\b|^(?:your|my) (?:order|item|items|package|parcel|shipment)s?\b|^item\(s\)|^from your order|^items? from\b/i.test(n)};
 var MONN={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 function mdyDate(s){var m=/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(s||'');if(!m)return '';var mo=MONN[m[1].toLowerCase().slice(0,3)];if(!mo)return '';return m[3]+'-'+String(mo).padStart(2,'0')+'-'+String(+m[2]).padStart(2,'0')}
 var _sh0=stripHtml;stripHtml=function(h){return _sh0(String(h||'').replace(/<!--[\s\S]*?-->/g,' ').replace(/&#x20a8;|&#8360;|₨\.?/gi,'₹'))};
@@ -936,12 +936,17 @@ var _mi0=mergeInto;mergeInto=function(o,x){var ch=_mi0(o,x);
  if(x.img&&!o.img){o.img=x.img;ch=true}return ch};
 /* orders that only came from mail and carry nothing useful (no real name, no number, no price) are removed; bad order numbers are cleared */
 var _td0=tidy;tidy=function(){var ch=false,before=orders.length;orders.forEach(function(o){if(o.orderId&&!/\d/.test(o.orderId)){o.orderId='';ch=true}});
- orders=orders.filter(function(o){var s=(o.srcs||[]);var mailOnly=s.length&&s.every(function(z){return z==='gmail'||z==='mail'});return !(mailOnly&&junkName(o.item)&&!o.orderId&&!(+o.amount)&&!o.wlId)});
+ orders=orders.filter(function(o){var s=srcsOf(o);var auto=s.length&&s.every(function(z){return z==='gmail'||z==='mail'||z==='sms'||z==='notif'||z==='paste'});return !(auto&&junkName(o.item)&&!/\d/.test(o.orderId||'')&&!(+o.amount)&&!o.wlId&&!(o.items&&o.items.length))});
  if(orders.length!==before)ch=true;return _td0()||ch};
 /* an older copy of the same order without a number (cut-off name from the subject) is updated instead of adding a new one */
 var _fm1=findMatch;findMatch=function(x,acc){var m=_fm1(x,acc);if(m||!x.item)return m;var xd=x.orderedOn||today(),xl=x.item.toLowerCase(),best=null,bs=0;
  orders.forEach(function(o){if(o.store!==x.store||/\d/.test(o.orderId||'')||Math.abs(dd(o.orderedOn||xd,xd))>3)return;var a=String(o.item||'').replace(/[.…\s]+$/,'').toLowerCase(),s=a.length>=6&&xl.indexOf(a)===0?1:sim(x.item,o.item);if(s>bs){bs=s;best=o}});
  return bs>=0.6?best:null};
+
+/* Profile → Data: read every order mail again and clear broken orders */
+function rereadAll(){S.seen={};S.seenV=6;var n=orders.length;tidy();save();render();toast((n-orders.length?'🧹 Removed '+(n-orders.length)+' broken order'+(n-orders.length>1?'s':'')+'. ':'')+'Now tap Sync Now to read all order mails again.');setTimeout(function(){var b=document.createElement('button');b.dataset.a='sync';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},400)}
+var _pp1=pgProfile;pgProfile=function(){return _pp1().replace('<div class="pgrp"><h4>Data</h4>','<div class="pgrp"><h4>Data</h4><button type="button" class="prow" data-a="reread"><span class="pi">🧹</span><span class="pt">Fix Old Orders<small>Remove broken orders and read all order mails again</small></span><span class="pc">›</span></button>')};
+document.addEventListener('click',function(e){var b=e.target.closest('[data-a=reread]');if(!b)return;e.preventDefault();e.stopPropagation();rereadAll()},true);
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

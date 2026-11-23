@@ -6,6 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Try real shop pages
+        shell: bash {0}
         run: |
           UA='Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'
           for U in "https://www.amazon.in/dp/B0CHX1W1XY" "https://www.myntra.com/kurta-sets" ; do

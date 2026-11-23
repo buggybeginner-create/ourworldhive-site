@@ -436,7 +436,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-23.1'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-23.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -1133,12 +1133,22 @@ function proCard(s,got){var q=Q[s]||IDX[s];if(!q)return '';var P=q.ltp,t=TA[s],p
 var CC={};
 function demoCandles(s,tf){var q=Q[s]||IDX[s];if(!q)return [];var step={'5m':3e5,'15m':9e5,'1h':36e5,'1d':864e5}[tf],n=120,v=q.ltp,out=[],t=Date.now(),h=hash(s+tf);
   for(var i=0;i<n;i++){var o=v*(1+(((h*(i+3))%101)/101-.5)/(tf==='1d'?40:160)),c=v,hi=Math.max(o,c)*(1+((h*(i+11))%13)/(tf==='1d'?900:3000)),lo=Math.min(o,c)*(1-((h*(i+5))%13)/(tf==='1d'?900:3000));out.unshift([t-i*step,o,hi,lo,c,(h*(i+1))%90000+10000]);v=o}return out}
-function getCandles(s,tf,cb){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<(tf==='1d'?6e5:6e4)){cb(c.d);return}var f=feedUrl();
+/* candles: one request at a time (Angel allows only a few per second), chart first, same request never twice, Yahoo retry on failure */
+var CQ=[],CBUSY=false,CPEND={};
+function getCandlesFirst(s,tf,cb){getCandles(s,tf,cb,true)}
+function getCandles(s,tf,cb,first){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<(tf==='1d'?6e5:6e4)){cb(c.d);return}var f=feedUrl();
   if(!f){var d=demoCandles(s,tf);CC[k]={at:Date.now(),d:d};cb(d);return}
-  fetch(f+'/candles?s='+encodeURIComponent(s)+'&tf='+tf+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak',''))+devQ():''),{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
-    if(j&&j.ok&&j.candles&&j.candles.length){CC[k]={at:Date.now(),d:j.candles};cb(j.candles)}else cb(null,j&&j.error)}).catch(function(){cb(null,'offline')})}
+  if(CPEND[k]){CPEND[k].push(cb);return}CPEND[k]=[cb];
+  var job={k:k,s:s,tf:tf};if(first)CQ.unshift(job);else CQ.push(job);cRun()}
+function cRun(){if(CBUSY||!CQ.length)return;CBUSY=true;var j=CQ.shift(),f=feedUrl(),ak=LS.get('ak','');
+  function done(d,err){var L=CPEND[j.k]||[];delete CPEND[j.k];if(d)CC[j.k]={at:Date.now(),d:d};L.forEach(function(fn){try{fn(d,err)}catch(e){}});setTimeout(function(){CBUSY=false;cRun()},350)}
+  function ask(yahoo){var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){ctl&&ctl.abort()},15000);
+    return fetch(f+'/candles?s='+encodeURIComponent(j.s)+'&tf='+j.tf+(yahoo?'&src=yahoo':ak?'&k='+encodeURIComponent(ak)+devQ():''),{cache:'no-store',signal:ctl?ctl.signal:undefined})
+      .then(function(r){return r.json()}).then(function(x){clearTimeout(to);if(x&&x.ok&&x.candles&&x.candles.length)return x.candles;throw new Error(x&&x.error||(x&&x.ok&&!x.candles?'the worker has no chart data route':'no candles'))})
+      .catch(function(e){clearTimeout(to);throw new Error(e&&e.name==='AbortError'?'timed out':(e&&e.message)||'offline')})}
+  ask(false).then(function(d){done(d)}).catch(function(e1){setTimeout(function(){ask(true).then(function(d){done(d)}).catch(function(e2){done(null,e2.message===e1.message?e1.message:e1.message+' / Yahoo: '+e2.message)})},ak?800:1500)})}
 function loadChart(s,tf){[].forEach.call(document.querySelectorAll('#tfSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-tf')===tf)});var m=$('cvMsg');if(m)m.textContent='Loading chart…';
-  getCandles(s,tf,function(cd,err){var m2=$('cvMsg');if(!$('cv'))return;if(!cd){if(m2)m2.textContent='Chart not available'+(err?' ('+err+')':'');return}
+  getCandlesFirst(s,tf,function(cd,err){var m2=$('cvMsg');if(!$('cv'))return;if(!cd){if(m2){m2.innerHTML='<span class="err">Chart not available'+(err?': '+esc(err):'')+'</span> <button class="btn" id="cvRetry" style="padding:5px 10px;margin-left:6px">↻ RETRY</button>';$('cvRetry').onclick=function(){delete CC[s+'|'+tf];loadChart(s,tf)}}return}
     var q=Q[s]||IDX[s];if(q&&q.ltp&&cd.length){cd=cd.slice();var L=cd[cd.length-1].slice();L[4]=q.ltp;L[2]=Math.max(L[2],q.ltp);L[3]=Math.min(L[3],q.ltp);cd[cd.length-1]=L}
     PA=S.pa||S.paLines||S.cSw?priceAction(cd,tf):null;drawChart(cd,tf,s);if(m2)m2.textContent='';if(S.pa)paShow(s,cd,tf);
     if(tf==='1d'&&S.tOn&&cd.length>=35){DAILY[s]={o:cd.map(function(r){return r[1]}),h:cd.map(function(r){return r[2]}),l:cd.map(function(r){return r[3]}),c:cd.map(function(r){return r[4]})};TA[s]=analyze(s,DAILY[s].c,DAILY[s]);var tb=$('trendBox');if(tb)tb.innerHTML=trendCard(s,TA[s])}})}

@@ -235,7 +235,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.18';
+var PL_VER='2026-11-23.19';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -723,7 +723,17 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-wq],
  else if(b.dataset.wread)wlEnrich(x,true);
  else if(b.dataset.word){wlToOrder(x);wlSet(id,{ord:true});toast('Added to Orders')}});
 /* a bought watchlist item becomes an order on the buyer's phone; the shop's SMS / mail later joins it */
-function wlToOrder(x){if(orders.some(function(o){return o.wlId===x.id}))return false;orders.push({id:uid(),wlId:x.id,wl:true,srcs:['manual'],store:x.store,item:x.t,amount:(+x.p||0)*(+x.q||1),qty:+x.q||1,type:guess(x.t),status:'ordered',orderedOn:today(),eta:'',orderId:'',account:S.account&&S.account!=='all'?S.account:S.accounts[0],notes:'From watchlist',cmp:[],link:x.url,img:x.img||'',retD:x.ret?(+x.ret.d||0):null,retK:x.ret?x.ret.k:''});save();return true}
+/* ticking asks when it was bought: today, or a chosen date */
+function markBought(x,d){d=d||today();var made=wlToOrder(x,d),ms=d===today()?Date.now():msOf(d+'T12:00');wlSet(x.id,{done:true,doneBy:myNick(),doneAt:ms,ord:true,later:null});toast(made?'✅ Bought on '+fd(d)+'. Added to Orders; the order SMS / mail will join it':'✅ Marked as bought')}
+function boughtSheet(x){var y=new Date(Date.now()-864e5),fm=sheet('<h2>✅ Mark As Purchased</h2><p class="msg" style="margin:-6px 0 12px">'+esc(x.t)+(x.p?' · '+money((+x.p||0)*(+x.q||1)):'')+'</p>'+
+ '<button type="button" class="btn pri" id="bToday" style="width:100%;justify-content:center;padding:12px">✅ Purchased Today · '+esc(fd(today()))+'</button>'+
+ '<button type="button" class="btn" id="bYest" style="width:100%;justify-content:center;margin-top:8px">Purchased Yesterday · '+esc(fd(iso(y)))+'</button>'+
+ '<div class="f" style="margin-top:12px"><label for="bDate">📅 Or Choose The Date</label><div style="display:flex;gap:8px"><input id="bDate" type="date" max="'+today()+'" value="'+today()+'" style="flex:1"><button class="btn" type="submit">Save</button></div></div>'+
+ '<div class="msg">It goes to Orders as Ordered on that date. The shop\'s SMS / mail then joins it.</div><div class="acts"><button class="btn" type="button" data-a="close">Cancel</button></div>');
+ document.getElementById('bToday').onclick=function(){closeSheet();markBought(x,today())};
+ document.getElementById('bYest').onclick=function(){closeSheet();markBought(x,iso(y))};
+ fm.onsubmit=function(e){e.preventDefault();var v=document.getElementById('bDate').value;if(!/^\d{4}-\d\d-\d\d$/.test(v)||v>today()){toast('Pick today or an earlier date');return}closeSheet();markBought(x,v)}}
+function wlToOrder(x,d){if(orders.some(function(o){return o.wlId===x.id}))return false;orders.push({id:uid(),wlId:x.id,wl:true,srcs:['manual'],store:x.store,item:x.t,amount:(+x.p||0)*(+x.q||1),qty:+x.q||1,type:guess(x.t),status:'ordered',orderedOn:d||today(),eta:'',orderId:'',account:S.account&&S.account!=='all'?S.account:S.accounts[0],notes:'From watchlist',cmp:[],link:x.url,img:x.img||'',retD:x.ret?(+x.ret.d||0):null,retK:x.ret?x.ret.k:''});save();return true}
 function wlMatch(x){var xd=x.orderedOn||today(),best=null,bs=0,cand=orders.filter(function(o){return o.wl&&!o.orderId&&o.store===x.store&&['delivered','cancelled','returned'].indexOf(o.status)<0&&dd(o.orderedOn,xd)>=-2&&dd(o.orderedOn,xd)<=20});
  cand.forEach(function(o){var sc=x.item?sim(x.item,o.item):0;(x.items||[]).forEach(function(it){sc=Math.max(sc,sim(it.n,o.item))});if(sc>bs){bs=sc;best=o}});
  if(bs>=0.4)return best;
@@ -731,7 +741,7 @@ function wlMatch(x){var xd=x.orderedOn||today(),best=null,bs=0,cand=orders.filte
  if((!x.item||junkName(x.item))&&cand.length===1){var o=cand[0];if(!(+x.amount)||!(+o.amount)||Math.abs(x.amount-o.amount)<=Math.max(30,o.amount*0.15))return o}return null}
 var _fm0=findMatch;findMatch=function(x,acc){var m=_fm0(x,acc);if(m)return m;m=wlMatch(x);if(m&&window.__R&&__R.wl!=null)__R.wl++;return m};
 document.addEventListener('change',function(e){var t=e.target;if(t.dataset&&t.dataset.wck){var on=t.checked,wid=t.dataset.wck,x=wlItems().filter(function(y){return y.id===wid})[0];
-  if(on){var made=x?wlToOrder(x):false;wlSet(wid,{done:true,doneBy:myNick(),doneAt:Date.now(),ord:true,later:null});toast(made?'✅ Bought. Added to Orders as Ordered; the order SMS / mail will join it':'✅ Marked as bought')}
+  if(on){t.checked=false;if(x)boughtSheet(x)}
   else{var o=orders.filter(function(z){return z.wlId===wid})[0];if(o&&!o.orderId&&o.status==='ordered'){orders=orders.filter(function(z){return z!==o});save()}wlSet(wid,{done:false,doneBy:'',doneAt:0,ord:false})}}
  if(t.id==='wlsel'){WL.cur=t.value;S.wlCur=t.value;save();WL.items=[];wlListen();render()}});
 document.addEventListener('paste',function(e){if(e.target&&e.target.id==='wlurl')setTimeout(function(){var i=document.getElementById('wlurl');if(i&&urlIn(i.value))wlAdd(i.value).then(function(ok){if(ok&&document.getElementById('wlurl'))document.getElementById('wlurl').value=''})},50)});

@@ -123,6 +123,38 @@ public class MainActivity extends Activity {
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 
+    private static final String UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36";
+    private static String[] getPage(String start) {
+        String fin = start, body = "";
+        try {
+            if (java.net.CookieHandler.getDefault() == null) java.net.CookieHandler.setDefault(new java.net.CookieManager());
+            java.net.URL u = new java.net.URL(start);
+            for (int hop = 0; hop < 7; hop++) {
+                String sc = u.getProtocol();
+                if (!"https".equals(sc) && !"http".equals(sc)) break;
+                java.net.HttpURLConnection c = (java.net.HttpURLConnection) u.openConnection();
+                c.setInstanceFollowRedirects(false); c.setConnectTimeout(12000); c.setReadTimeout(18000);
+                c.setRequestProperty("User-Agent", UA);
+                c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+                c.setRequestProperty("Accept-Language", "en-IN,en;q=0.9");
+                int code = c.getResponseCode();
+                if (code >= 300 && code < 400) { String loc = c.getHeaderField("Location"); c.disconnect(); if (loc == null) break; u = new java.net.URL(u, loc); fin = u.toString(); continue; }
+                java.io.InputStream in = code >= 400 ? c.getErrorStream() : c.getInputStream();
+                if (in != null) {
+                    java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream(); byte[] buf = new byte[16384]; int n;
+                    while ((n = in.read(buf)) > 0 && bo.size() < 3000000) bo.write(buf, 0, n);
+                    in.close(); body = bo.toString("UTF-8");
+                }
+                c.disconnect(); break;
+            }
+        } catch (Exception ignored) { }
+        /* smaller to hand over: drop styles, pictures drawn in code and most scripts (keeps product data scripts) */
+        try {
+            body = body.replaceAll("(?is)<style[^>]*>.*?</style>", " ").replaceAll("(?is)<svg[^>]*>.*?</svg>", " ");
+            if (body.length() > 1800000) body = body.substring(0, 1800000);
+        } catch (Throwable ignored) { }
+        return new String[]{fin, body};
+    }
     private boolean has(String perm) { return checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED; }
     /** the phone build (APK) can read SMS; the Play Store build cannot */
     private boolean smsBuild() {
@@ -240,6 +272,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void openNotifAccess() { ui.post(() -> { try { startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)); } catch (Exception e) { Toast.makeText(MainActivity.this, "Open Settings, Notification access, and allow Parcel Ledger.", Toast.LENGTH_LONG).show(); } }); }
         @JavascriptInterface public void gmailToken(final String req, final String email) { ui.post(() -> gmailTok(req, email)); }
         @JavascriptInterface public void googleToken(final String req) { ui.post(() -> askToken(req)); }
+        /** opens a shop's product page from the phone (like a browser does) so the app can read name, photo, price and return policy */
+        @JavascriptInterface public void fetchPage(final String id, final String url) { new Thread(() -> { String[] r = getPage(url); final String js = "window.plPage&&plPage(" + JSONObject.quote(id) + "," + JSONObject.quote(r[0]) + "," + JSONObject.quote(r[1]) + ")"; ui.post(() -> { if (web != null) web.evaluateJavascript(js, null); }); }).start(); }
         @JavascriptInterface public String version() { try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { return ""; } }
     }
     private String mergeTest(long at) {

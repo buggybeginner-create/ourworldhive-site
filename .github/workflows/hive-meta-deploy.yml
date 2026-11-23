@@ -1,0 +1,36 @@
+name: Hive Meta worker (Cloudflare)
+# Sends cloudflare/hive-meta-worker.js to Cloudflare as the worker "hive-meta" (https://hive-meta.er-krushnananda.workers.dev).
+# It reads product pages for Parcel Ledger's Watchlist on the web. Uses the same secrets as the Nifty Pulse worker.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['cloudflare/hive-meta-worker.js', '.github/workflows/hive-meta-deploy.yml']
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secrets are there
+        id: chk
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Secrets missing: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID. Nothing was sent."
+            echo "go=no" >> $GITHUB_OUTPUT
+          else echo "go=yes" >> $GITHUB_OUTPUT; fi
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.go == 'yes'
+        with: { node-version: '20' }
+      - name: Send the worker to Cloudflare
+        if: steps.chk.outputs.go == 'yes'
+        run: |
+          cat > wrangler.toml <<TOML
+          name = "hive-meta"
+          main = "cloudflare/hive-meta-worker.js"
+          compatibility_date = "2025-09-01"
+          workers_dev = true
+          TOML
+          npx --yes wrangler@4 deploy

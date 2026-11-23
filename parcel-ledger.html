@@ -182,6 +182,76 @@ b.off{color:var(--good,#15803d);font-size:11.5px}
 .hnote{background:color-mix(in srgb,var(--brand,#0E6B5A) 9%,transparent);border-radius:10px;padding:8px 10px;font-size:13px}
 .hhead{margin-bottom:4px}
 .hlist .prow{width:100%}
+/* ===== compact layout ===== */
+body{font-size:14px}
+.hero{padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:12px;margin-bottom:10px;border-radius:0 0 20px 20px}
+.hero h1{font-size:21px;margin-top:1px}
+.hero .msg{font-size:11.5px}
+.hqh{width:30px;height:30px;font-size:14px;margin-right:4px}
+.card{padding:10px 12px;margin-top:10px;border-radius:14px}
+.lh{margin:12px 2px 6px}
+.list{gap:8px}
+.btn{padding:7px 11px;font-size:13px}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+/* orders: status cards in one row */
+.sc{border-radius:14px;padding:8px 6px;gap:2px;text-align:center;justify-items:center}
+.sc-a{padding:9px 12px;margin-bottom:8px;gap:10px;text-align:left;justify-items:stretch}
+.sc-a .sc-i{font-size:19px;width:34px;height:34px;border-radius:10px}
+.sc-a .sc-n{font-size:20px}
+.sc-big{font-size:16px}
+.scs{grid-template-columns:repeat(4,1fr);gap:6px}
+.sc-i{font-size:16px}
+.sc-n{font-size:20px}
+.sc-l{font-size:9.5px;letter-spacing:.04em}
+.sc-m{display:none}
+@media(min-width:700px){.sc{padding:10px 12px;text-align:left;justify-items:start}.sc-m{display:block;font-size:11px}.sc-n{font-size:24px}.sc-l{font-size:10.5px}}
+.scanbar{gap:8px;margin-top:10px}
+.scanbar button{padding:8px;font-size:13px;border-radius:12px}
+.scanbar span{font-size:16px}
+.order{padding:10px 12px;border-radius:14px}
+.row{margin-top:8px}
+.facts{margin-top:6px;gap:4px}
+.paid{margin-top:6px;padding:4px 8px;font-size:12px}
+.chip{padding:5px 10px;font-size:12.5px}
+/* watchlist */
+.wlhead b[style]{font-size:15px!important}
+.wladd{margin-top:8px;gap:6px}
+.wladd input{min-width:0;padding:8px 10px}
+.wladd .btn{padding:7px 12px}
+.wweb{padding:7px 9px!important;font-size:15px}
+.wstat{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
+.wstat span{flex:1 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px 9px;font-size:11.5px;color:var(--muted);text-align:center;white-space:nowrap}
+.wstat b{color:var(--fg);font-size:13.5px;margin-right:2px}
+.wli{padding:8px 10px;gap:8px;border-radius:14px}
+.wli .pimg{width:50px;height:50px;border-radius:11px}
+.wlt{font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wli .facts{margin-top:4px!important}
+.wli .facts span,.wli .facts .miss,.rch{font-size:11px;padding:2px 6px}
+.qst{gap:4px}.qst button{width:19px;height:19px;font-size:12px}
+.wfoot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:5px;flex-wrap:wrap}
+.wby{font-size:11px;margin:0}
+.wli .wby{margin-top:0}
+.wacts{margin:0;gap:4px;flex-wrap:nowrap}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:28px;height:26px;padding:0;font-size:13px;line-height:1;cursor:pointer;color:inherit}
+.ib.dng{color:#e11d48}
+.ib.sure{width:auto;padding:0 7px;font-size:11px;font-weight:700;background:#e11d48;color:#fff;border-color:#e11d48}
+.wside{gap:4px}
+.wlater{min-width:34px;padding:2px 3px;font-size:13px;border-radius:8px}
+.wlater small{font-size:8.5px}
+/* budget */
+.card.bud{padding:9px 12px}
+.budh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.budh .msg{font-size:11.5px}
+.bbs{display:grid;grid-template-columns:1fr;gap:6px;margin-top:4px}
+@media(min-width:560px){.bbs{grid-template-columns:1fr 1fr;gap:14px}}
+.bb{margin-top:0}
+.bbh{font-size:12px}
+.bbt{height:7px;margin-top:4px}
+.bbm{font-size:11px;margin-top:2px}
+.card.fam{padding:9px 12px}
+.frow{padding:6px 0}
+.frow .pimg{width:42px;height:42px}
+.budh .hq,.lh .hq{margin-right:auto}
 
 #soon[hidden],#app[hidden],.fab[hidden]{display:none!important}</style><script src="firebase-config.js"></script><script src="owh-contact.js" defer></script></head><body>
 <div id="login" hidden><div class="lg-bg" aria-hidden="true"><i>📦</i><i>🚚</i><i>📦</i><i>🛍️</i><i>📦</i></div>
@@ -244,7 +314,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.20';
+var PL_VER='2026-11-23.21';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -623,7 +693,7 @@ function isProductText(t){var u=urlIn(t);return !!u&&PRODRE.test(u)&&!/order\s*(
 function storeOfUrl(u){var h='';try{h=new URL(u).hostname.toLowerCase()}catch(e){}return /(^|\.)(amazon\.[a-z.]+|amzn\.[a-z]+|a\.co)$/.test(h)?'amazon':/(^|\.)(flipkart\.com|fkrt\.[a-z]+)$/.test(h)?'flipkart':/(^|\.)(myntra\.com|myntr\.[a-z]+)$/.test(h)?'myntra':/(^|\.)(meesho\.com|msho\.in)$/.test(h)?'meesho':storeOf(h)}
 function cap(s){return String(s||'').toLowerCase().replace(/(^|\s)([a-z0-9])/g,function(m,a,b){return a+b.toUpperCase()})}
 function titleOf(text,u){var t=String(text||'').replace(u,' ').replace(/https?:\/\/\S+/g,' ').replace(/\bcheck\s*out\s+what\s+i\s+(?:found|liked|got)(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\bcheck\s*(?:out\s+)?(?:this|it)(?:\s+out)?(?:\s+(?:product|item|deal|one))?(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\b(?:hey|hi|hello)\b[!,]?/gi,' ').replace(/\bi\s+found\s+this(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[!:.]?/gi,' ').replace(/\b(?:have a look|look what i found)\b[^:]*:?/gi,' ').replace(/\b(?:on|at|via)\s+(?:amazon|flipkart|myntra|meesho|ajio|nykaa)(?:\.in)?\b\s*[!:.]?/gi,' ').replace(/\b(?:shop|buy)\s+now\b/gi,' ').replace(/₹\s?[\d,]+(?:\.\d+)?|rs\.?\s?[\d,]+(?:\.\d+)?/gi,' ').replace(/\s+/g,' ').replace(/^[\s:\-–|]+|[\s:\-–|]+$/g,'').trim();
- if(t.length>=4)return t.slice(0,120);var p='';try{p=decodeURIComponent(new URL(u).pathname)}catch(e){}
+ t=cleanT(t);if(t.length>=4)return t.slice(0,120);var p='';try{p=decodeURIComponent(new URL(u).pathname)}catch(e){}
  var m=/\/([^\/]{6,})\/(?:dp|p|gp\/product)\//i.exec(p)||/\/([^\/]+)\/\d+\/buy/i.exec(p)||/\/([a-z0-9][a-z0-9-]{8,})(?:\.html)?\/?$/i.exec(p);return m?cap(m[1].replace(/[-_+]+/g,' ')).slice(0,120):''}
 function priceIn(t){var m=/(?:₹|rs\.?|inr)\s?([\d,]+(?:\.\d+)?)/i.exec(String(t||'').replace(urlIn(t),''));return m?skAmt0(m[1]):null}
 function skAmt0(s){s=String(s).replace(/,/g,'');var n=parseFloat(s);return isFinite(n)?n:null}
@@ -678,18 +748,19 @@ function retChip(r){if(!r)return '';return '<span class="rch'+(r.k==='none'?' no
 async function wlSet(id,patch){if(WL.cur&&WL.cur!=='local'&&U){try{await fs().collection('pl_lists').doc(WL.cur).collection('items').doc(id).update(patch)}catch(e){toast('Could not save: '+((e&&e.code)||'offline'))}}
  else{var x=wlLocal().filter(function(y){return y.id===id})[0];if(x){Object.assign(x,patch);save();render()}}}
 async function wlDel(id){if(WL.cur&&WL.cur!=='local'&&U){try{await fs().collection('pl_lists').doc(WL.cur).collection('items').doc(id).delete()}catch(e){toast('Could not delete')}}else{S.wl=wlLocal().filter(function(y){return y.id!==id});save();render()}}
-function wlRow(x){var st=STORES[x.store]||STORES.other,tot=(+x.p||0)*(+x.q||1);
+function cleanT(t){return String(t||'').replace(/^\s*(?:check\s*)?out\s+(?:this\s+)?deal\s*[:\-–]\s*/i,'').replace(/^\s*(?:deal|offer)\s*[:\-–]\s*/i,'')}
+function wlRow(x){x.t=cleanT(x.t);var st=STORES[x.store]||STORES.other,tot=(+x.p||0)*(+x.q||1);
  return '<div class="wli'+(x.done?' done':'')+(!x.done&&laterDue(x)?' due':'')+'"><div class="wside"><label class="wck"><input type="checkbox" data-wck="'+esc(x.id)+'"'+(x.done?' checked':'')+' aria-label="Bought"></label>'+laterBtn(x)+'</div>'+imgHtml({store:x.store,img:x.img})+
  '<div style="min-width:0;flex:1"><a class="wlt" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.t)+'</a><div class="facts" style="margin-top:5px"><span><span class="dot" style="--dot:var('+st.v+');display:inline-block;vertical-align:middle"></span> '+esc(st.n)+'</span>'+
  '<span class="qst"><button type="button" data-wq="'+esc(x.id)+'" data-d="-1" aria-label="Less">−</button>Qty '+(+x.q||1)+'<button type="button" data-wq="'+esc(x.id)+'" data-d="1" aria-label="More">+</button></span>'+
  (x.p!=null&&x.p!==''?'<span>💰 '+money(x.p)+(x.mrp&&x.mrp>x.p?' <s class="mrp">'+money(x.mrp)+'</s> <b class="off">'+Math.round((1-x.p/x.mrp)*100)+'% off</b>':'')+((+x.q||1)>1?' × '+x.q+' = '+money(tot):'')+'</span>':WL.busy[x.id]?'':'<button type="button" class="miss" data-wedit="'+esc(x.id)+'">+ Price</button>')+retChip(x.ret)+(WL.busy[x.id]?'<span class="rdg">⏳ Reading details…</span>':'')+'</div>'+
- (function(){var o=x.done&&orders.filter(function(z){return z.wlId===x.id})[0];if(!o)return x.done&&x.os?'<div class="wby">📦 '+osLine(x)+' · bought by <b>'+esc(x.os.by||x.doneBy||'?')+'</b> '+trackChip({store:x.store,orderId:x.os.id,link:x.os.tl})+'</div>':'';var S2=STATUS[o.status]||STATUS.ordered;return '<div class="wby">📦 In Orders: <b>'+esc(S2[0])+'</b>'+(o.orderId?' · '+esc(o.orderId):' · waiting for the shop\'s SMS / mail')+(o.eta&&o.status!=='delivered'?' · '+esc(fd(o.eta)):'')+'</div>'})()+'<div class="wby">Added by <b>'+esc(x.by||'?')+'</b> · '+esc(fd(iso(new Date(x.at))))+(x.done?' · ✅ Bought'+(x.doneBy?' by <b>'+esc(x.doneBy)+'</b>':'')+(x.doneAt?' on '+esc(fd(iso(new Date(x.doneAt)))):''):'')+'</div>'+
- '<div class="wacts"><button type="button" class="btn sm" data-wedit="'+esc(x.id)+'">Edit</button>'+(!x.done&&(!x.img||x.p==null||x.p==='')&&!WL.busy[x.id]?'<button type="button" class="btn sm" data-wread="'+esc(x.id)+'">↻ Read Details</button>':'')+'<button type="button" class="btn sm" data-wshare="'+esc(x.id)+'">Share</button>'+(x.done&&!x.ord&&!x.os&&!orders.some(function(z){return z.wlId===x.id})?'<button type="button" class="btn sm" data-word="'+esc(x.id)+'">Add To Orders</button>':'')+'<button type="button" class="btn sm dng" data-wdel="'+esc(x.id)+'">Remove</button></div></div></div>'}
+ (function(){var o=x.done&&orders.filter(function(z){return z.wlId===x.id})[0];if(!o)return x.done&&x.os?'<div class="wby">📦 '+osLine(x)+' · bought by <b>'+esc(x.os.by||x.doneBy||'?')+'</b> '+trackChip({store:x.store,orderId:x.os.id,link:x.os.tl})+'</div>':'';var S2=STATUS[o.status]||STATUS.ordered;return '<div class="wby">📦 In Orders: <b>'+esc(S2[0])+'</b>'+(o.orderId?' · '+esc(o.orderId):' · waiting for the shop\'s SMS / mail')+(o.eta&&o.status!=='delivered'?' · '+esc(fd(o.eta)):'')+'</div>'})()+'<div class="wfoot"><div class="wby">'+esc(x.by||'?')+' · '+esc(fd(iso(new Date(x.at))))+(x.done?' · ✅ '+(x.doneBy?esc(x.doneBy)+' ':'')+(x.doneAt?esc(fd(iso(new Date(x.doneAt)))):''):'')+'</div>'+
+ '<div class="wacts"><button type="button" class="ib" data-wedit="'+esc(x.id)+'" title="Edit" aria-label="Edit">✏️</button>'+(!x.done&&(!x.img||x.p==null||x.p==='')&&!WL.busy[x.id]?'<button type="button" class="ib" data-wread="'+esc(x.id)+'" title="Read details again" aria-label="Read details again">↻</button>':'')+'<button type="button" class="ib" data-wshare="'+esc(x.id)+'" title="Share" aria-label="Share">↗</button>'+(x.done&&!x.ord&&!x.os&&!orders.some(function(z){return z.wlId===x.id})?'<button type="button" class="btn sm" data-word="'+esc(x.id)+'">+ Orders</button>':'')+'<button type="button" class="ib dng" data-wdel="'+esc(x.id)+'" title="Remove" aria-label="Remove">🗑</button></div></div></div></div>'}
 function pgWatch(){setTimeout(wlBackfill,400);var L=wlItems(),open=L.filter(function(x){return !x.done}),wait=open.filter(laterWait).sort(function(a,b){return msOf(a.later.at)-msOf(b.later.at)}),now=open.filter(function(x){return !laterWait(x)}).sort(function(a,b){return (laterDue(b)?1:0)-(laterDue(a)?1:0)}),done=L.filter(function(x){return x.done}),sum=open.reduce(function(t,x){return t+(+x.p||0)*(+x.q||1)},0),shared=WL.cur&&WL.cur!=='local',li=shared?WL.lists[WL.cur]:null,names=li&&li.names?Object.keys(li.names).map(function(k){return li.names[k]}):[];
  var h='<div class="card wlhead"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="min-width:0"><b style="font-size:16px">🛒 '+esc(shared?(li&&li.name)||'Watchlist':'My Watchlist')+'</b><div class="msg">'+(shared?(names.length>1?'Shared with '+esc(names.filter(function(n){return n!==myNick()}).join(', ')):'Only you so far. Invite family to add and tick together.'):'Saved on this device. Sign in to share it with family.')+'</div></div>'+(shared?'<button type="button" class="btn sm pri" data-a="wlinvite">👥 Invite</button>':'<button type="button" class="btn sm pri" data-a="signin">Sign In To Share</button>')+'</div>'+
   ((S.lists||[]).length>1?'<select id="wlsel" style="margin-top:8px">'+S.lists.map(function(id){return '<option value="'+esc(id)+'"'+(id===WL.cur?' selected':'')+'>'+esc((WL.lists[id]&&WL.lists[id].name)||'Shared list')+'</option>'}).join('')+'</select>':'')+
-  '<div class="wladd"><input id="wlurl" type="url" inputmode="url" placeholder="Paste a product link from Amazon, Flipkart, Myntra…" autocomplete="off"><button type="button" class="btn pri" data-a="wladd">Add</button></div><div class="msg" style="margin-top:6px">Tip: in the Myntra / Amazon / Flipkart app tap <b>Share</b> and choose <b>Parcel</b>. It is added here with photo, price and return policy.</div><button type="button" class="btn sm" data-a="wlhow" style="margin-top:8px">➕ Add From Any Website</button></div>';
- h+='<div class="pst" style="margin-top:12px"><div><b class="num">'+open.length+'</b><small>To buy</small></div><div><b class="num">'+money(sum)+'</b><small>Total</small></div><div><b class="num">'+done.length+'</b><small>Bought</small></div><div><b class="num">'+Math.max(1,names.length)+'</b><small>People</small></div></div>'+budCard(sum);
+  '<div class="wladd"><input id="wlurl" type="url" inputmode="url" placeholder="Paste a product link, or Share from a shop app" autocomplete="off"><button type="button" class="btn pri" data-a="wladd">Add</button><button type="button" class="btn wweb" data-a="wlhow" title="Add from any website" aria-label="Add from any website">🌐</button></div></div>';
+ h+='<div class="wstat"><span><b class="num">'+open.length+'</b> To Buy</span><span><b class="num">'+money(sum)+'</b> Total</span><span><b class="num">'+done.length+'</b> Bought</span><span><b class="num">'+Math.max(1,names.length)+'</b> 👥</span></div>'+budCard(sum);
  h+='<div class="lh"><b>To Buy</b><span class="msg">'+now.length+'</span></div><div class="list">'+(now.length?now.map(wlRow).join(''):'<div class="empty"><p>'+(wait.length?'Nothing to buy right now.':'Nothing here yet. Paste a product link above.')+'</p></div>')+'</div>';
  if(wait.length)h+='<div class="lh"><b>⏰ Buy Later</b><span class="msg">'+wait.length+'</span></div><div class="list">'+wait.map(wlRow).join('')+'</div>';
  if(done.length)h+='<div class="lh"><b>Bought</b><span class="msg">'+done.length+'</span></div><div class="list">'+done.map(wlRow).join('')+'</div>';
@@ -727,7 +798,7 @@ function wlAct(a,b){if(a==='wlhow'){wlHowSheet();return true}if(a==='budset'){bu
  if(a==='wlinvite'){wlInvite();return true}return false}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-wq],[data-wedit],[data-wdel],[data-wshare],[data-word],[data-wread]');if(!b)return;var L=wlItems(),id=b.dataset.wq||b.dataset.wedit||b.dataset.wdel||b.dataset.wshare||b.dataset.word||b.dataset.wread,x=L.filter(function(y){return y.id===id})[0];if(!x)return;
  if(b.dataset.wq)wlSet(id,{q:Math.max(1,(+x.q||1)+(+b.dataset.d))});else if(b.dataset.wedit)wlEditSheet(x);
- else if(b.dataset.wdel){if(b.dataset.sure)wlDel(id);else{b.dataset.sure=1;b.textContent='Tap again';setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent='Remove'}},2500)}}
+ else if(b.dataset.wdel){if(b.dataset.sure)wlDel(id);else{b.dataset.sure=1;var o0=b.textContent;b.textContent='Sure?';b.classList.add('sure');setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent=o0;b.classList.remove('sure')}},2500)}}
  else if(b.dataset.wshare)shareText(x.t+(x.p?' · '+money(x.p):'')+(x.ret?' · '+retTxt(x.ret).replace(/^\S+ /,''):'')+'\n'+x.url);
  else if(b.dataset.wread)wlEnrich(x,true);
  else if(b.dataset.word){wlToOrder(x);wlSet(id,{ord:true});toast('Added to Orders')}});
@@ -774,13 +845,13 @@ function famCard(){var L=famOrders();if(!L.length)return '';
 function ym(d){return String(d||'').slice(0,7)}
 function spentIn(pre){return orders.reduce(function(t,o){if(o.status==='cancelled'||String(o.orderedOn||'').indexOf(pre)!==0)return t;return t+net(o)},0)}
 function budBar(lbl,spent,lim,plan){var over=spent-lim,pc=lim?Math.min(100,spent/lim*100):0,pp=lim&&plan?Math.min(100-pc,plan/lim*100):0,cls=!lim?'':spent>lim?'bad':spent>=lim*0.8?'warn':'ok',ifAll=spent+(plan||0);
- return '<div class="bb"><div class="bbh"><b>'+lbl+'</b><span>'+(lim?'<b class="num">'+money(spent)+'</b> of '+money(lim):'<b class="num">'+money(spent)+'</b> spent · no limit')+'</span></div>'+
+ return '<div class="bb"><div class="bbh"><b>'+lbl+'</b><span>'+(lim?'<b class="num">'+money(Math.round(spent))+'</b> / '+money(lim):'<b class="num">'+money(Math.round(spent))+'</b> · no limit')+'</span></div>'+
   (lim?'<div class="bbt '+cls+'"><i style="width:'+pc.toFixed(1)+'%"></i>'+(pp>0?'<u style="left:'+pc.toFixed(1)+'%;width:'+pp.toFixed(1)+'%"></u>':'')+'</div>':'')+
-  '<div class="bbm">'+(!lim?'':over>0?'<span class="bad">⚠️ '+money(over)+' over the limit</span>':'<span>'+money(lim-spent)+' left</span>')+(plan&&lim?(ifAll>lim?' · <span class="bad">Buying the watchlist (+'+money(plan)+') crosses it by '+money(ifAll-lim)+'</span>':' · Watchlist +'+money(plan)+' still fits'):'')+'</div></div>'}
+  '<div class="bbm">'+(!lim?'':over>0?'<span class="bad">⚠️ '+money(Math.round(over))+' over</span>':'<span>'+money(Math.round(lim-spent))+' left</span>')+(plan&&lim?(ifAll>lim?' · <span class="bad">Watchlist crosses it by '+money(Math.round(ifAll-lim))+'</span>':' · watchlist fits'):'')+'</div></div>'}
 function budCard(plan){var B=S.budget||{},n=new Date(),mo=iso(n).slice(0,7),yr=String(n.getFullYear()),ms=spentIn(mo),ys=spentIn(yr);
- if(!B.total&&!B.year)return '<div class="card bud"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>💰 Budget</b><div class="msg">This month '+money(ms)+' · this year '+money(ys)+'. Set a limit to see when you cross it.</div></div><button type="button" class="btn sm pri" data-a="budset">Set Budget</button></div></div>';
- return '<div class="card bud"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b>💰 Budget</b><button type="button" class="btn sm" data-a="budset">Edit</button></div>'+
-  budBar(n.toLocaleDateString('en-IN',{month:'long'}),ms,+B.total||0,plan)+budBar('Year '+yr,ys,+B.year||0,plan)+'</div>'}
+ if(!B.total&&!B.year)return '<div class="card bud"><div class="budh"><span><b>💰 Budget</b> <span class="msg">Month '+money(Math.round(ms))+' · Year '+money(Math.round(ys))+'</span></span><button type="button" class="btn sm pri" data-a="budset">Set Limit</button></div></div>';
+ return '<div class="card bud"><div class="budh"><b>💰 Budget</b><button type="button" class="ib" data-a="budset" title="Edit budget" aria-label="Edit budget">✏️</button></div>'+
+  '<div class="bbs">'+budBar(n.toLocaleDateString('en-IN',{month:'long'}),ms,+B.total||0,plan)+budBar('Year '+yr,ys,+B.year||0,plan)+'</div></div>'}
 function budSheet(){var B=S.budget||{},fm=sheet('<h2>Budget</h2><div class="f2"><div class="f"><label for="bm">Monthly Limit (₹)</label><input id="bm" type="number" min="0" inputmode="numeric" value="'+esc(B.total||'')+'"></div><div class="f"><label for="by">Yearly Limit (₹)</label><input id="by" type="number" min="0" inputmode="numeric" value="'+esc(B.year||'')+'"></div></div><div class="msg">Leave empty for no limit. The year is January to December. Spending counts orders by the day they were ordered, minus refunds; cancelled orders are not counted.</div><div class="acts"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-a="close">Cancel</button>'+(typeof openBudget==='function'?'<button class="btn" type="button" id="bcat">Limits By Type</button>':'')+'</div>');
  var bc=document.getElementById('bcat');if(bc)bc.onclick=function(){closeSheet();openBudget()};
  fm.onsubmit=function(e){e.preventDefault();S.budget=S.budget||{total:0,types:{}};S.budget.total=Math.max(0,parseFloat(document.getElementById('bm').value)||0);S.budget.year=Math.max(0,parseFloat(document.getElementById('by').value)||0);S.supd=Date.now();save();closeSheet();render();toast('Budget saved')}}
@@ -819,10 +890,10 @@ var HELP={
  link:{i:'🔗',t:'Linking Gmail And SMS',b:'<p>Orders can be brought in automatically, so you do not have to type them.</p><ul><li><b>Scan Gmail</b>: add the Gmail address where your order mails arrive, then tap <b>Sync Now</b>. Only order, shipping and delivery mails from shops are read. Access is read-only.</li><li><b>Scan SMS</b> (Android app): reads order and delivery messages from shops and couriers. You can also turn on automatic reading of new messages.</li><li><b>Paste</b>: copy any order SMS, notification or mail and paste it in <b>Link Orders</b>.</li><li><b>Share</b>: in your SMS or mail app, share a message to <b>Parcel</b>.</li></ul><p>Messages about the same order are joined by order number, so one order is never added twice. Bank payment messages to shops are matched to your orders as payments.</p><p class="hnote">🔒 Parcel Ledger never reads one-time passwords (OTP). Messages that contain an OTP are skipped, and nothing leaves your device except the orders you save to your own account.</p>'},
  track:{i:'🚚',t:'Delivery, Returns And Refunds',b:'<ul><li>The expected date is shown on each order; late orders are marked in red.</li><li><b>Remind Me</b> on an order sets a notification or an alarm for the delivery day.</li><li>For orders with several items, each item can be marked as received on its own.</li><li>After delivery, the card shows <b>Return by</b> with the days left. The window is read from the product page when available; otherwise the store\'s usual policy is shown and marked <i>(usual)</i>. Always check the shop\'s order page for the exact date.</li><li>Mark an order <b>Returned</b> and then <b>Refund Received</b> to keep your spending correct.</li></ul>'},
  watch:{i:'🛒',t:'Watchlist',b:'<p>The Watchlist is your shopping list for things you plan to buy online.</p><ul><li>Each item shows the store, quantity, price, discount and return policy, and who added it.</li><li>The total at the top shows what everything on the list would cost, and the budget bar shows whether it still fits your limit.</li><li>Items are in three groups: <b>To Buy</b>, <b>Buy Later</b> and <b>Bought</b>.</li><li><b>Read Details</b> fetches the photo, price and return policy again if they are missing. <b>Edit</b> lets you correct anything yourself.</li></ul><p>See also: Adding Items, Purchasing And Buy Later, Sharing With Family.</p>'},
- add:{i:'➕',t:'Adding Items To The Watchlist',b:'<p><b>📱 From a shop app on Android</b></p><ol><li>Open the product in the Myntra, Amazon, Flipkart or any shop app.</li><li>Tap <b>Share</b> and choose <b>Parcel</b>.</li><li>The item is added with its name, price, photo and return policy.</li></ol><p><b>💻 From a shop website on a computer</b></p><ol><li>Open Watchlist and tap <b>Add From Any Website</b>.</li><li>Drag the <b>＋ Parcel</b> button to your browser\'s bookmarks bar (press Ctrl + Shift + B to show the bar).</li><li>On any product page, click <b>＋ Parcel</b>. The details are read from the page you are looking at.</li></ol><p><b>📋 Anywhere else</b></p><p>Copy the product link and paste it into the box at the top of the Watchlist. It is added straight away.</p><p class="hnote">Some shops do not share prices with apps. If the price is missing, tap <b>+ Price</b> and enter it.</p>'},
+ add:{i:'➕',t:'Adding Items To The Watchlist',b:'<p><b>📱 From a shop app on Android</b></p><ol><li>Open the product in the Myntra, Amazon, Flipkart or any shop app.</li><li>Tap <b>Share</b> and choose <b>Parcel</b>.</li><li>The item is added with its name, price, photo and return policy.</li></ol><p><b>💻 From a shop website on a computer</b></p><ol><li>Open Watchlist and tap the <b>🌐</b> button next to <b>Add</b>.</li><li>Drag the <b>＋ Parcel</b> button to your browser\'s bookmarks bar (press Ctrl + Shift + B to show the bar).</li><li>On any product page, click <b>＋ Parcel</b>. The details are read from the page you are looking at.</li></ol><p><b>📋 Anywhere else</b></p><p>Copy the product link and paste it into the box at the top of the Watchlist. It is added straight away.</p><p class="hnote">Some shops do not share prices with apps. If the price is missing, tap <b>+ Price</b> and enter it.</p>'},
  buy:{i:'✅',t:'Purchasing And Buy Later',b:'<p><b>Mark as purchased</b></p><ol><li>Tap the tick box next to the item.</li><li>Choose <b>Purchased Today</b>, <b>Purchased Yesterday</b> or pick the date with 📅.</li><li>The item moves to <b>Bought</b> and is added to your Orders as <i>Ordered</i>. When the shop\'s SMS or mail arrives, it joins this order with the order number, shipping and delivery dates.</li></ol><p>Ticked by mistake? Untick it; the order is removed if nothing has been linked to it yet.</p><p><b>⏰ Buy Later</b></p><ol><li>Tap the ⏰ button under the tick box.</li><li>Choose Tonight, Tomorrow, This Weekend, 1st Of Next Month, or any date and time.</li><li>The item moves to <b>Buy Later</b>. At that time your phone reminds you and the item returns to <b>To Buy</b>, highlighted.</li></ol><p class="hnote">Reminders ring on the phone of the person who set them, in the Parcel Android app.</p>'},
  family:{i:'👥',t:'Sharing With Family',b:'<ol><li>Sign in with Google.</li><li>On the Watchlist tap <b>Invite</b> and send the link (for example on WhatsApp).</li><li>Your family member opens the link and signs in. You now share the same list.</li></ol><ul><li>Anyone in the list can add, edit and tick items; changes appear on every phone instantly.</li><li>Set your <b>Nickname</b> in Profile; it is shown as <i>Added by</i> and <i>Bought by</i>.</li><li>When someone buys an item, its order progress (shipped, arriving, delivered) is shown to everyone, and appears under <b>Family Orders</b> on the Orders screen.</li><li>Your own orders, budget and Gmail stay private; only the watchlist is shared.</li></ul><p class="hnote">Anyone with the invite link can join after signing in. Share it only with people you trust.</p>'},
- budget:{i:'💰',t:'Budget',b:'<ol><li>Tap <b>Set Budget</b> (or <b>Edit</b> on the budget card).</li><li>Enter a <b>Monthly Limit</b> and/or a <b>Yearly Limit</b>.</li></ol><ul><li>The bars show what you have spent against each limit: green when on track, amber above 80% and red once the limit is crossed, with the amount over.</li><li>On the Watchlist, the striped part shows what buying the remaining items would add.</li><li>Spending counts orders by the date they were ordered, minus refunds. Cancelled orders are not counted. The year runs from January to December.</li><li><b>Limits By Type</b> sets limits for each category (for example Clothing or Electronics), shown in Insights.</li></ul>'},
+ budget:{i:'💰',t:'Budget',b:'<ol><li>Tap <b>Set Limit</b> (or ✏️ on the budget card).</li><li>Enter a <b>Monthly Limit</b> and/or a <b>Yearly Limit</b>.</li></ol><ul><li>The bars show what you have spent against each limit: green when on track, amber above 80% and red once the limit is crossed, with the amount over.</li><li>On the Watchlist, the striped part shows what buying the remaining items would add.</li><li>Spending counts orders by the date they were ordered, minus refunds. Cancelled orders are not counted. The year runs from January to December.</li><li><b>Limits By Type</b> sets limits for each category (for example Clothing or Electronics), shown in Insights.</li></ul>'},
  rem:{i:'⏰',t:'Reminders And Alarms',b:'<ul><li>The Reminders screen lists every upcoming delivery reminder and Buy Later reminder.</li><li>You can turn on automatic reminders for all orders on their delivery day, and choose the time.</li><li>Each reminder can be a notification or a full-screen alarm.</li><li>On Android, allow <b>Alarms &amp; reminders</b> and <b>full-screen notifications</b> when asked, so alarms ring on time even when the phone is locked.</li></ul><p class="hnote">Reminders ring in the Parcel Android app. On the website you can see them but they cannot ring.</p>'},
  stats:{i:'📊',t:'Insights',b:'<p>Insights shows where your money goes for the chosen period: spending over time, by store and by category, how much was refunded, and how each category is doing against its budget.</p><p>Use the period selector at the top to compare months or years.</p>'},
  data:{i:'🔒',t:'Your Data, Privacy And Backup',b:'<ul><li><b>Signed in</b>: your orders are saved privately in your own account and kept in sync on your devices.</li><li><b>Not signed in</b>: everything stays on this device only.</li><li><b>Backup</b> saves a copy of all your orders as a file; <b>Restore</b> brings them back. <b>Export CSV</b> gives a spreadsheet of the chosen period.</li><li><b>Merge Duplicate Orders</b> finds orders that were added twice and joins them.</li><li><b>Delete My Account Data</b> removes your orders from the cloud permanently.</li><li>Parcel Ledger never reads one-time passwords (OTP) from SMS, notifications or mail.</li></ul><p class="hnote">Parcel Ledger is an independent app and is not linked to Amazon, Flipkart, Myntra, Meesho or any other shop.</p>'}
@@ -841,7 +912,7 @@ document.addEventListener('change',function(e){if(e.target.id==='helpOn'){S.help
 var _rd0=render;render=function(){_rd0();var hb=document.getElementById('helpBtn');if(hb)hb.hidden=!helpOn()};
 var _bc0=budCard;budCard=function(p){return _bc0(p).replace('<b>💰 Budget</b>','<b>💰 Budget</b>'+hq('budget'))};
 var _fc0=famCard;famCard=function(){return _fc0().replace('<b>👥 Family Orders</b>','<b>👥 Family Orders</b>'+hq('family'))};
-var _pw0=pgWatch;pgWatch=function(){return _pw0().replace(/(<b style="font-size:16px">🛒 [^<]*<\/b>)/,'$1'+hq('family')).replace('➕ Add From Any Website</button>','➕ Add From Any Website</button>'+hq('add')).replace('<b>⏰ Buy Later</b>','<b>⏰ Buy Later</b>'+hq('buy'))};
+var _pw0=pgWatch;pgWatch=function(){return _pw0().replace(/(<b style="font-size:16px">🛒 [^<]*<\/b>)/,'$1'+hq('family')).replace('<b>⏰ Buy Later</b>','<b>⏰ Buy Later</b>'+hq('buy'))};
 var _pp0=pgProfile;pgProfile=function(){var h=_pp0(),row='<button type="button" class="prow" data-hopen="@centre"><span class="pi">❓</span><span class="pt">Help Centre<small>How to use every part of the app</small></span><span class="pc">›</span></button><label class="prow"><span class="pi">💡</span><span class="pt">Show Help Buttons<small>The ? buttons on each screen</small></span><input type="checkbox" id="helpOn"'+(helpOn()?' checked':'')+' style="width:auto"></label>';
  return h.replace('<div class="pgrp"><h4>App</h4>','<div class="pgrp"><h4>App</h4>'+row)};
 

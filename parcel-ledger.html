@@ -138,6 +138,8 @@ body{overflow-x:hidden}
 .itc .pill{font-size:11px}.paid{margin-top:8px;font-size:12.5px;background:color-mix(in srgb,#22c55e 12%,transparent);border-radius:10px;padding:6px 10px}
 @media(min-width:900px){.itg{grid-template-columns:1fr 1fr}}
 
+.itb{margin-top:7px;border:1px solid var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);color:var(--good);border-radius:10px;padding:5px 10px;font:600 12px var(--f-body)}.itb.undo{border-color:var(--line);background:none;color:var(--muted)}
+
 #soon[hidden],#app[hidden],.fab[hidden]{display:none!important}</style><script src="firebase-config.js"></script><script src="owh-contact.js" defer></script></head><body>
 <div id="login" hidden><div class="lg-bg" aria-hidden="true"><i>📦</i><i>🚚</i><i>📦</i><i>🛍️</i><i>📦</i></div>
 <div class="lg"><img class="lg-ic" src="parcel-icon-512.png" alt="" width="88" height="88"><h1>Parcel Ledger</h1><p class="lg-sub">Every online order, delivery and refund in one place.</p>
@@ -199,7 +201,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.7';
+var PL_VER='2026-11-23.8';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -307,7 +309,7 @@ function pageChange(t){if(t.id==='autoRem'){S.autoRem=t.checked;save();render();
 function theme(){var t=S.theme;if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme')}
 function pageAct(a,b,id){
  if(a==='page'){go(b.dataset.p);return true}
- if(dupAct(a,b))return true;if(payAct(a,b))return true;if(a==='scansms'){scanSheet();return true}if(NATIVE&&readAct(a))return true;
+ if(dupAct(a,b))return true;if(payAct(a,b))return true;if(itemAct(a,b))return true;if(a==='scansms'){scanSheet();return true}if(NATIVE&&readAct(a))return true;
  if(a==='remset'){var o=find(id);if(o)openRem(o);return true}
  if(a==='nexact'){try{NATIVE.openExact()}catch(e){}return true}if(a==='nfull'){try{NATIVE.openFullScreen()}catch(e){}return true}
  if(a==='ntest'){try{NATIVE.testAlarm();toast('The test alarm rings in 5 seconds. You can lock the phone.')}catch(e){}return true}
@@ -484,7 +486,7 @@ function itemUpdate(o,x){var ch=false,nm=x.item||(x.items&&x.items[0]&&x.items[0
  if(x.tlink&&!o.tlink){o.tlink=x.tlink;ch=true}if(ch)rollup(o);return ch}
 /* group card: the order header, then one small card per item with the same colour and border */
 function groupHtml(o){var sc=STATUS,cnt=o.items.length,priced=o.items.filter(function(it){return it.p!=null}).length;
- return '<div class="itg">'+o.items.map(function(it,i){var st=ist(o,it),img=it.img||(i===0?o.img:'');return '<div class="itc"><span class="pimg sm" style="--dot:var('+(STORES[o.store]||STORES.other).v+')">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'<b>'+(i+1)+'</b></span><div style="min-width:0;flex:1"><div class="itn2">'+esc(it.n)+'</div><div class="facts" style="margin-top:4px"><span>Qty '+(it.q||1)+'</span><span>'+(it.p!=null?'💰 '+money(it.p*(it.q||1)):(+o.amount?'In group '+money(o.amount):'<i>no price</i>'))+'</span><span class="pill '+(st==='delivered'?'good':st==='cancelled'?'':st==='returned'?'warn':'live')+'">'+esc((sc[st]||sc.ordered)[0])+'</span>'+(it.eta&&st!=='delivered'?'<span>📅 '+esc(fd(it.eta))+'</span>':'')+(it.don?'<span>✅ '+esc(fd(it.don))+'</span>':'')+(it.trk?'<span title="Tracking id">🚚 '+esc(it.trk)+'</span>':'')+'</div></div></div>'}).join('')+'</div>'+
+ return '<div class="itg">'+o.items.map(function(it,i){var st=ist(o,it),img=it.img||(i===0?o.img:'');return '<div class="itc"><span class="pimg sm" style="--dot:var('+(STORES[o.store]||STORES.other).v+')">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'<b>'+(i+1)+'</b></span><div style="min-width:0;flex:1"><div class="itn2">'+esc(it.n)+'</div><div class="facts" style="margin-top:4px"><span>Qty '+(it.q||1)+'</span><span>'+(it.p!=null?'💰 '+money(it.p*(it.q||1)):(+o.amount?'In group '+money(o.amount):'<i>no price</i>'))+'</span><span class="pill '+(st==='delivered'?'good':st==='cancelled'?'':st==='returned'?'warn':'live')+'">'+esc((sc[st]||sc.ordered)[0])+'</span>'+(it.eta&&st!=='delivered'?'<span>📅 '+esc(fd(it.eta))+'</span>':'')+(it.don?'<span>✅ '+esc(fd(it.don))+'</span>':'')+(it.trk?'<span title="Tracking id">🚚 '+esc(it.trk)+'</span>':'')+'</div>'+(st==='delivered'?'<button type="button" class="itb undo" data-a="itemundo" data-id="'+esc(o.id)+'" data-i="'+i+'">Undo</button>':st!=='cancelled'&&st!=='returned'?'<button type="button" class="itb" data-a="itemgot" data-id="'+esc(o.id)+'" data-i="'+i+'">✅ Mark Received</button>':'')+'</div></div>'}).join('')+'</div>'+
   '<div class="msg" style="margin-top:6px">'+cnt+' items in one order · '+(+o.amount?'Group total '+money(o.amount):'Total not known')+(priced<cnt&&+o.amount?' · items without a price are covered by the group total':'')+'</div>'}
 /* ---------- payments from Expense Tracker (same Google account) fill in prices ---------- */
 var EXP=[];
@@ -504,6 +506,10 @@ function payAct(a,b){if(a==='payopen'){paySheet();return true}var t=EXP.filter(f
  if(a==='paylink'&&t){var sel=document.querySelector('[data-pay="'+t.id+'"]'),o=sel&&find(sel.value);if(!o){toast('Choose the order first');return true}o.pay={id:t.id,amt:t.amount,date:t.date,via:(t.bank?t.bank+' ':'')+(t.acct?'..'+t.acct:'')};if(!(+o.amount))o.amount=t.amount;save();toast('Payment linked');paySheet();return true}
  if(a==='payadd'&&t){var st=STORES[t.store]||STORES.other;orders.push({id:uid(),srcs:['expense'],store:t.store,item:'Order from '+st.n,amount:t.amount,type:'Other',status:'ordered',orderedOn:t.date,eta:'',orderId:'',account:S.accounts[0],notes:'From Expense Tracker payment',cmp:[],pay:{id:t.id,amt:t.amount,date:t.date,via:(t.bank?t.bank+' ':'')+(t.acct?'..'+t.acct:'')}});save();toast('Added. Fill in the item name.');paySheet();return true}
  if(a==='payno'&&t){S.payNo=S.payNo||{};S.payNo[t.id]=1;save();paySheet();return true}return false}
+
+function itemAct(a,b){if(a!=='itemgot'&&a!=='itemundo')return false;var o=find(b.dataset.id),it=o&&o.items&&o.items[+b.dataset.i];if(!it)return true;
+ if(a==='itemgot'){it.st='delivered';it.don=today();toast('✅ '+String(it.n).slice(0,40)+' received')}else{it.st=it.trk?'shipped':'ordered';delete it.don;if(o.status==='delivered'){o.status=it.st;o.deliveredOn=''}toast('Marked as not received')}
+ rollup(o);var left=o.items.filter(function(x){return ist(o,x)!=='delivered'&&ist(o,x)!=='cancelled'}).length;if(a==='itemgot'&&!left)toast('🎉 All '+o.items.length+' items received. Order delivered.');save();render();return true}
 
 /* ---------- sheets ---------- */
 function ov(){return document.getElementById('overlay')}function closeSheet(){ov().innerHTML=''}

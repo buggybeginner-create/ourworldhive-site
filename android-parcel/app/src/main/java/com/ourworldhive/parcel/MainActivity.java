@@ -121,6 +121,7 @@ public class MainActivity extends Activity {
                     String body = c.getString(0), from = "";
                     try { from = c.getString(2); } catch (Exception ignored) { }
                     if (!Inbox.looksLikeOrder(body + " " + from)) continue;
+                    body = Inbox.hideOtp(body);
                     all.put(new JSONObject().put("text", body.length() > 1400 ? body.substring(0, 1400) : body).put("ts", c.getLong(1)).put("src", "sms").put("from", from == null ? "" : from));
                 }
             } catch (Exception ignored) { } finally { if (c != null) c.close(); }

@@ -436,7 +436,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-22.4'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-23.1'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -672,8 +672,8 @@ function openStock(s){var q=Q[s]||IDX[s];if(!q)return;var w=watch.indexOf(s)>=0,
   $('sheet').innerHTML='<div class="grab"></div><div class="sh"><div><h2>'+esc(q.n||s)+'</h2><div class="big num">₹'+fmt(q.ltp)+'</div><div class="num '+cls(q.chg)+'" style="font-weight:800">'+sgn(q.chg)+' ('+sgn(q.pct)+'%)</div></div><button class="x" id="shX" aria-label="Close" style="font-size:24px">×</button></div>'+
   '<div class="rbox"><div class="lb"><span>Day low '+fmt(q.low)+'</span><span>Day high '+fmt(q.high)+'</span></div><div class="rng"><i style="left:calc('+(dr*100)+'% - 1px)"></i></div></div>'+
   (p==null?'':'<div class="rbox"><div class="lb"><span>52W low '+fmt(q.l52)+'</span><span>52W high '+fmt(q.h52)+'</span></div><div class="rng"><i style="left:calc('+(p*100)+'% - 1px)"></i></div></div>')+
-  (isSuper()&&S.tSig?'<div id="proBox">'+xWait('👑 Your guide')+'</div>':'')+
   (S.tChart?'<div class="chartbox"><div class="ct"><div class="seg" id="tfSeg"><button data-tf="5m">5M</button><button data-tf="15m">15M</button><button data-tf="1h">1H</button><button data-tf="1d">1D</button></div><button class="btn" id="cvLayB" style="flex:0 0 auto;padding:6px 10px;font-size:11.5px">☰ SHOW ON CHART</button></div><div class="lay" id="cvLay" hidden></div><div class="cinfo" id="cvInfo">Touch or drag on the chart to see values</div><canvas id="cv"></canvas><div class="fr" id="cvAct" style="margin-top:6px" hidden><button class="btn" id="cvReset" style="flex:0 0 auto">✕ RESET LINE</button><button class="btn g" id="cvAlert">🔔 ALERT AT ₹<span id="cvAP"></span></button></div><div id="cvMsg" class="lg" style="text-align:center;padding:4px 0">Loading chart…</div></div>':'')+
+  (isSuper()&&S.tSig?'<div id="proBox">'+xWait('👑 Your guide')+'</div>':'')+
   (S.pa?'<div id="paBox"><div class="tc"><div class="lg" style="color:var(--mut);font-size:12.5px">Price action: loading candles…</div></div></div>':'')+
   (S.tOn?'<div id="trendBox">'+trendCard(s,TA[s])+'</div>':'')+
   (S.xIdx&&IDX[s]?'<div id="ixBox">'+ixCard(s)+'</div>':'')+

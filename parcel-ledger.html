@@ -316,7 +316,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.24';
+var PL_VER='2026-11-24.1';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -919,23 +919,26 @@ var _pp0=pgProfile;pgProfile=function(){var h=_pp0(),row='<button type="button" 
  return h.replace('<div class="pgrp"><h4>App</h4>','<div class="pgrp"><h4>App</h4>'+row)};
 
 /* ---------- better reading of older mails + clean-up of broken orders ---------- */
-var _jn0=junkName;junkName=function(n){n=String(n||"").trim();return _jn0(n)||/^subject:|^\(s\)$|^order confirmation$|^(?:has|have) been\b|^(?:is|are|was|were) (?:out|on|being|now)\b|^(?:your|my) (?:order|item|items|package|parcel|shipment)s?\b|^item\(s\)|^from your order|^items? from\b/i.test(n)};
+var _jn0=junkName;junkName=function(n){n=String(n||"").trim();return _jn0(n)||/&#x?[0-9a-f]+;|-->|<!--|^sms updates|^not dispatched|^details$|^\(s\)|delivery address|^hi\b|^thank you|^confirmation\b|^track\b|^₹\s?\d|^rs\.?\s?\d|^order (?:placed|details|number|id|summary)\b|^items? purchased|^view order|^we (?:are|will|have)\b|^your (?:fwd|firstcry|myntra|flipkart|amazon)\b/i.test(n)||/^subject:|^\(s\)$|^order confirmation$|^(?:has|have) been\b|^(?:is|are|was|were) (?:out|on|being|now)\b|^(?:your|my) (?:order|item|items|package|parcel|shipment)s?\b|^item\(s\)|^from your order|^items? from\b/i.test(n)};
 var MONN={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 function mdyDate(s){var m=/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(s||'');if(!m)return '';var mo=MONN[m[1].toLowerCase().slice(0,3)];if(!mo)return '';return m[3]+'-'+String(mo).padStart(2,'0')+'-'+String(+m[2]).padStart(2,'0')}
-var _sh0=stripHtml;stripHtml=function(h){return _sh0(String(h||'').replace(/<!--[\s\S]*?-->/g,' ').replace(/&#x20a8;|&#8360;|₨\.?/gi,'₹'))};
+var _sh0=stripHtml;stripHtml=function(h){return _sh0(String(h||'').replace(/<!--[\s\S]*?-->/g,' ').replace(/&#x20a8;|&#8360;|₨\.?/gi,'₹')).replace(/&#x([0-9a-f]+);/gi,function(m,x){return String.fromCharCode(parseInt(x,16))}).replace(/&#(\d+);/g,function(m,d){return String.fromCharCode(+d)}).replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')};
 var _pe0=parseEmails;parseEmails=function(t,dflt,one){var L=_pe0(String(t||'').replace(/₨\.?/g,'₹'),dflt,one);L.forEach(function(r){var e=String(t||'').replace(/\s+/g,' ');
  if(!r.eta){var m=/(?:delivery|arriving|expected|delivered)\s*(?:(?:by|on)\s+)*(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+)?([A-Za-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i.exec(e);if(m)r.eta=mdyDate(m[1])}
  var om=/order(?:ed)?\s+placed\s+on\s+([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})/i.exec(e);if(om){var d=mdyDate(om[1]);if(d)r.orderedOn=d}
  if(r.orderId&&!/\d/.test(r.orderId))r.orderId='';
+ /* the amount actually paid, when the mail says it (FirstCry "Net Payment", Flipkart "Shipment total"…) */
+ var pm=null,re=/(?:net payment|net paid|amount paid|you paid|grand total|order total|shipment total|total amount|total paid)\s*:?\s*(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)/gi,mm;while((mm=re.exec(e.replace(/₨\.?/g,'₹'))))pm=mm;if(pm){var v=parseFloat(pm[1].replace(/,/g,''));if(v>=1)r.amount=v}
+ if(r.amount!=null&&r.amount<1)r.amount=null;
  if(junkName(r.item))r.item=''});return L};
-var _pi0=prodImg;prodImg=function(h){var u=_pi0(h);if(u)return u;var m=/<img[^>]+src\s*=\s*["'](https?:\/\/img\.fkcdn\.com\/image\/[^"']+)["']/i.exec(h||'');return m?m[1].replace(/^http:/,'https:').slice(0,600):''};
+var _pi0=prodImg;prodImg=function(h){var u=_pi0(h);if(u)return u;var m=/<img[^>]+src\s*=\s*["'](https?:\/\/(?:img\.fkcdn\.com\/image\/|cdn\.firstcry\.com\/brainbees\/images\/products\/)[^"']+)["']/i.exec(h||'');return m?m[1].replace(/^http:/,'https:').slice(0,600):''};
 var _mi0=mergeInto;mergeInto=function(o,x){var ch=_mi0(o,x);
  if(x.item&&!junkName(x.item)){var a=String(o.item||'').replace(/[.…\s]+$/,'').toLowerCase();if(junkName(o.item)||(a.length>=4&&x.item.length>a.length&&x.item.toLowerCase().indexOf(a)===0)){o.item=x.item;ch=true}}
  if(x.orderId&&/\d/.test(x.orderId)&&!/\d/.test(o.orderId||'')){o.orderId=x.orderId;ch=true}
  if(x.eta&&!o.eta&&o.status!=='delivered'){o.eta=x.eta;ch=true}
  if(x.img&&!o.img){o.img=x.img;ch=true}return ch};
 /* orders that only came from mail and carry nothing useful (no real name, no number, no price) are removed; bad order numbers are cleared */
-var _td0=tidy;tidy=function(){var ch=false,before=orders.length;orders.forEach(function(o){if(o.orderId&&!/\d/.test(o.orderId)){o.orderId='';ch=true}});
+var _td0=tidy;tidy=function(){var ch=false,before=orders.length;orders.forEach(function(o){if(o.orderId&&!/\d/.test(o.orderId)){o.orderId='';ch=true}if(o.item&&junkName(o.item)&&!/^Order from /.test(o.item)&&(+o.amount||/\d/.test(o.orderId||'')||(o.items&&o.items.length))){o.item='Order from '+(STORES[o.store]||STORES.other).n;ch=true}});
  orders=orders.filter(function(o){var s=srcsOf(o);var auto=s.length&&s.every(function(z){return z==='gmail'||z==='mail'||z==='sms'||z==='notif'||z==='paste'});return !(auto&&junkName(o.item)&&!/\d/.test(o.orderId||'')&&!(+o.amount)&&!o.wlId&&!(o.items&&o.items.length))});
  if(orders.length!==before)ch=true;return _td0()||ch};
 /* an older copy of the same order without a number (cut-off name from the subject) is updated instead of adding a new one */
@@ -944,9 +947,12 @@ var _fm1=findMatch;findMatch=function(x,acc){var m=_fm1(x,acc);if(m||!x.item)ret
  return bs>=0.6?best:null};
 
 /* Profile → Data: read every order mail again and clear broken orders */
-function rereadAll(){S.seen={};S.seenV=6;var n=orders.length;tidy();save();render();toast((n-orders.length?'🧹 Removed '+(n-orders.length)+' broken order'+(n-orders.length>1?'s':'')+'. ':'')+'Now tap Sync Now to read all order mails again.');setTimeout(function(){var b=document.createElement('button');b.dataset.a='sync';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},400)}
+function rereadAll(){S.seen={};S.seenV=7;var n=orders.length;tidy();save();render();toast((n-orders.length?'🧹 Removed '+(n-orders.length)+' broken order'+(n-orders.length>1?'s':'')+'. ':'')+'Now tap Sync Now to read all order mails again.');setTimeout(function(){var b=document.createElement('button');b.dataset.a='sync';b.hidden=true;document.body.appendChild(b);b.click();b.remove()},400)}
 var _pp1=pgProfile;pgProfile=function(){return _pp1().replace('<div class="pgrp"><h4>Data</h4>','<div class="pgrp"><h4>Data</h4><button type="button" class="prow" data-a="reread"><span class="pi">🧹</span><span class="pt">Fix Old Orders<small>Remove broken orders and read all order mails again</small></span><span class="pc">›</span></button>')};
 document.addEventListener('click',function(e){var b=e.target.closest('[data-a=reread]');if(!b)return;e.preventDefault();e.stopPropagation();rereadAll()},true);
+
+/* a tap on "orders missing details" shows them for every shop */
+document.addEventListener('click',function(e){if(e.target.closest('[data-t=need],.needcard,[data-a=need]'))f.store='all'},true);
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);
@@ -1081,7 +1087,7 @@ function mailHtml(m){var h='';(function walk(x){if(!x)return;if(x.mimeType==='te
 function mailText(m){var t='',h='';(function walk(x){if(!x)return;if(x.mimeType==='text/plain'&&x.body&&x.body.data)t+=b64u(x.body.data)+'\n';else if(x.mimeType==='text/html'&&x.body&&x.body.data)h+=b64u(x.body.data);(x.parts||[]).forEach(walk)})(m.payload);return t.trim().length>40?t:stripHtml(h)}
 function hdr(m,n){var h=((m.payload&&m.payload.headers)||[]).filter(function(x){return x.name.toLowerCase()===n})[0];return h?h.value:''}
 var GQ='from:(amazon.in OR amazon.com OR flipkart.com OR myntra.com OR meesho.com OR firstcry.com OR ajio.com OR nykaa.com OR tatacliq.com OR jiomart.com OR snapdeal.com OR croma.com OR lenskart.com) (order OR ordered OR shipped OR dispatched OR delivered OR "out for delivery" OR arriving OR "on its way" OR shipment OR package OR refund OR cancelled OR return) -subject:(sale OR offer OR deal OR deals OR coupon OR wishlist OR "price drop" OR recommended) newer_than:'+(S.gDays||365)+'d';
-async function syncGmail(acc,say){if(S.seenV!==6){S.seen={};S.seenV=6;save()}
+async function syncGmail(acc,say){if(S.seenV!==7){S.seen={};S.seenV=7;save()}
  if(navigator.onLine===false){say('You are offline. Gmail sync needs internet. Everything else works offline.',1);return}
  say('Opening Google sign in for '+acc+'...');var tok;
  try{tok=await gmailToken(acc)}catch(e){say(NATIVE&&!e.code&&e.message!=='wrong'?e.message:e.message==='wrong'?'You signed in as '+e.got+' but this slot is '+acc+'. Try again with the right Gmail.':e.code==='auth/popup-closed-by-user'?'Sign in window was closed.':e.code==='auth/popup-blocked'?'Allow pop-ups for this site and try again.':e.code==='auth/unauthorized-domain'?'This website address is not allowed for Google sign in yet (Firebase, Authorized domains).':e.message==='cfg'?'Sign in is not set up on this page.':'Could not sign in. Check internet and try again.',1);return}

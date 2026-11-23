@@ -540,8 +540,11 @@ hi:{
  chog:['उद्वेग','चर','लाभ','अमृत','काल','शुभ','रोग'],hora:['सूर्य','शुक्र','बुध','चंद्र','शनि','गुरु','मंगल'],
  adhik:'अधिक',saka:'शक संवत',vik:'विक्रम संवत'}};
 /* ---------- Indian languages: Panchang words are Sanskrit, so the Hindi (Devanagari) names are written in each script ---------- */
-var LANGS=[['en','English'],['hi','हिन्दी'],['mr','मराठी'],['ne','नेपाली'],['sa','संस्कृतम्'],['or','ଓଡ଼ିଆ'],['bn','বাংলা'],['as','অসমীয়া'],['gu','ગુજરાતી'],['pa','ਪੰਜਾਬੀ'],['ta','தமிழ்'],['te','తెలుగు'],['kn','ಕನ್ನಡ'],['ml','മലയാളം']];
-var SCR={bn:0x80,as:0x80,pa:0x100,gu:0x180,or:0x200,ta:0x280,te:0x300,kn:0x380,ml:0x400};
+var LANGS=[['en','English'],['hi','हिन्दी (Hindi)'],['mr','मराठी (Marathi)'],['ne','नेपाली (Nepali)'],['sa','संस्कृतम् (Sanskrit)'],['kok','कोंकणी (Konkani)'],['mai','मैथिली (Maithili)'],['doi','डोगरी (Dogri)'],['brx','बड़ो (Bodo)'],['or','ଓଡ଼ିଆ (Odia)'],['bn','বাংলা (Bengali)'],['as','অসমীয়া (Assamese)'],['mni','মৈতৈলোন্ (Manipuri)'],['gu','ગુજરાતી (Gujarati)'],['pa','ਪੰਜਾਬੀ (Punjabi)'],['ta','தமிழ் (Tamil)'],['te','తెలుగు (Telugu)'],['kn','ಕನ್ನಡ (Kannada)'],['ml','മലയാളം (Malayalam)']];
+/* app (buttons and text) languages: en and hi full; mr and ne: main words + Hindi text; others: main words + English text */
+var UILANGS=[['en','English'],['hi','हिन्दी (Hindi)'],['mr','मराठी (Marathi)'],['ne','नेपाली (Nepali)'],['or','ଓଡ଼ିଆ (Odia)'],['bn','বাংলা (Bengali)'],['as','অসমীয়া (Assamese)'],['gu','ગુજરાતી (Gujarati)'],['pa','ਪੰਜਾਬੀ (Punjabi)'],['ta','தமிழ் (Tamil)'],['te','తెలుగు (Telugu)'],['kn','ಕನ್ನಡ (Kannada)'],['ml','മലയാളം (Malayalam)']];
+var UIHI={hi:1,mr:1,ne:1};
+var SCR={bn:0x80,as:0x80,mni:0x80,pa:0x100,gu:0x180,or:0x200,ta:0x280,te:0x300,kn:0x380,ml:0x400};
 var TAFIX={0x0B96:0x0B95,0x0B97:0x0B95,0x0B98:0x0B95,0x0B9B:0x0B9A,0x0B9D:0x0B9C,0x0BA0:0x0B9F,0x0BA1:0x0B9F,0x0BA2:0x0B9F,0x0BA5:0x0BA4,0x0BA6:0x0BA4,0x0BA7:0x0BA4,0x0BAB:0x0BAA,0x0BAC:0x0BAA,0x0BAD:0x0BAA,0x0BB3:0x0BB3};
 function tr(s,lg){lg=lg||S.lang;if(!s||lg=='en'||lg=='hi'||lg=='mr'||lg=='ne'||lg=='sa'||SCR[lg]==null)return s;var off=SCR[lg],o='';
  for(var i=0;i<s.length;i++){var c=s.charCodeAt(i),ch=s[i];if(c<0x0900||c>0x097F||c==0x0964||c==0x0965){o+=ch;continue}
@@ -549,7 +552,7 @@ function tr(s,lg){lg=lg||S.lang;if(!s||lg=='en'||lg=='hi'||lg=='mr'||lg=='ne'||l
   if(lg=='ta'){if(c==0x0902){o+='ம்';continue}if(c==0x0903)continue;if(c==0x0943){o+='்ரு';continue}if(c==0x090B){o+='ரு';continue}}
   if(lg=='pa'){if(c==0x0937){o+='ਸ਼';continue}if(c==0x0943){o+='੍ਰਿ';continue}if(c==0x090B){o+='ਰਿ';continue}if(c==0x0910&&0){}}
   if(lg=='or'&&c==0x0935){o+=(i>0&&s.charCodeAt(i-1)==0x094D)?'ୱ':'ବ';continue}
-  if(lg=='bn'||lg=='as'){if(c==0x0935){o+=lg=='as'?'ৱ':'ব';continue}if(c==0x0933){o+='ল';continue}if(lg=='as'&&c==0x0930){o+='ৰ';continue}}
+  if(lg=='bn'||lg=='as'||lg=='mni'){if(c==0x0935){o+=lg=='as'?'ৱ':'ব';continue}if(c==0x0933){o+='ল';continue}if(lg=='as'&&c==0x0930){o+='ৰ';continue}}
   var n=c+off;if(lg=='ta'&&TAFIX[n])n=TAFIX[n];o+=String.fromCharCode(n)}
  return o}
 function mkLang(lg){if(N[lg])return N[lg];var b=N.hi,o={};for(var k in b){var v=b[k];o[k]=Array.isArray(v)?v.map(function(x){return tr(x,lg)}):tr(v,lg)}return N[lg]=o}
@@ -559,7 +562,7 @@ var CITIES=[['New Delhi',28.6139,77.209,'DL'],['Mumbai',19.076,72.8777,'MH'],['K
 /* ---------- state ---------- */
 CITIES.sort(function(x,y){return x[0]<y[0]?-1:1});
 var LS={get:function(k,d){try{var v=localStorage.getItem('hc_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('hc_'+k,JSON.stringify(v))}catch(e){}}};
-var S={loc:LS.get('loc',{n:'New Delhi',lat:28.6139,lon:77.209,tz:5.5}),sys:LS.get('sys','purnimanta'),lang:LS.get('lang','en'),theme:LS.get('theme','saffron'),font:LS.get('font','system'),fs:LS.get('fs','m'),col:LS.get('col',{}),
+var S={loc:LS.get('loc',{n:'New Delhi',lat:28.6139,lon:77.209,tz:5.5}),sys:LS.get('sys','purnimanta'),lang:LS.get('lang','en'),ui:LS.get('ui',LS.get('lang','en')=='hi'?'hi':'en'),theme:LS.get('theme','saffron'),font:LS.get('font','system'),fs:LS.get('fs','m'),col:LS.get('col',{}),
  cats:LS.get('cats',{major:1,vrat:1,state:1,national:1,mine:1}),cd:LS.get('cd',[]),ev:LS.get('ev',[]),
  rem:LS.get('rem',{on:1,before:1,bt:'20:00',same:1,st:'06:00',cats:{major:1,state:1,cd:1,mine:1}}),phone:LS.get('phone',0),st:LS.get('st','auto'),kd:LS.get('kd',[]),kst:LS.get('kst','north'),rec:LS.get('rec',''),kty:LS.get('kty','d1'),upd:LS.get('upd',0),wasIn:LS.get('wasIn',0)};
 function save(k){LS.set(k,S[k]);if(['cd','ev','sys','lang','cats','rem','loc','theme','font','fs','col','st','kd','kst','rec'].indexOf(k)>=0){S.upd=Date.now();LS.set('upd',S.upd);cloudSave()}if(['cd','ev','lang','sys','loc','cats','rem','theme','col','st'].indexOf(k)>=0)pushNative()}
@@ -860,7 +863,8 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
  h+='<div class="card set"><h2>📍 LOCATION</h2><div class="note">Sunrise, tithi at sunrise and all timings depend on your place.</div><label>City</label><select id="city"><option value="">— '+esc(S.loc.n)+' —</option>'+CITIES.map(function(c,i){return '<option value="'+i+'">'+c[0]+'</option>'}).join('')+'</select>'
   +'<div class="row" style="margin-top:10px"><button class="btn2" data-a="gps">📡 USE MY LOCATION</button></div><label>State Festivals</label><button class="btn2" data-a="stpick" style="width:100%;text-align:left">🗺️ '+esc(stLabel())+' <span style="float:right">CHANGE ›</span></button><div class="note" style="margin-top:4px">Shows each state\'s own festivals and holidays, like Nuakhai (Odisha), Onam (Kerala), Bihu (Assam). Pick one or more states.</div><label>Or enter latitude, longitude</label><div class="row"><input id="lat" style="flex:1" inputmode="decimal" placeholder="Latitude" value="'+S.loc.lat+'"><input id="lon" style="flex:1" inputmode="decimal" placeholder="Longitude" value="'+S.loc.lon+'"><button class="btn2" data-a="setll">SAVE</button></div></div>';
  h+='<div class="card set"><h2>🗓️ CALENDAR</h2><label>Month Names (Calendar System)</label><select id="sysSel">'+Object.keys(SYS).map(function(k){return '<option value="'+k+'"'+(S.sys==k?' selected':'')+'>'+SYS[k][0]+' · '+SYS[k][1]+'</option>'}).join('')+'</select><div class="note" style="margin-top:4px">Lunar systems name months by the Moon (tithi). Solar systems (Odia, Bengali, Tamil, Malayalam, Assamese) name months by the Sun and show the day number, like Kartika 6.</div>'
-  +'<label>🗣️ App Language</label><select id="langSel">'+LANGS.map(function(l){return '<option value="'+l[0]+'"'+(S.lang==l[0]?' selected':'')+'>'+l[1]+(l[0]=='en'||l[0]=='hi'?' · whole app':' · Panchang names')+'</option>'}).join('')+'</select><div class="note" style="margin-top:4px">English and हिन्दी change the whole app: buttons, help, festivals, Kundli and predictions. Other languages change the Panchang names (tithi, nakshatra, month, rashi, festival, planet); the rest stays in English.</div>'
+  +'<label>🗣️ App Language</label><select id="uiSel">'+UILANGS.map(function(l){return '<option value="'+l[0]+'"'+(S.ui==l[0]?' selected':'')+'>'+l[1]+'</option>'}).join('')+'</select><div class="note" style="margin-top:4px">Buttons, headings and help. English and हिन्दी are complete. मराठी and नेपाली: main words in that language, longer text in Hindi. Other languages: main words in that language, longer text in English.</div>'
+  +'<label>🔤 Panchang Names Language</label><select id="langSel">'+LANGS.map(function(l){return '<option value="'+l[0]+'"'+(S.lang==l[0]?' selected':'')+'>'+l[1]+'</option>'}).join('')+'</select><div class="note" style="margin-top:4px">Tithi, nakshatra, month, day, rashi, festival and planet names show in this language, separate from the app language.</div>'
   
   +'<label>Show In Calendar</label>'+[['major','Major Festivals'],['vrat','Vrat (Ekadashi, Pradosh, Purnima…)'],['state','State Festivals'+(stName()?' ('+stName()+')':'')],['national','Govt Holidays'],['mine','My Events']].map(function(x){return '<div class="sw"><span><i class="dot" style="background:'+ccol(x[0])+'"></i>'+x[1]+'</span><button class="tg'+(S.cats[x[0]]?' on':'')+'" data-a="cat" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
  h+='<div class="card set"><h2>⭐ DAILY TIPS</h2><div class="note">Do &amp; Avoid tips show on Home and on every date. Personal tips use: <b>'+(recProfile()?esc((recProfile().n?recProfile().n+' · ':'')+T().rashi[recProfile().r]+' Rashi'):'General only')+'</b></div><button class="btn2" data-a="recset" style="width:100%;margin-top:8px">CHANGE</button></div>';h+=lookCard();var r=S.rem;h+='<div class="card set"><h2>🔔 REMINDERS</h2>'+(APP?'':'<div class="note">Reminders ring in the Android app, even when it is closed.</div>')
@@ -874,7 +878,7 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
  h+='<div class="card"><h2>APP</h2><div class="row"><button class="btn2" data-a="contact">✉️ CONTACT US / FEATURE REQUEST</button><button class="btn2" data-a="share">📤 SHARE APP</button><button class="btn2" data-a="latest">🔄 GET LATEST VERSION</button></div>'
   +'<div class="don" style="margin-top:12px">'+(W.OWHDON?W.OWHDON.card():'')+'</div><div class="note" style="margin-top:10px">Calculations: sun and moon positions by standard astronomical formulas, Lahiri ayanamsa. Festival dates follow common rules and can differ by a day between regions; check with your local priest for rituals.</div></div>';
  $('more').innerHTML=h;
- $('langSel').onchange=function(){setLang(this.value)};$('sysSel').onchange=function(){S.sys=this.value;save('sys');resetCache();SOLC={};toast('🗓️ '+sysLabel()+' month names');rMore()};$('fontSel').onchange=function(){S.font=this.value;save('font');look()};[].forEach.call(D.querySelectorAll('[data-col]'),function(x){x.onchange=function(){S.col[x.getAttribute('data-col')]=x.value;save('col');look();rMore()}});
+ $('langSel').onchange=function(){setLang(this.value)};$('uiSel').onchange=function(){setUI(this.value)};$('sysSel').onchange=function(){S.sys=this.value;save('sys');resetCache();SOLC={};toast('🗓️ '+sysLabel()+' month names');rMore()};$('fontSel').onchange=function(){S.font=this.value;save('font');look()};[].forEach.call(D.querySelectorAll('[data-col]'),function(x){x.onchange=function(){S.col[x.getAttribute('data-col')]=x.value;save('col');look();rMore()}});
  $('city').onchange=function(){var i=this.value;if(i==='')return;var c=CITIES[+i];setLoc({n:c[0],lat:c[1],lon:c[2],tz:c[3]=='NE'?5.75:5.5,s:c[3]})};
  $('rbt').onchange=function(){S.rem.bt=this.value||'20:00';save('rem')};$('rst').onchange=function(){S.rem.st=this.value||'06:00';save('rem')}}
 function lookCard(){var h='<div class="card set"><h2>🎨 LOOK & COLOURS</h2><label>Theme</label><div class="themes">'+Object.keys(THEMES).map(function(k){var t=THEMES[k].v;return '<button class="th'+(S.theme==k?' on':'')+'" data-a="theme" data-v="'+k+'" style="background:'+t[0]+';color:'+t[5]+';border-color:'+(S.theme==k?t[7]:t[4])+'"><span class="sws"><i style="background:'+t[13]+'"></i><i style="background:'+t[7]+'"></i><i style="background:'+t[8]+'"></i><i style="background:'+t[2]+'"></i></span>'+THEMES[k].n+'</button>'}).join('')+'</div>'
@@ -885,8 +889,12 @@ function lookCard(){var h='<div class="card set"><h2>🎨 LOOK & COLOURS</h2><la
  +'<button class="btn2" data-a="colreset" style="margin-top:8px;width:100%">RESET COLOURS</button></div>';return h}
 function nameCase(s){return String(s).toLowerCase().replace(/(^|\s)\S/g,function(c){return c.toUpperCase()})}
 /* language: Hindi translates the whole app (din-darpan-hi.js) */
-function loadHi(){if(S.lang!='hi')return;try{D.documentElement.lang='hi'}catch(e){}if(W.ddHi){ddHi.start();return}var sc=D.createElement('script');sc.src='din-darpan-hi.js?v=2';sc.onload=function(){if(W.ddHi)ddHi.start()};D.head.appendChild(sc)}
-function setLang(v){var was=S.lang;S.lang=v;save('lang');resetCache();if(was=='hi'&&v!='hi'){location.reload();return}tabs();rerender();rMore();loadHi();toast(v=='hi'?'🗣️ हिन्दी':'🗣️ '+v)}
+function loadJsOnce(src,cb){var sc=D.createElement('script');sc.src=src;sc.onload=cb;sc.onerror=cb;D.head.appendChild(sc)}
+function loadHi(){var u=S.ui;if(!u||u=='en')return;try{D.documentElement.lang=u}catch(e){}
+ var go=function(){if(!W.ddHi)return;ddHi.start(u=='hi'?{}:{base:!!UIHI[u],dict:(W.DD_UI||{})[u]||{}})};
+ loadJsOnce('din-darpan-hi.js?v=3',function(){if(u=='hi')go();else loadJsOnce('din-darpan-ui.js?v=1',go)})}
+function setUI(v){S.ui=v;LS.set('ui',v);location.reload()}
+function setLang(v){S.lang=v;save('lang');resetCache();tabs();rerender();rMore();toast('🔤 '+v)}
 function setLoc(l){S.loc=l;save('loc');resetCache();PHM={};PH={};hdr();toast('📍 '+l.n);rerender()}
 /* ---------- place search: offline list first, then any town or village worldwide (Open-Meteo, free, no key) ---------- */
 function tzOff(tzName,ms){try{var f=new Intl.DateTimeFormat('en-US',{timeZone:tzName,timeZoneName:'longOffset'}).formatToParts(new Date(ms||Date.now())),o=(f.filter(function(x){return x.type=='timeZoneName'})[0]||{}).value||'';var m=o.match(/GMT([+-])(\d\d):?(\d\d)?/);if(!m)return 0;return (m[1]=='-'?-1:1)*(+m[2]+(+m[3]||0)/60)}catch(e){return 5.5}}
@@ -1220,7 +1228,7 @@ function kPredict(k){var tt=T(),H=KD.chart(k.ps,k.ascSign,'d1'),P0={};k.ps.forEa
 /* ---------- Kundli: today's status (Gochar + Dasha) with tap-for-details. English / Hindi ---------- */
 /* ---------- Kundli: today's status (Gochar + Dasha) with tap-for-details. English / Hindi ---------- */
 function ordH(n,o){var A=[0,['पहला','पहले'],['दूसरा','दूसरे'],['तीसरा','तीसरे'],['चौथा','चौथे'],0,['छठा','छठे']];return A[n]?A[n][o]:n+(o?'वें':'वाँ')}
-function LH(en,hi){return S.lang=='hi'?hi:en}
+function LH(en,hi){return UIHI[S.ui]?hi:en}
 var HOUSE_HI=['स्वयं, शरीर, स्वास्थ्य, रूप, स्वभाव','धन, परिवार, वाणी, भोजन, बचत','साहस, छोटे भाई-बहन, छोटी यात्राएँ, मेहनत, संचार','माता, घर, भूमि, वाहन, मन की शांति, शिक्षा','संतान, बुद्धि, पढ़ाई, प्रेम, मंत्र, पूर्व पुण्य','शत्रु, कर्ज़, रोग, नौकरी, प्रतियोगिता','विवाह, जीवनसाथी, साझेदार, व्यापारिक सौदे, जनता','आयु, अचानक घटनाएँ, रहस्य, शोध, विरासत','भाग्य, पिता, गुरु, धर्म, उच्च शिक्षा, लंबी यात्रा','करियर, पद, सरकार, पिता का नाम, कर्म','आय, लाभ, इच्छाएँ, बड़े भाई-बहन, मित्र','खर्च, हानि, नींद, विदेश, मोक्ष, अस्पताल'];
 var REM_HI={su:'सूर्योदय पर सूर्य को जल चढ़ाएँ और गेहूँ या गुड़ दान करें',mo:'शिवलिंग पर दूध या जल चढ़ाएँ और सफ़ेद वस्त्र पहनें',ma:'हनुमान चालीसा पढ़ें और लाल मसूर दान करें',me:'गाय को हरी घास खिलाएँ और भगवान गणेश की पूजा करें',ju:'भगवान विष्णु की पूजा करें और पीली चीज़ें (चना दाल, हल्दी) दान करें',ve:'माता लक्ष्मी की पूजा करें और सफ़ेद मिठाई चढ़ाएँ',sa:'पीपल के नीचे सरसों के तेल का दीपक जलाएँ और गरीबों की मदद करें',ra:'माँ दुर्गा की पूजा करें और आवारा कुत्ते को खाना खिलाएँ',ke:'भगवान गणेश की पूजा करें और आवारा कुत्ते को खाना खिलाएँ'};
 var GOOD_TR={su:[3,6,10,11],mo:[1,3,6,7,10,11],ma:[3,6,11],me:[2,4,6,8,10,11],ju:[2,5,7,9,11],ve:[1,2,3,4,5,8,9,11,12],sa:[3,6,11],ra:[3,6,11],ke:[3,6,11]};

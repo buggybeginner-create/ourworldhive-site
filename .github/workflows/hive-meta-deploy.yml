@@ -17,6 +17,8 @@ jobs:
       - name: Check the secrets are there
         id: chk
         run: |
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && echo "MISSING: CLOUDFLARE_API_TOKEN" || echo "found: CLOUDFLARE_API_TOKEN (${#CLOUDFLARE_API_TOKEN} letters)"
+          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && echo "MISSING: CLOUDFLARE_ACCOUNT_ID" || echo "found: CLOUDFLARE_ACCOUNT_ID (${#CLOUDFLARE_ACCOUNT_ID} letters)"
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "Secrets missing: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID. Nothing was sent."
             echo "go=no" >> $GITHUB_OUTPUT; exit 1

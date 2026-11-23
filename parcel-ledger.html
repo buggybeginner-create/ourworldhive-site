@@ -252,6 +252,8 @@ body{font-size:14px}
 .frow{padding:6px 0}
 .frow .pimg{width:42px;height:42px}
 .budh .hq,.lh .hq{margin-right:auto}
+.prow{text-decoration:none;color:inherit}
+label input[type=checkbox]{width:auto;flex:none;margin:0}
 
 #soon[hidden],#app[hidden],.fab[hidden]{display:none!important}</style><script src="firebase-config.js"></script><script src="owh-contact.js" defer></script></head><body>
 <div id="login" hidden><div class="lg-bg" aria-hidden="true"><i>📦</i><i>🚚</i><i>📦</i><i>🛍️</i><i>📦</i></div>
@@ -314,7 +316,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.22';
+var PL_VER='2026-11-23.23';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -886,7 +888,7 @@ var _pr0=pgRem;pgRem=function(){var h=_pr0(),L=wlItems().filter(laterWait).sort(
 /* ---------- Help: page guides, small "?" buttons, Help Centre; can be switched off in Profile ---------- */
 var HELP={
  start:{i:'👋',t:'Getting Started',b:'<p>Parcel Ledger keeps every online order in one place: what you bought, where it is, what you spent and what you can still return.</p><ol><li><b>Sign in with Google</b> (Profile) to keep your orders safe in your account and use them on more than one device. You can also use the app without signing in; your data then stays on this device only.</li><li><b>Bring your orders in</b> from Gmail or SMS, or add them yourself with <b>+ Add Order</b>.</li><li><b>Plan purchases</b> in the Watchlist and share it with your family.</li><li><b>Set a budget</b> to see at a glance when you are close to your limit.</li></ol><p>Tap <b>?</b> at the top of any screen to see help for that screen.</p>'},
- orders:{i:'📦',t:'Orders',b:'<p>The Orders screen lists every order for the period you choose (by month, by year or a custom range).</p><ul><li><b>Status cards</b>: Pending, Delivered, Returned and Cancelled. Tap a card to show only those orders.</li><li><b>Order card</b>: tap it to see the items, order number, dates, payment and the supplier price check.</li><li><b>Track</b> opens the order in the shop\'s app or website.</li><li><b>Mark Delivered</b>, <b>Returned</b> or <b>Damaged</b> keeps the status correct. For returns, tap <b>Refund Received</b> when the money is back; the refund is taken off your spending.</li><li><b>Search</b> finds an order by item name, order number or note.</li><li>Orders that need attention (missing price, date or name) are grouped in a yellow card so you can complete them.</li></ul>'},
+ orders:{i:'📦',t:'Orders',b:'<p>The Orders screen lists every order for the period you choose (by month, by year or a custom range).</p><ul><li><b>Status cards</b>: Pending, Delivered, Returned and Cancelled. Tap a card to show only those orders.</li><li><b>Order card</b>: tap it to see the items, order number, dates, payment and the supplier price check.</li><li><b>Track</b> opens the order in the shop\'s app or website.</li><li><b>Mark Delivered</b>, <b>Returned</b> or <b>Damaged</b> keeps the status correct. For returns, tap <b>Refund Received</b> when the money is back; the refund is taken off your spending.</li><li><b>Search</b> finds an order by item name, order number or note.</li><li><b>Press and hold</b> an order (right-click on a computer) for quick options: <b>Edit Order</b>, <b>Open Product Page</b>, and <b>Sync Details From Product Link</b>: paste the product link from the shop to fill in the full name, photo, price and return policy, for the whole order or for one item.</li><li>Orders that need attention (missing price, date or name) are grouped in a yellow card so you can complete them.</li></ul>'},
  link:{i:'🔗',t:'Linking Gmail And SMS',b:'<p>Orders can be brought in automatically, so you do not have to type them.</p><ul><li><b>Scan Gmail</b>: add the Gmail address where your order mails arrive, then tap <b>Sync Now</b>. Only order, shipping and delivery mails from shops are read. Access is read-only.</li><li><b>Scan SMS</b> (Android app): reads order and delivery messages from shops and couriers. You can also turn on automatic reading of new messages.</li><li><b>Paste</b>: copy any order SMS, notification or mail and paste it in <b>Link Orders</b>.</li><li><b>Share</b>: in your SMS or mail app, share a message to <b>Parcel</b>.</li></ul><p>Messages about the same order are joined by order number, so one order is never added twice. Bank payment messages to shops are matched to your orders as payments.</p><p class="hnote">🔒 Parcel Ledger never reads one-time passwords (OTP). Messages that contain an OTP are skipped, and nothing leaves your device except the orders you save to your own account.</p>'},
  track:{i:'🚚',t:'Delivery, Returns And Refunds',b:'<ul><li>The expected date is shown on each order; late orders are marked in red.</li><li><b>Remind Me</b> on an order sets a notification or an alarm for the delivery day.</li><li>For orders with several items, each item can be marked as received on its own.</li><li>After delivery, the card shows <b>Return by</b> with the days left. The window is read from the product page when available; otherwise the store\'s usual policy is shown and marked <i>(usual)</i>. Always check the shop\'s order page for the exact date.</li><li>Mark an order <b>Returned</b> and then <b>Refund Received</b> to keep your spending correct.</li></ul>'},
  watch:{i:'🛒',t:'Watchlist',b:'<p>The Watchlist is your shopping list for things you plan to buy online.</p><ul><li>Each item shows the store, quantity, price, discount and return policy, and who added it.</li><li>The total at the top shows what everything on the list would cost, and the budget bar shows whether it still fits your limit.</li><li>Items are in three groups: <b>To Buy</b>, <b>Buy Later</b> and <b>Bought</b>.</li><li><b>Read Details</b> fetches the photo, price and return policy again if they are missing. <b>Edit</b> lets you correct anything yourself.</li></ul><p>See also: Adding Items, Purchasing And Buy Later, Sharing With Family.</p>'},
@@ -920,8 +922,9 @@ var _pp0=pgProfile;pgProfile=function(){var h=_pp0(),row='<button type="button" 
 var _jn0=junkName;junkName=function(n){return _jn0(n)||/^subject:|^\(s\)$|^order confirmation$/i.test(String(n||"").trim())};
 var MONN={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 function mdyDate(s){var m=/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(s||'');if(!m)return '';var mo=MONN[m[1].toLowerCase().slice(0,3)];if(!mo)return '';return m[3]+'-'+String(mo).padStart(2,'0')+'-'+String(+m[2]).padStart(2,'0')}
+var _sh0=stripHtml;stripHtml=function(h){return _sh0(String(h||'').replace(/<!--[\s\S]*?-->/g,' ').replace(/&#x20a8;|&#8360;|₨\.?/gi,'₹'))};
 var _pe0=parseEmails;parseEmails=function(t,dflt,one){var L=_pe0(String(t||'').replace(/₨\.?/g,'₹'),dflt,one);L.forEach(function(r){var e=String(t||'').replace(/\s+/g,' ');
- if(!r.eta){var m=/(?:delivery|arriving|expected|delivered)\s*(?:by|on)?\s*(?:[A-Za-z]{3,9},?\s+)?([A-Za-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i.exec(e);if(m)r.eta=mdyDate(m[1])}
+ if(!r.eta){var m=/(?:delivery|arriving|expected|delivered)\s*(?:(?:by|on)\s+)*(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+)?([A-Za-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i.exec(e);if(m)r.eta=mdyDate(m[1])}
  var om=/order(?:ed)?\s+placed\s+on\s+([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})/i.exec(e);if(om){var d=mdyDate(om[1]);if(d)r.orderedOn=d}
  if(r.orderId&&!/\d/.test(r.orderId))r.orderId='';
  if(junkName(r.item))r.item=''});return L};
@@ -939,6 +942,37 @@ var _td0=tidy;tidy=function(){var ch=false,before=orders.length;orders.forEach(f
 var _fm1=findMatch;findMatch=function(x,acc){var m=_fm1(x,acc);if(m||!x.item)return m;var xd=x.orderedOn||today(),xl=x.item.toLowerCase(),best=null,bs=0;
  orders.forEach(function(o){if(o.store!==x.store||/\d/.test(o.orderId||'')||Math.abs(dd(o.orderedOn||xd,xd))>3)return;var a=String(o.item||'').replace(/[.…\s]+$/,'').toLowerCase(),s=a.length>=6&&xl.indexOf(a)===0?1:sim(x.item,o.item);if(s>bs){bs=s;best=o}});
  return bs>=0.6?best:null};
+
+/* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
+function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);
+ var fm=sheet('<h2>'+esc(o.item||'Order')+'</h2><p class="msg" style="margin:-6px 0 10px">'+esc((STORES[o.store]||STORES.other).n)+(o.orderId?' · '+esc(o.orderId):'')+' · '+esc(fd(o.orderedOn))+'</p>'+
+  '<div class="hlist"><button type="button" class="prow" id="omEdit"><span class="pi">✏️</span><span class="pt">Edit Order<small>Name, price, dates, status, order number</small></span><span class="pc">›</span></button>'+
+  (pl?'<a class="prow" href="'+esc(o.plink)+'" target="_blank" rel="noopener noreferrer"><span class="pi">🛍️</span><span class="pt">Open Product Page<small>'+esc((STORES[o.store]||STORES.other).n)+'</small></span><span class="pc">›</span></a>':'')+'</div>'+
+  '<div class="card" style="margin-top:10px"><b>🔗 Sync Details From Product Link</b><div class="msg" style="margin:4px 0 8px">Paste the product link from the shop (Share → Copy link). The name, photo, price and return policy are filled in.</div>'+
+  (hasIt?'<div class="f"><label for="omIt">For item</label><select id="omIt">'+o.items.map(function(x,i){return '<option value="'+i+'">'+esc(x.n)+'</option>'}).join('')+'<option value="all">Whole order</option></select></div>':'')+
+  '<div class="wladd" style="margin-top:0"><input id="omUrl" type="url" inputmode="url" placeholder="https://… product link" autocomplete="off" value="'+esc(pl?o.plink:'')+'"><button class="btn pri" type="submit">Sync</button></div>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px"><input type="checkbox" id="omName"'+(junkName(o.item)||/…|\.\.\.$/.test(o.item||'')?' checked':'')+'> Replace the name with the shop\'s name</label><div class="msg" id="omMsg" style="margin-top:6px"></div></div>'+
+  '<div class="acts"><button class="btn" type="button" data-a="close">Close</button></div>');
+ document.getElementById('omEdit').onclick=function(){closeSheet();openOrder(o)};
+ var go=async function(){var u=urlIn(document.getElementById('omUrl').value);var msg=document.getElementById('omMsg');if(!u){msg.textContent='Paste a link that starts with https://';return}
+  msg.textContent='⏳ Reading the product page…';var m={};try{m=await fetchMeta(u)}catch(e){}
+  var pre=function(a){a=String(a||'').replace(/[.…\s]+$/,'').toLowerCase();return !!m.t&&a.length>=6&&String(m.t).toLowerCase().indexOf(a)===0&&String(m.t).length>a.length},sel=document.getElementById('omIt'),ix=sel?sel.value:'all',rn=document.getElementById('omName').checked,got=[];
+  if(hasIt&&ix!=='all'){var it=o.items[+ix];if(m.t&&(rn||junkName(it.n)||/…|\.\.\.$/.test(it.n)||pre(it.n))){it.n=String(m.t).slice(0,90);got.push('name')}if(m.img){it.img=m.img;got.push('photo')}if(m.p&&it.p==null){it.p=m.p;got.push('price')}it.link=u;if(!o.img&&m.img)o.img=m.img}
+  else{if(m.t&&(rn||junkName(o.item)||pre(o.item))){o.item=String(m.t).slice(0,140);got.push('name')}if(m.img){o.img=m.img;got.push('photo')}if(m.p&&!(+o.amount)){o.amount=m.p*(+o.qty||1);got.push('price')}}
+  o.plink=u.slice(0,800);if(m.ret){o.retD=+m.ret.d||0;o.retK=m.ret.k;got.push('return policy')}if(o.store==='other'&&storeOfUrl(m.fin||u)!=='other')o.store=storeOfUrl(m.fin||u);
+  o.upd=Date.now();save();
+  if(got.length){closeSheet();render();toast('🔗 Synced: '+got.join(', '))}else{render();msg.innerHTML='The shop did not share the details for this link'+(NATIVE?'':' on the web. Myntra works in the Parcel phone app')+'. The link is saved; tap ✏️ Edit Order to type them in.'}};
+ fm.onsubmit=function(e){e.preventDefault();go()};
+ document.getElementById('omUrl').addEventListener('paste',function(){setTimeout(function(){if(urlIn(document.getElementById('omUrl').value))go()},60)})}
+/* long press (phone) or right-click (computer) on an order card */
+(function(){var tm=null,sx=0,sy=0,fired=false;
+ function idOf(el){var c=el.closest&&el.closest('article.order');if(!c)return null;var t=c.querySelector('[data-a=toggle]');return t&&t.dataset.id}
+ function open(id){var o=find(id);if(!o)return;fired=true;if(navigator.vibrate)try{navigator.vibrate(18)}catch(e){}orderMenu(o)}
+ document.addEventListener('touchstart',function(e){var id=idOf(e.target);if(!id||e.touches.length>1)return;fired=false;sx=e.touches[0].clientX;sy=e.touches[0].clientY;clearTimeout(tm);tm=setTimeout(function(){open(id)},550)},{passive:true});
+ document.addEventListener('touchmove',function(e){if(!tm)return;var t=e.touches[0];if(Math.abs(t.clientX-sx)>10||Math.abs(t.clientY-sy)>10){clearTimeout(tm);tm=null}},{passive:true});
+ document.addEventListener('touchend',function(e){clearTimeout(tm);tm=null;if(fired){e.preventDefault();fired=false}});
+ document.addEventListener('contextmenu',function(e){var id=idOf(e.target);if(!id)return;e.preventDefault();if(!document.getElementById('overlay').innerHTML)open(id)});
+ document.addEventListener('click',function(e){if(fired&&idOf(e.target)){e.preventDefault();e.stopPropagation();fired=false}},true)})();
 
 /* ---------- sheets ---------- */
 function ov(){return document.getElementById('overlay')}function closeSheet(){ov().innerHTML=''}

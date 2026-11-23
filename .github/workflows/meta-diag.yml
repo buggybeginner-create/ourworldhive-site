@@ -9,6 +9,8 @@ jobs:
         shell: bash {0}
         run: |
           UA='Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'
+          echo "=== worker ping"; curl -s -i 'https://hive-meta.er-krushnananda.workers.dev/?ping=1' | head -20
+          echo "=== worker bad"; curl -s 'https://hive-meta.er-krushnananda.workers.dev/?u=https://example.com/'; echo
           for U in "https://www.amazon.in/dp/B0CHX1W1XY" "https://www.myntra.com/kurta-sets" ; do
             echo "=== direct $U"; curl -sL -A "$UA" -H 'Accept-Language: en-IN,en;q=0.9' -o page.html -w "code %{http_code} size %{size_download} final %{url_effective}\n" "$U"
             grep -o '<title>[^<]*' page.html | head -2; grep -c '__myx' page.html; grep -o 'a-price-whole[^<]*<' page.html | head -2; grep -o '"landingPageUrl":"[^"]*"' page.html | head -2

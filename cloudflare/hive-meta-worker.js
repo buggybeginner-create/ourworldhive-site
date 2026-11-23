@@ -51,13 +51,15 @@ export default {
     const o=req.headers.get('Origin')||'',cors={'Access-Control-Allow-Origin':ORIGINS.test(o)?o:'https://ourworldhive.com','Access-Control-Allow-Methods':'GET, OPTIONS','Vary':'Origin'};
     if(req.method==='OPTIONS')return new Response(null,{headers:cors});
     const json=(d,st,age)=>new Response(JSON.stringify(d),{status:st||200,headers:{...cors,'Content-Type':'application/json; charset=utf-8','Cache-Control':'public, max-age='+(age||0)}});
+    if(new URL(req.url).searchParams.has('ping'))return json({ok:true,v:3});
+    try{
     const q=new URL(req.url).searchParams.get('u')||'';let u=okUrl(q);
     if(!u)return json({error:'Only shop product links (Amazon, Flipkart, Myntra, Meesho, AJIO, Nykaa…) can be read.'},400);
     const cache=caches.default,key=new Request('https://hive-meta.cache/?u='+encodeURIComponent(u.href));
     const hit=await cache.match(key);if(hit){const r=new Response(hit.body,hit);Object.entries(cors).forEach(([k,v])=>r.headers.set(k,v));return r}
     let res=null,fin=u.href;
     for(let hop=0;hop<7;hop++){
-      res=await fetch(u.href,{redirect:'manual',headers:{'User-Agent':UA,'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8','Accept-Language':'en-IN,en;q=0.9'}}).catch(()=>null);
+      res=await fetch(u.href,{redirect:'manual',cf:{cacheTtl:0},headers:{'User-Agent':UA,'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8','Accept-Language':'en-IN,en;q=0.9'}}).catch(()=>null);
       if(!res)break;
       if(res.status>=300&&res.status<400){const loc=res.headers.get('Location');const nu=loc?okUrl(new URL(loc,u).href):null;if(!nu){res=null;break}u=nu;fin=u.href;continue}
       break;
@@ -67,5 +69,6 @@ export default {
     const m=metaOf(html,fin);m.fin=fin;m.st=res.status;
     const good=!!(m.img||m.p||m.ret);
     const out=json(m,200,good?43200:120);if(good)ctx.waitUntil(cache.put(key,out.clone()));return out;
+    }catch(e){return json({error:String(e&&e.message||e)},200,0)}
   }
 };

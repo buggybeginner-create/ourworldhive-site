@@ -140,6 +140,14 @@ body{overflow-x:hidden}
 
 .itb{margin-top:7px;border:1px solid var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);color:var(--good);border-radius:10px;padding:5px 10px;font:600 12px var(--f-body)}.itb.undo{border-color:var(--line);background:none;color:var(--muted)}
 
+.bnav{grid-template-columns:repeat(5,1fr)}.bnav button b{font-size:10.5px}
+.wladd{display:flex;gap:8px;margin-top:10px}.wladd input{flex:1}
+.wli{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:11px 12px;box-shadow:var(--sh)}.wli.done{opacity:.62}.wli.done .wlt{text-decoration:line-through}
+.wck input{width:24px;height:24px;accent-color:var(--good);margin-top:14px}.wlt{font-weight:600;color:var(--fg);text-decoration:none;overflow-wrap:anywhere;display:block}
+.wby{font-size:12px;color:var(--muted);margin-top:6px}.wacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.qst{display:inline-flex;align-items:center;gap:6px}.qst button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:22px;height:22px;padding:0;font-weight:700;line-height:1}
+@media(min-width:900px){.wli .pimg{width:60px;height:60px}}
+
 #soon[hidden],#app[hidden],.fab[hidden]{display:none!important}</style><script src="firebase-config.js"></script><script src="owh-contact.js" defer></script></head><body>
 <div id="login" hidden><div class="lg-bg" aria-hidden="true"><i>📦</i><i>🚚</i><i>📦</i><i>🛍️</i><i>📦</i></div>
 <div class="lg"><img class="lg-ic" src="parcel-icon-512.png" alt="" width="88" height="88"><h1>Parcel Ledger</h1><p class="lg-sub">Every online order, delivery and refund in one place.</p>
@@ -201,11 +209,11 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.10';
+var PL_VER='2026-11-23.11';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
-var PAGES=[['orders','Orders','📦'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
+var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
-function pageBtns(){var n=remCount();return PAGES.map(function(p){return '<button type="button" data-a="page" data-p="'+p[0]+'" aria-current="'+(f.page===p[0])+'"><span aria-hidden="true">'+p[2]+'</span><b>'+p[1]+'</b>'+(p[0]==='rem'&&n?'<i>'+n+'</i>':'')+'</button>'}).join('')}
+function pageBtns(){var n=remCount();return PAGES.map(function(p){return '<button type="button" data-a="page" data-p="'+p[0]+'" aria-current="'+(f.page===p[0])+'"><span aria-hidden="true">'+p[2]+'</span><b>'+p[1]+'</b>'+(p[0]==='rem'&&n?'<i>'+n+'</i>':'')+(p[0]==='watch'&&wlItems().filter(function(x){return !x.done}).length?'<i>'+wlItems().filter(function(x){return !x.done}).length+'</i>':'')+'</button>'}).join('')}
 function periodBar(){var ps=periods();if(f.vm!=='all'&&ps.indexOf(f.period)<0)f.period=ps[0]||'';
  return '<div class="bar"><select id="vm" aria-label="View by"><option value="month"'+(f.vm==='month'?' selected':'')+'>By Month</option><option value="fy"'+(f.vm==='fy'?' selected':'')+'>By Financial Year</option><option value="all"'+(f.vm==='all'?' selected':'')+'>All Time</option></select>'+(f.vm==='all'?'':'<select id="period" aria-label="Period">'+ps.map(function(k){return '<option value="'+k+'"'+(f.period===k?' selected':'')+'>'+esc(f.vm==='fy'?fyLabel(k):mlabel(k))+'</option>'}).join('')+'</select>')+(S.accounts.length>1?'<select id="acc" aria-label="Gmail account"><option value="all">All Accounts</option>'+S.accounts.map(function(a){return '<option'+(S.account===a?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select>':'')+'</div>'}
 function bucket(o){return isLive(o)?'live':o.status==='delivered'?'delivered':(o.status==='returned'||o.status==='damaged')?'issue':o.status==='cancelled'?'cancelled':'live'}
@@ -246,7 +254,7 @@ function pgProfile(){var nm=S.name||(U&&U.displayName)||'',em=U?U.email:'',all=o
  if(!U)h+='<button class="lg-g wide" data-a="signin" type="button">Continue With Google To Sync</button>';
  h+='<div class="pst"><div><b class="num">'+orders.length+'</b><small>Orders</small></div><div><b class="num">'+money(sp)+'</b><small>Spent</small></div><div><b class="num">'+dl+'</b><small>Delivered</small></div><div><b class="num">'+rt+'</b><small>Returned</small></div></div>';
  var row=function(a,ic,t,sub){return '<button type="button" class="prow" data-a="'+a+'"><span class="pi">'+ic+'</span><span class="pt">'+t+(sub?'<small>'+sub+'</small>':'')+'</span><span class="pc">›</span></button>'};
- h+='<div class="pgrp"><h4>Profile</h4>'+row('pname','✏️','Your Name',esc(nm||'Not set'))+row('page" data-p="rem','⏰','Delivery Reminders',S.autoRem?'On delivery day at '+esc(S.remTime||'09:00'):'Only the ones you set')+'</div>';
+ h+='<div class="pgrp"><h4>Profile</h4>'+row('pname','✏️','Your Name',esc(nm||'Not set'))+row('pnick','🏷️','Nickname','Shown to your family on the watchlist: '+esc(myNick()))+row('page" data-p="rem','⏰','Delivery Reminders',S.autoRem?'On delivery day at '+esc(S.remTime||'09:00'):'Only the ones you set')+'</div>';
  h+='<div class="pgrp"><h4>Orders</h4>'+row('sync','🔗','Link Gmail / SMS','Bring orders in from mail and messages')+row('accounts','📧','Gmail Accounts',S.accounts.length+' account'+(S.accounts.length===1?'':'s'))+row('budget','💰','Monthly Budget',S.budget.total?money(S.budget.total)+' a month':'Not set')+'</div>';
  h+=readCard();h+='<div class="pgrp"><h4>Data</h4>'+row('dupopen','🔁','Merge Duplicate Orders',dupSets().length?dupSets().length+' found':'None found')+row('csv','📄','Export CSV','Orders of the chosen period')+row('exportjson','💾','Backup','Save a copy of all orders')+row('importjson','📥','Restore','Bring orders back from a backup')+'</div>';
  h+='<div class="pgrp"><h4>App</h4><div class="prow"><span class="pi">🎨</span><span class="pt">Theme</span><select id="theme" style="width:auto"><option value="auto"'+(S.theme==='light'||S.theme==='dark'?'':' selected')+'>Auto</option><option value="light"'+(S.theme==='light'?' selected':'')+'>Light</option><option value="dark"'+(S.theme==='dark'?' selected':'')+'>Dark</option></select></div>'+row('latest','⬇️','Get Latest Version','Version '+esc(PL_VER)+(NATIVE?' · app '+esc(nver()):''))+(window.OWHCONTACT?row('contact','💬','Contact Us / Feature Request',''):'')+'</div>';
@@ -261,7 +269,7 @@ function render(){document.getElementById('today').textContent=new Date().toLoca
  document.getElementById('hTitle').textContent=f.page==='orders'?(S.name?'Hi, '+String(S.name).split(' ')[0]:'Orders'):pg[1];
  document.getElementById('tnav').innerHTML=pageBtns();document.getElementById('bnav').innerHTML=pageBtns();document.getElementById('avBtn').innerHTML=avatar(36);
  document.getElementById('fab').hidden=f.page!=='orders'&&f.page!=='stats';
- v.innerHTML='<div class="pg">'+(f.page==='stats'?pgStats():f.page==='rem'?pgRem():f.page==='profile'?pgProfile():pgOrders())+'</div>';
+ v.innerHTML='<div class="pg">'+(f.page==='watch'?pgWatch():f.page==='stats'?pgStats():f.page==='rem'?pgRem():f.page==='profile'?pgProfile():pgOrders())+'</div>';
  countUp()}
 function countUp(){var red=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;[].forEach.call(document.querySelectorAll('[data-count]'),function(e){var k=e.dataset.count,to=+e.dataset.v,fr=CNT[k]==null?0:CNT[k];CNT[k]=to;if(red||fr===to){e.textContent=to;return}var t0=performance.now();(function st(t){var p=Math.min(1,(t-t0)/600),ez=1-Math.pow(1-p,3);e.textContent=Math.round(fr+(to-fr)*ez);if(p<1)requestAnimationFrame(st)})(t0)})}
 function go(p){if(p===f.page)return;f.page=p;f.open=null;render();window.scrollTo(0,0)}
@@ -309,7 +317,7 @@ function pageChange(t){if(t.id==='autoRem'){S.autoRem=t.checked;save();render();
 function theme(){var t=S.theme;if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme')}
 function pageAct(a,b,id){
  if(a==='page'){go(b.dataset.p);return true}
- if(dupAct(a,b))return true;if(payAct(a,b))return true;if(itemAct(a,b))return true;if(a==='scansms'){scanSheet();return true}if(NATIVE&&readAct(a))return true;
+ if(wlAct(a,b))return true;if(dupAct(a,b))return true;if(payAct(a,b))return true;if(itemAct(a,b))return true;if(a==='scansms'){scanSheet();return true}if(NATIVE&&readAct(a))return true;
  if(a==='remset'){var o=find(id);if(o)openRem(o);return true}
  if(a==='nexact'){try{NATIVE.openExact()}catch(e){}return true}if(a==='nfull'){try{NATIVE.openFullScreen()}catch(e){}return true}
  if(a==='ntest'){try{NATIVE.testAlarm();toast('The test alarm rings in 5 seconds. You can lock the phone.')}catch(e){}return true}
@@ -317,6 +325,7 @@ function pageAct(a,b,id){
  if(a==='signin'||a==='tologin'){if(a==='signin')googleIn(document.getElementById('lgMsg'));else showLogin();return true}
  if(a==='signout'){fbAuth().then(function(au){return au.signOut()}).catch(function(){});return true}
  if(a==='delacct'){delAccount(b);return true}
+ if(a==='pnick'){var fn=sheet('<h2>Nickname</h2><p class="msg" style="margin:-6px 0 10px">Your family sees this name on items you add or buy.</p><div class="f"><label for="pnk">Nickname</label><input id="pnk" maxlength="20" value="'+esc(S.nick||'')+'" placeholder="'+esc(myNick())+'"></div><div class="acts"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-a="close">Cancel</button></div>');fn.onsubmit=function(e){e.preventDefault();S.nick=caps(document.getElementById('pnk').value.trim()).slice(0,20);closeSheet();save();render();if(U&&S.lists)S.lists.forEach(function(id){var up={};up['names.'+U.uid]=myNick();fs().collection('pl_lists').doc(id).update(up).catch(function(){})});toast('Nickname saved')};return true}
  if(a==='pname'){var fm=sheet('<h2>Your Name</h2><div class="f"><label for="pnm">Name</label><input id="pnm" maxlength="40" value="'+esc(S.name||(U&&U.displayName)||'')+'" placeholder="e.g. Krishna Kumar"></div><div class="acts"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-a="close">Cancel</button></div>');fm.onsubmit=function(e){e.preventDefault();S.name=caps(document.getElementById('pnm').value.trim());closeSheet();save();render();toast('Name saved')};return true}
  if(a==='latest'){toast('Getting the latest version...');var done=function(){location.reload()};Promise.all([window.caches?caches.keys().then(function(k){return Promise.all(k.filter(function(c){return /^parcel-/.test(c)}).map(function(c){return caches.delete(c)}))}):0,navigator.serviceWorker?navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.update().catch(function(){})}))}):0]).then(done,done);setTimeout(done,3000);return true}
  if(a==='contact'){if(window.OWHCONTACT)OWHCONTACT.open({app:'Parcel Ledger'});return true}
@@ -333,7 +342,9 @@ async function googleIn(msg){var say=function(t,er){if(msg){msg.textContent=t;ms
   else{var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});try{await au.signInWithPopup(p)}catch(e){if(e&&/popup-blocked|cancelled-popup|operation-not-supported/.test(e.code||'')){await au.signInWithRedirect(p);return}throw e}}say('')}
  catch(e){say(e&&e.code==='auth/popup-closed-by-user'?'Sign-in was cancelled.':e&&e.message==='cfg'?'Sign-in is not set up on this page.':(e&&e.message)||'Sign-in failed. Check internet and try again.',1)}finally{if(bt)bt.disabled=false}}
 function showLogin(){document.getElementById('login').hidden=false;document.getElementById('app').hidden=true;document.getElementById('bnav').hidden=true;document.getElementById('fab').hidden=true;closeSheet()}
-var shown=false;function showApp(){document.getElementById('login').hidden=true;document.getElementById('app').hidden=false;document.getElementById('bnav').hidden=false;render();schedRem();if(!shown){shown=true;if(window.__plShare)window.__plShare()}}
+function pendingIn(){var q=new URLSearchParams(location.search),j=q.get('join'),ad=q.get('add');if(j||ad)history.replaceState(null,'',location.pathname);if(j){try{localStorage.setItem('pl_join',j)}catch(e){}if(U)wlJoin(j);else toast('Sign in with Google to join the shared watchlist')}
+ if(ad){window.plShared((q.get('t')||'')+' '+ad)}var ps='';try{ps=localStorage.getItem('pl_share')||'';localStorage.removeItem('pl_share')}catch(e){}if(ps)window.plShared(ps)}
+var shown=false;function showApp(){document.getElementById('login').hidden=true;document.getElementById('app').hidden=false;document.getElementById('bnav').hidden=false;render();schedRem();if(!shown){shown=true;if(window.__plShare)window.__plShare();setTimeout(pendingIn,300)}}
 function emptyS(){return{budget:{total:0,types:{}},accounts:['Main'],account:'all',autoRem:false,remTime:'09:00',autoAlarm:true}}
 function useKey(k){KEY=k;orders=[];S=emptyS();load();if(tidy())saveLocal();theme()}
 function bare(o){var c=Object.assign({},o);delete c.upd;return JSON.stringify(c)}
@@ -357,7 +368,7 @@ async function startSync(){var uid=U.uid;useKey('parcel-ledger-u-'+uid);
    var o;try{o=JSON.parse(r.d)}catch(e){return}o.upd=r.upd;if(!lo)orders.push(o);else if((r.upd||0)>(lo.upd||0))orders[orders.indexOf(lo)]=o;lastPush[id]=r.d});
   /* orders saved by the earlier sync (parcel_data/{uid}) come along once; nothing there is deleted */
   try{if(localStorage.getItem('pl_oldin_'+uid)!=='1'){var od=await fs.collection('parcel_data').doc(uid).get();if(od.exists){var oj=JSON.parse(od.data().json||'{}');(oj.orders||[]).forEach(function(o){if(o&&o.id&&!find(o.id))orders.push(o)});((oj.s||{}).accounts||[]).forEach(function(a){if(S.accounts.indexOf(a)<0)S.accounts.push(a)});if(!S.budget.total&&oj.s&&oj.s.budget)S.budget=oj.s.budget}localStorage.setItem('pl_oldin_'+uid,'1')}}catch(e){}
-  tidy();saveLocal();theme();render();schedRem();await push();setTimeout(loadExpense,1500);
+  tidy();saveLocal();theme();render();schedRem();await push();try{await wlEnsure()}catch(e){}var pj='';try{pj=localStorage.getItem('pl_join')||''}catch(e){}if(pj)wlJoin(pj);setTimeout(loadExpense,1500);
   if(unsub)unsub();unsub=col().onSnapshot(function(s){if(s.metadata.hasPendingWrites)return;var ch=false;s.docChanges().forEach(function(c){var r=c.doc.data(),id=c.doc.id,lo=find(id);if(c.type==='removed')return;
    if(r.del){if(lo&&(lo.upd||0)<=(r.upd||0)){orders=orders.filter(function(o){return o.id!==id});ch=true}lastPush[id]='DEL';return}
    if(!lo||(r.upd||0)>(lo.upd||0)){try{var o=JSON.parse(r.d);o.upd=r.upd;if(lo)orders[orders.indexOf(lo)]=o;else orders.push(o);ch=true}catch(e){}}lastPush[id]=r.d});
@@ -368,11 +379,11 @@ async function delAccount(b){if(!b.dataset.sure){b.dataset.sure='1';b.querySelec
   var uid=U.uid;try{localStorage.removeItem('parcel-ledger-u-'+uid);localStorage.removeItem('pl_merged_'+uid)}catch(e){}if(unsub)unsub();unsub=null;lastPush={};lastS='';await firebase.auth().signOut();toast('Your account data is deleted.')}
  catch(e){toast('Could not delete now: '+((e&&e.message)||'error'))}}
 function boot(){GUEST=false;try{GUEST=localStorage.getItem('pl_guest')==='1'}catch(e){}var was='';try{was=localStorage.getItem('pl_uid')||(JSON.parse(localStorage.getItem('parcel-ledger-last')||'{}').uid)||''}catch(e){}
- if(was)useKey('parcel-ledger-u-'+was);else useKey('parcel-ledger-v2');if(GUEST||was)showApp();else showLogin();
+ if(was)useKey('parcel-ledger-u-'+was);else useKey('parcel-ledger-v2');if(GUEST||was)showApp();else{showLogin();if(/[?&]join=/.test(location.search)){try{localStorage.setItem('pl_join',new URLSearchParams(location.search).get('join'))}catch(e){}document.getElementById('lgMsg').textContent='Sign in with Google to join the shared watchlist.'}}
  document.getElementById('gIn').onclick=function(){googleIn(document.getElementById('lgMsg'))};
  document.getElementById('guest').onclick=function(){try{localStorage.setItem('pl_guest','1');localStorage.removeItem('pl_uid')}catch(e){}GUEST=true;useKey('parcel-ledger-v2');showApp();toast('Orders are saved on this device. Sign in from Profile any time to sync.')};
  fbAuth().then(function(au){au.onAuthStateChanged(function(u){if(u&&!u.isAnonymous){if(U&&U.uid===u.uid)return;U=u;try{localStorage.removeItem('pl_guest')}catch(e){}GUEST=false;startSync()}
-   else{var had=!!U||!!was;U=null;was='';if(unsub){unsub();unsub=null}lastPush={};lastS='';try{localStorage.removeItem('pl_uid');localStorage.removeItem('parcel-ledger-last')}catch(e){}
+   else{var had=!!U||!!was;U=null;was='';if(unsub){unsub();unsub=null}if(WL.sub){WL.sub();WL.sub=null}if(WL.lsub){WL.lsub();WL.lsub=null}WL.cur='';WL.items=[];lastPush={};lastS='';try{localStorage.removeItem('pl_uid');localStorage.removeItem('parcel-ledger-last')}catch(e){}
     if(GUEST){useKey('parcel-ledger-v2');showApp()}else{if(had)useKey('parcel-ledger-v2');showLogin()}}})}).catch(function(){if(!GUEST&&!was)document.getElementById('lgMsg').textContent='No internet: sign-in needs it. You can use the app without an account.'});
  setInterval(webTick,15000);setTimeout(webTick,1500);if(NATIVE)setTimeout(window.plResume,800)}
 
@@ -526,6 +537,80 @@ function itemAct(a,b){if(a!=='itemgot'&&a!=='itemundo')return false;var o=find(b
  if(a==='itemgot'){it.st='delivered';it.don=today();toast('✅ '+String(it.n).slice(0,40)+' received')}else{it.st=it.trk?'shipped':'ordered';delete it.don;if(o.status==='delivered'){o.status=it.st;o.deliveredOn=''}toast('Marked as not received')}
  rollup(o);var left=o.items.filter(function(x){return ist(o,x)!=='delivered'&&ist(o,x)!=='cancelled'}).length;if(a==='itemgot'&&!left)toast('🎉 All '+o.items.length+' items received. Order delivered.');save();render();return true}
 
+/* ---------- Watchlist: shared with family, paste or share a product link, tick when bought ---------- */
+var WL={lists:{},items:[],sub:null,lsub:null,cur:''};
+var PRODRE=/amazon\.[a-z.]+\/(?:.*\/)?(?:dp|gp\/product|gp\/aw\/d)\/|amzn\.(?:in|to|eu)\/|a\.co\/|flipkart\.com\/[^?\s]*\/p\/|dl\.flipkart\.com\/|fkrt\.(?:it|cc|co)\/|myntra\.com\/[^?\s]*\/buy|myntr\.(?:it|in)\/|meesho\.com\/[^?\s]*\/p\/|msho\.in\/|ajio\.com\/[^?\s]*\/p\/|nykaa\.com\/[^?\s]*\/p\/|firstcry\.com\/[^?\s]*product|tatacliq\.com\/[^?\s]*\/p-|jiomart\.com\/p\/|snapdeal\.com\/product\/|croma\.com\/[^?\s]*\/p\/|lenskart\.com\/[^?\s]*\.html/i;
+function urlIn(t){var m=String(t||'').match(/https?:\/\/[^\s<>"']+/i);return m?m[0].replace(/[).,!]+$/,''):''}
+function isProductText(t){var u=urlIn(t);return !!u&&PRODRE.test(u)&&!/order\s*(?:id|no|#|number)|shipped|delivered|out for delivery|dispatched|refund/i.test(String(t).replace(u,''))}
+function storeOfUrl(u){var h='';try{h=new URL(u).hostname.toLowerCase()}catch(e){}return /(^|\.)(amazon\.[a-z.]+|amzn\.[a-z]+|a\.co)$/.test(h)?'amazon':/(^|\.)(flipkart\.com|fkrt\.[a-z]+)$/.test(h)?'flipkart':/(^|\.)(myntra\.com|myntr\.[a-z]+)$/.test(h)?'myntra':/(^|\.)(meesho\.com|msho\.in)$/.test(h)?'meesho':storeOf(h)}
+function cap(s){return String(s||'').toLowerCase().replace(/(^|\s)([a-z0-9])/g,function(m,a,b){return a+b.toUpperCase()})}
+function titleOf(text,u){var t=String(text||'').replace(u,' ').replace(/https?:\/\/\S+/g,' ').replace(/\bcheck\s+(?:out\s+)?(?:this|it)(?:\s+out)?(?:\s+(?:product|item|deal|one))?(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\b(?:hey|hi|hello)\b[!,]?/gi,' ').replace(/\bi\s+found\s+this(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[!:.]?/gi,' ').replace(/\b(?:have a look|look what i found)\b[^:]*:?/gi,' ').replace(/\b(?:on|at|via)\s+(?:amazon|flipkart|myntra|meesho|ajio|nykaa)(?:\.in)?\b\s*[!:.]?/gi,' ').replace(/\b(?:shop|buy)\s+now\b/gi,' ').replace(/₹\s?[\d,]+(?:\.\d+)?|rs\.?\s?[\d,]+(?:\.\d+)?/gi,' ').replace(/\s+/g,' ').replace(/^[\s:\-–|]+|[\s:\-–|]+$/g,'').trim();
+ if(t.length>=4)return t.slice(0,120);var p='';try{p=decodeURIComponent(new URL(u).pathname)}catch(e){}
+ var m=/\/([^\/]{6,})\/(?:dp|p|gp\/product)\//i.exec(p)||/\/([^\/]+)\/\d+\/buy/i.exec(p)||/\/([a-z0-9][a-z0-9-]{8,})(?:\.html)?\/?$/i.exec(p);return m?cap(m[1].replace(/[-_+]+/g,' ')).slice(0,120):''}
+function priceIn(t){var m=/(?:₹|rs\.?|inr)\s?([\d,]+(?:\.\d+)?)/i.exec(String(t||'').replace(urlIn(t),''));return m?skAmt0(m[1]):null}
+function skAmt0(s){s=String(s).replace(/,/g,'');var n=parseFloat(s);return isFinite(n)?n:null}
+function myNick(){return (S.nick||String(S.name||(U&&U.displayName)||'').split(' ')[0]||(U&&U.email||'').split('@')[0]||'Me').slice(0,20)}
+/* local list (without sign-in) lives in settings; shared lists live in pl_lists/{id}/items */
+function wlLocal(){S.wl=S.wl||[];return S.wl}
+function wlItems(){return WL.cur&&WL.cur!=='local'?WL.items:wlLocal()}
+function fs(){return firebase.firestore()}
+async function wlEnsure(){if(!U||!window.firebase||!firebase.firestore)return;S.lists=S.lists||[];
+ if(!S.lists.length){var ref=fs().collection('pl_lists').doc(),nm={};nm[U.uid]=myNick();await ref.set({name:'Our Watchlist',owner:U.uid,members:[U.uid],names:nm,at:Date.now()});S.lists=[ref.id];
+  /* items added before signing in move into the new list */
+  var loc=wlLocal().slice();for(var i=0;i<loc.length;i++){var x=Object.assign({},loc[i]);delete x.id;x.byUid=U.uid;await ref.collection('items').add(x)}S.wl=[];save()}
+ if(!WL.cur||WL.cur==='local'||S.lists.indexOf(WL.cur)<0)WL.cur=S.wlCur&&S.lists.indexOf(S.wlCur)>=0?S.wlCur:S.lists[0];wlListen()}
+function wlListen(){if(WL.sub){WL.sub();WL.sub=null}if(WL.lsub){WL.lsub();WL.lsub=null}var id=WL.cur;if(!id||id==='local'||!U)return;
+ WL.lsub=fs().collection('pl_lists').doc(id).onSnapshot(function(d){if(d.exists)WL.lists[id]=d.data();if(f.page==='watch')render()},function(){});
+ WL.sub=fs().collection('pl_lists').doc(id).collection('items').orderBy('at','desc').onSnapshot(function(s){WL.items=[];s.forEach(function(d){var x=d.data();x.id=d.id;WL.items.push(x)});if(f.page==='watch'&&!document.getElementById('overlay').innerHTML)render();else if(f.page!=='watch')paintNav()},function(e){toast('Could not open the shared list: '+((e&&e.code)||'error'))})}
+function paintNav(){var n=wlItems().filter(function(x){return !x.done}).length;[].forEach.call(document.querySelectorAll('[data-p=watch] i'),function(e){e.textContent=n});}
+async function wlAdd(text,silent){var u=urlIn(text);if(!u){toast('Paste a product link (https://…)');return false}
+ var it={url:u.slice(0,800),t:titleOf(text,u)||((STORES[storeOfUrl(u)]||STORES.other).n+' item'),store:storeOfUrl(u),p:priceIn(text),q:1,by:myNick(),at:Date.now(),done:false};
+ var L=wlItems();if(L.some(function(x){return x.url===it.url&&!x.done})){if(!silent)toast('Already in the watchlist');return false}
+ if(WL.cur&&WL.cur!=='local'&&U){it.byUid=U.uid;try{await fs().collection('pl_lists').doc(WL.cur).collection('items').add(it)}catch(e){toast('Could not add: '+((e&&e.code)||'offline'));return false}}
+ else{it.id=uid();wlLocal().unshift(it);save()}
+ toast('🛒 Added to watchlist'+(it.p?'':': add the price when you know it'));if(f.page==='watch')render();else paintNav();return true}
+async function wlSet(id,patch){if(WL.cur&&WL.cur!=='local'&&U){try{await fs().collection('pl_lists').doc(WL.cur).collection('items').doc(id).update(patch)}catch(e){toast('Could not save: '+((e&&e.code)||'offline'))}}
+ else{var x=wlLocal().filter(function(y){return y.id===id})[0];if(x){Object.assign(x,patch);save();render()}}}
+async function wlDel(id){if(WL.cur&&WL.cur!=='local'&&U){try{await fs().collection('pl_lists').doc(WL.cur).collection('items').doc(id).delete()}catch(e){toast('Could not delete')}}else{S.wl=wlLocal().filter(function(y){return y.id!==id});save();render()}}
+function wlRow(x){var st=STORES[x.store]||STORES.other,tot=(+x.p||0)*(+x.q||1);
+ return '<div class="wli'+(x.done?' done':'')+'"><label class="wck"><input type="checkbox" data-wck="'+esc(x.id)+'"'+(x.done?' checked':'')+' aria-label="Bought"></label>'+imgHtml({store:x.store,img:x.img})+
+ '<div style="min-width:0;flex:1"><a class="wlt" href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.t)+'</a><div class="facts" style="margin-top:5px"><span><span class="dot" style="--dot:var('+st.v+');display:inline-block;vertical-align:middle"></span> '+esc(st.n)+'</span>'+
+ '<span class="qst"><button type="button" data-wq="'+esc(x.id)+'" data-d="-1" aria-label="Less">−</button>Qty '+(+x.q||1)+'<button type="button" data-wq="'+esc(x.id)+'" data-d="1" aria-label="More">+</button></span>'+
+ (x.p!=null&&x.p!==''?'<span>💰 '+money(x.p)+((+x.q||1)>1?' × '+x.q+' = '+money(tot):'')+'</span>':'<button type="button" class="miss" data-wedit="'+esc(x.id)+'">+ Price</button>')+'</div>'+
+ '<div class="wby">Added by <b>'+esc(x.by||'?')+'</b> · '+esc(fd(iso(new Date(x.at))))+(x.done?' · ✅ Bought'+(x.doneBy?' by <b>'+esc(x.doneBy)+'</b>':'')+(x.doneAt?' on '+esc(fd(iso(new Date(x.doneAt)))):''):'')+'</div>'+
+ '<div class="wacts"><button type="button" class="btn sm" data-wedit="'+esc(x.id)+'">Edit</button><button type="button" class="btn sm" data-wshare="'+esc(x.id)+'">Share</button>'+(x.done&&!x.ord?'<button type="button" class="btn sm" data-word="'+esc(x.id)+'">Add To Orders</button>':'')+'<button type="button" class="btn sm dng" data-wdel="'+esc(x.id)+'">Remove</button></div></div></div>'}
+function pgWatch(){var L=wlItems(),open=L.filter(function(x){return !x.done}),done=L.filter(function(x){return x.done}),sum=open.reduce(function(t,x){return t+(+x.p||0)*(+x.q||1)},0),shared=WL.cur&&WL.cur!=='local',li=shared?WL.lists[WL.cur]:null,names=li&&li.names?Object.keys(li.names).map(function(k){return li.names[k]}):[];
+ var h='<div class="card wlhead"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="min-width:0"><b style="font-size:16px">🛒 '+esc(shared?(li&&li.name)||'Watchlist':'My Watchlist')+'</b><div class="msg">'+(shared?(names.length>1?'Shared with '+esc(names.filter(function(n){return n!==myNick()}).join(', ')):'Only you so far. Invite family to add and tick together.'):'Saved on this device. Sign in to share it with family.')+'</div></div>'+(shared?'<button type="button" class="btn sm pri" data-a="wlinvite">👥 Invite</button>':'<button type="button" class="btn sm pri" data-a="signin">Sign In To Share</button>')+'</div>'+
+  ((S.lists||[]).length>1?'<select id="wlsel" style="margin-top:8px">'+S.lists.map(function(id){return '<option value="'+esc(id)+'"'+(id===WL.cur?' selected':'')+'>'+esc((WL.lists[id]&&WL.lists[id].name)||'Shared list')+'</option>'}).join('')+'</select>':'')+
+  '<div class="wladd"><input id="wlurl" type="url" inputmode="url" placeholder="Paste a product link from Amazon, Flipkart, Myntra…" autocomplete="off"><button type="button" class="btn pri" data-a="wladd">Add</button></div><div class="msg" style="margin-top:6px">Tip: in the Amazon / Flipkart app tap <b>Share</b> and choose <b>Parcel Ledger</b>. It is added here by itself.</div></div>';
+ h+='<div class="pst" style="margin-top:12px"><div><b class="num">'+open.length+'</b><small>To buy</small></div><div><b class="num">'+money(sum)+'</b><small>Total</small></div><div><b class="num">'+done.length+'</b><small>Bought</small></div><div><b class="num">'+Math.max(1,names.length)+'</b><small>People</small></div></div>';
+ h+='<div class="lh"><b>To Buy</b><span class="msg">'+open.length+'</span></div><div class="list">'+(open.length?open.map(wlRow).join(''):'<div class="empty"><p>Nothing here yet. Paste a product link above.</p></div>')+'</div>';
+ if(done.length)h+='<div class="lh"><b>Bought</b><span class="msg">'+done.length+'</span></div><div class="list">'+done.map(wlRow).join('')+'</div>';
+ return h}
+function wlEditSheet(x){var fm=sheet('<h2>Edit Item</h2><div class="f"><label for="wt">Item name</label><input id="wt" maxlength="120" value="'+esc(x.t)+'"></div><div class="f2"><div class="f"><label for="wq">Qty</label><input id="wq" type="number" min="1" value="'+esc(x.q||1)+'"></div><div class="f"><label for="wp">Price (₹ each)</label><input id="wp" type="number" min="0" step="any" inputmode="decimal" value="'+esc(x.p==null?'':x.p)+'"></div></div><div class="f"><label>Store</label><select id="ws">'+Object.keys(STORES).map(function(k){return '<option value="'+k+'"'+(x.store===k?' selected':'')+'>'+STORES[k].n+'</option>'}).join('')+'</select></div><div class="acts"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-a="close">Cancel</button></div>');
+ fm.onsubmit=function(e){e.preventDefault();var p=document.getElementById('wp').value;wlSet(x.id,{t:document.getElementById('wt').value.trim().slice(0,120)||x.t,q:Math.max(1,parseInt(document.getElementById('wq').value,10)||1),p:p===''?null:parseFloat(p),store:document.getElementById('ws').value});closeSheet()}}
+function shareText(t){if(NATIVE&&NATIVE.share){try{NATIVE.share(t);return}catch(e){}}if(navigator.share){navigator.share({text:t}).catch(function(){});return}try{navigator.clipboard.writeText(t);toast('Copied. Paste it in WhatsApp.')}catch(e){prompt('Copy this',t)}}
+async function wlInvite(){var li=WL.lists[WL.cur]||{},link='https://ourworldhive.com/parcel-ledger.html?join='+encodeURIComponent(WL.cur);
+ shareText('Join my shopping watchlist "'+(li.name||'Watchlist')+'" in Parcel Ledger. Add things you want to buy and tick them when bought: '+link)}
+/* joining: ?join=<list id> (sign-in needed) */
+async function wlJoin(id){if(!U){try{localStorage.setItem('pl_join',id)}catch(e){}showLogin();var m=document.getElementById('lgMsg');if(m)m.textContent='Sign in with Google to join the shared watchlist.';return}
+ try{var ref=fs().collection('pl_lists').doc(id),d=await ref.get();if(!d.exists){toast('This invite link is not valid any more.');return}var x=d.data();
+  if(x.members.indexOf(U.uid)<0){var up={members:firebase.firestore.FieldValue.arrayUnion(U.uid)};up['names.'+U.uid]=myNick();await ref.update(up)}
+  S.lists=S.lists||[];if(S.lists.indexOf(id)<0)S.lists.push(id);WL.cur=id;S.wlCur=id;save();wlListen();f.page='watch';render();toast('👥 Joined "'+(x.name||'Watchlist')+'"')}
+ catch(e){toast('Could not join: '+((e&&e.code)||'error'))}finally{try{localStorage.removeItem('pl_join')}catch(e){}}}
+/* a link shared into the app (Android share sheet or the installed web app) */
+window.plShared=function(text){if(!text)return false;if(!isProductText(text))return false;if(document.getElementById('app').hidden){try{localStorage.setItem('pl_share',text)}catch(e){}return true}f.page='watch';wlAdd(text).then(function(){render()});return true};
+function wlAct(a,b){if(a==='wladd'){var v=(document.getElementById('wlurl')||{}).value||'';wlAdd(v).then(function(ok){if(ok&&document.getElementById('wlurl'))document.getElementById('wlurl').value=''});return true}
+ if(a==='wlinvite'){wlInvite();return true}return false}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-wq],[data-wedit],[data-wdel],[data-wshare],[data-word]');if(!b)return;var L=wlItems(),id=b.dataset.wq||b.dataset.wedit||b.dataset.wdel||b.dataset.wshare||b.dataset.word,x=L.filter(function(y){return y.id===id})[0];if(!x)return;
+ if(b.dataset.wq)wlSet(id,{q:Math.max(1,(+x.q||1)+(+b.dataset.d))});else if(b.dataset.wedit)wlEditSheet(x);
+ else if(b.dataset.wdel){if(b.dataset.sure)wlDel(id);else{b.dataset.sure=1;b.textContent='Tap again';setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent='Remove'}},2500)}}
+ else if(b.dataset.wshare)shareText(x.t+(x.p?' · '+money(x.p):'')+'\n'+x.url);
+ else if(b.dataset.word){orders.push({id:uid(),srcs:['manual'],store:x.store,item:x.t,amount:(+x.p||0)*(+x.q||1),qty:+x.q||1,type:guess(x.t),status:'ordered',orderedOn:iso(new Date(x.doneAt||Date.now())),eta:'',orderId:'',account:S.accounts[0],notes:'From watchlist',cmp:[],link:x.url});save();wlSet(id,{ord:true});toast('Added to Orders')}});
+document.addEventListener('change',function(e){var t=e.target;if(t.dataset&&t.dataset.wck){var on=t.checked;wlSet(t.dataset.wck,on?{done:true,doneBy:myNick(),doneAt:Date.now()}:{done:false,doneBy:'',doneAt:0});if(on)toast('✅ Marked as bought')}
+ if(t.id==='wlsel'){WL.cur=t.value;S.wlCur=t.value;save();WL.items=[];wlListen();render()}});
+document.addEventListener('paste',function(e){if(e.target&&e.target.id==='wlurl')setTimeout(function(){var i=document.getElementById('wlurl');if(i&&urlIn(i.value))wlAdd(i.value).then(function(ok){if(ok&&document.getElementById('wlurl'))document.getElementById('wlurl').value=''})},50)});
+
 /* ---------- sheets ---------- */
 function ov(){return document.getElementById('overlay')}function closeSheet(){ov().innerHTML=''}
 function sheet(inner){ov().innerHTML='<div class="scrim" data-a="close"></div><form class="sheet" id="form" novalidate>'+inner+'</form>';return document.getElementById('form')}
@@ -676,7 +761,7 @@ document.addEventListener('input',function(e){if(e.target.id==='q'){f.q=e.target
 document.addEventListener('change',function(e){var t=e.target;if(pageChange(t))return;if(t.id==='vm'){f.vm=t.value;f.period='';render()}else if(t.id==='period'){f.period=t.value;render()}else if(t.id==='acc'){S.account=t.value;save();render()}});
 document.getElementById('fab').onclick=function(){openOrder()};
 boot();netUpd();
-window.__plShare=function(){try{var q=new URLSearchParams(location.search),t=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n');if(t){history.replaceState(null,'',location.pathname);setTimeout(function(){var f=openSync(t);var r=parseEmails(t).filter(function(x){return x.orderId||x.item||x.amount});if(r.length){var rs=applyAll(r,S.account==='all'?S.accounts[0]:S.account,'shared message');var m=document.getElementById('smsM');if(m)m.textContent=rs.msg;document.getElementById('smsT').value='';toast(rs.msg)}},200)}}catch(e){}};
+window.__plShare=function(){try{var q=new URLSearchParams(location.search),t=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n');if(t){history.replaceState(null,'',location.pathname);if(window.plShared&&window.plShared(t))return;setTimeout(function(){var f=openSync(t);var r=parseEmails(t).filter(function(x){return x.orderId||x.item||x.amount});if(r.length){var rs=applyAll(r,S.account==='all'?S.accounts[0]:S.account,'shared message');var m=document.getElementById('smsM');if(m)m.textContent=rs.msg;document.getElementById('smsT').value='';toast(rs.msg)}},200)}}catch(e){}};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('parcel-sw.js',{scope:'./parcel-ledger.html'}).catch(function(){});
 var dp=null,ib=document.getElementById('inst');window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;ib.hidden=false;setTimeout(function(){ib.hidden=true},2000)});
 ib.onclick=function(){if(dp){dp.prompt();dp=null;ib.hidden=true}};window.addEventListener('appinstalled',function(){ib.hidden=true;toast('Installed')});

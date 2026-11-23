@@ -43,6 +43,8 @@ public class MainActivity extends Activity {
     private final Handler ui = new Handler(Looper.getMainLooper());
     private String tokReq;
     private ValueCallback<Uri[]> pick;
+    private String pendingShare;
+    private boolean pageReady;
     static WeakReference<MainActivity> LIVE = new WeakReference<>(null);
     /** a new order message arrived: let the page read it */
     static void poke() { final MainActivity a = LIVE.get(); if (a != null) a.ui.post(() -> { if (a.web != null) a.web.evaluateJavascript("window.plInbox&&plInbox()", null); }); }
@@ -63,6 +65,7 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new Bridge(), "PLNative");
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) { return outside(r.getUrl()); }
+            @Override public void onPageFinished(WebView v, String url) { pageReady = true; deliverShare(); }
             @Override public void onReceivedError(WebView v, WebResourceRequest r, WebResourceError e) {
                 if (r.isForMainFrame()) v.loadUrl("file:///android_asset/offline.html");
             }
@@ -79,7 +82,11 @@ public class MainActivity extends Activity {
         });
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 3);
-        if (b != null) web.restoreState(b); else web.loadUrl(HOME);
+        Intent in = getIntent();
+        if (b != null) web.restoreState(b);
+        else if (in != null && Intent.ACTION_VIEW.equals(in.getAction()) && in.getData() != null && "ourworldhive.com".equals(String.valueOf(in.getData().getHost()).replace("www.", ""))) web.loadUrl(in.getData().toString());
+        else web.loadUrl(HOME);
+        takeShare(in);
         RemindReceiver.stopRinging(this);
     }
 
@@ -95,6 +102,24 @@ public class MainActivity extends Activity {
 
     @Override protected void onResume() { super.onResume(); RemindReceiver.stopRinging(this); if (web != null) web.evaluateJavascript("window.plResume&&plResume()", null); }
     @Override public void onRequestPermissionsResult(int req, String[] p, int[] r) { super.onRequestPermissionsResult(req, p, r); if (web != null) web.evaluateJavascript("try{render()}catch(e){}", null); }
+    @Override protected void onNewIntent(Intent i) {
+        super.onNewIntent(i); setIntent(i);
+        if (Intent.ACTION_VIEW.equals(i.getAction()) && i.getData() != null && web != null) { pageReady = false; web.loadUrl(i.getData().toString()); return; }
+        takeShare(i);
+    }
+    /** text or link shared into the app from another app */
+    private void takeShare(Intent i) {
+        if (i == null || !Intent.ACTION_SEND.equals(i.getAction())) return;
+        String sub = i.getStringExtra(Intent.EXTRA_SUBJECT), txt = i.getStringExtra(Intent.EXTRA_TEXT);
+        String t = ((sub == null ? "" : sub + " ") + (txt == null ? "" : txt)).trim();
+        if (t.isEmpty()) return;
+        pendingShare = t; deliverShare();
+    }
+    private void deliverShare() {
+        if (!pageReady || pendingShare == null || web == null) return;
+        String t = JSONObject.quote(pendingShare); pendingShare = null;
+        web.evaluateJavascript("(function(t){try{if(!(window.plShared&&window.plShared(t)))location.href='https://ourworldhive.com/parcel-ledger.html?src=app&text='+encodeURIComponent(t)}catch(e){}})(" + t + ")", null);
+    }
     @Override protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
     @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 
@@ -207,6 +232,7 @@ public class MainActivity extends Activity {
             try { return new JSONObject().put("smsBuild", smsBuild()).put("sms", has(Manifest.permission.READ_SMS)).put("auto", Inbox.auto(MainActivity.this) && has(Manifest.permission.RECEIVE_SMS)).put("notif", notifOn()).put("waiting", Inbox.count(MainActivity.this)).toString(); }
             catch (Exception e) { return "{}"; }
         }
+        @JavascriptInterface public void share(final String text) { ui.post(() -> { try { startActivity(Intent.createChooser(new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), "Share")); } catch (Exception e) { Toast.makeText(MainActivity.this, "No app to share with.", Toast.LENGTH_SHORT).show(); } }); }
         @JavascriptInterface public String takeInbox() { return Inbox.take(MainActivity.this); }
         @JavascriptInterface public void scanSms(final int days) { ui.post(() -> scan(days)); }
         @JavascriptInterface public void requestSms() { ui.post(() -> { if (smsBuild()) requestPermissions(new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 2); }); }

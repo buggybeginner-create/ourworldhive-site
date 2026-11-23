@@ -151,7 +151,17 @@ public class MainActivity extends Activity {
         /* smaller to hand over: drop styles, pictures drawn in code and most scripts (keeps product data scripts) */
         try {
             body = body.replaceAll("(?is)<style[^>]*>.*?</style>", " ").replaceAll("(?is)<svg[^>]*>.*?</svg>", " ");
-            if (body.length() > 1800000) body = body.substring(0, 1800000);
+            StringBuilder sb = new StringBuilder(body.length() / 2); int i = 0; String low = body.toLowerCase();
+            while (true) {
+                int a = low.indexOf("<script", i); if (a < 0) { sb.append(body, i, body.length()); break; }
+                int e = low.indexOf("</script>", a); if (e < 0) { sb.append(body, i, body.length()); break; }
+                e += 9; sb.append(body, i, a);
+                String blk = body.substring(a, e), head = blk.substring(0, Math.min(blk.length(), 200)).toLowerCase();
+                if (head.contains("ld+json") || blk.contains("__myx") || blk.contains("priceAmount") || blk.contains("hiRes")) sb.append(blk);
+                i = e;
+            }
+            body = sb.toString();
+            if (body.length() > 900000) body = body.substring(0, 900000);
         } catch (Throwable ignored) { }
         return new String[]{fin, body};
     }

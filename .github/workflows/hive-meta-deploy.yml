@@ -19,7 +19,7 @@ jobs:
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "Secrets missing: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID. Nothing was sent."
-            echo "go=no" >> $GITHUB_OUTPUT
+            echo "go=no" >> $GITHUB_OUTPUT; exit 1
           else echo "go=yes" >> $GITHUB_OUTPUT; fi
       - uses: actions/setup-node@v4
         if: steps.chk.outputs.go == 'yes'

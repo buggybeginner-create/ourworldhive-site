@@ -45,6 +45,8 @@ header{flex:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;displ
 .ix .n{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
 .ix .v{font-size:17px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ix .c{font-size:12px;font-weight:700}
+.sugw{position:relative;flex:1 1 150px;min-width:0}.sug{position:absolute;left:0;width:max(100%,min(330px,calc(100vw - 40px)));top:calc(100% + 4px);z-index:40;max-height:260px;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.sug button{display:flex;width:100%;align-items:center;gap:8px;background:none;border:0;border-top:1px solid var(--line);padding:10px 12px;color:var(--ink);text-align:left;font-size:14px}.sug button:first-child{border-top:0}.sug button:hover,.sug button.on{background:var(--card2)}.sug b{flex:1;min-width:0;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sug span{white-space:nowrap}.sug small{color:var(--mut);font-size:11.5px}.sug .num{font-size:12.5px}
 .secg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}.secc{text-align:left;border:1px solid var(--line);border-radius:14px;padding:11px 12px;color:var(--ink);cursor:pointer;transition:transform .12s}.secc:active{transform:scale(.97)}
 .secc .n{font-size:12px;font-weight:900;letter-spacing:.06em}.secc .p{font:800 22px var(--mono,monospace);margin:4px 0 2px}.secc .c{font-size:11.5px;font-weight:700;opacity:.9}.secc .bb{display:flex;height:5px;border-radius:3px;overflow:hidden;margin:7px 0 6px;background:rgba(0,0,0,.25)}.secc .bb i{display:block}.secc .t{font-size:11px;opacity:.85;line-height:1.45}
 .sech{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.sech b{font-size:14px;letter-spacing:.05em}.sech .p{margin-left:auto;font-weight:900}
@@ -268,7 +270,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
   <div class="card">
    <h3>NEW PRICE ALERT</h3>
    <div class="fr">
-    <input class="inp" id="aStock" list="stockList" placeholder="Stock (e.g. RELIANCE)" autocomplete="off" style="text-transform:uppercase">
+    <div class="sugw"><input class="inp" id="aStock" placeholder="Type stock name (e.g. REL)" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;width:100%"><div class="sug" id="aSug" hidden></div></div>
     <select class="inp" id="aType"><option value="above">Price goes ABOVE</option><option value="below">Price goes BELOW</option><option value="pctUp">Day change UP by %</option><option value="pctDown">Day change DOWN by %</option></select>
     <input class="inp" id="aVal" type="number" inputmode="decimal" step="any" placeholder="Value">
     <button class="btn g" id="aAdd" style="flex:0 0 auto">ADD</button>
@@ -439,7 +441,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-23.3'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-23.5'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -625,6 +627,26 @@ function renderSectors(){var el=$('scan'),q=search.toUpperCase(),G=secStats().fi
       '<div class="t">'+(t>1?'Best: '+esc(o.best.s)+' '+sgn(o.best.pct)+'%<br>Weakest: '+esc(o.worst.s)+' '+sgn(o.worst.pct)+'%':esc(o.best.s)+' '+sgn(o.best.pct)+'%')+'</div></button>'}).join('')+'</div>'}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-sec]');if(b){SECT=b.getAttribute('data-sec');renderScan();try{$('scan').scrollIntoView({block:'nearest'})}catch(x){}return}
   if(e.target.closest('[data-secback]')){SECT=null;renderScan()}});
+
+/* ---------- stock name suggestions while typing (works in the Android app too) ---------- */
+(function(){var inp=$('aStock'),box=$('aSug'),hi=-1,items=[];
+  function names(){var o={};Object.keys(Q).forEach(function(k){o[k]=1});['NIFTY','BANKNIFTY'].forEach(function(k){o[k]=1});Object.keys(SECMAP).forEach(function(g){SECMAP[g].forEach(function(k){o[k]=1})});return Object.keys(o)}
+  function show(){var t=inp.value.trim().toUpperCase();hi=-1;
+    var L=names().filter(function(n){return !t||n.indexOf(t)>=0||(n==='NIFTY'&&'NIFTY 50'.indexOf(t)>=0)||(n==='BANKNIFTY'&&'BANK NIFTY'.indexOf(t)>=0)});
+    L.sort(function(a,b){var A=a.indexOf(t)===0?0:1,B=b.indexOf(t)===0?0:1;return A-B||(Q[b]||IDX[b]?1:0)-(Q[a]||IDX[a]?1:0)||a.localeCompare(b)});
+    items=L.slice(0,12);if(!items.length||names().indexOf(t)>=0){box.hidden=true;return}
+    box.innerHTML=items.map(function(n,i){var q=Q[n]||IDX[n];return '<button type="button" data-sug="'+esc(n)+'"><b>'+esc(n==='NIFTY'?'NIFTY 50':n==='BANKNIFTY'?'BANK NIFTY':n)+'</b>'+(q?'<span class="num">₹'+fmt(q.ltp)+'</span><span class="num '+cls(q.pct)+'" style="width:58px;text-align:right">'+sgn(q.pct)+'%</span>':'<small>'+esc(secOf(n))+'</small>')+'</button>'}).join('');box.hidden=false}
+  function pick(n){inp.value=n;box.hidden=true;var q=Q[n]||IDX[n],ty=$('aType').value,v=$('aVal');
+    if(q&&ty.indexOf('pct')<0)v.value=Math.round(q.ltp*(ty==='below'?0.98:1.02)*20)/20;else if(ty.indexOf('pct')===0&&!v.value)v.value='2';
+    setTimeout(function(){try{v.focus();v.select()}catch(e){}},30)}
+  inp.addEventListener('input',show);inp.addEventListener('focus',show);
+  inp.addEventListener('keydown',function(e){if(box.hidden)return;var B=box.querySelectorAll('button');
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();hi=(hi+(e.key==='ArrowDown'?1:-1)+B.length)%B.length;[].forEach.call(B,function(b,i){b.classList.toggle('on',i===hi)});B[hi].scrollIntoView({block:'nearest'})}
+    else if(e.key==='Enter'&&(hi>=0||items.length)){e.preventDefault();pick(items[Math.max(0,hi)])}else if(e.key==='Escape')box.hidden=true});
+  box.addEventListener('mousedown',function(e){e.preventDefault()});
+  box.addEventListener('click',function(e){var b=e.target.closest('[data-sug]');if(b)pick(b.getAttribute('data-sug'))});
+  document.addEventListener('click',function(e){if(!e.target.closest('.sugw'))box.hidden=true});
+})();
 
 function renderWatch(){
   var el=$('watch');

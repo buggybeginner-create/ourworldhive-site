@@ -199,7 +199,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.6';
+var PL_VER='2026-11-23.7';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -333,7 +333,7 @@ async function googleIn(msg){var say=function(t,er){if(msg){msg.textContent=t;ms
 function showLogin(){document.getElementById('login').hidden=false;document.getElementById('app').hidden=true;document.getElementById('bnav').hidden=true;document.getElementById('fab').hidden=true;closeSheet()}
 var shown=false;function showApp(){document.getElementById('login').hidden=true;document.getElementById('app').hidden=false;document.getElementById('bnav').hidden=false;render();schedRem();if(!shown){shown=true;if(window.__plShare)window.__plShare()}}
 function emptyS(){return{budget:{total:0,types:{}},accounts:['Main'],account:'all',autoRem:false,remTime:'09:00',autoAlarm:true}}
-function useKey(k){KEY=k;orders=[];S=emptyS();load();theme()}
+function useKey(k){KEY=k;orders=[];S=emptyS();load();if(tidy())saveLocal();theme()}
 function bare(o){var c=Object.assign({},o);delete c.upd;return JSON.stringify(c)}
 function sOut(){var c=Object.assign({},S);delete c.supd;delete c.lastSync;delete c.fired;return JSON.stringify(c)}
 function col(){return firebase.firestore().collection('pl_users').doc(U.uid).collection('orders')}
@@ -355,7 +355,7 @@ async function startSync(){var uid=U.uid;useKey('parcel-ledger-u-'+uid);
    var o;try{o=JSON.parse(r.d)}catch(e){return}o.upd=r.upd;if(!lo)orders.push(o);else if((r.upd||0)>(lo.upd||0))orders[orders.indexOf(lo)]=o;lastPush[id]=r.d});
   /* orders saved by the earlier sync (parcel_data/{uid}) come along once; nothing there is deleted */
   try{if(localStorage.getItem('pl_oldin_'+uid)!=='1'){var od=await fs.collection('parcel_data').doc(uid).get();if(od.exists){var oj=JSON.parse(od.data().json||'{}');(oj.orders||[]).forEach(function(o){if(o&&o.id&&!find(o.id))orders.push(o)});((oj.s||{}).accounts||[]).forEach(function(a){if(S.accounts.indexOf(a)<0)S.accounts.push(a)});if(!S.budget.total&&oj.s&&oj.s.budget)S.budget=oj.s.budget}localStorage.setItem('pl_oldin_'+uid,'1')}}catch(e){}
-  saveLocal();theme();render();schedRem();await push();setTimeout(loadExpense,1500);
+  tidy();saveLocal();theme();render();schedRem();await push();setTimeout(loadExpense,1500);
   if(unsub)unsub();unsub=col().onSnapshot(function(s){if(s.metadata.hasPendingWrites)return;var ch=false;s.docChanges().forEach(function(c){var r=c.doc.data(),id=c.doc.id,lo=find(id);if(c.type==='removed')return;
    if(r.del){if(lo&&(lo.upd||0)<=(r.upd||0)){orders=orders.filter(function(o){return o.id!==id});ch=true}lastPush[id]='DEL';return}
    if(!lo||(r.upd||0)>(lo.upd||0)){try{var o=JSON.parse(r.d);o.upd=r.upd;if(lo)orders[orders.indexOf(lo)]=o;else orders.push(o);ch=true}catch(e){}}lastPush[id]=r.d});
@@ -405,11 +405,12 @@ function readAct(a){if(a==='rsms'){NATIVE.requestSms();return true}if(a==='rscan
 function sameOrder(a,b){if(a.orderId&&b.orderId)return a.orderId===b.orderId;if(a.store!==b.store)return false;if(Math.abs((+a.amount||0)-(+b.amount||0))>1&&(+a.amount&&+b.amount))return false;if(Math.abs(dd(a.orderedOn||today(),b.orderedOn||today()))>3)return false;return sim(a.item,b.item)>=0.5}
 function mergePair(k,o){var rk=function(s){return s==='cancelled'?-1:RK2[s]==null?0:RK2[s]};if(rk(o.status)>rk(k.status)){k.status=o.status;if(o.deliveredOn)k.deliveredOn=o.deliveredOn}
  ['orderId','eta','link','img','otp','deliveredOn','refund'].forEach(function(f2){if((k[f2]==null||k[f2]==='')&&o[f2]!=null&&o[f2]!=='')k[f2]=o[f2]});
- if(!k.items&&o.items)k.items=o.items;if(!(+k.amount)&&+o.amount)k.amount=o.amount;if((!k.item||/^Order from /.test(k.item))&&o.item)k.item=o.item;if(!k.rem&&o.rem)k.rem=o.rem;if(o.refunded)k.refunded=true;
+ if(!k.items&&o.items)k.items=o.items;if(!(+k.amount)&&+o.amount)k.amount=o.amount;if(junkName(k.item)&&o.item&&!junkName(o.item))k.item=o.item;if(!k.pay&&o.pay)k.pay=o.pay;if(!k.tlink&&o.tlink)k.tlink=o.tlink;if(!k.sku&&o.sku)k.sku=o.sku;if(!k.rem&&o.rem)k.rem=o.rem;if(o.refunded)k.refunded=true;
  k.cmp=(k.cmp||[]).concat(o.cmp||[]);if(o.notes&&(k.notes||'').indexOf(o.notes)<0)k.notes=((k.notes?k.notes+' · ':'')+o.notes).slice(0,300)}
-function rankO(o){return (o.orderId?4:0)+(o.items?2:0)+(o.img?1:0)+(/^Order from /.test(o.item||'')?0:2)+(o.notes&&/^Linked from|^From /.test(o.notes)?0:3)}
+function rankO(o){return (o.orderId?4:0)+(o.items?2:0)+(o.img?1:0)+(junkName(o.item)?0:2)+(o.notes&&/^Linked from|^From /.test(o.notes)?0:3)}
 /* same order ID: merged by itself (safe) */
-function sameName(a,b){var g=function(o){return !o.item||/^Order from /.test(o.item)};if(g(a)||g(b))return true;if(sim(a.item,b.item)>=0.5)return true;var inA=(a.items||[]).some(function(x){return sim(x.n,b.item)>=0.6}),inB=(b.items||[]).some(function(x){return sim(x.n,a.item)>=0.6});return inA||inB}
+function junkName(n){n=String(n||'').trim();return n.length<4||/^Order from /.test(n)||/your orders|your account|buy again|view or edit|thanks for (your )?order|^s in |^(dear|hi|hello)\b|^from:/i.test(n)}
+function sameName(a,b){var g=function(o){return junkName(o.item)};if(g(a)||g(b))return true;if(sim(a.item,b.item)>=0.5)return true;var inA=(a.items||[]).some(function(x){return sim(x.n,b.item)>=0.6}),inB=(b.items||[]).some(function(x){return sim(x.n,a.item)>=0.6});return inA||inB}
 function autoMerge(){var by={},gone={},n=0;orders.forEach(function(o){if(!o.orderId)return;var k=o.store+'|'+o.orderId;if(by[k]&&sameName(by[k],o)){var a=by[k],keep=rankO(o)>rankO(a)?o:a,other=keep===o?a:o;mergePair(keep,other);(other.srcs||srcsOf(other)).forEach(function(z){addSrc(keep,z)});gone[other.id]=1;by[k]=keep;n++}else if(!by[k])by[k]=o});if(window.__R)__R.m+=n;if(n)orders=orders.filter(function(o){return !gone[o.id]});return n}
 /* look-alike orders without the same ID: the user decides */
 function dupSets(){var nd=S.nodup||{},G=[],used={};orders.forEach(function(a,i){if(used[a.id])return;var g=[a];for(var j=i+1;j<orders.length;j++){var b=orders[j];if(used[b.id]||nd[[a.id,b.id].sort().join('~')])continue;if(sameOrder(a,b)){g.push(b);used[b.id]=1}}if(g.length>1){used[a.id]=1;G.push(g)}});return G}
@@ -419,6 +420,9 @@ function dupSheet(){var G=dupSets();if(!G.length){closeSheet();toast('No duplica
 function dupAct(a,b){if(a==='dupopen'){dupSheet();return true}
  if(a==='dupmerge'||a==='dupall'){var G=dupSets(),L=a==='dupall'?G:[G[+b.dataset.g]],n=0;L.forEach(function(g){if(!g)return;g.sort(function(x,y){return rankO(y)-rankO(x)});var k=g[0];g.slice(1).forEach(function(o){mergePair(k,o);orders=orders.filter(function(z){return z.id!==o.id});n++})});save();toast(n+' duplicate'+(n===1?'':'s')+' merged');dupSheet();return true}
  if(a==='dupnot'){var g2=dupSets()[+b.dataset.g];if(g2){S.nodup=S.nodup||{};for(var i=0;i<g2.length;i++)for(var j=i+1;j<g2.length;j++)S.nodup[[g2[i].id,g2[j].id].sort().join('~')]=1;save()}dupSheet();return true}return false}
+
+/* tidy saved orders: names without "* ", old copies of the same order (same number) become one */
+function tidy(){var ch=false;orders.forEach(function(o){var n=String(o.item||'').replace(/^[*•·\-\s]+/,'');if(n!==o.item){o.item=n;ch=true}});if(autoMerge())ch=true;return ch}
 
 /* ---------- every order shows: order no., qty, where it came from, price, delivery date ---------- */
 var SRC={gmail:'📧 Gmail',mail:'📧 Mail',sms:'📩 SMS',notif:'🔔 App alert',paste:'📋 Pasted',manual:'✍️ Added'};
@@ -544,7 +548,7 @@ function parseEmails(t,dflt,one){return (one?[t]:splitMsgs(t)).map(function(e){e
  var im=/(?:item|product|items?\s*ordered|order(?:ed)?\s*for)\s*[:\-]?\s*\n?\s*([^\n]{6,120})/i.exec(e),item=im?im[1].trim():'';if(!item){var ls=e.split(/\n/).map(function(x){return x.trim()}).filter(function(x){return x.length>12&&x.length<120&&!/order|http|www|dear|hi |thank|total|delivery|₹/i.test(x)});item=ls[0]||''}
  if(its.length)item=its[0].n+(its.length>1?' + '+(its.length-1)+' more':'');
  item=item.split(/\s+(?:has been|have been|is out|is on|is |was |will be|worth|for rs|for ₹|\(|has |from |by |arriving|and )/i)[0].replace(/[.,:;\s]+$/,'').trim();var od=dateIn((/ordered on[^\n]{0,12}([^\n]{0,20})/i.exec(e)||[])[1]||'')||dflt||today();var lk=(/https?:\/\/[^\s<>")]+/.exec(e)||[])[0]||'';if(!item){var sm=/(?:package with|order for|your order of|order of|parcel with)\s+"?([^".\n,]{4,100})/i.exec(e);if(sm)item=sm[1].trim()}
- if(eta&&od&&eta<od){var ey=parse(eta);ey.setFullYear(ey.getFullYear()+1);eta=iso(ey)}return{store:store,item:item,items:its.length>1?its.slice(0,12):null,trk:(/tracking\s*(?:id|no\.?|number)\s*:?\s*([A-Z0-9]{8,})/i.exec(e.replace(/\s+/g,' '))||[])[1]||'',ietas:itemEtas(e),amount:am?parseFloat(am[1].replace(/,/g,'')):null,orderedOn:od,eta:eta,orderId:id,status:status,link:lk}}).filter(Boolean)}
+ if(eta&&od&&eta<od){var ey=parse(eta);ey.setFullYear(ey.getFullYear()+1);eta=iso(ey)}item=item.replace(/^[*•·\-\s]+/,'');return{store:store,item:item,items:its.length>1?its.slice(0,12):null,trk:(/tracking\s*(?:id|no\.?|number)\s*:?\s*([A-Z0-9]{8,})/i.exec(e.replace(/\s+/g,' '))||[])[1]||'',ietas:itemEtas(e),amount:am?parseFloat(am[1].replace(/,/g,'')):null,orderedOn:od,eta:eta,orderId:id,status:status,link:lk}}).filter(Boolean)}
 /* every product line of a mail: the name above a "Qty" line and the price near it */
 function itemsOf(e){e=String(e||'').replace(/(qty|quantity)\s*:?\s*\n\s*(\d+)/gi,'$1 $2');var L=String(e||'').split(/\n/).map(function(x){return x.trim()}).filter(Boolean),out=[],QR=/\b(?:qty|quantity)\.?\s*:?\s*(\d+)/i,BAD=/keep the seal|^size\b|sold by|₹|rs\.|\bqty\b|quantity|saved|expiry|delivery|order|total|seller|return|exchange|http/i;
  for(var i=0;i<L.length;i++){var qm=QR.exec(L[i]);if(!qm)continue;var nm='',k=i-1;if(!/^size\b/i.test(L[i])&&L[i].replace(QR,'').replace(/size[^|]*\|?/i,'').trim().length>8&&!BAD.test(L[i].replace(QR,'')))nm=L[i].replace(QR,'').replace(/[|·,-]+\s*$/,'').trim();

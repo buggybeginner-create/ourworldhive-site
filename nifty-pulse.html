@@ -45,6 +45,9 @@ header{flex:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;displ
 .ix .n{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--mut)}
 .ix .v{font-size:17px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ix .c{font-size:12px;font-weight:700}
+.secg{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}.secc{text-align:left;border:1px solid var(--line);border-radius:14px;padding:11px 12px;color:var(--ink);cursor:pointer;transition:transform .12s}.secc:active{transform:scale(.97)}
+.secc .n{font-size:12px;font-weight:900;letter-spacing:.06em}.secc .p{font:800 22px var(--mono,monospace);margin:4px 0 2px}.secc .c{font-size:11.5px;font-weight:700;opacity:.9}.secc .bb{display:flex;height:5px;border-radius:3px;overflow:hidden;margin:7px 0 6px;background:rgba(0,0,0,.25)}.secc .bb i{display:block}.secc .t{font-size:11px;opacity:.85;line-height:1.45}
+.sech{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.sech b{font-size:14px;letter-spacing:.05em}.sech .p{margin-left:auto;font-weight:900}
 .ix.tap{cursor:pointer;transition:transform .12s}.ix.tap:active{transform:scale(.97)}.ix .tp{color:var(--acc,#ffc857);font-size:13px}
 .mt{display:grid;grid-template-columns:52px 1fr 64px 58px;gap:6px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:13px}.mt:first-of-type{border-top:0}.mt b{font-weight:900}.mt .r{text-align:right;color:var(--mut);font-size:11.5px}
 .cb{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}.cb:first-of-type{border-top:0}.cb .nm{flex:1;font-weight:700}.cb .pt{width:74px;text-align:right;font-weight:800}
@@ -248,7 +251,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <input class="inp" id="q" placeholder="Search stock" style="flex:1 1 120px" autocomplete="off">
   </div>
   <div class="chips" id="chips">
-   <button class="chip on" data-f="all">ALL</button><button class="chip" data-f="gain">GAINERS</button><button class="chip" data-f="lose">LOSERS</button>
+   <button class="chip on" data-f="all">ALL</button><button class="chip" data-f="sec">🏭 SECTORS</button><button class="chip" data-f="gain">GAINERS</button><button class="chip" data-f="lose">LOSERS</button>
    <button class="chip" data-f="big">BIG MOVERS</button><button class="chip" data-f="hi">NEAR 52W HIGH</button><button class="chip" data-f="lo">NEAR 52W LOW</button><button class="chip" data-f="star">★ WATCHLIST</button><button class="chip tchip" data-f="bull">▲ BULLISH</button><button class="chip tchip" data-f="bear">▼ BEARISH</button><button class="chip tchip schip" data-f="buy">BUY SIGNAL</button><button class="chip tchip schip" data-f="sell">SELL SIGNAL</button>
   </div>
   <div id="scan"></div>
@@ -436,7 +439,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-23.2'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-23.3'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -568,6 +571,7 @@ function filtered(){
   var big=+S.bigPct||2,near=+S.nearPct||3,s=search.toUpperCase();
   var L=Object.values(Q).filter(function(q){
     if(s&&q.s.indexOf(s)<0)return false;
+    if(filter==='sec')return !SECT||secOf(q.s)===SECT;
     if(filter==='gain')return q.pct>0;if(filter==='lose')return q.pct<0;if(filter==='big')return Math.abs(q.pct)>=big;
     if(filter==='hi')return nearHi(q)<=near;if(filter==='lo')return nearLo(q)<=near;if(filter==='star')return watch.indexOf(q.s)>=0;
     var t=TA[q.s];if(filter==='bull')return t&&t.dir>0;if(filter==='bear')return t&&t.dir<0;if(filter==='buy')return t&&t.sig==='BUY';if(filter==='sell')return t&&t.sig==='SELL';return true});
@@ -576,6 +580,7 @@ function filtered(){
 }
 function flash(q){var p=prevLtp[q.s];if(p==null||p===q.ltp)return '';return q.ltp>p?' flu':' fld'}
 function renderScan(){
+  if(filter==='sec'&&!SECT&&Object.keys(Q).length){renderSectors();return}
   var L=filtered(),el=$('scan');
   if(!Object.keys(Q).length){el.innerHTML='<div class="empty">Loading prices…</div>';return}
   if(!L.length){el.innerHTML='<div class="empty">No stock matches this filter right now.</div>';return}
@@ -586,12 +591,41 @@ function renderScan(){
     el.innerHTML='<div class="list">'+L.map(function(q){var p=pos52(q);
       return '<button class="row'+flash(q)+'" data-s="'+esc(q.s)+'"><div class="s">'+(watch.indexOf(q.s)>=0?'<span style="color:var(--gold)">★ </span>':'')+esc(q.s)+'<small>Vol '+fmtVol(q.vol)+'</small>'+rowSig(q.s)+(p==null?'':'<div class="rng" title="52-week range"><i style="left:calc('+(p*100)+'% - 1px)"></i></div>')+'</div><div class="v num">'+fmt(q.ltp)+'<small style="display:block;font-size:11px" class="'+cls(q.chg)+'">'+sgn(q.chg)+'</small></div><div class="c num" style="background:'+pctBg(q.pct)+'">'+sgn(q.pct)+'%</div></button>'}).join('')+'</div>';
   }
+  if(filter==='sec'&&SECT){var g=secStats().filter(function(x){return x.n===SECT})[0];el.insertAdjacentHTML('afterbegin','<div class="sech"><button class="btn" data-secback style="flex:0 0 auto;padding:6px 10px">← ALL SECTORS</button><b>'+esc(SECT)+'</b>'+(g?'<span class="c" style="font-size:12px;color:var(--mut)">'+g.up+' ▲ · '+g.dn+' ▼</span><span class="p num '+cls(g.avg)+'">'+sgn(g.avg)+'%</span>':'')+'</div>')}
 }
 function spark(s,q){var a=hist.d[s]||[];if(a.length<2)return '<svg viewBox="0 0 100 40" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="20" stroke="var(--line)" stroke-dasharray="3 3"/></svg>';
   var v=a.map(function(x){return x[1]}),mn=Math.min.apply(0,v.concat(q.prev||v[0])),mx=Math.max.apply(0,v.concat(q.prev||v[0])),r=mx-mn||1;
   var pts=a.map(function(x,i){return (i/(a.length-1)*100).toFixed(2)+','+(38-(x[1]-mn)/r*36).toFixed(2)}).join(' ');
   var py=q.prev?(38-(q.prev-mn)/r*36).toFixed(2):null,col=q.pct>=0?'var(--up)':'var(--dn)';
   return '<svg viewBox="0 0 100 40" preserveAspectRatio="none">'+(py?'<line x1="0" y1="'+py+'" x2="100" y2="'+py+'" stroke="var(--mut)" stroke-width=".5" stroke-dasharray="2 2"/>':'')+'<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>'}
+/* ---------- SECTORS: how each sector moves today; tap a sector to see its stocks ---------- */
+var SECT=null,SECMAP={'BANKS':['HDFCBANK','ICICIBANK','SBIN','KOTAKBANK','AXISBANK','INDUSINDBK','BANKBARODA','PNB','CANBK','FEDERALBNK','IDFCFIRSTB','AUBANK','YESBANK','UNIONBANK'],
+ 'FINANCE & INSURANCE':['BAJFINANCE','BAJAJFINSV','SHRIRAMFIN','JIOFIN','SBILIFE','HDFCLIFE','BSE','LICI','CHOLAFIN','ICICIGI','ICICIPRULI'],
+ 'IT':['TCS','INFY','HCLTECH','WIPRO','TECHM','LTIM','PERSISTENT','COFORGE','MPHASIS'],
+ 'AUTO':['MARUTI','M&M','TMPV','TATAMOTORS','BAJAJ-AUTO','EICHERMOT','HEROMOTOCO','TVSMOTOR'],
+ 'OIL, GAS & ENERGY':['RELIANCE','ONGC','BPCL','IOC','COALINDIA','GAIL'],
+ 'POWER':['NTPC','POWERGRID','TATAPOWER','ADANIPOWER','ADANIGREEN'],
+ 'FMCG':['HINDUNILVR','ITC','NESTLEIND','TATACONSUM','BRITANNIA','DABUR','GODREJCP'],
+ 'PHARMA & HEALTH':['SUNPHARMA','CIPLA','DRREDDY','APOLLOHOSP','MAXHEALTH','DIVISLAB','LUPIN'],
+ 'METALS & MINING':['TATASTEEL','JSWSTEEL','HINDALCO','VEDL','JINDALSTEL','NMDC'],
+ 'CEMENT & MATERIALS':['ULTRACEMCO','GRASIM','SHREECEM','AMBUJACEM'],
+ 'CONSUMER & RETAIL':['TITAN','TRENT','ASIANPAINT','ETERNAL','DMART'],
+ 'INFRA & DEFENCE':['LT','BEL','ADANIENT','HAL'],
+ 'TRANSPORT':['INDIGO','ADANIPORTS'],
+ 'TELECOM':['BHARTIARTL']},SECOF=null;
+function secOf(sym){if(!SECOF){SECOF={};Object.keys(SECMAP).forEach(function(k){SECMAP[k].forEach(function(x){SECOF[x]=k})})}return SECOF[sym]||'OTHERS'}
+function secStats(){var g={};Object.values(Q).forEach(function(q){var k=secOf(q.s),o=g[k]||(g[k]={n:k,L:[],up:0,dn:0,sum:0});o.L.push(q);o.sum+=q.pct||0;if(q.pct>0)o.up++;else if(q.pct<0)o.dn++});
+  return Object.keys(g).map(function(k){var o=g[k];o.avg=o.sum/o.L.length;o.L.sort(function(a,b){return b.pct-a.pct});o.best=o.L[0];o.worst=o.L[o.L.length-1];return o}).sort(function(a,b){return b.avg-a.avg})}
+function renderSectors(){var el=$('scan'),q=search.toUpperCase(),G=secStats().filter(function(o){return !q||o.n.indexOf(q)>=0||o.L.some(function(x){return x.s.indexOf(q)>=0})});
+  if(!G.length){el.innerHTML='<div class="empty">No sector matches your search.</div>';return}
+  var up=G.filter(function(o){return o.avg>0}).length;
+  el.innerHTML='<p class="h" style="margin:0 0 8px">'+up+' of '+G.length+' sectors are up today · average move of the stocks in each sector · tap a sector to see its stocks</p><div class="secg">'+G.map(function(o){var t=o.L.length,fl=t-o.up-o.dn;
+    return '<button class="secc" data-sec="'+esc(o.n)+'" style="background:'+heatBg(o.avg)+'"><div class="n">'+esc(o.n)+'</div><div class="p num">'+sgn(o.avg)+'%</div><div class="c">'+o.up+' ▲ · '+o.dn+' ▼'+(fl?' · '+fl+' flat':'')+' · '+t+' stock'+(t>1?'s':'')+'</div>'+
+      '<div class="bb"><i style="width:'+(o.up/t*100)+'%;background:var(--up)"></i><i style="width:'+(fl/t*100)+'%;background:var(--mut)"></i><i style="width:'+(o.dn/t*100)+'%;background:var(--dn)"></i></div>'+
+      '<div class="t">'+(t>1?'Best: '+esc(o.best.s)+' '+sgn(o.best.pct)+'%<br>Weakest: '+esc(o.worst.s)+' '+sgn(o.worst.pct)+'%':esc(o.best.s)+' '+sgn(o.best.pct)+'%')+'</div></button>'}).join('')+'</div>'}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-sec]');if(b){SECT=b.getAttribute('data-sec');renderScan();try{$('scan').scrollIntoView({block:'nearest'})}catch(x){}return}
+  if(e.target.closest('[data-secback]')){SECT=null;renderScan()}});
+
 function renderWatch(){
   var el=$('watch');
   if(!watch.length){el.innerHTML='<div class="empty">Your watchlist is empty.<br>Go to SCAN, tap a stock, then tap ☆ ADD TO WATCHLIST.</div>';return}
@@ -713,7 +747,7 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-s]')
   var ra=e.target.closest('[data-rearm]');if(ra){fired['r'+ra.getAttribute('data-rearm')]={w:1};toast('Re-armed. It rings again only when the price crosses the level afresh.');if(NATIVE)try{NATIVE.rearm('r'+ra.getAttribute('data-rearm'))}catch(x){}LS.set('fired',fired);renderRules();checkAlerts();return}});
 document.addEventListener('change',function(e){var t=e.target.closest('[data-tog]');if(t){var r=rules.find(function(x){return x.id===t.getAttribute('data-tog')});if(r){r.on=t.checked;LS.set('rules',rules);renderRules()}}});
 [].forEach.call(document.querySelectorAll('#viewSeg button'),function(b){b.onclick=function(){view=b.getAttribute('data-v');[].forEach.call(document.querySelectorAll('#viewSeg button'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
-[].forEach.call(document.querySelectorAll('#chips .chip'),function(b){b.onclick=function(){filter=b.getAttribute('data-f');[].forEach.call(document.querySelectorAll('#chips .chip'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
+[].forEach.call(document.querySelectorAll('#chips .chip'),function(b){b.onclick=function(){filter=b.getAttribute('data-f');SECT=null;[].forEach.call(document.querySelectorAll('#chips .chip'),function(x){x.classList.toggle('on',x===b)});renderScan()}});
 $('sortSel').onchange=function(){sortBy=this.value;renderScan()};
 $('q').oninput=function(){search=this.value.trim();renderScan()};
 $('rf').onclick=function(){load(true)};

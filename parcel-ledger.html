@@ -130,6 +130,8 @@ body{overflow-x:hidden}
 .dupc.need{border-color:color-mix(in srgb,#f59e0b 60%,var(--line));background:color-mix(in srgb,#f59e0b 9%,var(--surface))}
 .itr{display:grid;grid-template-columns:22px 1fr 58px 80px auto;gap:6px;align-items:center;margin-bottom:6px}.itr input{padding:8px;font-size:13px}.itn{font:600 12px var(--f-body);color:var(--muted);text-align:center}
 
+.facts .trkc{font:600 11.5px var(--f-body);border-radius:8px;padding:3px 9px;background:var(--accent);color:var(--accent-fg);text-decoration:none;white-space:nowrap}
+
 #soon[hidden],#app[hidden],.fab[hidden]{display:none!important}</style><script src="firebase-config.js"></script><script src="owh-contact.js" defer></script></head><body>
 <div id="login" hidden><div class="lg-bg" aria-hidden="true"><i>📦</i><i>🚚</i><i>📦</i><i>🛍️</i><i>📦</i></div>
 <div class="lg"><img class="lg-ic" src="parcel-icon-512.png" alt="" width="88" height="88"><h1>Parcel Ledger</h1><p class="lg-sub">Every online order, delivery and refund in one place.</p>
@@ -191,7 +193,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.3';
+var PL_VER='2026-11-23.4';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -420,7 +422,7 @@ function qtyOf(o){return o.items&&o.items.length?o.items.reduce(function(t,x){re
 function needInfo(o){return o.status!=='cancelled'&&(!(+o.amount)||(!o.eta&&isLive(o))||!o.item||/^Order from /.test(o.item))}
 function facts(o){var miss=function(t){return '<button type="button" class="miss" data-a="edit" data-id="'+esc(o.id)+'">+ '+t+'</button>'};
  return '<div class="facts"><span title="Order number">'+(o.orderId?'# '+esc(o.orderId):miss('Order No.'))+'</span>'+(o.sku?'<span title="Item number">Item '+esc(o.sku)+'</span>':'')+'<span>Qty '+qtyOf(o)+'</span>'+srcsOf(o).map(function(s){return '<span class="src">'+(SRC[s]||s)+'</span>'}).join('')+
- '<span>'+(+o.amount?'💰 '+money(o.amount):miss('Price'))+'</span><span>'+(o.status==='delivered'?'✅ '+esc(fd(o.deliveredOn||o.eta)):o.eta?'📅 '+esc(fd(o.eta)):isLive(o)?miss('Delivery Date'):'')+'</span>'+((!o.item||/^Order from /.test(o.item))?miss('Item Name'):'')+(!o.img?miss('Photo'):'')+'</div>'}
+ trackChip(o)+'<span>'+(+o.amount?'💰 '+money(o.amount):miss('Price'))+'</span><span>'+(o.status==='delivered'?'✅ '+esc(fd(o.deliveredOn||o.eta)):o.eta?'📅 '+esc(fd(o.eta)):isLive(o)?miss('Delivery Date'):'')+'</span>'+((!o.item||/^Order from /.test(o.item))?miss('Item Name'):'')+(!o.img?miss('Photo'):'')+'</div>'}
 function needCard(po){var n=po.filter(needInfo).length;if(!n)return '';return '<button type="button" class="dupc need" data-a="tab" data-t="need"><span>⚠️</span><span><b>'+n+' order'+(n>1?'s':'')+' missing price, date or name</b><small>Tap to see them and fill in what is missing.</small></span><span class="pc">›</span></button>'}
 function scanBar(){return '<div class="scanbar"><button type="button" data-a="scansms"><span>📩</span>Scan SMS</button><button type="button" data-a="sync"><span>📧</span>Scan Gmail</button></div>'}
 var APK='https://github.com/buggybeginner-create/ourworldhive-site/releases/download/parcel-app/Parcel-Ledger.apk';
@@ -442,6 +444,16 @@ function reportSheet(R){var row=function(o,t){var st=STORES[o.store]||STORES.oth
 function itRow(x,i){return '<div class="itr"><span class="itn">'+(i+1)+'</span><input class="iN" placeholder="Item name" value="'+esc(x.n||'')+'"><input class="iQ" type="number" min="1" inputmode="numeric" value="'+esc(x.q||1)+'" aria-label="Qty"><input class="iP" type="number" min="0" step="any" inputmode="decimal" placeholder="₹" value="'+esc(x.p==null?'':x.p)+'" aria-label="Price"><button type="button" class="btn sm dng iX" aria-label="Remove item">✕</button></div>'}
 function readItems(){var L=[];[].forEach.call(document.querySelectorAll('#itl .itr'),function(r){var n=r.querySelector('.iN').value.trim(),q=parseInt(r.querySelector('.iQ').value,10)||1,p=r.querySelector('.iP').value;if(n)L.push({n:n.slice(0,90),q:q,p:p===''?null:parseFloat(p)})});return L}
 function renumber(){[].forEach.call(document.querySelectorAll('#itl .itn'),function(e,i){e.textContent=i+1})}
+
+/* ---------- Track: open this order in the store's app or site ---------- */
+var DOM={amazon:/amazon\.(in|com)|amzn\./i,flipkart:/flipkart\.com|ekart/i,myntra:/myntra\.com/i,meesho:/meesho\.com/i,firstcry:/firstcry\.com/i,ajio:/ajio\.com/i,nykaa:/nykaa\.com/i,tatacliq:/tatacliq\.com/i,jiomart:/jiomart\.com/i,snapdeal:/snapdeal\.com/i,croma:/croma\.com/i,lenskart:/lenskart\.com/i};
+var TRK=/track|order[-_ ]?details|orderdetails|order[-_]?id|orderid|shipment|my-?orders|your-?orders|order-?status|\/order\//i;
+function goodLink(u,store){return /^https:\/\//.test(u||'')&&TRK.test(u)&&!/unsubscribe|preferences|privacy|help|faq|review|rate|feedback|logo|\.png|\.jpe?g|\.gif/i.test(u)&&(!DOM[store]||DOM[store].test(u)||/click|links?\.|email\.|e\.|t\./i.test(u))}
+function trackLink(h,store){var re=/href\s*=\s*["']([^"']+)["']/gi,m,best='';while((m=re.exec(h||''))){var u=m[1].replace(/&amp;/g,'&');if(goodLink(u,store)){if(/track/i.test(u))return u.slice(0,800);if(!best)best=u}}return best.slice(0,800)}
+function trackUrl(o){var id=encodeURIComponent(o.orderId||'');if(o.link&&goodLink(o.link,o.store))return o.link;
+ var U={amazon:id?'https://www.amazon.in/gp/your-account/order-details?orderID='+id:'https://www.amazon.in/gp/css/order-history',flipkart:id?'https://www.flipkart.com/rv/orderDetails?order_id='+id:'https://www.flipkart.com/account/orders',myntra:'https://www.myntra.com/my/orders',meesho:'https://www.meesho.com/my-orders',firstcry:'https://www.firstcry.com/myaccount/myorders',ajio:'https://www.ajio.com/my-account/orders',nykaa:'https://www.nykaa.com/sales/order/history',tatacliq:'https://www.tatacliq.com/my-account/orders',jiomart:'https://www.jiomart.com/customer/orderhistory',snapdeal:'https://www.snapdeal.com/myorders',croma:'https://www.croma.com/my-account/orders',lenskart:'https://www.lenskart.com/customer/account/orders'};
+ return U[o.store]||(o.link&&/^https:\/\//.test(o.link)?o.link:'')}
+function trackChip(o){var u=trackUrl(o);return u?'<a class="trkc" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">🚚 Track'+(o.store==='amazon'&&o.orderId||o.store==='flipkart'&&o.orderId||(o.link&&goodLink(o.link,o.store))?'':' (Orders)')+'</a>':''}
 
 /* ---------- sheets ---------- */
 function ov(){return document.getElementById('overlay')}function closeSheet(){ov().innerHTML=''}
@@ -517,7 +529,7 @@ function findMatch(x,acc){if(x.orderId){var m=orders.filter(function(o){return o
 function mergeInto(o,x){var ch=false;
  if(x.status&&x.status!==o.status){var cur=RANK[o.status],nw=RANK[x.status];if(nw==null||cur==null||nw>cur){o.status=x.status;ch=true;if(x.status==='delivered'&&!o.deliveredOn){o.deliveredOn=x.eta||today()}}}
  if(x.eta&&x.eta!==o.eta&&o.status!=='delivered'){o.eta=x.eta;ch=true}
- if(x.link&&!o.link){o.link=x.link;ch=true}
+ if(x.link&&(!o.link||(!goodLink(o.link,o.store)&&goodLink(x.link,o.store)))){o.link=x.link;ch=true}
  if(x.img&&!o.img){o.img=x.img;ch=true}
  if(x.items&&!o.items){o.items=x.items;ch=true}
  if((!o.amount||o.amount===0)&&x.amount>0){o.amount=x.amount;ch=true}
@@ -544,14 +556,14 @@ function mailHtml(m){var h='';(function walk(x){if(!x)return;if(x.mimeType==='te
 function mailText(m){var t='',h='';(function walk(x){if(!x)return;if(x.mimeType==='text/plain'&&x.body&&x.body.data)t+=b64u(x.body.data)+'\n';else if(x.mimeType==='text/html'&&x.body&&x.body.data)h+=b64u(x.body.data);(x.parts||[]).forEach(walk)})(m.payload);return t.trim().length>40?t:stripHtml(h)}
 function hdr(m,n){var h=((m.payload&&m.payload.headers)||[]).filter(function(x){return x.name.toLowerCase()===n})[0];return h?h.value:''}
 var GQ='from:(amazon.in OR amazon.com OR flipkart.com OR myntra.com OR meesho.com OR firstcry.com OR ajio.com OR nykaa.com OR tatacliq.com OR jiomart.com OR snapdeal.com OR croma.com OR lenskart.com) (order OR ordered OR shipped OR dispatched OR delivered OR "out for delivery" OR arriving OR "on its way" OR shipment OR package OR refund OR cancelled OR return) -subject:(sale OR offer OR deal OR deals OR coupon OR wishlist OR "price drop" OR recommended) newer_than:'+(S.gDays||365)+'d';
-async function syncGmail(acc,say){if(S.seenV!==3){S.seen={};S.seenV=3;save()}
+async function syncGmail(acc,say){if(S.seenV!==4){S.seen={};S.seenV=4;save()}
  if(navigator.onLine===false){say('You are offline. Gmail sync needs internet. Everything else works offline.',1);return}
  say('Opening Google sign in for '+acc+'...');var tok;
  try{tok=await gmailToken(acc)}catch(e){say(NATIVE&&!e.code&&e.message!=='wrong'?e.message:e.message==='wrong'?'You signed in as '+e.got+' but this slot is '+acc+'. Try again with the right Gmail.':e.code==='auth/popup-closed-by-user'?'Sign in window was closed.':e.code==='auth/popup-blocked'?'Allow pop-ups for this site and try again.':e.code==='auth/unauthorized-domain'?'This website address is not allowed for Google sign in yet (Firebase, Authorized domains).':e.message==='cfg'?'Sign in is not set up on this page.':'Could not sign in. Check internet and try again.',1);return}
  try{say('Searching order emails...');var all=[],pt='';for(var pg=0;pg<8;pg++){var l=await gget(tok,'messages?maxResults=100&q='+encodeURIComponent(GQ)+(pt?'&pageToken='+pt:''));(l.messages||[]).forEach(function(m){all.push(m.id)});pt=l.nextPageToken;say('Found '+all.length+' order emails...');if(!pt)break}var ids=all.filter(function(i){return !(S.seen||{})[i]});
   if(!ids.length){S.sync=S.sync||{};S.sync[acc]=Date.now();save();say('No new order emails found.');return}
-  var out=[],done=0;async function one(id){try{var m=await gget(tok,'messages/'+id+'?format=full'),sub=hdr(m,'subject'),from=hdr(m,'from'),body=mailText(m).slice(0,7000),pim=prodImg(mailHtml(m)),d=new Date(+m.internalDate||Date.now()),txt='From: '+from+'\nSubject: '+sub+'\n'+body,r=parseEmails(txt,iso(d))[0];S.seen=S.seen||{};S.seen[id]=1;
-    if(r){r.store=r.store==='other'?storeOf((from+' '+sub).toLowerCase()):r.store;if(pim)r.img=pim}if(r&&(r.store!=='other'||r.orderId)&&(r.orderId||/order|shipped|delivered|dispatched|arriving|on its way|out for delivery|shipment|package|refund|cancel|return/i.test(sub)))out.push({x:r,t:+m.internalDate||0})}catch(e){}done++;if(done%5===0)say('Reading emails '+done+'/'+ids.length+'...')}
+  var out=[],done=0;async function one(id){try{var m=await gget(tok,'messages/'+id+'?format=full'),sub=hdr(m,'subject'),from=hdr(m,'from'),mh=mailHtml(m),body=mailText(m).slice(0,7000),pim=prodImg(mh),d=new Date(+m.internalDate||Date.now()),txt='From: '+from+'\nSubject: '+sub+'\n'+body,r=parseEmails(txt,iso(d))[0];S.seen=S.seen||{};S.seen[id]=1;
+    if(r){r.store=r.store==='other'?storeOf((from+' '+sub).toLowerCase()):r.store;if(pim)r.img=pim;var tl=trackLink(mh,r.store);if(tl)r.link=tl;else if(r.link&&!goodLink(r.link,r.store))r.link=''}if(r&&(r.store!=='other'||r.orderId)&&(r.orderId||/order|shipped|delivered|dispatched|arriving|on its way|out for delivery|shipment|package|refund|cancel|return/i.test(sub)))out.push({x:r,t:+m.internalDate||0})}catch(e){}done++;if(done%5===0)say('Reading emails '+done+'/'+ids.length+'...')}
   var q=ids.slice();await Promise.all([0,1,2,3,4].map(async function(){while(q.length)await one(q.shift())}));
   out.sort(function(a,b){return a.t-b.t});newR();var rs=applyAll(out.map(function(o){return o.x}),acc,'Gmail'),RG=window.__R;window.__R=null;RG.n=ids.length;RG.a=rs.add;RG.u=rs.upd;setTimeout(function(){reportSheet(RG)},900);
   var keys=Object.keys(S.seen);if(keys.length>2500){var n={};keys.slice(-2000).forEach(function(k){n[k]=1});S.seen=n}

@@ -109,6 +109,9 @@ table.kv tr:last-child td{border-bottom:0}
 .horo{margin-top:6px;padding:12px;border-radius:12px;background:var(--card2)}.stars{color:var(--gold2);font-size:18px;letter-spacing:2px}
 .per{border-bottom:1px solid var(--line);padding:6px 0}.per:last-of-type{border-bottom:0}.per summary{display:flex;gap:10px;align-items:center;cursor:pointer;list-style:none}.per summary::-webkit-details-marker{display:none}.per summary .e{font-size:24px}.per summary .m{display:flex;flex-direction:column;flex:1}.per summary .m span{font-size:12.5px;color:var(--tx2)}.per summary::after{content:'▸';color:var(--gold)}.per[open] summary::after{content:'▾'}.perli{width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);font:inherit;color:inherit}
 .pred{padding:8px 0;border-bottom:1px dashed var(--line);line-height:1.5}.pred:last-of-type{border-bottom:0}.pred .b{font-size:12.5px;letter-spacing:.03em;margin-bottom:2px}
+.mnt{padding:10px 0;border-bottom:1px dashed var(--line)}.mnt:last-of-type{border-bottom:0}.dv{font-size:19px;line-height:1.6;margin:6px 0 2px;font-weight:600;color:var(--tx)}.ro{font-style:italic;color:var(--tx2);margin-bottom:4px;line-height:1.45}
+.japa{display:flex;flex-direction:column;align-items:center;justify-content:center;width:200px;height:200px;border-radius:50%;margin:18px auto;border:6px solid var(--gold);background:var(--card2);color:var(--tx);font:inherit;user-select:none;-webkit-tap-highlight-color:transparent}.japa b{font-size:56px;line-height:1}.japa span{font-size:12px;color:var(--tx2);margin-top:6px}.japa:active{transform:scale(.96)}
+.hgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}.hgrid button{appearance:none;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 2px;font:inherit;display:flex;flex-direction:column;align-items:center;color:var(--tx)}.hgrid button b{font-size:16px}.hgrid button span{font-size:10px;color:var(--tx2)}.hgrid button.good{border-color:var(--grn);box-shadow:inset 0 -3px 0 var(--grn)}.hgrid button.bad{border-color:var(--red);box-shadow:inset 0 -3px 0 var(--red)}.hgrid button.mid{box-shadow:inset 0 -3px 0 var(--gold)}
 .foryou{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
 .psb{position:relative}.psr{display:flex;flex-direction:column;gap:2px;margin-top:4px;max-height:260px;overflow:auto}.psi{appearance:none;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px}.psi b{display:block;font-size:14px}.psi span{font-size:12px;color:var(--tx2)}
 #splash{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 42%,#7a1f1f 0,#3a1316 55%,#1f0d0e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity .6s}
@@ -132,6 +135,7 @@ table.kv.pl td{font-size:13px;width:auto!important}table.kv.pl tr:first-child td
 .cdact{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .rep{appearance:none;border:1px solid var(--line);background:none;border-radius:10px;padding:6px 8px;font-size:11px;font-weight:800;color:var(--tx2)}.rep.on{background:var(--grn);border-color:var(--grn);color:#fff}
 @media(max-width:420px){nav.tabs button{font-size:9.5px;letter-spacing:0}}
+@media(max-width:560px){nav.tabs{overflow-x:auto;scrollbar-width:none}nav.tabs::-webkit-scrollbar{display:none}nav.tabs button{flex:1 0 auto;min-width:49px;font-size:9px!important;letter-spacing:-.02em!important;padding-left:1px;padding-right:1px}}
 .cell .tt{color:var(--sk)}.cell .tt.k{color:var(--kk)}
 .cell .bar{position:absolute;left:0;right:0;bottom:0;height:3px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:12px;color:var(--tx2)}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i,.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:6px}.legend i{margin:0}
@@ -150,6 +154,7 @@ input[type=color]{width:54px;height:34px;padding:2px;flex:none}
  <section class="view" id="v-cd"><div class="wrap" id="cdv"></div></section>
  <section class="view" id="v-kd"><div class="wrap" id="kdv"></div></section>
  <section class="view" id="v-muh"><div class="wrap" id="muh"></div></section>
+ <section class="view" id="v-mantra"><div class="wrap" id="mantra"></div></section>
  <section class="view" id="v-more"><div class="wrap" id="more"></div></section>
 </div></div>
 <nav class="tabs" id="tabs"></nav>
@@ -468,6 +473,7 @@ function svg(H,style,o){o=o||{};var L=o.line||'#7a1f1f',T=o.tx||'#3b1d14',S2=o.s
  if(style=='north'){
   s+='<rect x="2" y="2" width="396" height="396" fill="none" stroke="'+L+'" stroke-width="2.5"/><path d="M2 2L398 398M398 2L2 398M200 2L398 200L200 398L2 200Z" fill="none" stroke="'+L+'" stroke-width="2"/>';
   var C=[[200,105],[100,48],[48,105],[105,200],[48,295],[100,352],[200,295],[300,352],[352,295],[295,200],[352,105],[300,48]],N=[[200,178],[100,20],[20,100],[178,200],[20,300],[100,382],[200,222],[300,382],[382,300],[222,200],[382,100],[300,20]];
+  if(o.cen)for(var hc=0;hc<12;hc++)o.cen[hc]=C[hc];
   for(var h=0;h<12;h++){s+='<text x="'+N[h][0]+'" y="'+(N[h][1]+5)+'" text-anchor="middle" font-size="13" fill="'+S2+'">'+signTxt(H[h].sign)+'</text>';s+=txt(C[h][0],C[h][1]+5,(h==0?[{k:'as',as:1}]:[]).concat(H[h].pl),lang,h%3==0?fs:13)}
   s=s.replace(/<tspan fill="undefined">[^<]*<\/tspan>/g,'<tspan fill="'+L+'">'+ab(lang,'as')+'</tspan>');
  }else if(style=='south'){
@@ -477,7 +483,7 @@ function svg(H,style,o){o=o||{};var L=o.line||'#7a1f1f',T=o.tx||'#3b1d14',S2=o.s
   s+='<rect x="'+(3+c)+'" y="'+(3+c)+'" width="'+(2*c-2)+'" height="'+(2*c-2)+'" fill="'+(o.bg||'#fffaf2')+'"/><text x="200" y="196" text-anchor="middle" font-size="16" font-weight="800" fill="'+L+'">'+(o.title||'')+'</text><text x="200" y="218" text-anchor="middle" font-size="12" fill="'+S2+'">'+(o.sub2||'')+'</text>';
   for(var g=0;g<12;g++){var hh=-1;for(var q=0;q<12;q++)if(H[q].sign==g)hh=q;var r=P[g][0],cc=P[g][1],x=2+cc*c,y=2+r*c;
    s+='<text x="'+(x+8)+'" y="'+(y+16)+'" font-size="11" fill="'+S2+'">'+signTxt(g)+'</text>';if(hh==0)s+='<line x1="'+(x+c-28)+'" y1="'+(y+2)+'" x2="'+(x+c-2)+'" y2="'+(y+28)+'" stroke="'+L+'" stroke-width="2"/><text x="'+(x+c-6)+'" y="'+(y+c-8)+'" text-anchor="end" font-size="11" font-weight="800" fill="'+L+'">'+ab(lang,'as')+'</text>';
-   s+=txt(x+c/2,y+c/2+5,H[hh].pl,lang,14)}
+   if(o.cen)o.cen[hh]=[x+c/2,y+c/2];s+=txt(x+c/2,y+c/2+5,H[hh].pl,lang,14)}
  }else{ /* east (Odisha / Bengal): signs fixed, Aries top middle, going anticlockwise */
   var c3=132,Z=[{t:'r',x:1,y:0},{t:'tri',x:0,y:0,u:1},{t:'tri',x:0,y:0,u:0},{t:'r',x:0,y:1},{t:'tri',x:0,y:2,u:1},{t:'tri',x:0,y:2,u:0},{t:'r',x:1,y:2},{t:'tri',x:2,y:2,u:0},{t:'tri',x:2,y:2,u:1},{t:'r',x:2,y:1},{t:'tri',x:2,y:0,u:0},{t:'tri',x:2,y:0,u:1}];
   s+='<rect x="2" y="2" width="396" height="396" fill="none" stroke="'+L+'" stroke-width="2.5"/>';
@@ -487,7 +493,7 @@ function svg(H,style,o){o=o||{};var L=o.line||'#7a1f1f',T=o.tx||'#3b1d14',S2=o.s
    if(z.t=='r'){cx=bx+c3/2;cy=by+c3/2}else{ /* corner triangle: u=1 the half that touches the top/bottom edge */
     var top=z.y==0,left=z.x==0;if(z.u){cx=bx+c3/2+(left?18:-18);cy=by+(top?34:c3-34)}else{cx=bx+(left?34:c3-34);cy=by+c3/2+(top?18:-18)}}
    s+='<text x="'+cx+'" y="'+(cy-20)+'" text-anchor="middle" font-size="11" fill="'+S2+'">'+signTxt(g2)+(hx==0?' · '+ab(lang,'as'):'')+'</text>';
-   s+=txt(cx,cy+6,H[hx].pl,lang,z.t=='r'?14:12)}
+   if(o.cen)o.cen[hx]=[cx,cy];s+=txt(cx,cy+6,H[hx].pl,lang,z.t=='r'?14:12)}
  }
  return '<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px;display:block;margin:0 auto;font-family:inherit" fill="'+T+'">'+s+'</svg>'}
 /* everything for one birth / moment */
@@ -686,10 +692,10 @@ function cdRoll(){var t=todayYMD(),tk=key(t[0],t[1],t[2]),ch=0;S.cd.forEach(func
 function inCd(uid){return S.cd.some(function(c){return c.uid==uid})}
 function toggleCd(f){if(inCd(f.uid)){S.cd=S.cd.filter(function(c){return c.uid!=f.uid});toast('Removed from countdown')}else{S.cd.push({uid:f.uid,n:f.n,h:f.h,d:f.d,e:f.e,fid:f.id=='ekadashi'||f.id=='pradosh'?f.id:(f.mine?'my_'+f.mine:f.id),rep:1});S.cd.sort(function(a,b){return a.d<b.d?-1:1});toast('Added to countdown ⏳')}save('cd');rerender()}
 /* ---------- tabs & swipe ---------- */
-var TABS=[['home','🏠','HOME'],['cal','📅','CALENDAR'],['fest','🪔','FESTIVALS'],['cd','⏳','COUNTDOWN'],['kd','🪐','KUNDLI'],['muh','🕉️','MUHURAT'],['more','⚙️','MORE']],cur=0;
+var TABS=[['home','🏠','HOME'],['cal','📅','CALENDAR'],['fest','🪔','FESTIVALS'],['cd','⏳','COUNTDOWN'],['kd','🪐','KUNDLI'],['muh','🕉️','MUHURAT'],['mantra','📿','MANTRA'],['more','⚙️','MORE']],cur=0;
 function tix(n){for(var i=0;i<TABS.length;i++)if(TABS[i][0]==n)return i;return 0}
 function goT(n){go(tix(n))}
-function tabs(){$('tabs').innerHTML=TABS.map(function(t,i){return '<button data-tab="'+i+'" class="'+(i==cur?'on':'')+'"><b>'+t[1]+'</b>'+t[2]+'</button>'}).join('')}
+function tabs(){$('tabs').innerHTML=TABS.map(function(t,i){return '<button data-tab="'+i+'" class="'+(i==cur?'on':'')+'"><b>'+t[1]+'</b>'+t[2]+'</button>'}).join('');var on=$('tabs').querySelector('.on');if(on&&on.scrollIntoView&&$('tabs').scrollWidth>$('tabs').clientWidth){try{on.scrollIntoView({block:'nearest',inline:'center'})}catch(e){}}}
 function snap(){var tr=$('track');tr.style.transition='';tr.style.transform='translateX('+(-100*cur)+'%)';fixX()}
 function go(i,noAnim){if(i<0||i>=TABS.length)return;cur=i;fixX();var tr=$('track');tr.style.transition=noAnim?'none':'';tr.style.transform='translateX('+(-100*i)+'%)';tabs();render(TABS[i][0]);
  try{history.replaceState(null,'','#'+TABS[i][0])}catch(e){}}
@@ -707,7 +713,7 @@ function closeSheet(){$('sheet').classList.remove('on')}
 $('sheet').addEventListener('click',function(e){if(e.target.id=='sheet')closeSheet()});
 W.owhBack=function(){if($('sheet').classList.contains('on')){closeSheet();return true}if(cur!=0){go(0);return true}return false};
 /* ---------- render ---------- */
-function render(v){try{({home:rHome,cal:rCal,fest:rFest,cd:rCd,kd:rKd,muh:rMuh,more:rMore})[v]()}catch(e){console.error(e)}}
+function render(v){try{({home:rHome,cal:rCal,fest:rFest,cd:rCd,kd:rKd,muh:rMuh,mantra:rMantra,more:rMore})[v]()}catch(e){console.error(e)}}
 function rerender(){render(TABS[cur][0]);hdr()}
 function hdr(){var t=todayYMD(),d=new Date(Date.UTC(t[0],t[1],t[2]));$('hsub').textContent=WD[d.getUTCDay()]+', '+t[2]+' '+MONF[t[1]]+' '+t[0];$('locName').textContent=S.loc.n.length>14?S.loc.n.slice(0,13)+'…':S.loc.n}
 /* current panchang day: before sunrise it is still yesterday's Hindu day */
@@ -738,18 +744,18 @@ function rHome(){var now=Date.now(),p=hinduToday(),tt=T(),nw=lt(now);
  for(var i=0;i<3;i++){var dd=addD(p.y,p.m,p.d,i),pp=P(dd[0],dd[1],dd[2]);pp.yogas.forEach(function(y){if(y.e>now)yg.push(y)})}
  h+='<div class="mh">UPCOMING</div><div class="up">';
  yg.slice(0,1).forEach(function(y){h+='<button class="upc" data-tab="muh"><div class="w">'+whenW(y.s)+'</div><div class="n" style="color:var(--grn)">🟩 '+(S.lang!='en'?tr(y.h):y.n)+'</div><div class="sm mut">'+dLabel(y.s).slice(0,3)+' '+hm(y.s)+' – '+dLabel(y.e).slice(0,3)+' '+hm(y.e)+'</div></button>'});
- ups.forEach(function(f){var n=daysBetween(tk,f.d);h+='<button class="upc" data-day="'+f.d+'"><div class="w">'+(n<2?inDays(n).toUpperCase():dayW(f.d))+'</div><div class="n" style="color:'+ccol(f.c)+'">'+f.e+' '+esc(fname(f))+'</div><div class="sm mut">'+(n<2?dayW(f.d):inDays(n))+'</div></button>'});
+ ups.forEach(function(f){var n=daysBetween(tk,f.d);h+='<button class="upc" data-fu="'+esc(f.uid)+'"><div class="w">'+(n<2?inDays(n).toUpperCase():dayW(f.d))+'</div><div class="n" style="color:'+ccol(f.c)+'">'+f.e+' '+esc(fname(f))+'</div><div class="sm mut">'+(n<2?dayW(f.d):inDays(n))+'</div></button>'});
  h+='</div>';
- h+='<div style="margin-top:12px">'+perCard(p.k,'🕉️ SACRED PERIOD NOW')+horoCard(p)+recCard(p,'🙏 TODAY: DO & AVOID')+'</div>';
+ h+='<div style="margin-top:12px">'+perCard(p.k,'🕉️ SACRED PERIOD NOW')+horoCard(p)+recCard(p,'🙏 TODAY: DO & AVOID')+todayMantraCard()+'</div>';
  if(S.cd.length){h+='<div class="mh">MY COUNTDOWN</div>';S.cd.slice().sort(cdSort).slice(0,4).forEach(function(c){h+=cdRow(c,tk,true)})}
- h+='<div class="mh">EXPLORE</div><div class="grid2">'+[['cal','📅 Month View','English + Hindu dates'],['kd','🪐 Kundli','Birth chart and details'],['fest','🪔 Festivals','Festival and vrat dates'],['cd','⏳ Countdown','Festivals on your widget'],['muh','⏱️ Muhurat','Choghadiya, Hora, Rahu Kaal'],['more','⚙️ Settings','Location, look, reminders']].map(function(x){return '<button class="tile" data-tab="'+x[0]+'"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>'}).join('')+'</div>';
+ h+='<div class="mh">EXPLORE</div><div class="grid2">'+[['cal','📅 Month View','English + Hindu dates'],['kd','🪐 Kundli','Birth chart and details'],['fest','🪔 Festivals','Festival and vrat dates'],['cd','⏳ Countdown','Festivals on your widget'],['muh','⏱️ Muhurat','Choghadiya, Hora, Rahu Kaal'],['mantra','📿 Mantras','By day, god, planet and need'],['more','⚙️ Settings','Location, look, reminders']].map(function(x){return '<button class="tile" data-tab="'+x[0]+'"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>'}).join('')+'</div>';
  $('home').innerHTML=h}
 function moonIcon(t){if(t==14)return '🌕';if(t==29)return '🌑';return t<15?(t<4?'🌒':t<9?'🌓':'🌔'):(t<19?'🌖':t<24?'🌗':'🌘')}
 function dayW(k){var a=pk(k),d=new Date(Date.UTC(a[0],a[1],a[2]));return (WD[d.getUTCDay()]+' '+a[2]+' '+MON[a[1]]).toUpperCase()}
 function whenW(ms){var t=todayYMD(),d=lt(ms),k=key(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()),n=daysBetween(key(t[0],t[1],t[2]),k);return n<=1&&n>=0?inDays(n).toUpperCase():dayW(k)}
 function cdSort(a,b){var t=todayYMD(),tk=key(t[0],t[1],t[2]),pa=a.d<tk,pb=b.d<tk;if(pa!=pb)return pa?1:-1;return a.d<b.d?-1:a.d>b.d?1:0}
 function cdRow(c,tk,mini){var n=daysBetween(tk,c.d),past=n<0;
- var cc=ccol(/^my_/.test(c.uid)?'mine':((findF(c.uid)||{}).c||'major'));return '<div class="cd'+(past?' past':'')+'" style="border-left:5px solid '+cc+'"><div class="num"><b>'+(n==0?'🎉':Math.abs(n))+'</b><span>'+(n==0?'TODAY':past?'DAYS AGO':n==1?'DAY':'DAYS')+'</span></div><div class="m" style="flex:1;min-width:0"><div class="nm">'+esc(c.e||'⭐')+' '+esc(S.lang!='en'&&c.h?tr(c.h):c.n)+'</div><div class="sm mut">'+(n==0?'Today':past?'Done · ':(esc(S.lang!='en'&&c.h?tr(c.h):c.n)+' '+inDays(n)+' · '))+dayW(c.d)+'</div></div>'+(mini?'':'<div class="cdact"><button class="rep'+(c.rep?' on':'')+'" data-a="cdrep" data-u="'+esc(c.uid)+'" title="Repeat every year">🔁 '+(c.rep?'EVERY YEAR':'ONCE')+'</button><button class="del" data-a="cddel" data-u="'+esc(c.uid)+'">DELETE</button></div>')+'</div>'}
+ var cc=ccol(/^my_/.test(c.uid)?'mine':((findF(c.uid)||{}).c||'major'));return '<div class="cd'+(past?' past':'')+'" style="border-left:5px solid '+cc+'"><div class="num"><b>'+(n==0?'🎉':Math.abs(n))+'</b><span>'+(n==0?'TODAY':past?'DAYS AGO':n==1?'DAY':'DAYS')+'</span></div><div class="m" data-fu="'+esc(c.uid)+'" style="flex:1;min-width:0;cursor:pointer"><div class="nm">'+esc(c.e||'⭐')+' '+esc(S.lang!='en'&&c.h?tr(c.h):c.n)+'</div><div class="sm mut">'+(n==0?'Today':past?'Done · ':(esc(S.lang!='en'&&c.h?tr(c.h):c.n)+' '+inDays(n)+' · '))+dayW(c.d)+'</div></div>'+(mini?'':'<div class="cdact"><button class="rep'+(c.rep?' on':'')+'" data-a="cdrep" data-u="'+esc(c.uid)+'" title="Repeat every year">🔁 '+(c.rep?'EVERY YEAR':'ONCE')+'</button><button class="del" data-a="cddel" data-u="'+esc(c.uid)+'">DELETE</button></div>')+'</div>'}
 /* ---------- calendar ---------- */
 var CV=null,SEL=null;
 function rCal(){var t=todayYMD();if(!CV)CV=[t[0],t[1]];var y=CV[0],m=CV[1],tk=key(t[0],t[1],t[2]);
@@ -773,7 +779,7 @@ function scrollToEl(x,smooth){if(!x)return;var v=x.closest('.view')||x.closest('
 function fixX(){var se=D.scrollingElement;if(se&&se.scrollTop)se.scrollTop=0;if(D.body.scrollTop)D.body.scrollTop=0;var vw=$('views');if(vw&&vw.scrollLeft)vw.scrollLeft=0;var tr=$('track');if(tr&&tr.scrollLeft)tr.scrollLeft=0}
 function marquee(root){requestAnimationFrame(function(){[].forEach.call(root.querySelectorAll('.fe .mq'),function(s){var w=s.scrollWidth,cw=s.parentNode.clientWidth;if(w>cw+2){s.classList.add('run');s.style.setProperty('--mqd',Math.max(4,w/18)+'s');s.style.setProperty('--mqw',(cw-w-6)+'px')}})})}
 function festLi(f,tk){var n=daysBetween(tk,f.d),a=pk(f.d);
- return '<div class="li" style="border-left:4px solid '+ccol(f.c)+';padding-left:8px"><div class="e">'+f.e+'</div><div class="m" data-day="'+f.d+'"><b>'+esc(fname(f))+'</b><span class="tag" style="background:'+ccol(f.c)+'">'+catName(f.c,f)+'</span><br><span>'+dayW(f.d)+(f.time?' · '+f.time:'')+' · '+tShort(P(a[0],a[1],a[2]).t0)+' '+(P(a[0],a[1],a[2]).t0<15?(S.lang!='en'?tr('शु'):'S'):(S.lang!='en'?tr('कृ'):'K'))+'</span></div><div class="d">'+(n>=0?inDays(n):'')+'</div>'+(f.ph?'':'<button class="star'+(inCd(f.uid)?' on':'')+'" data-a="star" data-u="'+esc(f.uid)+'" title="Countdown">⏳</button>')+'</div>'}
+ return '<div class="li" style="border-left:4px solid '+ccol(f.c)+';padding-left:8px"><div class="e">'+f.e+'</div><div class="m" '+(f.ph?'data-day="'+f.d+'"':'data-fu="'+esc(f.uid)+'"')+'><b>'+esc(fname(f))+'</b><span class="tag" style="background:'+ccol(f.c)+'">'+catName(f.c,f)+'</span><br><span>'+dayW(f.d)+(f.time?' · '+f.time:'')+' · '+tShort(P(a[0],a[1],a[2]).t0)+' '+(P(a[0],a[1],a[2]).t0<15?(S.lang!='en'?tr('शु'):'S'):(S.lang!='en'?tr('कृ'):'K'))+'</span></div><div class="d">'+(n>=0?inDays(n):'')+'</div>'+(f.ph?'':'<button class="star'+(inCd(f.uid)?' on':'')+'" data-a="star" data-u="'+esc(f.uid)+'" title="Countdown">⏳</button>')+'</div>'}
 /* phone calendar (Android app) */
 var PH={},PHM={};
 function loadPhone(y,m){var k=y+'-'+m;if(PHM[k])return;PHM[k]=1;try{var n=NV();if(!n||!n.calEvents)return;if(n.calPerm()!='granted')return;
@@ -934,14 +940,286 @@ function kExtra(k,KV,o,wd){var tt=T(),n=k.moon.nak,sh=k.tithi<15,ti=k.tithi%15,r
   +'<div class="note" style="margin-top:8px">Written by Din Darpan from classical Panchang meanings. Use it as guidance.</div></div>';
  return h}
 var YONI_EN=['Horse','Elephant','Sheep','Serpent','Serpent','Dog','Cat','Sheep','Cat','Rat','Rat','Cow','Buffalo','Tiger','Buffalo','Tiger','Deer','Deer','Dog','Monkey','Mongoose','Monkey','Lion','Horse','Lion','Cow','Elephant'];
+/* ---------- festival details: short bullet points (original text, DUKEKRRISH) ---------- */
+var FINFO={
+ ugadi:['Hindu New Year (Chaitra Shukla Pratipada) in Maharashtra, Karnataka, Andhra and Telangana','Gudi (a decorated pole with a cloth and kalash) is raised at the door','People eat neem with jaggery: life has both bitter and sweet','New clothes, rangoli and the yearly Panchang reading (Panchanga Shravanam)'],
+ navchaitra:['First day of the nine-night Chaitra Navratri of Goddess Durga','Ghatasthapana (kalash) is set up in the morning muhurat','Day 1 is for Maa Shailaputri','Many keep a fast for nine days and end it on Ram Navami'],
+ ramnavami:['Birthday of Lord Rama, born at noon on Chaitra Shukla Navami','Puja at midday, Ramcharitmanas or Ramayan reading','Kanya Pujan and the end of Chaitra Navratri for many families','Processions (Shobha Yatra) and bhajans in temples'],
+ hanuman:['Birthday of Hanuman ji (Chaitra Purnima in North India)','Read Hanuman Chalisa or Sundarkand; offer sindoor and jasmine oil','Boondi or besan laddoo is offered as prasad','Good day to pray for strength, courage and protection'],
+ akshaya:['"Akshaya" means never-ending: good deeds and purchases this day keep growing','A self-auspicious day (Abujh Muhurat): weddings and new work need no muhurat','Buying gold or silver is popular; charity gives lasting merit','Also Parshuram Jayanti; Badrinath and Kedarnath yatras open around now'],
+ buddha:['Birth, enlightenment and nirvana day of Gautama Buddha','Prayers at viharas, lighting lamps, reading the Buddha\'s teachings','Many eat vegetarian food and give to the needy','Bodh Gaya, Sarnath and Kushinagar hold big gatherings'],
+ savitri:['Married women fast for the long life of their husband','Worship of the Banyan (Vat) tree with thread tied around it','The story of Savitri bringing back Satyavan from Yamraj is read','North India keeps it on Jyeshtha Amavasya'],
+ rathyatra:['Lord Jagannath, Balabhadra and Subhadra ride huge chariots in Puri','Pulling the chariot rope is believed to bring great blessings','The deities go to Gundicha temple and return after 9 days (Bahuda Yatra)','Rath Yatras are held in cities all over the world'],
+ devshayani:['Lord Vishnu goes into Yoga Nidra (divine sleep) for four months','Chaturmas starts: weddings and Griha Pravesh are put off','Fast, Vishnu puja and Tulsi worship','Also called Ashadhi Ekadashi; the Pandharpur Wari reaches Vitthal temple'],
+ gurupurnima:['Day to honour your Guru and teachers','Birthday of Sage Ved Vyasa, who arranged the Vedas','Students touch the feet of teachers and give a small gift (Guru Dakshina)','Good day to start learning or take a vow'],
+ nagpanchami:['Worship of Nag Devta (serpent gods) for protection','Milk, flowers and turmeric are offered at snake idols or anthills','Many do not dig the soil or cut vegetables on this day','Drawings of snakes are made at the door'],
+ rakhi:['Sisters tie Rakhi on their brothers\' wrist and pray for them','Brothers promise to protect their sisters and give a gift','Tie it after Bhadra ends (check the time on the day page)','Also Shravan Purnima: Upakarma (new sacred thread) for many'],
+ janmashtami:['Birthday of Lord Krishna, born at midnight in Mathura','Fast till midnight; baby Krishna is bathed, dressed and put in a swing','Dahi Handi next day in Maharashtra','Bhajans, jhankis and the 56-item Chhappan Bhog in temples'],
+ hartalika:['Women fast without water for a happy married life','Worship of Shiva and Parvati made of clay or sand','Remembers Parvati\'s penance to get Shiva as husband','Night-long bhajans; the fast ends next morning'],
+ ganesh:['Birthday of Lord Ganesha; start of 10-day Ganeshotsav','Ganesh idol is brought home or to pandals and worshipped','Modak, durva grass and red flowers are offered','Do not look at the Moon tonight (Chandra Darshan dosh)'],
+ anant:['Last day of Ganeshotsav: Ganesh Visarjan (immersion)','Worship of Lord Vishnu as Anant; a 14-knot Anant thread is tied','Fast and Anant Chaturdashi katha','Big processions to rivers and the sea'],
+ mahalaya:['Last day of Pitru Paksha: Shraddh for all ancestors','Those who do not know the tithi of an ancestor do Shraddh today','Tarpan with water, sesame and kusha; feed Brahmins, cows and crows','In Bengal, Mahalaya marks the arrival of Goddess Durga'],
+ pitrustart:['Pitru Paksha starts: 16 days for the ancestors','Each ancestor\'s Shraddh is done on the tithi they passed away','Daily Tarpan with water, black sesame and kusha','No new purchases or auspicious ceremonies in this period'],
+ navratri:['First day of Sharad Navratri, the biggest Navratri','Ghatasthapana (kalash) in the morning; Akhand Jyoti is lit','Day 1 is for Maa Shailaputri','Garba and Dandiya nights in Gujarat; Durga Puja in Bengal'],
+ durgaashtami:['Eighth day of Navratri, for Maa Mahagauri','Kanya Pujan: young girls are fed and worshipped as the Goddess','Sandhi Puja at the meeting of Ashtami and Navami','Weapons and tools are worshipped in some places'],
+ mahanavami:['Ninth day of Navratri, for Maa Siddhidatri','Kanya Pujan and Havan; Navratri fast ends for many','Ayudha Puja (tools, books, vehicles) in South India','Last day of Durga Puja in Bengal'],
+ dussehra:['Victory of Lord Rama over Ravana: good over evil','Ravana effigies are burnt in the evening','Shami tree puja and exchanging Shami leaves (gold) in Maharashtra','Good day to start new work, learning or buying vehicles'],
+ kumarpurnima:['Sharad Purnima: the brightest full Moon of the year','Kheer is kept in moonlight overnight and eaten as prasad','Kojagari Lakshmi puja: staying awake at night brings wealth','Kumar Purnima for girls in Odisha'],
+ karwa:['Married women fast from sunrise till moonrise for their husband\'s long life','Sargi (pre-dawn meal) from the mother-in-law','Evening Karwa puja and katha','Fast ends after seeing the Moon through a sieve'],
+ dhanteras:['First day of Diwali: Dhanvantari (god of health) and Kuber are worshipped','Buying gold, silver, utensils or a broom is considered lucky','Yam Deep: a lamp facing south at the door in the evening','Clean the house and light lamps'],
+ narak:['Choti Diwali: Lord Krishna defeated the demon Narakasura','Abhyang Snan: oil bath before sunrise','Lamps are lit in the evening; Kali Chaudas in Gujarat','Some do Hanuman puja on this day'],
+ diwali:['Festival of lights: Lord Rama returns to Ayodhya','Lakshmi-Ganesh puja in the evening (Pradosh Kaal / Sthir Lagna)','Lamps, rangoli, sweets and new clothes','Keep doors open and the house clean to welcome Goddess Lakshmi'],
+ govardhan:['Lord Krishna lifted Govardhan hill to save Gokul from rain','A hill of cow dung or food (Annakut) is made and worshipped','56 dishes (Chhappan Bhog) are offered','Cows and bullocks are decorated and worshipped'],
+ bhaidooj:['Sisters put tilak on brothers and pray for their long life','Brothers give gifts and eat at the sister\'s home','Story of Yamraj visiting his sister Yamuna','Last day of the five-day Diwali festival'],
+ chhath:['Four-day worship of Surya Dev and Chhathi Maiya','Nahay-Khay, Kharna, evening Arghya and morning Arghya','Fasting women stand in water to offer Arghya to the setting and rising Sun','Thekua and fruits are offered in bamboo baskets'],
+ devuthani:['Lord Vishnu wakes up from four months of Yoga Nidra','Chaturmas ends: weddings and auspicious work can start again','Tulsi Vivah is done on this day or the next','Fast and Vishnu puja; sugarcane and seasonal fruits are offered'],
+ kartikpurnima:['Holiest full Moon: holy dip in Ganga or any river','Dev Deepawali in Varanasi: thousands of lamps on the ghats','Boita Bandana in Odisha remembers sea traders','Last day of Kartik Snan and Bhishma Panchak'],
+ gurunanak:['Birthday (Prakash Purab) of Guru Nanak Dev Ji, the first Sikh Guru','Akhand Path, Prabhat Pheri and Nagar Kirtan','Langar (free community kitchen) in Gurdwaras','Gurdwaras are lit up at night'],
+ vivahpanchami:['Wedding anniversary of Lord Rama and Sita','Big celebration in Janakpur and Ayodhya','Ram-Sita vivah is acted and sung','Reading Ram Charit Manas Bal Kand is common'],
+ gita:['Day Lord Krishna spoke the Bhagavad Gita to Arjun at Kurukshetra','Read or listen to the Gita; Gita Mahotsav in Kurukshetra','Also Mokshada Ekadashi: fast and Vishnu puja','Gift the Gita to someone'],
+ datta:['Birthday of Lord Dattatreya (Brahma, Vishnu and Shiva in one)','Datta puja and reading Guru Charitra','Popular in Maharashtra, Karnataka and Gujarat','Good day to honour your Guru'],
+ vasant:['Saraswati Puja: goddess of learning, music and art','Children start writing (Akshar Abhyasam); books and instruments are worshipped','Yellow clothes and yellow sweets for spring','A self-auspicious day for new work'],
+ rathsaptami:['Birthday of Surya Dev (Magha Shukla Saptami)','Bath before sunrise with seven Arka (Aak) leaves on the head','Arghya to the Sun; Aditya Hridayam is read','Good for health and getting rid of illness'],
+ shivratri:['Great night of Lord Shiva','Fast, night-long jagran and four prahar pujas','Abhishek with water, milk and bel leaves on the Shiva Linga','Chant Om Namah Shivaya; visit a Shiva temple'],
+ holika:['Bonfire of Holika: victory of Prahlad\'s devotion','Light the fire after Bhadra ends, at the set muhurat','Go around the fire and offer new grains, coconut and gulal','Holashtak ends with Holika Dahan'],
+ holi:['Festival of colours (Dhulandi)','Playing with gulal and colours, gujiya and thandai','Old fights are forgiven; people meet and hug','Use safe, natural colours and protect eyes and skin'],
+ sheetala:['Worship of Sheetala Mata for protection from disease','Food is cooked a day before; only cold (Basoda) food is eaten','No fire is lit in the kitchen on this day','Mostly in Rajasthan, Gujarat and UP'],
+ rangpanchami:['Fifth day after Holi, played with colours again','Big in Maharashtra and Madhya Pradesh (Indore Ger)','Colours are thrown in the air to invite the gods','Good day to end quarrels'],
+ gangasaptami:['Birthday of Mother Ganga (Ganga Jayanti)','Holy dip and Ganga aarti','Donate water pots and food','Remembers Ganga coming out of Sage Jahnu\'s ear'],
+ sitanavami:['Birthday of Goddess Sita (Janaki Navami)','Married women fast for their husband\'s wellbeing','Ram-Sita puja at midday','Big celebration in Janakpur and Sitamarhi'],
+ narasimha:['Lord Vishnu as Narasimha protected Prahlad from Hiranyakashipu','Fast and puja at sunset (Sandhya)','Pray for protection from fear and enemies','Read Narasimha Kavach'],
+ shanijayanti:['Birthday of Shani Dev','Mustard oil abhishek and blue or black flowers','Donate black sesame, urad, iron or shoes to the needy','Good day for Sade Sati and Dhaiya remedies'],
+ vatpurnima:['Vat Savitri on Jyeshtha Purnima (Maharashtra, Gujarat, South)','Married women worship the Banyan tree and tie threads around it','Fast for the husband\'s long life','The Savitri-Satyavan story is read'],
+ halshashthi:['Birthday of Lord Balaram, whose weapon is the plough (Hal)','Mothers fast for their children','Food grown with a plough is not eaten; Pasahi rice and buffalo milk are used','Also called Lalahi Chhath'],
+ rishipanchami:['Honour of the Saptarishi (seven sages)','Women fast and bathe to remove unknown faults','Worship of the seven sages with flowers and fruits','Grains grown by ploughing are avoided'],
+ radhaashtami:['Birthday of Radha Rani, 15 days after Janmashtami','Big celebration in Barsana and Vrindavan','Fast till midday; Radha-Krishna puja','Bhajans and Radha naam kirtan'],
+ ahoi:['Mothers fast for their children\'s long life and wellbeing','Ahoi Mata picture is drawn and worshipped','Fast ends after seeing the stars in the evening','Kept 8 days before Diwali'],
+ amlanavami:['Worship of the Amla tree, home of Lord Vishnu','Eat food under an Amla tree with family','Charity done today is believed never to end (Akshaya)','Mathura-Vrindavan parikrama is popular'],
+ tulsivivah:['Marriage of Tulsi (Vrinda) with Lord Vishnu as Shaligram','Tulsi plant is dressed as a bride and wedding rituals are done','Starts the wedding season after Chaturmas','Sugarcane mandap and sweets'],
+ vaikuntha:['Lord Vishnu and Lord Shiva are worshipped together','Tulsi to Shiva and Bel to Vishnu this one day','Lamps in the evening; Manikarnika bath in Varanasi','Believed to open the gates of Vaikuntha'],
+ kalbhairav:['Birthday of Kaal Bhairav, the fierce form of Lord Shiva','Puja at night; offer mustard oil, black sesame and urad','Feed a black dog (vahan of Bhairav)','Pray for protection from fear and negative forces'],
+ mauni:['Holy dip in silence (Maun) on Magha Amavasya','Biggest bathing day of Magh Mela and Kumbh at Prayag','Donate sesame, blankets and food','Tarpan for ancestors'],
+ bhishmaashtami:['Day Bhishma Pitamah gave up his body during Uttarayan','Tarpan for Bhishma with water and sesame','Childless couples pray for a child','Ekodishta Shraddh for those without children'],
+ maghpurnima:['Holy dip on the full Moon of Magha','Last day of Kalpavas at Prayag','Donate food, clothes and sesame','Satyanarayan puja is common'],
+ makar:['Sun enters Makar (Capricorn): start of Uttarayan','Til-gud (sesame and jaggery), khichdi and holy dips','Kite flying in Gujarat; Pongal, Lohri and Bihu around the same time','Charity of sesame, blankets and food is very meritorious'],
+ vishwakarma:['Worship of Lord Vishwakarma, divine architect and engineer','Factories, workshops and offices worship machines and tools','Workers rest their machines for the day','Kite flying in Bengal and Bihar'],
+ pana:['Mesha Sankranti: the solar New Year in many states','Pana Sankranti (Odisha), Baisakhi, Vishu, Puthandu, Bohag Bihu, Poila Boishakh','Kharmas ends; auspicious work can start','Sweet drinks (pana) and water are donated'],
+ newyear:['First day of the English (Gregorian) calendar year','A public celebration, not a Hindu festival','Good day for new resolutions'],
+ republic:['Constitution of India came into force on 26 January 1950','Parade on Kartavya Path, New Delhi; flag hoisting everywhere','National holiday'],
+ ambedkar:['Birthday of Dr B. R. Ambedkar, maker of the Constitution','Public holiday in most states','Tributes and programmes on equality'],
+ labour:['International Workers\' Day','Holiday in many states and for many companies','Also Maharashtra and Gujarat Day'],
+ independence:['India became free on 15 August 1947','Prime Minister hoists the flag at the Red Fort','National holiday; kites in many places'],
+ teachers:['Birthday of Dr S. Radhakrishnan','Students thank and honour their teachers','Not a holiday'],
+ gandhi:['Birthday of Mahatma Gandhi','National holiday; prayers at Raj Ghat','Also Lal Bahadur Shastri Jayanti'],
+ children:['Birthday of Pandit Jawaharlal Nehru','Fun programmes for children in schools'],
+ christmas:['Birth of Jesus Christ','National holiday','Church prayers, cakes and Christmas trees']
+};
+var FINFON={
+ 'Snana Purnima':['Lord Jagannath, Balabhadra and Subhadra get a grand bath of 108 pots','After this they rest (Anasara) for 15 days before Rath Yatra'],
+ 'Bahuda Yatra':['Return journey of the chariots from Gundicha temple to Puri Srimandir','Deities stop at Mausi Maa temple for Poda Pitha'],
+ 'Nuakhai':['Western Odisha harvest festival: first new rice is offered to Maa Samaleswari','Family eats the new rice together and elders bless the young (Nuakhai Juhar)'],
+ 'Kumar Purnima':['Odisha: unmarried girls pray to Kumar (Kartikeya) for a good husband','Moon puja, new clothes and games at night'],
+ 'Boita Bandana':['Odisha: small boats of banana bark with lamps are floated at dawn','Remembers the sea traders (Sadhaba) who sailed to Bali and Java'],
+ 'Prathamastami':['Odisha: the eldest child gets a puja and new clothes for long life','Enduri pitha is made'],
+ 'Dola Purnima':['Odisha: Radha-Krishna idols are carried in decorated palanquins (Dola)','Abir and colours are played'],
+ 'Raja Sankranti':['Odisha: three-day festival of Mother Earth and womanhood','Girls play on swings, wear new clothes and eat poda pitha; no farming work'],
+ 'Pana Sankranti':['Odia New Year (Maha Vishuva Sankranti)','Bela pana (wood apple drink) is shared; water pots are hung for Tulsi'],
+ 'Utkal Divas':['Odisha became a separate state on 1 April 1936','State holiday'],
+ 'Tula Sankranti':['Odisha: Sun enters Tula; paddy fields are worshipped as Mother Lakshmi'],
+ 'Durga Puja (Saptami)':['West Bengal: big pandals of Maa Durga; Nabapatrika bath on Saptami','Pandal hopping, anjali and bhog till Dashami'],
+ 'Kali Puja':['Bengal and Assam: Maa Kali is worshipped at midnight on Diwali Amavasya','Lamps and fireworks'],
+ 'Kojagari Lakshmi Puja':['Bengal: Goddess Lakshmi is worshipped at night on Sharad Purnima','Staying awake (Ko Jagarti — who is awake?) brings wealth'],
+ 'Jamai Sasthi':['Bengal: mother-in-law honours her son-in-law with a feast and gifts'],
+ 'Saraswati Puja':['Saraswati puja: books and instruments are worshipped; yellow clothes','Hate Khori (first letters) for small children'],
+ 'Poila Boishakh':['Bengali New Year: new account books (Haal Khata) open in shops'],
+ 'Rabindra Jayanti':['Birthday of Rabindranath Tagore; songs and plays'],
+ 'Netaji Jayanti':['Birthday of Netaji Subhas Chandra Bose (Parakram Diwas)'],
+ 'Bohag Bihu':['Assamese New Year and spring festival','Bihu dance, pitha and gifts of Gamosa'],
+ 'Magh Bihu':['Assam harvest festival: community feast and Meji bonfire'],
+ 'Kati Bihu':['Assam: lamps at Tulsi and in the paddy fields for a good crop'],
+ 'Chaiti Chhath':['Chhath in Chaitra: four-day Surya worship with Arghya at sunset and sunrise'],
+ 'Jitiya':['Mothers keep a strict fast (no water) for the long life of their children'],
+ 'Bihar Diwas':['Bihar was formed on 22 March 1912'],
+ 'Sarhul':['Tribal spring festival: worship of the Sal tree and nature'],
+ 'Karma Puja':['Worship of the Karam tree for good harvest and brothers\' wellbeing'],
+ 'Ganga Dussehra':['Descent of Mother Ganga to Earth; holy dip removes ten kinds of sins'],
+ 'Kajari Teej':['Women sing Kajari songs, swing and fast for a happy married life'],
+ 'Dev Deepawali':['Varanasi: lakhs of lamps on the Ganga ghats on Kartik Purnima'],
+ 'Harela':['Uttarakhand: greenery festival; seedlings are sown and trees planted'],
+ 'Uttarayani / Ghughutiya':['Uttarakhand Makar Sankranti: sweet Ghughute are fed to crows'],
+ 'Lohri':['Punjab: bonfire with rewri, peanuts and popcorn; Bhangra and Giddha','Special for a new bride or newborn in the family'],
+ 'Maghi':['Punjab: holy dip; remembers the Forty Liberated Ones (Chali Mukte)'],
+ 'Baisakhi':['Punjab harvest festival and Khalsa birthday (1699)','Gurdwara visits, Bhangra and fairs'],
+ 'Hariyali Teej':['Women wear green, apply mehndi, swing and fast for Shiva-Parvati blessings'],
+ 'Gangaur':['Rajasthan: women worship Gauri (Parvati) for 16-18 days; idols are carried in processions'],
+ 'Uttarayan':['Gujarat: kite festival on Makar Sankranti; undhiyu and chikki'],
+ 'Bestu Varas (New Year)':['Gujarati New Year after Diwali: greetings, new account books (Chopda Pujan)'],
+ 'Shivaji Jayanti':['Birthday of Chhatrapati Shivaji Maharaj'],
+ 'Narali Purnima':['Maharashtra coast: fishermen offer coconuts to the sea before fishing season'],
+ 'Bail Pola':['Maharashtra: bullocks are bathed, decorated and worshipped'],
+ 'Hareli':['Chhattisgarh: farm tools and cattle are worshipped; Gedi (bamboo stilt) games'],
+ 'Gowri Habba':['Karnataka: Goddess Gowri is worshipped a day before Ganesh Chaturthi'],
+ 'Makara Sankranti':['Karnataka: Ellu-Bella (sesame-jaggery) is shared; cattle are decorated'],
+ 'Onam (Thiruvonam)':['Kerala harvest festival: King Mahabali visits his people','Pookalam (flower rangoli), Onasadya feast and boat races'],
+ 'Vishu':['Kerala New Year: first sight of the Vishukkani in the morning; Vishu Kaineettam (gift money)'],
+ 'Thai Pongal':['Tamil Nadu harvest festival: new rice is boiled with milk till it overflows (Pongal)'],
+ 'Mattu Pongal':['Day after Pongal: cattle are bathed, decorated and worshipped'],
+ 'Puthandu (Tamil New Year)':['Tamil New Year: Kanni (auspicious sight), Mango Pachadi of six tastes'],
+ 'Thaipusam':['Murugan festival: Kavadi carrying and vows at Palani and Batu Caves'],
+ 'Panguni Uthiram':['Divine weddings (Murugan-Deivanai, Shiva-Parvati) are celebrated'],
+ 'Karthigai Deepam':['Rows of lamps; the great flame on Tiruvannamalai hill'],
+ 'Bhogi':['Day before Sankranti: old things are burnt in a bonfire; Bhogi pallu for children'],
+ 'Sankranti':['Andhra/Telangana Sankranti: rangoli, Haridasu songs, kites and new rice dishes'],
+ 'Bathukamma Begins':['Telangana: women make flower stacks (Bathukamma) and sing for nine days'],
+ 'Dashain (Vijaya Dashami)':['Nepal: elders give tika and jamara with blessings'],
+ 'Tihar (Bhai Tika)':['Nepal: sisters give seven-colour tika to brothers'],
+ 'Meghalaya Day':['Meghalaya became a full state on 21 January 1972']
+};
+var FGEN={
+ ekadashi:['Ekadashi fast for Lord Vishnu: no rice or grains','Vishnu puja, Tulsi leaves and Vishnu Sahasranama','Break the fast (Parana) next morning after sunrise, within the given time','Each Ekadashi has its own name and story'],
+ pradosh:['Pradosh Vrat for Lord Shiva on Trayodashi','Puja in Pradosh Kaal: about 1.5 hours after sunset','Shiva abhishek with water, milk and bel leaves','Monday = Som Pradosh, Saturday = Shani Pradosh (extra good)'],
+ purnima:['Full Moon day: Satyanarayan puja or Vishnu puja','Holy dip, charity and offering water to the Moon at night','Good for prayer and fasting'],
+ amavasya:['New Moon day for the ancestors: Tarpan and charity','Feed a cow, crows and dogs; light a lamp under a peepal tree','Avoid new beginnings and buying new things','Monday (Somvati) and Saturday (Shani) Amavasya are extra important'],
+ sankashti:['Sankashti Chaturthi for Lord Ganesha, to remove troubles','Fast through the day; break it after seeing the Moon','Ganesh puja with durva and modak; Sankashti katha','On Tuesday it is Angarki Chaturthi (very lucky)']
+};
+function festInfo(f){if(f.mine)return ['Your own event'+(f.d?' on '+dayW(f.d)+' '+f.d.slice(0,4):''),'It shows in the calendar and can be added to the countdown'];
+ if(FINFO[f.id])return FINFO[f.id];if(FINFON[f.n])return FINFON[f.n];if(FGEN[f.id])return FGEN[f.id];
+ if(/Day|Diwas|Divas|Rajyotsava|Piravi|Formation|Foundation|Statehood|Liberation/.test(f.n))return ['Foundation / statehood day'+(f.sn?' of '+f.sn:''),'State holiday with flag hoisting and cultural programmes'];
+ return [f.c=='state'?'Regional festival'+(f.sn?' of '+f.sn:''):'Hindu festival','See the day page for tithi and timings']}
+function festSheet(u){var f=findF(u);if(!f)return;var tk=key.apply(null,todayYMD()),n=daysBetween(tk,f.d),a=pk(f.d),p=P(a[0],a[1],a[2]),info=festInfo(f),pers=perOn(f.d).filter(function(z){return z.p.id!='panchak'});
+ var h='<div style="display:flex;gap:12px;align-items:center"><div style="font-size:40px">'+f.e+'</div><div><h2 style="margin:0">'+esc(fname(f))+'</h2>'+(f.h&&S.lang=='en'&&f.h!=f.n?'<div class="mut">'+esc(f.h)+'</div>':'')+'</div></div>'
+  +'<div class="row" style="margin:10px 0"><span class="tag" style="background:'+ccol(f.c)+'">'+catName(f.c,f)+'</span><b class="g">'+dayW(f.d)+' '+a[0]+'</b><span class="sm mut">'+tLong(p.t0)+'</span><b>'+(n==0?'🎉 Today':n>0?inDays(n):inDays(n))+'</b></div>'
+  +'<div class="card" style="margin:0 0 10px"><h2>ℹ️ ABOUT</h2>'+info.map(function(x){return '<div class="rec nt">'+esc(x)+'</div>'}).join('')+'</div>'
+  +(pers.length?'<div class="note" style="margin-bottom:10px">During: '+pers.map(function(z){return '<button class="chip" data-a="perinfo" data-p="'+z.p.id+'" data-s="'+f.d+'">'+z.p.e+' '+esc(pname(z.p))+'</button>'}).join(' ')+'</div>':'')
+  +'<div class="row"><button class="btn2" data-a="star" data-u="'+esc(f.uid)+'">⏳ '+(inCd(f.uid)?'REMOVE FROM':'ADD TO')+' COUNTDOWN</button><button class="btn2" data-day="'+f.d+'">📅 FULL DAY PANCHANG</button><button class="btn2" data-a="gcal" data-d="'+f.d+'">📆 GOOGLE CALENDAR</button></div>';
+ sheet(h)}
+/* ---------- Mantras: by day, by god / goddess, Navagraha, by need. Ancient public mantras ---------- */
+var BEEJ={su:['ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः','Om Hraam Hreem Hraum Sah Suryaya Namah'],mo:['ॐ श्रां श्रीं श्रौं सः चन्द्रमसे नमः','Om Shraam Shreem Shraum Sah Chandramase Namah'],ma:['ॐ क्रां क्रीं क्रौं सः भौमाय नमः','Om Kraam Kreem Kraum Sah Bhaumaya Namah'],me:['ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः','Om Braam Breem Braum Sah Budhaya Namah'],ju:['ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः','Om Graam Greem Graum Sah Gurave Namah'],ve:['ॐ द्रां द्रीं द्रौं सः शुक्राय नमः','Om Draam Dreem Draum Sah Shukraya Namah'],sa:['ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः','Om Praam Preem Praum Sah Shanaischaraya Namah'],ra:['ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः','Om Bhraam Bhreem Bhraum Sah Rahave Namah'],ke:['ॐ स्रां स्रीं स्रौं सः केतवे नमः','Om Sraam Sreem Sraum Sah Ketave Namah']};
+/* id, emoji, god, devanagari, roman, meaning / use, count */
+var MNT={
+ ganesh1:['🐘','Lord Ganesha','ॐ गं गणपतये नमः','Om Gam Ganapataye Namah','Removes obstacles; say it before starting any work, exam or journey',108],
+ ganesh2:['🐘','Lord Ganesha','वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ। निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा॥','Vakratunda Mahakaya Suryakoti Samaprabha, Nirvighnam Kuru Me Deva Sarva-Kaaryeshu Sarvada','O Lord with the curved trunk, bright as a crore suns, remove obstacles from all my work, always',11],
+ shiva1:['🔱','Lord Shiva','ॐ नमः शिवाय','Om Namah Shivaya','Panchakshari mantra: peace, purity and Shiva\'s grace',108],
+ shiva2:['🔱','Lord Shiva','ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्। उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय माऽमृतात्॥','Om Tryambakam Yajamahe Sugandhim Pushti-Vardhanam, Urvarukamiva Bandhanan Mrityor Mukshiya Maamritat','Maha Mrityunjaya: for health, long life and freedom from fear of death',108],
+ vishnu1:['🙏','Lord Vishnu','ॐ नमो भगवते वासुदेवाय','Om Namo Bhagavate Vasudevaya','Dwadashakshari mantra: devotion, peace and protection',108],
+ vishnu2:['🙏','Lord Vishnu','ॐ नमो नारायणाय','Om Namo Narayanaya','Ashtakshari mantra of Narayan: calm mind and blessings',108],
+ krishna1:['🦚','Lord Krishna','हरे कृष्ण हरे कृष्ण कृष्ण कृष्ण हरे हरे। हरे राम हरे राम राम राम हरे हरे॥','Hare Krishna Hare Krishna Krishna Krishna Hare Hare, Hare Rama Hare Rama Rama Rama Hare Hare','Maha Mantra: joy, devotion and a pure heart',108],
+ krishna2:['🦚','Lord Krishna','ॐ देवकीसुत गोविन्द वासुदेव जगत्पते। देहि मे तनयं कृष्ण त्वामहं शरणं गतः॥','Om Devakisuta Govinda Vasudeva Jagatpate, Dehi Me Tanayam Krishna Tvamaham Sharanam Gatah','Santan Gopal mantra: prayer for a child',108],
+ ram1:['🏹','Lord Rama','श्री राम जय राम जय जय राम','Shri Ram Jai Ram Jai Jai Ram','Taarak mantra: courage, peace and protection',108],
+ hanuman1:['🙏','Hanuman ji','ॐ हं हनुमते नमः','Om Ham Hanumate Namah','Strength, courage and protection from fear and Shani troubles',108],
+ hanuman2:['🙏','Hanuman ji','मनोजवं मारुततुल्यवेगं जितेन्द्रियं बुद्धिमतां वरिष्ठम्। वातात्मजं वानरयूथमुख्यं श्रीरामदूतं शरणं प्रपद्ये॥','Manojavam Maruta-tulya-vegam Jitendriyam Buddhimataam Varishtham, Vaatatmajam Vanara-yootha-mukhyam Shri Rama-dootam Sharanam Prapadye','I take refuge in Hanuman, swift as the mind and wind, master of the senses, wisest of the wise, messenger of Shri Ram',11],
+ durga1:['🔱','Goddess Durga','ॐ दुं दुर्गायै नमः','Om Dum Durgayai Namah','Protection, courage and removal of troubles',108],
+ durga2:['🔱','Goddess Durga','सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके। शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते॥','Sarva-Mangala-Mangalye Shive Sarvartha-Sadhike, Sharanye Tryambake Gauri Narayani Namostu Te','Salutations to the Mother who gives all good things and fulfils every wish',11],
+ katyayani:['🌺','Goddess Katyayani','कात्यायनि महामाये महायोगिन्यधीश्वरि। नन्दगोपसुतं देवि पतिं मे कुरु ते नमः॥','Katyayani Mahamaye Mahayoginyadhishvari, Nandagopa-sutam Devi Patim Me Kuru Te Namah','Prayer by girls for a good husband and early marriage',108],
+ lakshmi1:['🪷','Goddess Lakshmi','ॐ श्रीं महालक्ष्म्यै नमः','Om Shreem Mahalakshmyai Namah','Wealth, prosperity and peace at home',108],
+ lakshmi2:['🪷','Goddess Lakshmi','ॐ श्रीं ह्रीं श्रीं कमले कमलालये प्रसीद प्रसीद श्रीं ह्रीं श्रीं ॐ महालक्ष्म्यै नमः॥','Om Shreem Hreem Shreem Kamale Kamalalaye Praseed Praseed Shreem Hreem Shreem Om Mahalakshmyai Namah','Prayer to Goddess Lakshmi seated on the lotus to be pleased and bless the home',108],
+ kuber:['💰','Lord Kuber','ॐ यक्षाय कुबेराय वैश्रवणाय धनधान्याधिपतये धनधान्यसमृद्धिं मे देहि दापय स्वाहा॥','Om Yakshaya Kuberaya Vaishravanaya Dhana-Dhanyadhipataye Dhana-Dhanya-Samriddhim Me Dehi Dapaya Swaha','For wealth, savings and getting back stuck money',108],
+ saraswati1:['📚','Goddess Saraswati','ॐ ऐं सरस्वत्यै नमः','Om Aim Saraswatyai Namah','Knowledge, memory, speech and success in studies',108],
+ saraswati2:['📚','Goddess Saraswati','सरस्वति नमस्तुभ्यं वरदे कामरूपिणि। विद्यारम्भं करिष्यामि सिद्धिर्भवतु मे सदा॥','Saraswati Namastubhyam Varade Kamarupini, Vidyarambham Karishyami Siddhirbhavatu Me Sada','Say before studies: O Saraswati, bless my learning with success',11],
+ kali:['🌑','Goddess Kali','ॐ क्रीं कालिकायै नमः','Om Kreem Kalikayai Namah','Protection from negative forces and fear',108],
+ surya1:['☀️','Surya Dev','ॐ घृणि सूर्याय नमः','Om Ghrini Suryaya Namah','Health, confidence, government work and respect',108],
+ gayatri:['🌅','Gayatri Mata','ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्॥','Om Bhur Bhuvah Svah, Tat Savitur Varenyam, Bhargo Devasya Dhimahi, Dhiyo Yo Nah Prachodayat','We meditate on the divine light of the Sun; may it guide our intellect',108],
+ shani1:['🪐','Shani Dev','ॐ शं शनैश्चराय नमः','Om Sham Shanaischaraya Namah','For Sade Sati, Dhaiya, delays and hard times',108],
+ shani2:['🪐','Shani Dev','नीलाञ्जनसमाभासं रविपुत्रं यमाग्रजम्। छायामार्तण्डसम्भूतं तं नमामि शनैश्चरम्॥','Neelanjana Samabhasam Raviputram Yamagrajam, Chhaya Martanda Sambhutam Tam Namami Shanaischaram','Salutations to Shani, dark like blue collyrium, son of Surya and Chhaya, elder brother of Yama',11],
+ bhairav:['🐕','Kaal Bhairav','ॐ कालभैरवाय नमः','Om Kaalabhairavaya Namah','Protection, removal of fear and court troubles',108],
+ jagannath:['🛕','Lord Jagannath','जगन्नाथः स्वामी नयनपथगामी भवतु मे','Jagannathah Swami Nayana-pathagami Bhavatu Me','From Jagannath Ashtakam: may Lord Jagannath always be before my eyes',11],
+ dhanvantari:['🌿','Lord Dhanvantari','ॐ नमो भगवते वासुदेवाय धन्वन्तरये अमृतकलशहस्ताय सर्वामयविनाशनाय त्रैलोक्यनाथाय श्रीमहाविष्णवे नमः॥','Om Namo Bhagavate Vasudevaya Dhanvantaraye Amrita-kalasha-hastaya Sarvamaya-vinashanaya Trailokya-nathaya Shri Mahavishnave Namah','To Dhanvantari, holder of the nectar pot, who removes all disease',108],
+ shanti:['🕊️','Shanti Mantra','ॐ सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः। सर्वे भद्राणि पश्यन्तु मा कश्चिद् दुःखभाग्भवेत्॥ ॐ शान्तिः शान्तिः शान्तिः॥','Om Sarve Bhavantu Sukhinah Sarve Santu Niramayah, Sarve Bhadrani Pashyantu Ma Kashchid Duhkha-bhag-bhavet, Om Shantih Shantih Shantih','May all be happy, may all be free from illness, may all see good, may none suffer',11],
+ annapurna:['🍚','Mata Annapurna','अन्नपूर्णे सदापूर्णे शङ्करप्राणवल्लभे। ज्ञानवैराग्यसिद्ध्यर्थं भिक्षां देहि च पार्वति॥','Annapurne Sadapurne Shankara-prana-vallabhe, Jnana-vairagya-siddhyartham Bhiksham Dehi Cha Parvati','Before meals: O ever-full Annapurna, give us food and wisdom',3],
+ tulsi:['🌿','Tulsi Mata','महाप्रसादजननी सर्वसौभाग्यवर्धिनी। आधिव्याधिहरा नित्यं तुलसि त्वं नमोऽस्तु ते॥','Mahaprasada-janani Sarva-saubhagya-vardhini, Adhi-vyadhi-hara Nityam Tulasi Tvam Namostu Te','While watering or circling Tulsi: she removes worries and illness and brings good luck',3]
+};
+for(var bk in BEEJ){var GN={su:['☀️','Surya (Sun)'],mo:['🌙','Chandra (Moon)'],ma:['🔴','Mangal (Mars)'],me:['🟢','Budh (Mercury)'],ju:['🟡','Guru (Jupiter)'],ve:['⚪','Shukra (Venus)'],sa:['🪐','Shani (Saturn)'],ra:['🌑','Rahu'],ke:['☄️','Ketu']}[bk];MNT['g_'+bk]=[GN[0],GN[1]+' · Navagraha',BEEJ[bk][0],BEEJ[bk][1],'Beej mantra of '+GN[1]+'. Say it on its day when this planet is weak or its Dasha is running',108]}
+var MDAY=[['Sunday','Surya Dev',['surya1','gayatri','g_su']],['Monday','Lord Shiva',['shiva1','shiva2','g_mo']],['Tuesday','Hanuman ji, Mangal',['hanuman1','hanuman2','g_ma']],['Wednesday','Lord Ganesha, Budh',['ganesh1','ganesh2','g_me']],['Thursday','Lord Vishnu, Guru',['vishnu1','vishnu2','g_ju']],['Friday','Goddess Lakshmi, Durga, Shukra',['lakshmi1','durga1','g_ve']],['Saturday','Shani Dev, Hanuman ji',['shani1','shani2','hanuman1','g_sa']]];
+var MGOD=[['🐘 Ganesha',['ganesh1','ganesh2']],['🔱 Shiva',['shiva1','shiva2']],['🙏 Vishnu',['vishnu1','vishnu2']],['🦚 Krishna',['krishna1','krishna2']],['🏹 Ram',['ram1']],['🙏 Hanuman',['hanuman1','hanuman2']],['🔱 Durga',['durga1','durga2','katyayani']],['🪷 Lakshmi',['lakshmi1','lakshmi2','kuber']],['📚 Saraswati',['saraswati1','saraswati2']],['🌑 Kali',['kali']],['☀️ Surya',['surya1','gayatri']],['🪐 Shani',['shani1','shani2']],['🐕 Bhairav',['bhairav']],['🛕 Jagannath',['jagannath']],['🍚 Annapurna',['annapurna']],['🌿 Tulsi',['tulsi']]];
+var MNEED=[['📚 Study & Exams',['saraswati1','saraswati2','ganesh1']],['💼 Job & Career',['surya1','ganesh1','g_su']],['💰 Money & Business',['lakshmi1','kuber','lakshmi2']],['🏥 Health',['shiva2','dhanvantari','surya1']],['💍 Marriage',['katyayani','g_ve','g_ju']],['👶 Child',['krishna2','g_ju']],['🛡️ Protection & Fear',['hanuman1','durga1','bhairav','kali']],['😌 Peace of Mind',['shiva1','g_mo','shanti']],['🧾 Debt Relief',['g_ma','hanuman1','lakshmi1']],['⚖️ Court & Enemies',['bhairav','durga2','hanuman2']],['🚗 Safe Travel',['hanuman1','ganesh1']],['🪐 Sade Sati / Shani',['shani1','shani2','hanuman1']],['🏠 New Home / Work',['ganesh2','vishnu1']],['🍚 Food Blessing',['annapurna']]];
+var MV2={t:'day',i:new Date().getDay()};
+function mCard(id){var m=MNT[id];if(!m)return '';return '<div class="mnt"><div class="row" style="justify-content:space-between"><b>'+m[0]+' '+esc(m[1])+'</b><span class="sm mut">'+m[5]+'×</span></div><div class="dv">'+m[2]+'</div><div class="ro">'+esc(m[3])+'</div><div class="sm mut">'+esc(m[4])+'</div><div class="row" style="margin-top:6px"><button class="btn2 sm" data-a="mjapa" data-m="'+id+'">📿 JAPA COUNTER</button><button class="btn2 sm" data-a="mcopy" data-m="'+id+'">📋 COPY</button></div></div>'}
+function rMantra(){var h='<div class="card"><h2>📿 MANTRAS</h2><div class="note">Mantras for each day, each god and goddess, the nine planets and your needs. Sit facing east or north, light a lamp and chant with a calm mind.</div><div class="seg" style="margin-top:10px">'+[['day','BY DAY'],['god','GOD / GODDESS'],['graha','NAVAGRAHA'],['need','BY NEED']].map(function(x){return '<button data-a="mtab" data-v="'+x[0]+'" class="'+(MV2.t==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>';
+ var L2=MV2.t=='day'?MDAY.map(function(d){return [d[0].slice(0,3).toUpperCase(),d[2]]}):MV2.t=='god'?MGOD:MV2.t=='need'?MNEED:null;
+ if(L2){if(MV2.i>=L2.length)MV2.i=0;h+='<div class="chips" style="margin-top:10px">'+L2.map(function(x,i){return '<button class="chip'+(MV2.i==i?' on':'')+'" data-a="mpick" data-i="'+i+'">'+x[0]+'</button>'}).join('')+'</div></div>';
+  if(MV2.t=='day'){var d=MDAY[MV2.i];h+='<div class="card"><h2>'+d[0].toUpperCase()+' · '+d[1].toUpperCase()+(MV2.i==new Date().getDay()?' · TODAY':'')+'</h2>'+d[2].map(mCard).join('')+'</div>'}
+  else h+='<div class="card"><h2>'+L2[MV2.i][0].toUpperCase()+'</h2>'+L2[MV2.i][1].map(mCard).join('')+'</div>'}
+ else h+='</div><div class="card"><h2>NAVAGRAHA BEEJ MANTRAS</h2>'+['su','mo','ma','me','ju','ve','sa','ra','ke'].map(function(k){return mCard('g_'+k)}).join('')+'</div>';
+ h+='<div class="note" style="margin:4px 4px 16px">Count on a mala of 108 beads or use the Japa Counter. Faith and regular practice matter more than the count.</div>';
+ $('mantra').innerHTML=h}
+var JP={id:null,n:0};
+function japaSheet(id){JP={id:id,n:LS.get('japa_'+id,0)};var m=MNT[id];sheet('<h2 style="margin-top:0">📿 JAPA COUNTER</h2><div class="dv" style="text-align:center">'+m[2]+'</div><div class="ro" style="text-align:center">'+esc(m[3])+'</div><button class="japa" data-a="jtap" id="jbtn"><b id="jn">'+(JP.n%108)+'</b><span id="jm">Mala '+Math.floor(JP.n/108)+' · tap for each chant</span></button><div class="row" style="justify-content:center"><button class="btn2 sm" data-a="jreset">↺ RESET</button></div>')}
+function japaTap(){JP.n++;LS.set('japa_'+JP.id,JP.n);$('jn').textContent=JP.n%108||'108';$('jm').textContent='Mala '+Math.floor(JP.n/108)+' · tap for each chant';try{if(navigator.vibrate)navigator.vibrate(JP.n%108==0?[60,60,60]:15)}catch(e){}if(JP.n%108==0)toast('🙏 One mala (108) done')}
+function todayMantraCard(){var d=MDAY[new Date().getDay()],id=d[2][0];return '<div class="card"><h2>📿 TODAY\'S MANTRA · '+d[0].toUpperCase()+'</h2><div class="note">'+d[1]+'</div>'+mCard(id)+'<button class="btn2 sm" data-tab="mantra" style="margin-top:8px">MORE MANTRAS ›</button></div>'}
+/* ---------- Kundli: house details on tap, planet strength, friend / enemy, yogas, basic predictions, remedies (DUKEKRRISH) ---------- */
+var HOUSE=[['Tanu','Self, body, health, looks, nature'],['Dhana','Money, family, speech, food, savings'],['Sahaja','Courage, younger siblings, short trips, effort, media'],['Sukha','Mother, home, land, vehicles, peace of mind, schooling'],['Putra','Children, intelligence, studies, love, mantra, past merit'],['Ripu','Enemies, debts, disease, service job, competition'],['Kalatra','Marriage, spouse, partners, business deals, public'],['Ayu','Long life, sudden events, secrets, research, inheritance'],['Dharma','Luck, father, guru, religion, higher studies, long travel'],['Karma','Career, status, government, father\'s fame, actions'],['Labha','Income, gains, wishes, elder siblings, friends, networks'],['Vyaya','Expenses, losses, sleep, foreign land, moksha, hospitals']];
+var EXA={su:0,mo:1,ma:9,me:5,ju:3,ve:11,sa:6,ra:1,ke:7},OWNS={su:[4],mo:[3],ma:[0,7],me:[2,5],ju:[8,11],ve:[1,6],sa:[9,10],ra:[10],ke:[7]};
+var FRND={su:{f:['mo','ma','ju'],e:['ve','sa']},mo:{f:['su','me'],e:[]},ma:{f:['su','mo','ju'],e:['me']},me:{f:['su','ve'],e:['mo']},ju:{f:['su','mo','ma'],e:['me','ve']},ve:{f:['me','sa'],e:['su','mo']},sa:{f:['me','ve'],e:['su','mo','ma']},ra:{f:['me','ve','sa'],e:['su','mo','ma']},ke:{f:['ma','ve','sa'],e:['su','mo']}};
+var BENE=['ju','ve','me','mo'],PKW={su:'authority, father, government work and self-confidence',mo:'mind, mother, emotions and public contact',ma:'energy, courage, land and fights',me:'intellect, speech, business and skills',ju:'wisdom, children, wealth, teachers and blessings',ve:'love, marriage, comforts, art and vehicles',sa:'hard work, discipline, delays and long-lasting results',ra:'ambition, foreign links, technology and sudden events',ke:'detachment, spirituality, research and sudden breaks'};
+var LUCK={su:['Sunday','Red, orange',1,'Ruby','Surya Dev'],mo:['Monday','White, silver',2,'Pearl','Lord Shiva'],ma:['Tuesday','Red',9,'Red Coral','Hanuman ji'],me:['Wednesday','Green',5,'Emerald','Lord Ganesha'],ju:['Thursday','Yellow',3,'Yellow Sapphire (Pukhraj)','Lord Vishnu'],ve:['Friday','White, pink',6,'Diamond / Opal','Goddess Lakshmi'],sa:['Saturday','Blue, black',8,'Blue Sapphire (only after a trial and expert advice)','Shani Dev, Hanuman ji']};
+var LLH=['Lagna lord in the 1st: strong personality, self-made, good health','Lagna lord in the 2nd: money-minded, family-oriented, good speech','Lagna lord in the 3rd: brave, hard-working, good with communication','Lagna lord in the 4th: attached to home and mother; property comes','Lagna lord in the 5th: intelligent and creative; children bring joy','Lagna lord in the 6th: fights through competition; watch health and debts','Lagna lord in the 7th: life revolves around partner and business','Lagna lord in the 8th: ups and downs; interest in research and the hidden','Lagna lord in the 9th: lucky and religious; guided by elders','Lagna lord in the 10th: career-focused; can rise to a high position','Lagna lord in the 11th: good income and a large circle of friends','Lagna lord in the 12th: spends freely; foreign links or spiritual life'];
+function dignity(k,sign){if(EXA[k]==sign)return ['Exalted','good'];if((EXA[k]+6)%12==sign)return ['Debilitated','bad'];if((OWNS[k]||[]).indexOf(sign)>=0)return ['Own sign','good'];
+ var lo=KD.LORD[sign],r=FRND[k]||{f:[],e:[]};if(lo==k)return ['Own sign','good'];if(r.f.indexOf(lo)>=0)return ['Friend\'s sign','good'];if(r.e.indexOf(lo)>=0)return ['Enemy\'s sign','bad'];return ['Neutral sign','mid']}
+function dgTxt(d){return {Exalted:'exalted','Debilitated':'debilitated','Own sign':'in its own sign',"Friend's sign":"in a friend's sign","Enemy's sign":"in an enemy's sign",'Neutral sign':'in a neutral sign'}[d[0]]}
+function cap(t){return t?t.charAt(0).toUpperCase()+t.slice(1):t}
+function rel(a,b){var r=FRND[a]||{f:[],e:[]};return r.f.indexOf(b)>=0?'Friend':r.e.indexOf(b)>=0?'Enemy':'Neutral'}
+function combust(p,su){if(['su','ra','ke'].indexOf(p.k)>=0)return false;var g=Math.abs(((p.lon-su.lon)%360+540)%360-180),o={mo:12,ma:17,me:p.retro?12:14,ju:11,ve:p.retro?8:10,sa:15}[p.k];return g<o}
+function aspOf(k){return k=='ma'?[4,7,8]:k=='ju'||k=='ra'||k=='ke'?[5,7,9]:k=='sa'?[3,7,10]:[7]}
+function hIdx(H,k){for(var i=0;i<12;i++)if(H[i].pl.some(function(p){return p.k==k}))return i;return -1}
+function plEffect(p,h,dg,cb){var n=h+1,ben=BENE.indexOf(p.k)>=0,ken=[1,4,7,10].indexOf(n)>=0,tri=[5,9].indexOf(n)>=0,dus=[6,8,12].indexOf(n)>=0,upa=[3,6,10,11].indexOf(n)>=0,t,q;
+ if(ben&&(ken||tri)){t='brings '+PKW[p.k]+' to '+HOUSE[h][1].toLowerCase()+'.';q='good'}
+ else if(ben&&dus){t='gives '+PKW[p.k]+', but with effort; '+(n==12?'good for charity and spiritual life':n==8?'good for research and hidden knowledge':'helps win over problems through service')+'.';q='mid'}
+ else if(!ben&&upa){t='in an Upachaya house gives fighting power and growth over time in '+HOUSE[h][1].toLowerCase()+'.';q='good'}
+ else if(!ben){t='can bring pressure or delays in '+HOUSE[h][1].toLowerCase()+'; patience and remedies help.';q='bad'}
+ else{t='adds '+PKW[p.k]+' to '+HOUSE[h][1].toLowerCase()+'.';q='mid'}
+ if(dg[1]=='good'&&q!='good')q='mid';if(dg[1]=='bad'&&q=='good')q='mid';if(dg[0]=='Debilitated'||cb)q=q=='good'?'mid':'bad';
+ return {t:pn(p.k)+' ('+dg[0].toLowerCase()+(cb?', combust':'')+(p.retro&&p.k!='ra'&&p.k!='ke'?', retrograde':'')+') '+t,q:q}}
+/* score of a house: plus = strong */
+function hScore(H,h){var s=0,R=[],n=h+1,lo=KD.LORD[H[h].sign],lh=hIdx(H,lo),why=[];
+ H[h].pl.forEach(function(p){var ben=BENE.indexOf(p.k)>=0,dg=dignity(p.k,H[h].sign);s+=ben?([6,8,12].indexOf(n)>=0?0:2):([3,6,10,11].indexOf(n)>=0?1:-1);s+=dg[1]=='good'?1:dg[1]=='bad'?-1:0});
+ if(lh>=0){var ln=lh+1,ldg=dignity(lo,H[lh].sign);if([1,4,5,7,9,10,11].indexOf(ln)>=0){s+=1;why.push('lord '+pn(lo)+' well placed in house '+ln)}else if([6,8,12].indexOf(ln)>=0){s-=1;why.push('lord '+pn(lo)+' in house '+ln+' (difficult)')}else why.push('lord '+pn(lo)+' in house '+ln);
+  if(ldg[1]=='good'){s+=1;why.push('lord is '+dgTxt(ldg))}else if(ldg[1]=='bad'){s-=1;why.push('lord is '+dgTxt(ldg))}}
+ H.forEach(function(x,i){x.pl.forEach(function(p){if(!p.k)return;if(aspOf(p.k).some(function(a){return (i+a-1)%12==h})){if(p.k=='ju'){s+=1;why.push('Jupiter\'s blessing (aspect)')}else if(p.k=='sa'||p.k=='ma'){s-=0.5}}})});
+ return {s:s,q:s>=2?'good':s<=-2?'bad':'mid',w:s>=2?'Strong':s<=-2?'Needs care':'Mixed',why:why}}
+var KX=null;
+function houseSheet(h){if(!KX)return;var H=KX.H,k=KX.k,tt=T(),n=h+1,sg=H[h].sign,lo=KD.LORD[sg],lh=hIdx(H,lo),sc=hScore(H,h),su=k.ps[0];
+ var asp=[];H.forEach(function(x,i){x.pl.forEach(function(p){if(p.k&&aspOf(p.k).some(function(a){return (i+a-1)%12==h}))asp.push(p)})});
+ var Q={good:'good',mid:'mid',bad:'bad'},h2='<h2 style="margin-top:0">🏠 HOUSE '+n+' · '+HOUSE[h][0].toUpperCase()+' BHAVA</h2><div class="note">'+HOUSE[h][1]+'</div>'
+  +'<div class="row" style="margin:10px 0"><span class="tag" style="background:var(--'+(sc.q=='good'?'grn':sc.q=='bad'?'red':'gold')+')">'+sc.w.toUpperCase()+'</span><span>Sign <b>'+tt.rashi[sg]+'</b> · Lord <b>'+pn(lo)+'</b>'+(lh>=0?' in house '+(lh+1)+', '+dgTxt(dignity(lo,H[lh].sign)):'')+'</span></div>';
+ h2+='<div class="card" style="margin:0 0 10px"><h2>🪐 PLANETS HERE</h2>'+(H[h].pl.length?H[h].pl.map(function(p){var dg=dignity(p.k,sg),e=plEffect(p,h,dg,combust(p,su));return '<div class="rec '+(e.q=='bad'?'rav':e.q=='good'?'':'nt')+'">'+esc(e.t)+'<br><span class="sm mut">With house lord '+pn(lo)+': '+(p.k==lo?'own house':rel(p.k,lo))+'</span></div>'}).join(''):'<div class="note">No planet here. Results come from the lord '+pn(lo)+' and the planets that look at this house.</div>')+'</div>';
+ h2+='<div class="card" style="margin:0 0 10px"><h2>👁️ ASPECTS (DRISHTI)</h2>'+(asp.length?asp.map(function(p){var ben=BENE.indexOf(p.k)>=0;return '<div class="rec '+(ben?'':'rav')+'">'+pn(p.k)+' looks at this house: '+(ben?'protects and helps':'adds pressure; needs patience')+' · '+rel(p.k,lo)+' of the house lord</div>'}).join(''):'<div class="note">No planet aspects this house.</div>')+'</div>';
+ h2+='<div class="card" style="margin:0 0 10px"><h2>📊 IMPACT</h2><div class="rec '+(sc.q=='bad'?'rav':sc.q=='good'?'':'nt')+'">'+sc.w+' house for '+HOUSE[h][1].toLowerCase()+(sc.why.length?' — '+sc.why.join(', '):'')+'.</div></div>';
+ var weak=[];H[h].pl.forEach(function(p){var dg=dignity(p.k,sg);if(BENE.indexOf(p.k)<0||dg[1]=='bad'||combust(p,su))weak.push(p.k)});if(sc.q!='good'&&weak.indexOf(lo)<0)weak.push(lo);
+ h2+='<div class="card" style="margin:0"><h2>🛡️ REMEDIES (PREVENTION)</h2>'+(weak.length?weak.map(function(x){var b=BEEJ[x];return '<div class="rec">'+pn(x)+': '+REM[x]+'<br><span class="sm"><b>Mantra:</b> '+b[0]+' <span class="mut">('+b[1]+')</span>, 108 times on '+(LUCK[x]?LUCK[x][0]:'Saturday')+'</span></div>'}).join(''):'<div class="note">This house is well supported. Keep praying to '+(LUCK[lo]?LUCK[lo][4]:'your Ishta Dev')+' to keep it strong.</div>')+'<div class="note" style="margin-top:6px">Remedies are traditional and simple. Do not wear gemstones without an expert\'s advice.</div></div>';
+ sheet(h2)}
+function kChartClick(ev){var sv=ev.currentTarget,r=sv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*400,y=(ev.clientY-r.top)/r.height*400,b=-1,bd=1e9;if(!KX||!KX.cen)return;KX.cen.forEach(function(c,i){if(!c)return;var d=Math.hypot(c[0]-x,c[1]-y);if(d<bd){bd=d;b=i}});if(b>=0)houseSheet(b)}
+/* basic predictions and yogas (Lagna chart) */
+function kPredict(k){var tt=T(),H=KD.chart(k.ps,k.ascSign,'d1'),P0={};k.ps.forEach(function(p){P0[p.k]=p});var hs=function(p){return (p.sign-k.ascSign+12)%12+1},su=P0.su;
+ var ll=KD.LORD[k.ascSign],llh=hs(P0[ll]),lk=LUCK[ll];
+ var area=function(h,ttl){var sc=hScore(H,h-1),pl=H[h-1].pl.map(function(p){return pn(p.k)}).join(', ');return '<div class="pred"><div class="b g">'+ttl+' · '+sc.w.toUpperCase()+'</div><div>'+(pl?'Planets in house '+h+': '+pl+'. ':'')+(sc.why.length?cap(sc.why.join(', '))+'.':'')+'</div></div>'};
+ var h='<div class="card"><h2>🔮 BASIC PREDICTIONS</h2><div class="pred"><div class="b g">PERSONALITY</div><div>'+PR_LG[k.ascSign]+' '+LLH[llh-1]+'.</div></div>'
+  +'<div class="pred"><div class="b g">MIND</div><div>Moon in '+tt.rashi[P0.mo.sign]+', house '+hs(P0.mo)+': '+([1,4,7,10,5,9,11].indexOf(hs(P0.mo))>=0?'a stable and positive mind; people like you.':'a sensitive mind; meditation and good sleep help a lot.')+' Moon is '+dgTxt(dignity('mo',P0.mo.sign))+'.</div></div>'
+  +area(10,'CAREER')+area(2,'MONEY & FAMILY')+area(11,'INCOME & GAINS')+area(7,'MARRIAGE & PARTNERS')+area(5,'CHILDREN & STUDIES')+area(4,'HOME & PEACE')+area(6,'HEALTH, DEBTS & ENEMIES')+area(9,'LUCK & FATHER')
+  +'<div class="note" style="margin-top:8px">Tap any house in the chart for full details. Use it as guidance; a good life comes from effort.</div></div>';
+ /* yogas */
+ var Y=[],kh=function(a,b){return [1,4,7,10].indexOf(((a.sign-b.sign+12)%12)+1)>=0};
+ if(kh(P0.ju,P0.mo))Y.push(['good','Gajakesari Yoga','Jupiter in a Kendra from the Moon: respect, wisdom and wealth']);
+ if(P0.su.sign==P0.me.sign)Y.push(['good','Budhaditya Yoga','Sun with Mercury: sharp intellect and good speech']);
+ if(P0.mo.sign==P0.ma.sign||(P0.mo.sign+6)%12==P0.ma.sign)Y.push(['good','Chandra-Mangal Yoga','Moon with or opposite Mars: earning power and drive']);
+ [['ma','Ruchaka','courage, leadership, success in police, army, sports, engineering'],['me','Bhadra','intelligence, business sense, speech'],['ju','Hamsa','wisdom, respect, religious nature'],['ve','Malavya','beauty, comforts, art, happy married life'],['sa','Shasha','authority over people, discipline, long success']].forEach(function(x){var p=P0[x[0]],dg=dignity(x[0],p.sign)[0];if([1,4,7,10].indexOf(hs(p))>=0&&(dg=='Exalted'||dg=='Own sign'))Y.push(['good',x[1]+' Yoga (Panch Mahapurush)',pn(x[0])+' strong in a Kendra: '+x[2]])});
+ var nb=function(s){return k.ps.some(function(p){return ['su','ra','ke','mo'].indexOf(p.k)<0&&p.sign==s})};if(!nb((P0.mo.sign+1)%12)&&!nb((P0.mo.sign+11)%12)&&!nb(P0.mo.sign))Y.push(['bad','Kemadruma Yoga','No planet near the Moon: phases of loneliness or money worry; Shiva puja on Mondays helps']);
+ var ra=P0.ra.lon,inside=k.ps.filter(function(p){return ['ra','ke'].indexOf(p.k)<0}).map(function(p){return ((p.lon-ra)%360+360)%360});if(inside.every(function(a){return a<180})||inside.every(function(a){return a>180}))Y.push(['bad','Kaal Sarp Yoga','All planets between Rahu and Ketu: struggles before success; Shiva and Nag puja help']);
+ var kend=[1,4,7,10].map(function(x){return KD.LORD[(k.ascSign+x-1)%12]}),trik=[5,9].map(function(x){return KD.LORD[(k.ascSign+x-1)%12]});kend.forEach(function(a){trik.forEach(function(b){if(a!=b&&P0[a].sign==P0[b].sign&&!Y.some(function(z){return z[1]=='Raj Yoga'}))Y.push(['good','Raj Yoga',pn(a)+' (Kendra lord) with '+pn(b)+' (Trikona lord): rise in status and success'])})});
+ k.ps.forEach(function(p){if(dignity(p.k,p.sign)[0]=='Debilitated'&&['ra','ke'].indexOf(p.k)<0)Y.push(['bad','Weak '+pn(p.k),pn(p.k)+' is debilitated in '+tt.rashi[p.sign]+': '+REM[p.k]])});
+ h+='<div class="card"><h2>✨ YOGAS IN YOUR KUNDLI</h2>'+(Y.length?Y.map(function(y){return '<div class="rec '+(y[0]=='bad'?'rav':'')+'"><b>'+y[1]+'</b>: '+y[2]+'</div>'}).join(''):'<div class="note">No major special yoga found. Results come from the houses and Dasha.</div>')+'</div>';
+ /* planet strength + friend / enemy */
+ h+='<div class="card"><h2>💪 PLANET STRENGTH & FRIENDSHIP</h2><table class="kv pl"><tr><td>Planet</td><td>House</td><td>Status</td><td>Sign lord</td></tr>'+k.ps.map(function(p){var dg=dignity(p.k,p.sign),cb=combust(p,su),lo=KD.LORD[p.sign];return '<tr><td><b>'+pn(p.k)+'</b></td><td>'+hs(p)+'</td><td class="'+dg[1]+'">'+dg[0]+(cb?' · <span class="bad">combust</span>':'')+(p.retro&&p.k!='ra'&&p.k!='ke'?' · R':'')+'</td><td>'+pn(lo)+' <span class="sm mut">('+(lo==p.k?'self':rel(p.k,lo))+')</span></td></tr>'}).join('')+'</table>'
+  +'<div class="note" style="margin-top:6px">Natural friends: Sun–Moon–Mars–Jupiter; Mercury–Venus–Saturn. A planet in an enemy\'s sign or combust gives weaker results.</div></div>';
+ h+='<div class="card"><h2>🍀 LUCKY FOR YOU (LAGNA LORD '+pn(ll).toUpperCase()+')</h2><table class="kv">'+[['Day',lk[0]],['Colour',lk[1]],['Number',lk[2]],['Gemstone',lk[3]],['Worship',lk[4]],['Mantra',BEEJ[ll][0]+'<br><span class="sm mut">'+BEEJ[ll][1]+'</span>']].map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'}).join('')+'</table></div>';
+ return h}
 /* ---------- KUNDLI ---------- */
 var KV=null,KE=false,KF=null;
 var PN={en:{su:'Sun',mo:'Moon',ma:'Mars',me:'Mercury',ju:'Jupiter',ve:'Venus',sa:'Saturn',ra:'Rahu',ke:'Ketu'},hi:{su:'सूर्य',mo:'चंद्र',ma:'मंगल',me:'बुध',ju:'गुरु',ve:'शुक्र',sa:'शनि',ra:'राहु',ke:'केतु'}};
 function pn(k){return S.lang=='en'?PN.en[k]:tr(PN.hi[k])}
 function kMoment(d,t,pl){var a=pk(d),h=(t||'12:00').split(':'),ms=Date.UTC(a[0],a[1],a[2],+h[0],+h[1])-(pl.tz==null?5.5:pl.tz)*3600000,loc={lat:pl.lat,lon:pl.lon,tz:pl.tz==null?5.5:pl.tz};var k=KD.make(ms,loc);k.loc=loc;k.d=d;k.t=t;return k}
-function kChartBlock(k,mini){var th=THEMES[S.theme]||THEMES.saffron,ty=mini?'d1':S.kty,H=KD.chart(k.ps,k.ascSign,ty),tt=T();
+function kChartBlock(k,mini){var th=THEMES[S.theme]||THEMES.saffron,ty=mini?'d1':S.kty,H=KD.chart(k.ps,k.ascSign,ty),tt=T(),cen=[];if(!mini)KX={k:k,H:H,ty:ty,cen:cen};
  var title={d1:'LAGNA (D1)',moon:'CHANDRA',d9:'NAVAMSA (D9)',sun:'SURYA'}[ty];
- var svg=KD.svg(H,S.kst,{line:th.dk?th.v[7]:th.v[13],tx:th.v[5],sub:th.v[6],bg:th.v[2],lang:S.lang,title:title,sub2:k.d?dayW(k.d).slice(4)+' '+k.d.slice(0,4)+' · '+k.t:''});
+ var svg=KD.svg(H,S.kst,{line:th.dk?th.v[7]:th.v[13],tx:th.v[5],sub:th.v[6],bg:th.v[2],lang:S.lang,title:title,sub2:k.d?dayW(k.d).slice(4)+' '+k.d.slice(0,4)+' · '+k.t:'',cen:mini?null:cen});
  var h='<div class="kchart">'+svg+'</div>';
  if(mini)h+='<div class="note" style="margin-top:6px;text-align:center">Lagna <b>'+tt.rashi[k.ascSign]+'</b> · Moon <b>'+tt.rashi[k.moon.sign]+'</b>, '+tt.nak[k.moon.nak]+' · '+k.ps.filter(function(p){return p.retro&&p.k!='ra'&&p.k!='ke'}).map(function(p){return pn(p.k)+' R'}).join(', ')+'</div>';
  return h}
@@ -967,7 +1245,8 @@ function rKd(){var h='<div class="card"><h2>🪐 KUNDLI</h2><div class="note">En
  h+='<div class="card"><div class="row" style="justify-content:space-between"><div><b style="font-size:18px">'+esc(KV.n||'Kundli')+'</b><div class="sm mut">'+dayW(KV.d)+' '+KV.d.slice(0,4)+' · '+KV.t+' · '+esc(KV.pl.n)+'</div></div><div class="row">'+(KV.tmp?'':'<button class="btn2 sm'+(S.rec=='kd:'+KV.id?' on':'')+'" data-a="kuse" style="'+(S.rec=='kd:'+KV.id?'background:var(--grn);color:#fff':'')+'">⭐ '+(S.rec=='kd:'+KV.id?'USED FOR MY TIPS':'USE FOR MY DAILY TIPS')+'</button><button class="btn2 sm" data-a="kedit">✏️ EDIT</button>')+'<button class="btn2 sm" data-a="kshare">📤 SHARE</button></div></div>'
   +'<label class="sm b mut" style="display:block;margin:12px 0 4px">CHART STYLE</label><div class="seg">'+[['north','NORTH INDIAN'],['south','SOUTH INDIAN'],['east','EAST (ODISHA/BENGAL)']].map(function(x){return '<button data-a="kst" data-v="'+x[0]+'" class="'+(S.kst==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
   +'<label class="sm b mut" style="display:block;margin:10px 0 4px">CHART TYPE</label><div class="seg">'+[['d1','LAGNA'],['moon','CHANDRA'],['d9','NAVAMSA'],['sun','SURYA']].map(function(x){return '<button data-a="kty" data-v="'+x[0]+'" class="'+(S.kty==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
-  +'<div style="margin-top:12px">'+kChartBlock(k)+'</div><div class="note" style="text-align:center;margin-top:4px">Numbers are signs (1 = Mesh … 12 = Meen). ᴿ = retrograde.</div></div>';
+  +'<div style="margin-top:12px">'+kChartBlock(k)+'</div><div class="note" style="text-align:center;margin-top:4px">👆 Tap any house in the chart for its results. Numbers are signs (1 = Mesh … 12 = Meen). ᴿ = retrograde.</div>'
+  +'<div class="hgrid">'+[0,1,2,3,4,5,6,7,8,9,10,11].map(function(i){var sc=hScore(KX.H,i);return '<button data-a="khouse" data-h="'+i+'" class="'+sc.q+'"><b>'+(i+1)+'</b><span>'+HOUSE[i][0]+'</span></button>'}).join('')+'</div></div>';
  var row=function(l,v){return '<tr><td>'+l+'</td><td>'+v+'</td></tr>'};
  h+='<div class="two"><div class="card"><h2>SHORT DETAILS</h2><table class="kv">'+row('Lagna (Ascendant)','<b>'+tt.rashi[k.ascSign]+'</b> '+fmtDeg(k.asc%30))+row('Rashi (Moon Sign)','<b>'+tt.rashi[k.moon.sign]+'</b>')+row('Nakshatra','<b>'+tt.nak[k.moon.nak]+'</b>, Pada '+k.moon.pada)+row('Sun Sign',tt.rashi[k.sun.sign])
   +row('Tithi',tLong(k.tithi))+row('Yoga',tt.yoga[k.yoga])+row('Karana',kn(k.kar))+row('Vara',tt.vara[wd])
@@ -975,9 +1254,10 @@ function rKd(){var h='<div class="card"><h2>🪐 KUNDLI</h2><div class="note">En
   +row('Manglik',mg.lagna||mg.moon?'<b class="bad">Yes</b> <span class="sm mut">(Mars in house '+mg.h1+' from Lagna, '+mg.h2+' from Moon)</span>':'<b class="good">No</b>')
   +row('Dasha Now',ds.md?'<b>'+pn(ds.md.p)+'</b> Mahadasha till '+ys(ds.md.e)+(ds.ad?'<br>'+pn(ds.ad.p)+' Antardasha till '+ys(ds.ad.e):''):'—')+'</table></div>';
  h+='<div class="card"><h2>PLANETS</h2><table class="kv pl"><tr><td>Planet</td><td>Sign</td><td>Degree</td><td>Nakshatra</td><td>House</td></tr>'+k.ps.map(function(p){return '<tr><td><b>'+pn(p.k)+'</b>'+(p.retro&&p.k!='ra'&&p.k!='ke'?' <span class="bad sm">R</span>':'')+'</td><td>'+tt.rashi[p.sign]+'</td><td>'+fmtDeg(p.deg)+'</td><td>'+tt.nak[p.nak]+' '+p.pada+'</td><td>'+k.house(p)+'</td></tr>'}).join('')+'</table></div></div>';
+ h+=kPredict(k);
  h+=kExtra(k,KV,o,wd);
  h+='<div class="card"><h2>VIMSHOTTARI DASHA</h2><div class="cg">'+ds.list.slice(0,10).map(function(x){var on=Date.now()>=x.s&&Date.now()<x.e;return '<div class="'+(on?'now':'')+'"><b>'+pn(x.p)+'</b></div><div class="'+(on?'now':'')+'">'+ys(Math.max(x.s,k.ms))+'</div><div class="'+(on?'now':'')+' mut">'+ys(x.e)+'</div>'}).join('')+'</div><div class="note" style="margin-top:8px">Calculated with Lahiri ayanamsa. Use it as guidance.</div></div>';
- $('kdv').innerHTML=h}
+ $('kdv').innerHTML=h;var sv=D.querySelector('#kdv .kchart svg');if(sv){sv.style.cursor='pointer';sv.onclick=kChartClick}}
 function kGps(){if(!navigator.geolocation){toast('Location is not available');return}toast('Finding location…',6000);navigator.geolocation.getCurrentPosition(function(p){var la=+p.coords.latitude.toFixed(4),lo=+p.coords.longitude.toFixed(4);$('klat').value=la;$('klon').value=lo;$('ktz').value=-new Date().getTimezoneOffset()/60;KF.pl={n:'My Location',lat:la,lon:lo,tz:-new Date().getTimezoneOffset()/60};toast('📍 Location set');if($('kpn'))$('kpn').innerHTML='Selected: <b>My Location</b> · '+la+', '+lo;revName(la,lo,function(n){if(KF.pl&&KF.pl.lat==la){KF.pl.n=n;if($('kpn'))$('kpn').innerHTML='Selected: <b>'+esc(n)+'</b> · '+la+', '+lo}})},function(){toast('Could not get location')},{timeout:15000})}
 function kMake(){var n=($('kn').value||'').trim(),d=$('kdt').value,t=$('ktm').value,la=parseFloat($('klat').value),lo=parseFloat($('klon').value),tz=parseFloat($('ktz').value);
  if(!/^\d{4}-\d\d-\d\d$/.test(d)){toast('Please choose the birth date');return}if(!/^\d\d:\d\d$/.test(t)){toast('Please enter the birth time (use 12:00 if not known)');return}
@@ -1163,7 +1443,7 @@ function phoneAdd(){var n=NV();if(!n||!n.calList)return;ensureCal(function(ok){i
 var CALCB={};W.owhCal=function(req,ok){var f=CALCB[req];delete CALCB[req];if(f)f(!!ok)};
 function ensureCal(cb){var n=NV();if(n.calPerm()=='granted')return cb(true);var id='c'+Date.now();CALCB[id]=function(ok){if(!ok)toast('Calendar permission was not given',4000);cb(ok)};n.askCal(id)}
 /* ---------- actions ---------- */
-D.addEventListener('click',function(e){var dd=e.target.closest('[data-day]');var b=e.target.closest('[data-a]');
+D.addEventListener('click',function(e){var fu=e.target.closest('[data-fu]');if(fu&&!e.target.closest('[data-a]')){festSheet(fu.getAttribute('data-fu'));return}var dd=e.target.closest('[data-day]');var b=e.target.closest('[data-a]');
  if(b){var a=b.getAttribute('data-a');e.stopPropagation();act(a,b);return}
  if(dd){daySheet(dd.getAttribute('data-day'))}});
 function act(a,b){var t=todayYMD();
@@ -1210,6 +1490,13 @@ function act(a,b){var t=todayYMD();
  case 'evic':[].forEach.call(D.querySelectorAll('#eve .chip'),function(c){c.classList.remove('on')});b.classList.add('on');break;
  case 'evy':b.classList.toggle('on');break;
  case 'evrep':D.querySelectorAll('#evr .chip').forEach(function(x){x.classList.toggle('on',x==b)});evTithiNote();break;
+ case 'khouse':houseSheet(+b.getAttribute('data-h'));break;
+ case 'mtab':MV2={t:b.getAttribute('data-v'),i:b.getAttribute('data-v')=='day'?new Date().getDay():0};rMantra();break;
+ case 'mpick':MV2.i=+b.getAttribute('data-i');rMantra();break;
+ case 'mjapa':japaSheet(b.getAttribute('data-m'));break;
+ case 'jtap':japaTap();break;
+ case 'jreset':JP.n=0;LS.set('japa_'+JP.id,0);$('jn').textContent='0';$('jm').textContent='Mala 0 · tap for each chant';break;
+ case 'mcopy':{var mm=MNT[b.getAttribute('data-m')];try{navigator.clipboard.writeText(mm[2]+'\n'+mm[3]);toast('Copied')}catch(e){toast('Could not copy')}break}
  case 'pertog':FV.perOpen=!FV.perOpen;rFest();break;
  case 'perinfo':perSheet(b.getAttribute('data-p'),b.getAttribute('data-s'));break;
  case 'fwhen':FV.w=b.getAttribute('data-w');LS.set('fw',FV.w);rFest();break;

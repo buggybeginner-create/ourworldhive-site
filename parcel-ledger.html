@@ -316,7 +316,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.1';
+var PL_VER='2026-11-24.2';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -953,6 +953,19 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-a=re
 
 /* a tap on "orders missing details" shows them for every shop */
 document.addEventListener('click',function(e){if(e.target.closest('[data-t=need],.needcard,[data-a=need]'))f.store='all'},true);
+/* after a scan, the list shows every order (the found orders can be in any month) */
+var _rs0=reportSheet;reportSheet=function(R){_rs0(R);if(R&&(R.a||R.u)){f.vm='all';f.tab='all';f.store='all'}};
+/* watchlist orders keep their own name and price when the shop's mail / SMS joins them */
+var _rk0=rankO;rankO=function(o){return _rk0(o)+(o.wl?20:0)};
+var _mi1=mergeInto;mergeInto=function(o,x){if(!o.wl)return _mi1(o,x);var keep={item:o.item,amount:o.amount,items:o.items,img:o.img};var ch=_mi1(o,x);o.item=keep.item;if(+keep.amount)o.amount=keep.amount;if(keep.img)o.img=keep.img;return ch};
+var _mp0=mergePair;mergePair=function(k,o){var w=k.wl?k:o.wl?o:null,keep=w?{item:w.item,amount:w.amount,img:w.img}:null;_mp0(k,o);if(keep){k.item=keep.item;if(+keep.amount)k.amount=keep.amount;if(keep.img)k.img=keep.img;k.wl=true;k.wlId=k.wlId||o.wlId}};
+/* an older copy of an order without a number (cut-off name) is joined into the full order of the same shop */
+function stubMerge(){var gone={},n=0;orders.forEach(function(s){if(gone[s.id]||/\d/.test(s.orderId||'')||s.wl)return;var a=String(s.item||'').replace(/[.…\s]+$/,'').toLowerCase();if(a.length<6&&!junkName(s.item))return;
+  var t=orders.filter(function(o){if(o===s||gone[o.id]||o.store!==s.store||!/\d/.test(o.orderId||''))return false;if(Math.abs(dd(o.orderedOn||today(),s.orderedOn||today()))>5)return false;var b=String(o.item||'').toLowerCase();return (a.length>=6&&b.indexOf(a)===0)||sim(s.item,o.item)>=0.7});
+  if(t.length===1){mergePair(t[0],s);(s.srcs||srcsOf(s)).forEach(function(z){addSrc(t[0],z)});gone[s.id]=1;n++}});
+ if(n)orders=orders.filter(function(o){return !gone[o.id]});return n}
+var _td1=tidy;tidy=function(){var a=_td1();return stubMerge()>0||a};
+var _aa0=applyAll;applyAll=function(list,acc,src){var r=_aa0(list,acc,src);if(stubMerge()){save();render()}return r};
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

@@ -219,7 +219,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-23.15';
+var PL_VER='2026-11-23.16';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -569,7 +569,7 @@ function metaOf(html,url){var H=String(html||''),r={};if(H.length<200)return r;
  var at=/id=["']productTitle["'][^>]*>([\s\S]{1,600}?)<\/span>/i.exec(H)||/id=["']title["'][^>]*>\s*<span[^>]*>([\s\S]{1,600}?)<\/span>/i.exec(H);if(at&&!r.t)r.t=dec(at[1].replace(/<[^>]+>/g,' '));
  if(!r.p){var ap=/class=["'][^"']*a-price-whole[^"']*["'][^>]*>([\d,]+)/i.exec(H)||/"priceAmount"\s*:\s*([\d.]+)/.exec(H)||/id=["'](?:priceblock_ourprice|priceblock_dealprice|corePrice_feature_div)["'][\s\S]{0,400}?₹\s?([\d,]+)/i.exec(H);if(ap)r.p=num(ap[1])}
  if(!r.mrp){var am=/(?:M\.R\.P\.?|MRP)\s*:?[\s\S]{0,200}?a-offscreen["']?>\s*₹\s?([\d,]+(?:\.\d+)?)/i.exec(H);if(am)r.mrp=num(am[1])}
- if(!r.img){var ai=/data-old-hires=["'](https:[^"']+)["']/i.exec(H)||/"hiRes"\s*:\s*"(https:[^"]+)"/.exec(H)||/id=["'](?:landingImage|main-image)["'][^>]*src=["'](https:[^"']+)["']/i.exec(H);if(ai)r.img=abs(ai[1])}
+ if(!r.img){var ai=/data-old-hires=["'](https:[^"']+)["']/i.exec(H)||/"hiRes"\s*:\s*"(https:[^"]+)"/.exec(H)||/id=["'](?:landingImage|main-image)["'][^>]*src=["'](https:[^"']+)["']/i.exec(H)||/(https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9%+\-]+\._[A-Z0-9_,]*_?\.(?:jpg|png))/.exec(H)||/(https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9%+\-]{8,}\.(?:jpg|png))/.exec(H);if(ai)r.img=abs(ai[1])}
  /* 4. open-graph tags (Flipkart, Meesho, AJIO, Nykaa…) */
  if(!r.t)r.t=mt('og:title')||mt('twitter:title')||mt('title');
  if(!r.img)r.img=abs(mt('og:image')||mt('og:image:secure_url')||mt('twitter:image')||mt('image'));
@@ -597,7 +597,7 @@ function urlIn(t){var m=String(t||'').match(/https?:\/\/[^\s<>"']+/i);return m?m
 function isProductText(t){var u=urlIn(t);return !!u&&PRODRE.test(u)&&!/order\s*(?:id|no|#|number)|shipped|delivered|out for delivery|dispatched|refund/i.test(String(t).replace(u,''))}
 function storeOfUrl(u){var h='';try{h=new URL(u).hostname.toLowerCase()}catch(e){}return /(^|\.)(amazon\.[a-z.]+|amzn\.[a-z]+|a\.co)$/.test(h)?'amazon':/(^|\.)(flipkart\.com|fkrt\.[a-z]+)$/.test(h)?'flipkart':/(^|\.)(myntra\.com|myntr\.[a-z]+)$/.test(h)?'myntra':/(^|\.)(meesho\.com|msho\.in)$/.test(h)?'meesho':storeOf(h)}
 function cap(s){return String(s||'').toLowerCase().replace(/(^|\s)([a-z0-9])/g,function(m,a,b){return a+b.toUpperCase()})}
-function titleOf(text,u){var t=String(text||'').replace(u,' ').replace(/https?:\/\/\S+/g,' ').replace(/\bcheck\s+(?:out\s+)?(?:this|it)(?:\s+out)?(?:\s+(?:product|item|deal|one))?(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\b(?:hey|hi|hello)\b[!,]?/gi,' ').replace(/\bi\s+found\s+this(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[!:.]?/gi,' ').replace(/\b(?:have a look|look what i found)\b[^:]*:?/gi,' ').replace(/\b(?:on|at|via)\s+(?:amazon|flipkart|myntra|meesho|ajio|nykaa)(?:\.in)?\b\s*[!:.]?/gi,' ').replace(/\b(?:shop|buy)\s+now\b/gi,' ').replace(/₹\s?[\d,]+(?:\.\d+)?|rs\.?\s?[\d,]+(?:\.\d+)?/gi,' ').replace(/\s+/g,' ').replace(/^[\s:\-–|]+|[\s:\-–|]+$/g,'').trim();
+function titleOf(text,u){var t=String(text||'').replace(u,' ').replace(/https?:\/\/\S+/g,' ').replace(/\bcheck\s*out\s+what\s+i\s+(?:found|liked|got)(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\bcheck\s*(?:out\s+)?(?:this|it)(?:\s+out)?(?:\s+(?:product|item|deal|one))?(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[:!.\-]?/gi,' ').replace(/\b(?:hey|hi|hello)\b[!,]?/gi,' ').replace(/\bi\s+found\s+this(?:\s+on\s+[a-z]+(?:\.in)?)?\s*[!:.]?/gi,' ').replace(/\b(?:have a look|look what i found)\b[^:]*:?/gi,' ').replace(/\b(?:on|at|via)\s+(?:amazon|flipkart|myntra|meesho|ajio|nykaa)(?:\.in)?\b\s*[!:.]?/gi,' ').replace(/\b(?:shop|buy)\s+now\b/gi,' ').replace(/₹\s?[\d,]+(?:\.\d+)?|rs\.?\s?[\d,]+(?:\.\d+)?/gi,' ').replace(/\s+/g,' ').replace(/^[\s:\-–|]+|[\s:\-–|]+$/g,'').trim();
  if(t.length>=4)return t.slice(0,120);var p='';try{p=decodeURIComponent(new URL(u).pathname)}catch(e){}
  var m=/\/([^\/]{6,})\/(?:dp|p|gp\/product)\//i.exec(p)||/\/([^\/]+)\/\d+\/buy/i.exec(p)||/\/([a-z0-9][a-z0-9-]{8,})(?:\.html)?\/?$/i.exec(p);return m?cap(m[1].replace(/[-_+]+/g,' ')).slice(0,120):''}
 function priceIn(t){var m=/(?:₹|rs\.?|inr)\s?([\d,]+(?:\.\d+)?)/i.exec(String(t||'').replace(urlIn(t),''));return m?skAmt0(m[1]):null}
@@ -642,12 +642,12 @@ var RETUSUAL={amazon:{d:10,k:'return'},flipkart:{d:10,k:'return'},myntra:{d:14,k
 WL.busy={};
 async function wlEnrich(x,newTitle){if(!x||!x.id||WL.busy[x.id])return;WL.busy[x.id]=1;if(f.page==='watch')render();
  var m={};try{m=await fetchMeta(x.url)}catch(e){}delete WL.busy[x.id];
- var pt={mt:1};if(m.t&&(newTitle||!x.t||/ item$/.test(x.t)))pt.t=String(m.t).slice(0,120);if(m.img&&!x.img)pt.img=String(m.img).slice(0,600);if(m.p&&(x.p==null||x.p===''))pt.p=m.p;if(m.mrp)pt.mrp=m.mrp;
+ var pt={mt:2};if(m.t&&(newTitle||!x.t||/ item$/.test(x.t)))pt.t=String(m.t).slice(0,120);if(m.img&&!x.img)pt.img=String(m.img).slice(0,600);if(m.p&&(x.p==null||x.p===''))pt.p=m.p;if(m.mrp)pt.mrp=m.mrp;
  if(m.ret&&(!x.ret||x.ret.s!=='me'))pt.ret={d:+m.ret.d||0,k:m.ret.k,s:'page'};else if(!x.ret&&RETUSUAL[x.store])pt.ret={d:RETUSUAL[x.store].d,k:RETUSUAL[x.store].k,s:'usual'};
  if(m.fin&&storeOfUrl(m.fin)!=='other'&&x.store==='other')pt.store=storeOfUrl(m.fin);
  await wlSet(x.id,pt);if(!metaGood(m))toast((STORES[x.store]||STORES.other).n+' did not share the details. Tap + Price to add the price.');else toast('📦 Details added: '+[pt.img?'photo':'',pt.p?'price':'',pt.ret&&pt.ret.s==='page'?'return policy':''].filter(Boolean).join(', ')||'updated');if(f.page==='watch')render()}
 /* fills older items once, a few at a time */
-function wlBackfill(){var L=wlItems().filter(function(x){return !x.done&&!x.mt&&x.id&&!WL.busy[x.id]}).slice(0,3);L.forEach(function(x){wlEnrich(x,/ item$/.test(x.t))})}
+function wlBackfill(){var L=wlItems().filter(function(x){return !x.done&&(x.mt||0)<2&&x.id&&!WL.busy[x.id]}).slice(0,3);L.forEach(function(x){wlEnrich(x,/ item$|^check\s*out\b/i.test(x.t))})}
 function retTxt(r){if(!r)return '';if(r.k==='none')return '🚫 No return';var d=+r.d||0;return (r.k==='exchange'?'🔁 ':r.k==='replace'?'🔄 ':'↩️ ')+(d?d+'-day ':'')+(r.k==='exchange'?'exchange':r.k==='replace'?'replacement':'return')+(r.k==='return'?'':' only')}
 function retChip(r){if(!r)return '';return '<span class="rch'+(r.k==='none'?' no':'')+'" title="'+(r.s==='usual'?'Usual for this store. The product page decides, so check it before buying.':r.s==='me'?'Set by you':'Read from the product page')+'">'+retTxt(r)+(r.s==='usual'?' <small>(usual)</small>':'')+'</span>'}
 async function wlSet(id,patch){if(WL.cur&&WL.cur!=='local'&&U){try{await fs().collection('pl_lists').doc(WL.cur).collection('items').doc(id).update(patch)}catch(e){toast('Could not save: '+((e&&e.code)||'offline'))}}

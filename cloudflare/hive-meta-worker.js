@@ -22,7 +22,7 @@ function metaOf(html,url){var H=String(html||''),r={};if(H.length<200)return r;
  var at=/id=["']productTitle["'][^>]*>([\s\S]{1,600}?)<\/span>/i.exec(H)||/id=["']title["'][^>]*>\s*<span[^>]*>([\s\S]{1,600}?)<\/span>/i.exec(H);if(at&&!r.t)r.t=dec(at[1].replace(/<[^>]+>/g,' '));
  if(!r.p){var ap=/class=["'][^"']*a-price-whole[^"']*["'][^>]*>([\d,]+)/i.exec(H)||/"priceAmount"\s*:\s*([\d.]+)/.exec(H)||/id=["'](?:priceblock_ourprice|priceblock_dealprice|corePrice_feature_div)["'][\s\S]{0,400}?₹\s?([\d,]+)/i.exec(H);if(ap)r.p=num(ap[1])}
  if(!r.mrp){var am=/(?:M\.R\.P\.?|MRP)\s*:?[\s\S]{0,200}?a-offscreen["']?>\s*₹\s?([\d,]+(?:\.\d+)?)/i.exec(H);if(am)r.mrp=num(am[1])}
- if(!r.img){var ai=/data-old-hires=["'](https:[^"']+)["']/i.exec(H)||/"hiRes"\s*:\s*"(https:[^"]+)"/.exec(H)||/id=["'](?:landingImage|main-image)["'][^>]*src=["'](https:[^"']+)["']/i.exec(H);if(ai)r.img=abs(ai[1])}
+ if(!r.img){var ai=/data-old-hires=["'](https:[^"']+)["']/i.exec(H)||/"hiRes"\s*:\s*"(https:[^"]+)"/.exec(H)||/id=["'](?:landingImage|main-image)["'][^>]*src=["'](https:[^"']+)["']/i.exec(H)||/(https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9%+\-]+\._[A-Z0-9_,]*_?\.(?:jpg|png))/.exec(H)||/(https:\/\/m\.media-amazon\.com\/images\/I\/[A-Za-z0-9%+\-]{8,}\.(?:jpg|png))/.exec(H);if(ai)r.img=abs(ai[1])}
  /* 4. open-graph tags (Flipkart, Meesho, AJIO, Nykaa…) */
  if(!r.t)r.t=mt('og:title')||mt('twitter:title')||mt('title');
  if(!r.img)r.img=abs(mt('og:image')||mt('og:image:secure_url')||mt('twitter:image')||mt('image'));

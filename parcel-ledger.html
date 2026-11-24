@@ -317,7 +317,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.4';
+var PL_VER='2026-11-24.5';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -920,7 +920,7 @@ var _pp0=pgProfile;pgProfile=function(){var h=_pp0(),row='<button type="button" 
  return h.replace('<div class="pgrp"><h4>App</h4>','<div class="pgrp"><h4>App</h4>'+row)};
 
 /* ---------- better reading of older mails + clean-up of broken orders ---------- */
-var _jn0=junkName;junkName=function(n){n=String(n||"").trim();return _jn0(n)||/&#x?[0-9a-f]+;|-->|<!--|^sms updates|^not dispatched|^details$|^\(s\)|delivery address|^hi\b|^thank you|^confirmation\b|^track\b|^₹\s?\d|^rs\.?\s?\d|^order (?:placed|details|number|id|summary)\b|^items? purchased|^view order|^we (?:are|will|have)\b|^your (?:fwd|firstcry|myntra|flipkart|amazon)\b/i.test(n)||/^subject:|^\(s\)$|^order confirmation$|^(?:has|have) been\b|^(?:is|are|was|were|has|have|had|will|got|been|being)\b|please share|share (?:your )?(?:feedback|experience)|rate your|^we've\b|^hope your|^tell us|^package details|^your packet|^delivered at\b|^sold by\b|^size\b|^(?:your|my) (?:order|item|items|package|parcel|shipment)s?\b|^item\(s\)|^from your order|^items? from\b/i.test(n)};
+var _jn0=junkName;junkName=function(n){n=String(n||"").trim();return _jn0(n)||/&#x?[0-9a-f]+;|-->|<!--|^sms updates|^not dispatched|^details$|^\(s\)|delivery address|^hi\b|^thank you|^confirmation\b|^track\b|^₹\s?\d|^rs\.?\s?\d|^order (?:placed|details|number|id|summary)\b|^items? purchased|^view order|^we (?:are|will|have)\b|^your (?:fwd|firstcry|myntra|flipkart|amazon)\b/i.test(n)||/^subject:|^\(s\)$|^order confirmation$|^(?:has|have) been\b|^(?:is|are|was|were|has|have|had|will|got|been|being)\b|please share|^arn\b|^utr\b|refund reference|^reference (?:no|number)|^awb\b|^shipment awb|^to prevent mailers|^product details|^download our|^invite your|share (?:your )?(?:feedback|experience)|rate your|^we've\b|^hope your|^tell us|^package details|^your packet|^delivered at\b|^sold by\b|^size\b|^(?:your|my) (?:order|item|items|package|parcel|shipment)s?\b|^item\(s\)|^from your order|^items? from\b/i.test(n)};
 var MONN={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
 function mdyDate(s){var m=/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(s||'');if(!m)return '';var mo=MONN[m[1].toLowerCase().slice(0,3)];if(!mo)return '';return m[3]+'-'+String(mo).padStart(2,'0')+'-'+String(+m[2]).padStart(2,'0')}
 var _sh0=stripHtml;stripHtml=function(h){return _sh0(String(h||'').replace(/<!--[\s\S]*?-->/g,' ').replace(/&#x20a8;|&#8360;|₨\.?/gi,'₹')).replace(/&#x([0-9a-f]+);/gi,function(m,x){return String.fromCharCode(parseInt(x,16))}).replace(/&#(\d+);/g,function(m,d){return String.fromCharCode(+d)}).replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>')};
@@ -928,6 +928,10 @@ var _pe0=parseEmails;parseEmails=function(t,dflt,one){var L=_pe0(String(t||'').r
  if(!r.eta){var m=/(?:delivery|arriving|expected|delivered)\s*(?:(?:by|on)\s+)*(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+)?([A-Za-z]{3,9}\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4})/i.exec(e);if(m)r.eta=mdyDate(m[1])}
  var om=/order(?:ed)?\s+placed\s+on\s+([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})/i.exec(e);if(om){var d=mdyDate(om[1]);if(d)r.orderedOn=d}
  if(r.orderId&&!/\d/.test(r.orderId))r.orderId='';
+ /* FirstCry tables: the product name ends with "(minqty:1)" */
+ var fq=/(?:^|\n|\|)\s*([A-Z][^\n|]{8,200}?)\s*\(minqty:\s*(\d+)\)/.exec(String(t||''));if(fq&&(!r.item||junkName(r.item)||/minqty/i.test(r.item))){r.item=fq[1].trim();r.qty=+fq[2]||1}
+ if(r.item)r.item=r.item.replace(/\s*\(minqty:\s*\d+\)/i,'').trim();
+ var on=/order\s*no\.?\s*:?\s*([0-9]{6,}[A-Z0-9]{4,})/i.exec(e);if(on&&(!r.orderId||/^\d{9,13}$/.test(r.orderId)))r.orderId=on[1];
  /* the amount actually paid, when the mail says it (FirstCry "Net Payment", Flipkart "Shipment total"…) */
  var pm=null,re=/(?:net payment|net paid|amount paid|you paid|grand total|order total|shipment total|total amount|total paid)\s*:?\s*(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)/gi,mm;while((mm=re.exec(e.replace(/₨\.?/g,'₹'))))pm=mm;if(pm){var v=parseFloat(pm[1].replace(/,/g,''));if(v>=1)r.amount=v}
  if(r.amount!=null&&r.amount<1)r.amount=null;
@@ -963,7 +967,11 @@ var _mp0=mergePair;mergePair=function(k,o){var w=k.wl?k:o.wl?o:null,keep=w?{item
 /* an older copy of an order without a number (cut-off name) is joined into the full order of the same shop */
 function stubMerge(){var gone={},n=0;orders.forEach(function(s){if(gone[s.id]||/\d/.test(s.orderId||'')||s.wl)return;var a=String(s.item||'').replace(/[.…\s]+$/,'').toLowerCase();if(a.length<6&&!junkName(s.item))return;
   var t=orders.filter(function(o){if(o===s||gone[o.id]||o.store!==s.store||!/\d/.test(o.orderId||''))return false;if(Math.abs(dd(o.orderedOn||today(),s.orderedOn||today()))>5)return false;var b=String(o.item||'').toLowerCase();return (a.length>=6&&b.indexOf(a)===0)||sim(s.item,o.item)>=0.7});
-  if(t.length===1){mergePair(t[0],s);(s.srcs||srcsOf(s)).forEach(function(z){addSrc(t[0],z)});gone[s.id]=1;n++}});
+  if(t.length===1){mergePair(t[0],s);(s.srcs||srcsOf(s)).forEach(function(z){addSrc(t[0],z)});gone[s.id]=1;n++;return}
+  /* the same product is already an item of a grouped order: the copy is joined into it */
+  var g=orders.filter(function(o){return o!==s&&!gone[o.id]&&o.store===s.store&&o.items&&o.items.length>1&&Math.abs(dd(o.orderedOn||today(),s.orderedOn||today()))<=40&&o.items.some(function(it){var b=String(it.n||'').replace(/[.…\s]+$/,'').toLowerCase();return b===a||(a.length>=10&&(b.indexOf(a)===0||a.indexOf(b)===0))||sim(it.n,s.item)>=0.8})});
+  if(g.length===1){var it=g[0].items.filter(function(it){var b=String(it.n||'').replace(/[.…\s]+$/,'').toLowerCase();return b===a||(a.length>=10&&(b.indexOf(a)===0||a.indexOf(b)===0))||sim(it.n,s.item)>=0.8})[0];if(it){if(!it.img&&s.img)it.img=s.img;if(it.p==null&&+s.amount)it.p=+s.amount;if(s.status==='delivered'&&it.st!=='delivered'){it.st='delivered';it.don=s.deliveredOn||it.don||''}}
+   (s.srcs||srcsOf(s)).forEach(function(z){addSrc(g[0],z)});(s.mails||[]).forEach(function(r){addRef(g[0],'mails',r,'id')});(s.msgs||[]).forEach(function(r){addRef(g[0],'msgs',r,'s')});gone[s.id]=1;n++}});
  if(n)orders=orders.filter(function(o){return !gone[o.id]});return n}
 var _td1=tidy;tidy=function(){var a=_td1();return stubMerge()>0||a};
 var _aa0=applyAll;applyAll=function(list,acc,src){var r=_aa0(list,acc,src);if(stubMerge()){save();render()}return r};

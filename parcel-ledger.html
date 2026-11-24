@@ -318,7 +318,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.10';
+var PL_VER='2026-11-24.11';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -1039,6 +1039,14 @@ document.addEventListener('click',function(e){if(!e.target.closest('[data-a=show
 var _pp2=pgProfile;pgProfile=function(){var g=+S.gDays||365;return _pp2().replace('<div class="pgrp"><h4>Data</h4>','<div class="pgrp"><h4>Data</h4><div class="prow"><span class="pi">🗓️</span><span class="pt">Read Order Mails From<small>Older mails are read on the next Gmail sync</small></span><select id="gdays" style="width:auto">'+[[365,'Last 1 Year'],[730,'Last 2 Years'],[1825,'Last 5 Years']].map(function(o){return '<option value="'+o[0]+'"'+(g===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>')};
 document.addEventListener('change',function(e){if(e.target.id!=='gdays')return;S.gDays=+e.target.value||365;S.supd=Date.now();save();toast('Saved. Tap Scan Gmail → Sync Now to read the older mails.')});
 var _sg0=syncGmail;syncGmail=function(a,b){GQ=GQ.replace(/newer_than:\d+d/,'newer_than:'+(+S.gDays||365)+'d');return _sg0(a,b)};
+/* clean-up of data saved by older versions: bullets in names, a product inside a group that has its own order, groups left with one product */
+function cleanOld(){var ch=false,strip=function(n){return String(n||'').replace(/^[*•·\-\s]+/,'').replace(/^(?:[A-Z]{0,6}\d{6,}\s+)+/,'').trim()};
+ orders.forEach(function(o){var a=strip(o.item);if(a!==o.item){o.item=a;ch=true}(o.items||[]).forEach(function(it){var b=strip(it.n);if(b!==it.n){it.n=b;ch=true}})});
+ orders.forEach(function(o){if(!o.items||o.items.length<2)return;var keep=o.items.filter(function(it){var own=orders.some(function(x){return x!==o&&x.store===o.store&&/\d/.test(x.orderId||'')&&x.orderId!==o.orderId&&!(x.items&&x.items.length>1)&&(sim(x.item,it.n)>=0.8||String(x.item).toLowerCase().indexOf(String(it.n).toLowerCase().slice(0,30))===0)});
+   if(own){var t=orders.filter(function(x){return x!==o&&x.store===o.store&&x.orderId!==o.orderId&&(sim(x.item,it.n)>=0.8||String(x.item).toLowerCase().indexOf(String(it.n).toLowerCase().slice(0,30))===0)})[0];if(t){if(!t.img&&it.img)t.img=it.img}}return !own});
+  if(keep.length!==o.items.length){ch=true;if(keep.length>=2){o.items=keep;o.item=keep[0].n+' + '+(keep.length-1)+' more'}else{var k=keep[0]||o.items[0];o.items=null;o.item=k.n;if(!o.img&&k.img)o.img=k.img;if(k.st)o.status=k.st;if(k.don)o.deliveredOn=k.don}}});
+ return ch}
+var _td4=tidy;tidy=function(){var a=_td4();return cleanOld()||a};
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

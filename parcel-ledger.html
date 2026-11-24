@@ -300,7 +300,7 @@ function over(o){var b=best(o);return b&&o.amount>b.price&&o.status!=='cancelled
 function keyOf(o){return f.vm==='month'?mk(o.orderedOn):f.vm==='fy'?fyOf(o.orderedOn):'all'}
 function inAcc(o){return S.account==='all'||(o.account||'Main')===S.account}
 function periodOrders(){return orders.filter(function(o){return inAcc(o)&&(f.vm==='all'||keyOf(o)===f.period)})}
-function visible(){var qq=(f.q||'').toLowerCase().trim();return periodOrders().filter(function(o){if(f.tab==='need'&&!needInfo(o))return false;if(f.store!=='all'&&o.store!==f.store)return false;if(qq&&((o.item||'')+' '+(o.orderId||'')+' '+(o.notes||'')).toLowerCase().indexOf(qq)<0)return false;var t=f.tab;if(t==='need')return true;if(t==='live')return isLive(o);if(t==='delivered')return o.status==='delivered';if(t==='issue')return o.status==='returned'||o.status==='damaged';if(t==='cancelled')return o.status==='cancelled';return true}).sort(function(a,b){var la=isLive(a),lb=isLive(b);if(la!==lb)return la?-1:1;if(la)return String(a.eta||'9999').localeCompare(String(b.eta||'9999'));return String(b.orderedOn||'').localeCompare(String(a.orderedOn||''))})}
+function visible(){var qq=(f.q||'').toLowerCase().trim();return periodOrders().filter(function(o){if(f.tab==='need'&&!needInfo(o))return false;if(f.store!=='all'&&o.store!==f.store)return false;if(qq&&((o.item||'')+' '+(o.items||[]).map(function(x){return x.n}).join(' ')+' '+(o.orderId||'')+' '+(o.notes||'')+' '+((STORES[o.store]||{}).n||'')).toLowerCase().indexOf(qq)<0)return false;var t=f.tab;if(t==='need')return true;if(t==='live')return isLive(o);if(t==='delivered')return o.status==='delivered';if(t==='issue')return o.status==='returned'||o.status==='damaged';if(t==='cancelled')return o.status==='cancelled';return true}).sort(function(a,b){var la=isLive(a),lb=isLive(b);if(la!==lb)return la?-1:1;if(la)return String(a.eta||'9999').localeCompare(String(b.eta||'9999'));return String(b.orderedOn||'').localeCompare(String(a.orderedOn||''))})}
 function periods(){var m={};orders.forEach(function(o){if(o.orderedOn&&inAcc(o))m[keyOf(o)]=1});return Object.keys(m).sort().reverse()}
 /* ---------- render ---------- */
 function etaHtml(o){if(o.status==='delivered')return '<span class="eta done">Delivered '+esc(fd(o.deliveredOn||o.eta))+'</span>';if(o.status==='returned')return '<span class="eta dim">Returned'+(o.refunded?' · refunded':' · refund pending')+'</span>';if(o.status==='damaged')return '<span class="eta late">Damaged / wrong'+(o.refunded?' · resolved':' · claim open')+'</span>';if(o.status==='cancelled')return '<span class="eta dim">Cancelled</span>';if(!o.eta)return '<span class="eta dim">No date yet</span>';var d=dd(today(),o.eta);if(d<0)return '<span class="eta late">'+(-d)+(d===-1?' day late':' days late')+' · was '+esc(fd(o.eta))+'</span>';if(d===0)return '<span class="eta soon">Arriving today</span>';if(d===1)return '<span class="eta soon">Tomorrow · '+esc(fd(o.eta))+'</span>';return '<span class="eta">'+esc(fd(o.eta))+' · in '+d+' days</span>'}
@@ -317,7 +317,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.8';
+var PL_VER='2026-11-24.9';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -1010,6 +1010,22 @@ function parseMailAll(txt,d,from,sub){var st=statusOfSubject(sub||''),lines=Stri
 function chatty(n){n=String(n||'');return /→|->|\b(?:karke|dabayegi|dabao|aapki|aapke|aapko|jaayega|jayega|hoga|turant|saath mein|nahi|kyun|kaise|bhejo|batao|chahiye)\b/i.test(n)||(n.length>90&&n.split(/\s+/).length>14)}
 var _td2=tidy;tidy=function(){var a=_td2(),n=orders.length;orders=orders.filter(function(o){var s=srcsOf(o);return !(chatty(o.item)&&!/\d/.test(o.orderId||'')&&!o.wl&&s.every(function(z){return z==='notif'||z==='sms'||z==='paste'}))});return a||orders.length!==n};
 var _pr1=window.plReceive;if(_pr1)window.plReceive=function(json,last){var L=[];try{L=typeof json==='string'?JSON.parse(json):json}catch(e){}L=(L||[]).filter(function(v){return !chatty(v.text)||/order\s*(?:id|no|#)|\b(?:OD\d{10,}|\d{3}-\d{7}-\d{7})\b/i.test(v.text||'')});return _pr1(JSON.stringify(L),last)};
+/* one order number, several products sent in different parcels (FirstCry, Flipkart): one grouped order with every product */
+function addItemToGroup(o,x){if(!o.items||o.items.length<2)o.items=[{n:o.item,q:+o.qty||1,p:null,img:o.img||'',st:o.status,eta:o.eta||'',don:o.deliveredOn||''}];
+ if(itemIndex(o,x.item)<0)o.items.push({n:String(x.item).slice(0,90),q:+x.qty||1,p:null,img:x.img||'',st:x.status||'ordered',eta:x.eta||'',don:x.status==='delivered'?(x.orderedOn||today()):''});
+ o.item=o.items[0].n+' + '+(o.items.length-1)+' more';rollup(o)}
+var _fm2=findMatch;findMatch=function(x,acc){var m=_fm2(x,acc);if(m||!x.item||junkName(x.item)||!/\d/.test(x.orderId||''))return m;
+ var g=orders.filter(function(o){return o.store===x.store&&o.orderId===x.orderId&&!junkName(o.item)})[0];if(g){x.__add=1;return g}return null};
+var _mi3=mergeInto;mergeInto=function(o,x){if(x.__add){delete x.__add;addItemToGroup(o,x);return _mi3(o,x)||true}return _mi3(o,x)};
+function groupSame(){var by={},gone={},n=0;orders.forEach(function(o){if(!/\d/.test(o.orderId||'')||o.wl)return;var k=o.store+'|'+o.orderId;if(!by[k]){by[k]=o;return}var a=by[k];if(sameName(a,o))return;
+  var pa=+a.amount||0,po=+o.amount||0;addItemToGroup(a,{item:o.item,qty:o.qty,img:o.img,status:o.status,eta:o.eta,orderedOn:o.deliveredOn||o.orderedOn});var it=a.items[itemIndex(a,o.item)];if(it&&po)it.p=po;if(a.items[0].p==null&&pa&&po)a.items[0].p=pa;
+  a.amount=pa&&po&&pa!==po&&a.items.every(function(z){return z.p!=null})?pa+po:(pa||po);(o.srcs||srcsOf(o)).forEach(function(z){addSrc(a,z)});(o.mails||[]).forEach(function(r){addRef(a,'mails',r,'id')});(o.msgs||[]).forEach(function(r){addRef(a,'msgs',r,'s')});if(!a.img&&o.img)a.img=o.img;gone[o.id]=1;n++});
+ if(n)orders=orders.filter(function(o){return !gone[o.id]});return n}
+var _td3=tidy;tidy=function(){var a=_td3();return groupSame()>0||a};
+var _aa1=applyAll;applyAll=function(list,acc,src){var r=_aa1(list,acc,src);if(groupSame()){save();render()}return r};
+/* search looks through every order, not only the chosen month */
+var _po1=periodOrders;periodOrders=function(){return f.q&&String(f.q).trim()?orders.slice():_po1()};
+var _vi0=visible;visible=function(){if(!(f.q&&String(f.q).trim()))return _vi0();var t=f.tab,st=f.store;f.tab='all';try{return _vi0()}finally{f.tab=t;f.store=st}};
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

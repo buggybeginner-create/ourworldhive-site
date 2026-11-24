@@ -317,7 +317,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.7';
+var PL_VER='2026-11-24.8';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -1006,6 +1006,10 @@ function statusOfSubject(sub){return /out for delivery|arriving today/i.test(sub
 function parseMailAll(txt,d,from,sub){var st=statusOfSubject(sub||''),lines=String(txt).split('\n'),P=[];lines.forEach(function(l,i){if(/^\s*Order\s*#\s*$/i.test(l)&&/^\s*\d{3}-\d{7}-\d{7}\s*$/.test(lines[i+1]||''))P.push(i)});
  var parts=[];if(P.length>1){var head=lines.slice(0,2).join('\n');P.forEach(function(p,k){var a=k?p-2:Math.max(0,p-3),b=k+1<P.length?P[k+1]-2:lines.length;parts.push(head+'\n'+lines.slice(a,b).join('\n'))})}else parts=[txt];
  var out=[];parts.forEach(function(x){var r=parseEmails(x,d,1)[0];if(!r)return;if(st)r.status=st;if(/arriving today/i.test(x)&&!r.eta&&st!=='delivered')r.eta=d;out.push(r)});return out}
+/* text from chats (not a shop) that slipped in from a notification: never an order */
+function chatty(n){n=String(n||'');return /→|->|\b(?:karke|dabayegi|dabao|aapki|aapke|aapko|jaayega|jayega|hoga|turant|saath mein|nahi|kyun|kaise|bhejo|batao|chahiye)\b/i.test(n)||(n.length>90&&n.split(/\s+/).length>14)}
+var _td2=tidy;tidy=function(){var a=_td2(),n=orders.length;orders=orders.filter(function(o){var s=srcsOf(o);return !(chatty(o.item)&&!/\d/.test(o.orderId||'')&&!o.wl&&s.every(function(z){return z==='notif'||z==='sms'||z==='paste'}))});return a||orders.length!==n};
+var _pr1=window.plReceive;if(_pr1)window.plReceive=function(json,last){var L=[];try{L=typeof json==='string'?JSON.parse(json):json}catch(e){}L=(L||[]).filter(function(v){return !chatty(v.text)||/order\s*(?:id|no|#)|\b(?:OD\d{10,}|\d{3}-\d{7}-\d{7})\b/i.test(v.text||'')});return _pr1(JSON.stringify(L),last)};
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

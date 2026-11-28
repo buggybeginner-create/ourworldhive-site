@@ -58,7 +58,9 @@ if [ -n "$eb" ]; then
   tap_bounds "$eb"
   adb shell input text "Reply_from_smoke_test"
   sleep 1
+  dump; echo "--- before send:"; grep -o '\(text\|content-desc\)="[^"]\{2,60\}"' ui.xml | head -30
   tap_text "Send"
+  sleep 2; dump; echo "--- after send:"; grep -o '\(text\|content-desc\)="[^"]\{2,60\}"' ui.xml | head -30
   sleep 6
   shot 03-after-reply
   if adb shell content query --uri content://sms/sent --projection body 2>/dev/null | grep -q "Reply_from_smoke_test"; then

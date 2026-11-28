@@ -7,6 +7,8 @@ mkdir -p shots
 PKG=com.smartsms.app
 fail=0
 adb root >/dev/null 2>&1; sleep 3; adb wait-for-device
+until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 2; done
+sleep 25   # let the launcher settle so it does not show "isn't responding" over our app
 adb install -r Smart-SMS.apk
 for p in READ_SMS RECEIVE_SMS SEND_SMS READ_CONTACTS POST_NOTIFICATIONS; do adb shell pm grant $PKG android.permission.$p; done
 adb emu sms send 9876543210 "Hello from the smoke test, dinner at 8?"
@@ -17,7 +19,15 @@ adb shell am start -W -n $PKG/.MainActivity
 sleep 10
 
 shot() { adb exec-out screencap -p > "shots/$1.png"; echo "saved $1"; }
-dump() { adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1; }
+dump() {
+  adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1
+  # A system "isn't responding" dialog (from another app) can cover the screen: press Wait.
+  if grep -q "isn't responding" ui.xml; then
+    local w; w=$(grep -o 'text="Wait"[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' ui.xml | head -1 | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]')
+    [ -n "$w" ] && tap_bounds "$w"
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb pull /sdcard/ui.xml ui.xml >/dev/null 2>&1
+  fi
+}
 tap_bounds() {
   local x1 y1 x2 y2
   read -r x1 y1 x2 y2 <<<"$(echo "$1" | sed -E 's/\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]/\1 \2 \3 \4/')"

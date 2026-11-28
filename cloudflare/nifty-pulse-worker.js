@@ -73,8 +73,11 @@ export default {
         let want = (url.searchParams.get('src') || 'auto').toLowerCase();
         /* Angel One and ICICI Breeze are your own broker accounts: only callers with your ADMIN_KEY get them. Everyone else gets Yahoo. */
         const owner = !env.ADMIN_KEY || url.searchParams.get('k') === env.ADMIN_KEY;
-        const locked = !owner && want !== 'yahoo';
-        if (owner && env.ADMIN_KEY && env.NP) ctx.waitUntil(seen(env, url, req).catch(() => {}));
+        /* friends with a FRIEND CODE from the owner get Angel One too (never ICICI Breeze) */
+        const fr = owner ? null : await friendOf(env, url.searchParams.get('fc') || url.searchParams.get('k'));
+        if (fr && want === 'breeze') want = 'auto';
+        const locked = !owner && !fr && want !== 'yahoo';
+        if ((owner && env.ADMIN_KEY || fr) && env.NP) ctx.waitUntil(seen(env, url, req, fr).catch(() => {}));
         if (locked) want = 'yahoo';
         const sym = cleanList(url.searchParams.get('sym'), want === 'breeze' ? BREEZE_MAX : 100);
         const bcodes = parseCodes(url.searchParams.get('bcodes'));
@@ -96,8 +99,9 @@ export default {
         const sym = isC ? cleanList(url.searchParams.get('s'), 1)[0] : null;
         const tf = ['5m', '15m', '1h', '1d'].includes(url.searchParams.get('tf')) ? url.searchParams.get('tf') : '1d';
         const list = isC ? null : cleanList(url.searchParams.get('sym'), 100);
-        const useAngel = isC && owner && hasAngel(env) && url.searchParams.get('src') !== 'yahoo';
-        if (isC && owner && env.ADMIN_KEY && env.NP) ctx.waitUntil(seen(env, url, req).catch(() => {}));
+        const fr = owner ? null : await friendOf(env, url.searchParams.get('fc') || url.searchParams.get('k'));
+        const useAngel = isC && (owner || !!fr) && hasAngel(env) && url.searchParams.get('src') !== 'yahoo';
+        if (isC && (owner && env.ADMIN_KEY || fr) && env.NP) ctx.waitUntil(seen(env, url, req, fr).catch(() => {}));
         const key = new Request('https://np-cache' + url.pathname + '?a=' + (useAngel ? 1 : 0) + '&s=' + (sym || '') + '&tf=' + tf + '&l=' + (list || []).join(','));
         const hit = await caches.default.match(key);
         if (hit) { const r = new Response(hit.body, hit); Object.entries(cors).forEach(([k, v]) => r.headers.set(k, v)); return r; }
@@ -120,7 +124,8 @@ export default {
       }
       if (url.pathname === '/status') {
         const bs = env.NP ? await env.NP.get('breeze', 'json') : null;
-        return json({ ok: true, owner: !!env.ADMIN_KEY && url.searchParams.get('k') === env.ADMIN_KEY, angel: hasAngel(env), breeze: !!(env.BREEZE_API_KEY && env.BREEZE_SECRET), breezeLogin: !!(bs && bs.day === istNow().day), telegram: !!(env.TG_BOT_TOKEN && env.TG_CHAT_ID), kv: !!env.NP, lastSource: LAST_SRC, lastError: LAST_ERR, time: istNow().label });
+        const frs = await friendOf(env, url.searchParams.get('fc') || url.searchParams.get('k'));
+        return json({ ok: true, friend: frs ? frs.n : null, owner: !!env.ADMIN_KEY && url.searchParams.get('k') === env.ADMIN_KEY, angel: hasAngel(env), breeze: !!(env.BREEZE_API_KEY && env.BREEZE_SECRET), breezeLogin: !!(bs && bs.day === istNow().day), telegram: !!(env.TG_BOT_TOKEN && env.TG_CHAT_ID), kv: !!env.NP, lastSource: LAST_SRC, lastError: LAST_ERR, time: istNow().label });
       }
       if (url.pathname === '/breeze/login') {
         if (!env.BREEZE_API_KEY) return html('ICICI Breeze is not set up. Add BREEZE_API_KEY and BREEZE_SECRET in the worker settings.');
@@ -188,7 +193,7 @@ export default {
         const k = req.headers.get('X-Admin-Key') || url.searchParams.get('k');
         if (!env.ADMIN_KEY || k !== env.ADMIN_KEY) return json({ ok: false, error: 'Wrong owner key' }, 401);
         if (!env.NP) return json({ ok: false, error: 'KV binding NP is missing on the worker' });
-        const op = url.pathname.slice(7);
+        const op = url.pathname.slice(6);
         if (op === '' || op === '/') {
           const dev = (await env.NP.get('dev', 'json')) || {}, ids = (await env.NP.get('users', 'json')) || [], tg = [];
           for (const id of ids.slice(0, 60)) {
@@ -198,8 +203,8 @@ export default {
               rules: (u.rules || []).filter(r => r.on).map(r => r.s + ' ' + (r.type === 'above' ? '>' : r.type === 'below' ? '<' : r.type === 'pctUp' ? '+%' : '-%') + r.v).slice(0, 30),
               global: [g.move > 0 ? 'moves ±' + g.move + '%' : '', g.nifty > 0 ? 'NIFTY ±' + g.nifty + '%' : '', g.hi52 ? '52W high' : '', g.lo52 ? '52W low' : ''].filter(Boolean) });
           }
-          const cfg = (await env.NP.get('cfg', 'json')) || {};
-          return json({ ok: true, now: Date.now(), angel: hasAngel(env), breeze: !!(env.BREEZE_KEY && env.BREEZE_SECRET), telegram: !!env.TG_BOT_TOKEN, ownerChat: env.TG_CHAT_ID || '',
+          const cfg = (await env.NP.get('cfg', 'json')) || {}, fm = (await env.NP.get('friends', 'json')) || {};
+          return json({ ok: true, now: Date.now(), friends: Object.entries(fm).map(([code, f]) => ({ code, ...f })).sort((a, b) => b.at - a.at), angel: hasAngel(env), breeze: !!(env.BREEZE_KEY && env.BREEZE_SECRET), telegram: !!env.TG_BOT_TOKEN, ownerChat: env.TG_CHAT_ID || '',
             legacy: !!(await env.NP.get('rules')), cfg: { tgAngel: cfg.tgAngel !== false },
             devices: Object.entries(dev).map(([id, d]) => ({ id, ...d })).sort((a, b) => b.last - a.last), tg });
         }
@@ -216,6 +221,19 @@ export default {
           const dev = (await env.NP.get('dev', 'json')) || {};
           if (b.id) delete dev[b.id]; else Object.keys(dev).forEach(x => delete dev[x]);
           await env.NP.put('dev', JSON.stringify(dev)); return json({ ok: true });
+        }
+        if (op === '/friend-add' || op === '/friend-del' || op === '/friend-on') {
+          const fm = (await env.NP.get('friends', 'json')) || {};
+          let code = String(b.code || '').toUpperCase();
+          if (op === '/friend-add') {
+            const n = String(b.n || '').trim().slice(0, 40); if (!n) return json({ ok: false, error: 'Write the friend\'s name' });
+            const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; do { code = ''; for (let i = 0; i < 6; i++) code += A[Math.floor(Math.random() * A.length)]; } while (fm[code]);
+            fm[code] = { n, at: Date.now(), on: true };
+          } else if (!fm[code]) return json({ ok: false, error: 'No such code' });
+          else if (op === '/friend-del') delete fm[code];
+          else fm[code].on = !!b.on;
+          await env.NP.put('friends', JSON.stringify(fm)); await caches.default.delete(new Request('https://np-cache/friends'));
+          return json({ ok: true, code });
         }
         if (op === '/cfg') {
           const cfg = (await env.NP.get('cfg', 'json')) || {};
@@ -625,15 +643,26 @@ async function angelCandles(env, sym, tf) {
 }
 
 /* remembers which devices use the owner key (at most one write per device every 15 min) */
-async function seen(env, url, req) {
-  const id = String(url.searchParams.get('d') || 'unknown').replace(/[^\w.-]/g, '').slice(0, 40) || 'unknown';
+async function seen(env, url, req, fr) {
+  const id = (fr ? 'fr-' + fr.code + '-' : '') + (String(url.searchParams.get('d') || 'unknown').replace(/[^\w.-]/g, '').slice(0, 40) || 'unknown');
   const mark = new Request('https://np-seen/' + id);
   if (await caches.default.match(mark)) return;
   await caches.default.put(mark, new Response('1', { headers: { 'Cache-Control': 'public, max-age=900' } }));
   const all = (await env.NP.get('dev', 'json')) || {}, cf = req.cf || {}, now = Date.now(), o = all[id] || { first: now, hits: 0 };
-  all[id] = { ...o, n: String(url.searchParams.get('dn') || o.n || 'Unknown device').slice(0, 70), city: cf.city || o.city || '', cc: cf.country || o.cc || '', last: now, hits: (o.hits || 0) + 1 };
+  all[id] = { ...o, n: (fr ? 'Friend ' + fr.n + ' · ' : '') + String(url.searchParams.get('dn') || 'Unknown device').slice(0, 60), fc: fr ? fr.code : (o.fc || ''), city: cf.city || o.city || '', cc: cf.country || o.cc || '', last: now, hits: (o.hits || 0) + 1 };
   const keep = Object.entries(all).sort((a, b) => b[1].last - a[1].last).slice(0, 25);
   await env.NP.put('dev', JSON.stringify(Object.fromEntries(keep)));
+}
+
+/* friend codes made by the owner in the app's ADMIN tab (KV "friends"), cached for 60 s */
+async function friendOf(env, fc) {
+  fc = String(fc || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+  if (!fc || !env.NP) return null;
+  const key = new Request('https://np-cache/friends');
+  let m; const hit = await caches.default.match(key);
+  if (hit) m = await hit.json();
+  else { m = (await env.NP.get('friends', 'json')) || {}; await caches.default.put(key, new Response(JSON.stringify(m), { headers: { 'Cache-Control': 'public, max-age=60' } })); }
+  const f = m[fc]; return f && f.on !== false ? { code: fc, n: f.n } : null;
 }
 
 function ySym(s) { const ix = INDEX.find(i => i.s === s); return ix ? encodeURIComponent(ix.y) : s.replace(/&/g, '%26') + '.NS'; }

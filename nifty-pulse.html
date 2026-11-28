@@ -75,7 +75,12 @@ header{flex:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;displ
 .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
 .seg button{border:0;background:none;padding:6px 11px;border-radius:7px;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:var(--mut)}
 .seg button.on{background:var(--card2);color:var(--ink);box-shadow:0 1px 0 var(--line)}
-.inp,select.inp{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;min-width:0}
+.inp,select.inp{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;min-width:0;color-scheme:dark}
+html.light .inp,html.light select.inp{color-scheme:light}
+input[type=time].inp{min-height:38px;font-weight:700}
+body:not(.own) .ownonly{display:none!important}
+.pfh{font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--mut);margin:14px 0 2px;padding-top:10px;border-top:1px solid var(--line)}.pfh:first-of-type{border-top:0}
+#pfList .sw{padding:9px 0}#pfList select.inp{width:auto;max-width:160px}
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:10px}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--card);padding:6px 11px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--soft)}
@@ -223,6 +228,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
  <div class="ttl">NIFTY PULSE<small id="upd">Starting…</small></div>
  <div class="sp"></div>
  <span class="pill" id="pill"><span class="dot"></span><span id="pillT">…</span></span>
+ <button class="ib" id="pfB" aria-label="All settings" title="All settings"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
  <button class="ib" id="rf" aria-label="Refresh now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
 </header>
 
@@ -295,7 +301,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <label class="sw">Vibrate<input type="checkbox" id="oVib" checked></label>
    <div style="margin-top:10px;font-size:11.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)">⏰ FULL-SCREEN ALARM (KEEPS RINGING UNTIL YOU SLIDE TO STOP)</div>
    <label class="sw">Ring each alert one time, ready again after<select id="rearmMin" style="width:auto;max-width:150px"><option value="5">5 Minutes</option><option value="15">15 Minutes</option><option value="30">30 Minutes</option><option value="60">1 Hour</option><option value="120">2 Hours</option><option value="180">3 Hours</option><option value="360">6 Hours</option><option value="1440">1 Day</option><option value="0">At A Fixed Time</option></select></label>
-   <label class="sw" id="rearmAtRow">Fixed time (every day)<input type="time" id="rearmAt" value="09:15" style="width:auto;max-width:120px"></label>
+   <label class="sw" id="rearmAtRow">Fixed time (every day)<input class="inp" type="time" id="rearmAt" value="09:15" style="width:auto;max-width:130px"></label>
    <label class="sw">Remind once if still true when ready again<input type="checkbox" id="remind"></label>
    <div class="h" style="margin:0 0 6px;font-size:12px">After it rings, an alert stays quiet for the time you pick. Then it rings again only when the price crosses the level afresh. Switch on the reminder to get one more ring if the price is still past the level at that moment.</div>
    <label class="sw">My price alerts<input type="checkbox" id="alR"></label>
@@ -325,13 +331,19 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <div id="npAcc" style="font-size:13.5px;margin:6px 0 8px">Not signed in. Settings stay only on this device.</div>
    <div class="fr"><button class="btn g" id="npIn" style="width:100%">SIGN IN WITH GOOGLE</button><button class="btn" id="npSyncNow" hidden>↻ SYNC NOW</button><button class="btn" id="npOut" hidden>SIGN OUT</button></div>
   </div>
-  <div class="card owncard">
+  <div class="card">
    <h3>DATA SOURCE</h3>
    <div class="srcseg" id="srcSeg">
     <button data-src="auto">AUTO<small>Angel, else Yahoo</small></button>
     <button data-src="angel">ANGEL ONE<small>All 50 · real-time</small></button>
-    <button data-src="breeze">ICICI BREEZE<small>Chosen stocks</small></button>
+    <button data-src="breeze" class="ownonly">ICICI BREEZE<small>Chosen stocks</small></button>
     <button data-src="yahoo">YAHOO<small>No account</small></button>
+   </div>
+   <div id="fcBox" style="border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 10px;background:var(--card2)">
+    <p class="h" style="margin:0 0 8px" id="fcTxt"></p>
+    <div class="fr" id="fcIn"><input class="inp" id="fcCode" placeholder="FRIEND CODE (e.g. K7P2QX)" style="flex:1 1 140px;text-transform:uppercase;letter-spacing:.1em" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn g" id="fcSave" style="flex:0 0 auto">SAVE</button></div>
+    <button class="btn" id="fcDel" hidden style="width:100%">REMOVE FRIEND CODE</button>
+    <div id="fcMsg" style="font-size:13px;margin-top:6px"></div>
    </div>
    <div id="breezeBox" hidden style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--card2)">
     <p class="h" style="margin:0 0 8px">ICICI Breeze gives one stock per call (5,000 calls a day), so it shows only the stocks you choose plus your alert stocks (max 20 in all) and refreshes about every <b id="bTtl">60</b> sec. Log in once every morning.</p>
@@ -341,7 +353,9 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
     <p class="h" style="margin:10px 0 4px">ICICI codes (only if a stock shows "not found"): NSE=ICICI, comma separated.</p>
     <input class="inp" id="bcodes" placeholder="e.g. ETERNAL=ZOMLIM, INDIGO=INTAVI" style="width:100%;text-transform:uppercase" autocomplete="off" spellcheck="false">
    </div>
-   <h3 style="margin-top:4px">WORKER LINK</h3>
+  </div>
+  <div class="card owncard">
+   <h3>WORKER LINK</h3>
    <p class="h">Paste your Cloudflare worker link. Leave it empty to see DEMO data (not real prices).</p>
    <div class="fr"><input class="inp" id="feed" placeholder="https://nifty-pulse.YOURNAME.workers.dev" autocomplete="off" spellcheck="false"><button class="btn g" id="feedSave" style="flex:0 0 auto">SAVE &amp; TEST</button></div>
    <div id="feedMsg" style="font-size:13px;margin-top:8px"></div>
@@ -420,6 +434,12 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
    <div id="saDev"><div class="h">Loading…</div></div>
   </div>
   <div class="card">
+   <h3>FRIENDS WHO CAN USE ANGEL ONE</h3>
+   <p class="h">Make a FRIEND CODE for each friend and send it on WhatsApp. They type it once in SETTINGS → DATA SOURCE. No Gmail login needed. Switch a code OFF any time.</p>
+   <div class="fr"><input class="inp" id="frName" placeholder="Friend's name" style="flex:1 1 150px" autocomplete="off"><button class="btn g" id="frAdd" style="flex:0 0 auto">MAKE CODE</button></div>
+   <div id="frList" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
    <h3>TELEGRAM ALERTS FROM YOUR WORKER</h3>
    <label class="sw">Friends' Telegram alerts use my Angel One prices<input type="checkbox" id="saTgAngel"></label>
    <p class="h">When OFF, friends get their alerts from free Yahoo prices; only your own chat uses Angel One.</p>
@@ -441,7 +461,7 @@ body.ts-l .heat{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}body.t
 /* After you deploy the worker, put its link here so every visitor gets live data without typing it. */
 var DEFAULT_FEED=(window.NP_CONFIG&&NP_CONFIG.feed)||'';
 var NATIVE=window.NPNative||null; /* inside the Android app */
-var APP_VER = '2026-11-23.6'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
+var APP_VER = '2026-11-28.1'; /* change on EVERY edit: open apps compare it with the live file and show 'Update Available' */
 var VERSION=APP_VER;
 var $=function(i){return document.getElementById(i)};
 var LS={get:function(k,d){try{var v=localStorage.getItem('np_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('np_'+k,JSON.stringify(v))}catch(e){}if(/^(set|watch|rules)$/.test(k)&&!window.__npApplying){try{localStorage.setItem('np_editAt',String(Date.now()))}catch(e){}if(window.cloudPush)cloudPush()}if(/^(set|watch|rules|ak)$/.test(k)&&window.__npSync)__npSync()}};
@@ -508,7 +528,7 @@ function load(manual){
   else{var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){ctl&&ctl.abort()},8000);
     var syms=S.src==='breeze'?breezeList():(customList()||[]),extra=S.src==='breeze'?[]:ruleStocks().filter(function(x){return syms.indexOf(x)<0}).slice(0,20);
     if(S.src==='breeze'&&!syms.length){busy=false;$('rf').classList.remove('spin');showNote('ICICI Breeze: choose your stocks first (Settings → CHOOSE BREEZE STOCKS).');setStatus('off','SETUP');go(3);return}
-    p=fetch(f+'/quotes?src='+encodeURIComponent(S.src)+(syms.length?'&sym='+encodeURIComponent(syms.join(',')):'')+(LS.get('ak','')?'&k='+encodeURIComponent(LS.get('ak',''))+devQ():'')+(extra.length?'&extra='+encodeURIComponent(extra.join(',')):'')+(S.src==='breeze'&&S.bcodes?'&bcodes='+encodeURIComponent(S.bcodes.replace(/\s+/g,'')):''),{signal:ctl&&ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(to);return r.json()})}
+    p=fetch(f+'/quotes?src='+encodeURIComponent(S.src)+(syms.length?'&sym='+encodeURIComponent(syms.join(',')):'')+authQ()+(extra.length?'&extra='+encodeURIComponent(extra.join(',')):'')+(S.src==='breeze'&&S.bcodes?'&bcodes='+encodeURIComponent(S.bcodes.replace(/\s+/g,'')):''),{signal:ctl&&ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(to);return r.json()})}
   p.then(function(d){
     if(d&&d.needLogin){needLogin=true;showNote('ICICI Breeze needs today\'s login. <button class="btn g" data-blogin style="padding:5px 10px;margin-left:6px">ICICI DAILY LOGIN</button>');setStatus('off','LOGIN');throw {quiet:1}}
     if(!d||!d.ok)throw new Error(d&&d.error||'No data');
@@ -539,7 +559,7 @@ function ingest(d,fromCache){
   var st=fromCache?'off':d.src==='demo'?'demo':market.open?'live':'closed';
   setStatus(st,fromCache?'SAVED':d.src==='demo'?'DEMO':market.open?'LIVE':'CLOSED');
   var nt=$('note');
-  if(d.locked&&!fromCache&&(S.src==='angel'||S.src==='breeze')){nt.innerHTML='Showing Yahoo prices. Angel One / ICICI Breeze open only with your OWNER KEY (Settings).';nt.classList.add('show')}
+  if(d.locked&&!fromCache&&(S.src==='angel'||S.src==='breeze')){nt.innerHTML=LS.get('ak','')?'Showing Yahoo prices: your OWNER KEY does not match the worker.':LS.get('fc','')?'Showing Yahoo prices: your FRIEND CODE is switched off or wrong. Ask the app owner for a new one.':'Showing Yahoo prices. For Angel One, type a FRIEND CODE from the app owner in SETTINGS → DATA SOURCE.';nt.classList.add('show')}
   else if(d.src==='breeze'&&!fromCache&&(!d.missing||!d.missing.length)){nt.textContent='ICICI Breeze: '+(d.stocks||[]).length+' chosen stocks, refresh every '+(d.ttl||60)+' sec (ICICI daily limit). 52-week data is not given by Breeze.';nt.classList.add('show')}
   else if(d.src==='demo'){nt.innerHTML='DEMO DATA — NOT REAL PRICES. Add your data feed in <b>Settings</b> to see live Nifty prices.';nt.classList.add('show')}
   else if(d.missing&&d.missing.length&&!fromCache){nt.textContent='Not found: '+d.missing.slice(0,8).join(', ')+(d.missing.length>8?'…':'')+' (check the symbol; the worker fixes wrong codes by itself in a few minutes)';nt.classList.add('show')}
@@ -836,6 +856,45 @@ $('tgStop').onclick=function(){if(confirm('Stop Telegram alerts on this device?'
 tgPaint();
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&TG&&$('tgMsg').textContent.indexOf('Waiting')===0){}});
 
+/* ---------- FRIEND CODE: friends get Angel One without any login ---------- */
+function fcPaint(){var b=$('fcBox');if(!b)return;b.hidden=isSuper()||!!LS.get('ak','')||S.src==='yahoo';var c=LS.get('fc','');
+  $('fcIn').hidden=!!c;$('fcDel').hidden=!c;
+  $('fcTxt').innerHTML=c?'✔ Friend code <b>'+esc(c)+'</b>'+(LS.get('fcn','')?' ('+esc(LS.get('fcn',''))+')':'')+' is saved. This device gets <b>Angel One</b> prices.':'<b>ANGEL ONE</b> needs a FRIEND CODE from the app owner. No Gmail login is needed. Without a code you get free Yahoo prices.'}
+$('fcSave').onclick=function(){var c=$('fcCode').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=$('fcMsg'),f=feedUrl();if(!c){m.innerHTML='<span class="err">Type the code first.</span>';return}
+  if(!f){m.innerHTML='<span class="err">Prices are not connected yet.</span>';return}m.textContent='Checking…';
+  fetch(f+'/status?fc='+encodeURIComponent(c),{cache:'no-store'}).then(function(r){return r.json()}).then(function(s){
+    if(!s.friend){m.innerHTML='<span class="err">✖ This code is wrong or switched off. Ask the app owner.</span>';return}
+    LS.set('fc',c);LS.set('fcn',s.friend);m.innerHTML='<span class="ok">✔ Welcome '+esc(s.friend)+'! Angel One prices are on.</span>';
+    if(S.src==='yahoo'){S.src='auto';saveS();paintSrc()}fcPaint();syncNative();Q={};IDX={};CC={};load(true)}).catch(function(){m.innerHTML='<span class="err">✖ No internet.</span>'})};
+$('fcDel').onclick=function(){if(!confirm('Remove the friend code? You will get Yahoo prices.'))return;LS.set('fc','');LS.set('fcn','');$('fcMsg').textContent='';fcPaint();syncNative();Q={};IDX={};CC={};load(true)};
+fcPaint();
+
+/* ---------- ALL SETTINGS menu (person icon in the header): every on/off option in one list ---------- */
+var PXN=0;
+function pfOpen(){var pages=document.querySelectorAll('#pages .page'),out='',seen={};
+  [pages[3],pages[2]].forEach(function(pg){if(!pg)return;[].forEach.call(pg.querySelectorAll('.card'),function(card){if(getComputedStyle(card).display==='none'||card.hidden)return;
+    var rows='';[].forEach.call(card.querySelectorAll('label.sw'),function(l){if(l.hidden||l.style.display==='none'||(l.closest('[hidden]')))return;var el=l.querySelector('input,select');if(!el||el.type==='hidden')return;
+      if(!el.id)el.id='px'+(++PXN);if(seen[el.id])return;seen[el.id]=1;var c=l.cloneNode(true);[].forEach.call(c.querySelectorAll('input,select,button'),function(x){x.remove()});var t=c.textContent.trim();if(!t)return;
+      if(el.type==='checkbox')rows+='<label class="sw">'+esc(t)+'<input type="checkbox" data-px="'+el.id+'"'+(el.checked?' checked':'')+'></label>';
+      else if(el.tagName==='SELECT')rows+='<label class="sw">'+esc(t)+'<select class="inp" data-px="'+el.id+'">'+el.innerHTML+'</select></label>';
+      else rows+='<label class="sw">'+esc(t)+'<input class="inp" type="'+el.type+'" data-px="'+el.id+'" value="'+esc(el.value)+'"'+(el.placeholder?' placeholder="'+esc(el.placeholder)+'"':'')+(el.step?' step="'+el.step+'"':'')+'></label>'});
+    var h=card.querySelector('h3');if(rows)out+='<div class="pfh">'+esc(h?h.textContent.trim():'')+'</div>'+rows})});
+  var u=window.NPU||null,acc=$('npAcc')?$('npAcc').textContent.trim():'';
+  $('sheet').innerHTML='<div class="grab"></div><div class="sh"><div><h2>ALL SETTINGS</h2><div class="lg" style="font-size:12px;color:var(--mut)">Switch any feature on or off here.</div></div><button class="x" id="shX" aria-label="Close" style="font-size:24px">×</button></div>'+
+    '<div class="tc" style="margin:8px 0"><b style="font-size:13px;letter-spacing:.06em">👤 PROFILE</b><p style="margin:6px 0">'+esc(acc||'Not signed in.')+'</p><div class="fr"><button class="btn g" id="pfIn"'+(LS.get('cloud',false)?' hidden':'')+'>SIGN IN WITH GOOGLE (OPTIONAL)</button><button class="btn" id="pfFull">OPEN FULL SETTINGS</button></div><p class="h" style="margin:6px 0 0">Google sign-in only keeps your settings, alerts and watchlist the same on all your devices. Everything works without it.</p></div>'+
+    '<input class="inp" id="pfQ" placeholder="Search a setting…" style="width:100%;margin:4px 0 2px" autocomplete="off"><div id="pfList">'+out+'</div>';
+  [].forEach.call(document.querySelectorAll('#pfList select'),function(x){var r=$(x.getAttribute('data-px'));if(r)x.value=r.value});
+  $('mask').classList.add('show');$('shX').onclick=closeSheet;
+  $('pfFull').onclick=function(){closeSheet();go(3)};
+  if($('pfIn'))$('pfIn').onclick=function(){closeSheet();go(3);setTimeout(function(){if($('npIn'))$('npIn').click()},350)};
+  $('pfQ').oninput=function(){var q=this.value.toLowerCase();[].forEach.call(document.querySelectorAll('#pfList .sw'),function(l){l.style.display=!q||l.textContent.toLowerCase().indexOf(q)>=0?'':'none'});
+    [].forEach.call(document.querySelectorAll('#pfList .pfh'),function(h){var n=h.nextElementSibling,any=false;while(n&&!n.classList.contains('pfh')){if(n.style.display!=='none')any=true;n=n.nextElementSibling}h.style.display=any?'':'none'})}}
+document.addEventListener('change',function(e){var k=e.target.getAttribute&&e.target.getAttribute('data-px');if(!k)return;var r=$(k);if(!r)return;
+  if(r.type==='checkbox')r.checked=e.target.checked;else r.value=e.target.value;
+  r.dispatchEvent(new Event('input',{bubbles:true}));r.dispatchEvent(new Event('change',{bubbles:true}));
+  setTimeout(function(){[].forEach.call(document.querySelectorAll('#pfList [data-px]'),function(x){var o=$(x.getAttribute('data-px'));if(!o)return;if(o.type==='checkbox')x.checked=o.checked;else if(x!==document.activeElement)x.value=o.value})},60)});
+$('pfB').onclick=pfOpen;
+
 /* ---------- data source switch ---------- */
 function ruleStocks(){var o=[];rules.forEach(function(r){if(r.on&&r.s!=='NIFTY'&&r.s!=='BANKNIFTY'&&o.indexOf(r.s)<0)o.push(r.s)});if(S.gScope==='pick')(S.gPick||[]).forEach(function(x){if(o.indexOf(x)<0)o.push(x)});return o}
 function breezeList(){var L=(S.bList&&S.bList.length?S.bList:watch).slice();ruleStocks().forEach(function(x){if(L.indexOf(x)<0)L.push(x)});return L.slice(0,20)}
@@ -843,7 +902,7 @@ function scopeList(){return S.gScope==='watch'?watch.slice():S.gScope==='pick'?(
 function codesObj(){var o={};String(S.bcodes||'').toUpperCase().split(',').forEach(function(p){var m=p.split(/[=:]/);if(m.length===2&&m[0].trim()&&m[1].trim())o[m[0].trim()]=m[1].trim()});return o}
 function showNote(h){var n=$('note');n.innerHTML=h;n.classList.add('show')}
 function chipsOf(L){return L.length?L.map(function(s){return '<span>'+esc(s)+'</span>'}).join(''):'<span style="opacity:.7">None chosen</span>'}
-function paintSrc(){[].forEach.call(document.querySelectorAll('#srcSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-src')===S.src)});
+function paintSrc(){try{fcPaint()}catch(e){}[].forEach.call(document.querySelectorAll('#srcSeg button'),function(b){b.classList.toggle('on',b.getAttribute('data-src')===S.src)});
   $('breezeBox').hidden=S.src!=='breeze';$('bPickShow').innerHTML=chipsOf(breezeList())+(S.bList&&S.bList.length?'':'<span style="opacity:.7">(using your watchlist)</span>');
   $('bTtl').textContent=Math.max(15,Math.ceil((breezeList().length+2)*60/12));
   $('gPickBox').hidden=S.gScope!=='pick';$('gPickShow').innerHTML=chipsOf(S.gPick||[])}
@@ -1137,7 +1196,7 @@ function saRender(){var j=SAD,me=devId();
   var dv=j.devices.length?j.devices.map(function(d){var bg=/^bg-/.test(d.id);return '<div class="sarow"><span class="tagA">ANGEL</span><div class="m"><b>'+esc(d.n||'Unknown device')+'</b>'+(d.id===me?' <span class="tagY">THIS DEVICE</span>':'')+'<small>Last used '+ago(d.last)+(d.city?' · '+esc(d.city)+(d.cc?', '+esc(d.cc):''):'')+' · first seen '+new Date(d.first).toLocaleDateString('en-IN')+(bg?' · background alerts on the phone':'')+'</small></div><button class="btn" data-devf="'+esc(d.id)+'" style="flex:0 0 auto;padding:6px 9px;font-size:11px">FORGET</button></div>'}).join(''):'<div class="h">No device has used your owner key yet.</div>';
   dv+='<div class="sarow"><span class="tagY">YAHOO</span><div class="m"><b>Everyone else</b><small>Website visitors and friends without your key get free Yahoo prices. Your Angel One account is not used for them.</small></div></div>';
   dv+='<p class="h" style="margin-top:8px">Don\'t know a device? Change ADMIN_KEY in Cloudflare (Worker → Settings → Variables), then type the new key on your own devices. "Forget" only clears the list.</p>';
-  $('saDev').innerHTML=dv;
+  $('saDev').innerHTML=dv;frRender();
   $('saTgAngel').checked=!!j.cfg.tgAngel;
   var fr=j.tg.filter(function(u){return !u.owner}).length;
   var tg=j.tg.length?j.tg.map(function(u){var a=u.owner||j.cfg.tgAngel;return '<div class="sarow"><span class="'+(a?'tagA':'tagY')+'">'+(a?'ANGEL':'YAHOO')+'</span><div class="m"><b>'+esc(u.name||'Telegram user')+'</b>'+(u.user?' @'+esc(u.user):'')+(u.owner?' <span class="tagY">YOU</span>':'')+
@@ -1146,6 +1205,18 @@ function saRender(){var j=SAD,me=devId();
   if(j.ownerChat)tg+='<div class="sarow"><span class="tagA">ANGEL</span><div class="m"><b>Your old single chat (TG_CHAT_ID)</b><small>Chat '+esc(j.ownerChat)+(j.legacy?' · has saved alerts':'')+'</small></div></div>';
   $('saTg').innerHTML='<p class="h" style="margin:8px 0 4px">'+j.tg.length+' connected · '+fr+' friend'+(fr===1?'':'s')+'</p>'+tg;
   $('saW').innerHTML=[['Angel One',j.angel],['ICICI Breeze',j.breeze],['Telegram bot',j.telegram]].map(function(x){return '<div class="sarow"><span class="'+(x[1]?'tagA':'tagY')+'">'+(x[1]?'ON':'OFF')+'</span><div class="m">'+x[0]+'</div></div>'}).join('')+'<p class="h" style="margin-top:6px">Checked '+new Date(j.now).toLocaleTimeString('en-IN')+'</p>'}
+
+/* ---------- ADMIN: friend codes ---------- */
+function frRender(){var j=SAD,L=(j&&j.friends)||[],b=$('frList');if(!b)return;if(!j){b.innerHTML='';return}
+  b.innerHTML=L.length?L.map(function(f){var used=(j.devices||[]).filter(function(d){return d.fc===f.code});
+    return '<div class="sarow"><span class="'+(f.on!==false?'tagA':'tagY')+'">'+(f.on!==false?'ON':'OFF')+'</span><div class="m"><b>'+esc(f.n)+'</b> · <code style="letter-spacing:.12em">'+esc(f.code)+'</code><small>Made '+new Date(f.at).toLocaleDateString('en-IN')+' · '+(used.length?used.length+' device'+(used.length>1?'s':'')+', last used '+ago(Math.max.apply(0,used.map(function(d){return d.last}))):'not used yet')+'</small>'+
+      '<div class="fr" style="margin-top:6px"><button class="btn" data-frsh="'+esc(f.code)+'" data-frn="'+esc(f.n)+'" style="padding:6px 10px;font-size:11px">SHARE</button><button class="btn" data-fron="'+esc(f.code)+'" data-v="'+(f.on===false?1:0)+'" style="padding:6px 10px;font-size:11px">'+(f.on===false?'SWITCH ON':'SWITCH OFF')+'</button><button class="btn" data-frdel="'+esc(f.code)+'" style="padding:6px 10px;font-size:11px;color:var(--dn)">DELETE</button></div></div></div>'}).join(''):'<div class="h">No friend codes yet.</div>'}
+$('frAdd').onclick=function(){var n=$('frName').value.trim();if(!n){toast('Write the friend\'s name');return}saPost('friend-add',{n:n},function(j){$('frName').value='';toast('Code '+j.code+' made for '+n);frShare(j.code,n)})};
+function frShare(code,n){var t='Nifty Pulse for '+n+': open https://ourworldhive.com/nifty-pulse.html (or the Nifty Pulse app) → SETTINGS → DATA SOURCE → type this FRIEND CODE: '+code+' → SAVE. You will get Angel One live prices.';
+  try{navigator.clipboard.writeText(t)}catch(e){}window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-frsh]');if(b){frShare(b.getAttribute('data-frsh'),b.getAttribute('data-frn'));return}
+  b=e.target.closest('[data-fron]');if(b){saPost('friend-on',{code:b.getAttribute('data-fron'),on:b.getAttribute('data-v')==='1'});return}
+  b=e.target.closest('[data-frdel]');if(b&&confirm('Delete this friend code? That friend goes back to Yahoo prices.'))saPost('friend-del',{code:b.getAttribute('data-frdel')})});
 function saPost(op,body,done){fetch(feedUrl()+'/admin/'+op,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Key':LS.get('ak','')},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(j){if(!j.ok){toast(j.error||'Failed');return}if(done)done(j);saLoad()}).catch(function(){toast('Could not reach the worker')})}
 $('saRef').onclick=saLoad;
 $('saTgAngel').onchange=function(){var v=this.checked;saPost('cfg',{tgAngel:v},function(){toast(v?'Friends use Angel One prices':'Friends now use Yahoo prices')})};
@@ -1192,6 +1263,7 @@ function demoCandles(s,tf){var q=Q[s]||IDX[s];if(!q)return [];var step={'5m':3e5
   for(var i=0;i<n;i++){var o=v*(1+(((h*(i+3))%101)/101-.5)/(tf==='1d'?40:160)),c=v,hi=Math.max(o,c)*(1+((h*(i+11))%13)/(tf==='1d'?900:3000)),lo=Math.min(o,c)*(1-((h*(i+5))%13)/(tf==='1d'?900:3000));out.unshift([t-i*step,o,hi,lo,c,(h*(i+1))%90000+10000]);v=o}return out}
 /* candles: one request at a time (Angel allows only a few per second), chart first, same request never twice, Yahoo retry on failure */
 var CQ=[],CBUSY=false,CPEND={};
+function authQ(){var a=LS.get('ak','');if(a)return '&k='+encodeURIComponent(a)+devQ();var f=LS.get('fc','');return f?'&fc='+encodeURIComponent(f)+devQ():''}
 function getCandlesFirst(s,tf,cb){getCandles(s,tf,cb,true)}
 function getCandles(s,tf,cb,first){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<(tf==='1d'?6e5:6e4)){cb(c.d);return}var f=feedUrl();
   if(!f){var d=demoCandles(s,tf);CC[k]={at:Date.now(),d:d};cb(d);return}
@@ -1200,7 +1272,7 @@ function getCandles(s,tf,cb,first){var k=s+'|'+tf,c=CC[k];if(c&&Date.now()-c.at<
 function cRun(){if(CBUSY||!CQ.length)return;CBUSY=true;var j=CQ.shift(),f=feedUrl(),ak=LS.get('ak','');
   function done(d,err){var L=CPEND[j.k]||[];delete CPEND[j.k];if(d)CC[j.k]={at:Date.now(),d:d};L.forEach(function(fn){try{fn(d,err)}catch(e){}});setTimeout(function(){CBUSY=false;cRun()},350)}
   function ask(yahoo){var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){ctl&&ctl.abort()},15000);
-    return fetch(f+'/candles?s='+encodeURIComponent(j.s)+'&tf='+j.tf+(yahoo?'&src=yahoo':ak?'&k='+encodeURIComponent(ak)+devQ():''),{cache:'no-store',signal:ctl?ctl.signal:undefined})
+    return fetch(f+'/candles?s='+encodeURIComponent(j.s)+'&tf='+j.tf+(yahoo?'&src=yahoo':authQ()),{cache:'no-store',signal:ctl?ctl.signal:undefined})
       .then(function(r){return r.json()}).then(function(x){clearTimeout(to);if(x&&x.ok&&x.candles&&x.candles.length)return x.candles;throw new Error(x&&x.error||(x&&x.ok&&!x.candles?'the worker has no chart data route':'no candles'))})
       .catch(function(e){clearTimeout(to);throw new Error(e&&e.name==='AbortError'?'timed out':(e&&e.message)||'offline')})}
   ask(false).then(function(d){done(d)}).catch(function(e1){setTimeout(function(){ask(true).then(function(d){done(d)}).catch(function(e2){done(null,e2.message===e1.message?e1.message:e1.message+' / Yahoo: '+e2.message)})},ak?800:1500)})}
@@ -1263,7 +1335,7 @@ function checkUpdate(){if(updShown||!navigator.onLine||!/^https?:$/.test(locatio
 setTimeout(checkUpdate,8000);setInterval(checkUpdate,30*60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)checkUpdate()});
 
 /* ---------- Android app: home-screen widget + background alerts ---------- */
-function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
+function syncNative(){if(!NATIVE)return;try{NATIVE.save(JSON.stringify({feed:feedUrl(),src:S.src,key:LS.get('ak','')||LS.get('fc',''),watch:watch,rules:rules,sym:S.src==='breeze'?breezeList():(customList()||[]),extra:ruleStocks(),bcodes:S.bcodes||'',
   global:{move:parseFloat(S.gMove)||0,nifty:parseFloat(S.gNifty)||0,hi52:!!S.gHi,lo52:!!S.gLo,only:scopeList(),sig:!!(S.gSig&&S.tSig&&isOwner())},alarm:{r:!!S.alR,s:!!S.alS,g:!!(S.alG&&S.tSig&&isOwner())},rearm:rearmAt(),rearmMin:rearmMin(),remind:!!S.remind}))}catch(e){}}
 var syncT=null;window.__npSync=function(){clearTimeout(syncT);syncT=setTimeout(syncNative,400);tgAuto()};
 if(NATIVE){$('natBox').hidden=false;$('oNotif').closest('label').style.display='none';

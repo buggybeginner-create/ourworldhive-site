@@ -20,7 +20,7 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.ScheduleSend
+import androidx.compose.material.icons.automirrored.rounded.ScheduleSend
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -89,7 +89,7 @@ fun ScheduledScreen(nav: Navigator, vm: ScheduledViewModel = viewModel(factory =
             )
             StateContent(state) { list ->
                 if (list.isEmpty()) {
-                    EmptyState(Icons.Rounded.ScheduleSend, "Nothing Scheduled", "Tap Schedule to plan a birthday wish, a reminder or a follow-up.")
+                    EmptyState(Icons.AutoMirrored.Rounded.ScheduleSend, "Nothing Scheduled", "Tap Schedule to plan a birthday wish, a reminder or a follow-up.")
                 } else {
                     LazyColumn(
                         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
@@ -167,7 +167,7 @@ private fun ScheduleDialog(onDismiss: () -> Unit, onSave: (String, String, Long)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Rounded.ScheduleSend, null) },
+        icon = { Icon(Icons.AutoMirrored.Rounded.ScheduleSend, null) },
         title = { Text("Schedule a Message") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

@@ -21,7 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ManageSearch
+import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -94,7 +94,7 @@ fun SearchScreen(nav: Navigator, vm: SearchViewModel = viewModel(factory = AppVi
         StateContent(results) { list ->
             when {
                 query.isBlank() -> EmptyState(
-                    Icons.Rounded.ManageSearch, "Search Everything",
+                    Icons.AutoMirrored.Rounded.ManageSearch, "Search Everything",
                     "Find any message by word, sender or amount, e.g. \"dinner\", \"Bank\" or \"2,450\"."
                 )
                 list.isEmpty() -> EmptyState(Icons.Rounded.SearchOff, "No Results", "Nothing matches \"$query\".")

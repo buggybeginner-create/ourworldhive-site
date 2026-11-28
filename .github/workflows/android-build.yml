@@ -26,9 +26,8 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up the Android SDK
-        uses: android-actions/setup-android@v3
-
+      # The GitHub Ubuntu runner already has the Android SDK (ANDROID_HOME);
+      # Gradle downloads the exact platform version the project needs.
       - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:

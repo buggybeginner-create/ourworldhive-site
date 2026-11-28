@@ -56,6 +56,13 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE isDemo = 0")
     suspend fun deleteReal()
 
+    /** MMS rows are stored with a negative smsId (-mmsId); the smallest one is the newest MMS read. */
+    @Query("SELECT MIN(smsId) FROM messages WHERE smsId < 0")
+    suspend fun minSmsId(): Long?
+
+    @Query("UPDATE messages SET isRead = 1 WHERE isRead = 0")
+    suspend fun markAllRead()
+
     @Query("UPDATE messages SET isRead = 1 WHERE conversationId = :conversationId")
     suspend fun markThreadRead(conversationId: Long)
 
@@ -100,6 +107,9 @@ interface ConversationDao {
 
     @Query("DELETE FROM conversations WHERE isDemo = 0")
     suspend fun deleteReal()
+
+    @Query("UPDATE conversations SET unreadCount = 0")
+    suspend fun clearAllUnread()
 
     @Query("UPDATE conversations SET unreadCount = 0 WHERE id = :id")
     suspend fun clearUnread(id: Long)

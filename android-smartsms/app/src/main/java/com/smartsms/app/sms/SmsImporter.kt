@@ -48,10 +48,13 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
     val state: StateFlow<SmsSyncState> = _state.asStateFlow()
 
     private var observer: ContentObserver? = null
+    private var contactsObserver: ContentObserver? = null
     private var pending: Job? = null
+    private var namesJob: Job? = null
 
     /** Watches the phone's SMS store while the app is alive, so new and sent SMS appear by themselves. */
     fun startWatching() {
+        watchContacts()
         if (observer != null || !Perms.canRead(app)) return
         val o = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) = importSoon()
@@ -59,8 +62,34 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
         }
         try {
             app.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, o)
+            app.contentResolver.registerContentObserver(Telephony.Mms.CONTENT_URI, true, o)
             observer = o
         } catch (_: SecurityException) {
+        }
+    }
+
+    /** Names follow your phone book: a contact added, renamed or deleted updates the chats. */
+    fun watchContacts() {
+        if (contactsObserver != null || !Perms.canContacts(app)) return
+        val o = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                namesJob?.cancel()
+                namesJob = scope.launch { delay(2000); refreshNames() }
+            }
+        }
+        try {
+            app.contentResolver.registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, o)
+            contactsObserver = o
+        } catch (_: SecurityException) {
+        }
+    }
+
+    suspend fun refreshNames() = withContext(Dispatchers.IO) {
+        if (!Perms.canContacts(app)) return@withContext
+        for (c in db.conversationDao().getReal()) {
+            if (!Addresses.canReply(c.address)) continue
+            val want = lookupName(c.address) ?: c.address
+            if (want != c.displayName) db.conversationDao().update(c.copy(displayName = want))
         }
     }
 
@@ -103,6 +132,9 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
         val batch = ArrayList<MessageEntity>(400)
         var maxId = since
         var added = 0
+        // Notify only for messages that arrive while the app is in use (not the first or a full read).
+        val notifyAllowed = !full && since > 0L
+        val fresh = ArrayList<MessageEntity>()
 
         suspend fun flush() {
             if (batch.isEmpty()) return
@@ -111,6 +143,7 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
             batch.forEachIndexed { i, m ->
                 if (ids[i] <= 0) return@forEachIndexed
                 added++
+                if (notifyAllowed && m.isIncoming && !m.isRead && System.currentTimeMillis() - m.timestamp < 30 * 60_000L) fresh += m
                 if (m.category == MessageCategory.TRANSACTIONS.key) {
                     TransactionParser.parse(m.body)?.let { p ->
                         val merchant = p.merchant ?: Addresses.key(m.address)
@@ -168,6 +201,27 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
         }
         flush()
 
+        // MMS (group messages, long texts sent as MMS, photos): text only, stored with smsId = -mmsId.
+        val sinceMms = if (full) 0L else -(db.messageDao().minSmsId() ?: 0L)
+        readMms(sinceMms) { id, addr, body, date, incoming, read ->
+            val key = Addresses.key(addr)
+            val conv = convByKey[key] ?: run {
+                val e = ConversationEntity(
+                    address = key, displayName = displayName(addr, names), lastMessage = "", lastTimestamp = 0,
+                    category = MessageCategory.PERSONAL.key, isDemo = false
+                )
+                e.copy(id = db.conversationDao().insert(e)).also { convByKey[key] = it }
+            }
+            touched += key
+            batch += MessageEntity(
+                conversationId = conv.id, address = addr, body = body, timestamp = date,
+                isIncoming = incoming, isRead = !incoming || read,
+                category = Categorizer.classify(addr, body).key, isDemo = false, smsId = -id
+            )
+            if (batch.size >= 400) flush()
+        }
+        flush()
+
         // Refresh each chat that got new messages: last line, time, unread count, folder.
         for (key in touched) {
             val conv = convByKey[key] ?: continue
@@ -190,12 +244,74 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
             }
         }
 
+        for (m in fresh) {
+            val conv = convByKey.values.firstOrNull { it.id == m.conversationId } ?: continue
+            Notify.incoming(app, conv.id, conv.displayName, m.body, m.category == MessageCategory.OTP.key)
+        }
+
         settingsDao.get()?.let { s ->
             // First real import: hide the sample rows so real and demo never mix on screen.
             val hideDemo = since == 0L && added > 0
             settingsDao.upsert(s.copy(lastSmsId = maxId, showDemoData = if (hideDemo) false else s.showDemoData))
         }
         return added
+    }
+
+    /** Reads MMS newer than [since]: text parts only; photos are noted, not copied. */
+    private suspend fun readMms(
+        since: Long,
+        onRow: suspend (id: Long, address: String, body: String, date: Long, incoming: Boolean, read: Boolean) -> Unit
+    ) {
+        val r = app.contentResolver
+        val rows = ArrayList<LongArray>() // id, dateSec, box, read
+        try {
+            r.query(
+                Telephony.Mms.CONTENT_URI,
+                arrayOf(Telephony.Mms._ID, Telephony.Mms.DATE, Telephony.Mms.MESSAGE_BOX, Telephony.Mms.READ),
+                "${Telephony.Mms._ID} > ?", arrayOf(since.toString()), "${Telephony.Mms._ID} ASC"
+            )?.use { c ->
+                while (c.moveToNext()) rows += longArrayOf(c.getLong(0), c.getLong(1), c.getLong(2), c.getLong(3))
+            }
+        } catch (_: Exception) {
+            return
+        }
+        for (row in rows) {
+            val id = row[0]
+            val box = row[2].toInt()
+            if (box != Telephony.Mms.MESSAGE_BOX_INBOX && box != Telephony.Mms.MESSAGE_BOX_SENT) continue
+            val incoming = box == Telephony.Mms.MESSAGE_BOX_INBOX
+            val text = StringBuilder()
+            var hasMedia = false
+            try {
+                r.query(Uri.parse("content://mms/part"), arrayOf("ct", "text"), "mid = ?", arrayOf(id.toString()), null)?.use { c ->
+                    while (c.moveToNext()) {
+                        val ct = c.getString(0).orEmpty()
+                        if (ct == "text/plain") c.getString(1)?.let { if (it.isNotBlank()) text.append(if (text.isEmpty()) it else "\n$it") }
+                        else if (ct.startsWith("image/") || ct.startsWith("video/") || ct.startsWith("audio/")) hasMedia = true
+                    }
+                }
+            } catch (_: Exception) {
+            }
+            val body = when {
+                text.isNotEmpty() && hasMedia -> "$text\n📎 Photo or file · open it in your phone's SMS app"
+                text.isNotEmpty() -> text.toString()
+                else -> "📎 Photo or file · open it in your phone's SMS app"
+            }
+            // 137 = from (received), 151 = to (sent)
+            val want = if (incoming) 137 else 151
+            var addr = ""
+            try {
+                r.query(Uri.parse("content://mms/$id/addr"), arrayOf("address", "type"), null, null, null)?.use { c ->
+                    while (c.moveToNext()) {
+                        val a = c.getString(0).orEmpty()
+                        if (c.getInt(1) == want && a.isNotBlank() && a != "insert-address-token") { addr = a; break }
+                    }
+                }
+            } catch (_: Exception) {
+            }
+            if (addr.isBlank()) continue
+            onRow(id, addr, body, row[1] * 1000, incoming, row[3] == 1L)
+        }
     }
 
     /** People → Personal. Businesses → their most common kind of message (OTP only if that is all they send). */

@@ -1,5 +1,17 @@
 package com.smartsms.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -83,6 +95,7 @@ fun ConversationScreen(nav: Navigator, vm: ConversationViewModel = viewModel(fac
     val state by vm.state.collectAsStateWithLifecycle()
     val sendError by vm.sendError.collectAsStateWithLifecycle()
     val snack = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     LaunchedEffect(sendError) { sendError?.let { snack.showSnackbar("Not sent: $it"); vm.clearSendError() } }
     val ready = state as? UiState.Ready<ThreadData>
     val conv = ready?.data?.conversation
@@ -113,6 +126,20 @@ fun ConversationScreen(nav: Navigator, vm: ConversationViewModel = viewModel(fac
                         }
                     }
                 },
+                actions = {
+                    if (conv != null && replyTo != null && Addresses.canReply(replyTo)) {
+                        val ctx = LocalContext.current
+                        IconButton(onClick = {
+                            ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(replyTo))))
+                        }) { Icon(Icons.Rounded.Call, "Call") }
+                    }
+                    if (conv != null && !conv.isDemo) {
+                        IconButton(onClick = { vm.togglePin(conv.id) }) {
+                            Icon(Icons.Rounded.PushPin, if (conv.isPinned) "Unpin" else "Pin",
+                                tint = if (conv.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             )
         }
@@ -127,7 +154,7 @@ fun ConversationScreen(nav: Navigator, vm: ConversationViewModel = viewModel(fac
                         canReply -> null
                         else -> "This sender does not accept replies"
                     }
-                    MessageThread(data.messages, footer, onStar = vm::toggleStar)
+                    MessageThread(data.messages, footer, onStar = vm::toggleStar, onCopied = { scope.launch { snack.showSnackbar("Copied") } })
                 }
             }
         }
@@ -135,7 +162,7 @@ fun ConversationScreen(nav: Navigator, vm: ConversationViewModel = viewModel(fac
 }
 
 @Composable
-private fun MessageThread(messages: List<MessageEntity>, footer: String?, onStar: (Long) -> Unit) {
+private fun MessageThread(messages: List<MessageEntity>, footer: String?, onStar: (Long) -> Unit, onCopied: () -> Unit) {
     val list = rememberLazyListState()
     LaunchedEffect(messages.size) { if (messages.isNotEmpty()) list.scrollToItem(messages.lastIndex + 1) }
     val look = LocalChatAppearance.current
@@ -144,7 +171,7 @@ private fun MessageThread(messages: List<MessageEntity>, footer: String?, onStar
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(if (look.compactList) 4.dp else 8.dp)
     ) {
-        items(messages, key = { it.id }) { m -> Bubble(m, look, onStar) }
+        items(messages, key = { it.id }) { m -> Bubble(m, look, onStar, onCopied) }
         if (footer != null) item {
             Text(
                 footer,
@@ -220,9 +247,12 @@ private fun bubbleShape(look: ChatAppearance, incoming: Boolean): Shape {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun Bubble(m: MessageEntity, look: ChatAppearance, onStar: (Long) -> Unit) {
+private fun Bubble(m: MessageEntity, look: ChatAppearance, onStar: (Long) -> Unit, onCopied: () -> Unit) {
     val isOtp = m.category == MessageCategory.OTP.key
     var revealed by rememberSaveable(m.id) { mutableStateOf(!isOtp) }
+    var menu by remember { mutableStateOf(false) }
+    val clipboard = LocalClipboardManager.current
+    val ctx = LocalContext.current
     val incoming = m.isIncoming
     val bg = if (incoming) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.primary
     val fg = if (incoming) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
@@ -232,13 +262,38 @@ private fun Bubble(m: MessageEntity, look: ChatAppearance, onStar: (Long) -> Uni
                 shape = bubbleShape(look, incoming),
                 color = bg,
                 modifier = Modifier.widthIn(max = 300.dp)
-                    .combinedClickable(onClick = { if (!revealed) revealed = true }, onLongClick = { onStar(m.id) })
+                    .combinedClickable(
+                        onClick = { if (!revealed) revealed = true },
+                        // A hidden code is shown first; the menu works on what you can see.
+                        onLongClick = { if (!revealed) revealed = true else menu = true }
+                    )
             ) {
                 Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                     Text(
                         if (revealed) m.body else "One-time code hidden · tap to show",
                         style = MaterialTheme.typography.bodyLarge,
                         color = fg
+                    )
+                }
+                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Copy Text") },
+                        leadingIcon = { Icon(Icons.Rounded.ContentCopy, null) },
+                        onClick = { clipboard.setText(AnnotatedString(m.body)); menu = false; onCopied() }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Share") },
+                        leadingIcon = { Icon(Icons.Rounded.Share, null) },
+                        onClick = {
+                            menu = false
+                            val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, m.body)
+                            ctx.startActivity(Intent.createChooser(send, "Share message"))
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(if (m.isStarred) "Remove Star" else "Star") },
+                        leadingIcon = { Icon(Icons.Rounded.Star, null) },
+                        onClick = { onStar(m.id); menu = false }
                     )
                 }
             }

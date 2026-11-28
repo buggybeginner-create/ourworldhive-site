@@ -9,6 +9,10 @@ import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.smartsms.app.sms.Perms
+import com.smartsms.app.sms.Prefs
+import com.smartsms.app.ui.components.formatTime
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.SystemUpdate
 import com.smartsms.app.sms.SmsSyncState
 import com.smartsms.app.ui.components.rememberCheck
 import androidx.compose.foundation.clickable
@@ -166,9 +170,17 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
                 !canRead -> "Not allowed · tap to allow"
                 sms is SmsSyncState.Reading -> "Reading… ${(sms as SmsSyncState.Reading).count} messages"
                 sms is SmsSyncState.Failed -> "Problem: ${(sms as SmsSyncState.Failed).reason}"
+                sms is SmsSyncState.Done -> "Allowed · $realCount messages · last checked ${formatTime((sms as SmsSyncState.Done).at)}"
                 else -> "Allowed · $realCount messages on this phone"
             }
             NavRow(Icons.Rounded.Sms, "SMS Access", status) { if (!canRead) askRead.launch(Perms.READ_GROUP) }
+        }
+        item {
+            var notify by remember { mutableStateOf(Prefs.notifyNew(ctx)) }
+            SwitchRow(Icons.Rounded.Notifications, "Notify New Messages", notify,
+                subtitle = "Code messages show only \"One-time code received\"") { on ->
+                notify = on; Prefs.setNotifyNew(ctx, on)
+            }
         }
         if (canRead) {
             item { NavRow(Icons.Rounded.Sync, "Read All SMS Again", "Use if messages look missing or doubled") { confirmReread = true } }
@@ -200,6 +212,14 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
 
         item { SectionHeader("Privacy & About", Modifier.padding(horizontal = 8.dp)) }
         item {
+            NavRow(Icons.Rounded.SystemUpdate, "Get Latest Version", "You have ${BuildConfig.VERSION_NAME} · opens the download in your browser") {
+                ctx.startActivity(
+                    android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(LATEST_APK))
+                        .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        }
+        item {
             Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.padding(horizontal = 8.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     InfoLine(Icons.Rounded.Shield, "Your SMS are read and sorted only on this phone. Smart SMS has no internet permission and uploads nothing. Your normal SMS app keeps saving messages as before.")
@@ -230,6 +250,8 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
         )
     }
 }
+
+private const val LATEST_APK = "https://github.com/buggybeginner-create/ourworldhive-site/releases/download/smartsms-apk/Smart-SMS.apk"
 
 @Composable
 private fun NavRow(icon: ImageVector, title: String, subtitle: String?, onClick: () -> Unit) {

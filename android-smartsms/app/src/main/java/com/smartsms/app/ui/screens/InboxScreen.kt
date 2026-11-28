@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Inbox
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Schedule
@@ -91,6 +92,7 @@ private fun InboxContent(d: InboxData, nav: Navigator, sms: SmsSyncState, onSmsG
                     Text(greeting(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Smart SMS", style = MaterialTheme.typography.headlineMedium)
                 }
+                IconButton(onClick = { nav.open(Routes.COMPOSE) }) { Icon(Icons.Rounded.Edit, "New message") }
                 IconButton(onClick = { nav.open(Routes.SCHEDULED) }) { Icon(Icons.Rounded.Schedule, "Scheduled messages") }
             }
             Spacer(Modifier.height(12.dp))

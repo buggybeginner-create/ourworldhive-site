@@ -15,7 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
@@ -69,7 +72,19 @@ fun MessagesScreen(
         title = fixedCategory?.label ?: "All Messages",
         onBack = if (fixedCategory != null) nav::back else null,
         topLevel = fixedCategory == null,
-        actions = { IconButton(onClick = { nav.open(Routes.SEARCH) }) { Icon(Icons.Rounded.Search, "Search") } }
+        actions = {
+            IconButton(onClick = { nav.open(Routes.SEARCH) }) { Icon(Icons.Rounded.Search, "Search") }
+            IconButton(onClick = { vm.markAllRead() }) { Icon(Icons.Rounded.DoneAll, "Mark all as read") }
+        },
+        floatingActionButton = {
+            if (fixedCategory == null) {
+                ExtendedFloatingActionButton(
+                    onClick = { nav.open(Routes.COMPOSE) },
+                    icon = { Icon(Icons.Rounded.Edit, null) },
+                    text = { Text("New Message") }
+                )
+            }
+        }
     ) { pad ->
         Column(Modifier.padding(pad)) {
             if (fixedCategory == null) {
@@ -94,7 +109,7 @@ fun MessagesScreen(
                             subtitle = if (c == null) "No conversations to show." else "No ${c.label.lowercase()} messages to show."
                         )
                     } else {
-                        LazyColumn(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
+                        LazyColumn(contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 96.dp)) {
                             items(list, key = { it.id }) { c ->
                                 ConversationRow(c, onClick = { nav.openConversation(c.id) }, onLongClick = { vm.togglePin(c.id) })
                             }

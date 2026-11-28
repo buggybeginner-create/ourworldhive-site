@@ -61,7 +61,10 @@ class AppContainer(app: Application) {
         }
     }
 
-    /** Call after the user allows (or re-allows) SMS access. */
+    /** Set when a notification is tapped; the navigation opens that chat. */
+    val openConversation = MutableStateFlow<Long?>(null)
+
+    /** Call after the user allows (or re-allows) SMS access, and each time the app comes to the front. */
     fun onSmsAccessChanged() {
         if (!Perms.canRead(appContext)) return
         smsImporter.startWatching()

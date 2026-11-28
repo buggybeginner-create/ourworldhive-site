@@ -67,6 +67,12 @@ if [ -n "$eb" ]; then
   fi
   dump
   if grep -q "Reply_from_smoke_test" ui.xml; then echo "CHECK OK: reply shows in the chat"; else echo "CHECK FAILED: reply not shown in chat"; fail=1; fi
+  # The friend answers while the chat is open: it must appear by itself.
+  adb emu sms send 9876543210 "Friend answers while the chat is open"
+  sleep 8
+  dump
+  shot 03b-friend-answer
+  if grep -q "Friend answers while the chat is open" ui.xml; then echo "CHECK OK: new SMS appears in the open chat"; else echo "CHECK FAILED: new SMS did not appear in the open chat"; fail=1; fi
 else
   echo "CHECK FAILED: no reply box"; fail=1
 fi
@@ -75,6 +81,7 @@ adb shell input keyevent 4; sleep 1
 adb shell am start -W -n $PKG/.MainActivity >/dev/null; sleep 2
 
 tap_text "Messages" && shot 04-all-messages
+tap_text "New Message" && shot 04b-new-message && adb shell input keyevent 4 && sleep 1
 tap_text "Transactions" && shot 05-transactions
 tap_text "Finance" && shot 06-finance
 tap_text "Settings" && shot 07-settings

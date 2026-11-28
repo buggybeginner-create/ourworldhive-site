@@ -12,7 +12,9 @@ import androidx.core.content.ContextCompat
 
 object Perms {
     /** Asked together on the "Show Your Real SMS" card. Contacts is optional (names only). */
-    val READ_GROUP = arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS)
+    val READ_GROUP: Array<String> =
+        if (Build.VERSION.SDK_INT >= 33) arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)
+        else arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS)
 
     /** Asked the first time the user sends or schedules a message. */
     val SEND_GROUP: Array<String> =

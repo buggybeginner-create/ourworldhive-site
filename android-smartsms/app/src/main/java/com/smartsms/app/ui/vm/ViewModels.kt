@@ -135,6 +135,8 @@ class MessagesViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewModel(
         _category.flatMapLatest { repo.messages(it).asUiState() }.stateIn(this)
 
     fun select(cat: MessageCategory?) { _category.value = cat }
+    private val db = app.container.database
+    fun markAllRead() = viewModelScope.launch { db.messageDao().markAllRead(); db.conversationDao().clearAllUnread() }
     fun togglePin(id: Long) = viewModelScope.launch { repo.togglePin(id) }
 }
 
@@ -152,6 +154,7 @@ class ConversationViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewMo
     init { viewModelScope.launch { repo.markRead(id) } }
 
     fun toggleStar(messageId: Long) = viewModelScope.launch { repo.toggleStar(messageId) }
+    fun togglePin(conversationId: Long) = viewModelScope.launch { repo.togglePin(conversationId) }
 
     private val appCtx = app.applicationContext
     private val importer = app.container.smsImporter
@@ -167,6 +170,17 @@ class ConversationViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewMo
     } catch (e: Exception) {
         _sendError.value = e.message ?: "Could not send"
         false
+    }
+}
+
+/* ------------------------------ New message ------------------------------ */
+
+class NewMessageViewModel(app: SmartSmsApp) : ViewModel() {
+    private val appCtx = app.applicationContext
+    private val importer = app.container.smsImporter
+    fun send(to: String, text: String): Result<Unit> = runCatching {
+        SmsSender.send(appCtx, to.trim(), text.trim())
+        importer.importSoon(1200)
     }
 }
 
@@ -250,6 +264,7 @@ object AppViewModelProvider {
         initializer { MessagesViewModel(app(), createSavedStateHandle()) }
         initializer { ConversationViewModel(app(), createSavedStateHandle()) }
         initializer { ScheduledViewModel(app()) }
+        initializer { NewMessageViewModel(app()) }
         initializer { FinanceViewModel(app()) }
         initializer { BackupViewModel(app()) }
         initializer { SettingsViewModel(app()) }

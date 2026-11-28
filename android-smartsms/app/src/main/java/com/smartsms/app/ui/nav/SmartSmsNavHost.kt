@@ -19,7 +19,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.smartsms.app.ui.screens.NewMessageScreen
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -55,6 +59,7 @@ object Routes {
     const val BACKUP = "backup"
     const val THEME = "theme"
     const val SETTINGS = "settings"
+    const val COMPOSE = "compose"
 
     fun category(c: MessageCategory) = "category/${c.key}"
     fun conversation(id: Long) = "conversation/$id"
@@ -84,11 +89,19 @@ class Navigator(private val nav: NavHostController) {
 }
 
 @Composable
-fun SmartSmsNavHost(onRetryInit: () -> Unit) {
+fun SmartSmsNavHost(onRetryInit: () -> Unit, openRequests: MutableStateFlow<Long?>) {
     val nav = rememberNavController()
     val navigator = Navigator(nav)
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route
+    val openId by openRequests.collectAsState()
+    LaunchedEffect(openId, route) {
+        val id = openId
+        if (id != null && route != null && route != Routes.SPLASH) {
+            openRequests.value = null
+            navigator.openConversation(id)
+        }
+    }
     val showBar = topLevel.any { it.route == route }
 
     Scaffold(
@@ -138,6 +151,7 @@ fun SmartSmsNavHost(onRetryInit: () -> Unit) {
             composable(Routes.BACKUP) { BackupScreen(navigator) }
             composable(Routes.THEME) { ThemeScreen(navigator) }
             composable(Routes.SETTINGS, enterTransition = { fadeIn(tween(220)) }) { SettingsScreen(navigator) }
+            composable(Routes.COMPOSE) { NewMessageScreen(navigator) }
         }
     }
 }

@@ -318,7 +318,7 @@ function budgetHtml(po,months){var spend={},tot=0;po.forEach(function(o){var n=n
  if(B.total>0){var p=tot/(B.total*mult);rows+='<div class="r"><span>Overall</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(tot)+' / '+money(B.total*mult)+'</span></div>'}
  TYPES.forEach(function(t){var lim=+B.types[t]||0;if(lim>0){any=true;var p=(spend[t]||0)/(lim*mult);rows+='<div class="r"><span>'+esc(t)+'</span><div class="t"><i class="'+(p>1?'over':'')+'" style="width:'+Math.min(100,p*100)+'%"></i></div><span class="num">'+money(spend[t]||0)+' / '+money(lim*mult)+'</span></div>'}});
  return '<div class="card"><h3>Budget<button class="btn sm" type="button" data-a="budget">'+(any?'Edit':'Set Budget')+'</button></h3>'+(any?'<div class="brk">'+rows+'</div><div class="msg" style="margin-top:8px">Monthly budgets, scaled to the period you picked.</div>':'<div class="msg">Set a monthly limit overall and for each item type to see how you are doing.</div>')+'</div>'}
-var PL_VER='2026-11-24.13';
+var PL_VER='2026-11-28.1';
 /* ---------- pages: Orders, Insights, Reminders, Profile ---------- */
 var PAGES=[['orders','Orders','📦'],['watch','Watchlist','🛒'],['stats','Insights','📊'],['rem','Reminders','⏰'],['profile','Profile','👤']];
 var NATIVE=window.PLNative||null,U=null,GUEST=false,CNT={};
@@ -1065,6 +1065,21 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-a=de
 function isGone(x){var G=S.gone||{};if(/\d/.test(x.orderId||'')&&G['id:'+x.store+'|'+x.orderId])return true;if(x.mref&&G['m:'+x.mref.id])return true;if(x.sref&&G['s:'+String(x.sref.s).slice(0,80)])return true;return false}
 var _aa2=applyAll;applyAll=function(list,acc,src){return _aa2((list||[]).filter(function(x){return !isGone(x)}),acc,src)};
 var _pr2=window.plReceive;if(_pr2)window.plReceive=function(json,last){var L=[];try{L=typeof json==='string'?JSON.parse(json):json}catch(e){}var G=S.gone||{};L=(L||[]).filter(function(v){return !G['s:'+String(hideOtp(String(v.text||'')).replace(/\s+/g,' ').trim()).slice(0,80)]});return _pr2(JSON.stringify(L),last)};
+/* 2026-11-28: mail-table headers are never product names; tiny amounts (Shipping ₹0.01) never stay as the price; a cancelled item cancels only itself; long-silent orders are not shown as "176 days late" */
+var _jn9=junkName;junkName=function(n){n=String(n||'').trim();return _jn9(n)||/^(?:description|product(?: name| details)?|item(?: name)?|qty\.?|quantity|status|mrp|discount|price|sub ?total|total|amount|unit price|seller)$/i.test(n)};
+IRK.cancelled=-1;
+var _iu9=itemUpdate;itemUpdate=function(o,x){var nm=x.item||(x.items&&x.items[0]&&x.items[0].n)||'',i=nm?itemIndex(o,nm):-1,ch=false;
+ if(i>=0&&(x.status==='cancelled'||x.status==='returned')){var it=o.items[i];if(ist(o,it)!=='delivered'||x.status==='returned'){if(it.st!==x.status){it.st=x.status;ch=true}}}
+ var r=_iu9(o,x)||ch;if(ch)rollup(o);return r};
+var _ru9=rollup;rollup=function(o){_ru9(o);if(!o.items||o.items.length<2)return;var st=o.items.map(function(it){return ist(o,it)});
+ if(st.every(function(s){return s==='cancelled'}))o.status='cancelled';else if(st.every(function(s){return s==='cancelled'||s==='returned'}))o.status='returned'};
+var _mi9=mergeInto;mergeInto=function(o,x){var ch=false;if(+o.amount>0&&+o.amount<10&&+x.amount>=10&&!x.trk){o.amount=+x.amount;ch=true}return _mi9(o,x)||ch};
+function cleanGroups(){var n=0;orders.forEach(function(o){if(!o.items||!o.items.length)return;var L=o.items.filter(function(it){return it.n&&!junkName(it.n)});
+  L.forEach(function(it){if(it.p!=null&&+it.p<10){it.p=null;n++}});if(+o.amount>0&&+o.amount<10){o.amount=null;n++}
+  if(L.length!==o.items.length){n++;if(L.length>=2){o.items=L;o.item=L[0].n+' + '+(L.length-1)+' more';rollup(o)}else{var a=L[0];delete o.items;if(a){o.item=a.n;o.qty=a.q||1;if(a.img&&!o.img)o.img=a.img;if(a.st)o.status=a.st;if(a.eta)o.eta=a.eta;if(a.don)o.deliveredOn=a.don}}}
+  else if(L.length>=2){var s0=o.status;rollup(o);if(o.status!==s0)n++}});return n}
+var _td9=tidy;tidy=function(){var n=cleanGroups();var r=_td9.apply(this,arguments);if(n){try{save()}catch(e){}}return r};
+var _eh9=etaHtml;etaHtml=function(o){if(o.eta&&/^(?:ordered|shipped|out)$/.test(o.status||'ordered')){var d=dd(today(),o.eta);if(d<-30)return '<span class="eta dim">No delivery mail since '+esc(fd(o.eta))+' · tap ✅ if received</span>'}return _eh9(o)};
 
 /* ---------- long press on an order: Edit, paste a product link to fill in name / photo / price / return policy ---------- */
 function orderMenu(o){var hasIt=o.items&&o.items.length>1,pl=o.plink&&/^https?:\/\//.test(o.plink);

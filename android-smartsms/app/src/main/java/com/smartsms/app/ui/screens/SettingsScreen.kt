@@ -248,7 +248,7 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
         item {
             Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.padding(horizontal = 8.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    InfoLine(Icons.Rounded.Shield, "Your SMS are read and sorted only on this phone. Smart SMS has no internet permission and uploads nothing. Your normal SMS app keeps saving messages as before.")
+                    InfoLine(Icons.Rounded.Shield, "Your SMS are read and sorted only on this phone. Internet is used only to save backups into your own Google Drive (if you connect it) and to check for a new version. Your normal SMS app keeps saving messages as before.")
                     InfoLine(Icons.Rounded.Shield, "One-time codes are kept in their own folder and hidden until you tap. Smart SMS never copies, auto-fills or forwards a code.")
                     InfoLine(Icons.Rounded.Info, "Smart SMS ${BuildConfig.VERSION_NAME}")
                 }

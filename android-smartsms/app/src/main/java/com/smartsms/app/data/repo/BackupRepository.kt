@@ -25,24 +25,51 @@ class BackupRepository(private val db: AppDatabase) {
 
     val history: Flow<List<BackupHistoryEntity>> = db.backupHistoryDao().observeAll()
 
+    /** The whole backup as JSON text (used for files and for Google Drive). */
+    suspend fun buildJson(): Pair<String, Int> = withContext(Dispatchers.IO) {
+        val conversations = db.conversationDao().getAll()
+        val messages = db.messageDao().getAll()
+        val scheduled = db.scheduledMessageDao().getAll()
+        val transactions = db.transactionDao().getAll()
+        val root = JSONObject()
+            .put("format", "smart-sms-backup")
+            .put("version", 1)
+            .put("createdAt", System.currentTimeMillis())
+            .put("conversations", JSONArray(conversations.map { it.toJson() }))
+            .put("messages", JSONArray(messages.map { it.toJson() }))
+            .put("scheduled", JSONArray(scheduled.map { it.toJson() }))
+            .put("transactions", JSONArray(transactions.map { it.toJson() }))
+        root.toString() to (conversations.size + messages.size + scheduled.size + transactions.size)
+    }
+
+    /** Replaces chats, messages, scheduled messages and transactions with the ones in [text]. */
+    suspend fun restoreJson(text: String): Int = withContext(Dispatchers.IO) {
+        val root = JSONObject(text)
+        require(root.optString("format") == "smart-sms-backup") { "This is not a Smart SMS backup file" }
+        val conversations = root.getJSONArray("conversations").objects().map { it.toConversation() }
+        val messages = root.getJSONArray("messages").objects().map { it.toMessage() }
+        val scheduled = root.getJSONArray("scheduled").objects().map { it.toScheduled() }
+        val transactions = root.getJSONArray("transactions").objects().map { it.toTransaction() }
+        db.withTransaction {
+            db.messageDao().deleteAll()
+            db.conversationDao().deleteAll()
+            db.scheduledMessageDao().deleteAll()
+            db.transactionDao().deleteAll()
+            db.conversationDao().insertAll(conversations)
+            db.messageDao().insertAll(messages)
+            db.scheduledMessageDao().insertAll(scheduled)
+            db.transactionDao().insertAll(transactions)
+        }
+        conversations.size + messages.size + scheduled.size + transactions.size
+    }
+
     suspend fun export(resolver: ContentResolver, uri: Uri): Result<Int> = withContext(Dispatchers.IO) {
         val name = displayName(resolver, uri)
         runCatching {
-            val conversations = db.conversationDao().getAll()
-            val messages = db.messageDao().getAll()
-            val scheduled = db.scheduledMessageDao().getAll()
-            val transactions = db.transactionDao().getAll()
-            val root = JSONObject()
-                .put("format", "smart-sms-backup")
-                .put("version", 1)
-                .put("createdAt", System.currentTimeMillis())
-                .put("conversations", JSONArray(conversations.map { it.toJson() }))
-                .put("messages", JSONArray(messages.map { it.toJson() }))
-                .put("scheduled", JSONArray(scheduled.map { it.toJson() }))
-                .put("transactions", JSONArray(transactions.map { it.toJson() }))
-            resolver.openOutputStream(uri, "wt")?.use { it.write(root.toString(2).toByteArray()) }
+            val (json, n) = buildJson()
+            resolver.openOutputStream(uri, "wt")?.use { it.write(json.toByteArray()) }
                 ?: error("Could not open the chosen file")
-            conversations.size + messages.size + scheduled.size + transactions.size
+            n
         }.also { log("EXPORT", name, it) }
     }
 
@@ -51,27 +78,11 @@ class BackupRepository(private val db: AppDatabase) {
         runCatching {
             val text = resolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
                 ?: error("Could not open the chosen file")
-            val root = JSONObject(text)
-            require(root.optString("format") == "smart-sms-backup") { "This is not a Smart SMS backup file" }
-            val conversations = root.getJSONArray("conversations").objects().map { it.toConversation() }
-            val messages = root.getJSONArray("messages").objects().map { it.toMessage() }
-            val scheduled = root.getJSONArray("scheduled").objects().map { it.toScheduled() }
-            val transactions = root.getJSONArray("transactions").objects().map { it.toTransaction() }
-            db.withTransaction {
-                db.messageDao().deleteAll()
-                db.conversationDao().deleteAll()
-                db.scheduledMessageDao().deleteAll()
-                db.transactionDao().deleteAll()
-                db.conversationDao().insertAll(conversations)
-                db.messageDao().insertAll(messages)
-                db.scheduledMessageDao().insertAll(scheduled)
-                db.transactionDao().insertAll(transactions)
-            }
-            conversations.size + messages.size + scheduled.size + transactions.size
+            restoreJson(text)
         }.also { log("IMPORT", name, it) }
     }
 
-    private suspend fun log(kind: String, file: String, result: Result<Int>) {
+    suspend fun log(kind: String, file: String, result: Result<Int>) {
         db.backupHistoryDao().insert(
             BackupHistoryEntity(
                 timestamp = System.currentTimeMillis(),

@@ -13,6 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DIARY_KEY_PASS: ${{ secrets.DIARY_KEY_PASS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -23,11 +25,16 @@ jobs:
       - name: Run unit tests
         working-directory: android-smartsms
         run: gradle testDebugUnitTest --no-daemon --stacktrace
-      - name: Build the APK
+      - name: Build the APK and the Play Store bundle (signed with the upload key)
         working-directory: android-smartsms
-        run: gradle assembleDebug --no-daemon --stacktrace
-      - name: Name the file
-        run: cp android-smartsms/app/build/outputs/apk/debug/app-debug.apk Smart-SMS.apk
+        run: gradle assembleRelease bundleRelease --no-daemon --stacktrace
+      - name: Name the files
+        run: |
+          cp android-smartsms/app/build/outputs/apk/release/app-release.apk Smart-SMS.apk
+          cp android-smartsms/app/build/outputs/bundle/release/app-release.aab Smart-SMS-PlayStore.aab
+          echo "VERSION_CODE=$(grep -o 'versionCode = [0-9]*' android-smartsms/app/build.gradle.kts | grep -o '[0-9]*')" >> $GITHUB_ENV
+      - name: Show the signing fingerprint (needed once for Google Drive sign-in)
+        run: keytool -list -v -keystore android-diary/upload.keystore -storetype pkcs12 -storepass "$DIARY_KEY_PASS" -alias upload | grep -E "SHA1:" || true
       - uses: actions/upload-artifact@v4
         with: { name: Smart-SMS-app, path: Smart-SMS.apk, retention-days: 30 }
       - name: Upload test reports
@@ -42,8 +49,11 @@ jobs:
           body: |
             Build ${{ github.run_number }}.
             Smart-SMS.apk: open it on your phone to install. It installs over the old one, nothing is lost.
-            Phase 1 preview: all messages in it are sample (DEMO) data, it reads no real SMS yet.
-          files: Smart-SMS.apk
+            Smart-SMS-PlayStore.aab: for Google Play Console.
+            versionCode: ${{ env.VERSION_CODE }}
+          files: |
+            Smart-SMS.apk
+            Smart-SMS-PlayStore.aab
           make_latest: false
 
   # Opens the app on an Android emulator, visits the main screens, saves screenshots

@@ -25,6 +25,7 @@ import com.smartsms.app.data.db.UserSettingsEntity
 import com.smartsms.app.sms.Notify
 import com.smartsms.app.sms.Prefs
 import com.smartsms.app.ui.components.LocalAuth
+import com.smartsms.app.ui.components.UpdatePill
 import com.smartsms.app.ui.components.toColor
 import com.smartsms.app.ui.nav.SmartSmsNavHost
 import com.smartsms.app.ui.screens.LockScreen
@@ -48,6 +49,7 @@ class MainActivity : FragmentActivity() {
             val settings by appVm.settings.collectAsStateWithLifecycle()
             val themes by appVm.themes.collectAsStateWithLifecycle()
             val locked by container().locked.collectAsStateWithLifecycle()
+            val update by container().updateAvailable.collectAsStateWithLifecycle()
             val s = settings ?: UserSettingsEntity()
             val theme = themes.firstOrNull { it.id == s.themeId } ?: themes.firstOrNull()
             SmartSmsTheme(
@@ -59,6 +61,7 @@ class MainActivity : FragmentActivity() {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         Box {
                             SmartSmsNavHost(onRetryInit = appVm::retryInit, openRequests = container().openConversation)
+                            if (update && !locked) UpdatePill(onClose = { container().updateAvailable.value = false })
                             if (locked) LockScreen(onUnlock = { authenticate("Unlock Smart SMS") { container().locked.value = false } })
                         }
                     }
@@ -75,7 +78,10 @@ class MainActivity : FragmentActivity() {
     /** Coming back to the app always checks for SMS that arrived meanwhile. */
     override fun onResume() {
         super.onResume()
-        if (container().ready.value == DbState.Ready) container().onSmsAccessChanged()
+        if (container().ready.value == DbState.Ready) {
+            container().onSmsAccessChanged()
+            container().checkForUpdate()
+        }
     }
 
     override fun onStop() {

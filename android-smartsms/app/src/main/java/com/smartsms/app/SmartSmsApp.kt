@@ -58,6 +58,7 @@ class AppContainer(app: Application) {
                 runCatching { ScheduleAlarms.rescheduleAll(appContext, database) }
                 runCatching { com.smartsms.app.sms.ReminderAlarms.rescheduleAll(appContext, database) }
                 onSmsAccessChanged()
+                checkForUpdate()
             }
         }
     }
@@ -70,6 +71,12 @@ class AppContainer(app: Application) {
     val otpUnlockedUntil = MutableStateFlow(0L)
     fun otpOpen(): Boolean = !com.smartsms.app.sms.Prefs.otpLock(appContext) || System.currentTimeMillis() < otpUnlockedUntil.value
     fun unlockOtp() { otpUnlockedUntil.value = System.currentTimeMillis() + 5 * 60_000L }
+
+    /** True when GitHub has a newer Smart SMS than this one (shows the "Update Available" bar). */
+    val updateAvailable = MutableStateFlow(false)
+    fun checkForUpdate() {
+        appScope.launch { if (com.smartsms.app.sms.UpdateCheck.newerAvailable(appContext)) updateAvailable.value = true }
+    }
 
     /** Set when a notification is tapped; the navigation opens that chat. */
     val openConversation = MutableStateFlow<Long?>(null)

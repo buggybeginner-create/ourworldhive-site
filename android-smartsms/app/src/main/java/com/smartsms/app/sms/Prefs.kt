@@ -13,6 +13,18 @@ object Prefs {
     fun otpLock(ctx: Context) = sp(ctx).getBoolean("otpLock", false)
     fun setOtpLock(ctx: Context, on: Boolean) = sp(ctx).edit().putBoolean("otpLock", on).apply()
 
+    fun driveEmail(ctx: Context): String? = sp(ctx).getString("driveEmail", null)
+    fun setDriveEmail(ctx: Context, email: String?) = sp(ctx).edit().putString("driveEmail", email).apply()
+    fun driveLast(ctx: Context) = sp(ctx).getLong("driveLast", 0L)
+    fun setDriveLast(ctx: Context, t: Long) = sp(ctx).edit().putLong("driveLast", t).apply()
+    fun driveAuto(ctx: Context) = sp(ctx).getInt("driveAuto", 0)
+    fun setDriveAuto(ctx: Context, days: Int) = sp(ctx).edit().putInt("driveAuto", days).apply()
+    fun updateCheckedAt(ctx: Context) = sp(ctx).getLong("updateCheckedAt", 0L)
+    fun setUpdateCheckedAt(ctx: Context, t: Long) = sp(ctx).edit().putLong("updateCheckedAt", t).apply()
+
+    fun remoteVersion(ctx: Context) = sp(ctx).getInt("remoteVersion", 0)
+    fun setRemoteVersion(ctx: Context, v: Int) = sp(ctx).edit().putInt("remoteVersion", v).apply()
+
     private val DEFAULT_REPLIES = listOf("Call you later", "On the way", "I'm in a meeting", "OK, thanks!", "Will call you back")
 
     fun quickReplies(ctx: Context): List<String> {

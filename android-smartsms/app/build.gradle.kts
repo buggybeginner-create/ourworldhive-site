@@ -13,13 +13,26 @@ android {
         applicationId = "com.smartsms.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "0.4.0"
         vectorDrawables { useSupportLibrary = true }
+    }
+
+    signingConfigs {
+        // Same upload key as the other DukeKrrish apps; its password lives only in the GitHub secret DIARY_KEY_PASS.
+        create("upload") {
+            storeFile = file("../../android-diary/upload.keystore")
+            storePassword = System.getenv("DIARY_KEY_PASS") ?: ""
+            keyAlias = "upload"
+            keyPassword = System.getenv("DIARY_KEY_PASS") ?: ""
+            storeType = "pkcs12"
+        }
     }
 
     buildTypes {
         release {
+            // A fixed key, so every new APK installs over the old one (and Google sign-in knows the app).
+            signingConfig = if (System.getenv("DIARY_KEY_PASS").isNullOrEmpty()) signingConfigs.getByName("debug") else signingConfigs.getByName("upload")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -71,6 +84,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

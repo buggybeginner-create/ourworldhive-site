@@ -2,12 +2,15 @@
 <!--
   Phase 2: reads SMS (READ_SMS, RECEIVE_SMS), sends replies and scheduled messages (SEND_SMS).
   Smart SMS is NOT the default SMS app: the phone's normal SMS app keeps saving every SMS and MMS,
-  so nothing can be lost. No INTERNET permission: messages never leave the phone.
+  so nothing can be lost. INTERNET is used only for the user's own Google Drive backup (when they
+  connect it) and to check GitHub for a newer version.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />

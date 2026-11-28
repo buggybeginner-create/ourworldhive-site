@@ -34,10 +34,12 @@ shot 01-inbox-real-sms
 echo "--- phone SMS store:"; adb shell content query --uri content://sms --projection _id,address,type,body 2>&1 | head -10
 echo "--- default SMS app:"; adb shell settings get secure sms_default_application
 echo "--- app log:"; adb logcat -d | grep -i -E "smartsms|SQLite|Room|SecurityException" | tail -20
+tap_text "Messages"
 dump
 echo "--- texts on screen:"; grep -o 'text="[^"]\{3,80\}"' ui.xml | head -40
 if grep -q "dinner at 8" ui.xml; then echo "CHECK OK: received SMS is shown"; else echo "CHECK FAILED: received SMS not shown"; fail=1; fi
 
+shot 01b-messages-real
 tap_text "Hello from the smoke test, dinner at 8?" && shot 02-conversation
 dump
 eb=$(grep -o 'class="android.widget.EditText"[^>]*bounds="\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]"' ui.xml | head -1 | grep -o '\[[0-9]*,[0-9]*\]\[[0-9]*,[0-9]*\]')

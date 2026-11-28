@@ -31,7 +31,11 @@ tap_text() {
 }
 
 shot 01-inbox-real-sms
+echo "--- phone SMS store:"; adb shell content query --uri content://sms --projection _id,address,type,body 2>&1 | head -10
+echo "--- default SMS app:"; adb shell settings get secure sms_default_application
+echo "--- app log:"; adb logcat -d | grep -i -E "smartsms|SQLite|Room|SecurityException" | tail -20
 dump
+echo "--- texts on screen:"; grep -o 'text="[^"]\{3,80\}"' ui.xml | head -40
 if grep -q "dinner at 8" ui.xml; then echo "CHECK OK: received SMS is shown"; else echo "CHECK FAILED: received SMS not shown"; fail=1; fi
 
 tap_text "Hello from the smoke test, dinner at 8?" && shot 02-conversation
@@ -64,6 +68,7 @@ tap_text "Finance" && shot 06-finance
 tap_text "Settings" && shot 07-settings
 tap_text "Theme &amp; Colours" && shot 08-themes
 adb shell input keyevent 4; sleep 1
+adb shell input swipe 540 1700 540 700 300; sleep 1
 tap_text "Scheduled Messages" && shot 09-scheduled
 adb shell input keyevent 4; sleep 1
 tap_text "Inbox"

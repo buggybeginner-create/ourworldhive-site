@@ -336,28 +336,28 @@ var FIXED=[
 ];
 /* state festivals: L=[m,t,at] lunar, S=[k,shift] solar (shift 'n' = next day, Bengal/Assam style), F='MM-DD' fixed, K=[k,nak] solar month + nakshatra at sunrise */
 var STATES={
- OD:['Odisha','ओडिशा',[['Snana Purnima','स्नान पूर्णिमा','💧',{L:[2,15,'sr']}],['Bahuda Yatra','बाहुड़ा यात्रा','🛕',{L:[3,10,'sr']}],['Nuakhai','नुआखाई','🌾',{L:[5,5,'sr']}],['Kumar Purnima','कुमार पूर्णिमा','🌕',{L:[6,15,'pr']}],['Boita Bandana','बोइत बंदाण','⛵',{L:[7,15,'sr']}],['Prathamastami','प्रथमाष्टमी','🍃',{L:[7,23,'sr']}],['Dola Purnima','दोल पूर्णिमा','🎨',{L:[11,15,'sr']}],['Pana Sankranti','पणा संक्रांति','🥤',{S:[0,0]}],['Raja Sankranti','रज संक्रांति','🌧️',{S:[2,0]}],['Tula Sankranti','तुला संक्रांति','🌾',{S:[6,0]}],['Utkal Divas','उत्कल दिवस','🌺',{F:'04-01'}]]],
+ OD:['Odisha','ओडिशा',[['Snana Purnima','स्नान पूर्णिमा','💧',{L:[2,15,'sr']}],['Bahuda Yatra','बाहुड़ा यात्रा','🛕',{L:[3,10,'sr']}],['Nuakhai','नुआखाई','🌾',{L:[5,5,'sr']}],['Kumar Purnima','कुमार पूर्णिमा','🌕',{L:[6,15,'pr']}],['Boita Bandana','बोइत बंदाण','⛵',{L:[7,15,'sr']}],['Prathamastami','प्रथमाष्टमी','🍃',{L:[7,23,'sr']}],['Dola Purnima','दोल पूर्णिमा','🎨',{L:[11,15,'sr']}],['Pana Sankranti','पणा संक्रांति','🥤',{S:[0,0]}],['Raja Sankranti','रज संक्रांति','🌧️',{S:[2,0]}],['Tula Sankranti','तुला संक्रांति','🌾',{S:[6,0]}],['Utkal Divas','उत्कल दिवस','🌺',{F:'04-01'}],['Manabasa Gurubar','माणबसा गुरुबार','🪷',{W:[8,4,'p'],P:'pali'}],['Khudurukuni Osha','खुदुरुकुणी ओषा','🌸',{W:[5,0,'p'],P:'pali'}]]],
  WB:['West Bengal','पश्चिम बंगाल',[['Durga Puja (Saptami)','दुर्गा पूजा सप्तमी','🔱',{L:[6,7,'sr']}],['Kali Puja','काली पूजा','🌺',{L:[6,30,'ni']}],['Kojagari Lakshmi Puja','कोजागरी लक्ष्मी पूजा','🪷',{L:[6,15,'ni']}],['Jamai Sasthi','जमाई षष्ठी','🍛',{L:[2,6,'sr']}],['Saraswati Puja','सरस्वती पूजा','📚',{L:[10,5,'sr']}],['Poila Boishakh','पोइला बोइशाख','🎊',{S:[0,'n']}],['Netaji Jayanti','नेताजी जयंती','🇮🇳',{F:'01-23'}],['Rabindra Jayanti','रवींद्र जयंती','📖',{F:'05-09'}]]],
  AS:['Assam','असम',[['Bohag Bihu','बोहाग बिहू','🥁',{S:[0,'n']}],['Magh Bihu','माघ बिहू','🔥',{S:[9,'n']}],['Kati Bihu','काती बिहू','🪔',{S:[6,'n']}]]],
- BR:['Bihar','बिहार',[['Chaiti Chhath','चैती छठ','🌅',{L:[0,6,'sr']}],['Jitiya','जितिया','🙏',{L:[5,23,'sr']}],['Bihar Diwas','बिहार दिवस','🏛️',{F:'03-22'}]]],
- JH:['Jharkhand','झारखंड',[['Sarhul','सरहुल','🌸',{L:[0,3,'sr']}],['Karma Puja','करमा पूजा','🌿',{L:[5,11,'sr']}],['Jitiya','जितिया','🙏',{L:[5,23,'sr']}],['Jharkhand Foundation Day','झारखंड स्थापना दिवस','🏛️',{F:'11-15'}]]],
- UP:['Uttar Pradesh','उत्तर प्रदेश',[['Ganga Dussehra','गंगा दशहरा','🌊',{L:[2,10,'sr']}],['Kajari Teej','कजरी तीज','🌿',{L:[4,18,'sr']}],['Dev Deepawali','देव दीपावली','🪔',{L:[7,15,'pr']}],['UP Diwas','उत्तर प्रदेश दिवस','🏛️',{F:'01-24'}]]],
- UK:['Uttarakhand','उत्तराखंड',[['Harela','हरेला','🌱',{S:[3,0]}],['Uttarayani / Ghughutiya','उत्तरायणी','🪁',{S:[9,0]}],['Uttarakhand Foundation Day','उत्तराखंड स्थापना दिवस','🏛️',{F:'11-09'}]]],
- HP:['Himachal Pradesh','हिमाचल प्रदेश',[['Himachal Day','हिमाचल दिवस','🏔️',{F:'04-15'}]]],
- PB:['Punjab','पंजाब',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Maghi','माघी','🙏',{S:[9,0]}],['Baisakhi','बैसाखी','🌾',{S:[0,0]}]]],
- HR:['Haryana','हरियाणा',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}],['Baisakhi','बैसाखी','🌾',{S:[0,0]}],['Haryana Day','हरियाणा दिवस','🏛️',{F:'11-01'}]]],
- DL:['Delhi','दिल्ली',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}]]],
- RJ:['Rajasthan','राजस्थान',[['Gangaur','गणगौर','🌺',{L:[0,3,'sr']}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}],['Rajasthan Day','राजस्थान दिवस','🏰',{F:'03-30'}]]],
- GJ:['Gujarat','गुजरात',[['Uttarayan','उत्तरायण','🪁',{S:[9,0]}],['Bestu Varas (New Year)','बेसतु वरस','🎊',{L:[7,1,'sr']}],['Gujarat Day','गुजरात दिवस','🏛️',{F:'05-01'}]]],
- MH:['Maharashtra','महाराष्ट्र',[['Shivaji Jayanti','शिवाजी जयंती','🚩',{F:'02-19'}],['Narali Purnima','नारली पूर्णिमा','🥥',{L:[4,15,'sr']}],['Bail Pola','बैल पोला','🐂',{L:[4,30,'sr']}],['Maharashtra Day','महाराष्ट्र दिवस','🏛️',{F:'05-01'}]]],
+ BR:['Bihar','बिहार',[['Chaiti Chhath','चैती छठ','🌅',{L:[0,6,'sr']}],['Jitiya','जितिया','🙏',{L:[5,23,'sr']}],['Bihar Diwas','बिहार दिवस','🏛️',{F:'03-22'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}],['Mangala Gauri Vrat','मंगला गौरी व्रत','🌺',{W:[4,2,'p']}]]],
+ JH:['Jharkhand','झारखंड',[['Sarhul','सरहुल','🌸',{L:[0,3,'sr']}],['Karma Puja','करमा पूजा','🌿',{L:[5,11,'sr']}],['Jitiya','जितिया','🙏',{L:[5,23,'sr']}],['Jharkhand Foundation Day','झारखंड स्थापना दिवस','🏛️',{F:'11-15'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ UP:['Uttar Pradesh','उत्तर प्रदेश',[['Ganga Dussehra','गंगा दशहरा','🌊',{L:[2,10,'sr']}],['Kajari Teej','कजरी तीज','🌿',{L:[4,18,'sr']}],['Dev Deepawali','देव दीपावली','🪔',{L:[7,15,'pr']}],['UP Diwas','उत्तर प्रदेश दिवस','🏛️',{F:'01-24'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}],['Mangala Gauri Vrat','मंगला गौरी व्रत','🌺',{W:[4,2,'p']}]]],
+ UK:['Uttarakhand','उत्तराखंड',[['Harela','हरेला','🌱',{S:[3,0]}],['Uttarayani / Ghughutiya','उत्तरायणी','🪁',{S:[9,0]}],['Uttarakhand Foundation Day','उत्तराखंड स्थापना दिवस','🏛️',{F:'11-09'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ HP:['Himachal Pradesh','हिमाचल प्रदेश',[['Himachal Day','हिमाचल दिवस','🏔️',{F:'04-15'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ PB:['Punjab','पंजाब',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Maghi','माघी','🙏',{S:[9,0]}],['Baisakhi','बैसाखी','🌾',{S:[0,0]}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ HR:['Haryana','हरियाणा',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}],['Baisakhi','बैसाखी','🌾',{S:[0,0]}],['Haryana Day','हरियाणा दिवस','🏛️',{F:'11-01'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ DL:['Delhi','दिल्ली',[['Lohri','लोहड़ी','🔥',{F:'01-13'}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ RJ:['Rajasthan','राजस्थान',[['Gangaur','गणगौर','🌺',{L:[0,3,'sr']}],['Hariyali Teej','हरियाली तीज','🌿',{L:[4,3,'sr']}],['Rajasthan Day','राजस्थान दिवस','🏰',{F:'03-30'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}],['Mangala Gauri Vrat','मंगला गौरी व्रत','🌺',{W:[4,2,'p']}]]],
+ GJ:['Gujarat','गुजरात',[['Uttarayan','उत्तरायण','🪁',{S:[9,0]}],['Bestu Varas (New Year)','बेसतु वरस','🎊',{L:[7,1,'sr']}],['Gujarat Day','गुजरात दिवस','🏛️',{F:'05-01'}],['Shravan Somvar','श्रावण सोमवार','🔱',{W:[4,1,'a']}]]],
+ MH:['Maharashtra','महाराष्ट्र',[['Shivaji Jayanti','शिवाजी जयंती','🚩',{F:'02-19'}],['Narali Purnima','नारली पूर्णिमा','🥥',{L:[4,15,'sr']}],['Bail Pola','बैल पोला','🐂',{L:[4,30,'sr']}],['Maharashtra Day','महाराष्ट्र दिवस','🏛️',{F:'05-01'}],['Shravan Somvar','श्रावण सोमवार','🔱',{W:[4,1,'a']}],['Mangalagaur','मंगळागौर','🌺',{W:[4,2,'a']}],['Margashirsha Guruvar','मार्गशीर्ष गुरुवार','🪷',{W:[8,4,'a']}]]],
  GA:['Goa','गोवा',[['Goa Statehood Day','गोवा स्थापना दिवस','🏛️',{F:'05-30'}],['Goa Liberation Day','गोवा मुक्ति दिवस','🇮🇳',{F:'12-19'}]]],
- MP:['Madhya Pradesh','मध्य प्रदेश',[['Gangaur','गणगौर','🌺',{L:[0,3,'sr']}],['MP Foundation Day','मध्य प्रदेश स्थापना दिवस','🏛️',{F:'11-01'}]]],
- CG:['Chhattisgarh','छत्तीसगढ़',[['Hareli','हरेली','🌱',{L:[4,30,'sr']}],['Chhattisgarh Rajyotsava','छत्तीसगढ़ राज्योत्सव','🏛️',{F:'11-01'}]]],
- KA:['Karnataka','कर्नाटक',[['Gowri Habba','गौरी हब्बा','🌼',{L:[5,3,'sr']}],['Makara Sankranti','मकर संक्रांति','🍬',{S:[9,0]}],['Kannada Rajyotsava','कन्नड़ राज्योत्सव','🏛️',{F:'11-01'}]]],
+ MP:['Madhya Pradesh','मध्य प्रदेश',[['Gangaur','गणगौर','🌺',{L:[0,3,'sr']}],['MP Foundation Day','मध्य प्रदेश स्थापना दिवस','🏛️',{F:'11-01'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}],['Mangala Gauri Vrat','मंगला गौरी व्रत','🌺',{W:[4,2,'p']}]]],
+ CG:['Chhattisgarh','छत्तीसगढ़',[['Hareli','हरेली','🌱',{L:[4,30,'sr']}],['Chhattisgarh Rajyotsava','छत्तीसगढ़ राज्योत्सव','🏛️',{F:'11-01'}],['Sawan Somvar','सावन सोमवार','🔱',{W:[4,1,'p']}]]],
+ KA:['Karnataka','कर्नाटक',[['Gowri Habba','गौरी हब्बा','🌼',{L:[5,3,'sr']}],['Makara Sankranti','मकर संक्रांति','🍬',{S:[9,0]}],['Kannada Rajyotsava','कन्नड़ राज्योत्सव','🏛️',{F:'11-01'}],['Shravana Somavara','श्रावण सोमवार','🔱',{W:[4,1,'a']}]]],
  KL:['Kerala','केरल',[['Onam (Thiruvonam)','ओणम','🌼',{K:[4,21]}],['Vishu','विशु','🌼',{S:[0,0]}],['Kerala Piravi','केरल पिरवी','🏛️',{F:'11-01'}]]],
  TN:['Tamil Nadu','तमिलनाडु',[['Thai Pongal','थाई पोंगल','🍚',{S:[9,0]}],['Mattu Pongal','मट्टू पोंगल','🐄',{S:[9,1]}],['Puthandu (Tamil New Year)','पुथांडु','🎊',{S:[0,0]}],['Thaipusam','थाईपूसम','🔱',{K:[9,7]}],['Panguni Uthiram','पंगुनी उत्तिरम','🌸',{K:[11,11]}],['Karthigai Deepam','कार्तिगई दीपम','🪔',{K:[7,2]}]]],
- AP:['Andhra Pradesh','आंध्र प्रदेश',[['Bhogi','भोगी','🔥',{S:[9,-1]}],['Sankranti','संक्रांति','🍬',{S:[9,0]}],['AP Formation Day','आंध्र प्रदेश स्थापना दिवस','🏛️',{F:'11-01'}]]],
- TS:['Telangana','तेलंगाना',[['Bathukamma Begins','बतुकम्मा','🌸',{L:[5,30,'sr']}],['Bhogi','भोगी','🔥',{S:[9,-1]}],['Telangana Formation Day','तेलंगाना स्थापना दिवस','🏛️',{F:'06-02'}]]],
+ AP:['Andhra Pradesh','आंध्र प्रदेश',[['Bhogi','भोगी','🔥',{S:[9,-1]}],['Sankranti','संक्रांति','🍬',{S:[9,0]}],['AP Formation Day','आंध्र प्रदेश स्थापना दिवस','🏛️',{F:'11-01'}],['Karthika Somavaram','कार्तिक सोमवार','🪔',{W:[7,1,'a']}],['Margasira Lakshmi Vratam','मार्गशिर लक्ष्मी व्रत','🪷',{W:[8,4,'a']}]]],
+ TS:['Telangana','तेलंगाना',[['Bathukamma Begins','बतुकम्मा','🌸',{L:[5,30,'sr']}],['Bhogi','भोगी','🔥',{S:[9,-1]}],['Telangana Formation Day','तेलंगाना स्थापना दिवस','🏛️',{F:'06-02'}],['Karthika Somavaram','कार्तिक सोमवार','🪔',{W:[7,1,'a']}]]],
  ML:['Meghalaya','मेघालय',[['Meghalaya Day','मेघालय दिवस','🏔️',{F:'01-21'}]]],
  NE:['Nepal','नेपाल',[['Dashain (Vijaya Dashami)','दशैं','🌾',{L:[6,10,'ap']}],['Tihar (Bhai Tika)','तिहार','🪔',{L:[7,2,'sr']}]]]
 };
@@ -376,14 +376,19 @@ function refTime(o,at,loc){var dl=o.ss-o.sr;
  if(at=='sr')return o.sr+60000;if(at=='md')return o.sr+dl*0.5;if(at=='ap')return o.sr+dl*0.7;if(at=='pr')return o.ss+45*60000;
  if(at=='ni')return (o.ss+o.nsr)/2;if(at=='mr'){var r=PE.moonrise(o.y,o.m,o.d,loc);return r==null?o.ss+2.5*3600000:r}return o.sr}
 /* list all occurrences in [y0-01-01, y1-12-31] */
-function build(y0,y1,loc,opt){opt=opt||{};var out=[],cand={},start=Date.UTC(y0,0,1),end=Date.UTC(y1,11,31),SL=[],SS=[],SF=[],SK=[],sts=[].concat(opt.st||[]);
- sts.forEach(function(sc){var st=STATES[sc];if(st)st[2].forEach(function(x,i){var b={id:'st_'+sc+i,n:x[0],h:x[1],e:x[2],c:'state',sn:st[0],shn:st[1]},r=x[3];if(r.L){b.m=r.L[0];b.t=r.L[1];b.at=r.L[2];SL.push(b)}if(r.S){b.k=r.S[0];b.sh=r.S[1];SS.push(b)}if(r.F){b.md=r.F;SF.push(b)}if(r.K){b.k=r.K[0];b.nk=r.K[1];SK.push(b)}})});
+function build(y0,y1,loc,opt){opt=opt||{};var out=[],cand={},start=Date.UTC(y0,0,1),end=Date.UTC(y1,11,31),SL=[],SS=[],SF=[],SK=[],SW=[],sts=[].concat(opt.st||[]);
+ sts.forEach(function(sc){var st=STATES[sc];if(st)st[2].forEach(function(x,i){var b={id:'st_'+sc+i,n:x[0],h:x[1],e:x[2],c:'state',sn:st[0],shn:st[1]},r=x[3];if(r.L){b.m=r.L[0];b.t=r.L[1];b.at=r.L[2];SL.push(b)}if(r.S){b.k=r.S[0];b.sh=r.S[1];SS.push(b)}if(r.F){b.md=r.F;SF.push(b)}if(r.K){b.k=r.K[0];b.nk=r.K[1];SK.push(b)}if(r.W){b.wm=r.W[0];b.wd=r.W[1];b.ws=r.W[2];b.pl=r.P;SW.push(b)}})});
  var ALL=RULES.concat(SL),kseen={};
  /* lunar rules: scan days, tithi at reference */
  for(var ms=start-5*86400000;ms<=end+5*86400000;ms+=86400000){var dt=new Date(ms),y=dt.getUTCFullYear(),m=dt.getUTCMonth(),d=dt.getUTCDate(),o=day(y,m,d,loc);
   var tSr=o.t,tNext=PE.tithiAt(o.nsr);
   /* tithis touching this civil day (sunrise to next sunrise) */
   var touch={};var t=tSr;touch[t]=1;if(tNext!=t){touch[(t+1)%30]=1;touch[tNext]=1}
+  /* weekly days of a lunar month (Manabasa Gurubar, Sawan Somvar...): 'p' purnimanta month, 'a' amanta month; numbered 1st, 2nd... */
+  if(SW.length){var wdy=new Date(Date.UTC(y,m,d)).getUTCDay(),mOf=function(oo,ws){var am=oo.ms.m;return ws=='a'?am:(oo.t>=15?(am+1)%12:am)};
+   SW.forEach(function(r){if(wdy!=r.wd||o.ms.adhik||mOf(o,r.ws)!=r.wm)return;var cnt=1;for(var q=1;q<6;q++){var z=new Date(Date.UTC(y,m,d-7*q)),oz=day(z.getUTCFullYear(),z.getUTCMonth(),z.getUTCDate(),loc);if(oz.ms.adhik||mOf(oz,r.ws)!=r.wm)break;cnt++}
+    var PL=r.pl=='pali'?['Pratham Pali','Dwitiya Pali','Trutiya Pali','Chaturtha Pali','Pancham Pali']:['1st','2nd','3rd','4th','5th'],PH=r.pl=='pali'?['प्रथम पाली','द्वितीय पाली','तृतीय पाली','चतुर्थ पाली','पंचम पाली']:['पहला','दूसरा','तीसरा','चौथा','पाँचवाँ'];
+    cand[r.id+'@'+o.k]={pri:2,r:{id:r.id,n:r.n+' · '+PL[cnt-1],h:r.h+' · '+PH[cnt-1],e:r.e,c:'state',sn:r.sn,shn:r.shn},o:o}})}
   SK.forEach(function(r){var ky=r.id+'@'+y+'_'+r.k;if(kseen[ky])return;if(PE.sunRashi(o.sr)==r.k&&PE.nakAt(o.sr)==r.nk){kseen[ky]=1;cand[ky]={pri:2,r:r,o:o}}});
   for(var i=0;i<ALL.length;i++){var r=ALL[i],tt=r.t-1,ok=false;if(!touch[tt])continue;
    var rt=refTime(o,r.at,loc),hit=PE.tithiAt(rt)==tt,tm=hit?rt:(tSr==tt?o.sr+60000:PE.tithiEnd(o.sr)+60000),ms2=PE.masa(tm);if(ms2.m!=r.m||ms2.adhik)continue;
@@ -564,7 +569,7 @@ CITIES.sort(function(x,y){return x[0]<y[0]?-1:1});
 var LS={get:function(k,d){try{var v=localStorage.getItem('hc_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{localStorage.setItem('hc_'+k,JSON.stringify(v))}catch(e){}}};
 var S={loc:LS.get('loc',{n:'New Delhi',lat:28.6139,lon:77.209,tz:5.5}),sys:LS.get('sys','purnimanta'),lang:LS.get('lang','en'),ui:LS.get('ui',LS.get('lang','en')=='hi'?'hi':'en'),theme:LS.get('theme','saffron'),font:LS.get('font','system'),fs:LS.get('fs','m'),col:LS.get('col',{}),
  cats:LS.get('cats',{major:1,vrat:1,state:1,national:1,mine:1}),cd:LS.get('cd',[]),ev:LS.get('ev',[]),
- rem:LS.get('rem',{on:1,before:1,bt:'20:00',same:1,st:'06:00',cats:{major:1,state:1,cd:1,mine:1}}),phone:LS.get('phone',0),st:LS.get('st','auto'),kd:LS.get('kd',[]),kst:LS.get('kst','north'),rec:LS.get('rec',''),kty:LS.get('kty','d1'),upd:LS.get('upd',0),wasIn:LS.get('wasIn',0)};
+ rf:LS.get('rf',{on:0,t:'07:00'}),rem:LS.get('rem',{on:1,before:1,bt:'20:00',same:1,st:'06:00',cats:{major:1,state:1,cd:1,mine:1}}),phone:LS.get('phone',0),st:LS.get('st','auto'),kd:LS.get('kd',[]),kst:LS.get('kst','north'),rec:LS.get('rec',''),kty:LS.get('kty','d1'),upd:LS.get('upd',0),wasIn:LS.get('wasIn',0)};
 function save(k){LS.set(k,S[k]);if(['cd','ev','sys','lang','cats','rem','loc','theme','font','fs','col','st','kd','kst','rec'].indexOf(k)>=0){S.upd=Date.now();LS.set('upd',S.upd);cloudSave()}if(['cd','ev','lang','sys','loc','cats','rem','theme','col','st'].indexOf(k)>=0)pushNative()}
 var T=function(){return S.lang=='en'?N.en:(N[S.lang]||mkLang(S.lang))};
 if(S.cats.odisha!=null&&S.cats.state==null){S.cats.state=S.cats.odisha;delete S.cats.odisha}if(S.cats.state==null)S.cats.state=1;if(S.rem.cats.odisha!=null){S.rem.cats.state=S.rem.cats.odisha;delete S.rem.cats.odisha}if(S.col&&S.col.odisha){S.col.state=S.col.odisha;delete S.col.odisha}
@@ -680,8 +685,24 @@ function evTithiDates(e,y){var ck=e.id+'|'+y+'|'+S.loc.lat+S.loc.lon;if(TC[ck])r
  [y-1,y,y+1].forEach(function(Y){var d=tithiNear(Y,md,e.tt,e.tm);if(d&&+d.slice(0,4)==y&&d>=e.d&&out.indexOf(d)<0)out.push(d)});
  return (TC[ck]=out)}
 function evMasa(t,m){if(S.sys=='purnimanta'&&t>=15)m=(m+1)%12;return T().masa[m]}
-function evRepTxt(e){if(e.yr==2)return ' · every year on '+tLong(e.tt)+', '+evMasa(e.tt,e.tm);return e.yr?' · every year':''}
-function evOn(y){var out=[];S.ev.forEach(function(e){var a=pk(e.d);if(e.yr==2&&e.tt!=null){if(a[0]<=y)evTithiDates(e,y).forEach(function(d){out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:d,uid:'my_'+e.id+'_'+d.slice(0,4),mine:e.id})})}else if(e.yr){if(a[0]<=y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:y+e.d.slice(4),uid:'my_'+e.id+'_'+y,mine:e.id})}else if(a[0]==y)out.push({id:'my_'+e.id,n:e.n,h:e.n,c:'mine',e:e.e||'⭐',d:e.d,uid:'my_'+e.id+'_'+e.d,mine:e.id})});return out}
+var WDS=[['Sun','रवि'],['Mon','सोम'],['Tue','मंगल'],['Wed','बुध'],['Thu','गुरु'],['Fri','शुक्र'],['Sat','शनि']];
+function evLen(e){return e.ed&&e.ed>e.d?Math.min(60,daysBetween(e.d,e.ed)+1):1}
+function evRepTxt(e){var t=+(e.yr||0),L=evLen(e),u=e.u?LH(' till ',' ')+dShort(e.u)+' '+e.u.slice(0,4)+LH('',' तक'):'',sp=L>1?LH(' · '+L+' days',' · '+L+' दिन'):'';
+ var x=t==1?LH(' · every year (same date)',' · हर साल (वही तारीख)'):t==2&&e.tt!=null?LH(' · every year on ',' · हर साल ')+tLong(e.tt)+', '+evMasa(e.tt,e.tm):t==3&&e.tt!=null?LH(' · every month on ',' · हर महीने ')+tLong(e.tt):t==5?LH(' · every month on day ',' · हर महीने तारीख ')+(+e.d.slice(8)):t==4?LH(' · every week: ',' · हर सप्ताह: ')+(e.wk&&e.wk.length?e.wk:[new Date(e.d+'T00:00:00Z').getUTCDay()]).map(function(w){return LH(WDS[w][0],WDS[w][1])}).join(', '):'';return sp+x+u}
+/* start dates of an event between keys a and b */
+function evStarts(e,a,b){var t=+(e.yr||0),out=[],lo=a<e.d?e.d:a,hi=e.u&&e.u<b?e.u:b;if(lo>hi)return out;var y0=+lo.slice(0,4),y1=+hi.slice(0,4),ok=function(k){if(k>=lo&&k<=hi&&out.indexOf(k)<0)out.push(k)},valid=function(k){var q=pk(k);return key(q[0],q[1],q[2])==k};
+ if(t==0)ok(e.d);
+ else if(t==1){for(var Y=y0;Y<=y1;Y++){var k=Y+e.d.slice(4);if(valid(k))ok(k)}}
+ else if(t==2&&e.tt!=null){for(var Y2=y0-1;Y2<=y1;Y2++){var d2=tithiNear(Y2,e.d.slice(4),e.tt,e.tm);if(d2)ok(d2)}}
+ else if(t==5){var q=pk(lo);for(var mm=0;mm<200;mm++){var z=new Date(Date.UTC(q[0],q[1]+mm,1)),k5=key(z.getUTCFullYear(),z.getUTCMonth(),+e.d.slice(8));if(k5.slice(0,7)>hi.slice(0,7))break;if(valid(k5))ok(k5)}}
+ else if(t==3||t==4){var wk=e.wk&&e.wk.length?e.wk:[new Date(Date.UTC.apply(null,pk(e.d))).getUTCDay()],c=pk(lo),prev=null;var pz=addD(c[0],c[1],c[2],-1);if(t==3)prev=FE.day(pz[0],pz[1],pz[2],L()).t;
+  for(var n=0;n<800;n++){var z2=addD(c[0],c[1],c[2],n),k2=key(z2[0],z2[1],z2[2]);if(k2>hi)break;
+   if(t==4){if(wk.indexOf(new Date(Date.UTC(z2[0],z2[1],z2[2])).getUTCDay())>=0)ok(k2)}
+   else{var ti=FE.day(z2[0],z2[1],z2[2],L()).t;if(ti==e.tt&&prev!=e.tt)ok(k2);else if(prev==(e.tt+29)%30&&ti==(e.tt+1)%30)ok(k2);prev=ti}}}
+ out.sort();return out}
+function evOn(y){var out=[],lc=S.loc.lat+','+S.loc.lon;S.ev.forEach(function(e){var t=+(e.yr||0);if(t==2&&e.tt==null)t=1;var L=evLen(e),ck=e.id+'|'+y+'|'+lc+'|'+JSON.stringify(e);if(!TC[ck]){var a0=pk(key(y,0,1)),a=addD(a0[0],a0[1],a0[2],-(L-1));TC[ck]=evStarts(e,key(a[0],a[1],a[2]),key(y,11,31))}
+  TC[ck].forEach(function(st){var base='my_'+e.id+'_'+(t==1||t==2?st.slice(0,4):st),q=pk(st);for(var i=0;i<L;i++){var z=addD(q[0],q[1],q[2],i),k=key(z[0],z[1],z[2]);if(+k.slice(0,4)!=y)continue;
+   var nm=L>1?e.n+' ('+LH('day ','दिन ')+(i+1)+'/'+L+')':e.n;out.push({id:'my_'+e.id,n:nm,h:nm,c:'mine',e:e.e||'⭐',d:k,uid:i?base+'_d'+(i+1):base,mine:e.id,sub:i>0})}})});return out}
 function festMap(y){var m={};festYear(y).concat(evOn(y)).forEach(function(f){if(!S.cats[f.c])return;(m[f.d]=m[f.d]||[]).push(f)});return m}
 var RANK={mine:0,major:1,state:2,national:3,vrat:4};
 function festOn(k){var y=+k.slice(0,4),m=FB[y]||(FB[y]=festMap(y));return (m[k]||[]).slice().sort(function(a,b){return RANK[a.c]-RANK[b.c]})}
@@ -691,7 +712,7 @@ function resetCache(){PC={};FB={};FY={};SOLC={};TC={};PDC={};PYC={}}
 /* ---------- countdown ---------- */
 /* countdown repeat: a passed item with rep=1 moves to its next date (festival dates change every year) */
 S.cd.forEach(function(c){if(c.fid==null)c.fid=c.uid.replace(/_\d{4}(-\d\d-\d\d)?$/,'');if(c.rep==null)c.rep=1});
-function nextOf(c,fromK){var y=+fromK.slice(0,4);for(var yy=y;yy<=y+2;yy++){var l=festYear(yy).concat(evOn(yy));for(var i=0;i<l.length;i++){var f=l[i];if(f.d>=fromK&&(f.id==c.fid||('my_'+(f.mine||''))==c.fid)&&(f.id!='ekadashi'&&f.id!='pradosh'||f.n==c.n))return f}}return null}
+function nextOf(c,fromK){var y=+fromK.slice(0,4);for(var yy=y;yy<=y+2;yy++){var l=festYear(yy).concat(evOn(yy));for(var i=0;i<l.length;i++){var f=l[i];if(f.d>=fromK&&(f.id==c.fid||('my_'+(f.mine||''))==c.fid)&&!f.sub&&(f.id!='ekadashi'&&f.id!='pradosh'||f.n==c.n))return f}}return null}
 function cdRoll(){var t=todayYMD(),tk=key(t[0],t[1],t[2]),ch=0;S.cd.forEach(function(c){if(c.rep&&c.d<tk){var f=nextOf(c,tk);if(f){c.d=f.d;c.uid=f.uid;ch=1}}});if(ch){S.cd.sort(function(a,b){return a.d<b.d?-1:1});save('cd')}}
 function inCd(uid){return S.cd.some(function(c){return c.uid==uid})}
 function toggleCd(f){if(inCd(f.uid)){S.cd=S.cd.filter(function(c){return c.uid!=f.uid});toast('Removed from countdown')}else{S.cd.push({uid:f.uid,n:f.n,h:f.h,d:f.d,e:f.e,fid:f.id=='ekadashi'||f.id=='pradosh'?f.id:(f.mine?'my_'+f.mine:f.id),rep:1});S.cd.sort(function(a,b){return a.d<b.d?-1:1});toast('Added to countdown ⏳')}save('cd');rerender()}
@@ -842,16 +863,82 @@ function cdPick(){var t=todayYMD(),tk=key(t[0],t[1],t[2]),l=upcoming(tk,80,{majo
  var draw=function(){var q=($('cpq').value||'').toLowerCase();$('cpl').innerHTML=l.filter(function(f){return !q||(f.n+' '+f.h).toLowerCase().indexOf(q)>=0}).map(function(f){return festLi(f,tk)}).join('')};$('cpq').oninput=draw;draw()}
 /* ---------- muhurat tab ---------- */
 var MV=null;
+/* ---------- muhurat: meanings shown when a period is tapped (DUKEKRRISH) ---------- */
+var CHI=[{q:'bad',lord:'su',w:['Udveg means worry. Ruled by the Sun.','उद्वेग यानी चिंता। स्वामी सूर्य।'],g:[['Government work, meeting officials','सरकारी काम, अधिकारियों से मिलना']],a:[['Starting new or auspicious work','नया या शुभ काम शुरू करना'],['Travel and big purchases','यात्रा और बड़ी खरीदारी']]},
+ {q:'mid',lord:'ve',w:['Char means moving. Ruled by Venus.','चर यानी चलायमान। स्वामी शुक्र।'],g:[['Travel and starting a journey','यात्रा और सफ़र की शुरुआत'],['Buying a vehicle, moving things','वाहन खरीदना, सामान ले जाना'],['Art, music, shopping','कला, संगीत, खरीदारी']],a:[['Work that must stay fixed (foundation, griha pravesh)','स्थायी काम (नींव, गृह प्रवेश)']]},
+ {q:'good',lord:'me',w:['Labh means gain. Ruled by Mercury.','लाभ यानी फ़ायदा। स्वामी बुध।'],g:[['Business, trade and money matters','व्यापार, लेन-देन और धन के काम'],['Study, exams, starting education','पढ़ाई, परीक्षा, विद्यारंभ'],['Signing papers and deals','कागज़ और सौदों पर हस्ताक्षर']],a:[]},
+ {q:'good',lord:'mo',w:['Amrit means nectar: the best Choghadiya. Ruled by the Moon.','अमृत: सबसे शुभ चौघड़िया। स्वामी चंद्र।'],g:[['Every good work: puja, wedding, griha pravesh','हर शुभ काम: पूजा, विवाह, गृह प्रवेश'],['New business, buying gold or property','नया व्यापार, सोना या संपत्ति खरीदना'],['Starting medicine or travel','दवा या यात्रा शुरू करना']],a:[]},
+ {q:'bad',lord:'sa',w:['Kaal means time of loss. Ruled by Saturn.','काल यानी हानि का समय। स्वामी शनि।'],g:[['Only routine or labour work, machinery','केवल रोज़ का या मेहनत का काम, मशीनरी']],a:[['Any auspicious or new work','कोई भी शुभ या नया काम'],['Money lending and investment','उधार और निवेश']]},
+ {q:'good',lord:'ju',w:['Shubh means auspicious. Ruled by Jupiter.','शुभ यानी मंगलकारी। स्वामी गुरु।'],g:[['Weddings, puja and religious work','विवाह, पूजा और धार्मिक काम'],['Education and meeting elders or guru','शिक्षा, बड़ों या गुरु से मिलना'],['Opening a shop or office','दुकान या दफ़्तर खोलना']],a:[]},
+ {q:'bad',lord:'ma',w:['Rog means illness. Ruled by Mars.','रोग यानी बीमारी। स्वामी मंगल।'],g:[['Only for disputes, court cases or fighting debts','केवल विवाद, मुकदमे या कर्ज़ से लड़ाई']],a:[['Starting anything good','कोई भी अच्छा काम शुरू करना'],['Travel, surgery and medicine start','यात्रा, ऑपरेशन और दवा की शुरुआत']]}];
+var HRI={su:{q:'mid',g:[['Government work, meeting officials or boss','सरकारी काम, अधिकारी या बॉस से मिलना'],['Job interview, applying for posts','नौकरी का इंटरव्यू, आवेदन']],a:[['Arguments with father or seniors','पिता या बड़ों से बहस']]},
+ ve:{q:'good',g:[['Love, marriage talks, family functions','प्रेम, विवाह की बात, पारिवारिक समारोह'],['Buying clothes, jewellery, vehicle','कपड़े, गहने, वाहन खरीदना'],['Art, music, beauty','कला, संगीत, सौंदर्य']],a:[]},
+ me:{q:'good',g:[['Study, writing, exams','पढ़ाई, लेखन, परीक्षा'],['Business deals, accounts, phone calls','व्यापारिक सौदे, हिसाब, फ़ोन कॉल']],a:[]},
+ mo:{q:'good',g:[['Travel, meeting people','यात्रा, लोगों से मिलना'],['Home and family work, buying silver or milk products','घर-परिवार के काम, चाँदी या दूध की चीज़ें खरीदना']],a:[['Big decisions if your mind is unsettled','मन अस्थिर हो तो बड़े फ़ैसले']]},
+ sa:{q:'bad',g:[['Labour work, iron, oil, machinery','मेहनत का काम, लोहा, तेल, मशीनरी'],['Clearing old pending work','पुराने रुके काम निपटाना']],a:[['New beginnings and auspicious work','नई शुरुआत और शुभ काम'],['Travel','यात्रा']]},
+ ju:{q:'good',g:[['Puja, religious work, meeting guru','पूजा, धार्मिक काम, गुरु से मिलना'],['Education, investment, marriage talks','शिक्षा, निवेश, विवाह की बात']],a:[]},
+ ma:{q:'bad',g:[['Property and land work, sports, exercise','संपत्ति और भूमि का काम, खेल, व्यायाम'],['Court cases and fighting disputes','मुकदमे और विवाद']],a:[['Arguments, risky driving','बहस, लापरवाही से वाहन चलाना'],['Auspicious ceremonies','शुभ संस्कार']]}};
+var HRK=['su','ve','me','mo','sa','ju','ma'];
+var FXI={rahu:{n:['Rahu Kaal','राहु काल'],q:'bad',w:['A daily period ruled by Rahu. Work started now is believed to meet obstacles.','राहु का दैनिक समय। इसमें शुरू किया काम रुकावटों में फँसता है, ऐसा माना जाता है।'],g:[['Pray to Goddess Durga or Rahu; routine work goes on','माँ दुर्गा या राहु की पूजा; रोज़ का काम चलता रहे']],a:[['Starting new work, travel, purchases, signing deals','नया काम, यात्रा, खरीदारी, सौदे पर हस्ताक्षर']]},
+ yama:{n:['Yamaganda','यमगंड'],q:'bad',w:['Period ruled by Yama (Jupiter\'s son). Not good for starting things.','यम का समय। शुरुआत के लिए अच्छा नहीं।'],g:[['Ancestor-related work, routine work','पितरों से जुड़े काम, रोज़ का काम']],a:[['New work, travel and auspicious ceremonies','नया काम, यात्रा और शुभ संस्कार']]},
+ guli:{n:['Gulika Kaal','गुलिक काल'],q:'bad',w:['Period ruled by Gulika (Saturn\'s son). Whatever is done now tends to repeat.','गुलिक (शनि पुत्र) का समय। इसमें किया काम दोहराया जाता है।'],g:[['Things you want to repeat: buying gold, investing','जो दोहराना चाहें: सोना खरीदना, निवेश']],a:[['Funerals, illness-related work, paying off debt is fine but taking a loan is not','अंतिम संस्कार; कर्ज़ लेना (चुकाना ठीक है)']]},
+ abhi:{n:['Abhijit Muhurat','अभिजीत मुहूर्त'],q:'good',w:['The 8th of 15 parts of the day, around noon. It removes many doshas.','दिन के 15 भागों में 8वाँ, दोपहर के आसपास। कई दोष दूर करता है।'],g:[['Any important work when no other muhurat is found','कोई और मुहूर्त न मिले तो कोई भी ज़रूरी काम'],['Signing, travel start, interviews','हस्ताक्षर, यात्रा की शुरुआत, इंटरव्यू']],a:[['Avoid on Wednesday (traditional)','बुधवार को टालें (परंपरा)']]},
+ brahma:{n:['Brahma Muhurta','ब्रह्म मुहूर्त'],q:'good',w:['About 96 to 48 minutes before sunrise: the time of Brahma.','सूर्योदय से लगभग 96 से 48 मिनट पहले: ब्रह्म का समय।'],g:[['Meditation, prayer, chanting','ध्यान, प्रार्थना, जाप'],['Study and yoga','पढ़ाई और योग']],a:[['Sleeping in this time (traditional)','इस समय सोना (परंपरा)']]},
+ godhuli:{n:['Godhuli Bela','गोधूलि बेला'],q:'good',w:['Twilight when cows return home: about 12 minutes either side of sunset.','जब गायें घर लौटती हैं: सूर्यास्त के आसपास लगभग 12 मिनट।'],g:[['Evening lamp and aarti, wedding phere (in many families)','संध्या दीप और आरती, विवाह के फेरे (कई परिवारों में)']],a:[['Eating and sleeping (traditional)','भोजन और सोना (परंपरा)']]},
+ bhadra:{n:['Bhadra (Vishti Karana)','भद्रा (विष्टि करण)'],q:'bad',w:['Vishti karana, called Bhadra. Auspicious work is avoided in it.','विष्टि करण, जिसे भद्रा कहते हैं। इसमें शुभ काम टाले जाते हैं।'],g:[['Fights, court cases, fire and sharp-weapon work','लड़ाई, मुकदमे, आग और धारदार औज़ार के काम']],a:[['Rakhi, Holika Dahan, weddings, griha pravesh','राखी, होलिका दहन, विवाह, गृह प्रवेश']]}};
+var LGT=[[0,3,6,9],[1,4,7,10]];
+function lgInfo(r){var t=LGT[0].indexOf(r)>=0?0:LGT[1].indexOf(r)>=0?1:2;return [{q:'mid',w:['Chara (movable) Lagna.','चर लग्न।'],g:[['Travel, vehicle, shifting, short tasks','यात्रा, वाहन, स्थानांतरण, छोटे काम']],a:[['Foundation, griha pravesh, long-term work','नींव, गृह प्रवेश, लंबे समय के काम']]},{q:'good',w:['Sthira (fixed) Lagna.','स्थिर लग्न।'],g:[['Griha pravesh, wedding, foundation, joining a job','गृह प्रवेश, विवाह, नींव, नौकरी जॉइन करना'],['Lakshmi puja (Diwali is done in Sthira Lagna)','लक्ष्मी पूजा (दिवाली स्थिर लग्न में होती है)']],a:[['Travel','यात्रा']]},{q:'good',w:['Dwiswabhava (dual) Lagna.','द्विस्वभाव लग्न।'],g:[['Study, music, learning, most good work','पढ़ाई, संगीत, सीखना, अधिकतर शुभ काम']],a:[]}][t]}
+function mWin(p){var L2=[];p.chD.concat(p.chN).forEach(function(c){if(CHI[c.i].q=='good')L2.push(c)});var bad=[p.rahu,p.yama,p.guli];
+ return L2.filter(function(c){return !bad.some(function(b){return c.s<b[1]&&c.e>b[0]})})}
+function mBhadra(p){return p.kar.filter(function(x){return x.i>0&&x.i<57&&(x.i-1)%7==6}).map(function(x){return [Math.max(x.s,p.sr),Math.min(x.e,p.nsr)]})}
+function qTag(q){return '<span class="tag" style="background:var(--'+(q=='good'?'grn':q=='bad'?'red':'gold')+')">'+(q=='good'?LH('GOOD','शुभ'):q=='bad'?LH('AVOID','त्यागें'):LH('MIXED','मिश्र'))+'</span>'}
+function mSheet(ty,ix){var a=pk(MV),p=P(a[0],a[1],a[2]),tt=T(),now=Date.now(),nm,s0,e0,inf,lord=null;
+ if(ty=='cd'||ty=='cn'){var c=(ty=='cd'?p.chD:p.chN)[ix];inf=CHI[c.i];nm=LH('Choghadiya: ','चौघड़िया: ')+tt.chog[c.i]+(ty=='cd'?LH(' (day)',' (दिन)'):LH(' (night)',' (रात)'));s0=c.s;e0=c.e;lord=inf.lord}
+ else if(ty=='hr'){var hh=p.hora[ix],k=HRK[hh.i];inf=HRI[k];inf.w=[pn(k)+' Hora: the hour ruled by '+pn(k)+'.',pn(k)+' होरा: '+pn(k)+' का घंटा।'];nm=LH('Hora: ','होरा: ')+tt.hora[hh.i];s0=hh.s;e0=hh.e;lord=k}
+ else if(ty=='lg'){var st=ix?p.lagna[ix-1].e:p.sr,lg=p.lagna[ix];inf=lgInfo(lg.i);nm=LH('Lagna: ','लग्न: ')+tt.rashi[lg.i];s0=st;e0=lg.e;lord=KD.LORD[lg.i]}
+ else if(ty=='yg'){var y=p.yogas[ix];inf={q:'good',w:[y.n+': a special yoga made by the weekday and nakshatra.',tr(y.h)+': वार और नक्षत्र से बना विशेष योग।'],g:[['New work, purchases, travel, starting medicine','नया काम, खरीदारी, यात्रा, दवा शुरू करना']].concat(/Pushya/.test(y.n)?[['Buying gold and jewellery (very lucky)','सोना और गहने खरीदना (बहुत शुभ)']]:[]),a:[]};nm=S.lang!='en'?tr(y.h):y.n;s0=y.s;e0=y.e}
+ else if(ty=='bh'){inf=FXI.bhadra;nm=LH(inf.n[0],inf.n[1]);var bb=mBhadra(p)[ix];s0=bb[0];e0=bb[1]}
+ else{inf=FXI[ty];nm=LH(inf.n[0],inf.n[1]);s0=p[ty][0];e0=p[ty][1]}
+ var on=now>=s0&&now<e0,li=function(L,c){return L.map(function(x){return '<div class="rec '+c+'">'+esc(LH(x[0],x[1]))+'</div>'}).join('')};
+ sheet('<h2 style="margin-top:0">'+esc(nm)+'</h2><div class="row" style="margin:6px 0 10px">'+qTag(inf.q)+'<b class="g">'+hmd(s0,a[0],a[1],a[2])+' – '+hmd(e0,a[0],a[1],a[2])+'</b>'+(on?'<span class="tag" style="background:var(--grn)">'+LH('RUNNING NOW · ','अभी चल रहा · ')+Math.round((e0-now)/60000)+LH(' min left',' मिनट बाकी')+'</span>':'')+'</div>'
+  +'<div class="card" style="margin:0 0 10px"><h2>ℹ️ '+LH('WHAT IT IS','क्या है')+'</h2><div class="rec nt">'+esc(LH(inf.w[0],inf.w[1]))+(lord?'<br><span class="sm mut">'+LH('Lord','स्वामी')+': '+pn(lord)+'</span>':'')+'</div></div>'
+  +(inf.g.length?'<div class="card" style="margin:0 0 10px"><h2>✅ '+LH('GOOD FOR','इसके लिए शुभ')+'</h2>'+li(inf.g,'')+'</div>':'')
+  +(inf.a.length?'<div class="card" style="margin:0 0 10px"><h2>🚫 '+LH('AVOID','न करें')+'</h2>'+li(inf.a,'rav')+'</div>':'')
+  +(lord&&BEEJ[lord]&&inf.q!='good'?'<div class="note">'+LH('To reduce its effect: ','प्रभाव कम करने के लिए: ')+BEEJ[lord][0]+' ('+BEEJ[lord][1]+')</div>':'')
+  +'<div class="note">'+LH('Traditional meanings, shown as guidance.','पारंपरिक अर्थ, मार्गदर्शन के रूप में।')+'</div>')}
+function mSummary(p,a){var tt=T(),now=Date.now(),isT=now>=p.sr&&now<p.nsr,row=function(ic,lb,val,ty,ix,q){return '<button class="li gli" data-a="mdet" data-t="'+ty+'" data-i="'+ix+'"><div class="e">'+ic+'</div><div class="m"><b>'+lb+'</b><span>'+val+'</span></div>'+(q?qTag(q):'')+'</button>'},h='',fi=function(L){for(var i=0;i<L.length;i++)if(now>=L[i].s&&now<L[i].e)return i;return -1};
+ if(isT){var cs=fi(p.chD),cn=fi(p.chN),hi=fi(p.hora),cc=cs>=0?['cd',cs,p.chD[cs]]:cn>=0?['cn',cn,p.chN[cn]]:null,li2=-1,ss=p.sr;p.lagna.forEach(function(l,i){if(now>=ss&&now<l.e)li2=i;ss=l.e});
+  h+='<div class="mh" style="margin-top:0">'+LH('RUNNING NOW','अभी चल रहा')+'</div>';
+  if(cc)h+=row('🕐',LH('Choghadiya · ','चौघड़िया · ')+tt.chog[cc[2].i],LH('till ','')+hm(cc[2].e)+LH('',' तक'),cc[0],cc[1],CHI[cc[2].i].q);
+  if(hi>=0)h+=row('🪐',LH('Hora · ','होरा · ')+tt.hora[p.hora[hi].i],LH('till ','')+hm(p.hora[hi].e)+LH('',' तक'),'hr',hi,HRI[HRK[p.hora[hi].i]].q);
+  if(li2>=0)h+=row('♈',LH('Lagna · ','लग्न · ')+tt.rashi[p.lagna[li2].i],LH('till ','')+hm(p.lagna[li2].e)+LH('',' तक'),'lg',li2,lgInfo(p.lagna[li2].i).q);
+  ['rahu','yama','guli','abhi'].forEach(function(k){if(now>=p[k][0]&&now<p[k][1])h+=row(k=='abhi'?'🟩':'⚠️',LH(FXI[k].n[0],FXI[k].n[1]),LH('till ','')+hm(p[k][1])+LH('',' तक'),k,0,FXI[k].q)});
+  mBhadra(p).forEach(function(b,i){if(now>=b[0]&&now<b[1])h+=row('⚠️',LH('Bhadra','भद्रा'),LH('till ','')+hmd(b[1],a[0],a[1],a[2])+LH('',' तक'),'bh',i,'bad')})}
+ var WN=mWin(p).filter(function(c){return !isT||c.e>now}),best=WN.filter(function(c){return c.s<p.ss})[0]||WN[0];
+ h+='<div class="mh">'+LH('BEST TIMES','शुभ समय')+(isT?LH(' (still to come)',' (आगे)'):'')+'</div>';
+ if(best)h+='<div class="note" style="margin:0 0 6px">⭐ '+LH('Best for important work: ','महत्वपूर्ण काम के लिए सबसे अच्छा: ')+'<b>'+tt.chog[best.i]+' · '+hm(best.s)+' – '+hm(best.e)+'</b></div>';
+ if(!isT||now<p.abhi[1])h+=row('🟩',LH('Abhijit Muhurat','अभिजीत मुहूर्त'),hm(p.abhi[0])+' – '+hm(p.abhi[1])+(p.wd==3?LH(' · avoid on Wednesday',' · बुधवार को टालें'):''),'abhi',0,p.wd==3?'mid':'good');
+ p.yogas.forEach(function(y,i){if(!isT||y.e>now)h+=row('✨',S.lang!='en'?tr(y.h):y.n,hmd(y.s,a[0],a[1],a[2])+' – '+hmd(y.e,a[0],a[1],a[2]),'yg',i,'good')});
+ WN.slice(0,6).forEach(function(c){var d=p.chD.indexOf(c);h+=row('🕐',LH('Choghadiya · ','चौघड़िया · ')+tt.chog[c.i],hm(c.s)+' – '+hm(c.e)+(d<0?LH(' (night)',' (रात)'):''),d>=0?'cd':'cn',d>=0?d:p.chN.indexOf(c),'good')});
+ h+='<div class="mh">'+LH('AVOID','न करें')+'</div>';
+ ['rahu','yama','guli'].forEach(function(k){h+=row('⛔',LH(FXI[k].n[0],FXI[k].n[1]),hm(p[k][0])+' – '+hm(p[k][1]),k,0,'bad')});
+ mBhadra(p).forEach(function(b,i){h+=row('⛔',LH('Bhadra','भद्रा'),hmd(b[0],a[0],a[1],a[2])+' – '+hmd(b[1],a[0],a[1],a[2]),'bh',i,'bad')});
+ var bc=p.chD.concat(p.chN).filter(function(c){return CHI[c.i].q=='bad'&&(!isT||c.e>now)}).length;
+ h+='<div class="note" style="margin-top:6px">'+LH(bc+' Rog / Kaal / Udveg Choghadiya'+(isT?' still left':'')+' today. Tap any line for what it is good for and what to avoid.',(isT?'आज अभी ':'आज ')+bc+' रोग / काल / उद्वेग चौघड़िया बाकी। क्या शुभ है और क्या न करें, देखने के लिए किसी भी पंक्ति पर टैप करें।')+'</div>';
+ return '<div class="card"><h2>⏱️ '+LH('SUMMARY','सारांश')+' · '+dayW(MV)+'</h2>'+h+'</div>'}
 function rMuh(){var t=todayYMD();if(!MV)MV=key(t[0],t[1],t[2]);var a=pk(MV),p=P(a[0],a[1],a[2]),tt=T(),now=Date.now();
- var lst=function(l,names,q){return l.map(function(c){var on=now>=c.s&&now<c.e;return '<div class="'+(on?'now':'')+'">'+hm(c.s)+'</div><div class="'+(on?'now':'')+'"><span class="'+(q?q[c.i]:'g b')+'">'+names[c.i]+'</span>'+(on?' ◀ now':'')+'</div><div class="'+(on?'now':'')+' mut">'+hm(c.e)+'</div>'}).join('')};
+ var lst=function(l,names,q,ty){return l.map(function(c,i){var on=now>=c.s&&now<c.e,at=' data-a="mdet" data-t="'+ty+'" data-i="'+i+'" style="cursor:pointer"';return '<div class="'+(on?'now':'')+'"'+at+'>'+hm(c.s)+'</div><div class="'+(on?'now':'')+'"'+at+'><span class="'+(q?q[c.i]:'g b')+'">'+names[c.i]+'</span>'+(on?' ◀ now':'')+'</div><div class="'+(on?'now':'')+' mut"'+at+'>'+hm(c.e)+' ›</div>'}).join('')};
+ var fx=function(k,cls){return '<tr data-a="mdet" data-t="'+k+'" data-i="0" style="cursor:pointer"><td class="'+cls+'">'+LH(FXI[k].n[0],FXI[k].n[1])+'</td><td>'+hm(p[k][0])+' – '+hm(p[k][1])+' ›</td></tr>'};
  var h='<div class="card"><div class="mhead"><button class="ib" data-a="dprev">‹</button><div class="t"><b>'+dayW(MV)+' '+a[0]+'</b><span>'+tLong(p.t0)+' · '+esc(S.loc.n)+'</span></div><button class="ib" data-a="dnext">›</button></div>'
   +'<div class="row" style="justify-content:center"><button class="btn2 sm" data-a="dtoday">TODAY</button><input type="date" id="dpick" value="'+MV+'" style="width:auto;padding:7px"><button class="btn2 sm" data-day="'+MV+'">FULL PANCHANG</button></div></div>';
+ h+=mSummary(p,a);
  h+='<div class="two"><div class="card"><h2>☀️ SUN & 🌙 MOON</h2><table class="kv"><tr><td>Sunrise</td><td>'+hm(p.sr)+'</td></tr><tr><td>Sunset</td><td>'+hm(p.ss)+'</td></tr><tr><td>Moonrise</td><td>'+hm(p.mr)+'</td></tr><tr><td>Moonset</td><td>'+hm(p.ms)+'</td></tr><tr><td>Day length</td><td>'+Math.floor((p.ss-p.sr)/3600000)+' h '+Math.round((p.ss-p.sr)/60000%60)+' min</td></tr></table></div>'
-  +'<div class="card"><h2>MUHURAT</h2><table class="kv"><tr><td class="bad">Rahu Kaal</td><td>'+hm(p.rahu[0])+' – '+hm(p.rahu[1])+'</td></tr><tr><td class="bad">Yamaganda</td><td>'+hm(p.yama[0])+' – '+hm(p.yama[1])+'</td></tr><tr><td class="bad">Gulika</td><td>'+hm(p.guli[0])+' – '+hm(p.guli[1])+'</td></tr><tr><td class="good">Abhijit</td><td>'+hm(p.abhi[0])+' – '+hm(p.abhi[1])+'</td></tr><tr><td class="good">Brahma Muhurta</td><td>'+hm(p.brahma[0])+' – '+hm(p.brahma[1])+'</td></tr>'
-  +p.yogas.map(function(y){return '<tr><td class="good">'+(S.lang!='en'?tr(y.h):y.n)+'</td><td>'+hmd(y.s,a[0],a[1],a[2])+' – '+hmd(y.e,a[0],a[1],a[2])+'</td></tr>'}).join('')+'</table></div></div>';
- h+='<div class="two"><div class="card"><h2>CHOGHADIYA · DAY</h2><div class="cg">'+lst(p.chD,tt.chog,CQ)+'</div></div><div class="card"><h2>CHOGHADIYA · NIGHT</h2><div class="cg">'+lst(p.chN,tt.chog,CQ)+'</div></div></div>';
- h+='<div class="note" style="margin:-4px 4px 12px"><span class="good">Amrit, Shubh, Labh</span> = good · <span class="mid">Char</span> = good for travel · <span class="bad">Rog, Kaal, Udveg</span> = avoid.</div>';
- h+='<div class="two"><div class="card"><h2>HORA</h2><div class="cg">'+lst(p.hora,tt.hora)+'</div></div><div class="card"><h2>LAGNA (ASCENDANT)</h2><div class="cg">'+(function(){var s=p.sr;return p.lagna.map(function(l){var on=now>=s&&now<l.e,r='<div class="'+(on?'now':'')+'">'+hm(s)+'</div><div class="'+(on?'now':'')+'"><span class="g b">'+tt.rashi[l.i]+'</span>'+(on?' ◀ now':'')+'</div><div class="'+(on?'now':'')+' mut">'+hm(l.e)+'</div>';s=l.e;return r}).join('')})()+'</div></div></div>';
+  +'<div class="card"><h2>MUHURAT</h2><table class="kv">'+fx('rahu','bad')+fx('yama','bad')+fx('guli','bad')+fx('abhi','good')+fx('brahma','good')+fx('godhuli','good')
+  +mBhadra(p).map(function(b,i){return '<tr data-a="mdet" data-t="bh" data-i="'+i+'" style="cursor:pointer"><td class="bad">'+LH('Bhadra','भद्रा')+'</td><td>'+hmd(b[0],a[0],a[1],a[2])+' – '+hmd(b[1],a[0],a[1],a[2])+' ›</td></tr>'}).join('')
+  +p.yogas.map(function(y,i){return '<tr data-a="mdet" data-t="yg" data-i="'+i+'" style="cursor:pointer"><td class="good">'+(S.lang!='en'?tr(y.h):y.n)+'</td><td>'+hmd(y.s,a[0],a[1],a[2])+' – '+hmd(y.e,a[0],a[1],a[2])+' ›</td></tr>'}).join('')+'</table></div></div>';
+ h+='<div class="two"><div class="card"><h2>CHOGHADIYA · DAY</h2><div class="cg">'+lst(p.chD,tt.chog,CQ,'cd')+'</div></div><div class="card"><h2>CHOGHADIYA · NIGHT</h2><div class="cg">'+lst(p.chN,tt.chog,CQ,'cn')+'</div></div></div>';
+ h+='<div class="note" style="margin:-4px 4px 12px"><span class="good">Amrit, Shubh, Labh</span> = good · <span class="mid">Char</span> = good for travel · <span class="bad">Rog, Kaal, Udveg</span> = avoid. '+LH('Tap any row for details.','विवरण के लिए किसी भी पंक्ति पर टैप करें।')+'</div>';
+ h+='<div class="two"><div class="card"><h2>HORA</h2><div class="cg">'+lst(p.hora,tt.hora,null,'hr')+'</div></div><div class="card"><h2>LAGNA (ASCENDANT)</h2><div class="cg">'+(function(){var s=p.sr;return p.lagna.map(function(l,i){var on=now>=s&&now<l.e,at=' data-a="mdet" data-t="lg" data-i="'+i+'" style="cursor:pointer"',r='<div class="'+(on?'now':'')+'"'+at+'>'+hm(s)+'</div><div class="'+(on?'now':'')+'"'+at+'><span class="g b">'+tt.rashi[l.i]+'</span>'+(on?' ◀ now':'')+'</div><div class="'+(on?'now':'')+' mut"'+at+'>'+hm(l.e)+' ›</div>';s=l.e;return r}).join('')})()+'</div></div></div>';
  $('muh').innerHTML=h;var dp=$('dpick');if(dp)dp.onchange=function(){if(dp.value){MV=dp.value;rMuh()}}}
 /* ---------- more tab ---------- */
 var U=null;
@@ -869,18 +956,19 @@ function rMore(){var h='<div class="card"><h2>👤 PROFILE</h2>';
   +'<label>Show In Calendar</label>'+[['major','Major Festivals'],['vrat','Vrat (Ekadashi, Pradosh, Purnima…)'],['state','State Festivals'+(stName()?' ('+stName()+')':'')],['national','Govt Holidays'],['mine','My Events']].map(function(x){return '<div class="sw"><span><i class="dot" style="background:'+ccol(x[0])+'"></i>'+x[1]+'</span><button class="tg'+(S.cats[x[0]]?' on':'')+'" data-a="cat" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
  h+='<div class="card set"><h2>⭐ DAILY TIPS</h2><div class="note">Do &amp; Avoid tips show on Home and on every date. Personal tips use: <b>'+(recProfile()?esc((recProfile().n?recProfile().n+' · ':'')+T().rashi[recProfile().r]+' Rashi'):'General only')+'</b></div><button class="btn2" data-a="recset" style="width:100%;margin-top:8px">CHANGE</button></div>';h+=lookCard();var r=S.rem;h+='<div class="card set"><h2>🔔 REMINDERS</h2>'+(APP?'':'<div class="note">Reminders ring in the Android app, even when it is closed.</div>')
   +'<div class="sw"><span>Festival Reminders</span><button class="tg'+(r.on?' on':'')+'" data-a="rem" data-k="on"></button></div>'
+  +'<div class="sw"><span>'+LH('🔮 Daily Rashifal + Do & Avoid','🔮 रोज़ का राशिफल + करें और न करें')+'<small>'+LH('pop-up and alarm at','पॉप-अप और अलार्म, समय')+'</small></span><input type="time" id="rft" value="'+S.rf.t+'" style="width:120px"><button class="tg'+(S.rf.on?' on':'')+'" data-a="rfon"></button></div><div class="note" style="margin:-2px 0 6px">'+LH('At this time every day the Android app rings a notification, and the app shows today\'s Rashifal with Do & Avoid when you open it. On the website it pops up when the page is open.','हर दिन इस समय एंड्रॉइड ऐप सूचना देगा, और ऐप खोलने पर आज का राशिफल, करें और न करें दिखेगा। वेबसाइट पर पेज खुला हो तो पॉप-अप आएगा।')+' <button class="btn2 sm" data-a="rfnow">'+LH('SEE TODAY\'S','आज का देखें')+'</button></div>'
   +'<div class="sw"><span>One Day Before<small>at</small></span><input type="time" id="rbt" value="'+r.bt+'" style="width:120px"><button class="tg'+(r.before?' on':'')+'" data-a="rem" data-k="before"></button></div>'
   +'<div class="sw"><span>On The Day<small>at</small></span><input type="time" id="rst" value="'+r.st+'" style="width:120px"><button class="tg'+(r.same?' on':'')+'" data-a="rem" data-k="same"></button></div>'
   +[['major','Major Festivals'],['state','State Festivals'],['vrat','Vrat Days'],['cd','My Countdown'],['mine','My Events']].map(function(x){return '<div class="sw"><span>'+x[1]+'</span><button class="tg'+(r.cats[x[0]]?' on':'')+'" data-a="remc" data-c="'+x[0]+'"></button></div>'}).join('')+'</div>';
  if(APP)h+='<div class="card set"><h2>📆 PHONE / GOOGLE CALENDAR</h2><div class="note">Uses the calendars already on this phone (your Google Calendar syncs there). Nothing is sent to us.</div><div class="sw"><span>Show My Phone Calendar Events<small>dots in month view and in the day details</small></span><button class="tg'+(S.phone?' on':'')+'" data-a="phone"></button></div><button class="btn2" data-a="phoneadd" style="margin-top:8px;width:100%">ADD THIS YEAR’S FESTIVALS TO GOOGLE CALENDAR</button></div>';
  else h+='<div class="card set"><h2>📆 GOOGLE CALENDAR</h2><div class="note">Download the festival list and import it in Google Calendar (Settings → Import), or open any day and tap “Add to Google Calendar”. In the Android app, your phone calendar shows inside this calendar.</div><button class="btn2" data-a="ics" style="margin-top:8px;width:100%">DOWNLOAD FESTIVALS (.ics)</button></div>';
- h+='<div class="card"><h2>MY EVENTS</h2>'+(S.ev.length?S.ev.map(function(e){return '<div class="li"><div class="e">'+esc(e.e||'⭐')+'</div><div class="m"><b>'+esc(e.n)+'</b><span>'+dayW(e.d)+' '+e.d.slice(0,4)+evRepTxt(e)+'</span></div><button class="del" data-a="evdel" data-i="'+esc(e.id)+'">DELETE</button></div>'}).join(''):'<div class="note">Birthdays, anniversaries or any date. They show in the calendar and can be counted down.</div>')+'<button class="btn2" data-a="addev" style="margin-top:8px;width:100%">＋ ADD MY EVENT</button></div>';
+ h+='<div class="card"><h2>MY EVENTS</h2>'+(S.ev.length?S.ev.map(function(e){return '<div class="li"><div class="e">'+esc(e.e||'⭐')+'</div><div class="m"><b>'+esc(e.n)+'</b><span>'+dayW(e.d)+' '+e.d.slice(0,4)+evRepTxt(e)+'</span></div><button class="del" data-a="evedit" data-i="'+esc(e.id)+'" style="color:var(--gold)">✏️ '+LH('EDIT','बदलें')+'</button><button class="del" data-a="evdel" data-i="'+esc(e.id)+'">'+LH('DELETE','हटाएँ')+'</button></div>'}).join(''):'<div class="note">Birthdays, anniversaries or any date. They show in the calendar and can be counted down.</div>')+'<button class="btn2" data-a="addev" style="margin-top:8px;width:100%">＋ ADD MY EVENT</button></div>';
  h+='<div class="card"><h2>APP</h2><div class="row"><button class="btn2" data-a="contact">✉️ CONTACT US / FEATURE REQUEST</button><button class="btn2" data-a="share">📤 SHARE APP</button><button class="btn2" data-a="latest">🔄 GET LATEST VERSION</button></div>'
   +'<div class="don" style="margin-top:12px">'+(W.OWHDON?W.OWHDON.card():'')+'</div><div class="note" style="margin-top:10px">Calculations: sun and moon positions by standard astronomical formulas, Lahiri ayanamsa. Festival dates follow common rules and can differ by a day between regions; check with your local priest for rituals.</div></div>';
  $('more').innerHTML=h;
  $('langSel').onchange=function(){setLang(this.value)};$('uiSel').onchange=function(){setUI(this.value)};$('sysSel').onchange=function(){S.sys=this.value;save('sys');resetCache();SOLC={};toast('🗓️ '+sysLabel()+' month names');rMore()};$('fontSel').onchange=function(){S.font=this.value;save('font');look()};[].forEach.call(D.querySelectorAll('[data-col]'),function(x){x.onchange=function(){S.col[x.getAttribute('data-col')]=x.value;save('col');look();rMore()}});
  $('city').onchange=function(){var i=this.value;if(i==='')return;var c=CITIES[+i];setLoc({n:c[0],lat:c[1],lon:c[2],tz:c[3]=='NE'?5.75:5.5,s:c[3]})};
- $('rbt').onchange=function(){S.rem.bt=this.value||'20:00';save('rem')};$('rst').onchange=function(){S.rem.st=this.value||'06:00';save('rem')}}
+ $('rbt').onchange=function(){S.rem.bt=this.value||'20:00';save('rem')};$('rft').onchange=function(){S.rf.t=this.value||'07:00';LS.set('rf',S.rf);LS.set('rfShown','');pushNative();rfTimer()};$('rst').onchange=function(){S.rem.st=this.value||'06:00';save('rem')}}
 function lookCard(){var h='<div class="card set"><h2>🎨 LOOK & COLOURS</h2><label>Theme</label><div class="themes">'+Object.keys(THEMES).map(function(k){var t=THEMES[k].v;return '<button class="th'+(S.theme==k?' on':'')+'" data-a="theme" data-v="'+k+'" style="background:'+t[0]+';color:'+t[5]+';border-color:'+(S.theme==k?t[7]:t[4])+'"><span class="sws"><i style="background:'+t[13]+'"></i><i style="background:'+t[7]+'"></i><i style="background:'+t[8]+'"></i><i style="background:'+t[2]+'"></i></span>'+THEMES[k].n+'</button>'}).join('')+'</div>'
  +'<label>Font</label><select id="fontSel">'+Object.keys(FONTS).map(function(k){return '<option value="'+k+'"'+(S.font==k?' selected':'')+'>'+FONTS[k][0]+'</option>'}).join('')+'</select><div class="note" style="margin-top:6px;font-size:16px">Diwali in 9 days · दीपावली · 21 Kartika</div>'
  +'<label>Text Size</label><div class="seg">'+[['s','SMALL'],['m','NORMAL'],['l','LARGE'],['xl','EXTRA LARGE']].map(function(x){return '<button data-a="fs" data-v="'+x[0]+'" class="'+(S.fs==x[0]?'on':'')+'">'+x[1]+'</button>'}).join('')+'</div>'
@@ -1085,7 +1173,17 @@ var FINFON={
  'Bathukamma Begins':['Telangana: women make flower stacks (Bathukamma) and sing for nine days'],
  'Dashain (Vijaya Dashami)':['Nepal: elders give tika and jamara with blessings'],
  'Tihar (Bhai Tika)':['Nepal: sisters give seven-colour tika to brothers'],
- 'Meghalaya Day':['Meghalaya became a full state on 21 January 1972']
+ 'Meghalaya Day':['Meghalaya became a full state on 21 January 1972'],
+ 'Manabasa Gurubar':['Odisha: Goddess Mahalakshmi is worshipped at home on every Thursday of Margasira','The house is cleaned and decorated with jhoti chita (rice-paste drawings) and Lakshmi\'s footprints','A Manabasa (measuring pot) filled with new paddy is worshipped; Lakshmi Purana is read','Women fast and offer pitha; non-veg is avoided in the house'],
+ 'Khudurukuni Osha':['Odisha: unmarried girls worship Maa Mangala on the Sundays of Bhadrava for their brothers\' wellbeing','Fast, songs and stories of Taapoi are part of the puja'],
+ 'Sawan Somvar':['Mondays of Shravan, the month of Lord Shiva','Fast and offer water, milk and bel leaves on the Shiva Linga','Kanwar Yatra pilgrims carry Ganga water to Shiva temples'],
+ 'Shravan Somvar':['Mondays of Shravan (Amanta), the month of Lord Shiva','Fast and offer water, milk and bel leaves on the Shiva Linga'],
+ 'Shravana Somavara':['Mondays of Shravana, the month of Lord Shiva','Fast and Shiva abhishek'],
+ 'Mangala Gauri Vrat':['Tuesdays of Shravan: married women worship Goddess Gauri for a happy married life','Fast and Mangala Gauri katha'],
+ 'Mangalagaur':['Maharashtra: new brides worship Goddess Gauri on the Tuesdays of Shravan','Night of games, songs and fugdi'],
+ 'Margashirsha Guruvar':['Maharashtra: Mahalakshmi Vrat on the Thursdays of Margashirsha','Kalash puja and Mahalakshmi katha; fast till evening'],
+ 'Karthika Somavaram':['Mondays of Karthika: fast and Shiva abhishek','Lamps are lit in temples and at home'],
+ 'Margasira Lakshmi Vratam':['Coastal Andhra: Lakshmi puja on the Thursdays of Margasira']
 };
 var FGEN={
  ekadashi:['Ekadashi fast for Lord Vishnu: no rice or grains','Vishnu puja, Tulsi leaves and Vishnu Sahasranama','Break the fast (Parana) next morning after sunrise, within the given time','Each Ekadashi has its own name and story'],
@@ -1094,7 +1192,7 @@ var FGEN={
  amavasya:['New Moon day for the ancestors: Tarpan and charity','Feed a cow, crows and dogs; light a lamp under a peepal tree','Avoid new beginnings and buying new things','Monday (Somvati) and Saturday (Shani) Amavasya are extra important'],
  sankashti:['Sankashti Chaturthi for Lord Ganesha, to remove troubles','Fast through the day; break it after seeing the Moon','Ganesh puja with durva and modak; Sankashti katha','On Tuesday it is Angarki Chaturthi (very lucky)']
 };
-function festInfo(f){if(f.mine)return ['Your own event'+(f.d?' on '+dayW(f.d)+' '+f.d.slice(0,4):''),'It shows in the calendar and can be added to the countdown'];
+function festInfo(f){var bn=(f.n||'').split(' · ')[0];if(!f.mine&&FINFON[bn]&&!FINFON[f.n])return FINFON[bn];if(f.mine){var me=S.ev.filter(function(x){return x.id==f.mine})[0];return [LH('Your own event','आपका अपना कार्यक्रम')+(me?evRepTxt(me):''),LH('Tap EDIT to change the date, repeat or icon, or DELETE to remove it.','तारीख, दोहराव या चिह्न बदलने के लिए बदलें, हटाने के लिए हटाएँ दबाएँ।')]}
  if(FINFO[f.id])return FINFO[f.id];if(FINFON[f.n])return FINFON[f.n];if(FGEN[f.id])return FGEN[f.id];
  if(/Day|Diwas|Divas|Rajyotsava|Piravi|Formation|Foundation|Statehood|Liberation/.test(f.n))return ['Foundation / statehood day'+(f.sn?' of '+f.sn:''),'State holiday with flag hoisting and cultural programmes'];
  return [f.c=='state'?'Regional festival'+(f.sn?' of '+f.sn:''):'Hindu festival','See the day page for tithi and timings']}
@@ -1103,7 +1201,7 @@ function festSheet(u){var f=findF(u);if(!f)return;var tk=key.apply(null,todayYMD
   +'<div class="row" style="margin:10px 0"><span class="tag" style="background:'+ccol(f.c)+'">'+catName(f.c,f)+'</span><b class="g">'+dayW(f.d)+' '+a[0]+'</b><span class="sm mut">'+tLong(p.t0)+'</span><b>'+(n==0?'🎉 Today':n>0?inDays(n):inDays(n))+'</b></div>'
   +'<div class="card" style="margin:0 0 10px"><h2>ℹ️ ABOUT</h2>'+info.map(function(x){return '<div class="rec nt">'+esc(x)+'</div>'}).join('')+'</div>'
   +(pers.length?'<div class="note" style="margin-bottom:10px">During: '+pers.map(function(z){return '<button class="chip" data-a="perinfo" data-p="'+z.p.id+'" data-s="'+f.d+'">'+z.p.e+' '+esc(pname(z.p))+'</button>'}).join(' ')+'</div>':'')
-  +'<div class="row"><button class="btn2" data-a="star" data-u="'+esc(f.uid)+'">⏳ '+(inCd(f.uid)?'REMOVE FROM':'ADD TO')+' COUNTDOWN</button><button class="btn2" data-day="'+f.d+'">📅 FULL DAY PANCHANG</button><button class="btn2" data-a="gcal" data-d="'+f.d+'">📆 GOOGLE CALENDAR</button></div>';
+  +(f.mine?'<div class="row" style="margin-bottom:8px"><button class="btn2" data-a="evedit" data-i="'+esc(f.mine)+'">✏️ '+LH('EDIT EVENT','कार्यक्रम बदलें')+'</button><button class="btn2" data-a="evdel" data-i="'+esc(f.mine)+'" style="color:var(--red)">🗑 '+LH('DELETE','हटाएँ')+'</button></div>':'')+'<div class="row"><button class="btn2" data-a="star" data-u="'+esc(f.uid)+'">⏳ '+(inCd(f.uid)?'REMOVE FROM':'ADD TO')+' COUNTDOWN</button><button class="btn2" data-day="'+f.d+'">📅 FULL DAY PANCHANG</button><button class="btn2" data-a="gcal" data-d="'+f.d+'">📆 GOOGLE CALENDAR</button></div>';
  sheet(h)}
 /* ---------- Mantras: by day, by god / goddess, Navagraha, by need. Ancient public mantras ---------- */
 var BEEJ={su:['ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः','Om Hraam Hreem Hraum Sah Suryaya Namah'],mo:['ॐ श्रां श्रीं श्रौं सः चन्द्रमसे नमः','Om Shraam Shreem Shraum Sah Chandramase Namah'],ma:['ॐ क्रां क्रीं क्रौं सः भौमाय नमः','Om Kraam Kreem Kraum Sah Bhaumaya Namah'],me:['ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः','Om Braam Breem Braum Sah Budhaya Namah'],ju:['ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः','Om Graam Greem Graum Sah Gurave Namah'],ve:['ॐ द्रां द्रीं द्रौं सः शुक्राय नमः','Om Draam Dreem Draum Sah Shukraya Namah'],sa:['ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः','Om Praam Preem Praum Sah Shanaischaraya Namah'],ra:['ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः','Om Bhraam Bhreem Bhraum Sah Rahave Namah'],ke:['ॐ स्रां स्रीं स्रौं सः केतवे नमः','Om Sraam Sreem Sraum Sah Ketave Namah']};
@@ -1499,12 +1597,24 @@ function horoCard(p){var L=rashifal(p),pf=recProfile();if(HR==null)HR=pf?pf.r:0;
   +'<div style="margin:8px 0;line-height:1.5">'+esc(x.t)+'</div><div class="sm mut">Lucky colour: <b>'+x.col+'</b> · Lucky number: <b>'+x.num+'</b> · Moon in your house '+x.h+'</div></div>'
   +'<div class="note" style="margin-top:8px">Your Rashifal for today, worked out by Din Darpan from today\'s real planet positions (Moon, Jupiter, Saturn) using Vedic Gochar (transit) rules. Use it as guidance for the day.</div></div>'}
 /* ---------- my events ---------- */
-function evSheet(d){var t=todayYMD();d=d||key(t[0],t[1],t[2]);
- sheet('<h2 style="margin-top:0">＋ MY EVENT</h2><div class="set"><label>Name</label><input id="evn" maxlength="40" placeholder="e.g. Maa\'s Birthday"><label>Date</label><input id="evd" type="date" value="'+d+'"><label>Icon</label><div class="chips" id="eve">'+['⭐','🎂','💍','🎉','🙏','🏠','✈️','🎓','❤️','🪔'].map(function(e,i){return '<button class="chip'+(i==0?' on':'')+'" data-a="evic">'+e+'</button>'}).join('')+'</div>'
-  +'<label>Repeat</label><div class="chips" id="evr">'+[['1','📅 Same Date'],['2','🌙 Same Tithi'],['0','1️⃣ Once']].map(function(x,i){return '<button class="chip'+(i==0?' on':'')+'" data-a="evrep" data-r="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div class="note" id="evtn" style="margin-top:2px"></div><div class="sw"><span>Add To Countdown</span><button class="tg on" id="evc" data-a="evy"></button></div></div><button class="btn" data-a="evsave" style="width:100%;margin-top:12px">SAVE</button>');$('evd').onchange=evTithiNote;evTithiNote()}
+var EVE=null;
+function evSheet(d,eid){var t=todayYMD(),e=eid?S.ev.filter(function(x){return x.id==eid})[0]:null;EVE=e?e.id:null;d=e?e.d:(d||key(t[0],t[1],t[2]));
+ var rp=e?(+(e.yr||0)):1,ics=['⭐','🎂','💍','🎉','🙏','🏠','✈️','🎓','❤️','🪔','🛕','🌺','🪷','💐'],ic=e?e.e||'⭐':'⭐';if(ics.indexOf(ic)<0)ics.unshift(ic);
+ var wk=e&&e.wk&&e.wk.length?e.wk:[new Date(d+'T00:00:00Z').getUTCDay()],inCdNow=e?S.cd.some(function(c){return c.fid=='my_'+e.id}):true;
+ sheet('<h2 style="margin-top:0">'+(e?LH('✏️ EDIT EVENT','✏️ कार्यक्रम बदलें'):LH('＋ MY EVENT','＋ मेरा कार्यक्रम'))+'</h2><div class="set"><label>'+LH('Name','नाम')+'</label><input id="evn" maxlength="40" placeholder="e.g. Maa\'s Birthday" value="'+esc(e?e.n:'')+'">'
+  +'<div class="row" style="gap:8px"><div style="flex:1;min-width:140px"><label>'+LH('Start Date','शुरू की तारीख')+'</label><input id="evd" type="date" value="'+d+'"></div><div style="flex:1;min-width:140px"><label>'+LH('Last Day (optional)','अंतिम दिन (वैकल्पिक)')+'</label><input id="eved" type="date" value="'+(e&&e.ed?e.ed:'')+'"></div></div><div class="note">'+LH('Fill the last day for events of many days, like a 9-day puja. Leave it empty for one day.','कई दिन के कार्यक्रम (जैसे 9 दिन की पूजा) के लिए अंतिम दिन भरें। एक दिन के लिए खाली छोड़ें।')+'</div>'
+  +'<label>'+LH('Icon','चिह्न')+'</label><div class="chips" id="eve">'+ics.map(function(x){return '<button class="chip'+(x==ic?' on':'')+'" data-a="evic">'+x+'</button>'}).join('')+'</div>'
+  +'<label>'+LH('Repeat','दोहराएँ')+'</label><div class="chips" id="evr" style="flex-wrap:wrap">'+[['1',LH('📅 Yearly · Same Date','📅 हर साल · वही तारीख')],['2',LH('🌙 Yearly · Same Tithi','🌙 हर साल · वही तिथि')],['3',LH('🌙 Monthly · Same Tithi','🌙 हर महीने · वही तिथि')],['5',LH('🗓️ Monthly · Same Date','🗓️ हर महीने · वही तारीख')],['4',LH('🔁 Weekly · Same Day(s)','🔁 हर सप्ताह · वही वार')],['0',LH('1️⃣ Only Once','1️⃣ केवल एक बार')]].map(function(x){return '<button class="chip'+(+x[0]==rp?' on':'')+'" data-a="evrep" data-r="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
+  +'<div id="evwkb"><label>'+LH('On These Days','इन वारों को')+'</label><div class="chips" id="evw">'+WDS.map(function(w,i){return '<button class="chip'+(wk.indexOf(i)>=0?' on':'')+'" data-a="evwd" data-w="'+i+'">'+LH(w[0],w[1])+'</button>'}).join('')+'</div></div>'
+  +'<div id="evub"><label>'+LH('Repeat Until (optional)','कब तक दोहराएँ (वैकल्पिक)')+'</label><input id="evu" type="date" value="'+(e&&e.u?e.u:'')+'"></div>'
+  +'<div class="note" id="evtn" style="margin-top:6px"></div><div class="sw"><span>'+LH('Add To Countdown','काउंटडाउन में जोड़ें')+'</span><button class="tg'+(inCdNow?' on':'')+'" id="evc" data-a="evy"></button></div></div>'
+  +'<button class="btn" data-a="evsave" style="width:100%;margin-top:12px">'+LH('SAVE','सेव करें')+'</button>'+(e?'<button class="btn2" data-a="evdel" data-i="'+e.id+'" style="width:100%;margin-top:8px;color:var(--red)">🗑 '+LH('DELETE THIS EVENT','यह कार्यक्रम हटाएँ')+'</button>':''));
+ $('evd').onchange=evTithiNote;$('eved').onchange=evTithiNote;evTithiNote()}
 function evRep(){var b=D.querySelector('#evr .chip.on');return b?+b.getAttribute('data-r'):1}
-function evTithiNote(){var n=$('evtn'),d=$('evd').value;if(!n)return;if(!/^\d{4}-\d\d-\d\d$/.test(d)){n.textContent='';return}var x=tithiOf(d),r=evRep();
- n.innerHTML='Tithi on this day: <b>'+tLong(x.t)+'</b> · '+(x.adhik?T().adhik+' ':'')+evMasa(x.t,x.m)+' month'+(r==2?'<br>It will come every year on this tithi, so the English date changes each year (like festivals).':r==1?'<br>It will come every year on '+d.slice(8)+' '+MONF[+d.slice(5,7)-1]+'.':'')}
+function evTithiNote(){var n=$('evtn'),d=$('evd').value,r=evRep();if(!n)return;var wb=$('evwkb'),ub=$('evub');if(wb)wb.style.display=r==4?'':'none';if(ub)ub.style.display=r==0?'none':'';if(!/^\d{4}-\d\d-\d\d$/.test(d)){n.textContent='';return}var x=tithiOf(d),ed=$('eved').value,L=ed&&ed>d?daysBetween(d,ed)+1:1;
+ var tx=LH('Tithi on this day: ','इस दिन की तिथि: ')+'<b>'+tLong(x.t)+'</b> · '+(x.adhik?T().adhik+' ':'')+evMasa(x.t,x.m)+LH(' month',' मास');
+ tx+='<br>'+(r==1?LH('Comes every year on '+d.slice(8)+' '+MONF[+d.slice(5,7)-1]+'.','हर साल '+d.slice(8)+' '+MONF[+d.slice(5,7)-1]+' को आएगा।'):r==2?LH('Comes every year on this tithi and month, so the English date changes (like festivals).','हर साल इसी तिथि और मास में आएगा, इसलिए अंग्रेज़ी तारीख बदलेगी (त्योहारों की तरह)।'):r==3?LH('Comes every month on '+tLong(x.t)+'.','हर महीने '+tLong(x.t)+' को आएगा।'):r==5?LH('Comes every month on day '+(+d.slice(8))+'.','हर महीने '+(+d.slice(8))+' तारीख को आएगा।'):r==4?LH('Comes every week on the days you pick.','हर सप्ताह चुने हुए वारों को आएगा।'):LH('Only on this date.','केवल इसी तारीख को।'))+(L>1?LH(' Each time it lasts '+L+' days.',' हर बार '+L+' दिन चलेगा।'):'');
+ n.innerHTML=tx}
 /* ---------- calendar export ---------- */
 function gcalUrl(f){var a=f.d.replace(/-/g,''),n=pk(f.d),b=addD(n[0],n[1],n[2],1),bb=key(b[0],b[1],b[2]).replace(/-/g,'');
  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(f.n)+'&dates='+a+'/'+bb+'&details='+encodeURIComponent((f.h&&f.h!=f.n?f.h+'\n':'')+'From Din Darpan · ourworldhive.com/din-darpan.html')}
@@ -1524,7 +1634,10 @@ D.addEventListener('click',function(e){var fu=e.target.closest('[data-fu]');if(f
 function act(a,b){var t=todayYMD();
  switch(a){
  case 'close':closeSheet();break;
- case 'horo':HR=+b.getAttribute('data-r');rHome();break;
+ case 'horo':HR=+b.getAttribute('data-r');if($('rfpop'))rfSheet();else rHome();break;
+ case 'rfon':S.rf.on=S.rf.on?0:1;LS.set('rf',S.rf);b.classList.toggle('on');if(S.rf.on){if(APP&&NV().askNotify)NV().askNotify();else if(W.Notification&&Notification.permission=='default')try{Notification.requestPermission()}catch(e){}LS.set('rfShown','');}pushNative();rfTimer();break;
+ case 'rfnow':rfSheet();break;
+ case 'rfoff':S.rf.on=0;LS.set('rf',S.rf);pushNative();closeSheet();toast(LH('Daily pop-up turned off','रोज़ का पॉप-अप बंद'));break;
  case 'recset':recSheet();break;
  case 'recsave':S.rec=$('recSel').value;save('rec');HR=null;closeSheet();toast(S.rec?'⭐ Tips set':'General tips only');rerender();break;
  case 'kuse':if(KV){S.rec=S.rec=='kd:'+KV.id?'':'kd:'+KV.id;save('rec');toast(S.rec?'⭐ Daily tips now use '+KV.n+'\'s Kundli':'Daily tips: general only');rKd()}break;
@@ -1557,6 +1670,7 @@ function act(a,b){var t=todayYMD();
  case 'cdclear':{var tk=key(t[0],t[1],t[2]);S.cd=S.cd.filter(function(c){return c.d>=tk});save('cd');rerender();break}
  case 'cdpick':cdPick();break;
  case 'cdrep':{var u3=b.getAttribute('data-u');S.cd.forEach(function(c){if(c.uid==u3){c.rep=c.rep?0:1;toast(c.rep?'🔁 Repeats every year: after the day it moves to next year':'Once: after the day it is struck out until you delete it',3500)}});save('cd');cdRoll();rerender();break}
+ case 'mdet':mSheet(b.getAttribute('data-t'),+b.getAttribute('data-i'));break;
  case 'dprev':{var x=pk(MV),y=addD(x[0],x[1],x[2],-1);MV=key(y[0],y[1],y[2]);rMuh();break}
  case 'dnext':{var x2=pk(MV),y2=addD(x2[0],x2[1],x2[2],1);MV=key(y2[0],y2[1],y2[2]);rMuh();break}
  case 'dtoday':MV=key(t[0],t[1],t[2]);rMuh();break;
@@ -1577,12 +1691,17 @@ function act(a,b){var t=todayYMD();
  case 'pertog':FV.perOpen=!FV.perOpen;rFest();break;
  case 'perinfo':perSheet(b.getAttribute('data-p'),b.getAttribute('data-s'));break;
  case 'fwhen':FV.w=b.getAttribute('data-w');LS.set('fw',FV.w);rFest();break;
- case 'evsave':{var n=($('evn').value||'').trim(),d=$('evd').value,ic=D.querySelector('#eve .chip.on'),rp=evRep(),yr=rp>0,cdOn=$('evc').classList.contains('on');
-  if(!n){toast('Please write a name');return}if(!/^\d{4}-\d\d-\d\d$/.test(d)){toast('Please choose a date');return}
-  var id='e'+Date.now().toString(36),ev={id:id,n:n.slice(0,40),d:d,e:ic?ic.textContent:'⭐',yr:rp};if(rp==2){var tx=tithiOf(d);ev.tt=tx.t;ev.tm=tx.m}S.ev.push(ev);save('ev');FB={};
-  if(cdOn){var tk2=key(t[0],t[1],t[2]),dd2=d;if(rp==1){var yy=t[0];dd2=yy+d.slice(4);if(dd2<tk2)dd2=(yy+1)+d.slice(4)}else if(rp==2&&d<tk2){var nx=nextOf({fid:'my_'+id},tk2);if(nx)dd2=nx.d}S.cd.push({uid:'my_'+id+'_'+(yr?dd2.slice(0,4):d),n:ev.n,h:ev.n,d:dd2,e:ev.e,fid:'my_'+id,rep:yr?1:0});save('cd')}
-  closeSheet();toast('Saved ✓');rerender();break}
- case 'evdel':S.ev=S.ev.filter(function(e){return e.id!=b.getAttribute('data-i')});save('ev');FB={};rerender();break;
+ case 'evsave':{var n=($('evn').value||'').trim(),d=$('evd').value,ed=$('eved').value,uu=$('evu').value,ic=D.querySelector('#eve .chip.on'),rp=evRep(),cdOn=$('evc').classList.contains('on');
+  if(!n){toast(LH('Please write a name','कृपया नाम लिखें'));return}if(!/^\d{4}-\d\d-\d\d$/.test(d)){toast(LH('Please choose a date','कृपया तारीख चुनें'));return}if(ed&&ed<d){toast(LH('Last day is before the start date','अंतिम दिन शुरू की तारीख से पहले है'));return}
+  var wk=[].map.call(D.querySelectorAll('#evw .chip.on'),function(x){return +x.getAttribute('data-w')});if(rp==4&&!wk.length){toast(LH('Pick at least one day','कम से कम एक वार चुनें'));return}
+  var id=EVE||('e'+Date.now().toString(36)),ev={id:id,n:n.slice(0,40),d:d,e:ic?ic.textContent:'⭐',yr:rp};if(ed&&ed>d)ev.ed=ed;if(uu&&rp&&uu>=d)ev.u=uu;if(rp==4)ev.wk=wk;if(rp==2||rp==3){var tx=tithiOf(d);ev.tt=tx.t;ev.tm=tx.m}
+  var ix=-1;S.ev.forEach(function(x,i){if(x.id==id)ix=i});if(ix>=0)S.ev[ix]=ev;else S.ev.push(ev);save('ev');FB={};TC={};
+  S.cd=S.cd.filter(function(c){return c.fid!='my_'+id});if(cdOn){var nx=nextOf({fid:'my_'+id},key(t[0],t[1],t[2]));if(nx){S.cd.push({uid:nx.uid,n:ev.n,h:ev.n,d:nx.d,e:ev.e,fid:'my_'+id,rep:rp?1:0});S.cd.sort(function(a,b){return a.d<b.d?-1:1})}}save('cd');
+  EVE=null;closeSheet();toast(LH('Saved ✓','सेव हो गया ✓'));rerender();break}
+ case 'evedit':evSheet(null,b.getAttribute('data-i'));break;
+ case 'evdel':{var di=b.getAttribute('data-i'),de=S.ev.filter(function(e){return e.id==di})[0];if(!de)break;if(!confirm(LH('Delete "'+de.n+'"? It is removed from the calendar and countdown.','"'+de.n+'" हटाएँ? यह कैलेंडर और काउंटडाउन से हट जाएगा।')))break;
+  S.ev=S.ev.filter(function(e){return e.id!=di});S.cd=S.cd.filter(function(c){return c.fid!='my_'+di});save('ev');save('cd');FB={};TC={};closeSheet();toast(LH('Deleted','हटा दिया'));rerender();break}
+ case 'evwd':b.classList.toggle('on');break;
  case 'gcal':{var k=b.getAttribute('data-d'),fs=festOn(k),f0=fs[0]||{n:'Event',d:k};var u2=gcalUrl(f0);
   if(APP&&NV().calInsert){NV().calInsert(JSON.stringify({t:f0.n,d:k}))}else W.open(u2,'_blank');break}
  case 'ics':ics();break;
@@ -1606,7 +1725,7 @@ function act(a,b){var t=todayYMD();
  case 'share':{var tx='Din Darpan: Hindu calendar, Panchang, festivals, Choghadiya and festival countdown. https://ourworldhive.com/din-darpan.html';if(APP&&NV().shareText)NV().shareText('Din Darpan',tx);else if(navigator.share)navigator.share({title:'Din Darpan',text:tx}).catch(function(){});else{try{navigator.clipboard.writeText(tx);toast('Link copied')}catch(e){}}break}
  case 'latest':if(W.OWHUPD)W.OWHUPD.run();else location.reload();break;
  }}
-function findF(u){var y=+(u.match(/_(\d{4})-\d\d-\d\d$/)||u.match(/_(\d{4})$/)||[0,todayYMD()[0]])[1];var l=festYear(y).concat(evOn(y));for(var i=0;i<l.length;i++)if(l[i].uid==u)return l[i];return null}
+function findF(u){var y=+(u.match(/_(\d{4})-\d\d-\d\d(_d\d+)?$/)||u.match(/_(\d{4})$/)||[0,todayYMD()[0]])[1];var l=festYear(y).concat(evOn(y));for(var i=0;i<l.length;i++)if(l[i].uid==u)return l[i];return null}
 function gps(quiet){if(!navigator.geolocation){if(!quiet){toast('GPS is not available. Please choose your place.');locSheet()}return}if(!quiet)toast('Finding your location…',8000);
  navigator.geolocation.getCurrentPosition(function(p){var la=p.coords.latitude,lo=p.coords.longitude,best=null,bd=1e9;CITIES.forEach(function(c){var d=Math.hypot(c[1]-la,(c[2]-lo)*Math.cos(la*Math.PI/180));if(d<bd){bd=d;best=c}});
   var l={n:bd<0.15?best[0]:(bd<1.5?'Near '+best[0]:'My Location'),lat:+la.toFixed(4),lon:+lo.toFixed(4),tz:-new Date().getTimezoneOffset()/60,s:nearState(la,lo)};setLoc(l);
@@ -1645,19 +1764,26 @@ function pushNative(){var n=NV();if(!n||!n.setWidget)return;clearTimeout(pushNat
  var th=THEMES[S.theme]||THEMES.saffron,dk=th.dk?1:0,pal={bg:th.v[2],tx:th.v[5],tx2:th.v[6],acc:th.v[7],hd:th.v[13],line:th.v[4],sk:tcol('sk'),kk:tcol('kk'),red:th.v[9]};
  n.setWidget(JSON.stringify({v:2,lang:S.lang,dark:dk,pal:pal,loc:S.loc.n,cd:cd,days:days,wd:S.lang!='en'?['रवि','सोम','मंगल','बुध','गुरु','शुक्र','शनि'].map(function(x){return tr(x)}):['SUN','MON','TUE','WED','THU','FRI','SAT']}));
  if(n.setReminders)n.setReminders(JSON.stringify(remList()))}catch(e){console.log(e)}},400)}
-function remList(){var r=S.rem,out=[];if(!r.on)return out;var t=todayYMD(),tk=key(t[0],t[1],t[2]),seen={};
+/* daily Rashifal at the user's time: native alarm list (next 7 days), pop-up when the app is opened after that time, web notification while the page is open */
+function rfAt(k){var a=pk(k),h=(S.rf.t||'07:00').split(':');return Date.UTC(a[0],a[1],a[2],+h[0],+h[1])-L().tz*3600000}
+function rfData(k){var a=pk(k),p=P(a[0],a[1],a[2]),Lr=rashifal(p),pf=recProfile(),x=Lr[pf?pf.r:(HR||0)],r=recos(p);return {p:p,x:x,pf:pf,d:r.d,a:r.a}}
+function rfRem(){var out=[];if(!S.rf||!S.rf.on)return out;var t=todayYMD();for(var i=0;i<7;i++){var z=addD(t[0],t[1],t[2],i),k=key(z[0],z[1],z[2]),at=rfAt(k);if(at<=Date.now())continue;try{var q=rfData(k);out.push({id:'rf_'+k,at:at,t:'🔮 '+q.x.n+' '+'★★★★★'.slice(0,q.x.sc)+' · '+LH('Today','आज'),b:'✅ '+(q.d[0]||'')+'  🚫 '+(q.a[0]||'')})}catch(e){}}return out}
+function rfCheck(){if(!S.rf||!S.rf.on)return;var t=todayYMD(),k=key(t[0],t[1],t[2]);if(Date.now()<rfAt(k)||LS.get('rfShown','')==k)return;if($('sheet').classList.contains('on'))return;LS.set('rfShown',k);rfSheet()}
+function rfTimer(){clearTimeout(rfTimer.t);if(!S.rf||!S.rf.on)return;var t=todayYMD(),k=key(t[0],t[1],t[2]),ms=rfAt(k)-Date.now();if(ms<=0||ms>86400000)return;rfTimer.t=setTimeout(function(){if(!APP&&W.Notification&&Notification.permission=='granted'){try{var q=rfData(k);new Notification('🔮 '+q.x.n+' · Din Darpan',{body:'✅ '+(q.d[0]||'')+'\n🚫 '+(q.a[0]||''),icon:'din-darpan-icon-192.png'})}catch(e){}}rfCheck()},ms+1000)}
+function rfSheet(){var t=todayYMD(),p=P(t[0],t[1],t[2]);sheet('<div id="rfpop"><h2 style="margin-top:0">🔮 '+LH('TODAY · ','आज · ')+dayW(p.k)+'</h2><div class="g b" style="margin-bottom:8px">'+tLong(p.t0)+', '+masaName(p.sr,p.t0)+' · '+T().vara[p.wd]+'</div>'+perCard(p.k,LH('🕉️ SACRED PERIOD','🕉️ पवित्र काल'))+horoCard(p)+recCard(p,LH('🙏 TODAY: DO & AVOID','🙏 आज: करें और न करें'))+todayMantraCard()+'<button class="btn2" data-a="rfoff" style="width:100%">'+LH('TURN OFF DAILY POP-UP','रोज़ का पॉप-अप बंद करें')+'</button></div>')}
+function remList(){var r=S.rem,out=rfRem();if(!r.on)return out;var t=todayYMD(),tk=key(t[0],t[1],t[2]),seen={};
  var at=function(k,hhmm,dd){var a=pk(k),x=addD(a[0],a[1],a[2],dd||0),h=(hhmm||'07:00').split(':');return Date.UTC(x[0],x[1],x[2],+h[0],+h[1])-L().tz*3600000};
  var add=function(k,title,emoji,id){if(seen[id])return;seen[id]=1;if(r.before){var b=at(k,r.bt,-1);if(b>Date.now())out.push({id:id+'_b',at:b,t:emoji+' Tomorrow: '+title,b:dayW(k)+' · Din Darpan'})}
   if(r.same){var s=at(k,r.st,0);if(s>Date.now())out.push({id:id+'_s',at:s,t:emoji+' Today: '+title,b:dayW(k)+' · Din Darpan'})}};
  if(r.cats.cd)S.cd.forEach(function(c){if(c.d>=tk&&daysBetween(tk,c.d)<=60)add(c.d,S.lang!='en'&&c.h?tr(c.h):c.n,c.e||'⭐',c.uid)});
  upcoming(tk,120,{major:r.cats.major,state:r.cats.state,vrat:r.cats.vrat,mine:r.cats.mine}).forEach(function(f){if(daysBetween(tk,f.d)<=60)add(f.d,fname(f),f.e,f.uid)});
- out.sort(function(a,b){return a.at-b.at});return out.slice(0,60)}
+ out.sort(function(a,b){return a.at-b.at});return out.slice(0,66)}
 W.owhOpen=function(tab,d){var i=TABS.map(function(x){return x[0]}).indexOf(tab);if(i>=0)go(i,true);if(d&&/^\d{4}-\d\d-\d\d$/.test(d))setTimeout(function(){daySheet(d)},50)};
-W.owhResume=function(){cdRoll();hdr();rerender();pushNative()};
+W.owhResume=function(){cdRoll();hdr();rerender();pushNative();rfCheck()};
 /* ---------- start ---------- */
 look();
 cdRoll();hdr();tabs();
-var qs=new URLSearchParams(location.search),h0=(location.hash||'').slice(1),st=qs.get('tab')||h0;var i0=TABS.map(function(x){return x[0]}).indexOf(st);go(i0>=0?i0:0,true);loadHi();
+var qs=new URLSearchParams(location.search),h0=(location.hash||'').slice(1),st=qs.get('tab')||h0;var i0=TABS.map(function(x){return x[0]}).indexOf(st);go(i0>=0?i0:0,true);loadHi();setTimeout(rfCheck,2600);rfTimer();setInterval(rfCheck,60000);
 if(qs.get('d'))setTimeout(function(){daySheet(qs.get('d'))},100);
 setInterval(function(){if(D.hidden)return;if(TABS[cur][0]=='home')rHome();hdr()},30000);
 D.addEventListener('visibilitychange',function(){if(!D.hidden){hdr();rerender()}});

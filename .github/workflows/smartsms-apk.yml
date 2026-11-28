@@ -1,0 +1,76 @@
+name: Smart SMS APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['android-smartsms/**', '.github/workflows/smartsms-apk.yml']
+permissions:
+  contents: write
+concurrency:
+  group: smartsms-apk
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      # The runner already has the Android SDK; Gradle downloads the platform it needs.
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Run unit tests
+        working-directory: android-smartsms
+        run: gradle testDebugUnitTest --no-daemon --stacktrace
+      - name: Build the APK
+        working-directory: android-smartsms
+        run: gradle assembleDebug --no-daemon --stacktrace
+      - name: Name the file
+        run: cp android-smartsms/app/build/outputs/apk/debug/app-debug.apk Smart-SMS.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: Smart-SMS-app, path: Smart-SMS.apk, retention-days: 30 }
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: smartsms-test-reports, path: android-smartsms/app/build/reports/tests/, if-no-files-found: ignore }
+      - name: Put it on the Releases page
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: smartsms-apk
+          name: Smart SMS APK (latest)
+          body: |
+            Build ${{ github.run_number }}.
+            Smart-SMS.apk: open it on your phone to install. It installs over the old one, nothing is lost.
+            Phase 1 preview: all messages in it are sample (DEMO) data, it reads no real SMS yet.
+          files: Smart-SMS.apk
+          make_latest: false
+
+  # Opens the app on an Android emulator, visits the main screens, saves screenshots
+  # and fails if the app crashes.
+  smoke-test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: Smart-SMS-app }
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash android-smartsms/smoke.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: smartsms-screenshots, path: shots/, if-no-files-found: ignore }

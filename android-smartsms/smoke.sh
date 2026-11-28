@@ -83,16 +83,14 @@ adb shell am start -W -n $PKG/.MainActivity >/dev/null; sleep 2
 
 tap_text "Messages" && shot 04-all-messages
 tap_text "New Message" && shot 04b-new-message && adb shell input keyevent 4 && sleep 1
-tap_text "Transactions" && shot 05-transactions
+dump
+if grep -q "lucky draw" ui.xml; then echo "CHECK FAILED: scam SMS also shows in All"; fail=1; else echo "CHECK OK: scam SMS kept out of All"; fi
 # the folder chips scroll sideways: swipe them left so "Spam" is visible
 dump; cb=$(find_attr text "Transactions")
 if [ -n "$cb" ]; then read -r x1 y1 x2 y2 <<<"$(echo "$cb" | sed -E 's/\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]/\1 \2 \3 \4/')"; cy=$(( (y1 + y2) / 2 )); adb shell input swipe 1000 $cy 100 $cy 300; sleep 1; fi
 tap_text "Spam" && shot 05b-spam
 dump
 if grep -q "lucky draw" ui.xml; then echo "CHECK OK: scam SMS is in Spam"; else echo "CHECK FAILED: scam SMS not in Spam"; fail=1; fi
-tap_text "All"
-dump
-if grep -q "lucky draw" ui.xml; then echo "CHECK FAILED: scam SMS also shows in All"; fail=1; else echo "CHECK OK: scam SMS kept out of All"; fi
 tap_text "Finance" && shot 06-finance
 tap_text "Settings" && shot 07-settings
 tap_text "Theme &amp; Colours" && shot 08-themes

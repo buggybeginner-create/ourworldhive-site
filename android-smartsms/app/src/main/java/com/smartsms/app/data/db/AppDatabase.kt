@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [
@@ -18,7 +20,7 @@ import androidx.room.RoomDatabase
         UserSettingsEntity::class,
         ThemeEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,6 +40,18 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, NAME)
+                .addMigrations(MIGRATION_1_2)
                 .build()
+
+        /** Phase 2: links rows to the phone's SMS store and records the result of scheduled sends. */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN smsId INTEGER")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_messages_smsId ON messages (smsId)")
+                db.execSQL("ALTER TABLE scheduled_messages ADD COLUMN sentAt INTEGER")
+                db.execSQL("ALTER TABLE scheduled_messages ADD COLUMN error TEXT")
+                db.execSQL("ALTER TABLE user_settings ADD COLUMN lastSmsId INTEGER NOT NULL DEFAULT 0")
+            }
+        }
     }
 }

@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smartsms.app.domain.MessageCategory
+import com.smartsms.app.sms.SmsSyncState
 import com.smartsms.app.ui.components.DemoBanner
 import com.smartsms.app.ui.components.EmptyState
 import com.smartsms.app.ui.components.SectionHeader
@@ -65,8 +66,9 @@ import java.util.Calendar
 @Composable
 fun InboxScreen(nav: Navigator, vm: InboxViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val sms by vm.sms.collectAsStateWithLifecycle()
     Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
-        StateContent(state, onRetry = vm::retry) { data -> InboxContent(data, nav) }
+        StateContent(state, onRetry = vm::retry) { data -> InboxContent(data, nav, sms, vm::onSmsPermissionResult) }
     }
 }
 
@@ -77,7 +79,7 @@ private fun greeting(): String = when (Calendar.getInstance().get(Calendar.HOUR_
 }
 
 @Composable
-private fun InboxContent(d: InboxData, nav: Navigator) {
+private fun InboxContent(d: InboxData, nav: Navigator, sms: SmsSyncState, onSmsGranted: () -> Unit) {
     val totalUnread = d.counts.values.sumOf { it.unread }
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -94,6 +96,7 @@ private fun InboxContent(d: InboxData, nav: Navigator) {
             Spacer(Modifier.height(12.dp))
             SearchPill { nav.open(Routes.SEARCH) }
         }
+        item { Spacer(Modifier.height(12.dp)); SmsAccessCard(sms, onSmsGranted) }
         if (d.hasDemo) item { Spacer(Modifier.height(12.dp)); DemoBanner() }
         item {
             Spacer(Modifier.height(12.dp))

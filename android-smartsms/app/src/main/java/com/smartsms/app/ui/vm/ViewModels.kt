@@ -22,6 +22,8 @@ import com.smartsms.app.data.db.UserSettingsEntity
 import com.smartsms.app.data.repo.FinanceSummary
 import com.smartsms.app.domain.MessageCategory
 import com.smartsms.app.ui.components.UiState
+import com.smartsms.app.sms.SmsSender
+import com.smartsms.app.sms.SmsSyncState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -95,6 +97,9 @@ class InboxViewModel(app: SmartSmsApp) : ViewModel() {
     }.stateIn(this)
 
     fun retry() { retry.value++ }
+
+    val sms: StateFlow<SmsSyncState> = c.smsImporter.state
+    fun onSmsPermissionResult() = c.onSmsAccessChanged()
 }
 
 /* ------------------------------ Search ------------------------------ */
@@ -147,6 +152,22 @@ class ConversationViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewMo
     init { viewModelScope.launch { repo.markRead(id) } }
 
     fun toggleStar(messageId: Long) = viewModelScope.launch { repo.toggleStar(messageId) }
+
+    private val appCtx = app.applicationContext
+    private val importer = app.container.smsImporter
+    private val _sendError = MutableStateFlow<String?>(null)
+    val sendError: StateFlow<String?> = _sendError.asStateFlow()
+    fun clearSendError() { _sendError.value = null }
+
+    /** Sends [text] to [to]. Android saves it in the phone's SMS store and it then shows in this chat. */
+    fun send(to: String, text: String): Boolean = try {
+        SmsSender.send(appCtx, to, text)
+        importer.importSoon(1200)
+        true
+    } catch (e: Exception) {
+        _sendError.value = e.message ?: "Could not send"
+        false
+    }
 }
 
 /* ------------------------------ Scheduled ------------------------------ */
@@ -158,6 +179,7 @@ class ScheduledViewModel(app: SmartSmsApp) : ViewModel() {
     fun add(recipient: String, body: String, sendAt: Long) = viewModelScope.launch { repo.add(recipient, body, sendAt) }
     fun cancel(item: ScheduledMessageEntity) = viewModelScope.launch { repo.cancel(item) }
     fun delete(id: Long) = viewModelScope.launch { repo.delete(id) }
+    fun reschedule() = viewModelScope.launch { repo.reschedule() }
 }
 
 /* ------------------------------ Finance ------------------------------ */
@@ -202,6 +224,14 @@ class SettingsViewModel(app: SmartSmsApp) : ViewModel() {
 
     fun update(transform: (UserSettingsEntity) -> UserSettingsEntity) =
         viewModelScope.launch { c.settingsRepository.update(transform) }
+
+    val sms: StateFlow<SmsSyncState> = c.smsImporter.state
+    val realCount: StateFlow<Int> = c.database.messageDao().observeRealCount()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT), 0)
+    fun onSmsPermissionResult() = c.onSmsAccessChanged()
+    fun readAllAgain() = viewModelScope.launch { c.smsImporter.import(full = true) }
+    fun refreshNames() = viewModelScope.launch { c.smsImporter.import() }
+    fun rescheduleAll() = viewModelScope.launch { c.scheduleRepository.reschedule() }
 
     fun removeDemo() = viewModelScope.launch { c.demoRepository.remove() }
     fun restoreDemo() = viewModelScope.launch {

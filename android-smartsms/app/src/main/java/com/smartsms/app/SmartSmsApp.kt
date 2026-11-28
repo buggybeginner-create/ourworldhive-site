@@ -18,13 +18,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.smartsms.app.sms.Perms
+import com.smartsms.app.sms.ScheduleAlarms
+import com.smartsms.app.sms.SmsImporter
 
 /** Simple manual dependency container (no DI framework needed for Phase 1). */
 class AppContainer(app: Application) {
     val database: AppDatabase = AppDatabase.build(app)
     val settingsRepository = SettingsRepository(database)
     val messageRepository = MessageRepository(database, settingsRepository)
-    val scheduleRepository = ScheduleRepository(database, settingsRepository)
+    /** Long-lived scope for background work (imports, receivers). */
+    val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    val smsImporter = SmsImporter(app, database, appScope)
+    val scheduleRepository = ScheduleRepository(app, database, settingsRepository)
     val financeRepository = FinanceRepository(database, settingsRepository)
     val backupRepository = BackupRepository(database)
     val demoRepository = DemoRepository(database)
@@ -33,11 +39,11 @@ class AppContainer(app: Application) {
     /** The splash screen waits for this before opening the inbox. */
     val ready: StateFlow<DbState> = _ready.asStateFlow()
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val appContext = app.applicationContext
 
     fun initDatabase() {
         _ready.value = DbState.Loading
-        scope.launch {
+        appScope.launch {
             _ready.value = runCatching {
                 // One transaction: a half-finished first start is rolled back and redone next time.
                 database.withTransaction {
@@ -48,7 +54,18 @@ class AppContainer(app: Application) {
                     }
                 }
             }.fold({ DbState.Ready }, { DbState.Failed(it.message ?: "Database could not be opened") })
+            if (_ready.value == DbState.Ready) {
+                runCatching { ScheduleAlarms.rescheduleAll(appContext, database) }
+                onSmsAccessChanged()
+            }
         }
+    }
+
+    /** Call after the user allows (or re-allows) SMS access. */
+    fun onSmsAccessChanged() {
+        if (!Perms.canRead(appContext)) return
+        smsImporter.startWatching()
+        appScope.launch { smsImporter.import() }
     }
 }
 

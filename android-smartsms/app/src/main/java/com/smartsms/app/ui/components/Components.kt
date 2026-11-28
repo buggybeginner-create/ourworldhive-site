@@ -177,7 +177,7 @@ fun DemoBanner(modifier: Modifier = Modifier) {
             Icon(Icons.Rounded.Science, null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
             Spacer(Modifier.size(10.dp))
             Text(
-                "Sample messages for preview. These are not your real SMS — reading real SMS comes in a later phase. You can hide them in Settings.",
+                "Sample messages for preview, marked DEMO. They are not your real SMS. Allow SMS access above to see your own; samples are then hidden.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )

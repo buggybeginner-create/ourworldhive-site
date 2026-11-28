@@ -34,6 +34,28 @@ interface MessageDao {
     @Insert
     suspend fun insertAll(messages: List<MessageEntity>): List<Long>
 
+    /** Import from the phone: rows whose smsId is already stored are skipped (id = -1). */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAllIgnore(messages: List<MessageEntity>): List<Long>
+
+    @Query("SELECT * FROM messages WHERE conversationId = :conversationId ORDER BY timestamp DESC LIMIT 1")
+    suspend fun latestIn(conversationId: Long): MessageEntity?
+
+    @Query("SELECT COUNT(*) FROM messages WHERE conversationId = :conversationId AND isRead = 0")
+    suspend fun unreadIn(conversationId: Long): Int
+
+    @Query(
+        "SELECT category, COUNT(*) AS total, SUM(CASE WHEN isRead = 0 THEN 1 ELSE 0 END) AS unread " +
+            "FROM messages WHERE conversationId = :conversationId GROUP BY category"
+    )
+    suspend fun countsIn(conversationId: Long): List<CategoryCount>
+
+    @Query("SELECT COUNT(*) FROM messages WHERE isDemo = 0")
+    fun observeRealCount(): Flow<Int>
+
+    @Query("DELETE FROM messages WHERE isDemo = 0")
+    suspend fun deleteReal()
+
     @Query("UPDATE messages SET isRead = 1 WHERE conversationId = :conversationId")
     suspend fun markThreadRead(conversationId: Long)
 
@@ -69,6 +91,15 @@ interface ConversationDao {
 
     @Insert
     suspend fun insertAll(conversations: List<ConversationEntity>): List<Long>
+
+    @Query("SELECT * FROM conversations WHERE isDemo = 0")
+    suspend fun getReal(): List<ConversationEntity>
+
+    @Update
+    suspend fun update(conversation: ConversationEntity)
+
+    @Query("DELETE FROM conversations WHERE isDemo = 0")
+    suspend fun deleteReal()
 
     @Query("UPDATE conversations SET unreadCount = 0 WHERE id = :id")
     suspend fun clearUnread(id: Long)
@@ -127,6 +158,12 @@ interface ScheduledMessageDao {
     @Query("SELECT * FROM scheduled_messages")
     suspend fun getAll(): List<ScheduledMessageEntity>
 
+    @Query("SELECT * FROM scheduled_messages WHERE id = :id")
+    suspend fun getById(id: Long): ScheduledMessageEntity?
+
+    @Query("SELECT * FROM scheduled_messages WHERE status = 'PENDING' AND isDemo = 0")
+    suspend fun getPendingReal(): List<ScheduledMessageEntity>
+
     @Insert
     suspend fun insertAll(messages: List<ScheduledMessageEntity>)
 
@@ -150,6 +187,9 @@ interface TransactionDao {
 
     @Query("DELETE FROM transactions WHERE isDemo = 1")
     suspend fun deleteDemo()
+
+    @Query("DELETE FROM transactions WHERE isDemo = 0 AND messageId IS NOT NULL")
+    suspend fun deleteFromSms()
 
     @Query("DELETE FROM transactions")
     suspend fun deleteAll()

@@ -96,14 +96,7 @@ object DemoSeeder {
     suspend fun seedDemo(db: AppDatabase, now: Long = System.currentTimeMillis()) = db.withTransaction {
         val budgets = db.budgetCategoryDao().getAll()
         fun budgetFor(merchant: String): Long? {
-            val m = merchant.lowercase()
-            val name = when {
-                listOf("grocery", "food", "bite", "mart").any { it in m } -> "Food & Groceries"
-                listOf("fuel", "ride", "metro", "travel").any { it in m } -> "Travel & Fuel"
-                listOf("stream", "bill", "recharge", "entertainment").any { it in m } -> "Bills & Subscriptions"
-                listOf("shop", "store").any { it in m } -> "Shopping"
-                else -> "Other"
-            }
+            val name = com.smartsms.app.domain.BudgetGuess.nameFor(merchant)
             return budgets.firstOrNull { it.name == name }?.id
         }
 

@@ -109,12 +109,14 @@ class BackupRepository(private val db: AppDatabase) {
         .put("id", id).put("conversationId", conversationId).put("address", address)
         .put("body", body).put("timestamp", timestamp).put("isIncoming", isIncoming)
         .put("isRead", isRead).put("isStarred", isStarred).put("category", category).put("isDemo", isDemo)
+        .put("smsId", smsId ?: JSONObject.NULL)
 
     private fun JSONObject.toMessage() = MessageEntity(
         id = getLong("id"), conversationId = getLong("conversationId"), address = getString("address"),
         body = getString("body"), timestamp = getLong("timestamp"), isIncoming = optBoolean("isIncoming", true),
         isRead = optBoolean("isRead"), isStarred = optBoolean("isStarred"),
-        category = getString("category"), isDemo = optBoolean("isDemo")
+        category = getString("category"), isDemo = optBoolean("isDemo"),
+        smsId = if (!has("smsId") || isNull("smsId")) null else getLong("smsId")
     )
 
     private fun ScheduledMessageEntity.toJson() = JSONObject()

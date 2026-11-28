@@ -1,5 +1,6 @@
 package com.smartsms.app.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -13,7 +14,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "messages",
-    indices = [Index("conversationId"), Index("category"), Index("timestamp")]
+    indices = [Index("conversationId"), Index("category"), Index("timestamp"), Index(value = ["smsId"], unique = true)]
 )
 data class MessageEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -25,7 +26,9 @@ data class MessageEntity(
     val isRead: Boolean = false,
     val isStarred: Boolean = false,
     val category: String,
-    val isDemo: Boolean
+    val isDemo: Boolean,
+    /** _id of the row in the phone's SMS store; null for demo rows. Prevents double import. */
+    val smsId: Long? = null
 )
 
 @Entity(tableName = "conversations", indices = [Index(value = ["address"], unique = true)])
@@ -64,13 +67,18 @@ data class ScheduledMessageEntity(
     val recipient: String,
     val body: String,
     val sendAt: Long,
-    /** PENDING or CANCELLED. Sending is added in a later phase. */
+    /** PENDING, SENDING, SENT, FAILED or CANCELLED. Demo rows are never sent. */
     val status: String = STATUS_PENDING,
     val createdAt: Long,
-    val isDemo: Boolean
+    val isDemo: Boolean,
+    val sentAt: Long? = null,
+    val error: String? = null
 ) {
     companion object {
         const val STATUS_PENDING = "PENDING"
+        const val STATUS_SENDING = "SENDING"
+        const val STATUS_SENT = "SENT"
+        const val STATUS_FAILED = "FAILED"
         const val STATUS_CANCELLED = "CANCELLED"
     }
 }
@@ -122,7 +130,9 @@ data class UserSettingsEntity(
     val showTimestamps: Boolean = true,
     val compactList: Boolean = false,
     val showAvatars: Boolean = true,
-    val showDemoData: Boolean = true
+    val showDemoData: Boolean = true,
+    /** Highest phone SMS _id already imported. */
+    @ColumnInfo(defaultValue = "0") val lastSmsId: Long = 0
 )
 
 @Entity(tableName = "themes")

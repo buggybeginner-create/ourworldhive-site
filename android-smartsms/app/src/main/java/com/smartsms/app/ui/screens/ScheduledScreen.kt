@@ -1,5 +1,11 @@
 package com.smartsms.app.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.smartsms.app.sms.Perms
+import com.smartsms.app.ui.components.rememberCheck
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -68,6 +74,11 @@ import java.util.TimeZone
 fun ScheduledScreen(nav: Navigator, vm: ScheduledViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
     var adding by rememberSaveable { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    val canSend by rememberCheck { Perms.canSend(ctx) }
+    val exact by rememberCheck { Perms.canExact(ctx) }
+    val askSend = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
+    LaunchedEffect(exact) { if (exact) vm.reschedule() }
 
     ScreenScaffold(
         title = "Scheduled",
@@ -82,11 +93,21 @@ fun ScheduledScreen(nav: Navigator, vm: ScheduledViewModel = viewModel(factory =
     ) { pad ->
         Column(Modifier.padding(pad)) {
             Text(
-                "Messages are saved with their time. Automatic sending is switched on in a later phase, once Smart SMS can be your default SMS app.",
+                "Smart SMS sends each message by itself at its time, from your default SIM for SMS. DEMO rows are never sent.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
             )
+            if (!canSend) {
+                FixBanner("Sending SMS is not allowed yet, so scheduled messages cannot go out.", "Allow Sending") {
+                    askSend.launch(Perms.SEND_GROUP)
+                }
+            }
+            if (!exact) {
+                FixBanner("Exact timing is off: Android may send a few minutes late.", "Allow Exact Time") {
+                    ctx.startActivity(Perms.exactAlarmSettings(ctx))
+                }
+            }
             StateContent(state) { list ->
                 if (list.isEmpty()) {
                     EmptyState(Icons.AutoMirrored.Rounded.ScheduleSend, "Nothing Scheduled", "Tap Schedule to plan a birthday wish, a reminder or a follow-up.")
@@ -105,15 +126,36 @@ fun ScheduledScreen(nav: Navigator, vm: ScheduledViewModel = viewModel(factory =
     if (adding) {
         ScheduleDialog(
             onDismiss = { adding = false },
-            onSave = { to, text, at -> vm.add(to, text, at); adding = false }
+            onSave = { to, text, at ->
+                vm.add(to, text, at)
+                adding = false
+                if (!Perms.canSend(ctx) || !Perms.canNotify(ctx)) askSend.launch(Perms.SEND_GROUP)
+            }
         )
+    }
+}
+
+@Composable
+private fun FixBanner(text: String, action: String, onClick: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)
+    ) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = onClick) { Text(action) }
+        }
     }
 }
 
 @Composable
 private fun ScheduledCard(s: ScheduledMessageEntity, onCancel: () -> Unit, onDelete: () -> Unit) {
     val cancelled = s.status == ScheduledMessageEntity.STATUS_CANCELLED
-    val past = s.sendAt < System.currentTimeMillis()
+    val sent = s.status == ScheduledMessageEntity.STATUS_SENT
+    val failed = s.status == ScheduledMessageEntity.STATUS_FAILED
+    val sending = s.status == ScheduledMessageEntity.STATUS_SENDING
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         shape = MaterialTheme.shapes.medium
@@ -131,11 +173,18 @@ private fun ScheduledCard(s: ScheduledMessageEntity, onCancel: () -> Unit, onDel
                     Text(
                         when {
                             cancelled -> "Cancelled"
-                            past -> "Was due ${formatFull(s.sendAt)}"
-                            else -> formatFull(s.sendAt)
+                            sent -> "Sent ${formatFull(s.sentAt ?: s.sendAt)}"
+                            failed -> "Not sent: ${s.error ?: "unknown reason"}"
+                            sending -> "Sending…"
+                            s.isDemo -> "Sample · never sent"
+                            else -> "Sends ${formatFull(s.sendAt)}"
                         },
                         style = MaterialTheme.typography.labelMedium,
-                        color = if (cancelled) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = when {
+                            cancelled || failed -> MaterialTheme.colorScheme.error
+                            sent -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
                     )
                 }
                 if (s.isDemo) DemoBadge()
@@ -143,7 +192,7 @@ private fun ScheduledCard(s: ScheduledMessageEntity, onCancel: () -> Unit, onDel
             Spacer(Modifier.height(10.dp))
             Text(s.body, style = MaterialTheme.typography.bodyMedium)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                if (!cancelled) {
+                if (s.status == ScheduledMessageEntity.STATUS_PENDING) {
                     TextButton(onClick = onCancel) {
                         Icon(Icons.Rounded.Cancel, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Cancel")
                     }

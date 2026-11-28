@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Phase 1 asks for NO SMS, contacts or internet permissions: every message shown is
-  sample demo data stored in the app's own Room database. Real SMS access
-  (READ_SMS / RECEIVE_SMS / default-SMS-app role) is added in a later phase.
+  Phase 2: reads SMS (READ_SMS, RECEIVE_SMS), sends replies and scheduled messages (SEND_SMS).
+  Smart SMS is NOT the default SMS app: the phone's normal SMS app keeps saving every SMS and MMS,
+  so nothing can be lost. No INTERNET permission: messages never leave the phone.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".SmartSmsApp"
@@ -27,5 +37,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- New SMS: read it from the phone's SMS store a moment later. Only the system can send this. -->
+        <receiver
+            android:name=".sms.SmsReceivedReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".sms.ScheduledSendReceiver" android:exported="false" />
+        <receiver android:name=".sms.SentReceiver" android:exported="false" />
+
+        <receiver android:name=".sms.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

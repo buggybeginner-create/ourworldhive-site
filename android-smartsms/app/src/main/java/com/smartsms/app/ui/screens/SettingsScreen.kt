@@ -1,5 +1,16 @@
 package com.smartsms.app.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.Sms
+import androidx.compose.material.icons.rounded.Sync
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.smartsms.app.sms.Perms
+import com.smartsms.app.sms.SmsSyncState
+import com.smartsms.app.ui.components.rememberCheck
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -72,6 +83,22 @@ fun SettingsScreen(nav: Navigator, vm: SettingsViewModel = viewModel(factory = A
 @Composable
 private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: Navigator, pad: PaddingValues) {
     var confirmRemove by remember { mutableStateOf(false) }
+    var confirmReread by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    var canRead by rememberCheck { Perms.canRead(ctx) }
+    var canContacts by rememberCheck { Perms.canContacts(ctx) }
+    val exact by rememberCheck { Perms.canExact(ctx) }
+    val sms by vm.sms.collectAsStateWithLifecycle()
+    val realCount by vm.realCount.collectAsStateWithLifecycle()
+    val askRead = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        canRead = Perms.canRead(ctx); canContacts = Perms.canContacts(ctx)
+        if (canRead) vm.onSmsPermissionResult() else ctx.startActivity(Perms.appSettings(ctx))
+    }
+    val askContacts = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        canContacts = ok
+        if (ok) vm.refreshNames()
+    }
+    LaunchedEffect(exact) { if (exact) vm.rescheduleAll() }
     // Sliders update locally while dragging and save once on release.
     var font by remember(s.fontScale) { mutableFloatStateOf(s.fontScale) }
     var corner by remember(s.bubbleCorner) { mutableFloatStateOf(s.bubbleCorner.toFloat()) }
@@ -133,6 +160,31 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
             SwitchRow(Icons.Rounded.TextFields, "Compact Lists", s.compactList) { on -> vm.update { it.copy(compactList = on) } }
         }
 
+        item { SectionHeader("Your SMS", Modifier.padding(horizontal = 8.dp)) }
+        item {
+            val status = when {
+                !canRead -> "Not allowed · tap to allow"
+                sms is SmsSyncState.Reading -> "Reading… ${(sms as SmsSyncState.Reading).count} messages"
+                sms is SmsSyncState.Failed -> "Problem: ${(sms as SmsSyncState.Failed).reason}"
+                else -> "Allowed · $realCount messages on this phone"
+            }
+            NavRow(Icons.Rounded.Sms, "SMS Access", status) { if (!canRead) askRead.launch(Perms.READ_GROUP) }
+        }
+        if (canRead) {
+            item { NavRow(Icons.Rounded.Sync, "Read All SMS Again", "Use if messages look missing or doubled") { confirmReread = true } }
+            if (!canContacts) {
+                item { NavRow(Icons.Rounded.Contacts, "Show Contact Names", "Names instead of numbers") { askContacts.launch(android.Manifest.permission.READ_CONTACTS) } }
+            }
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            item {
+                NavRow(
+                    Icons.Rounded.Alarm, "Exact Time For Scheduled Messages",
+                    if (exact) "On" else "Off · messages may go a few minutes late"
+                ) { ctx.startActivity(Perms.exactAlarmSettings(ctx)) }
+            }
+        }
+
         item { SectionHeader("Messages & Data", Modifier.padding(horizontal = 8.dp)) }
         item { NavRow(Icons.Rounded.Schedule, "Scheduled Messages", null) { nav.open(Routes.SCHEDULED) } }
         item { NavRow(Icons.Rounded.Backup, "Backup & Sync", null) { nav.open(Routes.BACKUP) } }
@@ -150,12 +202,22 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
         item {
             Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.padding(horizontal = 8.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    InfoLine(Icons.Rounded.Shield, "This version asks for no SMS, contacts or internet permission. Everything stays on this phone.")
+                    InfoLine(Icons.Rounded.Shield, "Your SMS are read and sorted only on this phone. Smart SMS has no internet permission and uploads nothing. Your normal SMS app keeps saving messages as before.")
                     InfoLine(Icons.Rounded.Shield, "One-time codes are kept in their own folder and hidden until you tap. Smart SMS never copies, auto-fills or forwards a code.")
-                    InfoLine(Icons.Rounded.Info, "Smart SMS ${BuildConfig.VERSION_NAME} · Phase 1")
+                    InfoLine(Icons.Rounded.Info, "Smart SMS ${BuildConfig.VERSION_NAME}")
                 }
             }
         }
+    }
+
+    if (confirmReread) {
+        AlertDialog(
+            onDismissRequest = { confirmReread = false },
+            title = { Text("Read All SMS Again?") },
+            text = { Text("Smart SMS forgets its copy of your SMS and reads them again from the phone. Your SMS on the phone are not touched. Stars and pins on real chats are reset.") },
+            confirmButton = { TextButton(onClick = { vm.readAllAgain(); confirmReread = false }) { Text("Read Again") } },
+            dismissButton = { TextButton(onClick = { confirmReread = false }) { Text("Cancel") } }
+        )
     }
 
     if (confirmRemove) {

@@ -11,6 +11,7 @@ import com.smartsms.app.data.db.ThemeEntity
 import com.smartsms.app.data.db.TransactionEntity
 import com.smartsms.app.data.db.UserSettingsEntity
 import com.smartsms.app.domain.MessageCategory
+import com.smartsms.app.sms.ScheduleAlarms
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -68,27 +69,39 @@ class MessageRepository(private val db: AppDatabase, private val settings: Setti
     suspend fun toggleStar(messageId: Long) = db.messageDao().toggleStar(messageId)
 }
 
-class ScheduleRepository(private val db: AppDatabase, private val settings: SettingsRepository) {
+class ScheduleRepository(
+    private val ctx: android.content.Context,
+    private val db: AppDatabase,
+    private val settings: SettingsRepository
+) {
     @OptIn(ExperimentalCoroutinesApi::class)
     val scheduled: Flow<List<ScheduledMessageEntity>> =
         settings.showDemo.flatMapLatest { db.scheduledMessageDao().observeAll(it) }
 
     suspend fun add(recipient: String, body: String, sendAt: Long) {
-        db.scheduledMessageDao().insert(
-            ScheduledMessageEntity(
-                recipient = recipient.trim(),
-                body = body.trim(),
-                sendAt = sendAt,
-                createdAt = System.currentTimeMillis(),
-                isDemo = false
-            )
+        val item = ScheduledMessageEntity(
+            recipient = recipient.trim(),
+            body = body.trim(),
+            sendAt = sendAt,
+            createdAt = System.currentTimeMillis(),
+            isDemo = false
         )
+        val id = db.scheduledMessageDao().insert(item)
+        ScheduleAlarms.schedule(ctx, item.copy(id = id))
     }
 
-    suspend fun cancel(item: ScheduledMessageEntity) =
+    suspend fun cancel(item: ScheduledMessageEntity) {
+        ScheduleAlarms.cancel(ctx, item.id)
         db.scheduledMessageDao().update(item.copy(status = ScheduledMessageEntity.STATUS_CANCELLED))
+    }
 
-    suspend fun delete(id: Long) = db.scheduledMessageDao().delete(id)
+    suspend fun delete(id: Long) {
+        ScheduleAlarms.cancel(ctx, id)
+        db.scheduledMessageDao().delete(id)
+    }
+
+    /** Puts every waiting message on the clock again, e.g. after exact timing was allowed. */
+    suspend fun reschedule() = ScheduleAlarms.rescheduleAll(ctx, db)
 }
 
 data class BudgetUsage(val budget: BudgetCategoryEntity, val spent: Double) {

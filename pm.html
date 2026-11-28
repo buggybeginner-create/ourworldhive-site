@@ -1451,7 +1451,7 @@ setTimeout(()=>{const _ts=A.tshare,_tg=A.tgshare,ask=(t,txt,img)=>{window.__shT=
  A.tgshare=function(d){ask({PM:'Tasks',SD:'Shutdown',CAL:'Calibration'}[d.k]||'',()=>_tg(d),()=>todayImgShare({grp:d.k}))};
  A.shtxt=function(){closeSheet();const f=window.__shT;if(f)f()};A.shimg=function(){closeSheet();const f=window.__shI;if(f)f()};['shtxt','shimg'].forEach(k=>READONLY.add(k))},0);
 /* ================= Update Available: compare this copy with the website (change PM_VER on EVERY edit of pm.html) ================= */
-var PM_VER='2026-11-23.1';
+var PM_VER='2026-11-28.1';
 (function(){let shown=false,last=0;async function chk(){if(shown||!navigator.onLine||!/^https?:$/.test(location.protocol)||Date.now()-last<60000)return;last=Date.now();
  try{const t=await(await fetch('pm.html?v='+Date.now(),{cache:'no-store'})).text(),m=t.match(/var PM_VER='([^']+)'/);if(!m||m[1]===PM_VER)return;shown=true;
   const d=document.createElement('div');d.id='pmUpd';d.setAttribute('role','status');d.innerHTML='<button type="button" data-u="go">🔄 Update Available · Tap To Update</button><button class="x" type="button" data-u="x" aria-label="Later">✕</button>';
@@ -2762,6 +2762,55 @@ function almCard(){const c=almCfg();if(almAdm())return`<div class="card"><b>\u23
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='almtime'&&e.target.value){almSet({time:e.target.value});try{localStorage.removeItem('owh_pm_almd_'+S.session.plant)}catch(x){}toast('Alarm time: '+e.target.value)}});
 (function(){const _vm=vMore;vMore=function(){_vm.apply(this,arguments);try{const v=$('view'),l=$('lng'),c=l&&l.closest('.card');const d=document.createElement('div');d.innerHTML=almCard();if(c)c.parentNode.insertBefore(d.firstChild,c);else v.insertAdjacentHTML('beforeend',almCard())}catch(e){}}})();
 (function(){const _b=bell;bell=function(){_b.apply(this,arguments);try{const h=$('sin').querySelector('h2');if(h)h.insertAdjacentHTML('afterend','<button class="btn g" style="width:100%;margin-bottom:8px" data-a="almopen">⏰ Open Full-Screen Alarm List</button>')}catch(e){}};A.bell=bell})();
+/* ---- Google Drive: restore a backup and automatic backups (plant admin only) ---- */
+(function(){
+const AK=()=>'pm_drvauto_'+PL().code;
+function drvAuto(){try{return +localStorage.getItem(AK())||0}catch(e){return 0}}
+function drvDue(){const a=drvAuto();return a>0&&isAdminU()&&CLOUDON()&&Date.now()-drvLast()>=a*864e5}
+function drvTokOk(){return !!(DRV.tok&&Date.now()<DRV.exp)}
+let running=false;
+async function runSync(){if(running)return;running=true;try{await drvSync()}finally{running=false}}
+async function bkFolder(){const P=PL();if(P.drv&&P.drv.bk)return P.drv.bk;const root=await drvFolder('PM Tracker - '+P.name+' ('+P.code+')'),bk=await drvFolder('Backups',root);P.drv=Object.assign({},P.drv||{},{root,bk});save();return bk}
+const fmtT=s=>{try{return new Date(s).toLocaleString(undefined,{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'})}catch(e){return s}};
+/* merge by id: same id → backup copy, missing → added back, nothing is deleted */
+function mergeById(cur,add){cur=Array.isArray(cur)?cur.slice():[];if(!Array.isArray(add))return{list:cur,n:0};let n=0;const at={};cur.forEach((x,i)=>{if(x&&x.id!=null)at[x.id]=i});
+ add.forEach(x=>{if(!x||x.id==null)return;const i=at[x.id];if(i==null){at[x.id]=cur.length;cur.push(x);n++}else if(JSON.stringify(cur[i])!==JSON.stringify(x)){cur[i]=x;n++}});return{list:cur,n}}
+
+const _dc=drvCard;drvCard=function(P){const a=drvAuto();return _dc(P)+`<div class="card" style="display:flex;flex-direction:column;gap:8px"><b>🔁 Automatic Backup</b>
+<label><span><b>Back up to Drive</b></span><select id="drvauto" style="font-size:16px">${[[0,'Off (only when I tap Sync)'],[1,'Every day'],[7,'Every week'],[30,'Every month']].map(o=>`<option value="${o[0]}" ${a===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></label>
+<div class="note">Google asks for permission once each time the app is opened. While permission is active, backups run by themselves when due. Otherwise a reminder appears on the Today screen and one tap backs up.</div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:8px"><b>📥 Restore From Drive</b><div class="note">Pick one of your Drive backups to put lost or changed jobs, history, materials and breakdowns back. Nothing is deleted, and team members and their roles are not changed.</div><button class="btn g" style="min-height:48px;font-size:16px" data-a="drvrestore">📥 Choose A Backup To Restore</button></div>`};
+
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='drvauto'&&isAdminU()){const v=+e.target.value||0;try{localStorage.setItem(AK(),String(v))}catch(x){}toast(v?'Automatic backup: every '+(v===1?'day':v===7?'week':'month')+'.':'Automatic backup is off.')}});
+
+A.drvrestore=async function(){if(!isAdminU()||!CLOUDON())return toast('Only the plant admin can restore, online.');openSheet('<h2>📥 Restore From Drive</h2><div class="note" id="drvrl">Asking Google for permission…</div>');
+ try{const bk=await bkFolder();const el=()=>$('drvrl');if(el())el().textContent='Reading your backups…';
+  const q=encodeURIComponent("'"+bk+"' in parents and trashed=false and name contains 'backup-' and mimeType='application/json'");
+  const r=await drvApi('files?q='+q+'&orderBy=createdTime%20desc&fields=files(id,name,createdTime,size)&pageSize=40');const L=r.files||[];
+  if(!el())return;if(!L.length){el().innerHTML='No backups found in <b>PM Tracker - '+esc(PL().name)+' / Backups</b>. Tap ☁️ Sync To Drive Now first.';return}
+  el().outerHTML='<div class="note" style="margin-bottom:8px">Newest first. Tap one to see what it will do.</div>'+L.map(f=>`<button class="btn g" style="width:100%;margin-bottom:6px;text-align:left" data-a="drvpick" data-id="${esc(f.id)}" data-n="${esc(f.name)}" data-t="${esc(f.createdTime||'')}">🗂️ ${esc(/before-restore/.test(f.name)?'Safety copy':'Backup')} · ${esc(fmtT(f.createdTime))}${f.size?' · '+Math.max(1,Math.round(f.size/1024))+' KB':''}</button>`).join('')}
+ catch(e){const el=$('drvrl');if(el)el.textContent='Could not read Drive: '+(e&&e.message||e)}};
+
+A.drvpick=function(d){openSheet(`<h2>Restore This Backup?</h2><div class="note" style="margin-bottom:10px">Backup from <b>${esc(fmtT(d.t))}</b>.</div>
+<div class="note">• Jobs, history, materials, stock and breakdowns in the backup are put back.<br>• If an item exists now, the backup copy replaces it (changes made after the backup to that item are lost).<br>• Items added after the backup stay. Nothing is deleted.<br>• Team members and roles are not changed.<br>• A safety copy of today's data is saved to Drive first, so this can be undone.</div>
+<div id="drvgs" class="note" style="margin-top:8px"></div><button class="btn" style="width:100%;min-height:50px;margin-top:10px" data-a="drvgo" data-id="${esc(d.id)}">📥 Restore Now</button><button class="btn g" style="width:100%;margin-top:6px" data-a="drvrestore">Back To List</button>`)};
+
+A.drvgo=async function(d){if(!isAdminU()||!CLOUDON())return;const P=PL(),say=m=>{const s=$('drvgs');if(s)s.textContent=m};
+ try{say('Downloading the backup…');const b=await drvApi('files/'+encodeURIComponent(d.id)+'?alt=media');
+  if(!b||b.app!=='PM Tracker')throw new Error('This file is not a PM Tracker backup.');if(b.plant&&b.plant!==P.code)throw new Error('This backup belongs to another plant ('+b.plant+').');
+  say('Saving a safety copy of today’s data…');const bk=await bkFolder();await drvUpload('backup-before-restore-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.json',new Blob([JSON.stringify(plantBackup())],{type:'application/json'}),bk);
+  say('Putting the data back…');let n=0;['tasks','logs','mats','stock','bds'].forEach(k=>{if(!Array.isArray(b[k]))return;const m=mergeById(P[k],b[k]);P[k]=m.list;n+=m.n});
+  const c=b.cfg||{};['sections','types','forms','eqs','depts','groups'].forEach(k=>{if(Array.isArray(c[k])&&c[k].length&&typeof c[k][0]==='object'){const m=mergeById(P[k],c[k]);P[k]=m.list;n+=m.n}});
+  save();try{cloudSave()}catch(e){}closeSheet();shell();toast(n?'Restored: '+n+' item'+(n===1?'':'s')+' put back. Everyone will see them in a moment.':'Nothing to restore: today’s data already matches this backup.',5000)}
+ catch(e){say('Could not restore: '+(e&&e.message||e))}};
+
+A.drvnow=async function(){await runSync();if(drvLast()&&Date.now()-drvLast()<60000)shell()};
+
+/* reminder on Today, or a silent backup while Google permission is active */
+const _dt=drawToday;drawToday=function(){_dt.apply(this,arguments);try{if(!drvDue())return;if(drvTokOk()){runSync();return}const v=$('view');if(!v||v.querySelector('#drvdue'))return;const l=drvLast(),ago=l?Math.floor((Date.now()-l)/864e5):-1;
+ v.insertAdjacentHTML('afterbegin',`<div class="card" id="drvdue" style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="flex:1"><b>☁️ Drive Backup Due</b><div class="note">Last backup: ${l?(ago<1?'today':ago+' day'+(ago===1?'':'s')+' ago'):'never'}</div></div><button class="btn" data-a="drvnow">Back Up Now</button></div>`)}catch(e){}};
+setInterval(()=>{try{if(drvDue()&&drvTokOk()&&navigator.onLine)runSync()}catch(e){}},30*60000);
+})();
 function almTick(force){try{if(!S.session||!S.plants[S.session.plant]||CLOUD.cached||$('alm'))return;const c=almCfg(),adm=almAdm();if(adm&&!force)return;if(!c.on&&!force)return;const k='owh_pm_almd_'+S.session.plant,td=TODAY();if(!force&&localStorage.getItem(k)===td)return;
  const d=new Date(),cur=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');if(!force&&cur<c.time)return;if(!force&&(!$('sheet').hidden||$('wz')))return;
  const L=almAll().filter(t=>status(t).k!=='soon');localStorage.setItem(k,td);if(!L.length&&!force)return;almOpen(!adm)}catch(e){}}

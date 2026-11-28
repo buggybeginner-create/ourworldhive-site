@@ -51,6 +51,7 @@
 
         <receiver android:name=".sms.ScheduledSendReceiver" android:exported="false" />
         <receiver android:name=".sms.SentReceiver" android:exported="false" />
+        <receiver android:name=".sms.ReminderReceiver" android:exported="false" />
 
         <receiver android:name=".sms.BootReceiver" android:exported="true">
             <intent-filter>

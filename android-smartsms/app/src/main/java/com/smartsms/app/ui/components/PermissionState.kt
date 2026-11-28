@@ -14,3 +14,11 @@ fun rememberCheck(check: () -> Boolean): MutableState<Boolean> {
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { state.value = check() }
     return state
 }
+
+/**
+ * Asks for the phone's fingerprint / face / PIN, then runs the callback on success.
+ * Provided by MainActivity; [title] is shown in the system prompt.
+ */
+val LocalAuth = androidx.compose.runtime.staticCompositionLocalOf<(String, () -> Unit) -> Unit> {
+    { _, _ -> } // nothing is unlocked without MainActivity
+}

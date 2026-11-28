@@ -13,8 +13,8 @@ android {
         applicationId = "com.smartsms.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0-phase2"
+        versionCode = 3
+        versionName = "0.3.0"
         vectorDrawables { useSupportLibrary = true }
     }
 
@@ -69,6 +69,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

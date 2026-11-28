@@ -13,6 +13,7 @@ adb install -r Smart-SMS.apk
 for p in READ_SMS RECEIVE_SMS SEND_SMS READ_CONTACTS POST_NOTIFICATIONS; do adb shell pm grant $PKG android.permission.$p; done
 adb emu sms send 9876543210 "Hello from the smoke test, dinner at 8?"
 adb emu sms send 5551234 "Rs.500.00 debited from A/c XX1234 at TESTSHOP on UPI"
+adb emu sms send 5559999 "Congratulations! You have won Rs.25,00,000 in our lucky draw. Claim your prize now"
 sleep 4
 adb logcat -c
 adb shell am start -W -n $PKG/.MainActivity
@@ -83,6 +84,12 @@ adb shell am start -W -n $PKG/.MainActivity >/dev/null; sleep 2
 tap_text "Messages" && shot 04-all-messages
 tap_text "New Message" && shot 04b-new-message && adb shell input keyevent 4 && sleep 1
 tap_text "Transactions" && shot 05-transactions
+tap_text "Spam" && shot 05b-spam
+dump
+if grep -q "lucky draw" ui.xml; then echo "CHECK OK: scam SMS is in Spam"; else echo "CHECK FAILED: scam SMS not in Spam"; fail=1; fi
+tap_text "All"
+dump
+if grep -q "lucky draw" ui.xml; then echo "CHECK FAILED: scam SMS also shows in All"; fail=1; else echo "CHECK OK: scam SMS kept out of All"; fi
 tap_text "Finance" && shot 06-finance
 tap_text "Settings" && shot 07-settings
 tap_text "Theme &amp; Colours" && shot 08-themes
@@ -91,6 +98,7 @@ adb shell input swipe 540 1700 540 700 300; sleep 1
 tap_text "Scheduled Messages" && shot 09-scheduled
 adb shell input keyevent 4; sleep 1
 tap_text "Inbox"
+tap_text "Bills" && shot 11-bills && adb shell input keyevent 4 && sleep 1
 tap_text "Search messages, people, amounts…" && adb shell input text "TESTSHOP" && sleep 2 && shot 10-search
 
 adb logcat -d > shots/logcat.txt

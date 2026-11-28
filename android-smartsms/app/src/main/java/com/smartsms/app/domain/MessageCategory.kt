@@ -5,7 +5,8 @@ enum class MessageCategory(val key: String, val label: String, val description: 
     PERSONAL("personal", "Personal", "People you talk to"),
     TRANSACTIONS("transactions", "Transactions", "Bank, UPI and card alerts"),
     OFFERS("offers", "Offers", "Promotions and deals"),
-    OTP("otp", "OTP", "One-time codes (hidden until you tap)");
+    OTP("otp", "OTP", "One-time codes (hidden until you tap)"),
+    SPAM("spam", "Spam", "Scams and suspicious messages · no alerts");
 
     companion object {
         fun fromKey(key: String?): MessageCategory? = entries.firstOrNull { it.key == key }

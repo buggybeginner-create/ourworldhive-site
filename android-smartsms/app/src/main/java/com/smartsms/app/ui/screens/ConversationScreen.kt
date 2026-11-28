@@ -1,5 +1,14 @@
 package com.smartsms.app.ui.screens
 
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.rounded.Archive
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Report
+import androidx.compose.material3.SuggestionChip
+import com.smartsms.app.SmartSmsApp
+import com.smartsms.app.sms.Prefs
+import com.smartsms.app.ui.components.LocalAuth
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.material.icons.rounded.Call
@@ -138,6 +147,26 @@ fun ConversationScreen(nav: Navigator, vm: ConversationViewModel = viewModel(fac
                             Icon(Icons.Rounded.PushPin, if (conv.isPinned) "Unpin" else "Pin",
                                 tint = if (conv.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        var more by remember { mutableStateOf(false) }
+                        IconButton(onClick = { more = true }) { Icon(Icons.Rounded.MoreVert, "More") }
+                        DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                            DropdownMenuItem(
+                                text = { Text(if (conv.isArchived) "Unarchive" else "Archive") },
+                                leadingIcon = { Icon(Icons.Rounded.Archive, null) },
+                                onClick = { more = false; vm.setArchived(!conv.isArchived); if (!conv.isArchived) nav.back() }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(if (conv.isBlocked) "Unblock" else "Block") },
+                                leadingIcon = { Icon(Icons.Rounded.Block, null) },
+                                onClick = { more = false; vm.setBlocked(!conv.isBlocked); if (!conv.isBlocked) nav.back() }
+                            )
+                            val isSpam = conv.category == MessageCategory.SPAM.key
+                            DropdownMenuItem(
+                                text = { Text(if (isSpam) "Not Spam" else "Mark As Spam") },
+                                leadingIcon = { Icon(Icons.Rounded.Report, null) },
+                                onClick = { more = false; vm.setSpam(!isSpam) }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
@@ -200,6 +229,12 @@ private fun Composer(onSend: (String) -> Boolean) {
             verticalAlignment = Alignment.Bottom
         ) {
             Column(Modifier.weight(1f)) {
+                if (text.isEmpty()) {
+                    val replies = remember { Prefs.quickReplies(ctx) }
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(bottom = 6.dp)) {
+                        items(replies) { r -> SuggestionChip(onClick = { text = r }, label = { Text(r) }) }
+                    }
+                }
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
@@ -253,6 +288,12 @@ private fun Bubble(m: MessageEntity, look: ChatAppearance, onStar: (Long) -> Uni
     var menu by remember { mutableStateOf(false) }
     val clipboard = LocalClipboardManager.current
     val ctx = LocalContext.current
+    val auth = LocalAuth.current
+    val container = (ctx.applicationContext as SmartSmsApp).container
+    val reveal: () -> Unit = {
+        if (container.otpOpen()) revealed = true
+        else auth("Show one-time code") { container.unlockOtp(); revealed = true }
+    }
     val incoming = m.isIncoming
     val bg = if (incoming) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.primary
     val fg = if (incoming) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
@@ -263,9 +304,9 @@ private fun Bubble(m: MessageEntity, look: ChatAppearance, onStar: (Long) -> Uni
                 color = bg,
                 modifier = Modifier.widthIn(max = 300.dp)
                     .combinedClickable(
-                        onClick = { if (!revealed) revealed = true },
+                        onClick = { if (!revealed) reveal() },
                         // A hidden code is shown first; the menu works on what you can see.
-                        onLongClick = { if (!revealed) revealed = true else menu = true }
+                        onLongClick = { if (!revealed) reveal() else menu = true }
                     )
             ) {
                 Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {

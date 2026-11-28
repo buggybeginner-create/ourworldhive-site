@@ -42,6 +42,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smartsms.app.data.db.MessageEntity
 import com.smartsms.app.domain.MessageCategory
+import androidx.compose.ui.platform.LocalContext
+import com.smartsms.app.SmartSmsApp
+import com.smartsms.app.sms.Prefs
+import com.smartsms.app.ui.components.LocalAuth
 import com.smartsms.app.ui.components.DemoBadge
 import com.smartsms.app.ui.components.EmptyState
 import com.smartsms.app.ui.components.StateContent
@@ -98,7 +102,20 @@ fun MessagesScreen(
                 )
             }
             if (selected == MessageCategory.OTP) {
-                StateContent(otpMessages) { list -> OtpList(list, onOpen = nav::openConversation) }
+                val ctx = LocalContext.current
+                val container = (ctx.applicationContext as SmartSmsApp).container
+                val until by container.otpUnlockedUntil.collectAsStateWithLifecycle()
+                val auth = LocalAuth.current
+                if (Prefs.otpLock(ctx) && System.currentTimeMillis() >= until) {
+                    EmptyState(
+                        Icons.Rounded.Lock, "OTP Folder Is Locked",
+                        "Use your fingerprint or phone PIN to open it. It stays open for 5 minutes.",
+                        actionLabel = "Unlock",
+                        onAction = { auth("Open OTP folder") { container.unlockOtp() } }
+                    )
+                } else {
+                    StateContent(otpMessages) { list -> OtpList(list, onOpen = nav::openConversation) }
+                }
             } else {
                 StateContent(state) { list ->
                     if (list.isEmpty()) {

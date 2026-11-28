@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Two chat bubbles: cyan one behind, white one in front with three dots. Kept inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF22D3EE"
+        android:pathData="M52,29h22a10,10 0,0 1,10 10v13a10,10 0,0 1,-10 10h-1l4,9l-12,-9h-13a10,10 0,0 1,-10 -10v-13a10,10 0,0 1,10 -10z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M37,42h22a12,12 0,0 1,12 12v11a12,12 0,0 1,-12 12h-22a12,12 0,0 1,-12 -12v-11a12,12 0,0 1,12 -12z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M29,70L26,85L42,76z" />
+    <path
+        android:fillColor="#FF6D28D9"
+        android:pathData="M32.4,59.5a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0zM44.4,59.5a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0zM56.4,59.5a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0z" />
+</vector>

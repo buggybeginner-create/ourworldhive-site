@@ -24,6 +24,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.smartsms.app.ui.screens.NewMessageScreen
+import com.smartsms.app.ui.screens.BillsScreen
+import com.smartsms.app.ui.screens.ChatListScreen
+import com.smartsms.app.ui.screens.QuickRepliesScreen
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -60,6 +63,10 @@ object Routes {
     const val THEME = "theme"
     const val SETTINGS = "settings"
     const val COMPOSE = "compose"
+    const val BILLS = "bills"
+    const val CHATS = "chats/{kind}"
+    const val QUICK = "quickreplies"
+    fun chats(kind: String) = "chats/$kind"
 
     fun category(c: MessageCategory) = "category/${c.key}"
     fun conversation(id: Long) = "conversation/$id"
@@ -152,6 +159,9 @@ fun SmartSmsNavHost(onRetryInit: () -> Unit, openRequests: MutableStateFlow<Long
             composable(Routes.THEME) { ThemeScreen(navigator) }
             composable(Routes.SETTINGS, enterTransition = { fadeIn(tween(220)) }) { SettingsScreen(navigator) }
             composable(Routes.COMPOSE) { NewMessageScreen(navigator) }
+            composable(Routes.BILLS) { BillsScreen(navigator) }
+            composable(Routes.QUICK) { QuickRepliesScreen(navigator) }
+            composable(Routes.CHATS, arguments = listOf(navArgument("kind") { type = NavType.StringType })) { ChatListScreen(navigator) }
         }
     }
 }

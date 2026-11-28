@@ -18,9 +18,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         BudgetCategoryEntity::class,
         BackupHistoryEntity::class,
         UserSettingsEntity::class,
-        ThemeEntity::class
+        ThemeEntity::class,
+        ReminderEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,14 +35,31 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun backupHistoryDao(): BackupHistoryDao
     abstract fun userSettingsDao(): UserSettingsDao
     abstract fun themeDao(): ThemeDao
+    abstract fun reminderDao(): ReminderDao
 
     companion object {
         const val NAME = "smart_sms.db"
 
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
+
+        /** Block, archive and "not spam" on chats; bill and EMI reminders. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE conversations ADD COLUMN isBlocked INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE conversations ADD COLUMN isArchived INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE conversations ADD COLUMN notSpam INTEGER NOT NULL DEFAULT 0")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `reminders` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`messageId` INTEGER, `conversationId` INTEGER, `title` TEXT NOT NULL, `amount` REAL, " +
+                        "`dueAt` INTEGER NOT NULL, `status` TEXT NOT NULL, `isDemo` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_reminders_messageId` ON `reminders` (`messageId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_reminders_dueAt` ON `reminders` (`dueAt`)")
+            }
+        }
 
         /** Phase 2: links rows to the phone's SMS store and records the result of scheduled sends. */
         val MIGRATION_1_2 = object : Migration(1, 2) {

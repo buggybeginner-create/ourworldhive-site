@@ -98,6 +98,9 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(ctx: Context, intent: Intent) {
         val a = intent.action
         if (a != Intent.ACTION_BOOT_COMPLETED && a != Intent.ACTION_MY_PACKAGE_REPLACED) return
-        work(ctx) { ScheduleAlarms.rescheduleAll(ctx, ctx.container().database) }
+        work(ctx) {
+            ScheduleAlarms.rescheduleAll(ctx, ctx.container().database)
+            ReminderAlarms.rescheduleAll(ctx, ctx.container().database)
+        }
     }
 }

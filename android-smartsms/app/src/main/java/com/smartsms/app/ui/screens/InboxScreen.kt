@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Inbox
 import androidx.compose.material.icons.rounded.Palette
@@ -113,7 +113,7 @@ private fun InboxContent(d: InboxData, nav: Navigator, sms: SmsSyncState, onSmsG
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 QuickAction(Icons.Rounded.Schedule, "Schedule", Modifier.weight(1f)) { nav.open(Routes.SCHEDULED) }
                 QuickAction(Icons.AutoMirrored.Rounded.TrendingUp, "Finance", Modifier.weight(1f)) { nav.tab(Routes.FINANCE) }
-                QuickAction(Icons.Rounded.Backup, "Backup", Modifier.weight(1f)) { nav.open(Routes.BACKUP) }
+                QuickAction(Icons.Rounded.ReceiptLong, "Bills", Modifier.weight(1f)) { nav.open(Routes.BILLS) }
                 QuickAction(Icons.Rounded.Palette, "Themes", Modifier.weight(1f)) { nav.open(Routes.THEME) }
             }
         }

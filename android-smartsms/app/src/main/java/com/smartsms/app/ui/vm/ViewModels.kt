@@ -156,6 +156,24 @@ class ConversationViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewMo
     fun toggleStar(messageId: Long) = viewModelScope.launch { repo.toggleStar(messageId) }
     fun togglePin(conversationId: Long) = viewModelScope.launch { repo.togglePin(conversationId) }
 
+    private val convDao = app.container.database.conversationDao()
+    private val msgDao = app.container.database.messageDao()
+    fun setArchived(on: Boolean) = viewModelScope.launch { convDao.setArchived(id, on) }
+    fun setBlocked(on: Boolean) = viewModelScope.launch { convDao.setBlocked(id, on) }
+
+    /** Mark as spam, or "Not spam" (the chat then never goes back to Spam by itself). */
+    fun setSpam(on: Boolean) = viewModelScope.launch {
+        val c = convDao.getById(id) ?: return@launch
+        if (on) {
+            convDao.setSpam(id, MessageCategory.SPAM.key, false)
+            msgDao.markSpam(id)
+        } else {
+            val back = if (com.smartsms.app.domain.Addresses.canReply(c.address)) MessageCategory.PERSONAL.key else MessageCategory.OFFERS.key
+            convDao.setSpam(id, back, true)
+            msgDao.recategorize(id, MessageCategory.SPAM.key, back)
+        }
+    }
+
     private val appCtx = app.applicationContext
     private val importer = app.container.smsImporter
     private val _sendError = MutableStateFlow<String?>(null)
@@ -182,6 +200,26 @@ class NewMessageViewModel(app: SmartSmsApp) : ViewModel() {
         SmsSender.send(appCtx, to.trim(), text.trim())
         importer.importSoon(1200)
     }
+}
+
+/* ------------------------------ Archived / blocked ------------------------------ */
+
+class ChatListViewModel(app: SmartSmsApp, handle: SavedStateHandle) : ViewModel() {
+    private val dao = app.container.database.conversationDao()
+    val kind: String = handle.get<String>("kind") ?: "archived"
+    val state: StateFlow<UiState<List<ConversationEntity>>> =
+        (if (kind == "blocked") dao.observeBlocked() else dao.observeArchived()).asUiState().stateIn(this)
+    fun restore(id: Long) = viewModelScope.launch {
+        if (kind == "blocked") dao.setBlocked(id, false) else dao.setArchived(id, false)
+    }
+}
+
+/* ------------------------------ Bills & EMIs ------------------------------ */
+
+class BillsViewModel(app: SmartSmsApp) : ViewModel() {
+    private val repo = app.container.reminderRepository
+    val state: StateFlow<UiState<List<com.smartsms.app.data.db.ReminderEntity>>> = repo.reminders.asUiState().stateIn(this)
+    fun setStatus(id: Long, status: String) = viewModelScope.launch { repo.setStatus(id, status) }
 }
 
 /* ------------------------------ Scheduled ------------------------------ */
@@ -265,6 +303,8 @@ object AppViewModelProvider {
         initializer { ConversationViewModel(app(), createSavedStateHandle()) }
         initializer { ScheduledViewModel(app()) }
         initializer { NewMessageViewModel(app()) }
+        initializer { ChatListViewModel(app(), createSavedStateHandle()) }
+        initializer { BillsViewModel(app()) }
         initializer { FinanceViewModel(app()) }
         initializer { BackupViewModel(app()) }
         initializer { SettingsViewModel(app()) }

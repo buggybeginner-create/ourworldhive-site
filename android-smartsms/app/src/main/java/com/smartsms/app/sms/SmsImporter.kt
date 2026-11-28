@@ -16,6 +16,8 @@ import com.smartsms.app.data.db.TransactionEntity
 import com.smartsms.app.domain.Addresses
 import com.smartsms.app.domain.BudgetGuess
 import com.smartsms.app.domain.Categorizer
+import com.smartsms.app.domain.DueParser
+import com.smartsms.app.data.db.ReminderEntity
 import com.smartsms.app.domain.MessageCategory
 import com.smartsms.app.domain.TransactionParser
 import kotlinx.coroutines.CoroutineScope
@@ -119,6 +121,7 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
         if (full) {
             db.withTransaction {
                 db.transactionDao().deleteFromSms()
+                db.reminderDao().deleteFromSms()
                 db.messageDao().deleteReal()
                 db.conversationDao().deleteReal()
             }
@@ -156,6 +159,23 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
                 }
             }
             if (tx.isNotEmpty()) db.transactionDao().insertAll(tx)
+            // Bills and EMIs from businesses: a reminder for every due date that is still ahead.
+            val today0 = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            batch.forEachIndexed { i, m ->
+                if (ids[i] <= 0 || !m.isIncoming || Addresses.canReply(m.address)) return@forEachIndexed
+                if (m.category == MessageCategory.OTP.key || m.category == MessageCategory.SPAM.key) return@forEachIndexed
+                val due = DueParser.parse(m.address, m.body, m.timestamp) ?: return@forEachIndexed
+                if (due.dueAt < today0) return@forEachIndexed
+                val r = ReminderEntity(
+                    messageId = ids[i], conversationId = m.conversationId, title = due.title, amount = due.amount,
+                    dueAt = due.dueAt, isDemo = false, createdAt = System.currentTimeMillis()
+                )
+                val rid = db.reminderDao().insert(r)
+                if (rid > 0) ReminderAlarms.schedule(app, r.copy(id = rid))
+            }
             batch.clear()
             _state.value = SmsSyncState.Reading(added)
         }
@@ -194,7 +214,7 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
                 batch += MessageEntity(
                     conversationId = conv.id, address = addr, body = body, timestamp = c.getLong(iDate),
                     isIncoming = incoming, isRead = !incoming || c.getInt(iRead) == 1,
-                    category = Categorizer.classify(addr, body).key, isDemo = false, smsId = id
+                    category = categoryFor(conv, addr, body), isDemo = false, smsId = id
                 )
                 if (batch.size >= 400) flush()
             }
@@ -216,7 +236,7 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
             batch += MessageEntity(
                 conversationId = conv.id, address = addr, body = body, timestamp = date,
                 isIncoming = incoming, isRead = !incoming || read,
-                category = Categorizer.classify(addr, body).key, isDemo = false, smsId = -id
+                category = categoryFor(conv, addr, body), isDemo = false, smsId = -id
             )
             if (batch.size >= 400) flush()
         }
@@ -230,7 +250,7 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
                 lastMessage = latest.body.take(300),
                 lastTimestamp = latest.timestamp,
                 unreadCount = db.messageDao().unreadIn(conv.id),
-                category = folderFor(latest.address, db.messageDao().countsIn(conv.id))
+                category = folderFor(latest.address, db.messageDao().countsIn(conv.id), conv.notSpam)
             )
             db.conversationDao().update(updated)
             convByKey[key] = updated
@@ -246,6 +266,8 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
 
         for (m in fresh) {
             val conv = convByKey.values.firstOrNull { it.id == m.conversationId } ?: continue
+            // No alerts from blocked senders or spam.
+            if (conv.isBlocked || conv.category == MessageCategory.SPAM.key || m.category == MessageCategory.SPAM.key) continue
             Notify.incoming(app, conv.id, conv.displayName, m.body, m.category == MessageCategory.OTP.key)
         }
 
@@ -314,10 +336,20 @@ class SmsImporter(private val app: Context, private val db: AppDatabase, private
         }
     }
 
-    /** People → Personal. Businesses → their most common kind of message (OTP only if that is all they send). */
-    private fun folderFor(address: String, counts: List<CategoryCount>): String {
+    /** A chat the user marked "Not spam" never gets new spam messages. */
+    private fun categoryFor(conv: ConversationEntity, address: String, body: String): String {
+        val c = Categorizer.classify(address, body)
+        if (c != MessageCategory.SPAM || !conv.notSpam) return c.key
+        return if (Addresses.canReply(address)) MessageCategory.PERSONAL.key else MessageCategory.OFFERS.key
+    }
+
+    /** Spam if at least half its messages are spam. People → Personal. Businesses → their most common kind (OTP only if that is all they send). */
+    private fun folderFor(address: String, counts: List<CategoryCount>, notSpam: Boolean): String {
+        val total = counts.sumOf { it.total }
+        val spam = counts.firstOrNull { it.category == MessageCategory.SPAM.key }?.total ?: 0
+        if (!notSpam && spam > 0 && spam * 2 >= total) return MessageCategory.SPAM.key
         if (Addresses.canReply(address)) return MessageCategory.PERSONAL.key
-        val nonOtp = counts.filter { it.category != MessageCategory.OTP.key }
+        val nonOtp = counts.filter { it.category != MessageCategory.OTP.key && it.category != MessageCategory.SPAM.key }
         return (nonOtp.maxByOrNull { it.total } ?: counts.maxByOrNull { it.total })?.category ?: MessageCategory.OFFERS.key
     }
 

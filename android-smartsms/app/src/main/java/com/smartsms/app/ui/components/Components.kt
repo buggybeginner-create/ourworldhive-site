@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.LocalOffer
+import androidx.compose.material.icons.rounded.Report
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -206,6 +207,7 @@ fun MessageCategory.icon(): ImageVector = when (this) {
     MessageCategory.TRANSACTIONS -> Icons.Rounded.AccountBalanceWallet
     MessageCategory.OFFERS -> Icons.Rounded.LocalOffer
     MessageCategory.OTP -> Icons.Rounded.Key
+    MessageCategory.SPAM -> Icons.Rounded.Report
 }
 
 fun MessageCategory.tint(): Color = when (this) {
@@ -213,6 +215,7 @@ fun MessageCategory.tint(): Color = when (this) {
     MessageCategory.TRANSACTIONS -> Color(0xFF10B981)
     MessageCategory.OFFERS -> Color(0xFFF59E0B)
     MessageCategory.OTP -> Color(0xFF0EA5E9)
+    MessageCategory.SPAM -> Color(0xFFEF4444)
 }
 
 private val inr: NumberFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN")).apply { maximumFractionDigits = 0 }

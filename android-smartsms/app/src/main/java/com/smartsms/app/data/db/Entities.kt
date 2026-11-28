@@ -41,8 +41,34 @@ data class ConversationEntity(
     val unreadCount: Int = 0,
     val category: String,
     val isPinned: Boolean = false,
-    val isDemo: Boolean
+    val isDemo: Boolean,
+    @ColumnInfo(defaultValue = "0") val isBlocked: Boolean = false,
+    @ColumnInfo(defaultValue = "0") val isArchived: Boolean = false,
+    /** The user said "Not spam": never move this chat to Spam again. */
+    @ColumnInfo(defaultValue = "0") val notSpam: Boolean = false
 )
+
+/** A bill or EMI due date found in a message. Demo rows never ring. */
+@Entity(tableName = "reminders", indices = [Index(value = ["messageId"], unique = true), Index("dueAt")])
+data class ReminderEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val messageId: Long?,
+    val conversationId: Long?,
+    val title: String,
+    val amount: Double?,
+    /** 9:00 in the morning of the due day. */
+    val dueAt: Long,
+    /** PENDING, PAID or DISMISSED */
+    val status: String = STATUS_PENDING,
+    val isDemo: Boolean,
+    val createdAt: Long
+) {
+    companion object {
+        const val STATUS_PENDING = "PENDING"
+        const val STATUS_PAID = "PAID"
+        const val STATUS_DISMISSED = "DISMISSED"
+    }
+}
 
 @Entity(tableName = "contacts", indices = [Index(value = ["phone"], unique = true)])
 data class ContactEntity(

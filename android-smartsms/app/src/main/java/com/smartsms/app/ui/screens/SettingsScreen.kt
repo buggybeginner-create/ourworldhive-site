@@ -10,6 +10,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import com.smartsms.app.sms.Perms
 import com.smartsms.app.sms.Prefs
+import com.smartsms.app.ui.components.LocalAuth
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.Key
+import androidx.compose.material.icons.rounded.ReceiptLong
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Archive
+import androidx.compose.material.icons.rounded.Block
 import com.smartsms.app.ui.components.formatTime
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.SystemUpdate
@@ -89,6 +96,7 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
     var confirmRemove by remember { mutableStateOf(false) }
     var confirmReread by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
+    val auth = LocalAuth.current
     var canRead by rememberCheck { Perms.canRead(ctx) }
     var canContacts by rememberCheck { Perms.canContacts(ctx) }
     val exact by rememberCheck { Perms.canExact(ctx) }
@@ -197,7 +205,25 @@ private fun SettingsContent(s: UserSettingsEntity, vm: SettingsViewModel, nav: N
             }
         }
 
+        item { SectionHeader("Privacy Lock", Modifier.padding(horizontal = 8.dp)) }
+        item {
+            var on by remember { mutableStateOf(Prefs.appLock(ctx)) }
+            SwitchRow(Icons.Rounded.Fingerprint, "App Lock", on, subtitle = "Fingerprint or phone PIN to open Smart SMS") { want ->
+                auth(if (want) "Turn on App Lock" else "Turn off App Lock") { on = want; Prefs.setAppLock(ctx, want) }
+            }
+        }
+        item {
+            var on by remember { mutableStateOf(Prefs.otpLock(ctx)) }
+            SwitchRow(Icons.Rounded.Key, "Lock OTP Folder", on, subtitle = "Codes need your fingerprint or PIN, even inside chats") { want ->
+                auth(if (want) "Lock the OTP folder" else "Unlock the OTP folder") { on = want; Prefs.setOtpLock(ctx, want) }
+            }
+        }
+
         item { SectionHeader("Messages & Data", Modifier.padding(horizontal = 8.dp)) }
+        item { NavRow(Icons.Rounded.ReceiptLong, "Bills & EMIs", "Due dates found in your messages") { nav.open(Routes.BILLS) } }
+        item { NavRow(Icons.Rounded.Bolt, "Quick Replies", "Ready-made answers above the reply box") { nav.open(Routes.QUICK) } }
+        item { NavRow(Icons.Rounded.Archive, "Archived Chats", null) { nav.open(Routes.chats("archived")) } }
+        item { NavRow(Icons.Rounded.Block, "Blocked Senders", null) { nav.open(Routes.chats("blocked")) } }
         item { NavRow(Icons.Rounded.Schedule, "Scheduled Messages", null) { nav.open(Routes.SCHEDULED) } }
         item { NavRow(Icons.Rounded.Backup, "Backup & Sync", null) { nav.open(Routes.BACKUP) } }
 

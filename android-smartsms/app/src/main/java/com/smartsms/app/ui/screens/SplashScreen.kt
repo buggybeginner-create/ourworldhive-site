@@ -3,7 +3,11 @@ package com.smartsms.app.ui.screens
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import com.smartsms.app.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,26 +77,12 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Canvas(Modifier.size(120.dp).scale(scale.value)) {
-                val w = size.width
-                drawRoundRect(
-                    brush = Brush.linearGradient(listOf(primary, primary.copy(alpha = 0.7f))),
-                    topLeft = Offset(w * 0.08f, w * 0.12f),
-                    size = Size(w * 0.84f, w * 0.6f),
-                    cornerRadius = CornerRadius(w * 0.16f)
-                )
-                val tail = Path().apply {
-                    moveTo(w * 0.28f, w * 0.7f); lineTo(w * 0.24f, w * 0.9f); lineTo(w * 0.46f, w * 0.7f); close()
-                }
-                drawPath(tail, primary.copy(alpha = 0.85f))
-                val c = Offset(w * 0.5f, w * 0.42f)
-                val r = w * 0.14f
-                val star = Path().apply {
-                    moveTo(c.x, c.y - r); lineTo(c.x + r * 0.28f, c.y - r * 0.28f); lineTo(c.x + r, c.y)
-                    lineTo(c.x + r * 0.28f, c.y + r * 0.28f); lineTo(c.x, c.y + r); lineTo(c.x - r * 0.28f, c.y + r * 0.28f)
-                    lineTo(c.x - r, c.y); lineTo(c.x - r * 0.28f, c.y - r * 0.28f); close()
-                }
-                drawPath(star, secondary)
+            // Same picture as the app icon.
+            Box(
+                Modifier.size(120.dp).scale(scale.value).clip(RoundedCornerShape(32.dp))
+                    .background(Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9), Color(0xFF1D4ED8))))
+            ) {
+                Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.fillMaxSize())
             }
             Spacer(Modifier.height(24.dp))
             Text(

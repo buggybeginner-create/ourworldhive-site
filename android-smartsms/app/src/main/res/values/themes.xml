@@ -10,7 +10,7 @@
     <!-- System splash (Android 12+ style, back-ported by core-splashscreen) -->
     <style name="Theme.SmartSMS.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/brand_bg</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="postSplashScreenTheme">@style/Theme.SmartSMS</item>
     </style>
 </resources>

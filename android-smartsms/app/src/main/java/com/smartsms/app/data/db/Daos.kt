@@ -27,7 +27,8 @@ interface MessageDao {
 
     @Query(
         "SELECT category, COUNT(*) AS total, SUM(CASE WHEN isRead = 0 THEN 1 ELSE 0 END) AS unread " +
-            "FROM messages WHERE (:showDemo OR isDemo = 0) GROUP BY category"
+            "FROM messages WHERE (:showDemo OR isDemo = 0) " +
+            "AND conversationId NOT IN (SELECT id FROM conversations WHERE isBlocked = 1 OR isArchived = 1) GROUP BY category"
     )
     fun observeCounts(showDemo: Boolean): Flow<List<CategoryCount>>
 
@@ -63,6 +64,12 @@ interface MessageDao {
     @Query("UPDATE messages SET isRead = 1 WHERE isRead = 0")
     suspend fun markAllRead()
 
+    @Query("UPDATE messages SET category = :to WHERE conversationId = :conversationId AND category = :from")
+    suspend fun recategorize(conversationId: Long, from: String, to: String)
+
+    @Query("UPDATE messages SET category = 'spam' WHERE conversationId = :conversationId AND category != 'otp'")
+    suspend fun markSpam(conversationId: Long)
+
     @Query("UPDATE messages SET isRead = 1 WHERE conversationId = :conversationId")
     suspend fun markThreadRead(conversationId: Long)
 
@@ -81,12 +88,34 @@ interface MessageDao {
 
 @Dao
 interface ConversationDao {
-    @Query("SELECT * FROM conversations WHERE (:showDemo OR isDemo = 0) ORDER BY isPinned DESC, lastTimestamp DESC")
+    /** Every chat except blocked, archived and spam ones. */
+    @Query(
+        "SELECT * FROM conversations WHERE (:showDemo OR isDemo = 0) AND isBlocked = 0 AND isArchived = 0 " +
+            "AND category != 'spam' ORDER BY isPinned DESC, lastTimestamp DESC"
+    )
     fun observeAll(showDemo: Boolean): Flow<List<ConversationEntity>>
+
+    @Query("SELECT * FROM conversations WHERE isArchived = 1 AND isBlocked = 0 ORDER BY lastTimestamp DESC")
+    fun observeArchived(): Flow<List<ConversationEntity>>
+
+    @Query("SELECT * FROM conversations WHERE isBlocked = 1 ORDER BY lastTimestamp DESC")
+    fun observeBlocked(): Flow<List<ConversationEntity>>
+
+    @Query("UPDATE conversations SET isArchived = :on WHERE id = :id")
+    suspend fun setArchived(id: Long, on: Boolean)
+
+    @Query("UPDATE conversations SET isBlocked = :on WHERE id = :id")
+    suspend fun setBlocked(id: Long, on: Boolean)
+
+    @Query("UPDATE conversations SET category = :category, notSpam = :notSpam WHERE id = :id")
+    suspend fun setSpam(id: Long, category: String, notSpam: Boolean)
+
+    @Query("SELECT * FROM conversations WHERE id = :id")
+    suspend fun getById(id: Long): ConversationEntity?
 
     @Query(
         "SELECT * FROM conversations WHERE category = :category AND (:showDemo OR isDemo = 0) " +
-            "ORDER BY isPinned DESC, lastTimestamp DESC"
+            "AND isBlocked = 0 AND isArchived = 0 ORDER BY isPinned DESC, lastTimestamp DESC"
     )
     fun observeByCategory(category: String, showDemo: Boolean): Flow<List<ConversationEntity>>
 
@@ -248,4 +277,28 @@ interface ThemeDao {
 
     @Insert
     suspend fun insertAll(themes: List<ThemeEntity>)
+}
+
+@Dao
+interface ReminderDao {
+    @Query("SELECT * FROM reminders WHERE (:showDemo OR isDemo = 0) ORDER BY CASE status WHEN 'PENDING' THEN 0 ELSE 1 END, dueAt ASC")
+    fun observeAll(showDemo: Boolean): Flow<List<ReminderEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(r: ReminderEntity): Long
+
+    @Query("SELECT * FROM reminders WHERE id = :id")
+    suspend fun getById(id: Long): ReminderEntity?
+
+    @Query("SELECT * FROM reminders WHERE status = 'PENDING' AND isDemo = 0")
+    suspend fun getPendingReal(): List<ReminderEntity>
+
+    @Query("UPDATE reminders SET status = :status WHERE id = :id")
+    suspend fun setStatus(id: Long, status: String)
+
+    @Query("DELETE FROM reminders WHERE isDemo = 1")
+    suspend fun deleteDemo()
+
+    @Query("DELETE FROM reminders WHERE isDemo = 0 AND messageId IS NOT NULL")
+    suspend fun deleteFromSms()
 }

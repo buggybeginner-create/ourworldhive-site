@@ -154,3 +154,21 @@ class DemoRepository(private val db: AppDatabase) {
         DemoSeeder.seedDemo(db)
     }
 }
+
+class ReminderRepository(
+    private val ctx: android.content.Context,
+    private val db: AppDatabase,
+    private val settings: SettingsRepository
+) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val reminders: Flow<List<com.smartsms.app.data.db.ReminderEntity>> =
+        settings.showDemo.flatMapLatest { db.reminderDao().observeAll(it) }
+
+    suspend fun setStatus(id: Long, status: String) {
+        com.smartsms.app.sms.ReminderAlarms.cancel(ctx, id)
+        db.reminderDao().setStatus(id, status)
+        if (status == com.smartsms.app.data.db.ReminderEntity.STATUS_PENDING) {
+            db.reminderDao().getById(id)?.let { com.smartsms.app.sms.ReminderAlarms.schedule(ctx, it) }
+        }
+    }
+}

@@ -25,6 +25,18 @@ object Categorizer {
         RegexOption.IGNORE_CASE
     )
 
+    /** Common scam wording. Kept narrow on purpose: a wrong "spam" hides a real message. */
+    private val spamWords = Regex(
+        "(you have won|you've won|you won rs|lottery|lucky draw|claim (your )?(prize|reward|gift)|" +
+            "kyc.{0,40}(expire|suspend|block|deactivat)|" +
+            "(account|a/c|sim|card).{0,30}(will be|has been) (blocked|suspended|deactivated).{0,60}(click|link|http|call)|" +
+            "congratulations.{0,50}(won|winner|selected for)|" +
+            "work from home.{0,60}(earn|income)|earn (rs\\.?|₹)\\s?[\\d,]+.{0,30}(daily|per day|a day))",
+        RegexOption.IGNORE_CASE
+    )
+
+    fun isSpam(body: String): Boolean = spamWords.containsMatchIn(body)
+
     /** Business senders in India look like "AX-HDFCBK" or "VM-AMAZON". */
     private val businessSender = Regex("^[A-Z]{2}-[A-Z0-9]{3,9}(-[A-Z])?$")
 
@@ -34,6 +46,7 @@ object Categorizer {
     fun classify(address: String, body: String): MessageCategory {
         val text = body.trim()
         if (otpWords.containsMatchIn(text) && codeNumber.containsMatchIn(text)) return MessageCategory.OTP
+        if (isSpam(text)) return MessageCategory.SPAM
         if (moneyWords.containsMatchIn(text) && amount.containsMatchIn(text)) return MessageCategory.TRANSACTIONS
         // A person's number stays Personal even if they write "free" or "50% off".
         if (!isBusinessSender(address)) return MessageCategory.PERSONAL

@@ -154,6 +154,17 @@ object DemoSeeder {
         }
         db.transactionDao().insertAll(transactions)
 
+        db.reminderDao().insert(
+            ReminderEntity(
+                messageId = null, conversationId = null, title = "Credit Card Bill · DEMOBK", amount = 4250.0,
+                dueAt = java.util.Calendar.getInstance().apply {
+                    timeInMillis = now + 5 * DAY; set(java.util.Calendar.HOUR_OF_DAY, 9); set(java.util.Calendar.MINUTE, 0)
+                    set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+                }.timeInMillis,
+                isDemo = true, createdAt = now
+            )
+        )
+
         db.scheduledMessageDao().insertAll(
             listOf(
                 ScheduledMessageEntity(
@@ -173,5 +184,6 @@ object DemoSeeder {
         db.contactDao().deleteDemo()
         db.transactionDao().deleteDemo()
         db.scheduledMessageDao().deleteDemo()
+        db.reminderDao().deleteDemo()
     }
 }

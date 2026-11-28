@@ -56,10 +56,20 @@ class AppContainer(app: Application) {
             }.fold({ DbState.Ready }, { DbState.Failed(it.message ?: "Database could not be opened") })
             if (_ready.value == DbState.Ready) {
                 runCatching { ScheduleAlarms.rescheduleAll(appContext, database) }
+                runCatching { com.smartsms.app.sms.ReminderAlarms.rescheduleAll(appContext, database) }
                 onSmsAccessChanged()
             }
         }
     }
+
+    val reminderRepository = com.smartsms.app.data.repo.ReminderRepository(app, database, settingsRepository)
+
+    /** App lock: true while the lock screen must cover the app. */
+    val locked = MutableStateFlow(false)
+    /** OTP folder lock: codes may be shown until this time (after a fingerprint / PIN check). */
+    val otpUnlockedUntil = MutableStateFlow(0L)
+    fun otpOpen(): Boolean = !com.smartsms.app.sms.Prefs.otpLock(appContext) || System.currentTimeMillis() < otpUnlockedUntil.value
+    fun unlockOtp() { otpUnlockedUntil.value = System.currentTimeMillis() + 5 * 60_000L }
 
     /** Set when a notification is tapped; the navigation opens that chat. */
     val openConversation = MutableStateFlow<Long?>(null)

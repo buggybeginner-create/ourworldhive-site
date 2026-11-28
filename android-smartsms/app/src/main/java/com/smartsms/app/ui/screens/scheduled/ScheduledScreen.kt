@@ -230,7 +230,7 @@ private fun ScheduledCard(item: ScheduledMessageEntity, onCancel: () -> Unit, on
 
 @Composable
 private fun ScheduleComposer(
-    validate: (String, String, String, Long) -> String?,
+    validate: (String, String, Long) -> String?,
     onDismiss: () -> Unit,
     onSave: (String, String, String, Long) -> Unit,
 ) {
@@ -275,7 +275,7 @@ private fun ScheduleComposer(
         },
         confirmButton = {
             TextButton(onClick = {
-                error = validate(name, number, body, at)
+                error = validate(number, body, at)
                 if (error == null) onSave(name, number, body, at)
             }) { Text("Save") }
         },
